@@ -1,0 +1,39 @@
+server:
+  port: 19180
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/platform?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 15
+logging:
+  level:
+    com.chua.starter.sso.impl: debug
+plugin:
+  auto:
+    table:
+      scan: com.chua.starter.service.entity.user
+  oauth:
+    new-login-url: http://127.0.0.1:5173/login
+    new-index-url: http://127.0.0.1:5173/
+  unified:
+    open: true
+    address: http://172.16.2.226:31111/api/unified/report
+    subscribe:
+      config:
+        subscribe:
+          - common
+      mybatis:
+        subscribe:
+          - common
+      limit:
+        subscribe:
+          - common
+    enhance:
+      url: 127.0.0.1:15556
