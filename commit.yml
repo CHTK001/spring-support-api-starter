@@ -1,0 +1,17 @@
+!revision
+branches: {
+  }
+fileChange:
+  /.gitignore:
+    newFile: !uuid 'a1c2a238a965f004ff76978ac1086aa6fe95caea'
+    oldFile: null
+  /README.en.md:
+    newFile: !uuid '38397ac4a104389eaf2af56a52a4eb83292d7ed1'
+    oldFile: null
+  /README.md:
+    newFile: !uuid 'c9be424cfb1a7f995b9d1155211364387a728852'
+    oldFile: null
+gitCommitId: !uuid '2f06d651602592b226641f554fba23e3444ab132'
+renames: {
+  }
+revisionId: 1
