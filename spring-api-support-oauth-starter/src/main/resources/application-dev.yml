@@ -22,18 +22,5 @@ plugin:
   oauth:
     new-login-url: http://127.0.0.1:5173/login
     new-index-url: http://127.0.0.1:5173/
-  unified:
-    open: true
-    address: http://172.16.2.226:31111/api/unified/report
-    subscribe:
-      config:
-        subscribe:
-          - common
-      mybatis:
-        subscribe:
-          - common
-      limit:
-        subscribe:
-          - common
     enhance:
       url: 127.0.0.1:15556
