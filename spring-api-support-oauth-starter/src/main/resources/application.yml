@@ -1,0 +1,18 @@
+spring:
+  profiles:
+    active: dev
+  sql:
+    init:
+      data-locations: classpath:*.sql
+      mode: always
+      continue-on-error: true
+  application:
+    name: oss
+
+plugin:
+  core:
+    config: /
+    uniform-parameter: false
+server:
+  servlet:
+    context-path: /oauth
