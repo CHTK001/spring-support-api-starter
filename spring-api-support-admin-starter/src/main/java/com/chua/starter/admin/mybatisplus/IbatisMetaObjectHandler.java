@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @since 2022/10/14
  */
 @Component
-public class MyMetaObjectHandler implements MetaObjectHandler {
+public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     @Resource
     private AuthClientProperties authProperties;
