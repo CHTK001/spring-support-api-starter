@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.admin.mapper.SysUserMapper">
+
+    <!-- 用户分页列表 -->
+    <select id="getUserPage" resultType="com.chua.starter.admin.entity.SysUser">
+        SELECT
+            u.*,
+            d.dept_NAME AS dept_name,
+            GROUP_CONCAT( r.role_NAME order by r.role_sort) AS roleNames,
+            GROUP_CONCAT( r.role_id order by r.role_sort) AS roleId
+        FROM
+            sys_user u
+                LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+                LEFT JOIN sys_user_role sur ON u.user_id = sur.user_id
+                LEFT JOIN sys_role r ON sur.role_id = r.role_id
+        <where>
+            u.user_deleted = 0
+            <if test="!isAdmin">
+                AND u.username != 'admin'
+            </if>
+            <if test='queryParams.keywords!=null and queryParams.keywords.trim() neq ""'>
+                AND (
+                    u.username LIKE CONCAT('%',#{queryParams.keywords},'%')
+                    OR u.user_nickname LIKE CONCAT('%',#{queryParams.keywords},'%')
+                    OR u.user_mobile LIKE CONCAT('%',#{queryParams.keywords},'%')
+                    )
+            </if>
+            <if test='queryParams.status!=null'>
+                AND u.user_status = #{queryParams.status}
+            </if>
+            <if test='queryParams.deptId!=null'>
+                AND concat(',',concat(d.dept_tree_path,',',d.dept_id),',') like concat('%,',#{queryParams.deptId},',%')
+            </if>
+        </where>
+        GROUP BY u.user_id
+    </select>
+
+    <select id="isAdmin" resultType="java.lang.String">
+        SELECT 1 FROM sys_role sr
+                          LEFT JOIN sys_user_role sur on sur.role_id = sr.role_id
+        WHERE sur.user_id = #{userId}
+    </select>
+</mapper>

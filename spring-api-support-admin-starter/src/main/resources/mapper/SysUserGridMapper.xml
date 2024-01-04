@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.admin.mapper.SysUserGridMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysUserGrid">
+    <!--@mbg.generated-->
+    <!--@Table sys_user_grid-->
+    <id column="grid" jdbcType="BIGINT" property="grid" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="layout" jdbcType="VARCHAR" property="layout" />
+    <result column="copms_list" jdbcType="VARCHAR" property="copmsList" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    grid, user_id, layout, copms_list, create_name, create_time, update_time, update_name
+  </sql>
+</mapper>
