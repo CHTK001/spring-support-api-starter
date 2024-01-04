@@ -1,0 +1,17 @@
+plugin:
+  oauth:
+    auth-address: 127.0.0.1:19180/oauth
+    whitelist:
+      - /**/actuator/**
+      - /**/actuator
+      - /agent/**
+      - /**/login
+      - /**/logout
+      - /**/captcha*
+      - /**/webjars/*
+      - /**/doc.html
+      - /**/*.css
+      - /**/*.js
+      - /**/*.ico
+      - /**/swagger-resources/**
+      - /**/v2/api-docs**
