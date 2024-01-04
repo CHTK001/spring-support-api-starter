@@ -1,5 +1,9 @@
 spring:
   application:
-    name: platform
+    name: admin
   profiles:
     active: dev
+
+plugin:
+  core:
+    uniform-parameter: true
