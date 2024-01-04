@@ -1,7 +1,7 @@
 server:
   port: 18170
   servlet:
-    context-path: /api/platform
+    context-path: /admin/api
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -44,14 +44,8 @@ logging:
 
 
 plugin:
-  configuration:
-    subscribe:
-      - data-type: config
-        subscribe: system,redis,auth
-    is-open: false
-
-  scheduler:
-    address: http://127.0.0.1:18172/api/scheduler
+  oauth:
+    address: http://127.0.0.1:19180/oauth
   swagger:
     knife4j:
       - group-name: 系统配置
