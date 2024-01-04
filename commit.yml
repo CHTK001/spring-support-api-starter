@@ -3,27 +3,24 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '5d8eefa928a743fe0fde214690a0b50a91a05d0d'
-    oldFile: !uuid '5b82c7b3af5049ab4506ff532ea3e80ab1085e00'
+    newFile: !uuid '259fecdf5d5f4fcf15c0bd667273296a89a5be26'
+    oldFile: !uuid '5d8eefa928a743fe0fde214690a0b50a91a05d0d'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'de4e6b12c11272bed904467b8c5ec15b894340c6'
-    oldFile: !uuid 'a3e63c1d3533ef618d45f0f418dc13afc1205407'
+    newFile: !uuid '599f89437deaae5a3c58e365290b688cd0909c72'
+    oldFile: !uuid 'de4e6b12c11272bed904467b8c5ec15b894340c6'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'd652bf342021fc80fe91ea44a657aa72076c259c'
-    oldFile: !uuid 'eafaa4203c2287ee765876f88aa09c475c54844e'
+    newFile: !uuid 'aae32319637b6cf3c0d80da581d1a4b788075d26'
+    oldFile: !uuid 'd652bf342021fc80fe91ea44a657aa72076c259c'
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid 'bc85c52a14503c35b03c55d1d704d808ec093f36'
-    oldFile: !uuid '34a353671b0d0c69fd6856b6256b644cdcb1acf1'
-  /spring-api-support-admin-starter/src/main/resources/application-dev.yml:
-    newFile: !uuid '4950ad7ef8baf57510832969b66152cce25f42b5'
-    oldFile: !uuid '801788c06c756f9325fb6074762580c51ae793a2'
+    newFile: !uuid 'c84b7bf282dc79d4913ffbcc30af3b9f36d965dd'
+    oldFile: !uuid 'bc85c52a14503c35b03c55d1d704d808ec093f36'
   /spring-api-support-admin-starter/src/main/resources/sql:
-    newFile: !uuid '96bb30f0c4aed5b5a78054618fc0b90cb469b37c'
-    oldFile: !uuid '209b375c209ead5b7eed36ff162d2d0bd1a4a70e'
-  /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
-    newFile: !uuid '30c4f310066407896a585564a89e888498f6c23d'
-    oldFile: !uuid '6685b676ae7ab4c57b9a487d0f6c64268a05ebd7'
-gitCommitId: !uuid '12f2b6dbb7abfa7846f859f01c74f386a901ce75'
+    newFile: !uuid 'fb27ff1ebcef34e890a75bde5debaec90385f8bf'
+    oldFile: !uuid '96bb30f0c4aed5b5a78054618fc0b90cb469b37c'
+  /spring-api-support-admin-starter/src/main/resources/sql/plateform.sql:
+    newFile: null
+    oldFile: !uuid '0fd22466ee39ed176d2c9f96ed6e86227e8d6272'
+gitCommitId: !uuid '5425fc7f2a33cb9b200b5121fdcbfa9c570fab43'
 renames: {
   }
-revisionId: 11
+revisionId: 12
