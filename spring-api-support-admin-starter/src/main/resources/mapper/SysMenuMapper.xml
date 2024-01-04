@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.admin.mapper.SysMenuMapper">
+    <select id="roleMenu" resultType="com.chua.starter.admin.entity.SysMenu">
+        SELECT
+            sm.*,
+            t.role
+        FROM
+            sys_menu sm
+                LEFT JOIN (
+                SELECT
+                    sm.menu_id,
+                    GROUP_CONCAT( sr.role_code ) role
+                FROM
+                    sys_menu sm
+                        LEFT JOIN sys_role_menu srm ON sm.menu_id = srm.menu_id
+                        LEFT JOIN sys_role sr ON sr.role_id = srm.role_id
+                GROUP BY
+                    sm.menu_id
+            ) t ON sm.menu_id = t.menu_id
+
+        ORDER BY sm.menu_sort
+    </select>
+</mapper>

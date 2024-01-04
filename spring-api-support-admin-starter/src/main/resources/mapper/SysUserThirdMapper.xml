@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.admin.mapper.SysUserThirdMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysUserThird">
+    <!--@mbg.generated-->
+    <!--@Table sys_user_third-->
+    <id column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="login_code_type" jdbcType="VARCHAR" property="loginCodeType" />
+    <result column="login_username" jdbcType="VARCHAR" property="loginUsername" />
+    <result column="login_uuid" jdbcType="VARCHAR" property="loginUuid" />
+    <result column="login_avatar" jdbcType="VARCHAR" property="loginAvatar" />
+    <result column="login_name" jdbcType="VARCHAR" property="loginName" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    user_id, login_code_type, login_username, login_uuid, login_avatar, login_name, create_name, 
+    create_by, create_time, update_time, update_name, update_by
+  </sql>
+</mapper>
