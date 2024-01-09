@@ -3,39 +3,42 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'f1d2b2ca771fb52f52c9002d3545e28f77ecd01f'
-    oldFile: !uuid 'caffb7c8d93bcce8fbf617c446c3b03a021335ee'
+    newFile: !uuid '0b3dffaf756ed6e7097e9ac9663ad02d78fc4a6d'
+    oldFile: !uuid 'f1d2b2ca771fb52f52c9002d3545e28f77ecd01f'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '213706927ac046bc6e247f66e37ced6eeffd53cd'
-    oldFile: !uuid '48004f9c006e1f3995203cb9acbc7b845d733291'
+    newFile: !uuid 'c4b46adda88951b1b01bc9de052fef01f912e102'
+    oldFile: !uuid '213706927ac046bc6e247f66e37ced6eeffd53cd'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '904868833f6b658a234c89e046857e4da06bcf96'
-    oldFile: !uuid '070b84ef0a564dc852137df9468135cef7df1fae'
+    newFile: !uuid 'aa3d581ad638a6d05acb9c6358747feadb2e7353'
+    oldFile: !uuid '904868833f6b658a234c89e046857e4da06bcf96'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '2a182e4571314e15b1b6732c8b37022f90095321'
-    oldFile: !uuid '5d19b9194c730dc1d993db6d86f9ca25a7b71fd3'
+    newFile: !uuid 'c44be674ee5d86f1f29b6583ec7d37f71aaeb7a7'
+    oldFile: !uuid '2a182e4571314e15b1b6732c8b37022f90095321'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '1ce389068998128787b1662262b71e360699e875'
-    oldFile: !uuid '1bffea9133c450c084fbb5a7cd4560e847b44af2'
+    newFile: !uuid 'b5c1efed7499182f07ca4adf7ebaf637b9275758'
+    oldFile: !uuid '1ce389068998128787b1662262b71e360699e875'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '1c5f95547f322cffdc007d2dd53190158ac97a5b'
-    oldFile: !uuid 'de87645c8409febfe515637d9ccef15734a61fe5'
+    newFile: !uuid '4090c363d303d172fc24d3cbbae473f36b43b49b'
+    oldFile: !uuid '1c5f95547f322cffdc007d2dd53190158ac97a5b'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'f7d8dd2f82700c6f3840a29e0c296d09640c24c1'
-    oldFile: !uuid 'e57678da3fcdbf25d22ef1087e84576d4d574658'
+    newFile: !uuid '2a4eda39c8ff1a67f7b95c56f05f205ab11cac6d'
+    oldFile: !uuid 'f7d8dd2f82700c6f3840a29e0c296d09640c24c1'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '8af035f504c624fac97c31b1e84b72313e88a522'
-    oldFile: !uuid 'bab32f4124bff544ec83bf126f0d9abb7f35576e'
+    newFile: !uuid '0b8b86c1e603b245b4d241db27f11e33f9b6915c'
+    oldFile: !uuid '8af035f504c624fac97c31b1e84b72313e88a522'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid 'e4f06f7ca9ebb16582a86fad95b0acb90bd82b5e'
-    oldFile: !uuid '606838ab522f78215f3e2a2fe4edd6c0eb8c0961'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysOperateLoggerController.java:
-    newFile: !uuid '546114b86619f28783e81a31db228f94e8fbfe98'
-    oldFile: !uuid 'ff28622c8fe762ed7c93ea5e716566f6422bb7d3'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysUserController.java:
-    newFile: !uuid '25c185cdfec3f8ab3d503123606ce33e7bb1bb24'
-    oldFile: !uuid '9266c605026f3f29ad7c65f49d888bdb0c627a95'
-gitCommitId: !uuid '6c86a60dd0f01eabfae9c0b06e1abceb8114b0da'
+    newFile: !uuid '022f6f04a5fc42319ae6133e8420ca7e57797830'
+    oldFile: !uuid 'e4f06f7ca9ebb16582a86fad95b0acb90bd82b5e'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysDictController.java:
+    newFile: !uuid 'c1c68adcf6e4d63a40a5da1a06f2b5c5dccd5d4a'
+    oldFile: !uuid '4367d23157136f6149bfba75dc3f326f47666b7f'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysMenuController.java:
+    newFile: !uuid '181d25a45776c495fc3d001a201b698adea87d9c'
+    oldFile: !uuid '8989829bdb079ac51eb62e4f6a86e57d8cfee992'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysRoleController.java:
+    newFile: !uuid '43b0d66344ec9930f66d1b2a0b05abbf00569135'
+    oldFile: !uuid '675b4ca08465803d2d3bbea370f88e9709b10641'
+gitCommitId: !uuid '89ec519cc8054010c7882a7f933a7fb6b8ccd9c1'
 renames: {
   }
-revisionId: 34
+revisionId: 35
