@@ -10,6 +10,7 @@ import com.chua.starter.admin.entity.SysDept;
 import com.chua.starter.admin.node.SysDeptNode;
 import com.chua.starter.admin.service.SysDeptService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
+import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import io.swagger.annotations.Api;
@@ -85,6 +86,7 @@ public class SysDeptController {
      */
     @Operation(summary = "新增组织机构")
     @PostMapping("save")
+    @OperateLog
     @Caching(evict = {
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept'"),
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept-tree'"),
@@ -103,6 +105,7 @@ public class SysDeptController {
      */
     @Operation(summary = "更新组织机构")
     @PutMapping("update")
+    @OperateLog
     @Caching(evict = {
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept'"),
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept-tree'"),
@@ -139,6 +142,7 @@ public class SysDeptController {
     @Operation(summary = "删除组织机构")
     @DeleteMapping("delete")
     @SysLogger
+    @OperateLog
     @Caching(evict = {
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept'"),
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept-tree'"),
@@ -157,6 +161,7 @@ public class SysDeptController {
      */
     @Operation(summary = "批量删除组织机构")
     @DeleteMapping("batchDelete")
+    @OperateLog
     @Caching(evict = {
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept'"),
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept-tree'"),
