@@ -1,9 +1,9 @@
 package com.chua.starter.admin.mybatisplus;
 
 import com.chua.common.support.bean.BeanUtils;
-import com.chua.starter.mybatis.interceptor.CustomDataPermissionHandler;
-import com.chua.starter.mybatis.oauth.AuthService;
-import com.chua.starter.mybatis.oauth.CurrentUser;
+import com.chua.starter.mybatis.interceptor.MybatisPlusPermissionHandler;
+import com.chua.starter.common.support.oauth.AuthService;
+import com.chua.starter.common.support.oauth.CurrentUser;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author CH
  */
 @Component
-@Import(CustomDataPermissionHandler.class)
+@Import(MybatisPlusPermissionHandler.class)
 public class MyDataPermissionAuthService implements AuthService {
     @Override
     public CurrentUser getCurrentUser() {

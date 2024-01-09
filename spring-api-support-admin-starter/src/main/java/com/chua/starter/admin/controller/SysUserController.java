@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.function.Splitter;
-import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.exception.NotSupportedException;
@@ -22,7 +21,7 @@ import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
-import com.chua.starter.oauth.client.support.annotation.UserPermission;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
@@ -228,7 +227,7 @@ public class SysUserController implements Constant {
     @DeleteMapping("/delete")
     @Logger
     @Transactional(rollbackOn = Exception.class)
-    @UserPermission("sys:user:del")
+    @Permission("sys:user:del")
     public ReturnResult<SysUser> delete(Long userId) {
         if (null == userId) {
             return Result.illegal("用户信息不存在");
@@ -284,7 +283,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
-    @UserPermission("sys:user:reset")
+    @Permission("sys:user:reset")
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> reset(Long userId, String notice) {
         if (null == userId) {
@@ -410,7 +409,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "新增用户")
     @PostMapping("/save")
-    @UserPermission("sys:user:add")
+    @Permission("sys:user:add")
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> save(@Valid @RequestBody SysUser sysUser, BindingResult bindingResult, @ApiParam(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
