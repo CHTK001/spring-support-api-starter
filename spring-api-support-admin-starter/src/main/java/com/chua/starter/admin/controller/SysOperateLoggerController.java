@@ -5,14 +5,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
-import com.chua.starter.common.support.logger.LoggerIgnore;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.mybatis.entity.PageRequest;
-import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.admin.entity.SysOperateLogger;
 import com.chua.starter.admin.result.LogStaticResult;
 import com.chua.starter.admin.service.SysOperateLoggerService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
+import com.chua.starter.common.support.logger.LoggerIgnore;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.mybatis.entity.PageRequest;
+import com.chua.starter.oauth.client.support.annotation.UserValue;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -58,7 +58,7 @@ public class SysOperateLoggerController {
                         .le(null != endTime, SysOperateLogger::getCreateTime, endTime)
                         .eq(null != logStatus, SysOperateLogger::getLogStatus, logStatus)
                         .and(StringUtils.isNotBlank(keyword), wrapper -> wrapper.like(StringUtils.isNotEmpty(keyword), SysOperateLogger::getLogName, keyword)
-                                .or().like(StringUtils.isNotEmpty(keyword), SysOperateLogger::getLogAction, keyword))
+                                .or().like(StringUtils.isNotEmpty(keyword), SysOperateLogger::getLogModule, keyword))
                         .orderByDesc(SysOperateLogger::getCreateTime)));
     }
 
