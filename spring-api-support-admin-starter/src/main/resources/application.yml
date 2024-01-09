@@ -5,5 +5,5 @@ spring:
     active: dev
 
 plugin:
-  core:
-    uniform-parameter: true
+  parameter:
+    enable: true
