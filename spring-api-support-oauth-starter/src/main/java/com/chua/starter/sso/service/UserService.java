@@ -7,6 +7,7 @@ import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
+import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
@@ -104,7 +105,10 @@ public class UserService implements UserInfoService, Constant {
             collect.add(ADMIN);
         }
 
-        String userDashboardGrid = "", dataPermission = "", dataPermissionRule = "", userDashboard = "";
+        String userDashboardGrid = "";
+        DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
+        String dataPermissionRule = "";
+        String userDashboard = "";
         if (!role.isEmpty()) {
             role.sort(Comparator.comparing(SysRole::getRoleSort));
             SysRole sysRole = role.get(0);
