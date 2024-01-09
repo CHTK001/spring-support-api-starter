@@ -9,11 +9,11 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.LoggerService;
 import com.chua.starter.common.support.logger.SysLog;
-import com.chua.starter.admin.entity.SysLogger;
-import com.chua.starter.admin.mapper.SysLoggerMapper;
+import com.chua.starter.admin.entity.SysOperateLogger;
+import com.chua.starter.admin.mapper.SysOperateLoggerMapper;
 import com.chua.starter.admin.pojo.LogStaticVO;
 import com.chua.starter.admin.result.LogStaticResult;
-import com.chua.starter.admin.service.SysLoggerService;
+import com.chua.starter.admin.service.SysOperateLoggerService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
  * @author CH
  */
 @Service
-public class SysLoggerServiceImpl extends ServiceImpl<SysLoggerMapper, SysLogger> implements SysLoggerService, LoggerService, Constant {
+public class SysLoggerServiceImpl extends ServiceImpl<SysOperateLoggerMapper, SysOperateLogger> implements SysOperateLoggerService, LoggerService, Constant {
 
 
     private Executor executorService;
@@ -51,12 +51,12 @@ public class SysLoggerServiceImpl extends ServiceImpl<SysLoggerMapper, SysLogger
     }
 
     private void doSave(SysLog sysLog) {
-        SysLogger sysLogger1 = BeanUtils.copyProperties(sysLog, SysLogger.class);
+        SysOperateLogger sysLogger1 = BeanUtils.copyProperties(sysLog, SysOperateLogger.class);
         if(null != sysLogger1) {
             String logAddress = sysLogger1.getLogAddress();
             sysLogger1.setLogAddressPosition(logAddress);
             sysLogger1.setLogDay(new Date());
-            saveOrUpdate(sysLogger1, Wrappers.<SysLogger>lambdaQuery().eq(SysLogger::getLogCode, sysLogger1.getLogCode()));
+            saveOrUpdate(sysLogger1, Wrappers.<SysOperateLogger>lambdaQuery().eq(SysOperateLogger::getLogCode, sysLogger1.getLogCode()));
         }
     }
 
