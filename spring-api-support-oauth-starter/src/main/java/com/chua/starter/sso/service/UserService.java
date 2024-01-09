@@ -7,7 +7,7 @@ import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.oauth.client.support.annotation.UserLoginType;
+import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
 import com.chua.starter.sso.impl.*;
@@ -29,7 +29,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  * @author CH
  */
 @Service
-@UserLoginType("WEB")
+@LoginType("WEB")
 public class UserService implements UserInfoService, Constant {
 
     @Resource
