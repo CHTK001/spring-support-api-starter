@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysRoleMenu extends SysTenantBase implements Serializable {
+public class SysRoleMenu implements Serializable {
     /**
      * 角色ID
      */
