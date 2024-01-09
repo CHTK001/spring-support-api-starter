@@ -69,7 +69,7 @@ public class SysOperateLogger extends SysTenantBase {
     /**
      * 请求地址
      */
-    @TableField(value = "log_address")
+    @TableField(value = "client_ip")
     @Schema(description = "客户端地址")
     private String clientIp;
 
