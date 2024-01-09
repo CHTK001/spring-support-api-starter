@@ -51,6 +51,7 @@ plugin:
         impl: local
   table:
     packages: com.chua.starter.admin.entity
+    enable: true
   oauth:
     address: http://172.16.1.112:19180/oauth
   swagger:
