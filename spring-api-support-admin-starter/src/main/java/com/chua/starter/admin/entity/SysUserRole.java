@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysUserRole extends SysTenantBase implements Serializable {
+public class SysUserRole implements Serializable {
     /**
      * 用户ID
      */
