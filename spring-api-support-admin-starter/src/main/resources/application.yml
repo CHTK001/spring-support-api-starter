@@ -7,3 +7,5 @@ spring:
 plugin:
   parameter:
     enable: true
+  mybatis:
+    open-sql: true
