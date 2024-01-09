@@ -13,6 +13,7 @@ import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
 import com.chua.starter.admin.service.SysUserGridService;
+import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
@@ -93,6 +94,7 @@ public class SysMenuController implements Constant, InitializingBean {
     @SysLogger
     @Operation(summary = "删除菜单")
     @DeleteMapping("delete")
+    @OperateLog
     public ReturnResult<Boolean> delete(String menuId) {
         if(StringUtils.isEmpty(menuId)) {
             return Result.illegal("菜单不存在");
@@ -107,6 +109,7 @@ public class SysMenuController implements Constant, InitializingBean {
     @Operation(summary = "更新菜单")
     @PutMapping("update")
     @SysLogger
+    @OperateLog
     public Result<Boolean> update(@RequestBody SysMenuTreeResult sysMenu) {
         return Result.success(menuService.updateMenu(sysMenu.toSysMenu()));
     }

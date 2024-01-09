@@ -7,6 +7,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.admin.entity.SysDict;
 import com.chua.starter.admin.service.SysDictService;
+import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
@@ -67,6 +68,7 @@ public class SysDictController implements Constant {
      */
     @Operation(summary = "修改字典")
     @PutMapping("update")
+    @OperateLog
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-' + #sysDict.dictTypeId")
     public ReturnResult<Boolean> update(@RequestBody SysDict sysDict) {
         if (null == sysDict.getDictId()) {
@@ -101,6 +103,7 @@ public class SysDictController implements Constant {
     @SysLogger
     @Operation(summary = "删除字典")
     @DeleteMapping("delete")
+    @OperateLog
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-' + #sysDict1.dictTypeId")
     public ReturnResult<Boolean> delete(@RequestBody SysDict sysDict1) {
         if (null == sysDict1.getDictId()) {
