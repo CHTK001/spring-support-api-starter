@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.chua.common.support.datasource.annotation.Column;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,8 +16,9 @@ import javax.validation.constraints.NotNull;
  * @author CH
  * @since 2023/10/16
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class SysUser {
+public class SysUser extends SysTenantBase {
     /**
      *
      */
