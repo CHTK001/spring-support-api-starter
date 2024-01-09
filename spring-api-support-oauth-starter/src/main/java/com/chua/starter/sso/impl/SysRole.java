@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
+import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import lombok.Data;
 
 /**
@@ -56,7 +57,7 @@ public class SysRole {
             "4: 所在部门及子级可见<br/>" +
             "5: 选择的部门可见<br/>" +
             "6: 自定义<br/>", defaultValue = "1")
-    private String roleDataScope;
+    private DataFilterTypeEnum roleDataScope;
     /**
      * 自定义数据权限规则
      */
