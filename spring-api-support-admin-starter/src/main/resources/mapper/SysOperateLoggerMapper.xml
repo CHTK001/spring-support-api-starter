@@ -9,7 +9,7 @@
             log_day,
             log_status
         FROM
-            `sys_logger`
+            `sys_operate_logger`
         WHERE
             log_day BETWEEN #{startTime} AND #{endTime}
         GROUP BY
