@@ -44,6 +44,11 @@ logging:
 
 
 plugin:
+  store:
+    enable: true
+    config:
+      - bucket: test
+        impl: local
   oauth:
     address: http://127.0.0.1:19180/oauth
   swagger:
