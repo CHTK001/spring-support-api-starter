@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.common.support.logger.Logger;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.admin.entity.SysDict;
 import com.chua.starter.admin.service.SysDictService;
+import com.chua.starter.common.support.constant.Constant;
+import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,7 +98,7 @@ public class SysDictController implements Constant {
      *
      * @return 删除字典
      */
-    @Logger
+    @SysLogger
     @Operation(summary = "删除字典")
     @DeleteMapping("delete")
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-' + #sysDict1.dictTypeId")
