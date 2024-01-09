@@ -3,24 +3,24 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'd7952400ed9937e05df6e7fc00d508058098cde0'
-    oldFile: !uuid 'cff934e9d4263b3afcd8021b918fa9311dae8e7b'
+    newFile: !uuid '16391d885bf4affed6eda13bce714d14cff695f4'
+    oldFile: !uuid 'd7952400ed9937e05df6e7fc00d508058098cde0'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '8bcf84bcf5025b50786c37f6b245854568c9945b'
-    oldFile: !uuid '76f2d1052a992bece6249cf6c9c4e804782a0b4c'
+    newFile: !uuid '9cdbd93dca01068d023123fa6f5aa3418a4b2bca'
+    oldFile: !uuid '8bcf84bcf5025b50786c37f6b245854568c9945b'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'c54d08bc957902959b14d1c1251cb159c734a8ed'
-    oldFile: !uuid 'f420c52ec57f343e0ae8b35ac54b60427dae9cb1'
+    newFile: !uuid 'e80c9f6d89912dacfdc1d04482ab4d5091c0f82a'
+    oldFile: !uuid 'c54d08bc957902959b14d1c1251cb159c734a8ed'
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '590e4c8eac964945f3bef31dd3a55a5b5e2dfecf'
-    oldFile: !uuid '259b24e6adb139da53bbffac751b9a6cd9082812'
+    newFile: !uuid '80a8fbbc455cdb16508c0c8c1b199d4166ed8c6c'
+    oldFile: !uuid '590e4c8eac964945f3bef31dd3a55a5b5e2dfecf'
   /spring-api-support-admin-starter/src/main/resources/sql:
-    newFile: !uuid '9cf02bacdfa0f453708ea436fb632b4d0f4259fc'
-    oldFile: !uuid 'fb27ff1ebcef34e890a75bde5debaec90385f8bf'
+    newFile: !uuid '2ec7845bd3328077513be34d3f6af86b1b592246'
+    oldFile: !uuid '9cf02bacdfa0f453708ea436fb632b4d0f4259fc'
   /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
-    newFile: !uuid 'f9cadf0acc9e26db37b884de43b513ecd1dafaa0'
-    oldFile: !uuid '30c4f310066407896a585564a89e888498f6c23d'
-gitCommitId: !uuid '67ae3349ca9ae3c41211da284d6026d77d75e5db'
+    newFile: !uuid '4cf5b971a21e5a35d43b66b71a672412c3b9e675'
+    oldFile: !uuid 'f9cadf0acc9e26db37b884de43b513ecd1dafaa0'
+gitCommitId: !uuid 'a14720784a63df5f14aa643c4f0106ec7c0cc348'
 renames: {
   }
-revisionId: 24
+revisionId: 25
