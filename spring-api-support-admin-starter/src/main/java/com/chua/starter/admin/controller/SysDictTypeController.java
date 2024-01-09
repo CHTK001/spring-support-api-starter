@@ -3,11 +3,11 @@ package com.chua.starter.admin.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.common.support.logger.Logger;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.admin.entity.SysDictType;
 import com.chua.starter.admin.service.SysDictTypeService;
+import com.chua.starter.common.support.constant.Constant;
+import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +95,7 @@ public class SysDictTypeController implements Constant {
      *
      * @return 删除字典类型
      */
-    @Logger
+    @SysLogger
     @Operation(summary = "删除字典类型")
     @DeleteMapping("delete")
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-type'")

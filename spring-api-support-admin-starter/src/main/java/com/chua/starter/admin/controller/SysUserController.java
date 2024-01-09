@@ -24,7 +24,7 @@ import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.service.SysUserService;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.common.support.logger.Logger;
+import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.notice.NoticeMessage;
 import com.chua.starter.common.support.notice.NoticeService;
 import com.chua.starter.common.support.notice.NoticeType;
@@ -150,7 +150,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
-    @Logger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @SysLogger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
@@ -187,7 +187,7 @@ public class SysUserController implements Constant {
     }
 
     @Operation(summary = "注销")
-    @Logger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @SysLogger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     @DeleteMapping("/logout")
     public Result logout(@UserValue("token") String uid, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
@@ -225,7 +225,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
-    @Logger
+    @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:del")
     public ReturnResult<SysUser> delete(Long userId) {
