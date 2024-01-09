@@ -11,7 +11,7 @@
  Target Server Version : 80033
  File Encoding         : 65001
 
- Date: 09/01/2024 14:42:03
+ Date: 09/01/2024 14:44:17
 */
 
 SET NAMES utf8mb4;
@@ -299,7 +299,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 1, 1, 'ce8485d03f09fdcf2c6b11bf068ce15d', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2023-07-22 20:32:09.562000', '系统管理员', NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 1, 1, '8512935d6d726a53c13dc9d5cf6f72c7', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2023-07-22 20:32:09.562000', '系统管理员', NULL, NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (2, '879863248681046016', '1', '1', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', NULL, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 1, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:23:31.189000', '2023-07-21 20:43:53.536000', 'admin', NULL, NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (3, '879863554085359616', 'test', '测试', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 1, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:24:44.000000', '2023-08-11 11:22:14.780000', '系统管理员', '1', NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (4, '879863731886493696', 'asd', 'asdas', '2300000000000000000000000000', NULL, 0, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 18, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpeg', '12', NULL, 1, '12', 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:25:26.391000', '2024-01-04 10:57:25.230000', '系统管理员', NULL, NULL, NULL, NULL, NULL, 0);
