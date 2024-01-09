@@ -49,6 +49,8 @@ plugin:
     config:
       - bucket: test
         impl: local
+  table:
+    packages: com.chua.starter.admin.entity
   oauth:
     address: http://172.16.1.112:19180/oauth
   swagger:
