@@ -3,24 +3,87 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '16391d885bf4affed6eda13bce714d14cff695f4'
-    oldFile: !uuid 'd7952400ed9937e05df6e7fc00d508058098cde0'
+    newFile: !uuid 'c55fe18520de34c939ab8425094406ba2cf8e34d'
+    oldFile: !uuid '16391d885bf4affed6eda13bce714d14cff695f4'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '9cdbd93dca01068d023123fa6f5aa3418a4b2bca'
-    oldFile: !uuid '8bcf84bcf5025b50786c37f6b245854568c9945b'
+    newFile: !uuid '3fc15f4fecf24c0ef72feadfe1c3193ad11d9cba'
+    oldFile: !uuid '9cdbd93dca01068d023123fa6f5aa3418a4b2bca'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'e80c9f6d89912dacfdc1d04482ab4d5091c0f82a'
-    oldFile: !uuid 'c54d08bc957902959b14d1c1251cb159c734a8ed'
+    newFile: !uuid '55b9fdf0b1c07e763b078e28320a83e2a3e137e8'
+    oldFile: !uuid 'e80c9f6d89912dacfdc1d04482ab4d5091c0f82a'
+  /spring-api-support-admin-starter/src/main/java:
+    newFile: !uuid '1daef0629cc3e51db9cc5ec122948b0f5b3a9ed9'
+    oldFile: !uuid 'e395bc12d6c5dc10d627217b9226a2c8435f277d'
+  /spring-api-support-admin-starter/src/main/java/com:
+    newFile: !uuid 'ac821d6fa26619322b12699cb6a1875b0c25b531'
+    oldFile: !uuid 'b8ebdc8868c0c2d0e46e06911a75fbd80d1c312c'
+  /spring-api-support-admin-starter/src/main/java/com/chua:
+    newFile: !uuid '9d9fa713989a29784e97a0fe37972e297c25815d'
+    oldFile: !uuid '7463f032f1503577855fc3ee70ae49757f19bcb9'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter:
+    newFile: !uuid '2e2730a9622687f2e9da37e040b6957b7ccfda12'
+    oldFile: !uuid 'b46bf69c21601302fe4be92e864b3d64969375f0'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
+    newFile: !uuid '4ba0e4350eaeaf76ac674498fd3a05f9c29e9919'
+    oldFile: !uuid '0035062bd946d06b89557c1072990f2e8bf1fb28'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
+    newFile: !uuid '4c5ae68ad625662f6850aa17c36393b1828f7d24'
+    oldFile: !uuid '0bced46ad581d07088c4d1f75ee4b8b1e2e76487'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysLogController.java:
+    newFile: null
+    oldFile: !uuid '59a4598a69a8e7c2056785d2c0e817cc06a36d43'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysOperateLoggerController.java:
+    newFile: !uuid 'ff28622c8fe762ed7c93ea5e716566f6422bb7d3'
+    oldFile: null
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
+    newFile: !uuid 'c21987e17f2e97d1f3fc04d5a1a204d07d63b58a'
+    oldFile: !uuid 'e769a7c7bb70bbc576336a449be4d463f7efd7b7'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysLogger.java:
+    newFile: null
+    oldFile: !uuid '4a634f63f66e2341904845f1897239492e2fcc7d'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysOperateLogger.java:
+    newFile: !uuid '936b64de6258edadcef05285e6ed001e2a43613a'
+    oldFile: null
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper:
+    newFile: !uuid '8aa602781a55991159aae0a28d4fe181733a8008'
+    oldFile: !uuid 'feef20b3e31b87393786d901ad3cdfd988208575'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysLoggerMapper.java:
+    newFile: null
+    oldFile: !uuid '9d1248d06a9ed80d065eacc42b17b583e00876e1'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysOperateLoggerMapper.java:
+    newFile: !uuid 'c844348fc8aa0455d5b423daa707bd57d05ace6d'
+    oldFile: null
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
+    newFile: !uuid 'f4a36716fa79b9a4ed99496e14f5d626248b3f78'
+    oldFile: !uuid '6eedbcb84af12bfcc72862338c95d1ed088afdfb'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysLoggerService.java:
+    newFile: null
+    oldFile: !uuid 'db8b6638444074276f541f3295e1da41ce9cc15d'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysOperateLoggerService.java:
+    newFile: !uuid '5c059de2f8604e6fe28b8debee72f3ef596d796a'
+    oldFile: null
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
+    newFile: !uuid 'b9793f8950309bec2cf653197f100d16946c849d'
+    oldFile: !uuid '96fe6d1f3b940cd8a563b154ff123811e061e690'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysLoggerServiceImpl.java:
+    newFile: !uuid '7eaee3e2bcdd252ce5ee5ede9af7d580d21d6071'
+    oldFile: !uuid '8dfae61d210723937fc1055b67010a4e491a0edd'
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '80a8fbbc455cdb16508c0c8c1b199d4166ed8c6c'
-    oldFile: !uuid '590e4c8eac964945f3bef31dd3a55a5b5e2dfecf'
-  /spring-api-support-admin-starter/src/main/resources/sql:
-    newFile: !uuid '2ec7845bd3328077513be34d3f6af86b1b592246'
-    oldFile: !uuid '9cf02bacdfa0f453708ea436fb632b4d0f4259fc'
-  /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
-    newFile: !uuid '4cf5b971a21e5a35d43b66b71a672412c3b9e675'
-    oldFile: !uuid 'f9cadf0acc9e26db37b884de43b513ecd1dafaa0'
-gitCommitId: !uuid 'a14720784a63df5f14aa643c4f0106ec7c0cc348'
-renames: {
-  }
-revisionId: 25
+    newFile: !uuid '1845277b706aa758df807a8d2184b5cf5922670e'
+    oldFile: !uuid '80a8fbbc455cdb16508c0c8c1b199d4166ed8c6c'
+  /spring-api-support-admin-starter/src/main/resources/mapper:
+    newFile: !uuid '4741ed46c55589a97d15cfd8c1c2ce5fd30ee0b0'
+    oldFile: !uuid 'c410cd8038c6d12050616f74ffef89ab1a85c544'
+  /spring-api-support-admin-starter/src/main/resources/mapper/SysLoggerMapper.xml:
+    newFile: null
+    oldFile: !uuid 'a49b7681d254b1d40481eb587ac11147991ea660'
+  /spring-api-support-admin-starter/src/main/resources/mapper/SysOperateLoggerMapper.xml:
+    newFile: !uuid 'd9ee2486cc8ebf2854400b0ddafba11cb65c6160'
+    oldFile: null
+gitCommitId: !uuid '5a6d1b774007f72fc6078a87f5253ef38724e7b0'
+renames:
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysOperateLogger.java: /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysLogger.java
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysOperateLoggerMapper.java: /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysLoggerMapper.java
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysOperateLoggerService.java: /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysLoggerService.java
+  /spring-api-support-admin-starter/src/main/resources/mapper/SysOperateLoggerMapper.xml: /spring-api-support-admin-starter/src/main/resources/mapper/SysLoggerMapper.xml
+revisionId: 26
