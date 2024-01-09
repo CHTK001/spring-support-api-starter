@@ -15,6 +15,7 @@ import com.chua.starter.admin.service.SysRoleMenuService;
 import com.chua.starter.admin.service.SysRoleService;
 import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
+import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
@@ -89,6 +90,7 @@ public class SysRoleController implements Constant {
      */
     @Operation(summary = "修改角色数据")
     @PostMapping("updateRole")
+    @OperateLog
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'role'")
     public ReturnResult<Boolean> updateRole(@RequestBody SysRoleUpdateForMenu forMenu) {
@@ -127,6 +129,7 @@ public class SysRoleController implements Constant {
      */
     @Operation(summary = "修改角色数据")
     @GetMapping("getRole")
+    @OperateLog
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysRoleForMenuResult> updateRole(Long roleId) {
         if(null == roleId) {
@@ -153,6 +156,7 @@ public class SysRoleController implements Constant {
      */
     @Operation(summary = "修改角色")
     @PutMapping("update")
+    @OperateLog
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'role'")
     public ReturnResult<Boolean> update(@RequestBody SysRole sysRole) {
         if(null == sysRole.getRoleId()) {
@@ -183,6 +187,7 @@ public class SysRoleController implements Constant {
      */
     @Operation(summary = "新增角色")
     @PostMapping("save")
+    @OperateLog
     @javax.transaction.Transactional(rollbackOn = Exception.class)
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'role'")
     public ReturnResult<SysRole> save(@RequestBody SysRole sysRole, @Valid BindingResult bindingResult) {
@@ -206,6 +211,7 @@ public class SysRoleController implements Constant {
     @Operation(summary = "删除角色")
     @DeleteMapping("delete")
     @SysLogger
+    @OperateLog
     @javax.transaction.Transactional(rollbackOn = Exception.class)
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'role'")
     public ReturnResult<Boolean> delete(Long roleId) {
