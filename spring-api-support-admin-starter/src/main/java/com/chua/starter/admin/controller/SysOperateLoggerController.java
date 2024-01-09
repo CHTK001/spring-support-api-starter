@@ -9,9 +9,9 @@ import com.chua.starter.common.support.logger.LoggerIgnore;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.PageRequest;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.admin.entity.SysLogger;
+import com.chua.starter.admin.entity.SysOperateLogger;
 import com.chua.starter.admin.result.LogStaticResult;
-import com.chua.starter.admin.service.SysLoggerService;
+import com.chua.starter.admin.service.SysOperateLoggerService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,8 +35,8 @@ import java.util.Date;
 @Api(tags = "系统日志信息")
 @AllArgsConstructor
 @RequestMapping("/v1/log")
-public class SysLogController {
-    private final SysLoggerService sysLoggerService;
+public class SysOperateLoggerController {
+    private final SysOperateLoggerService sysLoggerService;
 
     /**
      * 分页查询数据
@@ -46,20 +46,20 @@ public class SysLogController {
     @ApiOperation("分页查询基础数据")
     @GetMapping("page")
     @LoggerIgnore
-    public ReturnPageResult<SysLogger> page(PageRequest<SysLogger> page,
-                                            @ApiParam("开始时间") Date startTime,
-                                            @ApiParam("结束时间") Date endTime,
-                                            @ApiParam("关键词") String keyword,
-                                            @ApiParam("结果状态") Long logStatus
+    public ReturnPageResult<SysOperateLogger> page(PageRequest<SysOperateLogger> page,
+                                                   @ApiParam("开始时间") Date startTime,
+                                                   @ApiParam("结束时间") Date endTime,
+                                                   @ApiParam("关键词") String keyword,
+                                                   @ApiParam("结果状态") Long logStatus
     ) {
         return ServicePageResultUtils.ok(sysLoggerService.page(page.createPage(),
-                Wrappers.<SysLogger>lambdaQuery()
-                        .ge(null != startTime, SysLogger::getCreateTime, startTime)
-                        .le(null != endTime, SysLogger::getCreateTime, endTime)
-                        .eq(null != logStatus, SysLogger::getLogStatus, logStatus)
-                        .and(StringUtils.isNotBlank(keyword), wrapper -> wrapper.like(StringUtils.isNotEmpty(keyword), SysLogger::getLogName, keyword)
-                                .or().like(StringUtils.isNotEmpty(keyword), SysLogger::getLogAction, keyword))
-                        .orderByDesc(SysLogger::getCreateTime)));
+                Wrappers.<SysOperateLogger>lambdaQuery()
+                        .ge(null != startTime, SysOperateLogger::getCreateTime, startTime)
+                        .le(null != endTime, SysOperateLogger::getCreateTime, endTime)
+                        .eq(null != logStatus, SysOperateLogger::getLogStatus, logStatus)
+                        .and(StringUtils.isNotBlank(keyword), wrapper -> wrapper.like(StringUtils.isNotEmpty(keyword), SysOperateLogger::getLogName, keyword)
+                                .or().like(StringUtils.isNotEmpty(keyword), SysOperateLogger::getLogAction, keyword))
+                        .orderByDesc(SysOperateLogger::getCreateTime)));
     }
 
     /**
@@ -70,19 +70,19 @@ public class SysLogController {
     @ApiOperation("当前账号的7天日志")
     @GetMapping("mylog")
     @LoggerIgnore
-    public ReturnPageResult<SysLogger> mylog(PageRequest<SysLogger> page,
-                                             @ApiParam(hidden = true) @UserValue("userId") String userId,
-                                             @ApiParam(hidden = true) @UserValue("username") String username
+    public ReturnPageResult<SysOperateLogger> mylog(PageRequest<SysOperateLogger> page,
+                                                    @ApiParam(hidden = true) @UserValue("userId") String userId,
+                                                    @ApiParam(hidden = true) @UserValue("username") String username
     ) {
         DateTime dateTime = DateTime.now();
         return ServicePageResultUtils.ok(sysLoggerService.page(page.createPage(),
-                Wrappers.<SysLogger>lambdaQuery()
-                        .eq(SysLogger::getCreateName, username)
-                        .between(SysLogger::getCreateTime,
+                Wrappers.<SysOperateLogger>lambdaQuery()
+                        .eq(SysOperateLogger::getCreateName, username)
+                        .between(SysOperateLogger::getCreateTime,
                                 dateTime.minusDays(6).withFirstTimeOfDay().toLocalDateTime(),
                                 dateTime.withLastTimeOfDay().toLocalDateTime()
                         )
-                        .orderByDesc(SysLogger::getCreateTime)));
+                        .orderByDesc(SysOperateLogger::getCreateTime)));
     }
 
     /**

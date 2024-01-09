@@ -1,7 +1,7 @@
 package com.chua.starter.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.admin.entity.SysLogger;
+import com.chua.starter.admin.entity.SysOperateLogger;
 import com.chua.starter.admin.result.LogStaticResult;
 
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * @author CH
  */
-public interface SysLoggerService extends IService<SysLogger> {
+public interface SysOperateLoggerService extends IService<SysOperateLogger> {
 
     /**
      * 按时间统计
