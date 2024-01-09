@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +22,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Schema(description = "字典类型")
 @Table(comment = "字典类型表")
-public class SysDictType extends SysBase {
+public class SysDictType extends SysTenantBase {
     /**
      * 主键
      */

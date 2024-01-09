@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ import javax.validation.constraints.NotNull;
 @TableName(value = "sys_role")
 @Data
 @Table(comment = "角色表")
-public class SysRole extends SysBase {
+public class SysRole extends SysTenantBase {
     /**
      *
      */
