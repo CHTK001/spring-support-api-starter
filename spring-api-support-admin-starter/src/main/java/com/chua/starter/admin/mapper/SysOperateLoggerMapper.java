@@ -1,7 +1,7 @@
 package com.chua.starter.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.admin.entity.SysLogger;
+import com.chua.starter.admin.entity.SysOperateLogger;
 import com.chua.starter.admin.pojo.LogStaticVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author CH
  */
 @Mapper
-public interface SysLoggerMapper extends BaseMapper<SysLogger> {
+public interface SysOperateLoggerMapper extends BaseMapper<SysOperateLogger> {
 
     /**
      * 按时间统计
