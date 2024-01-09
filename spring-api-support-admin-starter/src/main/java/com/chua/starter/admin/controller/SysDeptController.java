@@ -7,12 +7,13 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.CustomTreeNode;
-import com.chua.starter.common.support.logger.Logger;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.admin.entity.SysDept;
 import com.chua.starter.admin.node.SysDeptNode;
 import com.chua.starter.admin.service.SysDeptService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
+import com.chua.starter.common.support.annotations.DataScope;
+import com.chua.starter.common.support.logger.Logger;
+import com.chua.starter.common.support.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +74,7 @@ public class SysDeptController {
      */
     @Operation(summary = "机构分页列表")
     @GetMapping("page")
+    @DataScope("")
     public ReturnPageResult<SysDept> page(
             String keyword,
             @ApiParam("页码") @RequestParam(value = "page", defaultValue = "1") Integer page,
