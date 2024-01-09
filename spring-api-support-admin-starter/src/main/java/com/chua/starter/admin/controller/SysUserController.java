@@ -22,6 +22,7 @@ import com.chua.starter.admin.query.UserPageQuery;
 import com.chua.starter.admin.service.SysUserGridService;
 import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.service.SysUserService;
+import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
@@ -150,6 +151,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
+    @OperateLog
     @SysLogger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
@@ -189,6 +191,7 @@ public class SysUserController implements Constant {
     @Operation(summary = "注销")
     @SysLogger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     @DeleteMapping("/logout")
+    @OperateLog
     public Result logout(@UserValue("token") String uid, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
             return Result.success("注销成功");
@@ -225,6 +228,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
+    @OperateLog
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:del")
@@ -253,6 +257,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "重置用户密碼")
     @GetMapping("/resetOwner")
+    @OperateLog
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> resetOwner(@ApiParam(hidden = true) @UserValue("userId") Long userId, String notice) {
         if (null == userId) {
@@ -283,6 +288,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
+    @OperateLog
     @Permission("sys:user:reset")
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> reset(Long userId, String notice) {
@@ -314,6 +320,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "更新用户")
     @PutMapping("/update")
+    @OperateLog
     public ReturnResult<SysUser> update(
             @ApiParam(hidden = true) @UserValue("roles") Set<String> roles1,
             @ApiParam(hidden = true) @UserValue("username") String username,
@@ -409,6 +416,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "新增用户")
     @PostMapping("/save")
+    @OperateLog
     @Permission("sys:user:add")
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> save(@Valid @RequestBody SysUser sysUser, BindingResult bindingResult, @ApiParam(hidden = true) HttpServletRequest request) {
