@@ -3,45 +3,36 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '69da3e94c35e8f1de924b0af96368ab06354ec68'
-    oldFile: !uuid '0b3dffaf756ed6e7097e9ac9663ad02d78fc4a6d'
+    newFile: !uuid '16a1ba44c5db07878cc774a712499da6370e80c1'
+    oldFile: !uuid '69da3e94c35e8f1de924b0af96368ab06354ec68'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'e3e10d15b961cf9382014b07e17afb11812daada'
-    oldFile: !uuid 'c4b46adda88951b1b01bc9de052fef01f912e102'
+    newFile: !uuid 'ee265ea9a5136180b3047e6b03d898e2556e7e25'
+    oldFile: !uuid 'e3e10d15b961cf9382014b07e17afb11812daada'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'c000fae6af095fd0e9625c06e2cf94c393695010'
-    oldFile: !uuid 'aa3d581ad638a6d05acb9c6358747feadb2e7353'
+    newFile: !uuid '32c1f43bc865c739ef8c45d55f270795ddf5bd6a'
+    oldFile: !uuid 'c000fae6af095fd0e9625c06e2cf94c393695010'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid 'db9b983e6e88fd85784d218b349fac971d8c2c65'
-    oldFile: !uuid 'c44be674ee5d86f1f29b6583ec7d37f71aaeb7a7'
+    newFile: !uuid 'dfc5af845e8a4b9ad72dd1106fab3f3869200f7b'
+    oldFile: !uuid 'db9b983e6e88fd85784d218b349fac971d8c2c65'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '3d142717bd5f320c3804fc78a046807e72934f46'
-    oldFile: !uuid 'b5c1efed7499182f07ca4adf7ebaf637b9275758'
+    newFile: !uuid '57be18128ec200442f23166c7b855e894cff52f3'
+    oldFile: !uuid '3d142717bd5f320c3804fc78a046807e72934f46'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '5fabca96b3ede01f7c6369431fe134c37fd0a21f'
-    oldFile: !uuid '4090c363d303d172fc24d3cbbae473f36b43b49b'
+    newFile: !uuid '331f30a3842f728797f0d67995d0d738d3f2139a'
+    oldFile: !uuid '5fabca96b3ede01f7c6369431fe134c37fd0a21f'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '73300d95d052b3f5af0a2525f80471eff30eff4d'
-    oldFile: !uuid '2a4eda39c8ff1a67f7b95c56f05f205ab11cac6d'
+    newFile: !uuid 'df26a1eef6ab3046910f43f7a5d12b4032b6dd09'
+    oldFile: !uuid '73300d95d052b3f5af0a2525f80471eff30eff4d'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '80aa06986de84c166ee2e7be998f3c297719936d'
-    oldFile: !uuid '0b8b86c1e603b245b4d241db27f11e33f9b6915c'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
-    newFile: !uuid 'aa6aeadd72b48585a4a2a0dddef9f6342619da2f'
-    oldFile: !uuid '96f2b1788cbafcb343949f69c3f4ccf49d604808'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysOperateLogger.java:
-    newFile: !uuid '5abf3d6f908a6dd3f881ec609fba7e20fa6676d1'
-    oldFile: !uuid '96056f6b8dfd57a2a889e35d37af48d2d14001d8'
-  /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '1a16fafa8a3601434da74c6866b249caa6129f07'
-    oldFile: !uuid '80998f3f3b360efee18cc98815a54d50e0bcd79d'
-  /spring-api-support-admin-starter/src/main/resources/sql:
-    newFile: !uuid '8d51ad484db3a2b9a1a8484a4bfe54a573e5ef2a'
-    oldFile: !uuid '0c18db7389363ca259c6aacb062e20fde3ac2c75'
-  /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
-    newFile: !uuid '7ad043105904020db37f9d88b33993763ab785cf'
-    oldFile: !uuid 'e83d3eaa67883d5200d6521d4807901a01c961e3'
-gitCommitId: !uuid '651b0f75d63e377ffe5cea84f52497ecff8db210'
+    newFile: !uuid '8972fc4e2cb1492221bc3e2804af3b5f41367891'
+    oldFile: !uuid '80aa06986de84c166ee2e7be998f3c297719936d'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
+    newFile: !uuid '4fe7e661dae7063cf9b5e51bdab15223ebb2a416'
+    oldFile: !uuid '022f6f04a5fc42319ae6133e8420ca7e57797830'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysDeptController.java:
+    newFile: !uuid 'ea329c4afb78b0bc37c344b912a3693e4d763637'
+    oldFile: !uuid '80aba868796c87abb75f6248c9047f2a16849c9d'
+gitCommitId: !uuid 'e77e3d7f401705a5972976933a7ca8ce6bbeeae8'
 renames: {
   }
-revisionId: 36
+revisionId: 37
