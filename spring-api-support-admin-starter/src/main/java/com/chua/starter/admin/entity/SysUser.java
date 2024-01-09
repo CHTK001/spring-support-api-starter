@@ -8,6 +8,7 @@ import com.chua.common.support.datasource.annotation.Column;
 import com.chua.starter.common.support.serialize.JsonArrayToLongDeserialize;
 import com.chua.starter.common.support.serialize.JsonArrayToStringDeserialize;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,7 +23,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(value = {"userPassword", "userSalt"}, allowSetters = true)
-public class SysUser extends SysBase {
+public class SysUser extends SysTenantBase {
     /**
      *
      */

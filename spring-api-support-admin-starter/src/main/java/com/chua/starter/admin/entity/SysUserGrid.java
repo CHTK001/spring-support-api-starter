@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.common.support.serialize.JsonArrayToStringDeserialize;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModel;
@@ -19,7 +20,7 @@ import lombok.Data;
 @Data
 @TableName(value = "sys_user_grid")
 @JsonIgnoreProperties({"grid", "userId"})
-public class SysUserGrid {
+public class SysUserGrid extends SysTenantBase {
     /**
      * 主键
      */

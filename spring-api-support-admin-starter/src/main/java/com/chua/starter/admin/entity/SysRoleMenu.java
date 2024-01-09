@@ -1,6 +1,7 @@
 package com.chua.starter.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysRoleMenu implements Serializable {
+public class SysRoleMenu extends SysTenantBase implements Serializable {
     /**
      * 角色ID
      */

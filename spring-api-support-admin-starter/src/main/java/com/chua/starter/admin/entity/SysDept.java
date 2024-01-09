@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Schema(description = "部门")
 @Table(comment = "部门表")
-public class SysDept extends SysBase {
+public class SysDept extends SysTenantBase {
     /**
      * 主键
      */

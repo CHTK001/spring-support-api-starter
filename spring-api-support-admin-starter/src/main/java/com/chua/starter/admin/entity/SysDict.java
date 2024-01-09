@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,7 +22,7 @@ import java.io.Serializable;
 @Data
 @ApiModel("字典")
 @Table(comment = "字典数据表")
-public class SysDict implements Serializable {
+public class SysDict extends SysTenantBase implements Serializable {
     /**
      * 主键
      */
