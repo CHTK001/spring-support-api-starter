@@ -1,4 +1,4 @@
-package com.chua.starter.sso.impl;
+package com.chua.starter.sso.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
@@ -10,6 +10,8 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.UserLoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
+import com.chua.starter.sso.impl.*;
+import com.chua.starter.sso.mapper.SysUserMapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -88,6 +90,13 @@ public class UserService implements UserInfoService, Constant {
         return loginInfo(accessKey, user);
     }
 
+    /**
+     * 登录信息
+     *
+     * @param accessKey 访问密钥
+     * @param user      使用者
+     * @return {@link UserResult}
+     */
     protected UserResult loginInfo(String accessKey, SysUser user) {
         List<SysRole> role = getRole(user);
         LinkedHashSet<String> collect = role.stream().map(SysRole::getRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
