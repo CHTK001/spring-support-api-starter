@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1
+ Source Server         : 172.16.2.226
  Source Server Type    : MySQL
  Source Server Version : 80033
- Source Host           : 127.0.0.1:3306
+ Source Host           : 172.16.2.226:3306
  Source Schema         : sys
 
  Target Server Type    : MySQL
  Target Server Version : 80033
  File Encoding         : 65001
 
- Date: 04/01/2024 10:55:42
+ Date: 09/01/2024 14:42:03
 */
 
 SET NAMES utf8mb4;
@@ -35,13 +35,14 @@ CREATE TABLE `sys_dept`  (
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`dept_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
-INSERT INTO `sys_dept` VALUES (1, '测试', NULL, 0, '0', 1, 1, '系统管理员', '1', '2023-08-11 11:21:26.620000', NULL, NULL, NULL);
+INSERT INTO `sys_dept` VALUES (1, '测试', NULL, 0, '0', 1, 1, '系统管理员', '1', '2023-08-11 11:21:26.620000', NULL, NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_dict
@@ -57,6 +58,13 @@ CREATE TABLE `sys_dict`  (
   `dict_sys` int NULL DEFAULT 0 COMMENT '状态(1:系统字典;0:非系统字典)',
   `dict_defaulted` int NULL DEFAULT 1 COMMENT '是否默认(1:是;0:否)',
   `dict_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `tenant_id` int NULL DEFAULT NULL,
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `create_by` int NULL DEFAULT NULL,
+  `create_time` date NULL DEFAULT NULL,
+  `update_time` date NULL DEFAULT NULL,
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`dict_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
@@ -82,13 +90,14 @@ CREATE TABLE `sys_dict_type`  (
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`dict_type_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
 -- ----------------------------
-INSERT INTO `sys_dict_type` VALUES (1, '性别', 'XB', NULL, 0, 0, NULL, NULL, NULL, '2023-07-20 09:10:12.651000', '2023-07-20 09:10:30.027000', NULL, NULL);
+INSERT INTO `sys_dict_type` VALUES (1, '性别', 'XB', NULL, 0, 0, NULL, NULL, NULL, '2023-07-20 09:10:12.651000', '2023-07-20 09:10:30.027000', NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_logger
@@ -114,19 +123,20 @@ CREATE TABLE `sys_logger`  (
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 23 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logger
 -- ----------------------------
-INSERT INTO `sys_logger` VALUES (17, '9dc7f116de064a9a89d91b2fc14d7cf8', '登录', 2129, '/api/system/v2/users/login', '2023-08-14 16:21:01 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 94<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"嘴放实深\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:00.000000', '2023-08-14 16:21:01.083000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (18, '6a0955853bf24d1bb9086b241b76df8a', '登录', 2054, '/api/system/v2/users/login', '2023-08-14 16:21:13 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"Gm9fH3\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:13.000000', '2023-08-14 16:21:13.066000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (19, '041e7aa83e3f4772ba5d5f711de5c460', '登录', 11034, '/api/system/v2/users/login', '2023-08-14 16:21:42 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"XmBbsB\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:42.000000', '2023-08-14 16:21:42.934000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (20, 'b2de7fc1f90945fd8aa64481556f0f9b', '登录', 55, '/api/system/v2/users/login', '2023-08-14 16:21:48 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 83<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"5\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:48.000000', '2023-08-14 16:21:48.966000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (21, '519685d3679a4e1f8f638ad1f8cd0b5c', '登录', 3506, '/api/system/v2/users/login', '2023-08-17 17:00:23 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=9426F7C0FB907403CF8EC2D60ADDB642; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 94<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"整共们写\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-17', NULL, NULL, '2023-08-17 17:00:23.000000', '2023-08-17 17:00:23.439000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (22, 'cf975cd95cd34a6dbf38501699ce71f9', '登录', 3210, '/api/system/v2/users/login', '2023-09-08 14:42:01 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=5F9E4451AD3A703D025718CF07A11A9D<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://localhost:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://localhost:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"qMCRm2\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-09-08', NULL, NULL, '2023-09-08 14:42:01.000000', '2023-09-08 14:42:01.976000', NULL, NULL);
-INSERT INTO `sys_logger` VALUES (23, '9ddd0626ad3d497ebb708467eb83b164', '登录', 50, '/api/system/v2/users/login', '2023-09-08 14:43:08 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=02BF152919D1D08FAF6B14CC126676E3; Idea-2fc98548=731679cb-41c8-44aa-b7ca-9e9d85452b4e<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://localhost:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://localhost:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 84<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"21\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-09-08', NULL, NULL, '2023-09-08 14:43:08.000000', '2023-09-08 14:43:08.139000', NULL, NULL);
+INSERT INTO `sys_logger` VALUES (17, '9dc7f116de064a9a89d91b2fc14d7cf8', '登录', 2129, '/api/system/v2/users/login', '2023-08-14 16:21:01 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 94<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"嘴放实深\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:00.000000', '2023-08-14 16:21:01.083000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (18, '6a0955853bf24d1bb9086b241b76df8a', '登录', 2054, '/api/system/v2/users/login', '2023-08-14 16:21:13 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"Gm9fH3\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:13.000000', '2023-08-14 16:21:13.066000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (19, '041e7aa83e3f4772ba5d5f711de5c460', '登录', 11034, '/api/system/v2/users/login', '2023-08-14 16:21:42 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"XmBbsB\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:42.000000', '2023-08-14 16:21:42.934000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (20, 'b2de7fc1f90945fd8aa64481556f0f9b', '登录', 55, '/api/system/v2/users/login', '2023-08-14 16:21:48 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=AC8AB2BF1EBDB9740710DDA3FBB57CF3; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 83<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"5\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-14', NULL, NULL, '2023-08-14 16:21:48.000000', '2023-08-14 16:21:48.966000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (21, '519685d3679a4e1f8f638ad1f8cd0b5c', '登录', 3506, '/api/system/v2/users/login', '2023-08-17 17:00:23 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=9426F7C0FB907403CF8EC2D60ADDB642; CHAT2DB.LOCALE=en-us<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://127.0.0.1:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://127.0.0.1:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 94<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"整共们写\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-08-17', NULL, NULL, '2023-08-17 17:00:23.000000', '2023-08-17 17:00:23.439000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (22, 'cf975cd95cd34a6dbf38501699ce71f9', '登录', 3210, '/api/system/v2/users/login', '2023-09-08 14:42:01 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=5F9E4451AD3A703D025718CF07A11A9D<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://localhost:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://localhost:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 88<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"qMCRm2\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-09-08', NULL, NULL, '2023-09-08 14:42:01.000000', '2023-09-08 14:42:01.976000', NULL, NULL, 0);
+INSERT INTO `sys_logger` VALUES (23, '9ddd0626ad3d497ebb708467eb83b164', '登录', 50, '/api/system/v2/users/login', '2023-09-08 14:43:08 null查询了模块登录', '192.168.110.6', '', '<strong class=\"node-details__name collapse-handle\">Request headers</strong><br />cookie: JSESSIONID=02BF152919D1D08FAF6B14CC126676E3; Idea-2fc98548=731679cb-41c8-44aa-b7ca-9e9d85452b4e<br />accept-language: zh-CN,zh;q=0.9<br />accept-encoding: gzip, deflate, br<br />referer: http://localhost:5173/<br />sec-fetch-dest: empty<br />sec-fetch-mode: cors<br />sec-fetch-site: same-origin<br />origin: http://localhost:5173<br />sec-ch-ua-platform: \"Windows\"<br />user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36<br />sec-ch-ua-mobile: ?0<br />content-type: application/json<br />accept: application/json, text/plain, */*<br />sec-ch-ua: \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"<br />content-length: 84<br />connection: close<br />host: localhost:18170<br /><strong class=\"node-details__name collapse-handle\">Request parameter</strong>', 'loginData:{\"password\":\"e10adc3949ba59abbe56e057f20f883e\",\"username\":\"admin\",\"verifyCode\":\"21\"}\r\nrequest:null\r\nresponse:null\r\nbindingResult:null\r\n', '查询', '1', '2023-09-08', NULL, NULL, '2023-09-08 14:43:08.000000', '2023-09-08 14:43:08.139000', NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -156,7 +166,7 @@ CREATE TABLE `sys_menu`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单实体对象' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单实体对象' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -217,15 +227,16 @@ CREATE TABLE `sys_role`  (
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '系统管理员', 'ADMIN', 0, 1, 1, '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_role` VALUES (2, '运维', 'OPS', 0, 1, 1, '2', '', '0', 'ver,welcome', NULL, NULL, '2023-07-20 10:06:14.782000', '2023-07-20 10:44:54.408000', 'asdas', NULL);
-INSERT INTO `sys_role` VALUES (3, '测试', 'CS', 1, 1, 0, '1', NULL, NULL, NULL, 'admin', NULL, '2023-07-21 20:27:04.142000', '2023-07-21 20:29:33.612000', 'admin', NULL);
+INSERT INTO `sys_role` VALUES (1, '系统管理员', 'ADMIN', 0, 1, 1, '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (2, '运维', 'OPS', 0, 1, 1, '2', '', '0', 'ver,welcome', NULL, NULL, '2023-07-20 10:06:14.782000', '2023-07-20 10:44:54.408000', 'asdas', NULL, 0);
+INSERT INTO `sys_role` VALUES (3, '测试', 'CS', 1, 1, 0, '1', NULL, NULL, NULL, 'admin', NULL, '2023-07-21 20:27:04.142000', '2023-07-21 20:29:33.612000', 'admin', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_role_menu
@@ -234,6 +245,11 @@ DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu`  (
   `role_id` bigint NULL DEFAULT NULL,
   `menu_id` bigint NULL DEFAULT NULL,
+  `tenant_id` int NULL DEFAULT NULL,
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `create_by` int NULL DEFAULT NULL,
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_by` int NULL DEFAULT NULL,
   INDEX `index_role_id`(`role_id` DESC) USING BTREE,
   INDEX `index_menu_id`(`menu_id` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单表' ROW_FORMAT = DYNAMIC;
@@ -272,16 +288,21 @@ CREATE TABLE `sys_user`  (
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `user_se_ran` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `role_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角色ids',
+  `role_names` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角色名称',
+  `dept_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门名称',
+  `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 1, 1, 'ce8485d03f09fdcf2c6b11bf068ce15d', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'gQD1AdXX', NULL, NULL, '2019-10-10 13:41:22.000000', '2023-07-22 20:32:09.562000', '系统管理员', NULL);
-INSERT INTO `sys_user` VALUES (2, '879863248681046016', '1', '1', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', NULL, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 1, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:23:31.189000', '2023-07-21 20:43:53.536000', 'admin', NULL);
-INSERT INTO `sys_user` VALUES (3, '879863554085359616', 'test', '测试', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 1, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:24:44.000000', '2023-08-11 11:22:14.780000', '系统管理员', '1');
-INSERT INTO `sys_user` VALUES (4, '879863731886493696', 'asd', 'asdas', '2300000000000000000000000000', NULL, 0, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 18, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpeg', '12', NULL, 1, '12', 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:25:26.391000', '2023-07-22 23:02:07.714000', 'asdas', NULL);
+INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 1, 1, 'ce8485d03f09fdcf2c6b11bf068ce15d', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2023-07-22 20:32:09.562000', '系统管理员', NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (2, '879863248681046016', '1', '1', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', NULL, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 1, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:23:31.189000', '2023-07-21 20:43:53.536000', 'admin', NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (3, '879863554085359616', 'test', '测试', NULL, NULL, NULL, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 1, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpg', NULL, NULL, 1, NULL, 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:24:44.000000', '2023-08-11 11:22:14.780000', '系统管理员', '1', NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (4, '879863731886493696', 'asd', 'asdas', '2300000000000000000000000000', NULL, 0, 0, 'ce8485d03f09fdcf2c6b11bf068ce15d', '192.168.0.108', '局域网', 18, '/api/system/oss/release/preview/avatar/a433c16b8b475be5174fbe9e1110cba0.jpeg', '12', NULL, 1, '12', 0, 'gQD1AdXX', 'admin', NULL, '2023-07-21 20:25:26.391000', '2024-01-04 10:57:25.230000', '系统管理员', NULL, NULL, NULL, NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_grid
@@ -292,6 +313,13 @@ CREATE TABLE `sys_user_grid`  (
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户ID',
   `layout` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '布局',
   `copms_list` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件',
+  `tenant_id` int NULL DEFAULT NULL,
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `create_by` int NULL DEFAULT NULL,
+  `create_time` date NULL DEFAULT NULL,
+  `update_time` date NULL DEFAULT NULL,
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`grid`) USING BTREE,
   INDEX `index_user_id`(`user_id` DESC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户主页布局' ROW_FORMAT = DYNAMIC;
@@ -299,8 +327,8 @@ CREATE TABLE `sys_user_grid`  (
 -- ----------------------------
 -- Records of sys_user_grid
 -- ----------------------------
-INSERT INTO `sys_user_grid` VALUES (1, 12, '[12,6,6]', '[[\"ver\"],[\"welcome\"],[]]');
-INSERT INTO `sys_user_grid` VALUES (2, 1, '[24,16,8]', '[[\"space\"],[],[]]');
+INSERT INTO `sys_user_grid` VALUES (1, 12, '[12,6,6]', '[[\"ver\"],[\"welcome\"],[]]', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_grid` VALUES (2, 1, '[24,16,8]', '[[\"space\"],[],[]]', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -309,6 +337,11 @@ DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
   `user_id` bigint NULL DEFAULT NULL,
   `role_id` bigint NULL DEFAULT NULL,
+  `tenant_id` int NULL DEFAULT NULL,
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `create_by` int NULL DEFAULT NULL,
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_by` int NULL DEFAULT NULL,
   INDEX `index_user_id`(`user_id` DESC) USING BTREE,
   INDEX `index_role_id`(`role_id` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色表' ROW_FORMAT = DYNAMIC;
@@ -316,10 +349,12 @@ CREATE TABLE `sys_user_role`  (
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
-INSERT INTO `sys_user_role` VALUES (10, 2);
-INSERT INTO `sys_user_role` VALUES (10, 2);
-INSERT INTO `sys_user_role` VALUES (10, 2);
-INSERT INTO `sys_user_role` VALUES (3, 3);
+INSERT INTO `sys_user_role` VALUES (10, 2, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_role` VALUES (10, 2, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_role` VALUES (10, 2, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_role` VALUES (3, 3, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_role` VALUES (4, 2, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user_role` VALUES (4, 3, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_third
@@ -338,6 +373,7 @@ CREATE TABLE `sys_user_third`  (
   `update_time` datetime(6) NULL DEFAULT NULL,
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '三方登录' ROW_FORMAT = DYNAMIC;
 
