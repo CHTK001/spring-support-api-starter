@@ -10,7 +10,7 @@ import com.chua.starter.admin.entity.SysDept;
 import com.chua.starter.admin.node.SysDeptNode;
 import com.chua.starter.admin.service.SysDeptService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
-import com.chua.starter.common.support.logger.Logger;
+import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -138,7 +138,7 @@ public class SysDeptController {
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("delete")
-    @Logger
+    @SysLogger
     @Caching(evict = {
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept'"),
             @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dept-tree'"),

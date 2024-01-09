@@ -70,15 +70,15 @@ public class SysOperateLogger extends SysTenantBase {
      * 请求地址
      */
     @TableField(value = "log_address")
-    @Schema(description = "请求地址")
-    private String logAddress;
+    @Schema(description = "客户端地址")
+    private String clientIp;
 
     /**
      * 请求地址位置
      */
-    @TableField(value = "log_address_position")
-    @Schema(description = "请求地址位置")
-    private String logAddressPosition;
+    @TableField(value = "client_ip_position")
+    @Schema(description = "客户端地址地址位置")
+    private String clientIpPosition;
 
 
     /**
@@ -98,16 +98,16 @@ public class SysOperateLogger extends SysTenantBase {
     /**
      * 动作
      */
-    @TableField(value = "log_action")
-    @Schema(description = "动作")
-    private String logAction;
+    @TableField(value = "log_module")
+    @Schema(description = "模块")
+    private String logModule;
 
     /**
      * 状态; 1:成功;
      */
     @TableField(value = "log_status")
     @Schema(description = "状态; 1:成功;")
-    private String logStatus;
+    private Integer logStatus;
 
 
     /**

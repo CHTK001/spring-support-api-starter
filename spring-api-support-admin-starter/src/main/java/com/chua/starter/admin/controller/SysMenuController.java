@@ -6,11 +6,6 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
-import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.common.support.logger.Logger;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.admin.entity.SysMenu;
 import com.chua.starter.admin.entity.SysUserGrid;
 import com.chua.starter.admin.result.SysMenuTreeResult;
@@ -18,6 +13,11 @@ import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
 import com.chua.starter.admin.service.SysUserGridService;
+import com.chua.starter.common.support.constant.Constant;
+import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,7 +90,7 @@ public class SysMenuController implements Constant, InitializingBean {
      *
      * @return 删除菜单
      */
-    @Logger
+    @SysLogger
     @Operation(summary = "删除菜单")
     @DeleteMapping("delete")
     public ReturnResult<Boolean> delete(String menuId) {
@@ -106,7 +106,7 @@ public class SysMenuController implements Constant, InitializingBean {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("update")
-    @Logger
+    @SysLogger
     public Result<Boolean> update(@RequestBody SysMenuTreeResult sysMenu) {
         return Result.success(menuService.updateMenu(sysMenu.toSysMenu()));
     }
