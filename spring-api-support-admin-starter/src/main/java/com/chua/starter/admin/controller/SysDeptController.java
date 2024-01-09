@@ -1,7 +1,6 @@
 package com.chua.starter.admin.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
@@ -11,7 +10,6 @@ import com.chua.starter.admin.entity.SysDept;
 import com.chua.starter.admin.node.SysDeptNode;
 import com.chua.starter.admin.service.SysDeptService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
-import com.chua.starter.common.support.annotations.DataScope;
 import com.chua.starter.common.support.logger.Logger;
 import com.chua.starter.common.support.result.Result;
 import io.swagger.annotations.Api;
@@ -74,17 +72,12 @@ public class SysDeptController {
      */
     @Operation(summary = "机构分页列表")
     @GetMapping("page")
-    @DataScope("")
     public ReturnPageResult<SysDept> page(
             String keyword,
             @ApiParam("页码") @RequestParam(value = "page", defaultValue = "1") Integer page,
             @ApiParam("数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
             ) {
-        return ServicePageResultUtils.ok(sysDeptService.page(new Page<>(page, pageSize),
-                Wrappers.<SysDept>lambdaQuery()
-                        .like(StringUtils.isNotBlank(keyword), SysDept::getDeptName, keyword)
-                        .or().like(StringUtils.isNotBlank(keyword), SysDept::getDeptMarker, keyword)
-                ));
+        return ServicePageResultUtils.ok(sysDeptService.pageKeyword(new Page<>(page, pageSize), keyword));
     }
     /**
      * 新增组织机构
