@@ -7,6 +7,3 @@ spring:
 plugin:
   parameter:
     enable: true
-  auto:
-    table:
-      scan: com.chua.starter.admin.entity
