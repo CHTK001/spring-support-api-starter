@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -23,7 +24,7 @@ import java.util.Date;
 @Data
 @Table(comment = "系统日志信息表")
 @TableName(value = "sys_logger")
-public class SysLogger extends SysBase {
+public class SysLogger extends SysTenantBase {
     /**
      * 主键
      */

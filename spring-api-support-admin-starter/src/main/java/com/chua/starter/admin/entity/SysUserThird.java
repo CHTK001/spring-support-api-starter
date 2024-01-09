@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,7 +14,7 @@ import java.util.Date;
  */
 @Data
 @TableName(value = "sys_user_third")
-public class SysUserThird {
+public class SysUserThird extends SysTenantBase {
     /**
      * 主键
      */
@@ -50,39 +51,4 @@ public class SysUserThird {
     @TableField(value = "login_name")
     private String loginName;
 
-    /**
-     * 创建人
-     */
-    @TableField(value = "create_name")
-    private String createName;
-
-    /**
-     * 创建人
-     */
-    @TableField(value = "create_by")
-    private String createBy;
-
-    /**
-     * 创建时间
-     */
-    @TableField(value = "create_time")
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(value = "update_time")
-    private Date updateTime;
-
-    /**
-     * 更新人
-     */
-    @TableField(value = "update_name")
-    private String updateName;
-
-    /**
-     * 更新人
-     */
-    @TableField(value = "update_by")
-    private String updateBy;
 }

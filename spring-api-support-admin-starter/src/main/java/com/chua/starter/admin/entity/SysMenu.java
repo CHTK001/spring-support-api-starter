@@ -8,6 +8,7 @@ import com.chua.common.support.datasource.annotation.Column;
 import com.chua.common.support.datasource.annotation.Table;
 import com.chua.starter.mybatis.pojo.SysBase;
 import com.chua.starter.admin.enums.MenuTypeEnum;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_menu")
 @Data
 @Table(comment = "菜单实体对象")
-public class SysMenu extends SysBase {
+public class SysMenu extends SysTenantBase {
     /**
      * 菜单ID
      */
