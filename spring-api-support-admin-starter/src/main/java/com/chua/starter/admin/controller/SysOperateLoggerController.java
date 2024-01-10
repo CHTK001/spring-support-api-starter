@@ -13,9 +13,9 @@ import com.chua.starter.common.support.logger.LoggerIgnore;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.PageRequest;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ import java.util.Date;
  * @since 2023-05-25
  */
 @RestController
-@Api(tags = "系统日志信息")
+@Tag(name = "系统日志信息")
 @AllArgsConstructor
 @RequestMapping("/v1/log")
 public class SysOperateLoggerController {

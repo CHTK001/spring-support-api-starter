@@ -19,9 +19,9 @@ import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutorService;
  * @author haoxr
  * @since 2020/11/06
  */
-@Api(tags = "菜单接口")
+@Tag(name = "菜单接口")
 @RestController
 @RequestMapping("/v2/menus")
 @RequiredArgsConstructor
