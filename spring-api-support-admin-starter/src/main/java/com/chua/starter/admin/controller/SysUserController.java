@@ -40,9 +40,9 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.google.common.base.Strings;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -65,7 +65,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  * @author haoxr
  * @since 2022/10/16
  */
-@Api(tags = "用户接口")
+@Tag(name = "用户接口")
 @RestController
 @RequestMapping("/v2/users")
 @RequiredArgsConstructor

@@ -12,9 +12,9 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.utils.PageResultUtils;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +28,7 @@ import javax.validation.Valid;
  *
  * @author CH
  */
-@Api(tags = "字典接口")
+@Tag(name = "字典接口")
 @RestController
 @RequestMapping("/v2/dict")
 @RequiredArgsConstructor
