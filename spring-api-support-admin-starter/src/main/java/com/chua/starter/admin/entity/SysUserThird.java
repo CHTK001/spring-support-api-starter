@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * 三方登录
  */
@@ -18,37 +16,49 @@ public class SysUserThird extends SysTenantBase {
     /**
      * 主键
      */
-    @TableId(value = "user_id", type = IdType.AUTO)
+    @TableId(value = "login_third_id", type = IdType.AUTO)
+    private Long loginThirdId;
+
+    /**
+     * user_id
+     */
+    @TableField(value = "user_id")
     private Long userId;
 
     /**
      * 登录码; gitee等
      */
-    @TableField(value = "login_code_type")
-    private String loginCodeType;
+    @TableField(value = "login_third_code_type")
+    private String loginThirdCodeType;
 
     /**
      * 登录账号
      */
-    @TableField(value = "login_username")
-    private String loginUsername;
+    @TableField(value = "login_third_username")
+    private String loginThirdUsername;
 
     /**
      * 登录账号唯一编码
      */
-    @TableField(value = "login_uuid")
-    private String loginUuid;
+    @TableField(value = "login_third_uuid")
+    private String loginThirdUuid;
 
     /**
      * 三方登录账号头像
      */
-    @TableField(value = "login_avatar")
-    private String loginAvatar;
+    @TableField(value = "login_third_avatar")
+    private String loginThirdAvatar;
 
     /**
      * 三方登录账号名称
      */
-    @TableField(value = "login_name")
-    private String loginName;
+    @TableField(value = "login_third_name")
+    private String loginThirdName;
+
+    /**
+     * 三方登录账号方式
+     */
+    @TableField(value = "login_third_type")
+    private String loginThirdType;
 
 }
