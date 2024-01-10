@@ -40,8 +40,8 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.google.common.base.Strings;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -100,10 +100,10 @@ public class SysUserController implements Constant {
     @Operation(summary = "保存用户首页布局")
     @PostMapping("/grid")
     public ReturnResult<Boolean> grid(@RequestBody SysUserGrid sysUserGrid,
-                                      @ApiParam(hidden = true) @UserValue("userDashboardGrid") String userDashboardGrid,
-                                      @ApiParam(hidden = true) @UserValue("userId") Long userId,
-                                      @ApiParam(hidden = true) @UserValue("username") String username,
-                                      @ApiParam(hidden = true) @UserValue("roles") Set<String> roles
+                                      @Parameter(hidden = true) @UserValue("userDashboardGrid") String userDashboardGrid,
+                                      @Parameter(hidden = true) @UserValue("userId") Long userId,
+                                      @Parameter(hidden = true) @UserValue("username") String username,
+                                      @Parameter(hidden = true) @UserValue("roles") Set<String> roles
     ) {
         sysUserGrid.setUserId(userId);
         if (!ADMIN.equalsIgnoreCase(username) && !roles.contains(ADMIN)) {
@@ -259,7 +259,7 @@ public class SysUserController implements Constant {
     @GetMapping("/resetOwner")
     @OperateLog
     @Transactional(rollbackOn = Exception.class)
-    public ReturnResult<SysUser> resetOwner(@ApiParam(hidden = true) @UserValue("userId") Long userId, String notice) {
+    public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("userId") Long userId, String notice) {
         if (null == userId) {
             return Result.illegal("请重新登录或者联系管理员");
         }
@@ -322,11 +322,11 @@ public class SysUserController implements Constant {
     @PutMapping("/update")
     @OperateLog
     public ReturnResult<SysUser> update(
-            @ApiParam(hidden = true) @UserValue("roles") Set<String> roles1,
-            @ApiParam(hidden = true) @UserValue("username") String username,
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles1,
+            @Parameter(hidden = true) @UserValue("username") String username,
             @Valid @RequestBody SysUserUpdate sysUser,
             BindingResult bindingResult,
-            @ApiParam(hidden = true) HttpServletRequest request) {
+            @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
@@ -419,7 +419,7 @@ public class SysUserController implements Constant {
     @OperateLog
     @Permission("sys:user:add")
     @Transactional(rollbackOn = Exception.class)
-    public ReturnResult<SysUser> save(@Valid @RequestBody SysUser sysUser, BindingResult bindingResult, @ApiParam(hidden = true) HttpServletRequest request) {
+    public ReturnResult<SysUser> save(@Valid @RequestBody SysUser sysUser, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }

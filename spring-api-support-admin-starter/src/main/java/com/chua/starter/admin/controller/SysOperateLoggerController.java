@@ -14,7 +14,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.PageRequest;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,10 +47,10 @@ public class SysOperateLoggerController {
     @GetMapping("page")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> page(PageRequest<SysOperateLogger> page,
-                                                   @ApiParam("开始时间") Date startTime,
-                                                   @ApiParam("结束时间") Date endTime,
-                                                   @ApiParam("关键词") String keyword,
-                                                   @ApiParam("结果状态") Long logStatus
+                                                   @Parameter(description = "开始时间") Date startTime,
+                                                   @Parameter(description = "结束时间") Date endTime,
+                                                   @Parameter(description = "关键词") String keyword,
+                                                   @Parameter(description = "结果状态") Long logStatus
     ) {
         return ServicePageResultUtils.ok(sysLoggerService.page(page.createPage(),
                 Wrappers.<SysOperateLogger>lambdaQuery()
@@ -71,8 +71,8 @@ public class SysOperateLoggerController {
     @GetMapping("mylog")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> mylog(PageRequest<SysOperateLogger> page,
-                                                    @ApiParam(hidden = true) @UserValue("userId") String userId,
-                                                    @ApiParam(hidden = true) @UserValue("username") String username
+                                                    @Parameter(hidden = true) @UserValue("userId") String userId,
+                                                    @Parameter(hidden = true) @UserValue("username") String username
     ) {
         DateTime dateTime = DateTime.now();
         return ServicePageResultUtils.ok(sysLoggerService.page(page.createPage(),

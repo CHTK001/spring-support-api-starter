@@ -19,8 +19,8 @@ import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +53,11 @@ public class SysMenuController implements Constant, InitializingBean {
 
     @Operation(summary = "获取我的菜单")
     @GetMapping("/my/**")
-    public Result<UserMenuResult> myMenu(@ApiParam(hidden = true) @UserValue("userId") String userId,
-                                         @ApiParam(hidden = true) @UserValue("userDashboardGrid") String userGrid,
-                                         @ApiParam(hidden = true) @UserValue("userDashboard") String userDashboard,
-                                         @ApiParam(hidden = true) @UserValue("username") String username,
-                                         @ApiParam(hidden = true) @UserValue("roles") Set<String> roles) {
+    public Result<UserMenuResult> myMenu(@Parameter(hidden = true) @UserValue("userId") String userId,
+                                         @Parameter(hidden = true) @UserValue("userDashboardGrid") String userGrid,
+                                         @Parameter(hidden = true) @UserValue("userDashboard") String userDashboard,
+                                         @Parameter(hidden = true) @UserValue("username") String username,
+                                         @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(roles.isEmpty() && !ADMIN.equalsIgnoreCase(username)) {
             return Result.failed("联系管理员分配权限");
         }
