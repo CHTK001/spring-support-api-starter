@@ -19,8 +19,8 @@ import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -71,8 +71,8 @@ public class SysRoleController implements Constant {
     @GetMapping("page")
     public ReturnPageResult<SysRole> page(
             String keyword,
-            @ApiParam("页码") @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @ApiParam("数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+            @Parameter(description = "页码") @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         return
                 ServicePageResultUtils.ok(
