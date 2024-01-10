@@ -53,11 +53,11 @@ plugin:
     packages: com.chua.starter.admin.entity
     enable: true
   oauth:
-    address: http://172.16.1.112:19180/oauth
+    address: http://127.0.0.1:19180/oauth
     whitelist:
       - /doc.html
       - /actuator
-      - /v3/api-docs/*
+      - /v3/api-docs/**
   swagger:
     knife4j:
       - group-name: 系统配置
