@@ -3,66 +3,21 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '5f68c40d6bd82e69d807e3baedae059fb9af1b13'
-    oldFile: !uuid '16a1ba44c5db07878cc774a712499da6370e80c1'
+    newFile: !uuid 'fceea6d28c0f9704eef6dde010bac9e7695b4d0d'
+    oldFile: !uuid '5f68c40d6bd82e69d807e3baedae059fb9af1b13'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'df893e37e22186f8216ab48eb858f42bb3a13ed7'
-    oldFile: !uuid 'ee265ea9a5136180b3047e6b03d898e2556e7e25'
+    newFile: !uuid '4f488f1dd1221f30c3e94d40a28f961e1aac2cf6'
+    oldFile: !uuid 'df893e37e22186f8216ab48eb858f42bb3a13ed7'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'c74090dfbe93c66a063933fb75762ee7efe66da9'
-    oldFile: !uuid '32c1f43bc865c739ef8c45d55f270795ddf5bd6a'
-  /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '8aee25545354cfc1729547b9e94691477fb916b8'
-    oldFile: !uuid 'dfc5af845e8a4b9ad72dd1106fab3f3869200f7b'
-  /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '0e321da53bbbe8529550488987e0af6f0b354aee'
-    oldFile: !uuid '57be18128ec200442f23166c7b855e894cff52f3'
-  /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '3b1ff08d87e3f4859a1db0a89a599730705b4dc3'
-    oldFile: !uuid '331f30a3842f728797f0d67995d0d738d3f2139a'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '93b51b8fc18fa710f904c3f9ea5b6b7bdbddb645'
-    oldFile: !uuid 'df26a1eef6ab3046910f43f7a5d12b4032b6dd09'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid 'f1a0bf9006fd484666bc3fe0eacc4bff7a71c886'
-    oldFile: !uuid '8972fc4e2cb1492221bc3e2804af3b5f41367891'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
-    newFile: !uuid 'ab0b44a5d3bbaad28627ca3a5cad6186db9b7dc2'
-    oldFile: !uuid 'aa6aeadd72b48585a4a2a0dddef9f6342619da2f'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysFileStorage.java:
-    newFile: !uuid '8eed4a8ce6ef2f10f3dad98ac416e0284b3d580c'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper:
-    newFile: !uuid '1aa058c4c1c1eb9c0b084dfb9ea4490c2673f02c'
-    oldFile: !uuid '8aa602781a55991159aae0a28d4fe181733a8008'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysFileStorageMapper.java:
-    newFile: !uuid '037c6497f66ae3f1404cc212c32499cfd3f860c9'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
-    newFile: !uuid 'f38db715602e6bbbfe08217c07660f4068f8b562'
-    oldFile: !uuid 'eded3a8291cf683eb4063dbfe9dd6e8237720617'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysFileStorageService.java:
-    newFile: !uuid '342673f9b56d639e5ec76fb7e88f079dc533507c'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
-    newFile: !uuid '0c1295113bd151defa5266258a48b7ea6fd16021'
-    oldFile: !uuid 'f6e4586c959c3071446b55761885289bb81bb6c2'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysFileStorageServiceImpl.java:
-    newFile: !uuid 'd7bd725a82f1db08cdc8d81367562d5bf78bf8db'
-    oldFile: null
+    newFile: !uuid 'b2b2abd596c1863f1a2dd7f9f45c73e629772f5e'
+    oldFile: !uuid 'c74090dfbe93c66a063933fb75762ee7efe66da9'
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '5a3fbc0a1f8af1bdb4c6dd69811e373e4ec94883'
-    oldFile: !uuid '1a16fafa8a3601434da74c6866b249caa6129f07'
+    newFile: !uuid 'c299e92aec2483eb6476d85a703ab0d66329ad34'
+    oldFile: !uuid '5a3fbc0a1f8af1bdb4c6dd69811e373e4ec94883'
   /spring-api-support-admin-starter/src/main/resources/application-dev.yml:
-    newFile: !uuid '90bdecff7f0e707c1f9fc68e110c3e45d27a2743'
-    oldFile: !uuid '7c1a4ff0ac2b32307ce526d2bbf5f1ef2beea926'
-  /spring-api-support-admin-starter/src/main/resources/mapper:
-    newFile: !uuid '5937c978d1d33ee281203d144c44a3b8b9047d20'
-    oldFile: !uuid '1191332c88401a2fee69a0d676fee09f0df02364'
-  /spring-api-support-admin-starter/src/main/resources/mapper/SysFileStorageMapper.xml:
-    newFile: !uuid 'f579237c8db3fe32e04c45b47498e6a9abc9a5ce'
-    oldFile: null
-gitCommitId: !uuid '16af410ea3a89e0114545fd2e38cdd2b73c38ad3'
+    newFile: !uuid '3329c56fb48f4777e9bc03008c5e70994e1119e1'
+    oldFile: !uuid '90bdecff7f0e707c1f9fc68e110c3e45d27a2743'
+gitCommitId: !uuid '8d25cff17abd1de37b62fceea0e24e093a8f5f63'
 renames: {
   }
-revisionId: 38
+revisionId: 39
