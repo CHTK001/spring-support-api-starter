@@ -13,9 +13,9 @@ import com.chua.starter.admin.utils.ServicePageResultUtils;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,7 +31,7 @@ import static com.chua.starter.common.support.constant.Constant.SYSTEM;
  * 机构
  * @author CH
  */
-@Api(tags = "机构接口")
+@Tag(name = "机构接口")
 @RestController
 @RequestMapping("/v2/dept")
 @RequiredArgsConstructor

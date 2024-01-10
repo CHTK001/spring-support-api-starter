@@ -8,8 +8,8 @@ import com.chua.starter.admin.service.SysDictTypeService;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
-import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author CH
  */
-@Api(tags = "字典类型接口")
+@Tag(name = "字典类型接口")
 @RestController
 @RequestMapping("/v2/dict/type")
 @RequiredArgsConstructor
