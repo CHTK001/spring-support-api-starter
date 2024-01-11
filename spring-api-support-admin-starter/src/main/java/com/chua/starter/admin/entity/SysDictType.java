@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +12,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
 
 /**
  * 字典类型表
@@ -20,7 +20,7 @@ import java.util.Date;
 @Schema(description = "字典类型表")
 @Data
 @TableName(value = "sys_dict_type")
-public class SysDictType {
+public class SysDictType extends SysTenantBase {
     /**
      * 主键
      */
@@ -81,60 +81,4 @@ public class SysDictType {
     @Size(max = 255, message = "备注最大长度要小于 255")
     private String dictTypeRemark;
 
-    /**
-     * 创建人
-     */
-    @TableField(value = "create_name")
-    @ApiModelProperty(value = "创建人")
-    @Schema(description = "创建人")
-    @Size(max = 255, message = "创建人最大长度要小于 255")
-    private String createName;
-
-    /**
-     * 创建人
-     */
-    @TableField(value = "create_by")
-    @ApiModelProperty(value = "创建人")
-    @Schema(description = "创建人")
-    @Size(max = 255, message = "创建人最大长度要小于 255")
-    private String createBy;
-
-    /**
-     * 创建时间
-     */
-    @TableField(value = "create_time")
-    @ApiModelProperty(value = "创建时间")
-    @Schema(description = "创建时间")
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(value = "update_time")
-    @ApiModelProperty(value = "更新时间")
-    @Schema(description = "更新时间")
-    private Date updateTime;
-
-    /**
-     * 更新人
-     */
-    @TableField(value = "update_name")
-    @ApiModelProperty(value = "更新人")
-    @Schema(description = "更新人")
-    @Size(max = 255, message = "更新人最大长度要小于 255")
-    private String updateName;
-
-    /**
-     * 更新人
-     */
-    @TableField(value = "update_by")
-    @ApiModelProperty(value = "更新人")
-    @Schema(description = "更新人")
-    @Size(max = 255, message = "更新人最大长度要小于 255")
-    private String updateBy;
-
-    @TableField(value = "tenant_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer tenantId;
 }

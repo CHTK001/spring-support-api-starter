@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +12,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
 
 /**
  * 三方登录
@@ -20,7 +20,7 @@ import java.util.Date;
 @Schema(description = "三方登录")
 @Data
 @TableName(value = "sys_user_third")
-public class SysUserThird {
+public class SysUserThird extends SysTenantBase {
     @TableId(value = "user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
@@ -57,45 +57,4 @@ public class SysUserThird {
     @Size(max = 255, message = "最大长度要小于 255")
     private String loginName;
 
-    @TableField(value = "create_name")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String createName;
-
-    @TableField(value = "create_by")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String createBy;
-
-    @TableField(value = "create_time")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Date createTime;
-
-    @TableField(value = "update_time")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Date updateTime;
-
-    @TableField(value = "update_name")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String updateName;
-
-    @TableField(value = "update_by")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String updateBy;
-
-    /**
-     * 租户ID
-     */
-    @TableField(value = "tenant_id")
-    @ApiModelProperty(value = "租户ID")
-    @Schema(description = "租户ID")
-    private Integer tenantId;
 }
