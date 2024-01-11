@@ -2,6 +2,7 @@ package com.chua.starter.admin.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
@@ -46,13 +47,15 @@ public class SysOperateLoggerController {
     @Operation(summary = "分页查询基础数据")
     @GetMapping("page")
     @LoggerIgnore
-    public ReturnPageResult<SysOperateLogger> page(PageRequest<SysOperateLogger> page,
+    public ReturnPageResult<SysOperateLogger> page(
+                                                   @Parameter(description = "页码不能为空") Integer pageNo ,
+                                                   @Parameter(description = "每页条数") Integer pageSize ,
                                                    @Parameter(description = "开始时间") Date startTime,
                                                    @Parameter(description = "结束时间") Date endTime,
                                                    @Parameter(description = "关键词") String keyword,
                                                    @Parameter(description = "结果状态") Long logStatus
     ) {
-        return ServicePageResultUtils.ok(sysLoggerService.page(page.createPage(),
+        return ServicePageResultUtils.ok(sysLoggerService.page(new Page<>(pageNo, pageSize),
                 Wrappers.<SysOperateLogger>lambdaQuery()
                         .ge(null != startTime, SysOperateLogger::getCreateTime, startTime)
                         .le(null != endTime, SysOperateLogger::getCreateTime, endTime)
