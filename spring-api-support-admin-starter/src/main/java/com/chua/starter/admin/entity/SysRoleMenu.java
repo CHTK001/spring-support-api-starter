@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Data;
 @ApiModel(description = "角色菜单表")
 @Schema(description = "角色菜单表")
 @Data
+@AllArgsConstructor
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu extends SysTenantBase {
     /**
