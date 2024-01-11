@@ -1,31 +1,58 @@
 package com.chua.starter.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.chua.starter.mybatis.pojo.SysTenantBase;
-import lombok.AllArgsConstructor;
+import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
+import javax.validation.constraints.Size;
 
 /**
- * 角色和菜单关联表
+ * 角色菜单表
  */
+@ApiModel(description = "角色菜单表")
+@Schema(description = "角色菜单表")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class SysRoleMenu implements Serializable {
-    /**
-     * 角色ID
-     */
-    private Long roleId;
-
-    /**
-     * 菜单ID
-     */
-    private Long menuId;
-
+@TableName(value = "sys_role_menu")
+public class SysRoleMenu {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+    @TableField(value = "role_id")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Long roleId;
+
+    @TableField(value = "menu_id")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Long menuId;
+
+    @TableField(value = "tenant_id")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer tenantId;
+
+    @TableField(value = "create_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String createName;
+
+    @TableField(value = "create_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer createBy;
+
+    @TableField(value = "update_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String updateName;
+
+    @TableField(value = "update_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer updateBy;
 }

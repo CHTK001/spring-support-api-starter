@@ -4,50 +4,92 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.common.support.serialize.JsonArrayToStringDeserialize;
-import com.chua.starter.mybatis.pojo.SysTenantBase;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Date;
+
 /**
- * 用户首页布局
- *
- * @author CH
+ * 用户主页布局
  */
-@Schema(description = "sys_user_grid")
+@ApiModel(description = "用户主页布局")
+@Schema(description = "用户主页布局")
 @Data
 @TableName(value = "sys_user_grid")
-@JsonIgnoreProperties({"grid", "userId"})
-public class SysUserGrid extends SysTenantBase {
+public class SysUserGrid {
     /**
      * 主键
      */
     @TableId(value = "grid", type = IdType.AUTO)
-    @Schema(title = "主键")
+    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
+    @NotNull(message = "主键不能为null")
     private Long grid;
 
     /**
      * 用户ID
      */
     @TableField(value = "user_id")
-    @Schema(title = "用户ID")
+    @ApiModelProperty(value = "用户ID")
+    @Schema(description = "用户ID")
     private Long userId;
 
     /**
      * 布局
      */
     @TableField(value = "layout")
-    @Schema(title = "布局")
-    @JsonDeserialize(using = JsonArrayToStringDeserialize.class)
+    @ApiModelProperty(value = "布局")
+    @Schema(description = "布局")
+    @Size(max = 255, message = "布局最大长度要小于 255")
     private String layout;
 
     /**
      * 组件
      */
     @TableField(value = "copms_list")
-    @Schema(title = "组件")
-    @JsonDeserialize(using = JsonArrayToStringDeserialize.class)
+    @ApiModelProperty(value = "组件")
+    @Schema(description = "组件")
+    @Size(max = 255, message = "组件最大长度要小于 255")
     private String copmsList;
+
+    @TableField(value = "tenant_id")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer tenantId;
+
+    @TableField(value = "create_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String createName;
+
+    @TableField(value = "create_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer createBy;
+
+    @TableField(value = "create_time")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Date createTime;
+
+    @TableField(value = "update_time")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Date updateTime;
+
+    @TableField(value = "update_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String updateName;
+
+    @TableField(value = "update_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer updateBy;
 }

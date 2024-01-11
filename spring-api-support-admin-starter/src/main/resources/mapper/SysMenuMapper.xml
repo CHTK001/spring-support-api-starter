@@ -1,8 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.admin.mapper.SysMenuMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysMenu">
+    <!--@mbg.generated-->
+    <!--@Table sys_menu-->
+    <id column="menu_id" property="menuId" />
+    <result column="menu_parent_id" property="menuParentId" />
+    <result column="menu_name" property="menuName" />
+    <result column="menu_type" property="menuType" />
+    <result column="menu_path" property="menuPath" />
+    <result column="menu_component" property="menuComponent" />
+    <result column="menu_tag" property="menuTag" />
+    <result column="menu_color" property="menuColor" />
+    <result column="menu_perm" property="menuPerm" />
+    <result column="menu_visible" property="menuVisible" />
+    <result column="menu_status" property="menuStatus" />
+    <result column="menu_sort" property="menuSort" />
+    <result column="menu_icon" property="menuIcon" />
+    <result column="menu_redirect" property="menuRedirect" />
+    <result column="menu_tree_path" property="menuTreePath" />
+    <result column="menu_affix" property="menuAffix" />
+    <result column="create_name" property="createName" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="update_name" property="updateName" />
+    <result column="update_by" property="updateBy" />
+    <result column="tenant_id" property="tenantId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    menu_id, menu_parent_id, menu_name, menu_type, menu_path, menu_component, menu_tag, 
+    menu_color, menu_perm, menu_visible, menu_status, menu_sort, menu_icon, menu_redirect, 
+    menu_tree_path, menu_affix, create_name, create_by, create_time, update_time, update_name, 
+    update_by, tenant_id
+  </sql>
     <select id="roleMenu" resultType="com.chua.starter.admin.entity.SysMenu">
         SELECT
             sm.*,
