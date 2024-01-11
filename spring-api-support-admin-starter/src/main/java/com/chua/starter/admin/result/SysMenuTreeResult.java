@@ -85,19 +85,22 @@ public class SysMenuTreeResult {
             rs.setMenuParentId(StringUtils.isBlank(parentId) ? 0 : Long.parseLong(parentId));
         } catch (NumberFormatException ignored) {
         }
-        rs.setMenuAffix(meta.affix);
-        rs.setMenuName(meta.title);
-        rs.setMenuIcon(meta.icon);
+        if(null != meta) {
+            rs.setMenuAffix(meta.affix);
+            rs.setMenuName(meta.title);
+            rs.setMenuIcon(meta.icon);
+            rs.setMenuType(meta.type);
+            rs.setMenuTag(meta.tag);
+            rs.setMenuStatus(meta.status ? 0 : 1);
+            rs.setMenuColor(meta.color);
+            rs.setMenuSort(meta.sort);
+            rs.setMenuVisible(meta.hidden ? 0 : 1);
+
+        }
         rs.setMenuPath(path);
+        rs.setMenuPerm(menuPerm);
         rs.setMenuComponent(component);
         rs.setMenuTreePath(menuTreePath);
-        rs.setMenuType(meta.type);
-        rs.setMenuTag(meta.tag);
-        rs.setMenuPerm(menuPerm);
-        rs.setMenuStatus(meta.status ? 0 : 1);
-        rs.setMenuColor(meta.color);
-        rs.setMenuSort(meta.sort);
-        rs.setMenuVisible(meta.hidden ? 0 : 1);
         return rs;
     }
 
