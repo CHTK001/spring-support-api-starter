@@ -1,13 +1,10 @@
 package com.chua.starter.admin.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import javax.validation.constraints.Size;
 
 /**
  * 角色菜单表
@@ -16,43 +13,15 @@ import javax.validation.constraints.Size;
 @Schema(description = "角色菜单表")
 @Data
 @TableName(value = "sys_role_menu")
-public class SysRoleMenu {
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
-    @TableField(value = "role_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+public class SysRoleMenu extends SysTenantBase {
+    /**
+     * 角色ID
+     */
     private Long roleId;
 
-    @TableField(value = "menu_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    /**
+     * 菜单ID
+     */
     private Long menuId;
 
-    @TableField(value = "tenant_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer tenantId;
-
-    @TableField(value = "create_name")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String createName;
-
-    @TableField(value = "create_by")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer createBy;
-
-    @TableField(value = "update_name")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @Size(max = 255, message = "最大长度要小于 255")
-    private String updateName;
-
-    @TableField(value = "update_by")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer updateBy;
 }
