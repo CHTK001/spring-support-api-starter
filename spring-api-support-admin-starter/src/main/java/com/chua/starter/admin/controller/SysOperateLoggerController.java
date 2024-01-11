@@ -48,7 +48,7 @@ public class SysOperateLoggerController {
     @GetMapping("page")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> page(
-                                                   @Parameter(description = "页码不能为空") Integer pageNo ,
+                                                   @Parameter(description = "页码") Integer pageNo ,
                                                    @Parameter(description = "每页条数") Integer pageSize ,
                                                    @Parameter(description = "开始时间") Date startTime,
                                                    @Parameter(description = "结束时间") Date endTime,
