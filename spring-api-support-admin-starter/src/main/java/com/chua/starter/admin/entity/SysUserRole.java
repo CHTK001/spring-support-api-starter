@@ -6,6 +6,7 @@ import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -15,17 +16,16 @@ import lombok.Data;
 @Schema(description = "用户角色表")
 @Data
 @TableName(value = "sys_user_role")
+@AllArgsConstructor
 public class SysUserRole extends SysTenantBase {
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
     @TableField(value = "user_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "用户ID")
+    @Schema(description = "用户ID")
     private Long userId;
 
     @TableField(value = "role_id")
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "角色ID")
+    @Schema(description = "角色ID")
     private Long roleId;
 
 }
