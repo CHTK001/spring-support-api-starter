@@ -17,6 +17,7 @@
     <modules>
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-admin-starter</module>
+        <module>spring-api-support-service-starter</module>
     </modules>
     <version>3.1.0</version>
     
