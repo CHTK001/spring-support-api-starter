@@ -13,7 +13,7 @@ import com.chua.starter.common.support.logger.LoggerIgnore;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.PageRequest;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -43,7 +43,7 @@ public class SysOperateLoggerController {
      *
      * @return 分页结果
      */
-    @ApiOperation("分页查询基础数据")
+    @Operation(summary = "分页查询基础数据")
     @GetMapping("page")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> page(PageRequest<SysOperateLogger> page,
@@ -67,7 +67,7 @@ public class SysOperateLoggerController {
      *
      * @return 分页结果
      */
-    @ApiOperation("当前账号的7天日志")
+    @Operation(summary = "当前账号的7天日志")
     @GetMapping("mylog")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> mylog(PageRequest<SysOperateLogger> page,
@@ -90,7 +90,7 @@ public class SysOperateLoggerController {
      *
      * @return 查询近7数据
      */
-    @ApiOperation("查询近7数据")
+    @Operation(summary = "查询近7数据")
     @GetMapping("near")
     @LoggerIgnore
     public ReturnResult<LogStaticResult> near() {
