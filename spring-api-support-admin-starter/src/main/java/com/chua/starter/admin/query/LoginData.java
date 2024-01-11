@@ -1,7 +1,6 @@
 package com.chua.starter.admin.query;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,17 +10,17 @@ import javax.validation.constraints.NotNull;
  *
  * @author CH
  */
-@ApiModel("登录信息")
+@Schema(description = "登录信息")
 @Data
 public class LoginData {
 
-    @ApiModelProperty("账号")
+    @Schema(title = "账号")
     @NotNull(message = "账号不能为空")
     private String username;
-    @ApiModelProperty("密码")
+    @Schema(title = "密码")
     @NotNull(message = "密码不能为空")
     private String password;
-    @ApiModelProperty("校验码")
+    @Schema(title = "校验码")
     @NotNull(message = "校验码不能为空")
     private String verifyCode;
 }
