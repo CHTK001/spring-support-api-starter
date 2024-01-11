@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysDict;
 import com.chua.starter.admin.service.SysDictService;
 import com.chua.starter.common.support.annotations.OperateLog;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -70,7 +73,7 @@ public class SysDictController implements Constant {
     @PutMapping("update")
     @OperateLog
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-' + #sysDict.dictTypeId")
-    public ReturnResult<Boolean> update(@RequestBody SysDict sysDict) {
+    public ReturnResult<Boolean> update(@Validated(UpdateGroup.class)@RequestBody SysDict sysDict) {
         if (null == sysDict.getDictId()) {
             return Result.illegal("唯一标识不能为空");
         }
@@ -86,7 +89,7 @@ public class SysDictController implements Constant {
     @Operation(summary = "新增字典")
     @PostMapping("save")
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'dict-' + #sysDict.dictTypeId")
-    public ReturnResult<SysDict> save(@RequestBody SysDict sysDict, @Valid BindingResult bindingResult) {
+    public ReturnResult<SysDict> save(@Validated(AddGroup.class) @RequestBody SysDict sysDict, @Valid BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
