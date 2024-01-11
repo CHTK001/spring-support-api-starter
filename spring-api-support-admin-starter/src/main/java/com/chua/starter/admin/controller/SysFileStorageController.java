@@ -50,7 +50,7 @@ public class SysFileStorageController {
      *
      * @return 角色列表
      */
-    @Operation(summary = "bucket列表")
+    @Operation(summary = "oss列表")
     @GetMapping("page")
     public ReturnPageResult<SysFileStorage> page(
             @Parameter(description = "关键词") String keyword,
@@ -70,17 +70,21 @@ public class SysFileStorageController {
      *
      * @return 修改字典
      */
-    @Operation(summary = "修改字典")
+    @Operation(summary = "修改OSS")
     @PutMapping("update")
     @OperateLog
     public ReturnResult<Boolean> update(@Validated(UpdateGroup.class)@RequestBody SysFileStorage sysFileStorage) {
         if (null == sysFileStorage.getFsId()) {
             return Result.illegal("唯一标识不能为空");
         }
-        SysFileStorage fileStorage = sysFileStorageService.getById(sysFileStorage.getFsId());
         return Result.ok(transactionTemplate.execute(status -> {
             boolean b = sysFileStorageService.updateById(sysFileStorage);
             if(b) {
+                SysFileStorage fileStorage = sysFileStorageService.getById(sysFileStorage.getFsId());
+                if(fileStorage.getFsStatus() == 0) {
+                    fileStorageService.unregister(fileStorage.getFsBucket());
+                    return true;
+                }
                 openFileStorage(fileStorage);
             }
             return b;
@@ -107,7 +111,7 @@ public class SysFileStorageController {
      *
      * @return 新增字典
      */
-    @Operation(summary = "新增字典")
+    @Operation(summary = "新增OSS")
     @PostMapping("save")
     public ReturnResult<SysFileStorage> save(@Validated(AddGroup.class) @RequestBody SysFileStorage sysFileStorage, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -128,7 +132,7 @@ public class SysFileStorageController {
      * @return 删除字典
      */
     @SysLogger
-    @Operation(summary = "删除字典")
+    @Operation(summary = "删除OSS")
     @DeleteMapping("delete")
     @OperateLog
     public ReturnResult<Boolean> delete(Integer fsId) {
