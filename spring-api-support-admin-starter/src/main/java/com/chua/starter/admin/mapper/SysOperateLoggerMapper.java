@@ -9,12 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * @author CH
- */
 @Mapper
 public interface SysOperateLoggerMapper extends BaseMapper<SysOperateLogger> {
-
     /**
      * 按时间统计
      *

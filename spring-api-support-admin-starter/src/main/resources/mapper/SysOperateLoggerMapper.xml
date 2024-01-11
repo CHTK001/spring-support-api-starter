@@ -1,8 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.admin.mapper.SysOperateLoggerMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysOperateLogger">
+    <!--@mbg.generated-->
+    <!--@Table sys_operate_logger-->
+    <id column="log_id" property="logId" />
+    <result column="log_code" property="logCode" />
+    <result column="log_name" property="logName" />
+    <result column="log_cost" property="logCost" />
+    <result column="log_mapping" property="logMapping" />
+    <result column="log_content" property="logContent" />
+    <result column="client_ip" property="clientIp" />
+    <result column="client_ip_position" property="clientIpPosition" />
+    <result column="log_watch" property="logWatch" />
+    <result column="log_param" property="logParam" />
+    <result column="log_module" property="logModule" />
+    <result column="log_status" property="logStatus" />
+    <result column="log_day" property="logDay" />
+    <result column="create_name" property="createName" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="update_name" property="updateName" />
+    <result column="update_by" property="updateBy" />
+    <result column="tenant_id" property="tenantId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    log_id, log_code, log_name, log_cost, log_mapping, log_content, client_ip, client_ip_position, 
+    log_watch, log_param, log_module, log_status, log_day, create_name, create_by, create_time, 
+    update_time, update_name, update_by, tenant_id
+  </sql>
     <select id="near" resultType="com.chua.starter.admin.pojo.LogStaticVO">
         SELECT
             count( log_day ) cnt,

@@ -4,61 +4,98 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.mybatis.pojo.SysTenantBase;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Date;
 
 /**
  * 三方登录
  */
+@ApiModel(description = "三方登录")
+@Schema(description = "三方登录")
 @Data
 @TableName(value = "sys_user_third")
-public class SysUserThird extends SysTenantBase {
-    /**
-     * 主键
-     */
-    @TableId(value = "login_third_id", type = IdType.AUTO)
-    private Long loginThirdId;
-
-    /**
-     * user_id
-     */
-    @TableField(value = "user_id")
+public class SysUserThird {
+    @TableId(value = "user_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @NotNull(message = "不能为null")
     private Long userId;
 
-    /**
-     * 登录码; gitee等
-     */
-    @TableField(value = "login_third_code_type")
-    private String loginThirdCodeType;
+    @TableField(value = "login_code_type")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String loginCodeType;
+
+    @TableField(value = "login_username")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String loginUsername;
+
+    @TableField(value = "login_uuid")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String loginUuid;
+
+    @TableField(value = "login_avatar")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String loginAvatar;
+
+    @TableField(value = "login_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String loginName;
+
+    @TableField(value = "create_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String createName;
+
+    @TableField(value = "create_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String createBy;
+
+    @TableField(value = "create_time")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Date createTime;
+
+    @TableField(value = "update_time")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Date updateTime;
+
+    @TableField(value = "update_name")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String updateName;
+
+    @TableField(value = "update_by")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @Size(max = 255, message = "最大长度要小于 255")
+    private String updateBy;
 
     /**
-     * 登录账号
+     * 租户ID
      */
-    @TableField(value = "login_third_username")
-    private String loginThirdUsername;
-
-    /**
-     * 登录账号唯一编码
-     */
-    @TableField(value = "login_third_uuid")
-    private String loginThirdUuid;
-
-    /**
-     * 三方登录账号头像
-     */
-    @TableField(value = "login_third_avatar")
-    private String loginThirdAvatar;
-
-    /**
-     * 三方登录账号名称
-     */
-    @TableField(value = "login_third_name")
-    private String loginThirdName;
-
-    /**
-     * 三方登录账号方式
-     */
-    @TableField(value = "login_third_type")
-    private String loginThirdType;
-
+    @TableField(value = "tenant_id")
+    @ApiModelProperty(value = "租户ID")
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 }

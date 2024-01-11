@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.admin.mapper.SysDictTypeMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysDictType">
+    <!--@mbg.generated-->
+    <!--@Table sys_dict_type-->
+    <id column="dict_type_id" property="dictTypeId" />
+    <result column="dict_type_name" property="dictTypeName" />
+    <result column="dict_type_code" property="dictTypeCode" />
+    <result column="dict_type_sort" property="dictTypeSort" />
+    <result column="dict_type_status" property="dictTypeStatus" />
+    <result column="dict_type_sys" property="dictTypeSys" />
+    <result column="dict_type_remark" property="dictTypeRemark" />
+    <result column="create_name" property="createName" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="update_name" property="updateName" />
+    <result column="update_by" property="updateBy" />
+    <result column="tenant_id" property="tenantId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    dict_type_id, dict_type_name, dict_type_code, dict_type_sort, dict_type_status, dict_type_sys, 
+    dict_type_remark, create_name, create_by, create_time, update_time, update_name, 
+    update_by, tenant_id
+  </sql>
 
 </mapper>

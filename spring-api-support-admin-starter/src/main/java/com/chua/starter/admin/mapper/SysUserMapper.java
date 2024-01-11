@@ -9,15 +9,8 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * 用户持久层
- *
- * @author haoxr
- * @since 2022/1/14
- */
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
-
     /**
      * 获取用户分页列表
      *
