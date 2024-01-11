@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -48,7 +49,7 @@ public class SysOperateLoggerController {
     @GetMapping("page")
     @LoggerIgnore
     public ReturnPageResult<SysOperateLogger> page(
-                                                   @Parameter(description = "页码") Integer pageNo ,
+                                                   @Parameter(description = "页码")@RequestParam("page") Integer pageNo ,
                                                    @Parameter(description = "每页条数") Integer pageSize ,
                                                    @Parameter(description = "开始时间") Date startTime,
                                                    @Parameter(description = "结束时间") Date endTime,
