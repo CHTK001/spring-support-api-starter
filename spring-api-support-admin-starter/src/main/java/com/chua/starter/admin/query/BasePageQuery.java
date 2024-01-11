@@ -12,7 +12,7 @@ import lombok.Data;
  * @since 2021/2/28
  */
 @Data
-@Schema
+@Schema(description = "基础分页请求对象")
 public class BasePageQuery<T> {
 
     @Schema(description = "页码", example = "1")
