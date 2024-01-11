@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -37,6 +39,7 @@ public class SysFileStorage extends SysTenantBase {
     @ApiModelProperty(value = "bucket")
     @Schema(description = "bucket")
     @Size(max = 255, message = "bucket最大长度要小于 255")
+    @NotBlank(message = "bucket不能为空", groups = AddGroup.class)
     private String fsBucket;
 
     /**
