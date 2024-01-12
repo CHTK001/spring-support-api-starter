@@ -3,54 +3,24 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '52f67a201607003f35a18465a96f592e17967800'
-    oldFile: !uuid '4ae24c55cf93bce04c26c70558ebe0fc9cec5983'
+    newFile: !uuid '3f59bd16c4164890f6c25b93fc146a4926d0aef4'
+    oldFile: !uuid '52f67a201607003f35a18465a96f592e17967800'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '6d8c5acf60567a763b05767000cd3f9d9436365e'
-    oldFile: !uuid '1d9aec6f6aa66e6587be817bad279db06dbeea28'
+    newFile: !uuid 'e15f20a5a7544adadec720085dcdeabc8ba7c07a'
+    oldFile: !uuid '6d8c5acf60567a763b05767000cd3f9d9436365e'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '15dc2470ff61a58cf64dfbb2646d838e17ab70f1'
-    oldFile: !uuid '5244ae8cafc627446f7f65ec01b0f664fdb1db94'
-  /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid 'e02083e6865d0ece6bac4de0f3128e95e359aa74'
-    oldFile: !uuid '9bc6b262b4f2921692b5adc47ffcd47b33f2fa22'
-  /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid 'a9aa63b616f97aa11714c01e14cde095bb49c01f'
-    oldFile: !uuid '8d19398605596716989fb475985ba07db656fae9'
-  /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '28834a926af7906b80f1b4ec4751704498212119'
-    oldFile: !uuid '3f24e8c48d96bea65460a18980185fff49443ab3'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'ca64e9c5ea9b7041cdfeb61f8cda7f18c50c67bb'
-    oldFile: !uuid '3913677a5fbe7b29e7911a35b79108670023c587'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '59b35b81648afe58309f43a3813395ddc5416713'
-    oldFile: !uuid 'c12365c922e323487f3ae5b8fd7fa73a5dfcf76f'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid 'c64297304932cde324dcfa7951195b345cc6f471'
-    oldFile: !uuid 'b494880221e4355199878bbbe017974431c638c9'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysFileStorageController.java:
-    newFile: !uuid '272215cef4b7ed0f07bcbc148969afb86fce8661'
-    oldFile: !uuid '81ac1a7f7d064a09386af5f635c1abbebda2d40e'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
-    newFile: !uuid '92b3e439fa6c0e53b26857fe6ff2cc434d72c5c3'
-    oldFile: !uuid '933ebfa60b4c02ba5025f857f96b0e69483a51a2'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysFileStorage.java:
-    newFile: !uuid '6e44e646201a6d5ca6eecb5facfdd1fe7355a687'
-    oldFile: !uuid '442e92add669f79371de6dcfbfde01904e12cde8'
-  /spring-api-support-oauth-starter:
-    newFile: !uuid '42b4136ad34784c14971b49f7582f7deca7a5361'
-    oldFile: !uuid 'ac43afb117549d709872de5a35f80243a20e38b8'
-  /spring-api-support-oauth-starter/pom.xml:
-    newFile: !uuid 'e436a15bd171900cc1259c243503f81e74dcda29'
-    oldFile: !uuid '3764e8b4f8a155a73982e83c3293ca8819f4d37e'
-  /spring-api-support-service-starter:
-    newFile: !uuid 'f233bc2f5c43a1ca174402c76829a5079aad3ae6'
-    oldFile: !uuid '391fbd2b92f30d2a2d0b81040b230c7d8bf6a504'
-  /spring-api-support-service-starter/pom.xml:
-    newFile: !uuid '8cd217874c3ef01426871aa09a8b5f8e6c466e55'
-    oldFile: !uuid '869e094ed2fee37baa03c634912ce5b98779a994'
-gitCommitId: !uuid '08ee6293b280b8d163782ad750b33d4944ca0836'
+    newFile: !uuid 'd266e98ba1f8fa2fa5ad19bffe6eced04a695f1d'
+    oldFile: !uuid '15dc2470ff61a58cf64dfbb2646d838e17ab70f1'
+  /spring-api-support-admin-starter/src/main/resources:
+    newFile: !uuid 'dcddb1073846d208ac65cc8212bfb8757fce561a'
+    oldFile: !uuid 'a19c168365404c157ca431736066153cbd9a88a6'
+  /spring-api-support-admin-starter/src/main/resources/sql:
+    newFile: !uuid 'daebd2493577b968df8ea7816a649f86cc7d375c'
+    oldFile: !uuid '8d51ad484db3a2b9a1a8484a4bfe54a573e5ef2a'
+  /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
+    newFile: !uuid '50d709b8ded76c72da1bc495aafcd256c5749993'
+    oldFile: !uuid '7ad043105904020db37f9d88b33993763ab785cf'
+gitCommitId: !uuid 'c5b2396f4b2702cd3552a79192a980b61bbd683f'
 renames: {
   }
-revisionId: 62
+revisionId: 63
