@@ -3,36 +3,48 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'c678c5272af551d9f4c056051c82ea1b3e10ece1'
-    oldFile: !uuid 'f82a77cfca891f45e4a1254a704c22d9a72b045d'
+    newFile: !uuid '4ae24c55cf93bce04c26c70558ebe0fc9cec5983'
+    oldFile: !uuid 'c678c5272af551d9f4c056051c82ea1b3e10ece1'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '188d2c763f449897ca52a0ccf27b545933ccdb0e'
-    oldFile: !uuid 'fd1d78394f82f9101754c5151f553e95a1188642'
+    newFile: !uuid '1d9aec6f6aa66e6587be817bad279db06dbeea28'
+    oldFile: !uuid '188d2c763f449897ca52a0ccf27b545933ccdb0e'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '4a6f4a2e6bc8e8dea9e6b41284487cc6adcd43e6'
-    oldFile: !uuid 'e8eaf052c655009500b8a4a78d640a799de71630'
+    newFile: !uuid '5244ae8cafc627446f7f65ec01b0f664fdb1db94'
+    oldFile: !uuid '4a6f4a2e6bc8e8dea9e6b41284487cc6adcd43e6'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid 'e546637760b5ccd93f4bb46601dc74396fdf7e3b'
-    oldFile: !uuid 'aa8e2dac1ea0fd39640222732700d02a966036fd'
+    newFile: !uuid '9bc6b262b4f2921692b5adc47ffcd47b33f2fa22'
+    oldFile: !uuid 'e546637760b5ccd93f4bb46601dc74396fdf7e3b'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '61124fe153a60bbc9c9a0bc793b8deb2e928bd11'
-    oldFile: !uuid '974bdfc321d85aaeca167e904551a08cf8720f91'
+    newFile: !uuid '8d19398605596716989fb475985ba07db656fae9'
+    oldFile: !uuid '61124fe153a60bbc9c9a0bc793b8deb2e928bd11'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid 'f9cc9c48253b667b2b5bad8412d526cebfc1cdda'
-    oldFile: !uuid '1bf531106c1c11b6ca507a01a658360710cf820e'
+    newFile: !uuid '3f24e8c48d96bea65460a18980185fff49443ab3'
+    oldFile: !uuid 'f9cc9c48253b667b2b5bad8412d526cebfc1cdda'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'e4178229bb3a845a1c3b3d0a3284e624f5e5c4e6'
-    oldFile: !uuid 'a2ddab6851696c03627d86404622fdba964c788f'
+    newFile: !uuid '3913677a5fbe7b29e7911a35b79108670023c587'
+    oldFile: !uuid 'e4178229bb3a845a1c3b3d0a3284e624f5e5c4e6'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '6b83eaba149563a1616c63c7b7eaee4138828409'
-    oldFile: !uuid '4e327ff911dd76a0da811192de358fdf19625567'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/result:
-    newFile: !uuid '9d7af950ce06f1db1f776d855fb37c8722659d7b'
-    oldFile: !uuid 'e26db3d9f5c9fe4bf694c623f958b229b0741198'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/result/SysMenuTreeResult.java:
-    newFile: !uuid '2d0ab31f5689c693597b8f7fc50debc7fcfe95ba'
-    oldFile: !uuid 'b20d926a0e5e890ae3636a626a10ba8412be4fab'
-gitCommitId: !uuid '748aa52234491fa87284d111eadd1013340fc77c'
+    newFile: !uuid 'c12365c922e323487f3ae5b8fd7fa73a5dfcf76f'
+    oldFile: !uuid '6b83eaba149563a1616c63c7b7eaee4138828409'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
+    newFile: !uuid 'b494880221e4355199878bbbe017974431c638c9'
+    oldFile: !uuid '96ef83418bf2119523a8da7c4041f216ff7b02b0'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysFileStorageController.java:
+    newFile: !uuid '81ac1a7f7d064a09386af5f635c1abbebda2d40e'
+    oldFile: !uuid '2de44acfff6079e85d13e94e4ac5e49c125ec202'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
+    newFile: !uuid '933ebfa60b4c02ba5025f857f96b0e69483a51a2'
+    oldFile: !uuid '01d136f47c15be1e36980e3ed73c2f6bc1b4a597'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysFileStorage.java:
+    newFile: !uuid '442e92add669f79371de6dcfbfde01904e12cde8'
+    oldFile: !uuid 'dd7719d46eea53daee9eddeec8485770006d3e60'
+  /spring-api-support-admin-starter/src/main/resources:
+    newFile: !uuid 'a19c168365404c157ca431736066153cbd9a88a6'
+    oldFile: !uuid '2d769e353c94f9b26889dbc9e78906aee3af7444'
+  /spring-api-support-admin-starter/src/main/resources/application-dev.yml:
+    newFile: !uuid '597e0cb5b2b470d9ae91fcd849429996ca6a2155'
+    oldFile: !uuid '7d53c1d746749d3dddbc5b2d4bc66788d1df52d4'
+gitCommitId: !uuid '0460b8e781ab8d8216affffa7ee9fe1c04b42e70'
 renames: {
   }
-revisionId: 60
+revisionId: 61
