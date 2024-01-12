@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,7 +30,7 @@ public class SysFileStorage extends SysTenantBase {
     @TableId(value = "fs_id", type = IdType.AUTO)
     @ApiModelProperty(value = "主键")
     @Schema(description = "主键")
-    @NotNull(message = "主键不能为null")
+    @NotNull(message = "唯一标识不能为空", groups = UpdateGroup.class)
     private Integer fsId;
 
     /**
