@@ -64,7 +64,7 @@ public class SysFileStorageController {
     @Operation(summary = "oss列表")
     @GetMapping("page")
     public ReturnPageResult<SysFileStorage> page(
-            @Parameter(description = "关键词") String keyword,
+            @Parameter(description = "关键词") @RequestParam(required = false) String keyword,
             @Parameter(description = "页码") @RequestParam(value = "page", defaultValue = "1") Integer page,
             @Parameter(description = "数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
@@ -84,10 +84,11 @@ public class SysFileStorageController {
     @Operation(summary = "修改OSS")
     @PutMapping("update")
     @OperateLog
-    public ReturnResult<Boolean> update(@Validated(UpdateGroup.class)@RequestBody SysFileStorage sysFileStorage) {
-        if (null == sysFileStorage.getFsId()) {
-            return Result.illegal("唯一标识不能为空");
+    public ReturnResult<Boolean> update(@Validated(UpdateGroup.class)@RequestBody SysFileStorage sysFileStorage, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
+
         return Result.ok(transactionTemplate.execute(status -> {
             boolean b = sysFileStorageService.updateById(sysFileStorage);
             if(b) {
@@ -104,7 +105,7 @@ public class SysFileStorageController {
 
     private void openFileStorage(SysFileStorage sysFileStorage) {
         fileStorageService.register(sysFileStorage.getFsBucket(), FileStorage.createStorage(
-                sysFileStorage.getFsBucket(),
+                sysFileStorage.getFsType(),
                 FileStorageOption.builder()
                         .storagePath(sysFileStorage.getFsStoragePath())
                         .domain(sysFileStorage.getFsDomain())
@@ -124,7 +125,7 @@ public class SysFileStorageController {
      */
     @Operation(summary = "新增OSS")
     @PostMapping("save")
-    public ReturnResult<SysFileStorage> save(@Validated(AddGroup.class) @RequestBody SysFileStorage sysFileStorage, BindingResult bindingResult) {
+    public ReturnResult<SysFileStorage> save(@RequestBody @Validated(AddGroup.class) SysFileStorage sysFileStorage, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
