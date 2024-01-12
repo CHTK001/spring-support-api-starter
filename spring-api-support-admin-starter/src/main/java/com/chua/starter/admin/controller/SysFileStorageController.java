@@ -7,6 +7,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.FileStorage;
 import com.chua.common.support.oss.options.FileStorageOption;
+import com.chua.common.support.spi.Option;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysFileStorage;
@@ -26,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * sys文件存储控制器
@@ -44,7 +46,16 @@ public class SysFileStorageController {
     public final FileStorageService fileStorageService;
 
     private final TransactionTemplate transactionTemplate;
-
+    /**
+     * bucket类型列表
+     *
+     * @return bucket类型列表
+     */
+    @Operation(summary = "oss类型列表")
+    @GetMapping("type")
+    public ReturnResult<List<Option<String>>> type() {
+        return ReturnResult.ok(fileStorageService.getType());
+    }
     /**
      * bucket列表
      *
@@ -117,7 +128,6 @@ public class SysFileStorageController {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
-
 
         return Result.ok(transactionTemplate.execute(status -> {
             sysFileStorageService.save(sysFileStorage);
