@@ -33,6 +33,16 @@ public class SysFileStorage extends SysTenantBase {
     private Integer fsId;
 
     /**
+     * name
+     */
+    @TableField(value = "fs_name")
+    @ApiModelProperty(value = "名称")
+    @Schema(description = "名称")
+    @Size(max = 255, message = "名称最大长度要小于 255")
+    @NotBlank(message = "名称不能为空", groups = AddGroup.class)
+    private String fsName;
+
+    /**
      * bucket
      */
     @TableField(value = "fs_bucket")
@@ -41,6 +51,16 @@ public class SysFileStorage extends SysTenantBase {
     @Size(max = 255, message = "bucket最大长度要小于 255")
     @NotBlank(message = "bucket不能为空", groups = AddGroup.class)
     private String fsBucket;
+
+    /**
+     * bucket
+     */
+    @TableField(value = "fs_type")
+    @ApiModelProperty(value = "OSS类型")
+    @Schema(description = "OSS类型")
+    @Size(max = 255, message = "OSS类型最大长度要小于 255")
+    @NotBlank(message = "OSS类型不能为空", groups = AddGroup.class)
+    private String fsType;
 
     /**
      * 三方服务器地址
