@@ -5,8 +5,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.oss.FileStorage;
-import com.chua.common.support.oss.options.FileStorageOption;
 import com.chua.common.support.spi.Option;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
@@ -26,8 +24,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static com.chua.starter.admin.utils.FileStorageUtils.openFileStorage;
 
 /**
  * sys文件存储控制器
@@ -97,26 +96,12 @@ public class SysFileStorageController {
                     fileStorageService.unregister(fileStorage.getFsBucket());
                     return true;
                 }
-                openFileStorage(fileStorage);
+                openFileStorage(fileStorageService, fileStorage);
             }
             return b;
         }));
     }
 
-    private void openFileStorage(SysFileStorage sysFileStorage) {
-        fileStorageService.register(sysFileStorage.getFsBucket(), FileStorage.createStorage(
-                sysFileStorage.getFsType(),
-                FileStorageOption.builder()
-                        .storagePath(sysFileStorage.getFsStoragePath())
-                        .domain(sysFileStorage.getFsDomain())
-                        .accessKeyId(sysFileStorage.getFsAccessKeyId())
-                        .accessKeySecret(sysFileStorage.getFsAccessKeySecret())
-                        .charset(StandardCharsets.UTF_8)
-                        .bucket(sysFileStorage.getFsBucket())
-                        .endpoint(sysFileStorage.getFsEndpoint())
-                        .build()
-        ));
-    }
 
     /**
      * 新增字典
@@ -132,7 +117,7 @@ public class SysFileStorageController {
 
         return Result.ok(transactionTemplate.execute(status -> {
             sysFileStorageService.save(sysFileStorage);
-            openFileStorage(sysFileStorage);
+            openFileStorage(fileStorageService, sysFileStorage);
             return sysFileStorage;
         }));
     }
