@@ -3,21 +3,57 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '5589c856338253ccfa1dc8202d23a9bb93ba5939'
-    oldFile: !uuid '3f59bd16c4164890f6c25b93fc146a4926d0aef4'
+    newFile: !uuid 'dbb93f795a43a58c7c57112111d7cdac9da8d225'
+    oldFile: !uuid '5589c856338253ccfa1dc8202d23a9bb93ba5939'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '0d2408cafa4429fb0d1f07d0a8824edd40a225b4'
-    oldFile: !uuid 'e15f20a5a7544adadec720085dcdeabc8ba7c07a'
+    newFile: !uuid 'fde96a39f70bd2ebdd6b9177d331591a69b31226'
+    oldFile: !uuid '0d2408cafa4429fb0d1f07d0a8824edd40a225b4'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '46f6b792ae4ef2fda0a136467418788a04ec6510'
-    oldFile: !uuid 'd266e98ba1f8fa2fa5ad19bffe6eced04a695f1d'
+    newFile: !uuid 'e5b3c438313726480881c0e30c70efee07a7b8cf'
+    oldFile: !uuid '46f6b792ae4ef2fda0a136467418788a04ec6510'
+  /spring-api-support-admin-starter/src/main/java:
+    newFile: !uuid '0e21f84ad5ed3cc04b9c229c42b08156dca6a12a'
+    oldFile: !uuid 'e02083e6865d0ece6bac4de0f3128e95e359aa74'
+  /spring-api-support-admin-starter/src/main/java/com:
+    newFile: !uuid 'd692de1cc0ba10abadb7e7a2c19e242b22374200'
+    oldFile: !uuid 'a9aa63b616f97aa11714c01e14cde095bb49c01f'
+  /spring-api-support-admin-starter/src/main/java/com/chua:
+    newFile: !uuid '4ffcbfd6e8995312b125113fbbbe73fe92f8664f'
+    oldFile: !uuid '28834a926af7906b80f1b4ec4751704498212119'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter:
+    newFile: !uuid '7d12087c88f2dd5bbbb1529132b11c15a49a8359'
+    oldFile: !uuid 'ca64e9c5ea9b7041cdfeb61f8cda7f18c50c67bb'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
+    newFile: !uuid '725d06c44cab2dfe1c754d580990a798ee59936d'
+    oldFile: !uuid '59b35b81648afe58309f43a3813395ddc5416713'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
+    newFile: !uuid 'c9574d1e1f3ed5616a1206e5c88a0cd33afece5c'
+    oldFile: !uuid 'c64297304932cde324dcfa7951195b345cc6f471'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysFileStorageController.java:
+    newFile: !uuid '4f43211069b022807fe4bc3f748cc69681070250'
+    oldFile: !uuid '272215cef4b7ed0f07bcbc148969afb86fce8661'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
+    newFile: !uuid 'bff946ef313649c5e4966702882d3c1a862efdc7'
+    oldFile: !uuid 'f38db715602e6bbbfe08217c07660f4068f8b562'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
+    newFile: !uuid 'a243c77e8a831b7d74cfc2f7311c7c5409227aac'
+    oldFile: !uuid '0c1295113bd151defa5266258a48b7ea6fd16021'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysFileStorageServiceImpl.java:
+    newFile: !uuid 'cbca66626cec751a7e67abf5386db225c0735522'
+    oldFile: !uuid 'd7bd725a82f1db08cdc8d81367562d5bf78bf8db'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/utils:
+    newFile: !uuid '43431fbb73e74fa620853c37adc9e90cb3327298'
+    oldFile: !uuid '8a1ebf1cf38ae3e149344767865bac066fe71c76'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/utils/FileStorageUtils.java:
+    newFile: !uuid '94d9eb56a016a8f48f3e1f6444b4ff84eec2cb2a'
+    oldFile: null
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid 'c913062842ea29cadd3df63c965dc44938bbf165'
-    oldFile: !uuid 'dcddb1073846d208ac65cc8212bfb8757fce561a'
+    newFile: !uuid '589b5f984df60ab673cdd1e8687170c4684bc581'
+    oldFile: !uuid 'c913062842ea29cadd3df63c965dc44938bbf165'
   /spring-api-support-admin-starter/src/main/resources/application-dev.yml:
-    newFile: !uuid '95d8e81ace81646d0d9a5b1ec0fce01c9b23ecc6'
-    oldFile: !uuid '597e0cb5b2b470d9ae91fcd849429996ca6a2155'
-gitCommitId: !uuid 'e1bd741a02b86aba9bb912ae1162322524b36452'
+    newFile: !uuid '9791dc512025960a6255089e3186be94c125de24'
+    oldFile: !uuid '95d8e81ace81646d0d9a5b1ec0fce01c9b23ecc6'
+gitCommitId: !uuid '24a9d2db8f10cc5be5e0bf8615592367aae6d08c'
 renames: {
   }
-revisionId: 64
+revisionId: 65
