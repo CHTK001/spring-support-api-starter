@@ -44,11 +44,6 @@ logging:
 
 
 plugin:
-  store:
-    enable: true
-    config:
-      - bucket: test
-        impl: local
   table:
     packages: com.chua.starter.admin.entity
     enable: true
