@@ -3,48 +3,36 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid '71798c2169c3c753a9925bac5b0d151a0a5f6018'
-    oldFile: !uuid '8e969607cd9cc085918385ac5933585467424033'
+    newFile: !uuid 'faed172eff48b16451107fdebe27ed9fabc46697'
+    oldFile: !uuid '71798c2169c3c753a9925bac5b0d151a0a5f6018'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'de988f34007d45e35708c4b011d5f0b36e53c9d6'
-    oldFile: !uuid '27e3ea7f222fed8cc5f6b2729211b1937aad4710'
+    newFile: !uuid '56d57ffccee2f11bda5d082bf4faf6dc10285104'
+    oldFile: !uuid 'de988f34007d45e35708c4b011d5f0b36e53c9d6'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'ef1e73de286408b83787b46d47b9ed48e2ccadb3'
-    oldFile: !uuid 'abaacb6f4488a01e4f7a7f3ecc78c39337b50adf'
+    newFile: !uuid '68ac23cef7892d95e258a48abe4e6b6743df5421'
+    oldFile: !uuid 'ef1e73de286408b83787b46d47b9ed48e2ccadb3'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '1e5765ef96340615fa652e6f66d6414f89bb49c4'
-    oldFile: !uuid '0e21f84ad5ed3cc04b9c229c42b08156dca6a12a'
+    newFile: !uuid '6ccb6bf8f2edac8e5ab0f79384e137825b183ca7'
+    oldFile: !uuid '1e5765ef96340615fa652e6f66d6414f89bb49c4'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '70f0e3058794de7eef247fc44d4e276b149f9169'
-    oldFile: !uuid 'd692de1cc0ba10abadb7e7a2c19e242b22374200'
+    newFile: !uuid 'ded19ef2a29c10e4b0d3f053211b632f776e88e6'
+    oldFile: !uuid '70f0e3058794de7eef247fc44d4e276b149f9169'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '24bf54de2483a0dee022fda01ca601056d149634'
-    oldFile: !uuid '4ffcbfd6e8995312b125113fbbbe73fe92f8664f'
+    newFile: !uuid 'a48f4670ee36028d20530ced45fd196a674d7592'
+    oldFile: !uuid '24bf54de2483a0dee022fda01ca601056d149634'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'c683d0afa3e8a89e5f75612c16e747490d02bbf0'
-    oldFile: !uuid '7d12087c88f2dd5bbbb1529132b11c15a49a8359'
+    newFile: !uuid '141d2c6cc3d551b30a7bb468ab3ef56bc9445dfa'
+    oldFile: !uuid 'c683d0afa3e8a89e5f75612c16e747490d02bbf0'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '0530e8668327e6e5bc1058b93c995dbbb0f70816'
-    oldFile: !uuid '725d06c44cab2dfe1c754d580990a798ee59936d'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid '4e150d0ab0c7ddf87b2943a0216e646a8306c237'
-    oldFile: !uuid 'c9574d1e1f3ed5616a1206e5c88a0cd33afece5c'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysFileStorageController.java:
-    newFile: !uuid '3b3720eeb40365596c68695e14355fa55b298324'
-    oldFile: !uuid '4f43211069b022807fe4bc3f748cc69681070250'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
-    newFile: !uuid 'a8948b3518c5b4fe424c7f0c90b528042cbbb042'
-    oldFile: !uuid '92b3e439fa6c0e53b26857fe6ff2cc434d72c5c3'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysFileStorage.java:
-    newFile: !uuid '8237e7b4127f84ebd244bde4526658a7694b2c9b'
-    oldFile: !uuid '6e44e646201a6d5ca6eecb5facfdd1fe7355a687'
-  /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid 'ceb5898454667886a789c317867bb2307395964d'
-    oldFile: !uuid 'bedbe889cfa7d98907bfbe1abcd3cb94e87a6d43'
-  /spring-api-support-admin-starter/src/main/resources/application.yml:
-    newFile: !uuid 'bfba688fd23f32d7f39ff0c6c48de95e052f3407'
-    oldFile: !uuid 'a12e65f99890d7309c26d291a8aae733b9dbbcb4'
-gitCommitId: !uuid 'be42130e23a55eb69c4c7d0fb49f62bfa0905c1c'
+    newFile: !uuid 'ee2a6dff524df1353bf189084722a08d741566b6'
+    oldFile: !uuid '0530e8668327e6e5bc1058b93c995dbbb0f70816'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/utils:
+    newFile: !uuid '4e7dc4ac4c8e395ff70cf155b480e4a1ad35c22c'
+    oldFile: !uuid '43431fbb73e74fa620853c37adc9e90cb3327298'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/utils/FileStorageUtils.java:
+    newFile: !uuid '564c58a064005497c6eb622e5e96e6ccc87dbcc0'
+    oldFile: !uuid '94d9eb56a016a8f48f3e1f6444b4ff84eec2cb2a'
+gitCommitId: !uuid '3d179bab2ed6d8f39fb77c5561827866f97db585'
 renames: {
   }
-revisionId: 67
+revisionId: 68
