@@ -3,9 +3,9 @@ package com.chua.starter.admin.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.Option;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysFileStorage;
@@ -23,8 +23,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.chua.starter.admin.utils.FileStorageUtils.openFileStorage;
 
@@ -52,8 +50,12 @@ public class SysFileStorageController {
      */
     @Operation(summary = "oss类型列表")
     @GetMapping("type")
-    public ReturnResult<List<Option<String>>> type() {
-        return ReturnResult.ok(fileStorageService.getType());
+    public ReturnResult<JsonObject> type() {
+        JsonObject res = new JsonObject();
+        res.put("impl", fileStorageService.getType());
+        res.put("filter", fileStorageService.getFilter());
+        res.put("plugin", fileStorageService.getPlugin());
+        return ReturnResult.ok(res);
     }
     /**
      * bucket列表
