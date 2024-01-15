@@ -2,6 +2,9 @@ package com.chua.starter.admin.utils;
 
 import com.chua.common.support.oss.FileStorage;
 import com.chua.common.support.oss.options.FileStorageOption;
+import com.chua.common.support.oss.plugin.DefaultFileStorageFilterPlugin;
+import com.chua.common.support.oss.plugin.FileStorageConversionPlugin;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.admin.entity.SysFileStorage;
 import com.chua.starter.common.support.filestorage.FileStorageService;
 
@@ -31,6 +34,8 @@ public class FileStorageUtils {
                         .accessKeySecret(sysFileStorage.getFsAccessKeySecret())
                         .charset(StandardCharsets.UTF_8)
                         .bucket(sysFileStorage.getFsBucket())
+                        .fileStorageConversionPlugin(ServiceProvider.of(FileStorageConversionPlugin.class).getNewExtension(sysFileStorage.getFsPlugin()))
+                        .fileStorageFilterPlugin(new DefaultFileStorageFilterPlugin(sysFileStorage.getFsFilter()))
                         .endpoint(sysFileStorage.getFsEndpoint())
                         .build()
         ));
