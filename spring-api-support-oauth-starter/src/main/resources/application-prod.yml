@@ -15,12 +15,3 @@ spring:
 logging:
   level:
     com.chua.starter.sso.impl: debug
-plugin:
-  auto:
-    table:
-      scan: com.chua.starter.service.entity.user
-  oauth:
-    new-login-url: http://127.0.0.1:5173/login
-    new-index-url: http://127.0.0.1:5173/
-    enhance:
-      url: 127.0.0.1:15556
