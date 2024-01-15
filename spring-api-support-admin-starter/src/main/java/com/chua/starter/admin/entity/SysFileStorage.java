@@ -54,7 +54,7 @@ public class SysFileStorage extends SysTenantBase {
     private String fsBucket;
 
     /**
-     * bucket
+     * OSS类型
      */
     @TableField(value = "fs_type")
     @ApiModelProperty(value = "OSS类型")
@@ -62,6 +62,22 @@ public class SysFileStorage extends SysTenantBase {
     @Size(max = 255, message = "OSS类型最大长度要小于 255")
     @NotBlank(message = "OSS类型不能为空", groups = AddGroup.class)
     private String fsType;
+
+    /**
+     * 图片滤镜
+     */
+    @TableField(value = "fs_filter")
+    @ApiModelProperty(value = "图片滤镜")
+    @Schema(description = "图片滤镜")
+    private String fsFilter;
+
+    /**
+     * 插件, 文件上传时预处理
+     */
+    @TableField(value = "fs_plugin")
+    @ApiModelProperty(value = "插件; 文件上传时预处理")
+    @Schema(description = "插件; 文件上传时预处理")
+    private String fsPlugin;
 
     /**
      * 三方服务器地址
