@@ -39,8 +39,10 @@ public class SysFileStorageServiceImpl extends ServiceImpl<SysFileStorageMapper,
                             return;
                         }
                         FileStorageUtils.openFileStorage(fileStorageService, it);
+                        log.info("初始化bucket[{}]完成", it.getFsBucket());
                     });
                     log.info("本次共初始化bucket: {}", sysFileStorages.size());
+                    log.info("初始化bucket完成");
                 });
     }
 }
