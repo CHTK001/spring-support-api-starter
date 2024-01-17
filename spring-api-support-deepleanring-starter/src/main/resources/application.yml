@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: learning
+  profiles:
+    active: dev
+
+server:
+  compression:
+    enabled: true
