@@ -91,6 +91,14 @@ public class SysFileStorageController {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
+        if(sysFileStorageService
+                .count(Wrappers.<SysFileStorage>lambdaQuery()
+                        .ne(SysFileStorage::getFsId, sysFileStorage.getFsId())
+                        .eq(SysFileStorage::getFsBucket, sysFileStorage.getFsBucket())
+                ) > 0L) {
+            return Result.illegal("bucket已存在");
+        }
+
         return Result.ok(transactionTemplate.execute(status -> {
             boolean b = sysFileStorageService.updateById(sysFileStorage);
             if(b) {
@@ -116,6 +124,9 @@ public class SysFileStorageController {
     public ReturnResult<SysFileStorage> save(@RequestBody @Validated(AddGroup.class) SysFileStorage sysFileStorage, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+        if(sysFileStorageService.count(Wrappers.<SysFileStorage>lambdaQuery().eq(SysFileStorage::getFsBucket, sysFileStorage.getFsBucket())) > 0L) {
+            return Result.illegal("bucket已存在");
         }
 
         return Result.ok(transactionTemplate.execute(status -> {
