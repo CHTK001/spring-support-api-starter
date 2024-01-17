@@ -6,7 +6,7 @@ import com.chua.starter.admin.entity.SysUserSetting;
 /**
  * @author CH
  */
-public interface SysUserGridService extends IService<SysUserSetting> {
+public interface SysUserSettingService extends IService<SysUserSetting> {
 
     /**
      * 保存布局
