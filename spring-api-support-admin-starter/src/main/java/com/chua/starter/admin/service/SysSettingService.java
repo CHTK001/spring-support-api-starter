@@ -1,15 +1,20 @@
 package com.chua.starter.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.starter.admin.entity.SysSetting;
+
+import java.util.List;
+
 public interface SysSettingService extends IService<SysSetting>{
 
 
     /**
-     * @param name
+     * 获取配置
+     * @param name 名称
      * @return {@link SysSetting}
      */
-    SysSetting getSetting(String name);
+    List<SysSetting> getSettings(String name);
     /**
      * 更新配置
      * @param sysSetting 配置
@@ -29,4 +34,11 @@ public interface SysSettingService extends IService<SysSetting>{
      * @return boolean
      */
     boolean saveSetting(SysSetting sysSetting);
+
+    /**
+     * 批处理
+     * @param sysSettings 配置
+     * @return boolean
+     */
+    ErrorResult batchSetting(List<SysSetting> sysSettings);
 }
