@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.mapper.SysUserGridMapper;
-import com.chua.starter.admin.service.SysUserGridService;
+import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.constant.Constant;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,7 +17,7 @@ import java.util.List;
  * @author CH
  */     
 @Service
-public class SysUserGridServiceImpl extends ServiceImpl<SysUserGridMapper, SysUserSetting> implements SysUserGridService, Constant {
+public class SysUserSettingServiceImpl extends ServiceImpl<SysUserGridMapper, SysUserSetting> implements SysUserSettingService, Constant {
 
     @Override
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'grid' + #sysUserGrid.userId")

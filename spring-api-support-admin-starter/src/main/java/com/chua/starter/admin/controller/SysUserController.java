@@ -3,25 +3,26 @@ package com.chua.starter.admin.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.exception.NotSupportedException;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.*;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.RandomUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.admin.entity.SysUser;
-import com.chua.starter.admin.entity.SysUserRole;
 import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.pojo.LoginResult;
 import com.chua.starter.admin.pojo.UserInfoVO;
 import com.chua.starter.admin.query.LoginData;
 import com.chua.starter.admin.query.SysUserUpdate;
 import com.chua.starter.admin.query.UserPageQuery;
-import com.chua.starter.admin.service.SysUserGridService;
 import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.service.SysUserService;
+import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.Constant;
@@ -31,7 +32,6 @@ import com.chua.starter.common.support.notice.NoticeService;
 import com.chua.starter.common.support.notice.NoticeType;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
-import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -44,8 +44,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +51,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.chua.common.support.discovery.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.*;
@@ -74,9 +75,7 @@ public class SysUserController implements Constant {
     private final SysUserService userService;
     private final SysUserRoleService sysUserRoleService;
 
-    private final TransactionTemplate transactionTemplate;
-
-    private final SysUserGridService sysUserGridService;
+    private final SysUserSettingService sysUserSettingService;
 
     /**
      * 用户分页列表
@@ -120,7 +119,7 @@ public class SysUserController implements Constant {
             }
 
         }
-        return Result.success(sysUserGridService.saveGrid(sysUserGrid));
+        return Result.success(sysUserSettingService.saveGrid(sysUserGrid));
     }
 
     /**
@@ -331,82 +330,7 @@ public class SysUserController implements Constant {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        SysUser sysUser1 = userService.getById(sysUser.getUserId());
-        if (null == sysUser1) {
-            return Result.illegal("用户信息不存在");
-        }
-
-        if (ADMIN.equalsIgnoreCase(sysUser1.getUsername()) && !ADMIN.equalsIgnoreCase(username)) {
-            return Result.illegal("您无权限修改管理员账号信息");
-        }
-
-        List<String> strings = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(sysUser.getRoleId());
-
-        if (!roles1.contains(ADMIN) && !userService.isAdmin()) {
-            if (!sysUser1.getUsername().equalsIgnoreCase(username)) {
-                return Result.illegal("您无权限修改管理员账号信息");
-            }
-        }
-
-        if (!roles1.contains(ADMIN) && !sysUser1.getUsername().equalsIgnoreCase(username)) {
-            return Result.illegal("您只能修改自己的账号信息");
-        }
-
-        if (StringUtils.isNotBlank(sysUser.getUserPassword()) && StringUtils.isBlank(sysUser.getUserSeRan())) {
-            return Result.illegal("系统异常请联系管理员");
-        }
-        SysUser newSysUser = new SysUser();
-        newSysUser.setUserSalt(null);
-        BeanUtils.copyProperties(sysUser, newSysUser);
-        newSysUser.setUsername(null);
-
-        if (StringUtils.isNotBlank(sysUser.getUserPassword())) {
-            if (StringUtils.isBlank(sysUser.getUserOldPassword())) {
-                return Result.illegal("旧密码不能为空");
-            }
-
-            if (sysUser.getUserOldPassword().equals(sysUser.getUserPassword())) {
-                return Result.illegal("旧密码与新密码不能相同");
-            }
-
-            Base64.Decoder decoder = Base64.getDecoder();
-            String key = new String(decoder.decode(decoder.decode(sysUser.getUserSeRan())));
-            String userOldPassword = DigestUtils.aesDecrypt(sysUser.getUserOldPassword(), key);
-
-            if (!sysUser1.getUserPassword().equals(DigestUtils.md5Hex(DigestUtils.md5Hex(userOldPassword) + sysUser1.getUserSalt()))) {
-                return Result.illegal("旧密码不正确");
-            }
-
-            String newPassword = DigestUtils.aesDecrypt(sysUser.getUserPassword(), key);
-            newSysUser.setUserSalt(RandomUtils.randomString(16));
-            newSysUser.setUserPassword(DigestUtils.md5Hex(DigestUtils.md5Hex(newPassword) + newSysUser.getUserSalt()));
-        }
-
-        if (1 == sysUser1.getUserSys()) {
-            newSysUser.setUserStatus(1);
-            newSysUser.setUserDeleted(0);
-            newSysUser.setUserSys(1);
-        }
-
-        transactionTemplate.execute(status -> {
-            userService.updateById(newSysUser);
-            sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getUserId, sysUser.getUserId()));
-            List<SysUserRole> roles = new ArrayList<>();
-            for (String s : strings) {
-                try {
-                    roles.add(new SysUserRole(newSysUser.getUserId(), Long.parseLong(s)));
-                } catch (NumberFormatException ignored) {
-                }
-            }
-            sysUserRoleService.saveBatch(roles);
-            return true;
-        });
-        refresh();
-        return Result.ok();
-    }
-
-    private void refresh() {
-        AuthClientExecute.getInstance().refreshToken();
+       return userService.updateUser(roles1, username, sysUser);
     }
 
     /**
@@ -424,33 +348,6 @@ public class SysUserController implements Constant {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        String username = sysUser.getUsername();
-        if (userService.count(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username)) > 0L) {
-            return Result.illegal("用户账号已存在");
-        }
-
-        Base64.Decoder decoder = Base64.getDecoder();
-        String key = new String(decoder.decode(decoder.decode(sysUser.getUserSeRan())));
-        String newPassword = DigestUtils.aesDecrypt(sysUser.getUserPassword(), key);
-
-        sysUser.setUserSys(0);
-        sysUser.setUserSalt(RandomUtils.randomString(16));
-        sysUser.setUserPassword(DigestUtils.md5Hex(DigestUtils.md5Hex(newPassword) + sysUser.getUserSalt()));
-        sysUser.setUserRegisterIp(RequestUtils.getIpAddress(request));
-        sysUser.setUserCode(IdUtils.snowFlake());
-
-        userService.save(sysUser);
-        Long userId = sysUser.getUserId();
-
-        sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getUserId, userId));
-        List<SysUserRole> roles = new ArrayList<>();
-        for (String s : Splitter.on(",").omitEmptyStrings().trimResults().splitToList(sysUser.getRoleId())) {
-            try {
-                roles.add(new SysUserRole(userId, Long.parseLong(s)));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        sysUserRoleService.saveBatch(roles);
-        return Result.ok(sysUser);
+        return userService.saveUser(sysUser, request);
     }
 }
