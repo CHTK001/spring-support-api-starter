@@ -1,15 +1,10 @@
 package com.chua.starter.admin.controller;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.admin.entity.SysMenu;
-import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.result.SysMenuTreeResult;
-import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
 import com.chua.starter.admin.service.SysUserSettingService;
@@ -18,7 +13,6 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -58,33 +51,8 @@ public class SysMenuController implements Constant, InitializingBean {
                                          @Parameter(hidden = true) @UserValue("userDashboard") String userDashboard,
                                          @Parameter(hidden = true) @UserValue("username") String username,
                                          @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(roles.isEmpty() && !ADMIN.equalsIgnoreCase(username)) {
-            return Result.failed("联系管理员分配权限");
-        }
-        UserMenuResult userMenuResult = new UserMenuResult();
-        userMenuResult.setPermissions(AuthClientExecute.getInstance().getUserResult().getPermission());
-        List<SysMenu> sysMenus = menuService.roleMenu();
-        if (ADMIN.equalsIgnoreCase(username)) {
-            roles = new HashSet<>(roles);
-            roles.add(ADMIN);
-        }
 
-        userMenuResult.setMenu(menuService.myMenu(sysMenus, roles));
-        userMenuResult.setDashboardGrid(Splitter.on(',').trimResults().omitEmptyStrings().splitToSet(userGrid));
-        userMenuResult.setDashboard(userDashboard);
-        SysUserGridResult result = new SysUserGridResult();
-        SysUserSetting gridByUserId = sysUserSettingService.getGridByUserId(userId);
-        try {
-            result.setLayout(JSON.parseArray(gridByUserId.getLayout()));
-        } catch (Exception e) {
-            result.setLayout(new JSONArray());
-        }
-        try {
-            result.setCopmsList(JSON.parseArray(gridByUserId.getCopmsList()));
-        } catch (Exception ignored) {
-        }
-        userMenuResult.setGrid(result);
-        return Result.success(userMenuResult);
+        return menuService.myMenu(userId, userGrid, userDashboard, username, roles);
     }
     /**
      * 删除菜单

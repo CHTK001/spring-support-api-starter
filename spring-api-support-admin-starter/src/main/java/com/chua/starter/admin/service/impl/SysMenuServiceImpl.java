@@ -1,15 +1,23 @@
 package com.chua.starter.admin.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.treenode.CustomTreeNode;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.admin.entity.SysMenu;
+import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.mapper.SysMenuMapper;
 import com.chua.starter.admin.pojo.RouteVO;
 import com.chua.starter.admin.result.SysMenuTreeResult;
+import com.chua.starter.admin.result.SysUserGridResult;
+import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
+import com.chua.starter.admin.service.SysUserSettingService;
+import com.chua.starter.common.support.constant.Constant;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -18,10 +26,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.Resource;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +40,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService, Constant {
 
+
+    @Resource
+    private SysUserSettingService sysUserSettingService;
     @Override
     public List<RouteVO> myMenu(List<SysMenu> sysMenus, Set<String> roles) {
         List<SysMenu> tplMenus = sysMenus.stream().filter(it -> {
@@ -204,5 +213,36 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     )
     public boolean deleteMenu(String menuId) {
         return baseMapper.deleteBatchIds(Arrays.asList(menuId.split(","))) > 0;
+    }
+
+    @Override
+    public Result<UserMenuResult> myMenu(String userId, String userGrid, String userDashboard, String username, Set<String> roles) {
+        if(roles.isEmpty() && !ADMIN.equalsIgnoreCase(username)) {
+            return Result.failed("联系管理员分配权限");
+        }
+        UserMenuResult userMenuResult = new UserMenuResult();
+        userMenuResult.setPermissions(AuthClientExecute.getInstance().getUserResult().getPermission());
+        List<SysMenu> sysMenus = roleMenu();
+        if (ADMIN.equalsIgnoreCase(username)) {
+            roles = new HashSet<>(roles);
+            roles.add(ADMIN);
+        }
+
+        userMenuResult.setMenu(myMenu(sysMenus, roles));
+        userMenuResult.setDashboardGrid(Splitter.on(',').trimResults().omitEmptyStrings().splitToSet(userGrid));
+        userMenuResult.setDashboard(userDashboard);
+        SysUserGridResult result = new SysUserGridResult();
+        SysUserSetting gridByUserId = sysUserSettingService.getGridByUserId(userId);
+        try {
+            result.setLayout(JSON.parseArray(gridByUserId.getLayout()));
+        } catch (Exception e) {
+            result.setLayout(new JSONArray());
+        }
+        try {
+            result.setCopmsList(JSON.parseArray(gridByUserId.getCopmsList()));
+        } catch (Exception ignored) {
+        }
+        userMenuResult.setGrid(result);
+        return Result.success(userMenuResult);
     }
 }
