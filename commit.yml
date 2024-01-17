@@ -3,64 +3,48 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'e9b9cd76b7c3d209c33d907fccb2aaef9c90e0c6'
-    oldFile: !uuid '9f78d381d6bcab3257de3788745c3933db4b9a98'
+    newFile: !uuid 'd7469034e1cd6617283765e72057be75d89fe6cb'
+    oldFile: !uuid 'e9b9cd76b7c3d209c33d907fccb2aaef9c90e0c6'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '91c168d6ef07bfa99cf631f4f96f2e065cc1785a'
-    oldFile: !uuid '7fdf1702a8f5b185726226a3e7e48b25c685fe08'
+    newFile: !uuid 'ca67dc8d1bdd052b2639620d4325afbedc8bdb2c'
+    oldFile: !uuid '91c168d6ef07bfa99cf631f4f96f2e065cc1785a'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '5f5eb92cfa56e19045ffa8be815bb298a9e9816a'
-    oldFile: !uuid '23ededeac089063b6972e873206f03673debdd4a'
+    newFile: !uuid 'c718e85cddefa440ae5dd06774e14baac7058c02'
+    oldFile: !uuid '5f5eb92cfa56e19045ffa8be815bb298a9e9816a'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '681bd0ba31efa61ba1b381a86887ef5d09aac8b3'
-    oldFile: !uuid '7f733e1add54e99b226db6942e1a4de93f000c18'
+    newFile: !uuid '2384fd1d5dd4c66f050c2b1424fd788ebcc38172'
+    oldFile: !uuid '681bd0ba31efa61ba1b381a86887ef5d09aac8b3'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid 'e227af3cdbd9dbff4859c8ae21f1541c3989106d'
-    oldFile: !uuid '8f530261311a2c243685d5bcdfb6afbc0fc50627'
+    newFile: !uuid '68e546a8a703c07e415a3dd30e3204644a31a2bb'
+    oldFile: !uuid 'e227af3cdbd9dbff4859c8ae21f1541c3989106d'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '4566a99ad986ca06375cb983b655328b8d0f759b'
-    oldFile: !uuid 'a33407b236ea7876b156e45858c31aade3b53928'
+    newFile: !uuid 'd4e67b4329682bb2f9686e13afdf8a97a2a7ca6b'
+    oldFile: !uuid '4566a99ad986ca06375cb983b655328b8d0f759b'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'd348101970e629a1e503befc81d50eebb3de1fa9'
-    oldFile: !uuid 'f465a1aeb527633f64afcd019b1ac351f779b9c9'
+    newFile: !uuid '1bf9b5b51578e259c662d8e87201896e67ac4433'
+    oldFile: !uuid 'd348101970e629a1e503befc81d50eebb3de1fa9'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid 'cfe5d2eb9f539220b62befeff03d6ebdffd60c63'
-    oldFile: !uuid '24e638db4b198415fda4838ed5cd19433137a19a'
+    newFile: !uuid '03eb849ff9ceeee4faf82732c81de45c052d9b75'
+    oldFile: !uuid 'cfe5d2eb9f539220b62befeff03d6ebdffd60c63'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid '061953716c66c32dccb5d351b247e73806e83af2'
-    oldFile: !uuid 'db7a4ca4af88f7c580103c2ea9b56e81ce9e3ab7'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysMenuController.java:
-    newFile: !uuid 'ee1bbfd2f0dfd29ce51a3990d82fd307babfb47c'
-    oldFile: !uuid '39589fdb666a2d2e4e3f2ff498e04a23466ce113'
+    newFile: !uuid '7cbec256a55953825d12f8b85be83894bdfd054a'
+    oldFile: !uuid '061953716c66c32dccb5d351b247e73806e83af2'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysUserController.java:
-    newFile: !uuid 'eec01308939a32ba3ff258f446a6c9104d7e0f5d'
-    oldFile: !uuid '11fb694ac779f6703ecb0eecbfd2cee081a5bbe8'
+    newFile: !uuid '1f8f980686896c8b20a4d87ab602c0f8be7642c1'
+    oldFile: !uuid 'eec01308939a32ba3ff258f446a6c9104d7e0f5d'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
-    newFile: !uuid '6df2508efeacd67db95301727d348758135854c9'
-    oldFile: !uuid 'd832598346fd3720187c103c2e9308d9a4761777'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysUserGridService.java:
-    newFile: null
-    oldFile: !uuid '16e9065e4cf9459b7fc897395ecafe59b275415a'
+    newFile: !uuid '11c1ba38473967dc5cb9f0b09d6315d918202102'
+    oldFile: !uuid '6df2508efeacd67db95301727d348758135854c9'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysUserService.java:
-    newFile: !uuid '434faca9678c635fa2e237800142550209baae57'
-    oldFile: !uuid '31943bb157ddcfb450a5e4344cd24df23ebb0989'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysUserSettingService.java:
-    newFile: !uuid 'c925b21becf6b1d6cc019ef522bc67256514a5da'
-    oldFile: null
+    newFile: !uuid '56d04dc71afc244dcc45990a66e069197bb8595e'
+    oldFile: !uuid '434faca9678c635fa2e237800142550209baae57'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
-    newFile: !uuid '3d9f4ef0247e72b00633f99918caf3051b44b215'
-    oldFile: !uuid 'd9572be91e287fa73df7c3c81d36c8ee72244be5'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysUserGridServiceImpl.java:
-    newFile: null
-    oldFile: !uuid 'cc25fe932290b07fd04bd43781f6b2b7b09c22d5'
+    newFile: !uuid '2b94b899ec5b575343a7b7a84558b49abb7a3cdf'
+    oldFile: !uuid '3d9f4ef0247e72b00633f99918caf3051b44b215'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysUserServiceImpl.java:
-    newFile: !uuid '5edfbea3a068a7fc6d66954d3ff1fc4f53509e49'
-    oldFile: !uuid 'a4133aa6ea4e96991ed20738786b321d397b7894'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysUserSettingServiceImpl.java:
-    newFile: !uuid '7316fa7519b74c1701e7ca11bb77147e0fddd656'
-    oldFile: null
-gitCommitId: !uuid '8a0e5354a0bcebe601c8a46eafe9d6bc90fc6170'
-renames:
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysUserSettingService.java: /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysUserGridService.java
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysUserSettingServiceImpl.java: /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysUserGridServiceImpl.java
-revisionId: 94
+    newFile: !uuid 'a29db08b4d3e80384919263cf0c28b970a7ffef4'
+    oldFile: !uuid '5edfbea3a068a7fc6d66954d3ff1fc4f53509e49'
+gitCommitId: !uuid '3fa481ce4cd8c9787710c73527a2b2b4ff60709c'
+renames: {
+  }
+revisionId: 95
