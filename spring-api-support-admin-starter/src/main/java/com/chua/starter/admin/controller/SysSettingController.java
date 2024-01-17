@@ -9,6 +9,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysSetting;
+import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.service.SysSettingService;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -20,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -32,6 +34,9 @@ import java.util.List;
 public class SysSettingController {
 
     private final SysSettingService sysSettingService;
+
+    @Resource
+    private SystemProperties systemProperties;
     /**
      * 查询设置列表
      *
@@ -58,6 +63,7 @@ public class SysSettingController {
     ) {
         return PageResultUtils.ok(sysSettingService.page(new Page<>(page, pageSize),
                         Wrappers.<SysSetting>lambdaQuery()
+                                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
                                 .like(StringUtils.isNotBlank(keyword), SysSetting::getSettingName, keyword)
                 )
         );
@@ -84,7 +90,10 @@ public class SysSettingController {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSettingName, sysSetting.getSettingName())) > 0L) {
+        if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery()
+                .eq(SysSetting::getSettingName, sysSetting.getSettingName())
+                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+        ) > 0L) {
             return Result.illegal("配置已存在");
         }
 
@@ -103,7 +112,11 @@ public class SysSettingController {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery().ne(SysSetting::getSettingId, sysSetting.getSettingId()).eq(SysSetting::getSettingName, sysSetting.getSettingName())) > 0L) {
+        if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery()
+                .ne(SysSetting::getSettingId, sysSetting.getSettingId())
+                .eq(SysSetting::getSettingName, sysSetting.getSettingName())
+                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+        ) > 0L) {
             return Result.illegal("配置已存在");
         }
 
