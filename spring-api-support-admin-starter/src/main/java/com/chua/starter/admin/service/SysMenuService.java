@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.admin.entity.SysMenu;
 import com.chua.starter.admin.pojo.RouteVO;
 import com.chua.starter.admin.result.SysMenuTreeResult;
+import com.chua.starter.admin.result.UserMenuResult;
+import com.chua.starter.common.support.result.Result;
 
 import java.util.List;
 import java.util.Set;
@@ -55,4 +57,16 @@ public interface SysMenuService extends IService<SysMenu> {
      * @return 结果
      */
     boolean deleteMenu(String menuId);
+
+    /**
+     * 我菜单
+     *
+     * @param userId        用户id
+     * @param userGrid      用户网格
+     * @param userDashboard 用户面板
+     * @param username      用户名
+     * @param roles         角色
+     * @return {@link Result}<{@link UserMenuResult}>
+     */
+    Result<UserMenuResult> myMenu(String userId, String userGrid, String userDashboard, String username, Set<String> roles);
 }
