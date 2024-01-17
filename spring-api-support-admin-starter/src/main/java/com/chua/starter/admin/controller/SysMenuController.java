@@ -12,7 +12,7 @@ import com.chua.starter.admin.result.SysMenuTreeResult;
 import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
-import com.chua.starter.admin.service.SysUserGridService;
+import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
@@ -47,7 +47,7 @@ public class SysMenuController implements Constant, InitializingBean {
 
     private final SysMenuService menuService;
 
-    private final SysUserGridService sysUserGridService;
+    private final SysUserSettingService sysUserSettingService;
 
     private static final ExecutorService POOL = ThreadUtils.newStaticThreadPool();
 
@@ -73,7 +73,7 @@ public class SysMenuController implements Constant, InitializingBean {
         userMenuResult.setDashboardGrid(Splitter.on(',').trimResults().omitEmptyStrings().splitToSet(userGrid));
         userMenuResult.setDashboard(userDashboard);
         SysUserGridResult result = new SysUserGridResult();
-        SysUserSetting gridByUserId = sysUserGridService.getGridByUserId(userId);
+        SysUserSetting gridByUserId = sysUserSettingService.getGridByUserId(userId);
         try {
             result.setLayout(JSON.parseArray(gridByUserId.getLayout()));
         } catch (Exception e) {
