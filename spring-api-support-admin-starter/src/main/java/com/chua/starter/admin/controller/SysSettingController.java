@@ -21,7 +21,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -35,8 +34,7 @@ public class SysSettingController {
 
     private final SysSettingService sysSettingService;
 
-    @Resource
-    private SystemProperties systemProperties;
+    private final SystemProperties systemProperties;
     /**
      * 查询设置列表
      *
