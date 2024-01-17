@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.admin.entity.SysUser;
+import com.chua.starter.admin.pojo.LoginResult;
 import com.chua.starter.admin.pojo.UserInfoVO;
+import com.chua.starter.admin.query.LoginData;
 import com.chua.starter.admin.query.SysUserUpdate;
 import com.chua.starter.admin.query.UserPageQuery;
+import com.chua.starter.common.support.result.Result;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 /**
@@ -70,4 +74,32 @@ public interface SysUserService extends IService<SysUser> {
      * @return {@link ReturnResult}<{@link SysUser}>
      */
     ReturnResult<SysUser> saveUser(SysUser sysUser, HttpServletRequest request);
+
+    /**
+     * 重置所有者
+     *
+     * @param userId 用户id
+     * @param notice 注意
+     * @return {@link ReturnResult}<{@link SysUser}>
+     */
+    ReturnResult<SysUser> resetOwner(Long userId, String notice);
+
+    /**
+     * 重置
+     *
+     * @param userId 用户id
+     * @param notice 注意
+     * @return {@link ReturnResult}<{@link SysUser}>
+     */
+    ReturnResult<SysUser> reset(Long userId, String notice);
+
+    /**
+     * 登录
+     *
+     * @param loginData 登录数据
+     * @param request   请求
+     * @param response  响应
+     * @return {@link Result}<{@link LoginResult}>
+     */
+    Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response);
 }

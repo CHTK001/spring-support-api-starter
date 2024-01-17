@@ -3,15 +3,11 @@ package com.chua.starter.admin.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.exception.NotSupportedException;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.admin.entity.SysUser;
 import com.chua.starter.admin.entity.SysUserSetting;
@@ -27,19 +23,14 @@ import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.logger.SysLogger;
-import com.chua.starter.common.support.notice.NoticeMessage;
-import com.chua.starter.common.support.notice.NoticeService;
-import com.chua.starter.common.support.notice.NoticeType;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.google.common.base.Strings;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,12 +44,9 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static com.chua.common.support.discovery.Constants.CAPTCHA_SESSION_KEY;
-import static com.chua.common.support.lang.code.ReturnCode.*;
-import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
+import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
 /**
  * 用户控制器
@@ -160,31 +148,7 @@ public class SysUserController implements Constant {
             return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        String code = loginData.getVerifyCode();
-        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
-        if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
-            return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码错误");
-        }
-
-        String address = getIpAddress(request);
-        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.WEB,
-                ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
-        );
-        if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
-        }
-
-        if (accessToken.getCode() != 200) {
-            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
-        }
-
-        LoginResult loginResult = LoginResult.builder()
-                .userInfo(userService.getUserLoginInfo(accessToken.getToken()))
-                .tokenType("Bearer")
-                .accessToken(accessToken.getToken())
-                .build();
-        return Result.success(loginResult);
+        return userService.login(loginData, request, response);
     }
 
     @Operation(summary = "注销")
@@ -263,20 +227,7 @@ public class SysUserController implements Constant {
             return Result.illegal("请重新登录或者联系管理员");
         }
 
-        SysUser sysUser1 = userService.getById(userId);
-        if (null == sysUser1) {
-            return Result.illegal("用户信息不存在, 请重新登录或者联系管理员");
-        }
-
-        sysUser1.setUserPassword(RandomUtils.randomString(8));
-        sysUser1.setUserSalt(RandomUtils.randomString(16));
-        sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
-
-        userService.updateById(sysUser1);
-        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
-        noticeService.notice(NoticeMessage.builder()
-                .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
-        return Result.ok();
+        return userService.resetOwner(userId, notice);
     }
     /**
      * 重置用户密碼
@@ -295,21 +246,7 @@ public class SysUserController implements Constant {
             return Result.illegal("用户信息不存在");
         }
 
-        SysUser sysUser1 = userService.getById(userId);
-        if (null == sysUser1) {
-            return Result.illegal("用户信息不存在");
-        }
-
-        String password = RandomUtils.randomString(8);
-        sysUser1.setUserPassword(password);
-        sysUser1.setUserSalt(RandomUtils.randomString(14));
-        sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
-
-        userService.updateById(sysUser1);
-        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
-        noticeService.notice(NoticeMessage.builder()
-                .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
-        return Result.ok();
+        return userService.reset(userId, notice);
     }
 
     /**

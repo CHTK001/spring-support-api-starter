@@ -3,22 +3,32 @@ package com.chua.starter.admin.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.*;
 import com.chua.starter.admin.entity.SysUser;
 import com.chua.starter.admin.entity.SysUserRole;
 import com.chua.starter.admin.mapper.SysUserMapper;
+import com.chua.starter.admin.pojo.LoginResult;
 import com.chua.starter.admin.pojo.UserInfoVO;
+import com.chua.starter.admin.query.LoginData;
 import com.chua.starter.admin.query.SysUserUpdate;
 import com.chua.starter.admin.query.UserPageQuery;
 import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.service.SysUserService;
+import com.chua.starter.common.support.notice.NoticeMessage;
+import com.chua.starter.common.support.notice.NoticeService;
+import com.chua.starter.common.support.notice.NoticeType;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,12 +39,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Set;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
+import static com.chua.common.support.discovery.Constants.CAPTCHA_SESSION_KEY;
+import static com.chua.common.support.lang.code.ReturnCode.*;
 import static com.chua.starter.common.support.constant.Constant.ADMIN;
+import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
  * 用户业务实现类
@@ -208,6 +219,73 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         sysUserRoleService.saveBatch(roles);
         return Result.ok(sysUser);
+    }
+
+    @Override
+    public ReturnResult<SysUser> resetOwner(Long userId, String notice) {
+
+        SysUser sysUser1 = getById(userId);
+        if (null == sysUser1) {
+            return Result.illegal("用户信息不存在, 请重新登录或者联系管理员");
+        }
+
+        sysUser1.setUserPassword(RandomUtils.randomString(8));
+        sysUser1.setUserSalt(RandomUtils.randomString(16));
+        sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
+
+        updateById(sysUser1);
+        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
+        noticeService.notice(NoticeMessage.builder()
+                .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
+        return Result.ok();
+    }
+
+    @Override
+    public ReturnResult<SysUser> reset(Long userId, String notice) {
+        SysUser sysUser1 = getById(userId);
+        if (null == sysUser1) {
+            return Result.illegal("用户信息不存在");
+        }
+
+        String password = RandomUtils.randomString(8);
+        sysUser1.setUserPassword(password);
+        sysUser1.setUserSalt(RandomUtils.randomString(14));
+        sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
+
+        updateById(sysUser1);
+        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
+        noticeService.notice(NoticeMessage.builder()
+                .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
+        return Result.ok();
+    }
+
+    @Override
+    public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
+        String code = loginData.getVerifyCode();
+        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
+        if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
+            return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码错误");
+        }
+
+        String address = getIpAddress(request);
+        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.WEB,
+                ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
+        );
+        if (null == accessToken) {
+            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+        }
+
+        if (accessToken.getCode() != 200) {
+            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
+        }
+
+        LoginResult loginResult = LoginResult.builder()
+                .userInfo(getUserLoginInfo(accessToken.getToken()))
+                .tokenType("Bearer")
+                .accessToken(accessToken.getToken())
+                .build();
+        return Result.success(loginResult);
     }
 
     private void refresh() {
