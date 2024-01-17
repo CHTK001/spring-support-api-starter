@@ -37,6 +37,15 @@ public class SysSetting {
     private String settingName;
 
     /**
+     * 设置名称
+     */
+    @TableField(value = "setting_type")
+    @ApiModelProperty(value="参数类型")
+    @Schema(description="参数类型")
+    @Size(max = 255,message = "参数类型最大长度要小于 255", groups = AddGroup.class)
+    private String settingType;
+
+    /**
      * 设置值
      */
     @TableField(value = "setting_value")

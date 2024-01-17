@@ -3,6 +3,7 @@ package com.chua.starter.admin.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -19,16 +20,30 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 系统设置
  */
 @Tag(name = "系统设置接口")
 @RestController
-@RequestMapping("/v2/setting")
+@RequestMapping("/v1/setting")
 @RequiredArgsConstructor
 public class SysSettingController {
 
     private final SysSettingService sysSettingService;
+    /**
+     * 查询设置列表
+     *
+     * @return 查询设置列表
+     */
+    @Operation(summary = "查询设置列表")
+    @GetMapping("list")
+    public ReturnResult<List<SysSetting>> page(
+            @Parameter(description = "关键词") @RequestParam(required = false) String keyword
+    ) {
+        return ReturnResult.ok(sysSettingService.getSettings(keyword));
+    }
     /**
      * 分页查询设置列表
      *
@@ -46,6 +61,16 @@ public class SysSettingController {
                                 .like(StringUtils.isNotBlank(keyword), SysSetting::getSettingName, keyword)
                 )
         );
+    }
+    /**
+     * 添加设置
+     *
+     * @return 添加设置
+     */
+    @Operation(summary = "批量设置")
+    @PostMapping("batch")
+    public ReturnResult<ErrorResult> batch(@RequestBody List<SysSetting> sysSettings , BindingResult bindingResult) {
+        return Result.of(sysSettingService.batchSetting(sysSettings));
     }
     /**
      * 添加设置
