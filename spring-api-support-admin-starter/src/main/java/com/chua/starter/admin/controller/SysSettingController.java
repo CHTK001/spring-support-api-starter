@@ -41,7 +41,6 @@ public class SysSettingController {
      *
      * @return 查询设置列表
      */
-    @Permission(role = "ADMIN")
     @Operation(summary = "查询设置列表")
     @GetMapping("list")
     public ReturnResult<List<SysSetting>> page(
