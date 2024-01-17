@@ -63,7 +63,7 @@ public class SysSettingController {
     ) {
         return PageResultUtils.ok(sysSettingService.page(new Page<>(page, pageSize),
                         Wrappers.<SysSetting>lambdaQuery()
-                                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+                                .eq(com.chua.common.support.utils.StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion())
                                 .like(StringUtils.isNotBlank(keyword), SysSetting::getSettingName, keyword)
                 )
         );
@@ -92,7 +92,7 @@ public class SysSettingController {
 
         if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery()
                 .eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+                .eq(com.chua.common.support.utils.StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion())
         ) > 0L) {
             return Result.illegal("配置已存在");
         }
@@ -115,7 +115,7 @@ public class SysSettingController {
         if(sysSettingService.count(Wrappers.<SysSetting>lambdaQuery()
                 .ne(SysSetting::getSettingId, sysSetting.getSettingId())
                 .eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+                .eq(com.chua.common.support.utils.StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion())
         ) > 0L) {
             return Result.illegal("配置已存在");
         }
