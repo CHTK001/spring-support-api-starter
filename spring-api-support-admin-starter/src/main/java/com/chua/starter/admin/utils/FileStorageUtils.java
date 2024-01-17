@@ -35,7 +35,7 @@ public class FileStorageUtils {
                         .accessKeySecret(sysFileStorage.getFsAccessKeySecret())
                         .charset(StandardCharsets.UTF_8)
                         .bucket(sysFileStorage.getFsBucket())
-                        .fileStorageNamingPlugin(ServiceProvider.of(FileStorageNamingPlugin.class).getNewExtension(sysFileStorage.getFsNaming()))
+                        .fileStorageNamingPlugin(ServiceProvider.of(FileStorageNamingPlugin.class).getNewExtension(sysFileStorage.getFsNamed()))
                         .fileStorageConversionPlugin(ServiceProvider.of(FileStorageConversionPlugin.class).getNewExtension(sysFileStorage.getFsPlugin()))
                         .fileStorageFilterPlugin(new DefaultFileStorageFilterPlugin(sysFileStorage.getFsFilter()))
                         .endpoint(sysFileStorage.getFsEndpoint())
