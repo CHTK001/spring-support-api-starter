@@ -2,37 +2,55 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-admin-starter:
-    newFile: !uuid 'cf3852e42a6b0017df62a3e5e6f6fe1256522822'
-    oldFile: !uuid '4940ce9b32c0456d895ad7eef7b72c28c3de593a'
-  /spring-api-support-admin-starter/src:
-    newFile: !uuid 'a084e4e97073c84d5ad02a0e198314124eff08ec'
-    oldFile: !uuid '06a4d32371aeee496994123fc951bd1f1481503a'
-  /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'aaa9a5a8d84852a94952e20d02b5fccb36dd9399'
-    oldFile: !uuid '2708e5773818396b9536512d24d8592c45269848'
-  /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid 'a5ae709c82989171b5e4e77eafa6807abe72a242'
-    oldFile: !uuid '2bbc51b5fdc3fca169c40050b36e630c81b8ca20'
-  /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '881ed784052293754f07cd2d3ee5588d4e3d67b9'
-    oldFile: !uuid 'd9fc1f635b28ca16ea463d04caf9ec45ed79a192'
-  /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '1d9446e220cf693b1f077bb071d9eb03ba8220d3'
-    oldFile: !uuid '9b5cc2fc0f3edc7cc721b43888a426629d034998'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '0fab21f821d2d6600618b0e155bf340b7692d6c5'
-    oldFile: !uuid '2c224d85f4799f774c38ea4a53fb51a904cc4c38'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '3605f1a0c75925f369db01713a0f4913e9f5cc72'
-    oldFile: !uuid '6395af69f3cc20b9c96668d4d6691374c76cc76d'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid '9114e7e74f61733ab7b6ca94a72d2261954dc57b'
-    oldFile: !uuid '6aae9a908c29359b919a7f2d843b35e0eeb0915d'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysSettingController.java:
-    newFile: !uuid '5e0383c6cc4fb7d349eab55074a1d12330f19912'
-    oldFile: !uuid 'bef90947d625067acd8cb64d4b90ed8ea451b18e'
-gitCommitId: !uuid '5a125a77c3e3246fc0f3fb0a7f40c2b74c4ac9ff'
+  /spring-api-support-scheduler-starter:
+    newFile: !uuid 'fd2c555ab9d46624164d96fdfed7491e6e6fb418'
+    oldFile: null
+  /spring-api-support-scheduler-starter/pom.xml:
+    newFile: !uuid '864ec267aac7b4213cceeecad5f34d7b52f91dda'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src:
+    newFile: !uuid '3ab65fbceb8e0f9b55a4577011754269985dc593'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main:
+    newFile: !uuid '98214b2efa206069edf6d293852a0fa30647ab0f'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/java:
+    newFile: !uuid '0435d6fa9d53edb65888d462efab70deba1b5062'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/java/com:
+    newFile: !uuid 'e9472e2656de604e594231603c1f6b6c25429afb'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/java/com/chua:
+    newFile: !uuid 'ab51cd6d7bc8a6de08ac60d990cc5857646bcb44'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/java/com/chua/scheduler:
+    newFile: !uuid 'ea5ade023a054a54ddcb371f31663707d9eb641d'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/java/com/chua/scheduler/SchedulerServerApplication.java:
+    newFile: !uuid '32300baeb8598b1afe1c87165c923faec2d9aac2'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources:
+    newFile: !uuid '2fe6047b4b4daf06d27a28833048391e3a30e2a3'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/application-dev.yml:
+    newFile: !uuid '35e7e584495139cd9a64015417d712c3a6aec687'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/application-prod.yml:
+    newFile: !uuid '813e5a48fac8bbbd46c5ac58831eec4c475954d6'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/application.yml:
+    newFile: !uuid 'cd4feffe53bb5218eb144129f9c26d5e323ac6e1'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/db:
+    newFile: !uuid '75ca5c831d2dfa5943a34a8f6d899fe4bd044bed'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/db/tables_xxl_job.sql:
+    newFile: !uuid '9002d076194e845b6fb0e88a95818ed37c90d8c3'
+    oldFile: null
+  /spring-api-support-scheduler-starter/src/main/resources/logback.xml:
+    newFile: !uuid '80430f05240878af90fdfe38e812451b91e93f42'
+    oldFile: null
+gitCommitId: !uuid '09e994041dae3f2ea4d1e8d56af2e2121aa43847'
 renames: {
   }
-revisionId: 87
+revisionId: 88
