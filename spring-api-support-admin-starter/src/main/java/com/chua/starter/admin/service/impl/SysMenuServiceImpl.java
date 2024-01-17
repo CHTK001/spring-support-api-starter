@@ -14,6 +14,7 @@ import com.chua.starter.admin.result.SysMenuTreeResult;
 import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
+import com.chua.starter.admin.service.SysUserService;
 import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.result.Result;
@@ -45,6 +46,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     private SysUserSettingService sysUserSettingService;
     @Resource
     private SysMenuService sysMenuService;
+    @Resource
+    private SysUserService sysUserService;
     @Override
     public List<RouteVO> myMenu(List<SysMenu> sysMenus, Set<String> roles) {
         List<SysMenu> tplMenus = sysMenus.stream().filter(it -> {
