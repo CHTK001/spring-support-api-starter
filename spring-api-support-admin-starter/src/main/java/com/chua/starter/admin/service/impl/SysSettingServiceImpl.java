@@ -12,6 +12,7 @@ import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.service.SysSettingService;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Service
+@EnableConfigurationProperties(SystemProperties.class)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
 
     @Resource
@@ -33,7 +35,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public List<SysSetting> getSettings(String name) {
         Set<Object> keys = stringRedisTemplate.opsForHash().keys("sys:setting");
         if(CollectionUtils.isEmpty(keys)) {
-            List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery().like(SysSetting::getSettingName, name));
+            List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .like(SysSetting::getSettingName, name)
+                    .eq(SysSetting::getSettingVersion, systemProperties.getVersion())
+            );
             if(CollectionUtils.isEmpty(sysSettings)) {
                 return null;
             }
