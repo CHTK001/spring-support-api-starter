@@ -78,6 +78,13 @@ public class SysFileStorage extends SysTenantBase {
     @ApiModelProperty(value = "插件; 文件上传时预处理")
     @Schema(description = "插件; 文件上传时预处理")
     private String fsPlugin;
+    /**
+     * 文件存储命名方式
+     */
+    @TableField(value = "fs_named")
+    @ApiModelProperty(value = "文件存储命名方式")
+    @Schema(description = "文件存储命名方式")
+    private String fsNamed;
 
     /**
      * 三方服务器地址
