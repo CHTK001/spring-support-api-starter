@@ -1,0 +1,34 @@
+server:
+  port: 18171
+  servlet:
+    context-path: /api/learning
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+plugin:
+  cors:
+    enable: true
+  learning:
+    module-path: E:\workspace\environment
+    coco:
+      module-path: Z:\works\yolov5-7.0\models\yolov5x.pt
+    face:
+      feature:
+        spi: amazon
+      detection:
+        spi: RETINA
+  swagger:
+    knife4j:
+      - group-name: 基础接口
+        base-package: com.chua.starter.learning.model
+      - group-name: 生成
+        base-package: com.chua.starter.learning.gan
+      - group-name: 比对
+        base-package: com.chua.starter.learning.compare
+#      - group-name: 识别
+#        base-package: com.chua.starter.learning.reg
+#      - group-name: 滤镜
+#        base-package: com.chua.starter.learning.style
