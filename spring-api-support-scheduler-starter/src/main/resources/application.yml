@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: scheduler
+  profiles:
+    active: dev
+server:
+  compression:
+    enabled: true
+
+plugin:
+  core:
+    uniform-parameter: true
