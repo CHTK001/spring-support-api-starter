@@ -81,24 +81,24 @@ public class SysUserController implements Constant {
     /**
      * 保存用户首页布局
      *
-     * @param sysUserGrid 保存用户首页布局
+     * @param sysUserSetting 保存用户首页布局
      * @return 保存用户首页布局
      */
     @Operation(summary = "保存用户首页布局")
     @PostMapping("/grid")
-    public ReturnResult<Boolean> grid(@RequestBody SysUserSetting sysUserGrid,
+    public ReturnResult<Boolean> grid(@RequestBody SysUserSetting sysUserSetting,
                                       @Parameter(hidden = true) @UserValue("userDashboardGrid") String userDashboardGrid,
                                       @Parameter(hidden = true) @UserValue("userId") Long userId,
                                       @Parameter(hidden = true) @UserValue("username") String username,
                                       @Parameter(hidden = true) @UserValue("roles") Set<String> roles
     ) {
-        sysUserGrid.setUserId(userId);
+        sysUserSetting.setUserId(userId);
         if (!ADMIN.equalsIgnoreCase(username) && !roles.contains(ADMIN)) {
             if (StringUtils.isEmpty(userDashboardGrid)) {
                 return Result.illegal("当前账号没有权限配置");
             }
             List<String> strings = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(userDashboardGrid);
-            String copmsList = sysUserGrid.getCopmsList();
+            String copmsList = sysUserSetting.getCopmsList();
             JSONArray jsonArray = JSON.parseArray(copmsList);
             for (int i = 0; i < jsonArray.size(); i++) {
                 if (CollectionUtils.notContains(strings, (Collection<String>) jsonArray.get(i))) {
@@ -107,7 +107,7 @@ public class SysUserController implements Constant {
             }
 
         }
-        return Result.success(sysUserSettingService.saveGrid(sysUserGrid));
+        return Result.success(sysUserSettingService.saveGrid(sysUserSetting));
     }
 
     /**
