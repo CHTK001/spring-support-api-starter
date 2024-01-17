@@ -12,8 +12,8 @@ import com.chua.common.support.lang.exception.NotSupportedException;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.*;
 import com.chua.starter.admin.entity.SysUser;
-import com.chua.starter.admin.entity.SysUserGrid;
 import com.chua.starter.admin.entity.SysUserRole;
+import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.pojo.LoginResult;
 import com.chua.starter.admin.pojo.UserInfoVO;
 import com.chua.starter.admin.query.LoginData;
@@ -99,7 +99,7 @@ public class SysUserController implements Constant {
      */
     @Operation(summary = "保存用户首页布局")
     @PostMapping("/grid")
-    public ReturnResult<Boolean> grid(@RequestBody SysUserGrid sysUserGrid,
+    public ReturnResult<Boolean> grid(@RequestBody SysUserSetting sysUserGrid,
                                       @Parameter(hidden = true) @UserValue("userDashboardGrid") String userDashboardGrid,
                                       @Parameter(hidden = true) @UserValue("userId") Long userId,
                                       @Parameter(hidden = true) @UserValue("username") String username,
