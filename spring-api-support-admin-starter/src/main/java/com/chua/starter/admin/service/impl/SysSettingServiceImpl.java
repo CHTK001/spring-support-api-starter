@@ -11,8 +11,11 @@ import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.service.SysSettingService;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +26,10 @@ import java.util.Objects;
 import java.util.Set;
 
 @Service
-@EnableConfigurationProperties(SystemProperties.class)
-public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
+public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, ApplicationContextAware, InitializingBean {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    @Resource
     private SystemProperties systemProperties;
 
     @Override
@@ -124,5 +125,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             }
         });
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        systemProperties = Binder.get(applicationContext.getEnvironment())
+                .bindOrCreate("system", SystemProperties.class);
     }
 }
