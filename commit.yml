@@ -2,55 +2,373 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-gen-starter:
-    newFile: !uuid '28e0d516d2d5c07fc265fd7c2a45b6b33f893fbb'
+  /spring-api-support-deepleanring-starter:
+    newFile: !uuid '51a524969a010949d6de172bad2451cc5d81961e'
     oldFile: null
-  /spring-api-support-gen-starter/pom.xml:
-    newFile: !uuid '91dbdfd34d38c607d8a700165b90d9869bbd5d86'
+  /spring-api-support-deepleanring-starter/package.xml:
+    newFile: !uuid '899d16af963c3e19d65ec724540c637d879efa5e'
     oldFile: null
-  /spring-api-support-gen-starter/src:
-    newFile: !uuid 'e348e8fe4fcc088a8e33116bc81ce52204ec7143'
+  /spring-api-support-deepleanring-starter/pom.xml:
+    newFile: !uuid '37808c590042f4676d1ed71bfc6e25f8cef0a866'
     oldFile: null
-  /spring-api-support-gen-starter/src/main:
-    newFile: !uuid '56610aae3dc98eecefddfea8185b7bd2988271cc'
+  /spring-api-support-deepleanring-starter/src:
+    newFile: !uuid '302040002bed6e7115def94f5e1061d1660d71ea'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java:
-    newFile: !uuid '5df5471ca822ad90c63b8352d69f39ecbd6090fe'
+  /spring-api-support-deepleanring-starter/src/main:
+    newFile: !uuid 'ca13dab3a381c5989ef52c363e2160854cb420f3'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com:
-    newFile: !uuid '98fb77bed200ae365388b2f99a90f5243910d29e'
+  /spring-api-support-deepleanring-starter/src/main/java:
+    newFile: !uuid '87a319db2a1399ab943539bd26b4cfcafbceb646'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com/chua:
-    newFile: !uuid 'd4d0ee83279bc4992009cfdd47b94810c729f636'
+  /spring-api-support-deepleanring-starter/src/main/java/com:
+    newFile: !uuid 'f6762eb97e8b58e9153a8a5bc4f78b629775c336'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '46aaa791b30bd998d5c253bd17f7b1adc1e46c00'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua:
+    newFile: !uuid 'e34ad7a3d5d0236bab7566cc206a4cc447700b53'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen:
-    newFile: !uuid '1dadd3ad54447ff20ebf9a24cd79fe45e4f12770'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter:
+    newFile: !uuid 'badd970a53953dde886c21ae40ade55d95ddfcf6'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen/support:
-    newFile: !uuid '17323d480f333e9211de7df36fc4923ff9a55e81'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning:
+    newFile: !uuid '804fbf8775043d5265230bd3177c1936f6b88a7a'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen/support/GenServerApplication.java:
-    newFile: !uuid '72d708705b5cdc0946f9275646bdc5674c5fbf52'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/LearningApplication.java:
+    newFile: !uuid '04b6f3faf9720a2f4d6ebcdf0c2ab26676e10d86'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/resources:
-    newFile: !uuid '9e60d6e82f27ba100a7e2a454ce8004f9fc841bd'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare:
+    newFile: !uuid 'c9b3712457d775bbe9e70da261ce7c7e499eca43'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/resources/application-dev.yml:
-    newFile: !uuid 'd3f8bb9b874e1952887424dfc0eecae6602459a5'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare/Compare.java:
+    newFile: !uuid '420039187187a679b5c1a07db809a97c0c03ce68'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/resources/application-prod.yml:
-    newFile: !uuid 'd3f8bb9b874e1952887424dfc0eecae6602459a5'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare/FaceCompare.java:
+    newFile: !uuid '04d3e0b041afd4a339664f19742a79ce08aa71aa'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/resources/application.yml:
-    newFile: !uuid 'd05dee08e6976c58eebb8f3fa4c87a0d6f49bb6d'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare/FaceNCompare.java:
+    newFile: !uuid '15a1cfd0e0fece3577d9a19ad42730485393a676'
     oldFile: null
-  /spring-api-support-gen-starter/src/main/resources/logback.xml:
-    newFile: !uuid '15976d634cd347fce1de8aec2865805eb07efb7e'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare/ImageCompare.java:
+    newFile: !uuid '3bee5672c1607ff9cd80c57fb316cff6899e7402'
     oldFile: null
-gitCommitId: !uuid '30884fb2e6247b53f98bf5089e224c7b7a223b68'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/compare/TextCompare.java:
+    newFile: !uuid '8d79e0d621a889fc0b664ef21cfa22fb8b8decce'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/configuration:
+    newFile: !uuid 'ef1f14899506532e35901e34af77df8b41e9c53c'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/configuration/LearningConfiguration.java:
+    newFile: !uuid 'e0a446c383e2d333f6a43f8bf08b47d435620515'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/constant:
+    newFile: !uuid '365bcf164532cb8b77ebf145a6574536d8fdd750'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/constant/Constant.java:
+    newFile: !uuid '8c362d869481ad10a9e15aadd1e411500aa93e0b'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/gan:
+    newFile: !uuid '41d31983f1bd4bd549b70d52672681dbac8d2755'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/gan/GanModel.java:
+    newFile: !uuid '544aa4a618100be8fce1fd06e417e6af58cb1589'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model:
+    newFile: !uuid 'ed6f48ab958ecf2432cc6ef1021e50eeac433919'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/CocoModel.java:
+    newFile: !uuid '5cba674d8878915c996c91e9ed6fe4f533c92630'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/ConfigModel.java:
+    newFile: !uuid '9d302e5406b46d8b7baf82e43b3be83473d1d0ca'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/ConfigProperties.java:
+    newFile: !uuid '8791c5e89446543147bccc836dc4c79e4cfc0790'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/FaceDetectionModel.java:
+    newFile: !uuid '23d2c8646f9039e048439570b4074edf39dce28b'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/MaskModel.java:
+    newFile: !uuid '9dbdd43c63f7dd5a0b584ac8c8540e8a1b923e6a'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/Model.java:
+    newFile: !uuid 'fe1918ac0b5d072a1256bb1ee4defc8613440d6f'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/OcrModel.java:
+    newFile: !uuid '45540a38fea68d613593fef86160bf58ddd93280'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/model/VehicleModel.java:
+    newFile: !uuid 'f444c32405f064a9fc098f6bfdebeb3a05be95cd'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/pojo:
+    newFile: !uuid '1c2ab75a9d237d72adeb6e93e31568d9ea6a0692'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/pojo/LearningOption.java:
+    newFile: !uuid '47402681d09d9fded726e9075e44da2a1dfb805b'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties:
+    newFile: !uuid '63bd31aadbd4b6ba8167f519dbdbf29e0e9ceb78'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/AnimalProperties.java:
+    newFile: !uuid 'bc4b416118751638bb5c1215991b9fdff9f7be7e'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/CocoProperties.java:
+    newFile: !uuid 'b5ecd55836c9f67c92e59848a9063539c6f612e4'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/FaceCompareProperties.java:
+    newFile: !uuid '2b4d0f35602f415697948f1fc9a883045757a6f2'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/FaceDetectionProperties.java:
+    newFile: !uuid 'f3954ae6ce6cd3f15ef00bc48dba64518fdeaa2b'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/FaceFeatureProperties.java:
+    newFile: !uuid '402db5785cc45aabe75fcb54954e8f8332ee9235'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/FaceRegProperties.java:
+    newFile: !uuid '3b767f9b3c6e52fe787231efae51f858ba5584cd'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/GanProperties.java:
+    newFile: !uuid '987aed17bf29fc29354abc5e5aa314844e17689c'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/ImageCompareProperties.java:
+    newFile: !uuid '100e87fbd15271a3b995f2121ea22f86b262dca5'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/ImageFeatureProperties.java:
+    newFile: !uuid '6cc36c3ce0f7cc0e0c018fa3be227947f54759dd'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/ImageRegProperties.java:
+    newFile: !uuid 'ec72e0cf9054d61901371c87afbb359e921d6bb3'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/LearningProperties.java:
+    newFile: !uuid 'b8cc07c17418ff1dfeceae292c2fc1838b2315c0'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/MaskProperties.java:
+    newFile: !uuid '4311967c6fcb477c6e4d463ccae5647103cb189b'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/OcrProperties.java:
+    newFile: !uuid '9d3a13ad35e616730260c0ac10020700685d4b2c'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/TextCompareProperties.java:
+    newFile: !uuid '25d712f90b22207453ccf3d2599afc55ea896b0d'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/properties/VehicleProperties.java:
+    newFile: !uuid '67d55cea95d9b625e806f83889468d1ed20d7c5a'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service:
+    newFile: !uuid '38d29904d8207a3865ff831ce766882a5e72aeba'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/AbstractProxyEngineService.java:
+    newFile: !uuid 'd0405645f9c03f6a6f8963e15f38a6d57005f26d'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/EngineService.java:
+    newFile: !uuid 'cff1bd5e056ca66caaf17886274dfb24fd59db60'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/LearningService.java:
+    newFile: !uuid '1c59499d5048bf5e24df9b312b94777159a27da8'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/SpiCompareEngineService.java:
+    newFile: !uuid '6ba2f006dbd0f11b834ba4178cf9a68d22a20685'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/SpiEngineService.java:
+    newFile: !uuid '5c1cede470be1416cf59f92ee5558025715debda'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/animal:
+    newFile: !uuid '17d7e06e2ac3658beea9cc1d0c64a6c8b85f35df'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/animal/AnimalService.java:
+    newFile: !uuid '72834256fc3c44a1556be433134d9483df7f7a67'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/animal/AnimalServiceImpl.java:
+    newFile: !uuid 'cff64c14d30ec056b01e6ae70cc3dea389b642f4'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/coco:
+    newFile: !uuid '96c5d5b990e9403a345842a9c204eb7d8b7d8a45'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/coco/CocoService.java:
+    newFile: !uuid 'c4a4390c35008f6cb7dbe376c3cf13d55b77c4e4'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/coco/CocoServiceImpl.java:
+    newFile: !uuid '0751cf64373593e222bded428c66b63ab4073a05'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare:
+    newFile: !uuid '09dd89ddc857e274280ec174f5f5db13966f2313'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/face:
+    newFile: !uuid '247869514c528d8df8718847e58b29e17b06ef2d'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/face/FaceCompareService.java
+  : newFile: !uuid '71a2c64b991e069afcc48237165f1da8029867fc'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/face/FaceCompareServiceImpl.java
+  : newFile: !uuid '43f441c80c7aff687169eabc96c10395a47cfd61'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/image:
+    newFile: !uuid '0b00c500bcf286a78d3ffdcac038fa813930ea4f'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/image/ImageCompareService.java
+  : newFile: !uuid 'd12899335990cbefaaf1893b2bda5a0c7181b961'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/image/ImageCompareServiceImpl.java
+  : newFile: !uuid '70f300607e9911b02dd6f34848abb8aac18e2932'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/text:
+    newFile: !uuid '00dce7a9bdcb87215a146a9ec72f895e690211d4'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/text/TextCompareService.java
+  : newFile: !uuid 'ea1e798e4c8b6f6b4d65bfc7b0c5b4f9a030fa8f'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/compare/text/TextCompareServiceImpl.java
+  : newFile: !uuid '1075af040bc544cbe0bc599b1274e10a3aabdc03'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face:
+    newFile: !uuid '4d8031777eb74c557418a7b70c4ed1de642d120c'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/detection:
+    newFile: !uuid '759eb1f8005af43a73e05ae150e31e38a330eb8a'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/detection/FaceDetectionService.java
+  : newFile: !uuid 'b5c2d457b0fbf177b842d7d7b17a75c073f0320b'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/detection/FaceDetectionServiceImpl.java
+  : newFile: !uuid '8b7f10d03082ae1472f3bc478b54a7690a843e86'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/feature:
+    newFile: !uuid 'a80e57dc97b250f3f1beb5fbe508bdbb40e8eaae'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/feature/FaceFeatureService.java
+  : newFile: !uuid '1ec4e1bbe098a7e983c491516256949e07a1f54b'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/face/feature/FaceFeatureServiceImpl.java
+  : newFile: !uuid '73415a0ee4ea58368bad4788a529668e308e75e4'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/image:
+    newFile: !uuid 'df06b993c4ce10f6fa519d226307d9525a916b33'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/image/feature:
+    newFile: !uuid '6df069f84d2be7cb13fafa4a33c27301cc1dc65f'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/image/feature/ImageFeatureService.java
+  : newFile: !uuid 'f41cd7b83a632475739aa5e4613919e1bbac1831'
+    oldFile: null
+  ? /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/image/feature/ImageFeatureServiceImpl.java
+  : newFile: !uuid '9a7f8d068d125b5047209dea38ea5c03fd5f24da'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/mask:
+    newFile: !uuid '92f90e0fb619f0cfd7fae78da2f4de8a152acc30'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/mask/FaceMaskService.java:
+    newFile: !uuid '543e506cb024a7309da1101bf22a2810475ec7a4'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/mask/FaceMaskServiceImpl.java:
+    newFile: !uuid '6e31d67e52768faf74e08837500fd893e22459a1'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/ocr:
+    newFile: !uuid 'a8c8564d2b8388edbba68580c9025b374b981916'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/ocr/OcrService.java:
+    newFile: !uuid 'b4247fd99fe1a9aee733ef5fdfec00cb6be3e98e'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/ocr/OcrServiceImpl.java:
+    newFile: !uuid '3a5600c3bfec7784bb87a4fd61b46fdde6ccb89a'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/vehicle:
+    newFile: !uuid '1f2de63521c59f0e1957b8818d8f5b90a67bfada'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/vehicle/VehicleService.java:
+    newFile: !uuid '7f6a39ea2d252b50011776ebae9e9274e718688a'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/vehicle/VehicleServiceImpl.java:
+    newFile: !uuid 'a70a856dfebc4577b8c8cb67db386b936a66b5c5'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/style:
+    newFile: !uuid '9f6c37cb569c0a00ce187ab97b5c68d963bd6526'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/style/StandardStyle.java:
+    newFile: !uuid '2ce9d483749a705750fe09111625334275b2a66f'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/style/Style.java:
+    newFile: !uuid '08101185c2d12e0a465f1920159e99632171fd50'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources:
+    newFile: !uuid 'fdcb2c71e581b02f7dfaa138ba84e0560efec594'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/application-dev.yml:
+    newFile: !uuid '521479a4890fef31489f68373849ae1cdb1ad9a8'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/application-prod.yml:
+    newFile: !uuid '9d8d1be919922f3b85c1c535c9239c87f8edb338'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/application.yml:
+    newFile: !uuid '4974367d862f4102c7d7c78f1f7f1be0e0c68f2e'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/bin:
+    newFile: !uuid 'aa396f6915d21fb0165e76f42e17f0ee0aa6fcf6'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/bin/start.bat:
+    newFile: !uuid '4ae6eee6329553c31f261eebdfc9a57d872f15ec'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/bin/start.sh:
+    newFile: !uuid '4fb746a423b9f163c89a9088d5c30b5c6deb6cd8'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/face.mapping:
+    newFile: !uuid 'a4de482b77e6ea43e233b4f4154e77d6df27d425'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/logback.xml:
+    newFile: !uuid '75cd4495e92f11c3f5f2b06ae11600f9fbfc81ad'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg:
+    newFile: !uuid 'b8ddbbfefed59b688d2841ac7f20cb08b529ef26'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/entity:
+    newFile: !uuid 'aad44b6346a4f6c4ed5bb6f16444d25e41feb97f'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/entity/SysFace.java:
+    newFile: !uuid '3b93a478de01fa9b5fe1124a17b3be7773384a48'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face:
+    newFile: !uuid '6addfd2d455856aed60c206b7cb05b02b135fe1e'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face/FaceReg.java:
+    newFile: !uuid 'be634ea76abef8a4342217790e629466cf61c129'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face/service:
+    newFile: !uuid '9eab99745088b0aed549c6db92b1a3fcc776f002'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face/service/FaceRegService.java:
+    newFile: !uuid '93dc668ce6e1c28514a80b0a413a15149003cf61'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face/service/impl:
+    newFile: !uuid '1e62e2d15c93b4c19514d8a95e8745ae37426d01'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/face/service/impl/FaceRegServiceImpl.java:
+    newFile: !uuid '45e4b48ff691147616c09ee5a95894555b2a4a27'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image:
+    newFile: !uuid 'e77c11f219de2693dc97d68c58a5f4e34d895caa'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image/ImageReg.java:
+    newFile: !uuid 'e781efd539dcea02d3c5c5df86b1da3f2aa368c3'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image/service:
+    newFile: !uuid '2e6b21fc5599a60c689b51588507991ef095837d'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image/service/ImageRegService.java:
+    newFile: !uuid '89063a7e81b63fd4e2e331f6f8efff7758a19d48'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image/service/impl:
+    newFile: !uuid '94f0f50c0351a5905d4ca19cf9f08f2cb8425efc'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/image/service/impl/ImageRegServiceImpl.java:
+    newFile: !uuid '4cda0e5248fed47d6d3cffc1299363d9cf5fdb22'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/query:
+    newFile: !uuid '706a53797b52ae00ce42635b9bd62acc3374ee91'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/query/IndexQuery.java:
+    newFile: !uuid '4674e459029bff92659d90b87a31c241a24965dc'
+    oldFile: null
+  /spring-api-support-deepleanring-starter/src/main/resources/reg/query/LibraryQuery.java:
+    newFile: !uuid 'ef3a81ed5da70dab4d104a8a81c0fc20e97f21e4'
+    oldFile: null
+gitCommitId: !uuid 'd78d81198687c4150463c2f427f84e78722452cc'
 renames: {
   }
-revisionId: 90
+revisionId: 91
