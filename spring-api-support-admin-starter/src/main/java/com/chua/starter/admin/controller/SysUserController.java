@@ -1,13 +1,9 @@
 package com.chua.starter.admin.controller;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.exception.NotSupportedException;
-import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.admin.entity.SysUser;
 import com.chua.starter.admin.entity.SysUserSetting;
@@ -42,8 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
@@ -92,22 +86,7 @@ public class SysUserController implements Constant {
                                       @Parameter(hidden = true) @UserValue("username") String username,
                                       @Parameter(hidden = true) @UserValue("roles") Set<String> roles
     ) {
-        sysUserSetting.setUserId(userId);
-        if (!ADMIN.equalsIgnoreCase(username) && !roles.contains(ADMIN)) {
-            if (StringUtils.isEmpty(userDashboardGrid)) {
-                return Result.illegal("当前账号没有权限配置");
-            }
-            List<String> strings = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(userDashboardGrid);
-            String copmsList = sysUserSetting.getCopmsList();
-            JSONArray jsonArray = JSON.parseArray(copmsList);
-            for (int i = 0; i < jsonArray.size(); i++) {
-                if (CollectionUtils.notContains(strings, (Collection<String>) jsonArray.get(i))) {
-                    return Result.illegal("当前账号没有权限添加其它组件");
-                }
-            }
-
-        }
-        return Result.success(sysUserSettingService.saveGrid(sysUserSetting));
+       return sysUserSettingService.saveUserSetting(sysUserSetting, userDashboardGrid, userId, username, roles);
     }
 
     /**
