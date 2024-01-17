@@ -1,12 +1,12 @@
 package com.chua.starter.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.admin.entity.SysUserGrid;
+import com.chua.starter.admin.entity.SysUserSetting;
 
 /**
  * @author CH
  */
-public interface SysUserGridService extends IService<SysUserGrid> {
+public interface SysUserGridService extends IService<SysUserSetting> {
 
     /**
      * 保存布局
@@ -14,7 +14,7 @@ public interface SysUserGridService extends IService<SysUserGrid> {
      * @param sysUserGrid sysUserGrid
      * @return 保存布局
      */
-    boolean saveGrid(SysUserGrid sysUserGrid);
+    boolean saveGrid(SysUserSetting sysUserGrid);
 
     /**
      * 获取布局
@@ -22,5 +22,5 @@ public interface SysUserGridService extends IService<SysUserGrid> {
      * @param userId userId
      * @return 获取布局
      */
-    SysUserGrid getGridByUserId(String userId);
+    SysUserSetting getGridByUserId(String userId);
 }

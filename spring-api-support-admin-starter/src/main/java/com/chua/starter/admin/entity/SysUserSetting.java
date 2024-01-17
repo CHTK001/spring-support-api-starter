@@ -16,11 +16,11 @@ import javax.validation.constraints.Size;
 /**
  * 用户主页布局
  */
-@ApiModel(description = "用户主页布局")
-@Schema(description = "用户主页布局")
+@ApiModel(description = "用户设置")
+@Schema(description = "用户设置")
 @Data
-@TableName(value = "sys_user_grid")
-public class SysUserGrid extends SysTenantBase {
+@TableName(value = "sys_user_setting")
+public class SysUserSetting extends SysTenantBase {
     /**
      * 主键
      */
