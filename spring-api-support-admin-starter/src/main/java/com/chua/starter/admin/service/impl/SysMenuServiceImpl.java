@@ -43,6 +43,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Resource
     private SysUserSettingService sysUserSettingService;
+    @Resource
+    private SysMenuService sysMenuService;
     @Override
     public List<RouteVO> myMenu(List<SysMenu> sysMenus, Set<String> roles) {
         List<SysMenu> tplMenus = sysMenus.stream().filter(it -> {
@@ -222,7 +224,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         UserMenuResult userMenuResult = new UserMenuResult();
         userMenuResult.setPermissions(AuthClientExecute.getInstance().getUserResult().getPermission());
-        List<SysMenu> sysMenus = roleMenu();
+        List<SysMenu> sysMenus = sysMenuService.roleMenu();
         if (ADMIN.equalsIgnoreCase(username)) {
             roles = new HashSet<>(roles);
             roles.add(ADMIN);
