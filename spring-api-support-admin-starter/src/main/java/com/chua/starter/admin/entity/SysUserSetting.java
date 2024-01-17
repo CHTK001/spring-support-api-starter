@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.common.support.jackson.ArrayToJsonStringJsonDeserializer;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,6 +46,7 @@ public class SysUserSetting extends SysTenantBase {
     @TableField(value = "layout")
     @ApiModelProperty(value = "布局")
     @Schema(description = "布局")
+    @JsonDeserialize(using = ArrayToJsonStringJsonDeserializer.class)
     @Size(max = 255, message = "布局最大长度要小于 255")
     private String layout;
 
@@ -54,6 +57,7 @@ public class SysUserSetting extends SysTenantBase {
     @ApiModelProperty(value = "组件")
     @Schema(description = "组件")
     @Size(max = 255, message = "组件最大长度要小于 255")
+    @JsonDeserialize(using = ArrayToJsonStringJsonDeserializer.class)
     private String copmsList;
 
 }
