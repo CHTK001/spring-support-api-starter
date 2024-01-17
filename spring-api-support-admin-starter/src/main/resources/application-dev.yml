@@ -44,6 +44,8 @@ logging:
 
 
 plugin:
+  socket:
+    open: true
   table:
     packages: com.chua.starter.admin.entity
     enable: true
