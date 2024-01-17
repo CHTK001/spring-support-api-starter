@@ -9,6 +9,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
+import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.service.SysSettingService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -24,6 +26,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private SystemProperties systemProperties;
 
     @Override
     public List<SysSetting> getSettings(String name) {
@@ -64,7 +68,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public boolean deleteSetting(Integer settingId) {
         SysSetting sysSetting = baseMapper.selectById(settingId);
-        if(null == settingId) {
+        if(null == settingId && !Objects.equals(sysSetting.getSettingVersion(), systemProperties.getVersion())) {
             return false;
         }
 
@@ -74,7 +78,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public boolean saveSetting(SysSetting sysSetting) {
-        SysSetting sysSetting1 = baseMapper.selectOne(Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName()));
+        sysSetting.setSettingVersion(systemProperties.getVersion());
+        SysSetting sysSetting1 = baseMapper.selectOne(Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName())
+                .eq(SysSetting::getSettingVersion, systemProperties.getVersion()));
         int result = 0;
         if(null == sysSetting1) {
             result = baseMapper.insert(sysSetting);
@@ -108,7 +114,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
-            List<SysSetting> list = list();
+            List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSettingVersion, systemProperties.getVersion()));
             for (SysSetting sysSetting : list) {
                 stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             }
