@@ -11,6 +11,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.service.SysSettingService;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,7 @@ public class SysSettingController {
      *
      * @return 查询设置列表
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "查询设置列表")
     @GetMapping("list")
     public ReturnResult<List<SysSetting>> page(
@@ -52,6 +54,7 @@ public class SysSettingController {
      *
      * @return 分页查询设置列表
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "分页查询设置列表")
     @GetMapping("page")
     public ReturnPageResult<SysSetting> page(
@@ -71,6 +74,7 @@ public class SysSettingController {
      *
      * @return 添加设置
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "批量设置")
     @PostMapping("batch")
     public ReturnResult<ErrorResult> batch(@RequestBody List<SysSetting> sysSettings , BindingResult bindingResult) {
@@ -81,6 +85,7 @@ public class SysSettingController {
      *
      * @return 添加设置
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "添加设置")
     @PostMapping("save")
     public ReturnResult<SysSetting> save(@RequestBody @Validated(AddGroup.class) SysSetting sysSetting , BindingResult bindingResult) {
@@ -103,6 +108,7 @@ public class SysSettingController {
      *
      * @return 更新设置
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "更新设置")
     @PutMapping("update")
     public ReturnResult<Boolean> update(@RequestBody @Validated(UpdateGroup.class)SysSetting sysSetting, BindingResult bindingResult) {
@@ -125,6 +131,7 @@ public class SysSettingController {
      *
      * @return 删除设置
      */
+    @Permission(role = "ADMIN")
     @Operation(summary = "删除设置")
     @DeleteMapping("delete")
     public ReturnResult<Boolean> delete(Integer settingId) {
