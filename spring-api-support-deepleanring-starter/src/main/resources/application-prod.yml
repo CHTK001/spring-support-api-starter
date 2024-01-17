@@ -1,0 +1,42 @@
+server:
+  port: 18171
+  servlet:
+    context-path: /learning
+spring:
+  redis:
+    database: 6
+    host: 127.0.0.1
+    port: 6379
+  boot:
+    admin:
+      client:
+        url: http://127.0.0.1:29080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+plugin:
+  swagger:
+    knife4j:
+      - group-name: 机器学习配置
+        base-package: com.chua.starter.learning.controller
+  auto:
+    table:
+      open: false
+  oauth:
+    auth-address: 127.0.0.1:19180/oauth
+    whitelist:
+      - /**/actuator/**
+      - /**/actuator
+      - /**/login
+      - /**/logout
+      - /**/captcha*
+      - /**/webjars/*
+      - /**/doc.html
+      - /**/*.css
+      - /**/*.js
+      - /**/*.ico
+      - /**/swagger-resources/**
+      - /**/v2/api-docs**

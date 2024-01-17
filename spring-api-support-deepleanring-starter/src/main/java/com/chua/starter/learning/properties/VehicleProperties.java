@@ -1,0 +1,18 @@
+package com.chua.starter.learning.properties;
+
+import com.chua.starter.learning.model.ConfigProperties;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+/**
+ * 车辆配置
+ *
+ * @author CH
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@ConfigurationProperties(prefix = "plugin.learning.vehicle")
+public class VehicleProperties extends ConfigProperties {
+
+}
