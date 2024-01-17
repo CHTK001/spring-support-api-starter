@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.admin.mapper.SysUserGridMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysUserGrid">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysUserSetting">
     <!--@mbg.generated-->
     <!--@Table sys_user_grid-->
     <id column="grid" property="grid" />

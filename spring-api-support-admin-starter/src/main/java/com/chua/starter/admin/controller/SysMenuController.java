@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.admin.entity.SysMenu;
-import com.chua.starter.admin.entity.SysUserGrid;
+import com.chua.starter.admin.entity.SysUserSetting;
 import com.chua.starter.admin.result.SysMenuTreeResult;
 import com.chua.starter.admin.result.SysUserGridResult;
 import com.chua.starter.admin.result.UserMenuResult;
@@ -73,7 +73,7 @@ public class SysMenuController implements Constant, InitializingBean {
         userMenuResult.setDashboardGrid(Splitter.on(',').trimResults().omitEmptyStrings().splitToSet(userGrid));
         userMenuResult.setDashboard(userDashboard);
         SysUserGridResult result = new SysUserGridResult();
-        SysUserGrid gridByUserId = sysUserGridService.getGridByUserId(userId);
+        SysUserSetting gridByUserId = sysUserGridService.getGridByUserId(userId);
         try {
             result.setLayout(JSON.parseArray(gridByUserId.getLayout()));
         } catch (Exception e) {
