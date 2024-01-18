@@ -3,6 +3,7 @@ package com.chua.starter.admin.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -40,8 +41,9 @@ public class CacheConfiguration {
 
         //解决查询缓存转换异常的问题
         ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         jackson2JsonRedisSerializer.setObjectMapper(om);
 
         // 配置序列化（解决乱码的问题）,过期时间600秒
