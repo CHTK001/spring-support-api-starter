@@ -3,42 +3,42 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'afc2a4be1846b3fcab1d3de37c3532c88261f5f3'
-    oldFile: !uuid 'c822cce6f2b92efbb5711c9278e0dc2bfbe7086f'
+    newFile: !uuid 'db267c13209b7feff4936210b3910e288dbd8986'
+    oldFile: !uuid 'afc2a4be1846b3fcab1d3de37c3532c88261f5f3'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'd64581645e12c6b24d39e25c1f7141f4fb1c70d2'
-    oldFile: !uuid 'e4cd77a8fd15538d671e6e0deccd73222e796527'
+    newFile: !uuid '7303ffc7a0b3db7f71f711272a02e4b3f9927127'
+    oldFile: !uuid 'd64581645e12c6b24d39e25c1f7141f4fb1c70d2'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'b51553acb7c6d66db8d0025d9091c007f45cb630'
-    oldFile: !uuid '1093064a766e12dd4b35f36f98e86fe970e4cf79'
+    newFile: !uuid '2071f659ba81a68b4cafa081cb5ab6597c072e8b'
+    oldFile: !uuid 'b51553acb7c6d66db8d0025d9091c007f45cb630'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '0f334841775f16bbc4fd9054e4e0e50c68874613'
-    oldFile: !uuid 'be90a8455e6b49878bde62e7c7523fa07e9104b7'
+    newFile: !uuid '19bebba0659494ad5091ec01fb675d25f19a2c8e'
+    oldFile: !uuid '0f334841775f16bbc4fd9054e4e0e50c68874613'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '2d106a3d2838c6218c28b6e52dc41e037a91f815'
-    oldFile: !uuid 'b2b9acbd74dbc5af082e4f017963c0e364e0f783'
+    newFile: !uuid '3983a9d8002bf803a062db110afe12418a8b4727'
+    oldFile: !uuid '2d106a3d2838c6218c28b6e52dc41e037a91f815'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid 'c3e84e559349a4988acaa842c436db0b493d78f1'
-    oldFile: !uuid 'a4da6bf7bab70631ea724752dc38483779810d4f'
+    newFile: !uuid 'ea6cd2f64ccaa6d42922ee70ea9bac592bcbdfa8'
+    oldFile: !uuid 'c3e84e559349a4988acaa842c436db0b493d78f1'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'f512bc56c8e6a235558ba67d29df29640a972300'
-    oldFile: !uuid 'ab2dc46647ef8abf55649bc5a0592d9d369288d3'
+    newFile: !uuid 'e20aa706625f080642bf0b224093b56c5ef81a6a'
+    oldFile: !uuid 'f512bc56c8e6a235558ba67d29df29640a972300'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '3af115cada620a921648fbda8c24773ec53e7320'
-    oldFile: !uuid 'bb95975c6bf35f33f21a8e954068e61801c75317'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/resolver:
-    newFile: !uuid '55ca0e0631516d4f0a11a2ab9cbf790a30a98e94'
-    oldFile: !uuid 'da75d6f6dc7081eedd2141de47ee9e92d219a10b'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/resolver/InitialSocketSettingValueResolver.java:
-    newFile: !uuid '4f7b6b30b085ef8bd57584676a0e4e927bdabcb9'
-    oldFile: !uuid '0621e1bf2f22435db5bdf4a44fdd9c2caf944e77'
+    newFile: !uuid '0e41998dde941f3bd065ed2e2bb96a7fe982f175'
+    oldFile: !uuid '3af115cada620a921648fbda8c24773ec53e7320'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket:
-    newFile: !uuid 'f0ab31dd2eb9d1b0cde3e12e8d1a7101dcbf3bf7'
+    newFile: !uuid '969bc1b6fb958a81a755a0ad3c2d72b39c23efdd'
+    oldFile: !uuid 'f0ab31dd2eb9d1b0cde3e12e8d1a7101dcbf3bf7'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket/AdminSocketAuthFactory.java:
+    newFile: !uuid '1cbbd407f46e9d35dc0666c1990645c73271dba2'
     oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket/AdminSocketIOListener.java:
-    newFile: !uuid 'eac2df6568bf477a02364f7ba24cbde43ac5b0a9'
-    oldFile: null
-gitCommitId: !uuid 'aec69dce1f5e48a214450e02b6ff3feb81ffae86'
+  /spring-api-support-admin-starter/src/main/resources:
+    newFile: !uuid 'b925322c9eac9ee41b56068bc27a038312c2e0e6'
+    oldFile: !uuid 'fc221b356966facbd3e672025a54cf025f4174bc'
+  /spring-api-support-admin-starter/src/main/resources/application.yml:
+    newFile: !uuid '296d595b6baea7eb7633e79806feb4101d0719d3'
+    oldFile: !uuid 'a12e65f99890d7309c26d291a8aae733b9dbbcb4'
+gitCommitId: !uuid 'be60d7d75c029529451489b44a389af27eff489b'
 renames: {
   }
-revisionId: 108
+revisionId: 109
