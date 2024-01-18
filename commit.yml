@@ -3,42 +3,48 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'db267c13209b7feff4936210b3910e288dbd8986'
-    oldFile: !uuid 'afc2a4be1846b3fcab1d3de37c3532c88261f5f3'
+    newFile: !uuid 'b05a2808317f1ecefa61b459ea7b491710072194'
+    oldFile: !uuid 'db267c13209b7feff4936210b3910e288dbd8986'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '7303ffc7a0b3db7f71f711272a02e4b3f9927127'
-    oldFile: !uuid 'd64581645e12c6b24d39e25c1f7141f4fb1c70d2'
+    newFile: !uuid '35e7927c6793b2abfbc19033aa49ecc2fd1d0157'
+    oldFile: !uuid '7303ffc7a0b3db7f71f711272a02e4b3f9927127'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '2071f659ba81a68b4cafa081cb5ab6597c072e8b'
-    oldFile: !uuid 'b51553acb7c6d66db8d0025d9091c007f45cb630'
+    newFile: !uuid 'cc6cd5a585aa442b6d68eaa8fb4b484f146e4d8d'
+    oldFile: !uuid '2071f659ba81a68b4cafa081cb5ab6597c072e8b'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '19bebba0659494ad5091ec01fb675d25f19a2c8e'
-    oldFile: !uuid '0f334841775f16bbc4fd9054e4e0e50c68874613'
+    newFile: !uuid '32dae71c195194383f0a066304c1ebe229c19db2'
+    oldFile: !uuid '19bebba0659494ad5091ec01fb675d25f19a2c8e'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '3983a9d8002bf803a062db110afe12418a8b4727'
-    oldFile: !uuid '2d106a3d2838c6218c28b6e52dc41e037a91f815'
+    newFile: !uuid 'f41fb51c76b76dd396c228116b9f9241d510aab0'
+    oldFile: !uuid '3983a9d8002bf803a062db110afe12418a8b4727'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid 'ea6cd2f64ccaa6d42922ee70ea9bac592bcbdfa8'
-    oldFile: !uuid 'c3e84e559349a4988acaa842c436db0b493d78f1'
+    newFile: !uuid '0909d6e447a4827d921b150fe92a92f9d961fa6f'
+    oldFile: !uuid 'ea6cd2f64ccaa6d42922ee70ea9bac592bcbdfa8'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'e20aa706625f080642bf0b224093b56c5ef81a6a'
-    oldFile: !uuid 'f512bc56c8e6a235558ba67d29df29640a972300'
+    newFile: !uuid 'be1cc0db2e9a9ceda5e5007ddf6ef779990e94d1'
+    oldFile: !uuid 'e20aa706625f080642bf0b224093b56c5ef81a6a'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '0e41998dde941f3bd065ed2e2bb96a7fe982f175'
-    oldFile: !uuid '3af115cada620a921648fbda8c24773ec53e7320'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket:
-    newFile: !uuid '969bc1b6fb958a81a755a0ad3c2d72b39c23efdd'
-    oldFile: !uuid 'f0ab31dd2eb9d1b0cde3e12e8d1a7101dcbf3bf7'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket/AdminSocketAuthFactory.java:
-    newFile: !uuid '1cbbd407f46e9d35dc0666c1990645c73271dba2'
+    newFile: !uuid '96261c93e9c6fee75a8ac45abc0bf01ed80ff1a9'
+    oldFile: !uuid '0e41998dde941f3bd065ed2e2bb96a7fe982f175'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
+    newFile: !uuid '1c6fd12a220dd8bba210f670745b1475e04b7dba'
+    oldFile: !uuid 'cc9c846223d1d34bc70cea02419992a5b077a497'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysMessagePushService.java:
+    newFile: !uuid '6aefd111b08436b1e772242f3a8635226a7784ba'
     oldFile: null
-  /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid 'b925322c9eac9ee41b56068bc27a038312c2e0e6'
-    oldFile: !uuid 'fc221b356966facbd3e672025a54cf025f4174bc'
-  /spring-api-support-admin-starter/src/main/resources/application.yml:
-    newFile: !uuid '296d595b6baea7eb7633e79806feb4101d0719d3'
-    oldFile: !uuid 'a12e65f99890d7309c26d291a8aae733b9dbbcb4'
-gitCommitId: !uuid 'be60d7d75c029529451489b44a389af27eff489b'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
+    newFile: !uuid 'eeedfdb0664d897e0e203d30363a44fe29d89197'
+    oldFile: !uuid 'b47ba43b9667f77d7a5ce082cf9c208d2926185d'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysMessagePushServiceImpl.java:
+    newFile: !uuid '501ea3b73b3cac75157cea654e6292558c16f561'
+    oldFile: null
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket:
+    newFile: !uuid '982c787c859c7c11d4a67ab79d95f991e8baeb0c'
+    oldFile: !uuid '969bc1b6fb958a81a755a0ad3c2d72b39c23efdd'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/socket/AdminSocketAuthFactory.java:
+    newFile: !uuid 'e096de4d6ec58f2c010eabf2e8a8593961abacfb'
+    oldFile: !uuid '1cbbd407f46e9d35dc0666c1990645c73271dba2'
+gitCommitId: !uuid 'cd153619770cb9346d201dd19f96646fc23dadd6'
 renames: {
   }
-revisionId: 109
+revisionId: 110
