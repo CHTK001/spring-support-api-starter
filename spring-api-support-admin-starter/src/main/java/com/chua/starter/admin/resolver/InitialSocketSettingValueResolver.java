@@ -28,7 +28,7 @@ public class InitialSocketSettingValueResolver implements SettingValueResolver{
         SysSetting sysSetting = new SysSetting();
         sysSetting.setSettingName("initial_socket_ports");
         String host = socketIoProperties.getHost();
-        if(!NetUtils.isLocalHost(host)) {
+        if(!NetUtils.isLocalHost(host) && !"0.0.0.0".equals(host)) {
             sysSetting.setSettingValue(host + ":" + socketIoProperties.getPort() + "");
         } else {
             sysSetting.setSettingValue(socketIoProperties.getPort() + "");
