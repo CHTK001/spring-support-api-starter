@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.common.support.matcher.PathMatcher;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.properties.SystemProperties;
+import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -60,6 +62,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 continue;
             }
 
+            ServiceProvider.of(SettingValueResolver.class).getExtension(sysSetting1.getSettingName())
+                            .resolve(sysSetting);
             sysSetting.add(sysSetting1);
         }
 
