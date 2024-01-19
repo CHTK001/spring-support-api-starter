@@ -11,9 +11,9 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
-import com.chua.starter.admin.properties.SystemProperties;
 import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
+import com.chua.starter.common.support.properties.VersionProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -33,7 +33,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    private SystemProperties systemProperties;
+    private VersionProperties versionProperties;
 
     @Override
     public List<SysSetting> getSettings(String name) {
@@ -41,7 +41,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if(CollectionUtils.isEmpty(keys)) {
             List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                     .like(SysSetting::getSettingName, name)
-                    .eq(StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion())
+                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
             );
             if(CollectionUtils.isEmpty(sysSettings)) {
                 return null;
@@ -79,7 +79,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public boolean deleteSetting(Integer settingId) {
         SysSetting sysSetting = baseMapper.selectById(settingId);
-        if(null == settingId && !Objects.equals(sysSetting.getSettingVersion(), systemProperties.getVersion())) {
+        if(null == settingId && !Objects.equals(sysSetting.getSettingVersion(), versionProperties.getNo())) {
             return false;
         }
 
@@ -89,16 +89,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public boolean saveSetting(SysSetting sysSetting) {
-        sysSetting.setSettingVersion(systemProperties.getVersion());
+        sysSetting.setSettingVersion(versionProperties.getNo());
         SysSetting sysSetting1 = baseMapper.selectOne(Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                .eq(StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion()));
+                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
         int result = 0;
         if(null == sysSetting1) {
             result = baseMapper.insert(sysSetting);
         } else {
             result = baseMapper.update(sysSetting,
                     Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                            .eq(StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion())
+                            .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
             );
         }
         if(result > 0) {
@@ -129,7 +129,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                    .eq(StringUtils.isNotBlank(systemProperties.getVersion()), SysSetting::getSettingVersion, systemProperties.getVersion()));
+                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
             for (SysSetting sysSetting : list) {
                 stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             }
@@ -138,7 +138,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        systemProperties = Binder.get(applicationContext.getEnvironment())
-                .bindOrCreate("sys", SystemProperties.class);
+        versionProperties = Binder.get(applicationContext.getEnvironment())
+                .bindOrCreate(VersionProperties.PRE, VersionProperties.class);
     }
 }
