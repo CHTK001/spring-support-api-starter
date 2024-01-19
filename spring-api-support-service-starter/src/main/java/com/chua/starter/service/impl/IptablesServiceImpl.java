@@ -7,12 +7,9 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.properties.IpProperties;
 import com.chua.starter.service.IptablesService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
-import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE;
 
 /**
  * ip
@@ -30,7 +27,7 @@ public class IptablesServiceImpl implements IptablesService {
      * @param address 地址
      * @return 结果
      */
-    @Cacheable(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "#address")
+    @Override
     public ReturnResult<GeoCity> transferAddress(String address) {
         if(StringUtils.isEmpty(address)) {
             return ReturnResult.illegal("地址不能为空");
