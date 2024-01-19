@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.EnableCaching;
  * @author CH
  */
 @EnableCaching
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.admin", "com.chua.starter.service"})
 public class AdminApplication {
     public static void main(String[] args) {
         SpringApplication.run(AdminApplication.class, args);
