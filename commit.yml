@@ -2,76 +2,70 @@
 branches: {
   }
 fileChange:
-  /pom.xml:
-    newFile: !uuid '2ed2afa710fd47586e3690be0e8f7a3a8b4fd90e'
-    oldFile: !uuid '2135936fad8caf484b5bf3d1dd977f070743683c'
   /spring-api-support-admin-starter:
-    newFile: !uuid '55b0199dadd6530d4b966ac290c7f6a9f853b7fd'
-    oldFile: !uuid '1bd9dcc96d3c964c0dcd7570843a2c18c2dd7eb9'
-  /spring-api-support-admin-starter/pom.xml:
-    newFile: !uuid '2872bdfd5a2a0d6104a9ee84c5e1febfd02370ac'
-    oldFile: !uuid '5692686f7685776e4ae23f94d6274a59d5a25ff8'
+    newFile: !uuid '9b2e02ced873ae158b10449009dae4d93aec0964'
+    oldFile: !uuid '55b0199dadd6530d4b966ac290c7f6a9f853b7fd'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid '0024424611294eedd8a03f8850a37440f33a4a19'
-    oldFile: !uuid '6af0519bc5098584e564c1df7fde006aeddb89de'
+    newFile: !uuid '19883f9e0531e09f168fdd9a3abc75a7a5ea2d6a'
+    oldFile: !uuid '0024424611294eedd8a03f8850a37440f33a4a19'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '55e9f5f78e089130baca113e4be1322ae0bc3403'
-    oldFile: !uuid '1c20ab7aacbd99652b56ae21461f0bd38585c377'
+    newFile: !uuid '330547c387741d61d348a8d29aaad15d8ac89172'
+    oldFile: !uuid '55e9f5f78e089130baca113e4be1322ae0bc3403'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '73f06533a31a0e41d711c193796214c3652ea27f'
-    oldFile: !uuid '9664c948ff3c43c7b8406d7c586026d80424de89'
+    newFile: !uuid 'f1497c56f9068a156b0f1f819ed39e01c70f38f9'
+    oldFile: !uuid '73f06533a31a0e41d711c193796214c3652ea27f'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid 'f9adcabe8bf06f6d8e3f57eb0e10495f584e72d0'
-    oldFile: !uuid 'a5e1036a7ff4f34eb7f79f4bac6e775a26e8c487'
+    newFile: !uuid 'ceebf924945df51576d55c56bdac8a3f8ec66a8d'
+    oldFile: !uuid 'f9adcabe8bf06f6d8e3f57eb0e10495f584e72d0'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '167328a2a08fc4f1da62128738ce2ba232fcf8bf'
-    oldFile: !uuid '3eba0418bc892128aa1e2c969a9df20aa92b843e'
+    newFile: !uuid 'd034ea434194b486b5b8da27938c78c9478c5e8c'
+    oldFile: !uuid '167328a2a08fc4f1da62128738ce2ba232fcf8bf'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'a41215d64717294230ca14de3cad4539acf0c724'
-    oldFile: !uuid 'abe0771c64da6f440e3244605fd12eea66233a4e'
+    newFile: !uuid '55ab05b779561239c95f084bdff0d4c76d5b0d25'
+    oldFile: !uuid 'a41215d64717294230ca14de3cad4539acf0c724'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '7d6b878768b3447d309c85ef744999ca9972e830'
-    oldFile: !uuid '80656533bc2d5b35f526861d0f68e3ab280e11c0'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/AdminApplication.java:
-    newFile: !uuid '0e91ace02bb98bfa20b799a75914a852888510b9'
-    oldFile: !uuid '3d68f3ad48ece05f94b009f626144565f74c0c43'
+    newFile: !uuid 'a57f9b3d868cc15e785088bc8c60c7a804c3ffc8'
+    oldFile: !uuid '7d6b878768b3447d309c85ef744999ca9972e830'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
+    newFile: !uuid '66e473a03ee5b724c216bf24f15355e3a7dea6c2'
+    oldFile: !uuid 'fee09abdef489b7f503ea5ccea4d2c6871e0d153'
+  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysPlatformController.java:
+    newFile: !uuid 'c38a4a629d96f4fcfc07f6de382134b2daaefefb'
+    oldFile: !uuid '72b55fbb117e4ea82a6d55f7ad9ba74ac344a517'
   /spring-api-support-service-starter:
-    newFile: !uuid '87d01c5a0e092f32f09d7cc4738461fcb71724b3'
-    oldFile: !uuid 'f233bc2f5c43a1ca174402c76829a5079aad3ae6'
-  /spring-api-support-service-starter/pom.xml:
-    newFile: !uuid '986fc303f97ace9a925b4e4870138bb6d85a1a67'
-    oldFile: !uuid '8cd217874c3ef01426871aa09a8b5f8e6c466e55'
+    newFile: !uuid '1cb1f9953db0ba71248574267bf4329f03b30df2'
+    oldFile: !uuid '87d01c5a0e092f32f09d7cc4738461fcb71724b3'
   /spring-api-support-service-starter/src:
-    newFile: !uuid '0b1ee0ea117a5d8f67d941fed2e8808a56bd0b2c'
-    oldFile: null
+    newFile: !uuid '1104a1d5fc6ea7e2c27811b2a55818866e131533'
+    oldFile: !uuid '0b1ee0ea117a5d8f67d941fed2e8808a56bd0b2c'
   /spring-api-support-service-starter/src/main:
-    newFile: !uuid '168923ba1cc2ae2aa0ad2e080ccbe077475baf35'
-    oldFile: null
+    newFile: !uuid '91ad7bf21098174e88903eba198c29c076ac0f57'
+    oldFile: !uuid '168923ba1cc2ae2aa0ad2e080ccbe077475baf35'
   /spring-api-support-service-starter/src/main/java:
-    newFile: !uuid '8a06b90f64f3a7919a0ec727e49a517fb5547038'
-    oldFile: null
+    newFile: !uuid 'a81614dc2ff0bf5466be3de5a1f0aa11ec12b07e'
+    oldFile: !uuid '8a06b90f64f3a7919a0ec727e49a517fb5547038'
   /spring-api-support-service-starter/src/main/java/com:
-    newFile: !uuid 'd7f33c15b06d928d69cd2c829b705a187259ffce'
-    oldFile: null
+    newFile: !uuid 'd0cb78e699e423d9c7085b5d28366730d4e7546e'
+    oldFile: !uuid 'd7f33c15b06d928d69cd2c829b705a187259ffce'
   /spring-api-support-service-starter/src/main/java/com/chua:
-    newFile: !uuid 'f64f24de21b6dfc3bdafff9306518209489a991c'
-    oldFile: null
+    newFile: !uuid '03bc4a3349f8f602b49886b2f1199cba068e4686'
+    oldFile: !uuid 'f64f24de21b6dfc3bdafff9306518209489a991c'
   /spring-api-support-service-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'b7874d2ae83b590d2bb1aa9b9047b7ab8c2245ad'
-    oldFile: null
+    newFile: !uuid '6c8bae2253ad7ef77641ec43c211d3b3e267b4d5'
+    oldFile: !uuid 'b7874d2ae83b590d2bb1aa9b9047b7ab8c2245ad'
   /spring-api-support-service-starter/src/main/java/com/chua/starter/service:
-    newFile: !uuid 'f64728cfcdb2fa00c15932134bf85236e265af85'
-    oldFile: null
+    newFile: !uuid '761b56f59892bd6ad2922f656066f8ce1eb6355c'
+    oldFile: !uuid 'f64728cfcdb2fa00c15932134bf85236e265af85'
   /spring-api-support-service-starter/src/main/java/com/chua/starter/service/IptablesService.java:
-    newFile: !uuid '28d0dc5b42ea4f6830e96dc19af5fe656b92d9fb'
-    oldFile: null
+    newFile: !uuid '04ca37d483703b043ab275ce81326d06bb2d25e4'
+    oldFile: !uuid '28d0dc5b42ea4f6830e96dc19af5fe656b92d9fb'
   /spring-api-support-service-starter/src/main/java/com/chua/starter/service/impl:
-    newFile: !uuid '431e35b7caed0e6bfd07e331150bd48216998ed3'
-    oldFile: null
+    newFile: !uuid '225e9d562d5c862135ff0be07679b007147a25e8'
+    oldFile: !uuid '431e35b7caed0e6bfd07e331150bd48216998ed3'
   /spring-api-support-service-starter/src/main/java/com/chua/starter/service/impl/IptablesServiceImpl.java:
-    newFile: !uuid '3ecbc277245ff19a5e22f848746dbcfd40fa6441'
-    oldFile: null
-gitCommitId: !uuid '46fbe53b7ffe5cf1204d724c257a5836d9b23dcc'
+    newFile: !uuid '25ece92fd89c2d4cbb592153f882f210710b72b2'
+    oldFile: !uuid '3ecbc277245ff19a5e22f848746dbcfd40fa6441'
+gitCommitId: !uuid '715030761ba3956f43b84b4b01b15a7269d54ca8'
 renames: {
   }
-revisionId: 113
+revisionId: 114
