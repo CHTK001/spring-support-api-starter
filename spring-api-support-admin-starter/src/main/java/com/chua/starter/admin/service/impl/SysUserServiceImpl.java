@@ -234,7 +234,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
 
         updateById(sysUser1);
-        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
+        NoticeService noticeService = ServiceProvider.of(NoticeService.class).getObjectProvider(notice);
         noticeService.notice(NoticeMessage.builder()
                 .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
         return Result.ok();
@@ -253,7 +253,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser1.getUserPassword() + sysUser1.getUserSalt()));
 
         updateById(sysUser1);
-        NoticeService noticeService = ServiceProvider.of(NoticeService.class).createProvider(notice);
+        NoticeService noticeService = ServiceProvider.of(NoticeService.class).getObjectProvider(notice);
         noticeService.notice(NoticeMessage.builder()
                 .userId(sysUser1.getUserId() + "").type(NoticeType.RESET).build());
         return Result.ok();

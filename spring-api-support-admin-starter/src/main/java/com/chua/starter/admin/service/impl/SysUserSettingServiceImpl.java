@@ -1,10 +1,10 @@
 package com.chua.starter.admin.service.impl;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
+import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonArray;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -58,7 +58,7 @@ public class SysUserSettingServiceImpl extends ServiceImpl<SysUserGridMapper, Sy
             }
             List<String> strings = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(userDashboardGrid);
             String copmsList = sysUserSetting.getCopmsList();
-            JSONArray jsonArray = JSON.parseArray(copmsList);
+            JsonArray jsonArray = Json.getJsonArray(copmsList);
             for (int i = 0; i < jsonArray.size(); i++) {
                 if (CollectionUtils.notContains(strings, (Collection<String>) jsonArray.get(i))) {
                     return Result.illegal("当前账号没有权限添加其它组件");
