@@ -13,6 +13,7 @@ import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
+import com.chua.starter.common.support.properties.CodecProperties;
 import com.chua.starter.common.support.properties.VersionProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,6 +35,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     private VersionProperties versionProperties;
+
+    @Resource
+    private CodecProperties codecProperties;
+
+    @Resource
+    private SysSettingService sysSettingService;
 
     @Override
     public List<SysSetting> getSettings(String name) {
@@ -128,12 +135,34 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
+            SysSetting item1 = new SysSetting();
+            item1.setSettingName("codec_open");
+            item1.setSettingValue(codecProperties.isEnable() + "");
+            item1.setSettingVersion(versionProperties.getNo());
+
+            sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaQuery()
+                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                    .eq(SysSetting::getSettingName, item1.getSettingName())
+            );
+
+            SysSetting item2 = new SysSetting();
+            item2.setSettingName("codec_key");
+            item2.setSettingValue(codecProperties.getPublicKey());
+            item2.setSettingVersion(versionProperties.getNo());
+
+            sysSettingService.saveOrUpdate(item2, Wrappers.<SysSetting>lambdaQuery()
+                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                    .eq(SysSetting::getSettingName, item2.getSettingName())
+            );
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                     .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
             for (SysSetting sysSetting : list) {
                 stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             }
         });
+
+
+
     }
 
     @Override
