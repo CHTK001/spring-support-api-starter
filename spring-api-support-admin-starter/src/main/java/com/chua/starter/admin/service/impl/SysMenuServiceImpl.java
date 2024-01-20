@@ -1,9 +1,9 @@
 package com.chua.starter.admin.service.impl;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
+import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonArray;
 import com.chua.common.support.lang.treenode.CustomTreeNode;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.admin.entity.SysMenu;
@@ -239,12 +239,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         SysUserGridResult result = new SysUserGridResult();
         SysUserSetting gridByUserId = sysUserSettingService.getGridByUserId(userId);
         try {
-            result.setLayout(JSON.parseArray(gridByUserId.getLayout()));
+            result.setLayout(Json.getJsonArray(gridByUserId.getLayout()));
         } catch (Exception e) {
-            result.setLayout(new JSONArray());
+            result.setLayout(new JsonArray());
         }
         try {
-            result.setCopmsList(JSON.parseArray(gridByUserId.getCopmsList()));
+            result.setCopmsList(Json.getJsonArray(gridByUserId.getCopmsList()));
         } catch (Exception ignored) {
         }
         userMenuResult.setGrid(result);
