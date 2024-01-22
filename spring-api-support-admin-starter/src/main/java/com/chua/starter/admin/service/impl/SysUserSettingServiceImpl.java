@@ -30,7 +30,7 @@ import java.util.Set;
 public class SysUserSettingServiceImpl extends ServiceImpl<SysUserGridMapper, SysUserSetting> implements SysUserSettingService, Constant {
 
     @Override
-    @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'grid' + #sysUserGrid.userId")
+    @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'grid:' + #sysUserGrid.userId")
     public boolean saveGrid(SysUserSetting sysUserGrid) {
         List<SysUserSetting> sysUserGrids = baseMapper.selectList(Wrappers.<SysUserSetting>lambdaQuery().eq(SysUserSetting::getUserId, sysUserGrid.getUserId()));
         if(sysUserGrids.isEmpty()) {
