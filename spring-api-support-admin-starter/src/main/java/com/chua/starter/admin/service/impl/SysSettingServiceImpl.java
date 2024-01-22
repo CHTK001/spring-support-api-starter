@@ -6,15 +6,15 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.utils.*;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
-import com.chua.starter.common.support.properties.CodecProperties;
+import com.chua.starter.common.support.constant.OperatorType;
 import com.chua.starter.common.support.properties.VersionProperties;
+import com.chua.starter.common.support.provider.CodecProvider;
+import com.chua.starter.common.support.utils.StreamUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -24,10 +24,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, ApplicationContextAware, InitializingBean {
@@ -37,7 +35,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private VersionProperties versionProperties;
 
     @Resource
-    private CodecProperties codecProperties;
+    private CodecProvider codecProvider;
 
     @Resource
     private SysSettingService sysSettingService;
@@ -70,11 +68,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
 
             ServiceProvider.of(SettingValueResolver.class).getExtension(sysSetting1.getSettingName())
-                            .resolve(sysSetting);
+                            .resolve(Collections.singletonList(sysSetting1));
             sysSetting.add(sysSetting1);
         }
-
-
+        //混淆数据
+        SysSetting sysSetting1 = new SysSetting();
+        sysSetting1.setSettingDesc("codec-key");
+        sysSetting1.setSettingValue(Hex.toHex(IdUtils.createTid().getBytes(StandardCharsets.UTF_8)));
+        sysSetting1.setSettingName("codec-key");
+        sysSetting.add(sysSetting1);
         return sysSetting;
     }
 
@@ -108,7 +110,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                             .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
             );
         }
+
         if(result > 0) {
+            ServiceProvider.of(SettingValueResolver.class).getExtension(sysSetting1.getSettingName())
+                    .resolve(Collections.singletonList(sysSetting));
             String settingValue = sysSetting.getSettingValue();
             if(null == settingValue) {
                 return false;
@@ -135,33 +140,46 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
-            SysSetting item1 = new SysSetting();
-            item1.setSettingName("codec_open");
-            item1.setSettingValue(codecProperties.isEnable() + "");
-            item1.setSettingVersion(versionProperties.getNo());
-
-            sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaQuery()
-                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
-                    .eq(SysSetting::getSettingName, item1.getSettingName())
-            );
-
-            SysSetting item2 = new SysSetting();
-            item2.setSettingName("codec_key");
-            item2.setSettingValue(codecProperties.getPublicKey());
-            item2.setSettingVersion(versionProperties.getNo());
-
-            sysSettingService.saveOrUpdate(item2, Wrappers.<SysSetting>lambdaQuery()
-                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
-                    .eq(SysSetting::getSettingName, item2.getSettingName())
-            );
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                     .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
+
+            List<SysSetting> codecSetting = new LinkedList<>();
             for (SysSetting sysSetting : list) {
+                if(sysSetting.getSettingName().startsWith("codec_")) {
+                    codecSetting.add(sysSetting);
+                }
                 stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             }
+
+            doCodec(codecSetting);
         });
 
 
+
+    }
+
+    private void doCodec(List<SysSetting> codecSetting) {
+        if(codecSetting.size() != 2) {
+            doRegister();
+            return;
+        }
+
+        SysSetting sysSetting = StreamUtils.getFirst(codecSetting, SysSetting::getSettingName, OperatorType.EQ, "codec_open");
+        if(null != sysSetting) {
+            codecProvider.setEnable(Boolean.parseBoolean(sysSetting.getSettingValue()));
+        }
+    }
+
+    private void doRegister() {
+        SysSetting item1 = new SysSetting();
+        item1.setSettingName("codec_open");
+        item1.setSettingValue(codecProvider.isEnable() + "");
+        item1.setSettingVersion(versionProperties.getNo());
+
+        sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaQuery()
+                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                .eq(SysSetting::getSettingName, item1.getSettingName())
+        );
 
     }
 
