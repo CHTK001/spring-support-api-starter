@@ -11,7 +11,10 @@ import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
-import com.chua.starter.sso.impl.*;
+import com.chua.starter.sso.impl.SysRole;
+import com.chua.starter.sso.impl.SysUser;
+import com.chua.starter.sso.impl.SysUserRole;
+import com.chua.starter.sso.impl.SysUserThird;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,8 +38,8 @@ public class UserService implements UserInfoService, Constant {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    private int count = 6;
-    private int timeout = 5;
+    private final int count = 6;
+    private final int timeout = 5;
 
 
     @Resource
@@ -68,6 +71,7 @@ public class UserService implements UserInfoService, Constant {
             return check(newAccessKey, boos);
         }
 
+        stringRedisTemplate.opsForValue().increment("user:count:" + user.getUserId());
         sysUserMapper.updateById(user);
         stringRedisTemplate.delete(newAccessKey);
 
