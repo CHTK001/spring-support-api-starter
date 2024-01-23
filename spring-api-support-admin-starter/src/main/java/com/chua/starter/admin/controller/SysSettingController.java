@@ -18,11 +18,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE;
 
 /**
  * 系统设置
@@ -43,7 +46,8 @@ public class SysSettingController {
      */
     @Operation(summary = "查询设置列表")
     @GetMapping("list")
-    public ReturnResult<List<SysSetting>> page(
+    @Cacheable(cacheNames = REDIS_CACHE,cacheManager = REDIS_CACHE, key = "'sys:setting:' + #keyword")
+    public ReturnResult<List<SysSetting>> list(
             @Parameter(description = "关键词") @RequestParam(required = false) String keyword
     ) {
         return ReturnResult.ok(sysSettingService.getSettings(keyword));
