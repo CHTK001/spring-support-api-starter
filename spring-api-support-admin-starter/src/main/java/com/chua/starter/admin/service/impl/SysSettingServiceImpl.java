@@ -2,9 +2,7 @@ package com.chua.starter.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ErrorResult;
-import com.chua.common.support.matcher.PathMatcher;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.*;
 import com.chua.starter.admin.entity.SysSetting;
@@ -20,18 +18,16 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, ApplicationContextAware, InitializingBean {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
     private VersionProperties versionProperties;
 
     @Resource
@@ -42,42 +38,20 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public List<SysSetting> getSettings(String name) {
-        Set<Object> keys = stringRedisTemplate.opsForHash().keys("sys:setting");
-        if(CollectionUtils.isEmpty(keys)) {
-            List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
-                    .like(SysSetting::getSettingName, name)
-                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
-            );
-            if(CollectionUtils.isEmpty(sysSettings)) {
-                return null;
-            }
-            SysSetting sysSetting = sysSettings.get(0);
-            updateSetting(sysSetting);
-            return sysSettings;
-        }
-
-        List<SysSetting> sysSetting = new LinkedList<>();
-        for (Object key : keys) {
-            if(!name.equals(key) && !PathMatcher.INSTANCE.match(name, key.toString())) {
-                continue;
-            }
-            Object o = stringRedisTemplate.opsForHash().get("sys:setting", key);
-            SysSetting sysSetting1 = Json.fromJson(o.toString(), SysSetting.class);
-            if(null == sysSetting1) {
-                continue;
-            }
-
-            ServiceProvider.of(SettingValueResolver.class).getExtension(sysSetting1.getSettingName())
-                            .resolve(Collections.singletonList(sysSetting1));
-            sysSetting.add(sysSetting1);
+        List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                .like(SysSetting::getSettingName, name)
+                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+        );
+        if(CollectionUtils.isEmpty(sysSettings)) {
+            return Collections.emptyList();
         }
         //混淆数据
         SysSetting sysSetting1 = new SysSetting();
         sysSetting1.setSettingDesc("codec-key");
         sysSetting1.setSettingValue(Hex.toHex(IdUtils.createTid().getBytes(StandardCharsets.UTF_8)));
         sysSetting1.setSettingName("codec-key");
-        sysSetting.add(sysSetting1);
-        return sysSetting;
+        sysSettings.add(sysSetting1);
+        return sysSettings;
     }
 
     @Override
@@ -87,13 +61,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public boolean deleteSetting(Integer settingId) {
-        SysSetting sysSetting = baseMapper.selectById(settingId);
-        if(null == settingId && !Objects.equals(sysSetting.getSettingVersion(), versionProperties.getNo())) {
-            return false;
-        }
-
-        stringRedisTemplate.opsForHash().delete("sys:setting", sysSetting.getSettingName());
-        return false;
+        return baseMapper.deleteById(settingId) > 0;
     }
 
     @Override
@@ -118,7 +86,6 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             if(null == settingValue) {
                 return false;
             }
-            stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
             return true;
         }
         return false;
@@ -141,20 +108,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSettingName, "codec_open")
                     .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
-
-            List<SysSetting> codecSetting = new LinkedList<>();
-            for (SysSetting sysSetting : list) {
-                if(sysSetting.getSettingName().startsWith("codec_")) {
-                    codecSetting.add(sysSetting);
-                }
-                stringRedisTemplate.opsForHash().put("sys:setting", sysSetting.getSettingName(), Json.toJson(sysSetting));
-            }
-
-            doCodec(codecSetting);
+            doCodec(list);
         });
-
-
 
     }
 
