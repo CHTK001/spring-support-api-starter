@@ -44,7 +44,7 @@ public class SysUserSettingServiceImpl extends ServiceImpl<SysUserGridMapper, Sy
     }
 
     @Override
-    @Cacheable(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'grid' + #userId")
+    @Cacheable(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'grid:' + #userId")
     public SysUserSetting getGridByUserId(String userId) {
         return baseMapper.selectOne(Wrappers.<SysUserSetting>lambdaQuery().eq(SysUserSetting::getUserId, userId));
     }

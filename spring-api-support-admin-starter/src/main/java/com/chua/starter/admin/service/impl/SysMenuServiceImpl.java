@@ -244,7 +244,16 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             result.setLayout(new JsonArray());
         }
         try {
-            result.setCopmsList(Json.getJsonArray(gridByUserId.getCopmsList()));
+            JsonArray jsonArray = Json.getJsonArray(gridByUserId.getCopmsList());
+            if(jsonArray.isEmpty()) {
+                result.setCopmsList(new JsonArray()
+                        .fluent(JsonArray.getInstance())
+                        .fluent(JsonArray.getInstance())
+                        .fluent(JsonArray.getInstance())
+                );
+            } else {
+                result.setCopmsList(jsonArray);
+            }
         } catch (Exception ignored) {
         }
         userMenuResult.setGrid(result);
