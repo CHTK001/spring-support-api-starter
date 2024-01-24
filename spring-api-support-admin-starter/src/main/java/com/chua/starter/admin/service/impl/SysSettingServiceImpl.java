@@ -65,6 +65,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         sysSetting1.setSettingValue(Hex.toHex(IdUtils.createTid().getBytes(StandardCharsets.UTF_8)));
         sysSetting1.setSettingName("codec-key");
         result.add(sysSetting1);
+        result.addAll(sysSettings);
 
         return cacheSetting(strings, result);
     }
@@ -92,7 +93,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return objects;
         }
         for (SysSetting item : objects) {
-            stringRedisTemplate.opsForValue().set("sys:setting:" + item.getSettingName(), Json.toJson(objects));
+            stringRedisTemplate.opsForValue().set("sys:setting:" + item.getSettingName(), Json.toJson(item));
         }
 
         return objects;
