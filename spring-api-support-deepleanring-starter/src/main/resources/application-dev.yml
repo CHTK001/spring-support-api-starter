@@ -1,0 +1,9 @@
+server:
+  port: 18171
+  servlet:
+    context-path: /learning/api
+plugin:
+  oauth:
+    address: http://172.16.2.226:19180/oauth
+  learning:
+    module-path: "E:\\workspace\\environment"
