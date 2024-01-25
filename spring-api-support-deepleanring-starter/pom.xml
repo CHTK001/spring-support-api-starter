@@ -9,14 +9,12 @@
         <version>3.1.0</version>
     </parent>
 
-    <artifactId>spring-api-support-deepleanring-core-starter</artifactId>
+    <artifactId>spring-api-support-deepleanring-starter</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticsearch-java>7.17.9</elasticsearch-java>
-
         <!--依赖输出目录-->
         <lib-path>output/lib</lib-path>
         <!--springboot默认打包输出目录-->
@@ -34,6 +32,11 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-service-starter</artifactId>
         </dependency>
     </dependencies>
 
@@ -147,27 +150,28 @@
             </plugin>
 
             <!-- 自定义发布版本包 -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <version>3.3.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>create-release-zip</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <appendAssemblyId>false</appendAssemblyId>-->
-<!--                    <descriptors>-->
-<!--                        <descriptor>package.xml</descriptor>-->
-<!--                    </descriptors>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-assembly-plugin</artifactId>-->
+            <!--                <version>3.3.0</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>create-release-zip</id>-->
+            <!--                        <phase>package</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>single</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <configuration>-->
+            <!--                    <appendAssemblyId>false</appendAssemblyId>-->
+            <!--                    <descriptors>-->
+            <!--                        <descriptor>package.xml</descriptor>-->
+            <!--                    </descriptors>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
+
 
 </project>

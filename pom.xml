@@ -21,7 +21,7 @@
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-unified-starter</module>
         <module>spring-api-support-gen-starter</module>
-        <module>spring-api-support-deepleanring-parent</module>
+        <module>spring-api-support-deepleanring-starter</module>
     </modules>
     <version>3.1.0</version>
     
