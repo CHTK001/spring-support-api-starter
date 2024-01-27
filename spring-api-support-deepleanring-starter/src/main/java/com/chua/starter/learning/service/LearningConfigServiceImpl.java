@@ -9,6 +9,7 @@ import com.chua.common.support.ml.feature.Feature;
 import com.chua.common.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.ml.recognizer.Recognizer;
 import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.learning.pojo.LearningRequest;
 import com.chua.starter.learning.properties.LearningProperties;
 import org.hibernate.internal.util.collections.ConcurrentReferenceHashMap;
@@ -45,7 +46,7 @@ public class LearningConfigServiceImpl implements LearningConfigService, Disposa
 
     @Override
     public PredictResultObject<PredictResult> compare(LearningRequest request) {
-        IdentificationEngine identificationEngine = ENGINE_MAP.compute(request.getEngine(), (s, identificationEngine1) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
+        IdentificationEngine identificationEngine = MapUtils.getComputeIfFunction(ENGINE_MAP, request.getEngine(), (s) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
                 .cachePath(learningProperties.getModulePath())
                 .build()
         ));
@@ -56,7 +57,7 @@ public class LearningConfigServiceImpl implements LearningConfigService, Disposa
 
     @Override
     public PredictResultObject<PredictResult> recognitions(LearningRequest request) {
-        IdentificationEngine identificationEngine = ENGINE_MAP.compute(request.getEngine(), (s, identificationEngine1) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
+        IdentificationEngine identificationEngine = MapUtils.getComputeIfFunction(ENGINE_MAP, request.getEngine(), (s) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
                 .cachePath(learningProperties.getModulePath())
                 .build()
         ));
@@ -67,7 +68,7 @@ public class LearningConfigServiceImpl implements LearningConfigService, Disposa
 
     @Override
     public PredictResultObject<PredictResult> feature(LearningRequest request) {
-        IdentificationEngine identificationEngine = ENGINE_MAP.compute(request.getEngine(), (s, identificationEngine1) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
+        IdentificationEngine identificationEngine = MapUtils.getComputeIfFunction(ENGINE_MAP, request.getEngine(), (s) -> IdentificationEngine.of(s, DetectionConfiguration.builder()
                 .cachePath(learningProperties.getModulePath())
                 .build()
         ));
