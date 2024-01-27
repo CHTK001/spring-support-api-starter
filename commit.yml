@@ -3,36 +3,36 @@ branches: {
   }
 fileChange:
   /spring-api-support-deepleanring-starter:
-    newFile: !uuid '0066f121e6d0fe7916114b80030f24dcbf1e0ba7'
-    oldFile: !uuid 'bfb44f2299c3a3b366be6d13d550023690d2ad51'
+    newFile: !uuid '171052eec5dccce41c92026fc2a30107070cfad7'
+    oldFile: !uuid '0066f121e6d0fe7916114b80030f24dcbf1e0ba7'
   /spring-api-support-deepleanring-starter/src:
-    newFile: !uuid '31b269545cc5d28da4ad8e64ce87e35a3d0aa481'
-    oldFile: !uuid 'e6d964a0f32cbb1a00e48104604b438c6ac7824e'
+    newFile: !uuid '6457233589b3c58a31ceda3985fabe9ee15da8ba'
+    oldFile: !uuid '31b269545cc5d28da4ad8e64ce87e35a3d0aa481'
   /spring-api-support-deepleanring-starter/src/main:
-    newFile: !uuid '77ed7f784d983757ba2421c392d633d41d37ba33'
-    oldFile: !uuid '54097e2888127517c6b09487a01bf2748713ea2e'
+    newFile: !uuid '74f9b972761531da39111f4101202a0ceb44cbac'
+    oldFile: !uuid '77ed7f784d983757ba2421c392d633d41d37ba33'
   /spring-api-support-deepleanring-starter/src/main/java:
-    newFile: !uuid '28ef5a400d96f9209fef3efbe755a64f68fb4143'
-    oldFile: !uuid '0b232b5b9010d51a7aeae38e50d09a13fceeebad'
+    newFile: !uuid 'ed418a0eac51a779d9b11e785b3b8eb8343bc8ba'
+    oldFile: !uuid '28ef5a400d96f9209fef3efbe755a64f68fb4143'
   /spring-api-support-deepleanring-starter/src/main/java/com:
-    newFile: !uuid '24b2536cb40e5645c3a6a62a0378b3bd94ee7586'
-    oldFile: !uuid '65c634db8eca6f16f3767a1a4d5ce796c168edb2'
+    newFile: !uuid 'b7ec9fdd688f08d658ba519ff36167becf35282d'
+    oldFile: !uuid '24b2536cb40e5645c3a6a62a0378b3bd94ee7586'
   /spring-api-support-deepleanring-starter/src/main/java/com/chua:
-    newFile: !uuid '21fd07e68b290f3c4c59736f1467613e3286ecc3'
-    oldFile: !uuid '3ee2c5022ab7d87bc248dd2498e274f9e346c0d1'
+    newFile: !uuid '74efdeefe41be5c00a9490aa8d24f76264f0ed7e'
+    oldFile: !uuid '21fd07e68b290f3c4c59736f1467613e3286ecc3'
   /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '2b0325430184410ead15266ea85eb4cfcb5dd25f'
-    oldFile: !uuid '9c982b2f17b6bee1b518f6362b466e6beaf10c82'
+    newFile: !uuid '7c3ef46b3a4fadedc508ae73cfa09b3a54dd6633'
+    oldFile: !uuid '2b0325430184410ead15266ea85eb4cfcb5dd25f'
   /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning:
-    newFile: !uuid '4d0458d60b0adcab07b8e971169e0b3490e07183'
-    oldFile: !uuid '9d3e6e56565144a519b43748c85bdcbe6ad72c7f'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/controller:
-    newFile: !uuid '6fc26abb78be2ed635594be1e3f6e851098144b8'
-    oldFile: !uuid '1400f179067d2883d5a2962f015d2b81008ff895'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/controller/FeatureController.java:
-    newFile: !uuid '40477862668757d59fe2638fc735cce9a89cb33d'
-    oldFile: !uuid '0e04849e8cf3be68286b0118d1c63369f64fec16'
-gitCommitId: !uuid 'd12f63fca6725d5cc5bd84c983ff2cff7410bbcf'
+    newFile: !uuid '9fe1353bc6a7e8b768ee2d2df0ff07a8b400af3f'
+    oldFile: !uuid '4d0458d60b0adcab07b8e971169e0b3490e07183'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service:
+    newFile: !uuid 'c85e38cd86b7d22c72902e4eb45c5b79fe4992e0'
+    oldFile: !uuid '8b878932d4a82f03f27261e76469c778cb5d2694'
+  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/service/LearningConfigServiceImpl.java:
+    newFile: !uuid 'ed42b01ef93b20b723accf2a7dfdb9c771754413'
+    oldFile: !uuid '135ede7465b024830fc04e2798f5ab30b5f36642'
+gitCommitId: !uuid 'af5e5f381df1dc734f174e3e4359cf5efbf0af3c'
 renames: {
   }
-revisionId: 130
+revisionId: 131
