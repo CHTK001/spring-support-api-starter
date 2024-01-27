@@ -52,7 +52,7 @@ public class FeatureController {
                         , multipartFile.getInputStream());
                 request.setFile(file);
             }
-            return ReturnResult.of(learningConfigService.detect(request));
+            return ReturnResult.of(learningConfigService.feature(request));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
