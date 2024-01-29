@@ -41,6 +41,12 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-rapid-starter</artifactId>
+            <version></version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-baidu-starter</artifactId>
             <version>3.1.0</version>
         </dependency>
