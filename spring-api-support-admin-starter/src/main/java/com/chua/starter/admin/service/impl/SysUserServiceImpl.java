@@ -7,7 +7,10 @@ import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.*;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.RandomUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.admin.entity.SysUser;
 import com.chua.starter.admin.entity.SysUserRole;
 import com.chua.starter.admin.mapper.SysUserMapper;
@@ -90,19 +93,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
+        String userId = userLoginInfo.getExtValue("userId");
+        SysUser sysUser = getById(userId);
         UserInfoVO userInfoVO = new UserInfoVO();
-        userInfoVO.setUserName(userLoginInfo.getUsername());
-        userInfoVO.setUserRealName(userLoginInfo.getExtValue("userRealName"));
-        userInfoVO.setNickname(userLoginInfo.getName());
-        userInfoVO.setUserId(MapUtils.getString(userLoginInfo.getExt(), "userId"));
-        userInfoVO.setUserMobile(MapUtils.getString(userLoginInfo.getExt(), "userMobile"));
-        userInfoVO.setUserGender(MapUtils.getString(userLoginInfo.getExt(), "userGender"));
-        userInfoVO.setUserEmail(MapUtils.getString(userLoginInfo.getExt(), "userEmail"));
-        userInfoVO.setUserAddress(MapUtils.getString(userLoginInfo.getExt(), "userAddress"));
-        userInfoVO.setUserSex(MapUtils.getInteger(userLoginInfo.getExt(), "userGender"));
-        userInfoVO.setUserMarker(MapUtils.getString(userLoginInfo.getExt(), "userMarker"));
-        userInfoVO.setAvatar(MapUtils.getString(userLoginInfo.getExt(), "userAvatar"));
+        com.chua.common.support.bean.BeanUtils.copyProperties(sysUser, userInfoVO);
         userInfoVO.setRoles(userLoginInfo.getRoles());
+        userInfoVO.setUserName(sysUser.getUsername());
         userInfoVO.setPerms(userLoginInfo.getPermission());
         return userInfoVO;
     }
