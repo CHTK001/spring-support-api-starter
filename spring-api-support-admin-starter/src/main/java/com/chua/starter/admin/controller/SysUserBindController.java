@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import me.zhyd.oauth.model.AuthCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,4 +47,20 @@ public class SysUserBindController implements Constant {
     public ReturnResult<List<SysUserTripartiteBind>> list(@Parameter(hidden = true) @UserValue("userId") Long userId, @Parameter(hidden = true) HttpServletRequest request) {
         return ReturnResult.ok(sysUserTripartiteBindService.listBind(userId));
     }
+    /**
+     * 列表
+     * 绑定信息
+     *
+     * @param userId  用户id
+     * @param request 要求
+     * @return {@link ReturnResult}<{@link SysUser}>
+     */
+    @Operation(summary = "绑定gitee信息")
+    @GetMapping("/gitee")
+    public ReturnResult<List<SysUserTripartiteBind>> gitee(AuthCallback authCallback, @Parameter(hidden = true) @UserValue("userId") Long userId,
+                                                           @Parameter(hidden = true) HttpServletRequest request) {
+        return ReturnResult.ok();
+    }
+
+
 }
