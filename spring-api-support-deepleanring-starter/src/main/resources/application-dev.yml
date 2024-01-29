@@ -4,4 +4,4 @@ server:
     context-path: /learning/api
 plugin:
   learning:
-    module-path: "H:\\workspace\\environment"
+    module-path: "E:\\workspace\\environment"
