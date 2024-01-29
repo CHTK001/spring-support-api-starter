@@ -3,36 +3,21 @@ branches: {
   }
 fileChange:
   /spring-api-support-deepleanring-starter:
-    newFile: !uuid '40c11424d1f718818b8339ab900db6b990dbbf61'
-    oldFile: !uuid '171052eec5dccce41c92026fc2a30107070cfad7'
+    newFile: !uuid '11f7c7e478bf336aa35b65854b31a096f037ba5b'
+    oldFile: !uuid '40c11424d1f718818b8339ab900db6b990dbbf61'
   /spring-api-support-deepleanring-starter/src:
-    newFile: !uuid 'c10f3823382eadeca041ae8943c162f8081d041e'
-    oldFile: !uuid '6457233589b3c58a31ceda3985fabe9ee15da8ba'
+    newFile: !uuid 'a6517536453b267e0dc0ed9745f52b248fd7e967'
+    oldFile: !uuid 'c10f3823382eadeca041ae8943c162f8081d041e'
   /spring-api-support-deepleanring-starter/src/main:
-    newFile: !uuid '96fba7d7ad8e8b704c5865ce6c0ff493d8e08188'
-    oldFile: !uuid '74f9b972761531da39111f4101202a0ceb44cbac'
-  /spring-api-support-deepleanring-starter/src/main/java:
-    newFile: !uuid 'afccb518f23ad643ac991fc69582f5ff20a3375a'
-    oldFile: !uuid 'ed418a0eac51a779d9b11e785b3b8eb8343bc8ba'
-  /spring-api-support-deepleanring-starter/src/main/java/com:
-    newFile: !uuid '560b47d839ca908e672975862b3bffface1b2a67'
-    oldFile: !uuid 'b7ec9fdd688f08d658ba519ff36167becf35282d'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua:
-    newFile: !uuid '584dbca805eb8780197699c7c2443feac65eb59b'
-    oldFile: !uuid '74efdeefe41be5c00a9490aa8d24f76264f0ed7e'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '92caf941c1d31b84eb443e03c9cd44a85d6eef95'
-    oldFile: !uuid '7c3ef46b3a4fadedc508ae73cfa09b3a54dd6633'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning:
-    newFile: !uuid '2903c7da943e3e86320715b265a69c9fa96561ae'
-    oldFile: !uuid '9fe1353bc6a7e8b768ee2d2df0ff07a8b400af3f'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/controller:
-    newFile: !uuid 'afc85faff741f4f733d395fd860f10f2191727ce'
-    oldFile: !uuid '6fc26abb78be2ed635594be1e3f6e851098144b8'
-  /spring-api-support-deepleanring-starter/src/main/java/com/chua/starter/learning/controller/CompareController.java:
-    newFile: !uuid '4fcf6d19f1a8087396d10bdf0a28febc7197aa1d'
-    oldFile: null
-gitCommitId: !uuid 'd967bc27772556f419645a07f97ee578d3eb4837'
+    newFile: !uuid '3feaae4cf5ca98bba105b7babf972fbfbfba9760'
+    oldFile: !uuid '96fba7d7ad8e8b704c5865ce6c0ff493d8e08188'
+  /spring-api-support-deepleanring-starter/src/main/resources:
+    newFile: !uuid 'ba1583509becb31042adb8f48bd60e9fcc3fcd97'
+    oldFile: !uuid 'ce694879c3f3552645afe3409345890fb56527f7'
+  /spring-api-support-deepleanring-starter/src/main/resources/application-dev.yml:
+    newFile: !uuid '3aa2335068353b4aa542f870dc09546f706efc92'
+    oldFile: !uuid '02d257d26280e490ba8e54279fa3b23bc36e1001'
+gitCommitId: !uuid 'b5ac55129b99dd14956a52083c2c0e483f8fecc7'
 renames: {
   }
-revisionId: 132
+revisionId: 133
