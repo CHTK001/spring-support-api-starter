@@ -99,7 +99,7 @@ public class SysUserController implements Constant {
     @GetMapping("/loginCode")
     @AuthIgnore
     public Result<String> loginCode(String loginCodeType, String type) {
-        String loginCode = AuthClientExecute.getInstance().getLoginCode(loginCodeType, type);
+        String loginCode = AuthClientExecute.getInstance().getLoginCode(loginCodeType, type, AuthClientExecute.getInstance().getToken());
         if (null == loginCode) {
             throw new NotSupportedException("当前不支持");
         }
