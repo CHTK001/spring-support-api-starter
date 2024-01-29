@@ -81,8 +81,8 @@ public class SysUser extends SysTenantBase {
      * 性别(1:男;2:女)
      */
     @TableField(value = "user_gender")
-    @ApiModelProperty(value = "性别(1:男;2:女)")
-    @Schema(description = "性别(1:男;2:女)")
+    @ApiModelProperty(value = "性别(1:男;0:女)")
+    @Schema(description = "性别(1:男;0:女)")
     private Integer userGender;
 
     /**

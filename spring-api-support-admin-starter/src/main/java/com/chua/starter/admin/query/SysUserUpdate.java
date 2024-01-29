@@ -108,7 +108,6 @@ public class SysUserUpdate {
      * 角色ids
      */
     @Schema(title = "角色ids")
-    @NotNull(message = "用户角色不能为空")
     @JsonDeserialize(using = JsonArrayToStringDeserialize.class)
     private String roleId;
 
