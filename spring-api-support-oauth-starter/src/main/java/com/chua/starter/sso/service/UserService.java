@@ -71,8 +71,7 @@ public class UserService implements UserInfoService, Constant {
             return check(newAccessKey, boos);
         }
 
-        stringRedisTemplate.opsForValue().increment("user:count:" + user.getUserId());
-        sysUserMapper.updateById(user);
+//        sysUserMapper.updateById(user);
         stringRedisTemplate.delete(newAccessKey);
 
         return loginInfo(accessKey, user);
@@ -103,7 +102,9 @@ public class UserService implements UserInfoService, Constant {
      * @return {@link UserResult}
      */
     protected UserResult loginInfo(String accessKey, SysUser user) {
+        stringRedisTemplate.opsForValue().increment("user:count:" + user.getUserId());
         List<SysRole> role = getRole(user);
+
         LinkedHashSet<String> collect = role.stream().map(SysRole::getRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
         if (ADMIN.equalsIgnoreCase(accessKey)) {
             collect.add(ADMIN);
