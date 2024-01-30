@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.admin.mapper.SysMessageTemplateMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.admin.entity.SysMessageTemplate">
+    <!--@mbg.generated-->
+    <!--@Table sys_message_template-->
+    <id column="message_id" property="messageId" />
+    <result column="message_name" property="messageName" />
+    <result column="message_code" property="messageCode" />
+    <result column="message_config_id" property="messageConfigId" />
+    <result column="message_type" property="messageType" />
+    <result column="message_template" property="messageTemplate" />
+    <result column="tenant_id" property="tenantId" />
+    <result column="create_name" property="createName" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="update_name" property="updateName" />
+    <result column="update_by" property="updateBy" />
+    <result column="message_sender" property="messageSender" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    message_id, message_name, message_code, message_config_id, message_type, message_template, 
+    tenant_id, create_name, create_by, create_time, update_time, update_name, update_by, 
+    message_sender
+  </sql>
+</mapper>
