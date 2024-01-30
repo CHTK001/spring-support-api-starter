@@ -5,11 +5,13 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.gitee.GiteeService;
 import com.chua.starter.sso.impl.SysUserTripartiteBind;
+import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 
 
 /**
@@ -24,13 +26,16 @@ public class GiteeServiceImpl implements GiteeService {
 
     @Resource
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
+
+    @Resource
+    private SysUserMapper sysUserMapper;
     @Override
-    public void binder(AuthUser data, String token) {
-        UserResult userResult = AuthClientExecute.getInstance().getUserResult(token);
+    public void binder(AuthUser data, UserResult userResult) {
         String id = userResult.getId();
         if(null != id) {
-            Long count = sysUserTripartiteBindMapper.selectCount(Wrappers.<SysUserTripartiteBind>lambdaQuery().eq(SysUserTripartiteBind::getUserId, id));
-            if(count == 0L) {
+            SysUserTripartiteBind selectOne = sysUserTripartiteBindMapper.selectOne(Wrappers.<SysUserTripartiteBind>lambdaQuery()
+                    .eq(SysUserTripartiteBind::getUserId, id).eq(SysUserTripartiteBind::getLoginCodeType, "gitee"));
+            if(selectOne == null) {
                 SysUserTripartiteBind sysUserTripartiteBind = new SysUserTripartiteBind();
                 sysUserTripartiteBind.setUserId(Integer.valueOf(id));
                 sysUserTripartiteBind.setLoginCodeType("gitee");
@@ -38,11 +43,25 @@ public class GiteeServiceImpl implements GiteeService {
                 sysUserTripartiteBind.setLoginUuid(data.getUuid());
                 sysUserTripartiteBind.setLoginAvatar(data.getAvatar());
                 sysUserTripartiteBind.setLoginName(data.getNickname());
+                sysUserTripartiteBind.setCreateTime(LocalDateTime.now());
+                sysUserTripartiteBind.setCreateBy(Integer.valueOf(id));
+                sysUserTripartiteBind.setCreateName(userResult.getUsername());
                 sysUserTripartiteBind.setLoginUuid(data.getUuid());
                 sysUserTripartiteBindMapper.insert(sysUserTripartiteBind);
+                return;
             }
-
+            selectOne.setLoginUsername(data.getUsername());
+            selectOne.setLoginAvatar(data.getAvatar());
+            selectOne.setUpdateTime(LocalDateTime.now());
+            selectOne.setUpdateBy(Integer.valueOf(id));
+            selectOne.setUpdateName(userResult.getUsername());
+            sysUserTripartiteBindMapper.updateById(selectOne);
             return;
         }
+    }
+
+    @Override
+    public boolean doLogin(AuthUser data) {
+        return sysUserTripartiteBindMapper.count(data.getUuid());
     }
 }

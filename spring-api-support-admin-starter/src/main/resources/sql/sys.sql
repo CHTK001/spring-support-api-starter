@@ -3,15 +3,15 @@
 
  Source Server         : 172.16.2.226
  Source Server Type    : MySQL
- Source Server Version : 80033
+ Source Server Version : 80300
  Source Host           : 172.16.2.226:3306
  Source Schema         : sys
 
  Target Server Type    : MySQL
- Target Server Version : 80033
+ Target Server Version : 80300
  File Encoding         : 65001
 
- Date: 17/01/2024 21:19:26
+ Date: 30/01/2024 09:29:41
 */
 
 SET NAMES utf8mb4;
@@ -37,7 +37,7 @@ CREATE TABLE `sys_dept`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -65,7 +65,7 @@ CREATE TABLE `sys_dict`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `update_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`dict_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict
@@ -91,7 +91,7 @@ CREATE TABLE `sys_dict_type`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`dict_type_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -123,7 +123,7 @@ CREATE TABLE `sys_file_storage`  (
   `fs_plugin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '插件; 文件上传时预处理',
   `fs_named` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件存储命名方式',
   PRIMARY KEY (`fs_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'OSS' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'OSS' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_file_storage
@@ -158,7 +158,7 @@ CREATE TABLE `sys_menu`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单实体对象' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单实体对象' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -223,7 +223,7 @@ CREATE TABLE `sys_operate_logger`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 143 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 150 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_operate_logger
@@ -292,15 +292,18 @@ CREATE TABLE `sys_setting`  (
   `setting_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设置版本',
   `setting_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '参数类型',
   PRIMARY KEY (`setting_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 'task_dx', '1', NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (2, 'task_wx', '1', NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (3, 'task_zn', '1', NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (4, 'task_yj', '0', NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (1, 'task_dx', 'false', '短信推送', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (2, 'task_wx', 'true', '微信推送', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (3, 'task_zn', 'true', '站内推送', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (4, 'task_yj', 'true', '邮件推送', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (5, 'codec_open', 'false', '开启', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (6, 'initial_socket', 'true', '开启', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (7, 'initial_debug', 'false', '开启', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -313,7 +316,7 @@ CREATE TABLE `sys_user`  (
   `user_real_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户真实姓名',
   `user_marker` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户备注',
   `user_nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '昵称',
-  `user_gender` int NULL DEFAULT NULL COMMENT '性别(1:男;2:女)',
+  `user_gender` int NULL DEFAULT NULL COMMENT '性别(1:男;0:女)',
   `user_sys` int NULL DEFAULT NULL COMMENT ' 是否系统账号(1:是)',
   `user_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
   `user_register_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '注册IP',
@@ -340,7 +343,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 1, 1, '8512935d6d726a53c13dc9d5cf6f72c7', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2023-07-22 20:32:09.562000', '系统管理员', NULL, 0);
+INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 2, 1, '8512935d6d726a53c13dc9d5cf6f72c7', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2024-01-29 13:57:56.715000', '系统管理员', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -354,6 +357,8 @@ CREATE TABLE `sys_user_role`  (
   `create_by` int NULL DEFAULT NULL,
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `update_by` int NULL DEFAULT NULL,
+  `create_time` date NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` date NULL DEFAULT NULL COMMENT '更新时间',
   INDEX `index_user_id`(`user_id` DESC) USING BTREE,
   INDEX `index_role_id`(`role_id` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色表' ROW_FORMAT = DYNAMIC;
@@ -361,7 +366,6 @@ CREATE TABLE `sys_user_role`  (
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
-INSERT INTO `sys_user_role` VALUES (1, 1, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_setting
@@ -381,10 +385,38 @@ CREATE TABLE `sys_user_setting`  (
   `update_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`grid`) USING BTREE,
   INDEX `index_user_id`(`user_id` DESC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户主页布局' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户主页布局' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_setting
 -- ----------------------------
-INSERT INTO `sys_user_setting` VALUES (3, 1, '[12,6,6]', '[[null],[null],[]]', NULL, '系统管理员', NULL, '2024-01-17', '2024-01-17', '系统管理员', NULL);
+INSERT INTO `sys_user_setting` VALUES (3, 1, '[24,16,8]', '[[null],[],[]]', NULL, '系统管理员', NULL, '2024-01-17', '2024-01-24', '系统管理员', NULL);
 
+-- ----------------------------
+-- Table structure for sys_user_tripartite_bind
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user_tripartite_bind`;
+CREATE TABLE `sys_user_tripartite_bind`  (
+  `tripartite_bind_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NULL DEFAULT NULL COMMENT '系统用户',
+  `login_code_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方联系',
+  `login_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方用户名',
+  `login_uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方唯一ID',
+  `login_avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方图像',
+  `login_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方登录名称',
+  `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` date NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` date NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`tripartite_bind_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_user_tripartite_bind
+-- ----------------------------
+INSERT INTO `sys_user_tripartite_bind` VALUES (2, 1, 'gitee', 'achtk', '7588800', 'https://gitee.com/assets/no_portrait.png', 'ACHTK', 0, NULL, NULL, '2024-01-30', '2024-01-30', 'admin', 1);
+
+SET FOREIGN_KEY_CHECKS = 1;
