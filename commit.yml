@@ -3,123 +3,63 @@ branches: {
   }
 fileChange:
   /spring-api-support-admin-starter:
-    newFile: !uuid 'f2f86e0596a58699e7f3362b97937ae182d1487f'
-    oldFile: !uuid 'e36ecd8bf733228bf9bd3d4709bfd4786e54d05a'
+    newFile: !uuid '4d0657b3309fefbf3b18e8f009386cee8664403d'
+    oldFile: !uuid 'f2f86e0596a58699e7f3362b97937ae182d1487f'
   /spring-api-support-admin-starter/src:
-    newFile: !uuid 'f75579221c1f48ae2c9be2e7f220337e774975f2'
-    oldFile: !uuid '0de2cf877a81ef12dbbcf2b0c21c6cc779bd6687'
+    newFile: !uuid '4ce84461a97468fffcb47462dea841626329801a'
+    oldFile: !uuid 'f75579221c1f48ae2c9be2e7f220337e774975f2'
   /spring-api-support-admin-starter/src/main:
-    newFile: !uuid 'd21009a17aa7d51972d7396a46da4c558c3f7047'
-    oldFile: !uuid '920bb86a0e81d0d1cd20b935936427e020059fb8'
+    newFile: !uuid '46494d05491eb827966163d33cbe4e65abbfddbb'
+    oldFile: !uuid 'd21009a17aa7d51972d7396a46da4c558c3f7047'
   /spring-api-support-admin-starter/src/main/java:
-    newFile: !uuid '99e7fb69a02d46d40fdb2a35829379bb3677107b'
-    oldFile: !uuid '9ff365e028bbe2b6b5cad7d589fa9b9b8233ada8'
+    newFile: !uuid 'd2f6a5a274cf39dbea7958bedbdeed305f5bdd75'
+    oldFile: !uuid '99e7fb69a02d46d40fdb2a35829379bb3677107b'
   /spring-api-support-admin-starter/src/main/java/com:
-    newFile: !uuid '611d3734aba53c37ad34353ea23bcc94537e029d'
-    oldFile: !uuid '8e98065a087bf246d617a3a339086f26dba54cb7'
+    newFile: !uuid '268bc54c66b2cada84cc3845a0e0281b3676fca3'
+    oldFile: !uuid '611d3734aba53c37ad34353ea23bcc94537e029d'
   /spring-api-support-admin-starter/src/main/java/com/chua:
-    newFile: !uuid '859d9b5a2624946137dcb39a11a3fe5572048a89'
-    oldFile: !uuid '2ffed90424d17c5db1ef0617ce6b5b601b12b52c'
+    newFile: !uuid '707450585d19af4623df8ad219751cf879753dd4'
+    oldFile: !uuid '859d9b5a2624946137dcb39a11a3fe5572048a89'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '5b3ae8e16c55f4eab9b2e0ead7df661ad3b734d3'
-    oldFile: !uuid '62826ec6a48c20cb90da075df495355b6d0b0367'
+    newFile: !uuid '14f1a8161b5aca0856dcba69569e9f191a509901'
+    oldFile: !uuid '5b3ae8e16c55f4eab9b2e0ead7df661ad3b734d3'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin:
-    newFile: !uuid '47bc4da3bca52075040ea63538a074a5d9909280'
-    oldFile: !uuid '7405ad58fda4f481790999992a577af2b4307a2b'
+    newFile: !uuid '520a41010582308a03cdbe4acec2dd401c711613'
+    oldFile: !uuid '47bc4da3bca52075040ea63538a074a5d9909280'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller:
-    newFile: !uuid '71488456a205a120840108052df9a3fab4a5f7b2'
-    oldFile: !uuid '152c621479905911188606799a25dd31cbe95eed'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysMessageConfigController.java:
-    newFile: !uuid '7196ba96b03feadd96565725055eccd234d17969'
-    oldFile: null
+    newFile: !uuid 'c204537b994581e3680ed0d49f53a0133619a943'
+    oldFile: !uuid '71488456a205a120840108052df9a3fab4a5f7b2'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/controller/SysMessageController.java:
-    newFile: !uuid '52d004805c6d84966d7c9840c51a9d5b30632a7a'
-    oldFile: null
+    newFile: !uuid '436e870154b4f50c5f04fccfedfcc6e85f3d3ad8'
+    oldFile: !uuid '52d004805c6d84966d7c9840c51a9d5b30632a7a'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity:
-    newFile: !uuid '87d1410a11fd1ee64bc4bd279e9a8cb99abad42a'
-    oldFile: !uuid '3316eabffd88e42e36a30e303bfc4bd7ebe75c91'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysMessageConfig.java:
-    newFile: !uuid 'b4e0e6a2b326b1918b0e0e86a85eea89d35c544c'
-    oldFile: null
+    newFile: !uuid 'f26a8c68289ef4fd408ad32cf27fbbaa520a5346'
+    oldFile: !uuid '87d1410a11fd1ee64bc4bd279e9a8cb99abad42a'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysMessageTemplate.java:
-    newFile: !uuid 'a9ece574a1dc9e3375d6034892511b26b035c769'
-    oldFile: null
+    newFile: !uuid 'f3144395e1019bdde91819af486b8cdb8d939005'
+    oldFile: !uuid 'a9ece574a1dc9e3375d6034892511b26b035c769'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/entity/SysMessageTemplateConfig.java:
-    newFile: !uuid 'f1e1a799cdec81f1fee71cffc46f8d398a47477d'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/enums:
-    newFile: !uuid '168d50cbc684347b2dc57b633aa782cd78439e70'
-    oldFile: !uuid 'fac0b4766416e9dd1787140d94d31500f0307e58'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/enums/MessageType.java:
-    newFile: !uuid '5aecd58e1f4171ce622449f74b01f8c22afc7bc1'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/enums/PushType.java:
-    newFile: !uuid '7f72f8ad6b498222061f5f22f0b0f41255e53317'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper:
-    newFile: !uuid 'ea59f4c9d7db0ba1b2f85a05f34e8f0907c58055'
-    oldFile: !uuid 'dfba55ddd62e0a2772d351830c49522398d8122e'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysMessageTemplateConfigMapper.java:
-    newFile: !uuid 'cbd5a8eddac58cbb9a23408124a4ca374381efbf'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/mapper/SysMessageTemplateMapper.java:
-    newFile: !uuid '3a96fcde58dae51906a141b73be265644d1b414f'
-    oldFile: null
+    newFile: !uuid 'fd2fe07cd4d924f4780e72c08c423db47a6a668a'
+    oldFile: !uuid 'f1e1a799cdec81f1fee71cffc46f8d398a47477d'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service:
-    newFile: !uuid '57e25529a388c14aefeb52f52e1c3511a8816ab4'
-    oldFile: !uuid '1b4d71251024c52fb5618ac1230c482802ac2f86'
-  /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysMessageTemplateConfigService.java:
-    newFile: !uuid 'a0b6ad90fe8f1aadca4487e299aed60840b83f8d'
-    oldFile: null
+    newFile: !uuid 'da34907c4f5485326f60a277c508a9fcfde2569e'
+    oldFile: !uuid '57e25529a388c14aefeb52f52e1c3511a8816ab4'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/SysMessageTemplateService.java:
-    newFile: !uuid '9d215a7b0799d19d48f231769d9c68431103b800'
-    oldFile: null
+    newFile: !uuid '33e5bb0f224b5a3aaa9bbdd812c1cf48e229fbb7'
+    oldFile: !uuid '9d215a7b0799d19d48f231769d9c68431103b800'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl:
-    newFile: !uuid '05bfb966b32c179b5ee25a2bd5b25006b2a97542'
-    oldFile: !uuid 'fd705cb12de1802a0f870e990565a4d5737e8d11'
-  ? /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysMessageTemplateConfigServiceImpl.java
-  : newFile: !uuid '3d316d17bbc22e381bd13d22106627db27a6e20d'
-    oldFile: null
+    newFile: !uuid 'e1de00e7fd362a5fe918642628019834ac684c8a'
+    oldFile: !uuid '05bfb966b32c179b5ee25a2bd5b25006b2a97542'
   /spring-api-support-admin-starter/src/main/java/com/chua/starter/admin/service/impl/SysMessageTemplateServiceImpl.java:
-    newFile: !uuid 'fee475b4391ec43a770f724fc70a869ab152dc10'
-    oldFile: null
+    newFile: !uuid '43e53bd3f86edf3db7695afbd51caa7a6e2d0c2b'
+    oldFile: !uuid 'fee475b4391ec43a770f724fc70a869ab152dc10'
   /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '8e4877567a4a2be1728d79a992a9e9bc2364178c'
-    oldFile: !uuid '5f24b574f3319cec7fe8664da0fccf0f7510c658'
-  /spring-api-support-admin-starter/src/main/resources/i18n:
-    newFile: null
-    oldFile: !uuid 'b5e114c278a7471e0c2b671bc49ed615068ffe95'
-  /spring-api-support-admin-starter/src/main/resources/i18n/message_zh_CN.properties:
-    newFile: null
-    oldFile: !uuid '08499509a0739d3e3b89d6e05842912f806b2610'
-  /spring-api-support-admin-starter/src/main/resources/mapper:
-    newFile: !uuid 'cf87f9c940aa40448c835e1787193ba5192dd7da'
-    oldFile: !uuid 'ede5359f6d299e7812ed475ca49d343d4124fcee'
-  /spring-api-support-admin-starter/src/main/resources/mapper/SysMessageTemplateConfigMapper.xml:
-    newFile: !uuid '34ab2319ac5766e1e85f3137840605f171463446'
-    oldFile: null
-  /spring-api-support-admin-starter/src/main/resources/mapper/SysMessageTemplateMapper.xml:
-    newFile: !uuid 'a82ad759c967df4c17fc3ccc8f5bbf5707881dc0'
-    oldFile: null
-  /spring-api-support-oauth-starter:
-    newFile: !uuid '58c040e9a23ff17f7ed556aa06cbdc8e9d23afed'
-    oldFile: !uuid '7260cd824fcb0b5df5bca83f84700c00ed610c01'
-  /spring-api-support-oauth-starter/src:
-    newFile: !uuid 'e2a1e74fefe2179978cfb31058e9a4993b169fc1'
-    oldFile: !uuid '732f8d21b07dd1e4c9d85e884c21434ffcee4764'
-  /spring-api-support-oauth-starter/src/main:
-    newFile: !uuid '7c9fd6c11392694cf4f3214a4ee03709c1085889'
-    oldFile: !uuid 'd119ffef1d2d9c714ab0c5829d9a3c3b3df713cb'
-  /spring-api-support-oauth-starter/src/main/resources:
-    newFile: !uuid 'e9e3bb0cdb85cd2aed886dacc302c7bd0d1036d2'
-    oldFile: !uuid 'fc718a63e5bff21d254a64754dd4d328dc442b60'
-  /spring-api-support-oauth-starter/src/main/resources/i18n:
-    newFile: null
-    oldFile: !uuid 'b5e114c278a7471e0c2b671bc49ed615068ffe95'
-  /spring-api-support-oauth-starter/src/main/resources/i18n/message_zh_CN.properties:
-    newFile: null
-    oldFile: !uuid '08499509a0739d3e3b89d6e05842912f806b2610'
-gitCommitId: !uuid 'b6ad5cf85505fdf1abca4a51a6dfa9aff2600665'
+    newFile: !uuid '66f35049a960ba9dec18d3152ac941d136742683'
+    oldFile: !uuid '8e4877567a4a2be1728d79a992a9e9bc2364178c'
+  /spring-api-support-admin-starter/src/main/resources/application-dev.yml:
+    newFile: !uuid 'c0cb9cd4dd4befbeafd79c0fa69d9019df27e5ce'
+    oldFile: !uuid 'a406ca61d137caeb2ea01eabb5d89812d681685b'
+gitCommitId: !uuid '6aa0a2fbd1294c0dcfe34714dc3bc2922a94e14f'
 renames: {
   }
-revisionId: 151
+revisionId: 152
