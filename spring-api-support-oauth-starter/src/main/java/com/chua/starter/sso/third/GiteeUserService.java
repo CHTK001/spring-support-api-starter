@@ -26,7 +26,7 @@ public class GiteeUserService extends UserService {
     @Override
     public UserResult checkLogin(String accessKey, String secretKey, String address, Object ext) {
         SysUser sysUser = sysUserTripartiteBindMapper.getSysUser(accessKey, "gitee");
-        return loginInfo(sysUser.getUsername(), sysUser);
+        return null == sysUser ? null : loginInfo(sysUser.getUsername(), sysUser);
     }
 
 }
