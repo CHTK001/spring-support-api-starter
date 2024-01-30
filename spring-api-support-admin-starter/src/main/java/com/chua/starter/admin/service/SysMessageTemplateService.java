@@ -6,10 +6,26 @@ public interface SysMessageTemplateService extends IService<SysMessageTemplate>{
 
 
     /**
-     * 删除数据
+     * 保存模板
+     *
+     * @param template 样板
+     * @return {@link SysMessageTemplate}
+     */
+    SysMessageTemplate saveTemplate(SysMessageTemplate template);
+
+    /**
+     * 更新模板
+     *
+     * @param template 样板
+     * @return {@link SysMessageTemplate}
+     */
+    SysMessageTemplate updateTemplate(SysMessageTemplate template);
+
+    /**
+     * 删除模板
      *
      * @param messageId 消息id
      * @return boolean
      */
-    boolean delete(String messageId);
+    Boolean deleteTemplate(String messageId);
 }

@@ -68,9 +68,7 @@ public class SysMessageController {
         // 生成唯一的消息码
         template.setMessageCode(IdUtils.createUlid());
         // 保存消息模板
-        smsMessageTemplateService.save(template);
-        // 返回新增的消息模板对象
-        return ReturnResult.of(template);
+        return ReturnResult.of(smsMessageTemplateService.saveTemplate(template));
     }
     /**
      * 更新消息模板
@@ -84,11 +82,8 @@ public class SysMessageController {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getFieldError().getDefaultMessage());
         }
-        template.setMessageCode(null);
-        // 保存消息模板
-        smsMessageTemplateService.updateById(template);
         // 返回新增的消息模板对象
-        return ReturnResult.of(template);
+        return ReturnResult.of(smsMessageTemplateService.updateTemplate(template));
     }
     /**
      * 更新消息模板
@@ -102,6 +97,6 @@ public class SysMessageController {
             return ReturnResult.illegal(LocaleUtils.getMessage("message.data.does.not.exist"));
         }
 
-        return ReturnResult.of(smsMessageTemplateService.delete(messageId));
+        return ReturnResult.of(smsMessageTemplateService.deleteTemplate(messageId));
     }
 }
