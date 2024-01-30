@@ -11,7 +11,7 @@
  Target Server Version : 80300
  File Encoding         : 65001
 
- Date: 30/01/2024 09:29:41
+ Date: 30/01/2024 15:15:38
 */
 
 SET NAMES utf8mb4;
@@ -37,7 +37,7 @@ CREATE TABLE `sys_dept`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`dept_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -65,7 +65,7 @@ CREATE TABLE `sys_dict`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `update_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`dict_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict
@@ -91,7 +91,7 @@ CREATE TABLE `sys_dict_type`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0,
   PRIMARY KEY (`dict_type_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -172,11 +172,10 @@ INSERT INTO `sys_menu` VALUES (7, 6, '外部链接', 'link', 'http://www.baidu.c
 INSERT INTO `sys_menu` VALUES (8, 6, '内部链接', 'iframe', 'http://www.baidu.com', '', NULL, NULL, NULL, 1, 1, 2, 'el-icon-add-location', NULL, '', 0, NULL, NULL, '2023-07-19 17:17:18.884000', '2023-07-19 17:19:23.222000', NULL, NULL, 0);
 INSERT INTO `sys_menu` VALUES (9, 3, '字典管理', 'menu', '/setting/dic', '/setting/dic', '', '#A74E4E', NULL, 1, 1, NULL, 'el-icon-collection', NULL, '0,3', 0, NULL, NULL, '2023-07-19 19:24:06.447000', '2023-07-20 09:52:47.754000', NULL, NULL, 0);
 INSERT INTO `sys_menu` VALUES (10, 3, '角色管理', 'menu', '/setting/role', '/setting/role', '', NULL, NULL, 1, 1, 3, 'el-icon-notebook', NULL, '0,3', 0, NULL, NULL, '2023-07-20 09:49:50.586000', '2023-07-21 09:14:19.321000', NULL, NULL, 0);
-INSERT INTO `sys_menu` VALUES (11, 3, '操作日志', 'menu', '/setting/log', '/setting/log', NULL, NULL, NULL, 1, 1, 99, 'el-icon-warning', NULL, '0,3', 0, NULL, NULL, '2023-07-20 14:38:59.874000', '2023-07-20 14:40:09.108000', NULL, NULL, 0);
+INSERT INTO `sys_menu` VALUES (11, 3, '操作日志', 'menu', '/setting/log', '/setting/log', NULL, NULL, NULL, 1, 1, 101, 'el-icon-warning', NULL, '0,3', 0, NULL, NULL, '2023-07-20 14:38:59.874000', '2023-07-20 14:40:09.108000', NULL, NULL, 0);
 INSERT INTO `sys_menu` VALUES (12, 3, '部门管理', 'menu', '/setting/dept', '/setting/dept', '', NULL, NULL, 1, 1, 1, 'sc-icon-organization', NULL, '0,3', 0, NULL, NULL, '2023-07-21 09:13:54.152000', '2023-07-21 10:44:25.501000', NULL, NULL, 0);
 INSERT INTO `sys_menu` VALUES (15, 6, '空白模板', 'menu', '/template/layout/blank', '/template/layout/blank.vue', NULL, NULL, NULL, 1, 1, NULL, 'sc-icon-template', NULL, '', 0, '系统管理员', '1', '2023-07-28 15:27:40.503000', '2023-07-28 15:48:47.482000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (16, 1, '账号信息', 'menu', '/usercenter', '/usercenter', NULL, NULL, NULL, 0, 1, NULL, 'el-icon-avatar', NULL, '0,1', 0, '系统管理员', '1', '2023-07-31 08:37:42.304000', '2023-07-31 08:38:18.873000', '系统管理员', '1', 0);
-INSERT INTO `sys_menu` VALUES (17, 0, '机器学习', 'menu', '/learning', '/learning', '', NULL, NULL, 1, 1, NULL, 'sc-icon-people-face', NULL, '', 0, '系统管理员', '1', '2023-07-31 15:14:23.790000', '2023-08-14 11:14:58.193000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (18, 17, '人脸比对1:1', 'menu', '/learning/faceCompare', '/learning/faceCompare', '', NULL, NULL, 1, 1, NULL, 'sc-icon-face-compare', NULL, '', 0, '系统管理员', '1', '2023-07-31 15:14:44.121000', '2023-07-31 15:31:05.122000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (19, 17, '图像比对1:1', 'menu', '/learning/imageCompare', '/learning/imageCompare', '', NULL, NULL, 1, 1, NULL, 'sc-icon-image-compare', NULL, '', 0, '系统管理员', '1', '2023-07-31 15:16:59.334000', '2023-07-31 15:29:17.901000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (20, 17, 'OCR识别', 'menu', '/learning/ocr', '/learning/ocr', '', NULL, NULL, 1, 1, NULL, 'sc-icon-image-reg', NULL, '', 0, '系统管理员', '1', '2023-07-31 15:28:47.536000', '2023-07-31 15:30:42.470000', '系统管理员', '1', 0);
@@ -184,12 +183,10 @@ INSERT INTO `sys_menu` VALUES (21, 17, '人脸检测', 'menu', '/learning/faceDe
 INSERT INTO `sys_menu` VALUES (22, 17, '底库', 'menu', '/learning/library/:indexName/:libType', '/learning/library', NULL, NULL, NULL, 0, 1, NULL, 'sc-icon-face-reg-library', NULL, '', 0, '系统管理员', '1', '2023-08-02 13:24:18.930000', '2023-08-03 15:11:58.106000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (23, 17, '底库管理', 'menu', '/setting/library', '/setting/library', NULL, NULL, NULL, 1, 1, NULL, 'sc-icon-face-reg-library', NULL, '', 0, '系统管理员', '1', '2023-08-03 13:06:40.846000', '2023-08-10 11:18:36.120000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (24, 17, 'GAN', 'menu', '/learning/gan', '/learning/gan', NULL, NULL, NULL, 1, 1, NULL, 'sc-icon-sc', NULL, '', 0, '系统管理员', '1', '2023-08-08 10:19:00.123000', '2023-08-10 11:18:45.435000', '系统管理员', '1', 0);
-INSERT INTO `sys_menu` VALUES (26, 0, '调度管理', 'menu', '/scheduler', '/scheduler', 'NEW', NULL, NULL, 1, 1, NULL, 'sc-icon-scheduler', NULL, '', 0, '系统管理员', '1', '2023-08-08 14:45:21.839000', '2023-08-09 13:39:29.964000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (27, 26, '调度任务管理', 'menu', '/scheduler/jobinfo', '/scheduler/jobinfo', NULL, NULL, '任务管理', 1, 1, NULL, 'el-icon-alarm-clock', NULL, '', 0, '系统管理员', '1', '2023-08-08 14:57:43.683000', '2023-08-14 13:33:55.373000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (28, 26, '调度日志', 'menu', '/scheduler/joblog/:jobGroup/:jobId', '/scheduler/joblog', NULL, NULL, NULL, 1, 1, NULL, 'el-icon-warning', NULL, '', 0, '系统管理员', '1', '2023-08-08 15:53:41.485000', '2023-08-09 13:39:41.037000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (29, 26, '执行器管理', 'menu', '/scheduler/jobgroup', '/scheduler/jobgroup', NULL, NULL, NULL, 1, 1, NULL, 'el-icon-takeaway-box', NULL, '', 0, '系统管理员', '1', '2023-08-09 13:38:58.388000', '2023-08-09 13:40:06.860000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (30, 17, '人脸1:N', 'menu', '/learning/faceCompareN', '/learning/faceCompareN', NULL, NULL, NULL, 1, 1, NULL, 'sc-icon-face-detection', NULL, '', 0, '系统管理员', '1', '2023-08-10 11:17:50.071000', '2023-08-10 11:18:19.043000', '系统管理员', '1', 0);
-INSERT INTO `sys_menu` VALUES (32, 0, '配置中心', 'menu', '/config', '/config', NULL, NULL, NULL, 1, 1, NULL, 'sc-icon-mapping-v2', NULL, '', 0, '系统管理员', '1', '2023-08-14 11:13:17.369000', '2023-08-14 11:13:32.454000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (34, 32, '统一配置', 'menu', '/config/config', '/config/config', NULL, NULL, NULL, 1, 1, NULL, 'el-icon-grid', NULL, '', 0, '系统管理员', '1', '2023-08-14 11:13:41.480000', '2023-08-14 11:14:17.265000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (35, 32, '统一脚本', 'menu', '/config/bean', '/config/bean', NULL, NULL, NULL, 1, 1, NULL, '', NULL, '', 0, '系统管理员', '1', '2023-08-15 16:13:18.060000', '2023-08-15 16:13:32.286000', '系统管理员', '1', 0);
 INSERT INTO `sys_menu` VALUES (36, 32, '统一日志', 'menu', '/config/log', '/config/log', NULL, NULL, NULL, 1, 1, NULL, 'el-icon-warning', NULL, '', 0, '系统管理员', '1', '2023-08-17 15:07:45.201000', '2023-08-17 15:08:04.393000', '系统管理员', '1', 0);
@@ -223,11 +220,19 @@ CREATE TABLE `sys_operate_logger`  (
   `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 150 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 174 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_operate_logger
 -- ----------------------------
+INSERT INTO `sys_operate_logger` VALUES (168, '01hnc0bb3wn56jjfswtfzsk47r', '登录', 2, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"PFucYm\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 09:39:41.839000', '2024-01-30 09:39:43.385000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (169, '01hnccwmya8yezcb138p8678pw', '更新用户', 0, '/admin/api/v2/users/update', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"userId\": 1,\n    \"userRealName\": \"系统管理员\",\n    \"userGender\": 2,\n    \"userMarker\": \"系统管理员0001\",\n    \"userMobile\": \"17621210366\",\n    \"userEmail\": \"\"\n  }\n]', '修改', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:18:53.385000', '2024-01-30 13:18:53.403000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (170, '01hnccxxh04y3yrh3znqgekqy9', '更新用户', 0, '/admin/api/v2/users/update', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"userId\": 1,\n    \"userRealName\": \"系统管理员\",\n    \"userGender\": 2,\n    \"userMarker\": \"系统管理员0001\",\n    \"userMobile\": \"17621210366\",\n    \"userEmail\": \"\"\n  }\n]', '修改', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:19:34.944000', '2024-01-30 13:19:34.946000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (171, '01hncehgcwthhgckvthc1mh6g9', '登录', 3, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"4bmgkA\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:47:43.875000', '2024-01-30 13:47:45.498000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (172, '01hncfg8kpbgf0pmcdhs7kzxbq', '登录', 1, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"3gT77N\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 14:04:31.712000', '2024-01-30 14:04:33.296000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (173, '01hncfwcvgjadr2n164vkbh1a1', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 14:11:10.832000', '2024-01-30 14:11:10.834000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (174, '01hnck7byy5n1750bm3nc0kbyp', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 15:09:36.093000', '2024-01-30 15:09:36.115000', NULL, NULL, 0);
+INSERT INTO `sys_operate_logger` VALUES (175, '01hnck7ch58cwv7qkc8vrxcs4h', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 15:09:36.677000', '2024-01-30 15:09:36.681000', NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -343,7 +348,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员000', '系统管理员', 2, 1, '8512935d6d726a53c13dc9d5cf6f72c7', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2024-01-29 13:57:56.715000', '系统管理员', NULL, 0);
+INSERT INTO `sys_user` VALUES (1, NULL, 'admin', '系统管理员', '系统管理员0001', '系统管理员', 2, 1, '8512935d6d726a53c13dc9d5cf6f72c7', NULL, NULL, 1, 'https://oss.youlai.tech/youlai-boot/2023/05/16/811270ef31f548af9cffc026dfc3777b.gif', '17621210366', NULL, 1, '', 0, 'krdpgdbsinu1zt', NULL, NULL, '2019-10-10 13:41:22.000000', '2024-01-30 13:19:34.894000', '系统管理员', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -407,16 +412,16 @@ CREATE TABLE `sys_user_tripartite_bind`  (
   `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` date NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` date NULL DEFAULT NULL COMMENT '更新时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`tripartite_bind_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_tripartite_bind
 -- ----------------------------
-INSERT INTO `sys_user_tripartite_bind` VALUES (2, 1, 'gitee', 'achtk', '7588800', 'https://gitee.com/assets/no_portrait.png', 'ACHTK', 0, NULL, NULL, '2024-01-30', '2024-01-30', 'admin', 1);
+INSERT INTO `sys_user_tripartite_bind` VALUES (6, 1, 'gitee', 'achtk', '7588800', 'https://gitee.com/assets/no_portrait.png', 'ACHTK', 0, 'admin', 1, '2024-01-30 14:55:35', NULL, NULL, NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
