@@ -3,6 +3,7 @@ spring:
     name: admin
   profiles:
     active: dev
+
 plugin:
   parameter:
     enable: true

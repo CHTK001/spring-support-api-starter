@@ -16,4 +16,8 @@ public class SysUserTripartiteBindServiceImpl extends ServiceImpl<SysUserTripart
     public List<SysUserTripartiteBind> listBind(Long userId) {
         return baseMapper.selectList(Wrappers.<SysUserTripartiteBind>lambdaQuery().eq(SysUserTripartiteBind::getUserId, userId));
     }
+
+    @Override
+    public boolean unBinder(Long userId, Long tripartiteBindId) {
+        return baseMapper.delete(Wrappers.<SysUserTripartiteBind>lambdaQuery().eq(SysUserTripartiteBind::getUserId, userId).eq(SysUserTripartiteBind::getTripartiteBindId, tripartiteBindId)) > 0;    }
 }
