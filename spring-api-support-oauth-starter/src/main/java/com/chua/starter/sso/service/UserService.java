@@ -14,7 +14,7 @@ import com.chua.starter.oauth.server.support.service.UserInfoService;
 import com.chua.starter.sso.impl.SysRole;
 import com.chua.starter.sso.impl.SysUser;
 import com.chua.starter.sso.impl.SysUserRole;
-import com.chua.starter.sso.impl.SysUserThird;
+import com.chua.starter.sso.impl.SysUserTripartiteBind;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -82,7 +82,7 @@ public class UserService implements UserInfoService, Constant {
         SysUser user = sysUserMapper.selectOne(new MPJLambdaWrapper<SysUser>()
                 .select("IFNULL(t.user_avatar, t1.login_avatar) user_avatar")
                 .select("IFNULL(t.user_nickname, t1.login_name) user_nickname")
-                .leftJoin(SysUserThird.class, SysUserThird::getUserId, SysUser::getUserId)
+                .leftJoin(SysUserTripartiteBind.class, SysUserTripartiteBind::getUserId, SysUser::getUserId)
                 .eq(SysUser::getUsername, accessKey));
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
