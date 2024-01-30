@@ -8,7 +8,9 @@ import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 消息配置关联表
@@ -16,6 +18,8 @@ import lombok.Data;
 @ApiModel(description = "消息配置关联表")
 @Schema(description = "消息配置关联表")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName(value = "sys_message_template_config")
 public class SysMessageTemplateConfig {
     @TableId(value = "message_config_id", type = IdType.AUTO)
