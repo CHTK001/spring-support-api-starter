@@ -93,13 +93,16 @@ public class SysUserController implements Constant {
      * 登录码
      *
      * @param loginCodeType 登录码类型
-     * @return 结果
+     * @param type           请求类型
+     * @param callback        回调地址
+     * @param loginCallback   登录回调地址
+     * @return 登录码
      */
     @Operation(summary = "登录码")
     @GetMapping("/loginCode")
     @AuthIgnore
-    public Result<String> loginCode(String loginCodeType, String type, String callback) {
-        String loginCode = AuthClientExecute.getInstance().getLoginCode(loginCodeType, type, AuthClientExecute.getInstance().getToken(), callback);
+    public Result<String> loginCode(String loginCodeType, String type, String callback, String loginCallback) {
+        String loginCode = AuthClientExecute.getInstance().getLoginCode(loginCodeType, type, loginCallback, callback);
         if (null == loginCode) {
             throw new NotSupportedException("当前不支持");
         }
