@@ -8,56 +8,70 @@ import com.chua.starter.mybatis.pojo.SysTenantBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 /**
  * 用户三方绑定信息表
  */
-@ApiModel(description="用户三方绑定信息表")
-@Schema(description="用户三方绑定信息表")
+@ApiModel(description = "用户三方绑定信息表")
+@Schema(description = "用户三方绑定信息表")
 @Data
 @TableName(value = "sys_user_tripartite_bind")
-public class SysUserTripartiteBind extends SysTenantBase implements Serializable {
-    @TableId(value = "user_id", type = IdType.AUTO)
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @NotNull(message = "不能为null")
+public class SysUserTripartiteBind extends SysTenantBase {
+    private static final long serialVersionUID = 1L;
+    @TableId(value = "tripartite_bind_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    private Integer tripartiteBindId;
+
+    /**
+     * 系统用户
+     */
+    @TableField(value = "user_id")
+    @ApiModelProperty(value = "系统用户")
+    @Schema(description = "系统用户")
     private Integer userId;
 
+    /**
+     * 三方联系
+     */
     @TableField(value = "login_code_type")
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @Size(max = 255,message = "最大长度要小于 255")
+    @ApiModelProperty(value = "三方联系")
+    @Schema(description = "三方联系")
     private String loginCodeType;
 
+    /**
+     * 三方用户名
+     */
     @TableField(value = "login_username")
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @Size(max = 255,message = "最大长度要小于 255")
+    @ApiModelProperty(value = "三方用户名")
+    @Schema(description = "三方用户名")
     private String loginUsername;
 
+    /**
+     * 三方唯一ID
+     */
     @TableField(value = "login_uuid")
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @Size(max = 255,message = "最大长度要小于 255")
+    @ApiModelProperty(value = "三方唯一ID")
+    @Schema(description = "三方唯一ID")
     private String loginUuid;
 
+    /**
+     * 三方图像
+     */
     @TableField(value = "login_avatar")
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @Size(max = 255,message = "最大长度要小于 255")
+    @ApiModelProperty(value = "三方图像")
+    @Schema(description = "三方图像")
     private String loginAvatar;
 
+    /**
+     * 三方登录名称
+     */
     @TableField(value = "login_name")
-    @ApiModelProperty(value="")
-    @Schema(description="")
-    @Size(max = 255,message = "最大长度要小于 255")
+    @ApiModelProperty(value = "三方登录名称")
+    @Schema(description = "三方登录名称")
     private String loginName;
 
 
-    private static final long serialVersionUID = 1L;
 }

@@ -15,4 +15,13 @@ public interface SysUserTripartiteBindService extends IService<SysUserTripartite
      * @return {@link List}<{@link SysUserTripartiteBind}>
      */
     List<SysUserTripartiteBind> listBind(Long userId);
+
+    /**
+     * 解绑
+     *
+     * @param userId           用户id
+     * @param tripartiteBindId 三方绑定id
+     * @return {@link List}<{@link SysUserTripartiteBind}>
+     */
+    boolean unBinder(Long userId, Long tripartiteBindId);
 }
