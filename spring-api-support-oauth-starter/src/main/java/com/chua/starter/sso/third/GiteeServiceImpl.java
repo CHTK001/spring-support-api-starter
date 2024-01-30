@@ -27,8 +27,6 @@ public class GiteeServiceImpl implements GiteeService {
     @Resource
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
-    @Resource
-    private SysUserMapper sysUserMapper;
     @Override
     public void binder(AuthUser data, UserResult userResult) {
         String id = userResult.getId();
@@ -60,8 +58,4 @@ public class GiteeServiceImpl implements GiteeService {
         }
     }
 
-    @Override
-    public boolean doLogin(AuthUser data) {
-        return sysUserTripartiteBindMapper.count(data.getUuid());
-    }
 }

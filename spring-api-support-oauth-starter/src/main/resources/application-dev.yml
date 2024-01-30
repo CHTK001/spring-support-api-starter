@@ -14,4 +14,4 @@ spring:
     database: 15
 logging:
   level:
-    com.chua.starter.sso.impl: debug
+    com.chua.starter.sso.mapper: debug
