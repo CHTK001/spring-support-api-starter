@@ -2,7 +2,7 @@ spring:
   application:
     name: unified-server
   profiles:
-    active: dev
+    active: dev,mybatis
 server:
   servlet:
     context-path: /api/unified
