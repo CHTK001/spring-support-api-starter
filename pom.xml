@@ -19,7 +19,7 @@
         <module>spring-api-support-admin-starter</module>
         <module>spring-api-support-service-starter</module>
         <module>spring-api-support-scheduler-starter</module>
-        <module>spring-api-support-unified-starter</module>
+        <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-gen-starter</module>
         <module>spring-api-support-deepleanring-starter</module>
     </modules>
@@ -158,10 +158,14 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-service-starter</artifactId>
-                <version>3.1.0</version>
+                <version>${module.version}</version>
             </dependency>
 
-
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-monitor-client-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-swagger-starter</artifactId>
