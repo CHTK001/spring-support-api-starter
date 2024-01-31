@@ -1,8 +1,8 @@
 spring:
   application:
-    name: unified-server
+    name: monitor-server
   profiles:
     active: dev,mybatis
 server:
   servlet:
-    context-path: /api/unified
+    context-path: /monitor/api
