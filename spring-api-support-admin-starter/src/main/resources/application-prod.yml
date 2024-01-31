@@ -31,7 +31,3 @@ logging:
 plugin:
   socket:
     open: true
-  swagger:
-    knife4j:
-      - group-name: 系统配置
-        base-package: com.chua.starter.system.controller
