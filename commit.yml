@@ -2,34 +2,136 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-unified-starter:
-    newFile: !uuid 'c42d8f887bdcc080df9dafbd6665f042f3939e44'
-    oldFile: !uuid '99e41455dd53acb6160fb95ca8265a16ed32cb12'
-  /spring-api-support-unified-starter/src:
-    newFile: !uuid '93c47fcdc35dfbb3fef35f7e694deeed8d821205'
-    oldFile: !uuid '6015d2244b5dd88186261622bfe1add4ce7ee0e5'
-  /spring-api-support-unified-starter/src/main:
-    newFile: !uuid '80b7a7713cfe6f38dc137ccbf0b93577e847c067'
-    oldFile: !uuid '462f0b8cb564f302ac7009351380e7905f1b1e78'
-  /spring-api-support-unified-starter/src/main/resources:
-    newFile: !uuid '1ea11fbd1f541a7b88174a8e20af3eb1e67aa7fe'
-    oldFile: !uuid '3ca6c2b75597e665f4278413df54b7f61603ca54'
-  /spring-api-support-unified-starter/src/main/resources/application-dev.yml:
+  /pom.xml:
+    newFile: !uuid 'a4ef81abbdcd08ab15ec83182686abdcb2a60708'
+    oldFile: !uuid '4fef57a0e5ff2c59931c38e070c0245d900a5389'
+  /spring-api-support-monitor-starter:
+    newFile: !uuid 'b1305d076bcec9250bf299ed04096485427b7893'
+    oldFile: null
+  /spring-api-support-monitor-starter/pom.xml:
+    newFile: !uuid '79a5de3555db8246f23a1abe4b1c4025b756fe49'
+    oldFile: null
+  /spring-api-support-monitor-starter/src:
+    newFile: !uuid 'cec5aa6e34c4fa1aba6e7731a6298539fbe9cb49'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main:
+    newFile: !uuid '7cea2834955a9f2f8141378d6011b71b58315e07'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java:
+    newFile: !uuid '6158036c5b2d0782b3471739c9ec029d1f782475'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com:
+    newFile: !uuid '486519401b527c34be5b60e8384730ebcae0d690'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com/chua:
+    newFile: !uuid '6bff8d59f067b178615966b70e5149e6e9753bfd'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter:
+    newFile: !uuid '5e0082612d7c4604b499315458c6ed10992f0fec'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/unified:
+    newFile: !uuid 'd75e8bf7cd0c1348cc9872cbffc126fe4454af9f'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/unified/support:
+    newFile: !uuid 'ce696599d5adf320502888f3d16c2a6504aec9da'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/unified/support/MonitorServerApplication.java:
+    newFile: !uuid '7a6f0585d80c693f5c14de9e8d4878e8924df397'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources:
+    newFile: !uuid '821a5cd1055caacbd1c3ce715ca2556cf4718ad3'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/application-dev.yml:
     newFile: !uuid 'c4984c9a7ff4880785eff3219b3e3255034789c7'
-    oldFile: !uuid 'd4223dfa308760d9d3bc35e8475b7e24e56c5a2e'
-  /spring-api-support-unified-starter/src/main/resources/application-prod.yml:
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/application-prod.yml:
     newFile: !uuid '53640db2a591a9aa55b2cb26e3e157801f8a41bc'
-    oldFile: !uuid '1ebb3085f33c21af0de711b4dad165c9021c3684'
-  /spring-api-support-unified-starter/src/main/resources/application.yml:
-    newFile: !uuid 'df1eff7de2daffbd6cf15ebcdb256bb63a6eb6de'
-    oldFile: !uuid '58cc73c4c9a0116a9e3b097612831a2a0ef1fdac'
-  /spring-api-support-unified-starter/src/main/resources/config:
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/application.yml:
+    newFile: !uuid '3e52601ce5c0f5c8dc2b1d782aaef97c3361388c'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/config:
     newFile: !uuid '7c887d76acec1bb26e42287688965e2d5f37ce5e'
     oldFile: null
-  /spring-api-support-unified-starter/src/main/resources/config/application-mybatis.yml:
+  /spring-api-support-monitor-starter/src/main/resources/config/application-mybatis.yml:
     newFile: !uuid 'efe47a0b27a6108e7e09fc5d28f5c17d61c41489'
     oldFile: null
-gitCommitId: !uuid '17768994537281180bff1e8d894f883528cebc84'
-renames: {
-  }
-revisionId: 154
+  /spring-api-support-monitor-starter/src/main/resources/db:
+    newFile: !uuid '499c11a67f047da8617cb6571ad1d528c81ed2d4'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/db/config.sql:
+    newFile: !uuid '34ce1414cc1330248b8dc3aa8907130621f25868'
+    oldFile: null
+  /spring-api-support-monitor-starter/src/main/resources/logback.xml:
+    newFile: !uuid 'c28df54be1948a196a892bd8213891565b2cb339'
+    oldFile: null
+  /spring-api-support-unified-starter:
+    newFile: null
+    oldFile: !uuid 'c42d8f887bdcc080df9dafbd6665f042f3939e44'
+  /spring-api-support-unified-starter/pom.xml:
+    newFile: null
+    oldFile: !uuid '1a2c5c748e24815521cefb7a0a7077f4ca95f3e3'
+  /spring-api-support-unified-starter/src:
+    newFile: null
+    oldFile: !uuid '93c47fcdc35dfbb3fef35f7e694deeed8d821205'
+  /spring-api-support-unified-starter/src/main:
+    newFile: null
+    oldFile: !uuid '80b7a7713cfe6f38dc137ccbf0b93577e847c067'
+  /spring-api-support-unified-starter/src/main/java:
+    newFile: null
+    oldFile: !uuid '752a33636bafe6f36eee22b393d4f1c379e26dad'
+  /spring-api-support-unified-starter/src/main/java/com:
+    newFile: null
+    oldFile: !uuid '2fe44a2557453f0ae8560c05c70f7b22c315e88d'
+  /spring-api-support-unified-starter/src/main/java/com/chua:
+    newFile: null
+    oldFile: !uuid '3fb56e335f3dccd754ccaf6fcadab4649d1b3f91'
+  /spring-api-support-unified-starter/src/main/java/com/chua/starter:
+    newFile: null
+    oldFile: !uuid 'fa3772fc59eead1e5fe0787b8a532866b36252b4'
+  /spring-api-support-unified-starter/src/main/java/com/chua/starter/unified:
+    newFile: null
+    oldFile: !uuid '5482220b08e30b2cfcd6a107fd819a43a9771c2f'
+  /spring-api-support-unified-starter/src/main/java/com/chua/starter/unified/support:
+    newFile: null
+    oldFile: !uuid '1ff953488f7cd11f7d83198b8fdbb518853f2edb'
+  /spring-api-support-unified-starter/src/main/java/com/chua/starter/unified/support/UnifiedServerApplication.java:
+    newFile: null
+    oldFile: !uuid '0f09ec576f4acbe0121f65c74e076511fefc7aac'
+  /spring-api-support-unified-starter/src/main/resources:
+    newFile: null
+    oldFile: !uuid '1ea11fbd1f541a7b88174a8e20af3eb1e67aa7fe'
+  /spring-api-support-unified-starter/src/main/resources/application-dev.yml:
+    newFile: null
+    oldFile: !uuid 'c4984c9a7ff4880785eff3219b3e3255034789c7'
+  /spring-api-support-unified-starter/src/main/resources/application-prod.yml:
+    newFile: null
+    oldFile: !uuid '53640db2a591a9aa55b2cb26e3e157801f8a41bc'
+  /spring-api-support-unified-starter/src/main/resources/application.yml:
+    newFile: null
+    oldFile: !uuid 'df1eff7de2daffbd6cf15ebcdb256bb63a6eb6de'
+  /spring-api-support-unified-starter/src/main/resources/config:
+    newFile: null
+    oldFile: !uuid '7c887d76acec1bb26e42287688965e2d5f37ce5e'
+  /spring-api-support-unified-starter/src/main/resources/config/application-mybatis.yml:
+    newFile: null
+    oldFile: !uuid 'efe47a0b27a6108e7e09fc5d28f5c17d61c41489'
+  /spring-api-support-unified-starter/src/main/resources/db:
+    newFile: null
+    oldFile: !uuid '8dab675fe0e70958d7199392b22ff2cc49ec1b5d'
+  /spring-api-support-unified-starter/src/main/resources/db/config.sql:
+    newFile: null
+    oldFile: !uuid '44070a5555de61d06becdc538e90104ef1d1472a'
+  /spring-api-support-unified-starter/src/main/resources/logback.xml:
+    newFile: null
+    oldFile: !uuid 'c28df54be1948a196a892bd8213891565b2cb339'
+gitCommitId: !uuid 'fee006b92f2365330cc36be52849ed00f3c3d2ef'
+renames:
+  /spring-api-support-monitor-starter/pom.xml: /spring-api-support-unified-starter/pom.xml
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/unified/support/MonitorServerApplication.java: /spring-api-support-unified-starter/src/main/java/com/chua/starter/unified/support/UnifiedServerApplication.java
+  /spring-api-support-monitor-starter/src/main/resources/application-dev.yml: /spring-api-support-unified-starter/src/main/resources/application-dev.yml
+  /spring-api-support-monitor-starter/src/main/resources/application-prod.yml: /spring-api-support-unified-starter/src/main/resources/application-prod.yml
+  /spring-api-support-monitor-starter/src/main/resources/config/application-mybatis.yml: /spring-api-support-unified-starter/src/main/resources/config/application-mybatis.yml
+  /spring-api-support-monitor-starter/src/main/resources/db/config.sql: /spring-api-support-unified-starter/src/main/resources/db/config.sql
+  /spring-api-support-monitor-starter/src/main/resources/logback.xml: /spring-api-support-unified-starter/src/main/resources/logback.xml
+revisionId: 155
