@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysTenantBase;
 import com.esotericsoftware.kryo.serializers.CollectionSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
 import io.swagger.annotations.ApiModel;
@@ -81,6 +82,5 @@ public class SysMessageTemplate  extends SysTenantBase {
     @ApiModelProperty(value = "下发渠道")
     @Schema(description = "下发渠道")
     @TableField(exist = false)
-    @JsonSerialize(using = ObjectArraySerializer.class)
     private List<Integer> config;
 }
