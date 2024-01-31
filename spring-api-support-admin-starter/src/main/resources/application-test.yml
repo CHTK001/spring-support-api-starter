@@ -35,7 +35,3 @@ plugin:
     enable: true
   oauth:
     address: http://127.0.0.1:19180/oauth
-  swagger:
-    knife4j:
-      - group-name: 系统配置
-        base-package: com.chua.starter.admin

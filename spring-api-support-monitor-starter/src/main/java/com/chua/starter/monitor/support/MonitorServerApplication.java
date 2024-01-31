@@ -1,4 +1,4 @@
-package com.chua.starter.unified.support;
+package com.chua.starter.monitor.support;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
