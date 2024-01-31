@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-monitor-client-starter</artifactId>
+            <artifactId>spring-support-monitor-server-starter</artifactId>
         </dependency>
 
         <dependency>

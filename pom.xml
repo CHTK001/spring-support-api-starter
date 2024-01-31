@@ -166,6 +166,12 @@
                 <artifactId>spring-support-monitor-client-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-monitor-server-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-swagger-starter</artifactId>
