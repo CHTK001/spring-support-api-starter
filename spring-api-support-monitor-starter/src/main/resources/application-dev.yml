@@ -7,11 +7,6 @@ spring:
     username: root
     password: root
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
 logging:
   level:
     com.chua.starter.unified.server.support.mapper: debug
