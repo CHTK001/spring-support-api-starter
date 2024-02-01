@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.2.226:3306/unified?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+    url: jdbc:mysql://172.16.2.226:3306/monitor?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
     username: root
     password: root
 
@@ -14,3 +14,6 @@ logging:
 plugin:
   oauth:
     protocol: static
+  table:
+    enable: true
+    packages: com.chua.starter.monitor.server.entity
