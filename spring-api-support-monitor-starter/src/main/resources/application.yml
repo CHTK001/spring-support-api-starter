@@ -6,3 +6,6 @@ spring:
 server:
   servlet:
     context-path: /monitor/api
+plugin:
+  parameter:
+    enable: true

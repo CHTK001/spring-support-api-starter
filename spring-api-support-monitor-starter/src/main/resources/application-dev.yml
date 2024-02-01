@@ -10,3 +10,7 @@ spring:
 logging:
   level:
     com.chua.starter.unified.server.support.mapper: debug
+
+plugin:
+  oauth:
+    protocol: static
