@@ -17,17 +17,8 @@ spring:
       continue-on-error: true
       #      data-locations: classpath*:sql/*.sql
       mode: always
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
 
 logging:
   level:
     com.chua.starter.admin.support.mapper: debug
 
-
-plugin:
-  socket:
-    open: true

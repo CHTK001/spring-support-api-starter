@@ -2,7 +2,7 @@ spring:
   application:
     name: monitor-server
   profiles:
-    active: dev,mybatis,swagger
+    active: dev,mybatis,swagger,socket
 server:
   servlet:
     context-path: /monitor/api

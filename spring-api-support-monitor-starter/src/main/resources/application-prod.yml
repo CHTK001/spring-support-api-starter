@@ -6,8 +6,7 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/config?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
     username: root
     password: root
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
+
+logging:
+  level:
+    com.chua.starter.unified.server.support.mapper: debug
