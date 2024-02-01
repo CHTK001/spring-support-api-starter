@@ -2,43 +2,10 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-admin-starter:
-    newFile: !uuid 'd4a3d5babff5093afbe44aa3269f509d513948db'
-    oldFile: !uuid '686fdb9ff7fc6013ad7d2bcbfcc6bf0b79113522'
-  /spring-api-support-admin-starter/src:
-    newFile: !uuid '0fa04483cf0aa949c2aaeb8ddaac5f3d2a09d185'
-    oldFile: !uuid '18a1f6d1ebf8b98ab832b52ef8eb6fce9368ed3f'
-  /spring-api-support-admin-starter/src/main:
-    newFile: !uuid '5f7b34cf01a039f1e12eb29e2027aa22d9bac47b'
-    oldFile: !uuid '233c0026c9dae3c35d576930c93de8084ae1d164'
-  /spring-api-support-admin-starter/src/main/resources:
-    newFile: !uuid '3dc8626cf548af2aa5fab0927a863d4125552c3e'
-    oldFile: !uuid 'ea8f9615b8c99dd79f87ae783ea335b1ce7a279d'
-  /spring-api-support-admin-starter/src/main/resources/sql:
-    newFile: !uuid '3bbd26a7c3aa524d0878e5892e62b324b37366b4'
-    oldFile: !uuid '537ccd995f5247a21c86e505cca84946cc472a06'
-  /spring-api-support-admin-starter/src/main/resources/sql/sys.sql:
-    newFile: null
-    oldFile: !uuid '82eda49689391ee81e09afd5a590d8396f9b8e31'
-  /spring-api-support-admin-starter/src/main/resources/sql/system.sql:
-    newFile: !uuid '919b6ffb7cde7cb56ea38d9947b0df1422a0657e'
-    oldFile: null
-  /spring-api-support-monitor-starter:
-    newFile: !uuid 'e7a0b3812cb01a85a97e95e55fa87db4756a1033'
-    oldFile: !uuid '35672165bc15108d5286de084ba9f29fb5679437'
-  /spring-api-support-monitor-starter/src:
-    newFile: !uuid '9c8593c76a9ad023c261e76f78f6a25b2d36b479'
-    oldFile: !uuid 'd3dede1d2d030556bfa6c69a23e8674bd965f259'
-  /spring-api-support-monitor-starter/src/main:
-    newFile: !uuid '9a748db499a3d8b9991684b16eb007fce7730ca4'
-    oldFile: !uuid 'bd629bcbb12c7b5b4554597f8f4564e4433a00fa'
-  /spring-api-support-monitor-starter/src/main/resources:
-    newFile: !uuid '5efe7c8f9c3a42ebfaa3ffc175403f4a6d3e7882'
-    oldFile: !uuid '9bc0a98e36e9732e8e7a5ccfb19b8d92e2352c25'
-  /spring-api-support-monitor-starter/src/main/resources/logback.xml:
-    newFile: !uuid 'aa062f7f0013253b34be06558fd85c2fbe45f46b'
-    oldFile: !uuid 'c28df54be1948a196a892bd8213891565b2cb339'
-gitCommitId: !uuid '528fcb0852332763cb3f74537e90c7a872548e86'
-renames:
-  /spring-api-support-admin-starter/src/main/resources/sql/system.sql: /spring-api-support-admin-starter/src/main/resources/sql/sys.sql
-revisionId: 160
+  /.gitignore:
+    newFile: !uuid 'e57714c45fe5960be4b36f6978b4f1f60dbf4dcd'
+    oldFile: !uuid 'a1c2a238a965f004ff76978ac1086aa6fe95caea'
+gitCommitId: !uuid '0ea2ab8047fce4e3071750dacb895c6b76775ee2'
+renames: {
+  }
+revisionId: 161
