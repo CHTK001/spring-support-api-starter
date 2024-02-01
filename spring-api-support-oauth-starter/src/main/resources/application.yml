@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev,mybatis
+    active: dev,mybatis,socket
   sql:
     init:
       data-locations: classpath:*.sql
