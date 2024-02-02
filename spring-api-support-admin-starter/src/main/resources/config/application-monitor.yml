@@ -1,0 +1,6 @@
+plugin:
+  monitor:
+    enable: true
+    mq:
+      mq-host: 127.0.0.1
+      mq-port: 31112

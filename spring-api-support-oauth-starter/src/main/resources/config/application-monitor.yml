@@ -1,0 +1,7 @@
+plugin:
+  monitor:
+    enable: true
+    mq:
+      host: 127.0.0.1
+      port: 31112
+      subscriber: monitor
