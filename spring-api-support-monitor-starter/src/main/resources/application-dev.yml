@@ -7,9 +7,13 @@ spring:
     username: root
     password: root
 
+  redis:
+    host: 172.16.2.226
+    port: 6379
 logging:
   level:
     com.chua.starter.unified.server.support.mapper: debug
+
 
 plugin:
   oauth:
