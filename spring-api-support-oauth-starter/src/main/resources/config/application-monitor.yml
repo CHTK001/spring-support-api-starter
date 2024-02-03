@@ -1,7 +1,6 @@
 plugin:
   monitor:
     enable: true
-    address: 172.16.2.226
     mq:
       host: 172.16.1.126
       port: 31112
