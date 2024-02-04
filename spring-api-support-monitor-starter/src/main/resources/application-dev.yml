@@ -17,7 +17,7 @@ logging:
 
 plugin:
   oauth:
-    protocol: static
+    address: http://172.16.2.226:19180/oauth
   table:
     enable: true
     packages: com.chua.starter.monitor.server.entity
