@@ -2,34 +2,25 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-oauth-starter:
-    newFile: !uuid '0717b613f2f9e5887704ad1a80f2933a6fdf90ea'
-    oldFile: !uuid '9a7f79a1d3572af6109fd360c4b1fd2036926a8b'
-  /spring-api-support-oauth-starter/src:
-    newFile: !uuid '8af67969250eee8c2f0c2714e2964cf40e411e7a'
-    oldFile: !uuid 'fb487c71bf12f7b13b152faed1f49932dba119bd'
-  /spring-api-support-oauth-starter/src/main:
-    newFile: !uuid '2108b15f22bcd566554d736261dbf468c001acb6'
-    oldFile: !uuid 'ab076dfdcf29de623c4b699cd635c0da0a95b8de'
-  /spring-api-support-oauth-starter/src/main/java:
-    newFile: !uuid 'a6ba3e569077dea09eb731dcda533549a2fd162e'
-    oldFile: !uuid '35ac726646eb2604a298ce94cccbc40a6a840383'
-  /spring-api-support-oauth-starter/src/main/java/com:
-    newFile: !uuid '8d9650cbf59f80e533de8c06f2b6126f74d56d7a'
-    oldFile: !uuid 'cbb9d41a00674b8042abc0d33f1ce30181877db8'
-  /spring-api-support-oauth-starter/src/main/java/com/chua:
-    newFile: !uuid '34adc499a48a9bc06729faea46ab78d0a9e5675c'
-    oldFile: !uuid 'd8bcdeebed6b72ed5a2aaf22706664d315610ccf'
-  /spring-api-support-oauth-starter/src/main/java/com/chua/starter:
-    newFile: !uuid '77403bcfb2ab77f46f2f848088d6ad3d69396036'
-    oldFile: !uuid 'c2b886f09eae300abf827cb414289ae51a61ff81'
-  /spring-api-support-oauth-starter/src/main/java/com/chua/starter/sso:
-    newFile: !uuid '2a2a6052cf578519e49fc498ccde5bcb66217fd5'
-    oldFile: !uuid 'ca20d687b7c774ca6a2bffd0b4d322254f1735d8'
-  /spring-api-support-oauth-starter/src/main/java/com/chua/starter/sso/TestController.java:
-    newFile: !uuid 'b777529272874ae95d98e0d38aa4d3db2c1f84f0'
-    oldFile: null
-gitCommitId: !uuid '0cedec5aacd1ea4f3810331c1d589c81873f56fc'
+  /spring-api-support-admin-starter:
+    newFile: !uuid 'f511c8b5d717fc9e7a63ea3e8ede39fd9fc6ff9c'
+    oldFile: !uuid 'ed1f748ec101937509c253eb8a8cdcc801e7ebc0'
+  /spring-api-support-admin-starter/src:
+    newFile: !uuid '5f3883db06c29180c2b66fe76a9e7e92600499bd'
+    oldFile: !uuid '1cd3eb27346a4c7184d2f1acc99cb24ad1df2b2b'
+  /spring-api-support-admin-starter/src/main:
+    newFile: !uuid 'e968b9158afe1eb0b266b409d341e66d31a0aa87'
+    oldFile: !uuid '81b7daf80dabccceb8d3c1948278f66b7d24ed49'
+  /spring-api-support-admin-starter/src/main/resources:
+    newFile: !uuid '581e37670445ab537365a3d7a4f77276d8cabf67'
+    oldFile: !uuid 'd50db864793b2deb2c1557300ffa5183a0809e6a'
+  /spring-api-support-admin-starter/src/main/resources/config:
+    newFile: !uuid 'f2876553292f71318c6d527f91ed37b6de490390'
+    oldFile: !uuid 'dcc5f76eec3d1cf62ef4bed7e04bfbf9ee2a937b'
+  /spring-api-support-admin-starter/src/main/resources/config/application-monitor.yml:
+    newFile: !uuid 'f8f4fa8bd5cbb25b290012afad7b7c3df4bf11a3'
+    oldFile: !uuid '881200da91c24c6ae241abf4ab1c9965aec59dee'
+gitCommitId: !uuid '11add38c1d35ef27b9113954d78739ccfff66524'
 renames: {
   }
-revisionId: 174
+revisionId: 175
