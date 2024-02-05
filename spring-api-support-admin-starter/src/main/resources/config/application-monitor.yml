@@ -4,3 +4,11 @@ plugin:
     mq:
       host: 127.0.0.1
       port: 31112
+    report:
+      plugins:
+        - jvm
+        - memory
+        - cpu
+        - redis
+        - disk
+        - network
