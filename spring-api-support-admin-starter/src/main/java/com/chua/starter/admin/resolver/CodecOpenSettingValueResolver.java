@@ -12,7 +12,7 @@ import java.util.List;
  * @author Administrator
  * @date 2024/01/18
  */
-@Spi("codec_open")
+@Spi("response_codec_open")
 public class CodecOpenSettingValueResolver implements SettingValueResolver{
 
 

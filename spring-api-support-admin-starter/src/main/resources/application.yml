@@ -2,7 +2,7 @@ spring:
   application:
     name: admin
   profiles:
-    active: dev,mybatis,swagger,socket,monitor
+    active: test,mybatis,swagger,socket,monitor
 
 plugin:
   parameter:
