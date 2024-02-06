@@ -1,8 +1,8 @@
 spring:
   application:
-    name: monitor-server
+    name: monitor
   profiles:
-    active: dev,mybatis,swagger,socket
+    active: test,mybatis,swagger,socket
 server:
   servlet:
     context-path: /monitor/api

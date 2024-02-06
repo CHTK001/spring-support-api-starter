@@ -157,7 +157,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public void afterPropertiesSet() throws Exception {
         ThreadUtils.newStaticThreadPool().execute(() -> {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                    .eq(SysSetting::getSettingName, "codec_open")
+                    .eq(SysSetting::getSettingName, "response_codec_open")
                     .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
             doCodec(list);
         });
@@ -170,7 +170,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return;
         }
 
-        SysSetting sysSetting = StreamUtils.getFirst(codecSetting, SysSetting::getSettingName, OperatorType.EQ, "codec_open");
+        SysSetting sysSetting = StreamUtils.getFirst(codecSetting, SysSetting::getSettingName, OperatorType.EQ, "response_codec_open");
         if(null != sysSetting) {
             codecProvider.setEnable(Boolean.parseBoolean(sysSetting.getSettingValue()));
         }
@@ -178,7 +178,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     private void doRegister() {
         SysSetting item1 = new SysSetting();
-        item1.setSettingName("codec_open");
+        item1.setSettingName("response_codec_open");
         item1.setSettingValue(codecProvider.isEnable() + "");
         item1.setSettingVersion(versionProperties.getNo());
 
