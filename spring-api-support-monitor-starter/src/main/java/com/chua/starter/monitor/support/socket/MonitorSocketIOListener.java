@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.support.socket;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.protocol.boot.BootResponse;
 import com.chua.common.support.protocol.boot.CommandType;
 import com.chua.common.support.protocol.boot.ModuleType;
@@ -52,7 +53,7 @@ public class MonitorSocketIOListener implements SocketIOListener {
 
         try {
             BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), ModuleType.SHELL, CommandType.REQUEST);
-            session.send("terminal", Json.toJSONString(bootResponse));
+            session.send("terminal", new JsonObject().fluent("data", bootResponse.getContent()).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
     }
