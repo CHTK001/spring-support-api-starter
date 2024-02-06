@@ -18,7 +18,7 @@ public class MonitorSocketIOListener implements SocketIOListener {
 
 
     @OnEvent("terminal-request")
-    public void onEvent(SocketSession session) {
+    public void onEvent(SocketSession session, Command command) {
         System.out.println();
     }
 }
