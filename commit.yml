@@ -2,25 +2,25 @@
 branches: {
   }
 fileChange:
-  /spring-api-support-monitor-starter:
-    newFile: !uuid 'ace17a58e8b1160ba9fa5db708d1a06306c03c22'
-    oldFile: !uuid '74aa8074a4790dc0f62f31d7ff6a684f80acc814'
-  /spring-api-support-monitor-starter/src:
-    newFile: !uuid 'fd232a344a6a2e708fa2a746d833f7fa57c90fe5'
-    oldFile: !uuid '0655e88261751bb1894b5b04a56fa1f783f03337'
-  /spring-api-support-monitor-starter/src/main:
-    newFile: !uuid 'df697fb1d437bb068ea9a83abd63230e965cc2cb'
-    oldFile: !uuid '563d35f0a4c5dd2ffb666e20b300e781bd7d1edf'
-  /spring-api-support-monitor-starter/src/main/resources:
-    newFile: !uuid 'c5f0132f70f9e4737cdf409a543a139695c5fdea'
-    oldFile: !uuid 'df75806b10f7a5a41d84c4847eed80a4d8b329da'
-  /spring-api-support-monitor-starter/src/main/resources/config:
-    newFile: !uuid '231f96150860b5b048073e64eec5237215d0d047'
-    oldFile: !uuid '46d49936205fd7d81d5bf60bda4d329a43e7c4b4'
-  /spring-api-support-monitor-starter/src/main/resources/config/application-setting.properties:
-    newFile: !uuid 'd16c4c36fbe5454fb1fe0fffbe2be3a53b1f67f3'
-    oldFile: !uuid '1f3723e59b40617be66740d1626ba9ab3bd4dc4b'
-gitCommitId: !uuid '241daebfc3365f743c5bc62b5e5d9353ed03e8f8'
+  /spring-api-support-admin-starter:
+    newFile: !uuid '13be059f3aeaf6dd3d88a52a6dd5e5a9ddc3a425'
+    oldFile: !uuid '484f76e3ec1b96fb8ab2b519d5098ee83accc6d3'
+  /spring-api-support-admin-starter/src:
+    newFile: !uuid 'c469d1f351de33391f5f778f19219c1e1056e42d'
+    oldFile: !uuid '75758e8b6bb8a5c90c7c6b27f34f6c28e87376a8'
+  /spring-api-support-admin-starter/src/main:
+    newFile: !uuid '445c2c1aedebb6c6204acdbf1e2b0d09e8f7a184'
+    oldFile: !uuid '32172c3d6c1912774e4590e052d85980f3c3565a'
+  /spring-api-support-admin-starter/src/main/resources:
+    newFile: !uuid 'dc54c43c6c881d84b5ff9a4617a7686cb36c84f4'
+    oldFile: !uuid '6696d7a4a056111c6601e6fc8973111b1082a384'
+  /spring-api-support-admin-starter/src/main/resources/config:
+    newFile: !uuid '63a6494465d8680a3dcf6810780047059b316ac7'
+    oldFile: !uuid 'a75031a41dfeb232c0bfdf6054554c4a051b8d2c'
+  /spring-api-support-admin-starter/src/main/resources/config/application-monitor.yml:
+    newFile: !uuid '27fcd12b4e362e97e3e031f83aab50a0ead7c36c'
+    oldFile: !uuid '1f42d2e68620a73411557ee8d66cc39b8365dfff'
+gitCommitId: !uuid '97cd89aea4dc9222689604d09d0c5ae91d29c45d'
 renames: {
   }
-revisionId: 183
+revisionId: 184
