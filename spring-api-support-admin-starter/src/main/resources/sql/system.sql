@@ -236,10 +236,6 @@ CREATE TABLE `sys_message_config`  (
   PRIMARY KEY (`config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of sys_message_config
--- ----------------------------
-INSERT INTO `sys_message_config` VALUES (2, '测试', '0', 'yemengzhidiandi@163.com', NULL, NULL, NULL, NULL, 0, '系统管理员', NULL, '2024-01-30 17:15:34', NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_message_template
@@ -310,18 +306,6 @@ CREATE TABLE `sys_operate_logger`  (
   PRIMARY KEY (`log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 176 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志信息表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_operate_logger
--- ----------------------------
-INSERT INTO `sys_operate_logger` VALUES (168, '01hnc0bb3wn56jjfswtfzsk47r', '登录', 2, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"PFucYm\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 09:39:41.839000', '2024-01-30 09:39:43.385000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (169, '01hnccwmya8yezcb138p8678pw', '更新用户', 0, '/admin/api/v2/users/update', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"userId\": 1,\n    \"userRealName\": \"系统管理员\",\n    \"userGender\": 2,\n    \"userMarker\": \"系统管理员0001\",\n    \"userMobile\": \"17621210366\",\n    \"userEmail\": \"\"\n  }\n]', '修改', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:18:53.385000', '2024-01-30 13:18:53.403000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (170, '01hnccxxh04y3yrh3znqgekqy9', '更新用户', 0, '/admin/api/v2/users/update', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"userId\": 1,\n    \"userRealName\": \"系统管理员\",\n    \"userGender\": 2,\n    \"userMarker\": \"系统管理员0001\",\n    \"userMobile\": \"17621210366\",\n    \"userEmail\": \"\"\n  }\n]', '修改', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:19:34.944000', '2024-01-30 13:19:34.946000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (171, '01hncehgcwthhgckvthc1mh6g9', '登录', 3, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"4bmgkA\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 13:47:43.875000', '2024-01-30 13:47:45.498000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (172, '01hncfg8kpbgf0pmcdhs7kzxbq', '登录', 1, '/admin/api/v2/users/login', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"username\": \"admin\",\n    \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n    \"verifyCode\": \"3gT77N\"\n  }\n]', '查询', 1, '2024-01-30', 'admin', NULL, '2024-01-30 14:04:31.712000', '2024-01-30 14:04:33.296000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (173, '01hncfwcvgjadr2n164vkbh1a1', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 14:11:10.832000', '2024-01-30 14:11:10.834000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (174, '01hnck7byy5n1750bm3nc0kbyp', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 15:09:36.093000', '2024-01-30 15:09:36.115000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (175, '01hnck7ch58cwv7qkc8vrxcs4h', '删除菜单', 0, '/admin/api/v2/menus/delete', '', '192.168.110.6', NULL, NULL, '[]', '删除', 1, '2024-01-30', 'admin', NULL, '2024-01-30 15:09:36.677000', '2024-01-30 15:09:36.681000', NULL, NULL, 0);
-INSERT INTO `sys_operate_logger` VALUES (176, '01hncqvr5rj1g2gjxdencm6ydt', '新增角色', 0, '/admin/api/v2/role/save', '', '192.168.110.6', NULL, NULL, '[\n  {\n    \"roleId\": 4,\n    \"roleName\": \"运维\",\n    \"roleCode\": \"OPS\",\n    \"roleSort\": 1,\n    \"roleStatus\": 1,\n    \"roleSys\": 0,\n    \"createName\": \"系统管理员\",\n    \"createTime\": \"2024-01-30 16:30:38\"\n  }\n]', '添加', 1, '2024-01-30', 'admin', NULL, '2024-01-30 16:30:38.259000', '2024-01-30 16:30:38.283000', NULL, NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_role
