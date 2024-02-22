@@ -7,5 +7,7 @@ server:
   servlet:
     context-path: /monitor/api
 plugin:
+  external:
+    enable: true
   parameter:
     enable: true
