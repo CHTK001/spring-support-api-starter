@@ -16,6 +16,7 @@ import com.chua.starter.monitor.server.service.MonitorAppService;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
+import java.util.Optional;
 
 
 /**
@@ -53,7 +54,7 @@ public class MonitorSocketIOListener implements SocketIOListener {
 
         try {
             BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), ModuleType.SHELL, CommandType.REQUEST);
-            session.send("terminal", new JsonObject().fluent("data", bootResponse.getContent()).fluent("command", command.getCommand()).toJSONString());
+            session.send("terminal", new JsonObject().fluent("data", Optional.ofNullable(bootResponse.getContent()).orElse("不支持该命令")).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
     }

@@ -6,3 +6,13 @@ plugin:
       #host: 172.16.1.126
       port: 31112
       subscriber: monitor
+    report:
+      plugins:
+        - jvm
+        - memory
+        - cpu
+        - redis
+        - disk
+        - network
+        - process
+
