@@ -1,5 +1,6 @@
 package com.chua.starter.admin.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
@@ -182,10 +183,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         item1.setSettingValue(codecProvider.isEnable() + "");
         item1.setSettingVersion(versionProperties.getNo());
 
-        sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaUpdate()
+        LambdaUpdateWrapper<SysSetting> eq = Wrappers.<SysSetting>lambdaUpdate()
                 .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
-                .eq(SysSetting::getSettingName, item1.getSettingName())
-        );
+                .eq(SysSetting::getSettingName, item1.getSettingName());
+
+        if(sysSettingService.count(eq) == 0) {
+            sysSettingService.save(item1);
+            return;
+        }
+        sysSettingService.update(item1, eq);
 
     }
 
