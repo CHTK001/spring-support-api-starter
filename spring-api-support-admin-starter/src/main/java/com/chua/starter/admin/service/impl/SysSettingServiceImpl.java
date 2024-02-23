@@ -182,7 +182,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         item1.setSettingValue(codecProvider.isEnable() + "");
         item1.setSettingVersion(versionProperties.getNo());
 
-        sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaQuery()
+        sysSettingService.saveOrUpdate(item1, Wrappers.<SysSetting>lambdaUpdate()
                 .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
                 .eq(SysSetting::getSettingName, item1.getSettingName())
         );
