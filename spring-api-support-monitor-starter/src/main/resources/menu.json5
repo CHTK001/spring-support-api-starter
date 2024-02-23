@@ -127,6 +127,17 @@
         },
       },
       {
+        path: "/monitor/server",
+        component: "monitor/server/index",
+        name: "服务器信息",
+        hidden: false,
+        meta: {
+          title: "服务器信息",
+          icon: "sc-icon-server",
+          type: "menu",
+        },
+      },
+      {
         path: "/monitor/link",
         component: "monitor/link/index",
         name: "访问链路",
