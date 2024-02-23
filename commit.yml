@@ -3,36 +3,21 @@ branches: {
   }
 fileChange:
   /spring-api-support-monitor-starter:
-    newFile: !uuid 'f1e95b8aff8b70f21f55e739442560a48c54e93f'
-    oldFile: !uuid '55dcc7ec00321430b5278f7027b4aa03c13f26ba'
+    newFile: !uuid 'ae711f9464869de7aa54c71eda7f26dbe5dd30e3'
+    oldFile: !uuid 'f1e95b8aff8b70f21f55e739442560a48c54e93f'
   /spring-api-support-monitor-starter/src:
-    newFile: !uuid 'c1a064395d186642fa40709d0ebcd091c47095eb'
-    oldFile: !uuid 'eda2563d424577ff40155f142cc6f15dffd703d0'
+    newFile: !uuid '3fa113d70570e2f0e58ae65399e3ae45c672c3ba'
+    oldFile: !uuid 'c1a064395d186642fa40709d0ebcd091c47095eb'
   /spring-api-support-monitor-starter/src/main:
-    newFile: !uuid '4c9d525d28400e2dfeaab7cbf4ff99c374451c2e'
-    oldFile: !uuid 'f7af87da776b45ef3dfa7500f99470dfb4e50021'
-  /spring-api-support-monitor-starter/src/main/java:
-    newFile: !uuid '0e7d475448f2df8f83478dafafc00e378fabb5d5'
-    oldFile: !uuid '06cfdf9d91b284686f20b39c6b2b95daafa061b3'
-  /spring-api-support-monitor-starter/src/main/java/com:
-    newFile: !uuid 'd0c0850d56f422012bcec725d689345ee56dee2b'
-    oldFile: !uuid '488e33d8c82738cc6e77e990ecae7a026e3fb44b'
-  /spring-api-support-monitor-starter/src/main/java/com/chua:
-    newFile: !uuid 'c9942cb1fdfbe17df692a667bd70c4359b2ea318'
-    oldFile: !uuid 'dcb24bb7f7052216673ad06252678fcc73e25eea'
-  /spring-api-support-monitor-starter/src/main/java/com/chua/starter:
-    newFile: !uuid 'f30526f6fe81177c6dc5b430e44234925404b26f'
-    oldFile: !uuid '7325ba2ca2841a89285d15e9a994379e10f65d14'
-  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor:
-    newFile: !uuid 'f352e1b29cef00eb527d7842cda4c48f4d3a0130'
-    oldFile: !uuid 'c6b7f0dfb3317530539a311f127daf4ee64b0318'
-  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor/support:
-    newFile: !uuid '34e72aa129882606f40488718afe3c5897fac744'
-    oldFile: !uuid '7faf4dfe0a5a88ad0fb4c769628091b7314345b6'
-  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor/support/MonitorServerApplication.java:
-    newFile: !uuid '3bf0e41f36ad3a2edfb9122350eaa7a86c848852'
-    oldFile: !uuid '877f69a36c33b3c26f0b246c4cb89ff07171605e'
-gitCommitId: !uuid '18136847d23c1c6d6e36616c21a16246026d1730'
+    newFile: !uuid 'fed4de132665cb33eac8cee46fa732293cc933bf'
+    oldFile: !uuid '4c9d525d28400e2dfeaab7cbf4ff99c374451c2e'
+  /spring-api-support-monitor-starter/src/main/resources:
+    newFile: !uuid '0caadd37a290cde42717289c5942a56f7a8b0041'
+    oldFile: !uuid 'ab445633d356495018eec5417443fbab0e9d5525'
+  /spring-api-support-monitor-starter/src/main/resources/menu.json5:
+    newFile: !uuid '08455bcbd5b19301886a1ab86f961f8a87c781ab'
+    oldFile: !uuid '489478ba67237e0b6ed2e330e12c5f3698d8789d'
+gitCommitId: !uuid '6677feb95cf63a93e11ac46ccb239e2b0f54bf73'
 renames: {
   }
-revisionId: 197
+revisionId: 198
