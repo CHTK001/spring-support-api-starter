@@ -2,16 +2,61 @@
 branches: {
   }
 fileChange:
-  /pom.xml:
-    newFile: !uuid '1ba99854dcbf2fa06e60d53ef49e1d1a85ff982e'
-    oldFile: !uuid '1269706c9d5cd25fe80b9f8243d04b539dc14363'
-  /spring-api-support-gen-starter:
-    newFile: !uuid '4eed2fd8fd9d04770ad5bf5fd14244882203c388'
-    oldFile: !uuid '28e0d516d2d5c07fc265fd7c2a45b6b33f893fbb'
-  /spring-api-support-gen-starter/pom.xml:
-    newFile: !uuid 'd6273bafc041d31d7834c1e9ba93fcc9cfda8b4e'
-    oldFile: !uuid '91dbdfd34d38c607d8a700165b90d9869bbd5d86'
-gitCommitId: !uuid '6f2cf0e07011504c42d2539018a19238ee1269f0'
+  /spring-api-support-monitor-starter:
+    newFile: !uuid 'aa1b8af5a7c58904aa3a22bff63ab635ce762fb8'
+    oldFile: !uuid 'f60cc57967883ded5cd3011321542146cf82023e'
+  /spring-api-support-monitor-starter/src:
+    newFile: !uuid '094a82c6809789012ea2d2ba91788bfbc61a60e1'
+    oldFile: !uuid 'e40598cc20db8ddad50d43658d7cc791c6f3b712'
+  /spring-api-support-monitor-starter/src/main:
+    newFile: !uuid '59aac1611681c81de37cad74ddffceef58b51a5a'
+    oldFile: !uuid '40f228602df664ec456f87f380abe25a3e07abb1'
+  /spring-api-support-monitor-starter/src/main/java:
+    newFile: !uuid '758128a5499bb4848bd9de4c3006306e5b6c9a41'
+    oldFile: !uuid 'd9dbe0f519c623779ebdadf2bf2ea5e8426a37b7'
+  /spring-api-support-monitor-starter/src/main/java/com:
+    newFile: !uuid '556b4e9e648bd0678cbc4873940a17b3d72b8ba8'
+    oldFile: !uuid 'a22a3a1c7e6a66df45d53cb591d3fc3a1ae77f9c'
+  /spring-api-support-monitor-starter/src/main/java/com/chua:
+    newFile: !uuid '2d5b2cb5c42fbc45bf867ef72b7ccd966e1304fd'
+    oldFile: !uuid '435dcd31c6991ef734b47861b4f1addc942074bb'
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter:
+    newFile: !uuid '5d619abbbfc8bcb8cd813145e2238f7d12ee2ea8'
+    oldFile: !uuid '361a4c0660e2610a654766b038313de234f150de'
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor:
+    newFile: !uuid '7c4a840a7b0d59aaac39b430b260f2102293bceb'
+    oldFile: !uuid 'ae4edfcaf8af3a6b21b845e5657897f94ccdf8c5'
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor/support:
+    newFile: !uuid 'a7cdc042892591a480647ec2a8d8c097c70d3381'
+    oldFile: !uuid '0240bfa852de7d70b424d0e5a317a93fcf0ad1da'
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor/support/socket:
+    newFile: !uuid 'e1c5b51f9268473384c2842afe53e098b2291b9e'
+    oldFile: !uuid '24b8385a18697d6dfdcba1c441652888e95d7ef6'
+  /spring-api-support-monitor-starter/src/main/java/com/chua/starter/monitor/support/socket/MonitorSocketIOListener.java:
+    newFile: !uuid 'c7dae9c0bd369a342ae9d0f40de0884b3d3619b6'
+    oldFile: !uuid '02e60c0f88b4dfe7ed105701fc67b20b3d450707'
+  /spring-api-support-oauth-starter:
+    newFile: !uuid '55e203e78dd5d1e118aa286c771a405522e07f91'
+    oldFile: !uuid 'e10c5659f50d177d94d101e92ca89dddc9cdd4a1'
+  /spring-api-support-oauth-starter/pom.xml:
+    newFile: !uuid '9c2723ff9335f57a09452ab671c092094276e3ea'
+    oldFile: !uuid 'b88df1f490f867f579944a2c9fe50cfddd935733'
+  /spring-api-support-oauth-starter/src:
+    newFile: !uuid 'f3db94958f7fff7a037b1e0e75893db615c9f4a3'
+    oldFile: !uuid '72d4933e5479b63f80ea70f505bf7ef2ac115963'
+  /spring-api-support-oauth-starter/src/main:
+    newFile: !uuid 'c23859c0ac38feb8af587c5ecb2b7833c5551177'
+    oldFile: !uuid 'fc392ae305b9de261226c8d04f798675e527f302'
+  /spring-api-support-oauth-starter/src/main/resources:
+    newFile: !uuid '66e6ef96bc519c502b3c54b1110b6661a9707c20'
+    oldFile: !uuid 'd35a8c11e72ec62cddfcdd1ab0ecc7d1a9592279'
+  /spring-api-support-oauth-starter/src/main/resources/config:
+    newFile: !uuid '554424b6dda1580f8633e9ec005b95bbb7345449'
+    oldFile: !uuid '2bd310343a46d9f94ccc8fd5c7678594c904cd7a'
+  /spring-api-support-oauth-starter/src/main/resources/config/application-monitor.yml:
+    newFile: !uuid 'd99d389f2706ad28d7b31bb3a2a7e3f100f5a21f'
+    oldFile: !uuid 'f2d84d0f781608a2eaa1be46c6d32cb52ac2bd58'
+gitCommitId: !uuid 'b01ef957472892afb0ebca193462144cc8e13220'
 renames: {
   }
-revisionId: 194
+revisionId: 195
