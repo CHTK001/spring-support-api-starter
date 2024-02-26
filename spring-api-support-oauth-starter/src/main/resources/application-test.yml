@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
-    url: jdbc:p6spy:postgresql://172.16.2.226:5432/system
-    username: postgres
+    url: jdbc:p6spy:mysql://172.16.2.226:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
     password: root
 
   redis:
