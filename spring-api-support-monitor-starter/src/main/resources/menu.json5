@@ -253,6 +253,17 @@
           type: "menu",
         },
       },
+      {
+        path: "/monitor/test/index",
+        component: "monitor/test/index",
+        name: "测试",
+        hidden: false,
+        meta: {
+          title: "测试",
+          icon: "sc-icon-shell",
+          type: "menu",
+        },
+      }
     ]
   }
 ]
