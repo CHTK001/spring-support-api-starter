@@ -12,7 +12,6 @@ spring:
 plugin:
   core:
     config: /
-    uniform-parameter: false
 server:
   servlet:
     context-path: /oauth
