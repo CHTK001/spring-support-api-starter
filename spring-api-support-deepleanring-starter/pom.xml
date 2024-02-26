@@ -201,6 +201,7 @@
             <!--                </configuration>-->
             <!--            </plugin>-->
         </plugins>
+        <!-- -Dloader.path=-->
     </build>
 
 
