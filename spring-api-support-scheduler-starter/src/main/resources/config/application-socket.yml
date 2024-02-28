@@ -1,0 +1,9 @@
+plugin:
+  socket:
+    open: true
+    port: 31257
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
