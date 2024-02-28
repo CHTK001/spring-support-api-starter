@@ -10,3 +10,5 @@ server:
 plugin:
   parameter:
     enable: true
+  oauth:
+    protocol: static
