@@ -3,78 +3,27 @@ branches: {
   }
 fileChange:
   /pom.xml:
-    newFile: !uuid '72d3c759ccf0467deb2fc4ae4d8a04d79c2c7026'
-    oldFile: !uuid '9cc7b034427f633a079b1789176078e53b807a50'
-  /spring-api-support-monitor-starter:
-    newFile: !uuid '7a2e247318005bd3806ad9ade33dac0836bea963'
-    oldFile: !uuid '22af454abec262114de8a34a0654cc92f1816c5b'
-  /spring-api-support-monitor-starter/src:
-    newFile: !uuid '82b425389e34a0a02ff2427e9c917344b00605f1'
-    oldFile: !uuid 'd4e90abf6d573f98ea41343b44caaa338e97f484'
-  /spring-api-support-monitor-starter/src/main:
-    newFile: !uuid '1af68805b77e9a6efeb2958f05ef9c9046f4bc38'
-    oldFile: !uuid '55e21cc07c5d379c878c8d95a7d574a32f438f7d'
-  /spring-api-support-monitor-starter/src/main/resources:
-    newFile: !uuid '43836b2f683e584a1f6f5d9de1bd9e4a9935615d'
-    oldFile: !uuid '9794093d5480541a4a3aabffa666a16ccca73350'
-  /spring-api-support-monitor-starter/src/main/resources/menu.json5:
-    newFile: !uuid '44afd114d285a31e401b079e64f129ab6b850e62'
-    oldFile: !uuid '18add2217d6fc049b7951dfa946a33b56e27a3d6'
+    newFile: !uuid '49af6b69d8e73df0b9dff8f47cab0331ec20ae3a'
+    oldFile: !uuid '72d3c759ccf0467deb2fc4ae4d8a04d79c2c7026'
   /spring-api-support-scheduler-starter:
-    newFile: !uuid '27e891673790a1aebf349d9da731984527b10652'
-    oldFile: !uuid 'fd2c555ab9d46624164d96fdfed7491e6e6fb418'
+    newFile: !uuid '4aa7bd569787ac322be127776eda21ebe74e83a7'
+    oldFile: !uuid '27e891673790a1aebf349d9da731984527b10652'
   /spring-api-support-scheduler-starter/pom.xml:
-    newFile: !uuid 'e683ae798e1c9267f2665db406ec9af973e1a8b1'
-    oldFile: !uuid '864ec267aac7b4213cceeecad5f34d7b52f91dda'
+    newFile: !uuid '394b62d4677d4df7c324eac535a62f8793df83f5'
+    oldFile: !uuid 'e683ae798e1c9267f2665db406ec9af973e1a8b1'
   /spring-api-support-scheduler-starter/src:
-    newFile: !uuid 'aba928af78fa1d750acfd75473402a9cbad424e0'
-    oldFile: !uuid '3ab65fbceb8e0f9b55a4577011754269985dc593'
+    newFile: !uuid 'bb7135e5c7cf21c925c68cff15b8231c8c334b96'
+    oldFile: !uuid 'aba928af78fa1d750acfd75473402a9cbad424e0'
   /spring-api-support-scheduler-starter/src/main:
-    newFile: !uuid '9ddf8a8b8042569d62cf23746afa1ebca30022ee'
-    oldFile: !uuid '98214b2efa206069edf6d293852a0fa30647ab0f'
-  /spring-api-support-scheduler-starter/src/main/java:
-    newFile: !uuid '71a062a64f93f93fb316a1fa5ebe862e5ea88bb5'
-    oldFile: !uuid '0435d6fa9d53edb65888d462efab70deba1b5062'
-  /spring-api-support-scheduler-starter/src/main/java/com:
-    newFile: !uuid '3837eadf20122652795479e5640fd557eaf50a6a'
-    oldFile: !uuid 'e9472e2656de604e594231603c1f6b6c25429afb'
-  /spring-api-support-scheduler-starter/src/main/java/com/chua:
-    newFile: !uuid '8d2964bffed7ff7eb1f7006504fbdac8bbed5182'
-    oldFile: !uuid 'ab51cd6d7bc8a6de08ac60d990cc5857646bcb44'
-  /spring-api-support-scheduler-starter/src/main/java/com/chua/scheduler:
-    newFile: !uuid '7ec63cba4ddb4e0d0d94842d6ffa6b197d330b81'
-    oldFile: !uuid 'ea5ade023a054a54ddcb371f31663707d9eb641d'
-  /spring-api-support-scheduler-starter/src/main/java/com/chua/scheduler/SchedulerServerApplication.java:
-    newFile: !uuid '8b90d6f638ab117c37b2b6289d506ca51bec5122'
-    oldFile: !uuid '32300baeb8598b1afe1c87165c923faec2d9aac2'
+    newFile: !uuid '22fb223a2a291ef65c0cf88b02df7e7eca25506f'
+    oldFile: !uuid '9ddf8a8b8042569d62cf23746afa1ebca30022ee'
   /spring-api-support-scheduler-starter/src/main/resources:
-    newFile: !uuid '31e42d99843eadc96984ef2af0d395f0dec5a678'
-    oldFile: !uuid '2fe6047b4b4daf06d27a28833048391e3a30e2a3'
-  /spring-api-support-scheduler-starter/src/main/resources/application-dev.yml:
-    newFile: !uuid 'ebd7ff10c76ee00b644f4a53698f2d59c039a687'
-    oldFile: !uuid '35e7e584495139cd9a64015417d712c3a6aec687'
-  /spring-api-support-scheduler-starter/src/main/resources/application-prod.yml:
-    newFile: !uuid 'e4bfa3c106746ed07404689701aef5b86aad74a0'
-    oldFile: !uuid '813e5a48fac8bbbd46c5ac58831eec4c475954d6'
+    newFile: !uuid 'fb7644857ce4e78146232f143756a77a31e2b06e'
+    oldFile: !uuid '31e42d99843eadc96984ef2af0d395f0dec5a678'
   /spring-api-support-scheduler-starter/src/main/resources/application.yml:
-    newFile: !uuid 'c9d5279da9780b65de3fd405fb00982c0cabc0b8'
-    oldFile: !uuid 'cd4feffe53bb5218eb144129f9c26d5e323ac6e1'
-  /spring-api-support-scheduler-starter/src/main/resources/config:
-    newFile: !uuid '231f96150860b5b048073e64eec5237215d0d047'
-    oldFile: null
-  /spring-api-support-scheduler-starter/src/main/resources/config/application-mybatis.yml:
-    newFile: !uuid 'efe47a0b27a6108e7e09fc5d28f5c17d61c41489'
-    oldFile: null
-  /spring-api-support-scheduler-starter/src/main/resources/config/application-setting.properties:
-    newFile: !uuid 'd16c4c36fbe5454fb1fe0fffbe2be3a53b1f67f3'
-    oldFile: null
-  /spring-api-support-scheduler-starter/src/main/resources/config/application-socket.yml:
-    newFile: !uuid '91703ef75c26e452623d90c21948a0a47e327a9b'
-    oldFile: null
-  /spring-api-support-scheduler-starter/src/main/resources/config/application-swagger.yml:
-    newFile: !uuid '49409cb3cdfee872ffdb96acff7d9127507bf865'
-    oldFile: null
-gitCommitId: !uuid 'e98f5623cefa71908c8cfc3150dc4852aaa6b633'
+    newFile: !uuid 'b10a18ca0cf528d8afddd6e4205935670b2b6f18'
+    oldFile: !uuid 'c9d5279da9780b65de3fd405fb00982c0cabc0b8'
+gitCommitId: !uuid 'addd1cdd67115323922a441e811d68a3af11e37b'
 renames: {
   }
-revisionId: 208
+revisionId: 209
