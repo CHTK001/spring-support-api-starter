@@ -199,8 +199,8 @@
     },
     children: [
       {
-        path: "/monitor/data/redis",
-        component: "monitor/data/redis/index",
+        path: "/data/redis",
+        component: "data/redis/index",
         name: "REDIS管理",
         hidden: false,
         meta: {
@@ -210,8 +210,8 @@
         },
       },
       {
-        path: "/monitor/data/zk",
-        component: "monitor/data/zk/index",
+        path: "/data/zk",
+        component: "data/zk/index",
         name: "zookeeper管理",
         hidden: false,
         meta: {
@@ -221,8 +221,8 @@
         },
       },
       {
-        path: "/monitor/data/influxdb",
-        component: "monitor/data/influxdb/index",
+        path: "/data/influxdb",
+        component: "data/influxdb/index",
         name: "influxdb管理",
         hidden: false,
         meta: {
@@ -232,8 +232,8 @@
         },
       },
       {
-        path: "/monitor/data/database",
-        component: "monitor/data/database/index",
+        path: "/data/database",
+        component: "data/database/index",
         name: "数据库管理",
         hidden: false,
         meta: {
@@ -242,17 +242,28 @@
           type: "menu",
         },
       },
+//      {
+//        path: "/monitor/data/shell",
+//        component: "monitor/data/shell/index",
+//        name: "脚本管理",
+//        hidden: false,
+//        meta: {
+//          title: "脚本管理",
+//          icon: "sc-icon-shell",
+//          type: "menu",
+//        },
+//      },
       {
-        path: "/monitor/data/shell",
-        component: "monitor/data/shell/index",
-        name: "脚本管理",
-        hidden: false,
-        meta: {
-          title: "脚本管理",
-          icon: "sc-icon-shell",
-          type: "menu",
-        },
-      },
+              path: "/data/version",
+              component: "data/version/index",
+              name: "版本管理",
+              hidden: false,
+              meta: {
+                title: "版本管理",
+                icon: "sc-icon-version",
+                type: "menu",
+              },
+            },
       {
         path: "/monitor/test/index",
         component: "monitor/test/index",

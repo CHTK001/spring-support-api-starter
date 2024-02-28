@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * powerjob-server entry
+ * job
  *
  * @author tjq
  * @since 2020/3/29
