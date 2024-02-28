@@ -2,11 +2,11 @@ spring:
   application:
     name: scheduler
   profiles:
-    active: dev
+    active: dev,socket,mybatis
 server:
   compression:
     enabled: true
 
 plugin:
-  core:
-    uniform-parameter: true
+  parameter:
+    enable: true
