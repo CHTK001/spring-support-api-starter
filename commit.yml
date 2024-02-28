@@ -2,28 +2,16 @@
 branches: {
   }
 fileChange:
-  /pom.xml:
-    newFile: !uuid '49af6b69d8e73df0b9dff8f47cab0331ec20ae3a'
-    oldFile: !uuid '72d3c759ccf0467deb2fc4ae4d8a04d79c2c7026'
   /spring-api-support-scheduler-starter:
-    newFile: !uuid '4aa7bd569787ac322be127776eda21ebe74e83a7'
-    oldFile: !uuid '27e891673790a1aebf349d9da731984527b10652'
-  /spring-api-support-scheduler-starter/pom.xml:
-    newFile: !uuid '394b62d4677d4df7c324eac535a62f8793df83f5'
-    oldFile: !uuid 'e683ae798e1c9267f2665db406ec9af973e1a8b1'
-  /spring-api-support-scheduler-starter/src:
-    newFile: !uuid 'bb7135e5c7cf21c925c68cff15b8231c8c334b96'
-    oldFile: !uuid 'aba928af78fa1d750acfd75473402a9cbad424e0'
-  /spring-api-support-scheduler-starter/src/main:
-    newFile: !uuid '22fb223a2a291ef65c0cf88b02df7e7eca25506f'
-    oldFile: !uuid '9ddf8a8b8042569d62cf23746afa1ebca30022ee'
-  /spring-api-support-scheduler-starter/src/main/resources:
-    newFile: !uuid 'fb7644857ce4e78146232f143756a77a31e2b06e'
-    oldFile: !uuid '31e42d99843eadc96984ef2af0d395f0dec5a678'
-  /spring-api-support-scheduler-starter/src/main/resources/application.yml:
-    newFile: !uuid 'b10a18ca0cf528d8afddd6e4205935670b2b6f18'
-    oldFile: !uuid 'c9d5279da9780b65de3fd405fb00982c0cabc0b8'
-gitCommitId: !uuid 'addd1cdd67115323922a441e811d68a3af11e37b'
+    newFile: !uuid '159c914ecf73328c72a487ef123b55ac7d5e3024'
+    oldFile: !uuid '4aa7bd569787ac322be127776eda21ebe74e83a7'
+  /spring-api-support-scheduler-starter/spring-api-support-scheduler-starter.ipr:
+    newFile: !uuid '30d8a266b8077c1a5448f8836af43efc4df225ed'
+    oldFile: null
+  /spring-api-support-scheduler-starter/spring-api-support-scheduler-starter.iws:
+    newFile: !uuid '03c854e9833f34de3843290df7b4bb9b578e704e'
+    oldFile: null
+gitCommitId: !uuid '0532d5775e9a6151106fcabb2292bbd90d00e0d0'
 renames: {
   }
-revisionId: 209
+revisionId: 210
