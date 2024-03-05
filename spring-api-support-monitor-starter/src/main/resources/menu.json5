@@ -231,28 +231,28 @@
           type: "menu",
         },
       },
-//      {
-//        path: "/monitor/data/shell",
-//        component: "monitor/data/shell/index",
-//        name: "脚本管理",
-//        hidden: false,
-//        meta: {
-//          title: "脚本管理",
-//          icon: "sc-icon-shell",
-//          type: "menu",
-//        },
-//      },
+      //      {
+      //        path: "/monitor/data/shell",
+      //        component: "monitor/data/shell/index",
+      //        name: "脚本管理",
+      //        hidden: false,
+      //        meta: {
+      //          title: "脚本管理",
+      //          icon: "sc-icon-shell",
+      //          type: "menu",
+      //        },
+      //      },
       {
-              path: "/data/version",
-              component: "data/version/index",
-              name: "版本管理",
-              hidden: false,
-              meta: {
-                title: "版本管理",
-                icon: "sc-icon-version",
-                type: "menu",
-              },
-            },
+        path: "/data/version",
+        component: "data/version/index",
+        name: "版本管理",
+        hidden: false,
+        meta: {
+          title: "版本管理",
+          icon: "sc-icon-version",
+          type: "menu",
+        },
+      },
       {
         path: "/monitor/test/index",
         component: "monitor/test/index",
@@ -267,9 +267,34 @@
     ]
   },
   {
+    "path": "/job",
+    "component": "job/index",
+    "name": "任务管理",
+    "hidden": false,
+    "meta": {
+      "title": "任务管理",
+      "icon": "sc-icon-scheduler",
+      "type": "menu",
+    },
+    children: [
+      {
+        "path": "/job/info",
+        "component": "job/info/index",
+        "name": "调度任务管理",
+        "hidden": false,
+        "meta": {
+          "title": "调度任务管理",
+          "icon": "el-icon-alarm-clock",
+          "affix": false,
+          "type": "menu",
+        }
+      }
+    ],
+  },
+  {
     "path": "/scheduler",
     "component": "scheduler/index",
-    "name": "调度管理",
+    "name": "XXL调度管理",
     "hidden": false,
     "meta": {
       "title": "调度管理",
@@ -343,7 +368,6 @@
           "type": "menu",
         }
       },
-
     ]
   }
 ]
