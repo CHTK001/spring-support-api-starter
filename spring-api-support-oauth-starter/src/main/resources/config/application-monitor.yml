@@ -14,4 +14,4 @@ plugin:
         - disk
         - network
         - process
-
+        - ip
