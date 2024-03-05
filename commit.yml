@@ -3,27 +3,24 @@ branches: {
   }
 fileChange:
   /spring-api-support-monitor-starter:
-    newFile: !uuid '51ff4b047f3334d621d5bcdf098f0b0bb0efcc60'
-    oldFile: !uuid '2d50018538739244498d72ecbf257d619c07396c'
+    newFile: !uuid '696b68d990babf0bcc242e3dc210c3b59eae4823'
+    oldFile: !uuid '51ff4b047f3334d621d5bcdf098f0b0bb0efcc60'
   /spring-api-support-monitor-starter/pom.xml:
-    newFile: !uuid 'be13725405e95f6095608228176716a7b4687e76'
-    oldFile: !uuid '3405f9ae17f737920027eacb1040b50834c7eb70'
+    newFile: !uuid '3405f9ae17f737920027eacb1040b50834c7eb70'
+    oldFile: !uuid 'be13725405e95f6095608228176716a7b4687e76'
   /spring-api-support-monitor-starter/src:
-    newFile: !uuid '602787604050873d7caba23f1945616aa9935bc9'
-    oldFile: !uuid '3dd57da050dc3636543c6fbec35fbaca147f0a54'
+    newFile: !uuid 'd0c3f1e318b25857684e3b4ca067d6b4cfc930e1'
+    oldFile: !uuid '602787604050873d7caba23f1945616aa9935bc9'
   /spring-api-support-monitor-starter/src/main:
-    newFile: !uuid 'f81c0a5edc35b28b58a19e7994efd7570dfd20ac'
-    oldFile: !uuid '07b875b9e75836ca6ed673ed637d22a6075e6761'
+    newFile: !uuid '7737b62e5ca19fbf2f18c529e0dd39506160d0f4'
+    oldFile: !uuid 'f81c0a5edc35b28b58a19e7994efd7570dfd20ac'
   /spring-api-support-monitor-starter/src/main/resources:
-    newFile: !uuid '6df5a41f0b91e2ae22395b9e47fd757e29ae269c'
-    oldFile: !uuid '2d5bb3c2c4071f4b54a0878269221a35655e780d'
-  /spring-api-support-monitor-starter/src/main/resources/db:
-    newFile: !uuid '1eb48e3bb3cd7fd380d9498c2000f04d5a951cc5'
-    oldFile: !uuid 'e930e3e353b383048938d6b6eb305155c88404ff'
-  /spring-api-support-monitor-starter/src/main/resources/db/monitor.sql:
-    newFile: !uuid 'b060533b0ac92c969ddde18ab5c7b35b6d4fcbb3'
-    oldFile: !uuid '4686a4ed48740c2cd622a614d9331bf3802bd5cb'
-gitCommitId: !uuid '163aba524cb45273ee0c7c83791797b8f62baa9c'
+    newFile: !uuid '3aced6869852b19c5a9f628a8cf1806d0a557ef3'
+    oldFile: !uuid '6df5a41f0b91e2ae22395b9e47fd757e29ae269c'
+  /spring-api-support-monitor-starter/src/main/resources/menu.json5:
+    newFile: !uuid 'a85f42b603791821b17c81c4648cdb26b2a40610'
+    oldFile: !uuid '37beab761a9ae9f79b4f9b8d90cd776eceac33bc'
+gitCommitId: !uuid '05ef1c7b9b0c695e7fa6b192f37b26e70dede0fb'
 renames: {
   }
-revisionId: 214
+revisionId: 215
