@@ -289,7 +289,7 @@
           "type": "menu",
         }
       }
-    ],
+    ],=
   },
   {
     "path": "/scheduler",
