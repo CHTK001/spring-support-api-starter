@@ -267,8 +267,8 @@
     ]
   },
   {
-    "path": "/job",
-    "component": "job/index",
+    "path": "/task",
+    "component": "task/index",
     "name": "任务管理",
     "hidden": false,
     "meta": {
@@ -278,18 +278,30 @@
     },
     children: [
       {
-        "path": "/job/info",
-        "component": "job/info/index",
-        "name": "调度任务管理",
+        "path": "/task/info",
+        "component": "task/info/index",
+        "name": "任务管理",
         "hidden": false,
         "meta": {
-          "title": "调度任务管理",
+          "title": "任务管理",
           "icon": "el-icon-alarm-clock",
           "affix": false,
           "type": "menu",
         }
+      },
+      {
+        "path": "/task/log",
+        "component": "task/log/index",
+        "name": "任务日志",
+        "hidden": false,
+        "meta": {
+          "title": "任务日志",
+          "icon": "sc-icon-log",
+          "affix": false,
+          "type": "menu",
+        }
       }
-    ],=
+    ]
   },
   {
     "path": "/scheduler",
@@ -297,7 +309,7 @@
     "name": "XXL调度管理",
     "hidden": false,
     "meta": {
-      "title": "调度管理",
+      "title": "XXL调度管理",
       "icon": "sc-icon-scheduler",
       "hidden": null,
       "affix": false,
