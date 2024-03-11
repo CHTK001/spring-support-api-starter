@@ -6,12 +6,14 @@ import com.chua.common.support.json.Json;
 import com.chua.starter.common.support.annotations.Job;
 import com.chua.starter.monitor.annotation.ConfigValue;
 import com.chua.starter.sso.mapper.SysUserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
 @RestController
+@Slf4j
 public class TestController {
 
     @ConfigValue(value = "test", autoRefreshed = true)
@@ -23,7 +25,7 @@ public class TestController {
 
     @Job("test")
     public void testJob(String job) {
-        System.out.println("test job");
+        log.info("test job");
     }
     @GetMapping("/test")
     @Ignore
