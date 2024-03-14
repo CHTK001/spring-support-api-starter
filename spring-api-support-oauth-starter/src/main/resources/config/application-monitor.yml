@@ -14,4 +14,3 @@ plugin:
         - disk
         - network
         - process
-        - diskio
