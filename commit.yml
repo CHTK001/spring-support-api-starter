@@ -3,24 +3,24 @@ branches: {
   }
 fileChange:
   /spring-api-support-oauth-starter:
-    newFile: !uuid 'ae397d637078843d84c1f99baaf9d31f11fdfac4'
-    oldFile: !uuid '73b7eafe44a435572e8a62409993679fb8adabc3'
+    newFile: !uuid '2371913598fab0905f0ae2ed0fda993076e363c2'
+    oldFile: !uuid 'ae397d637078843d84c1f99baaf9d31f11fdfac4'
   /spring-api-support-oauth-starter/src:
-    newFile: !uuid '043775e952846c0bab8a1cb7a942b7437276d629'
-    oldFile: !uuid '1bb28ba33d422ae60860be03bbd97c9d9a01168a'
+    newFile: !uuid '1ae56f4774a25cd8b4ae900082561cde619a450b'
+    oldFile: !uuid '043775e952846c0bab8a1cb7a942b7437276d629'
   /spring-api-support-oauth-starter/src/main:
-    newFile: !uuid '11d8692527751601bb582f984911e9b0883bbfbe'
-    oldFile: !uuid 'd9927756b1f68b0f5d0a3f8637dc76f3846ff368'
+    newFile: !uuid 'fa5a4997992cee50574019ba64cc238f2fca3b5d'
+    oldFile: !uuid '11d8692527751601bb582f984911e9b0883bbfbe'
   /spring-api-support-oauth-starter/src/main/resources:
-    newFile: !uuid 'd8a64b652db8317d85423b0e46ccfc3061ef9368'
-    oldFile: !uuid '4ef38b6a23098b061571bf97401c3bf4911f5c41'
+    newFile: !uuid 'ddc8a6a617ceb96b7018fdcf929d2e1d607c4c74'
+    oldFile: !uuid 'd8a64b652db8317d85423b0e46ccfc3061ef9368'
   /spring-api-support-oauth-starter/src/main/resources/config:
-    newFile: !uuid 'aafa80352bf66b1fcf12ee1ca001a4b1ba59fbee'
-    oldFile: !uuid '27a414f4e7dc14020e245335585ad58988911f65'
+    newFile: !uuid 'fb143dc79250083fe57900414907d81b869cf826'
+    oldFile: !uuid 'aafa80352bf66b1fcf12ee1ca001a4b1ba59fbee'
   /spring-api-support-oauth-starter/src/main/resources/config/application-monitor.yml:
-    newFile: !uuid '74db148aa8babc1eb6184c5d1ab51a22cd827c64'
-    oldFile: !uuid '5a8c026918ec79a48c56b33e9cc261eafd688452'
-gitCommitId: !uuid '85ecd50105f1ecaec47181b3f1700e8e1f65c8e2'
+    newFile: !uuid 'ebe2ac7dde46eedc346d9fa4bc5f9546e646ff68'
+    oldFile: !uuid '74db148aa8babc1eb6184c5d1ab51a22cd827c64'
+gitCommitId: !uuid 'e568b29fbb963e13ae6a0c5b206507e3467cd012'
 renames: {
   }
-revisionId: 221
+revisionId: 222
