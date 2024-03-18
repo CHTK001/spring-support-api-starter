@@ -47,12 +47,6 @@
             <artifactId>spring-api-support-service-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-hotspot-agent</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
 
         <dependency>
             <groupId>com.chua</groupId>
