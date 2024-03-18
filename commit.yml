@@ -3,57 +3,9 @@ branches: {
   }
 fileChange:
   /pom.xml:
-    newFile: !uuid '0405a418928fbdbb2828a5345b3ef0776a81e28d'
-    oldFile: !uuid '3df807d81bcbdbb1ee7cb39cf3ebab5f78007e4c'
-  /spring-api-support-gen-starter:
-    newFile: null
-    oldFile: !uuid '136f1ecad95049b95921973fc3b53a3350bbdf1f'
-  /spring-api-support-gen-starter/pom.xml:
-    newFile: null
-    oldFile: !uuid 'fdb520d9ab99e549dfbbb1d11efdf5c8639d2d70'
-  /spring-api-support-gen-starter/src:
-    newFile: null
-    oldFile: !uuid 'e348e8fe4fcc088a8e33116bc81ce52204ec7143'
-  /spring-api-support-gen-starter/src/main:
-    newFile: null
-    oldFile: !uuid '56610aae3dc98eecefddfea8185b7bd2988271cc'
-  /spring-api-support-gen-starter/src/main/java:
-    newFile: null
-    oldFile: !uuid '5df5471ca822ad90c63b8352d69f39ecbd6090fe'
-  /spring-api-support-gen-starter/src/main/java/com:
-    newFile: null
-    oldFile: !uuid '98fb77bed200ae365388b2f99a90f5243910d29e'
-  /spring-api-support-gen-starter/src/main/java/com/chua:
-    newFile: null
-    oldFile: !uuid 'd4d0ee83279bc4992009cfdd47b94810c729f636'
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter:
-    newFile: null
-    oldFile: !uuid '46aaa791b30bd998d5c253bd17f7b1adc1e46c00'
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen:
-    newFile: null
-    oldFile: !uuid '1dadd3ad54447ff20ebf9a24cd79fe45e4f12770'
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen/support:
-    newFile: null
-    oldFile: !uuid '17323d480f333e9211de7df36fc4923ff9a55e81'
-  /spring-api-support-gen-starter/src/main/java/com/chua/starter/gen/support/GenServerApplication.java:
-    newFile: null
-    oldFile: !uuid '72d708705b5cdc0946f9275646bdc5674c5fbf52'
-  /spring-api-support-gen-starter/src/main/resources:
-    newFile: null
-    oldFile: !uuid '9e60d6e82f27ba100a7e2a454ce8004f9fc841bd'
-  /spring-api-support-gen-starter/src/main/resources/application-dev.yml:
-    newFile: null
-    oldFile: !uuid 'd3f8bb9b874e1952887424dfc0eecae6602459a5'
-  /spring-api-support-gen-starter/src/main/resources/application-prod.yml:
-    newFile: null
-    oldFile: !uuid 'd3f8bb9b874e1952887424dfc0eecae6602459a5'
-  /spring-api-support-gen-starter/src/main/resources/application.yml:
-    newFile: null
-    oldFile: !uuid 'd05dee08e6976c58eebb8f3fa4c87a0d6f49bb6d'
-  /spring-api-support-gen-starter/src/main/resources/logback.xml:
-    newFile: null
-    oldFile: !uuid '15976d634cd347fce1de8aec2865805eb07efb7e'
-gitCommitId: !uuid '683a69d22fcf896a297281eb78b409af09c647a2'
+    newFile: !uuid '7b8af914c0d23b0d007ec89bac12aa8550f49775'
+    oldFile: !uuid '0405a418928fbdbb2828a5345b3ef0776a81e28d'
+gitCommitId: !uuid '20ac9996bf0de886b0d69f94ea01befa3ab7aca9'
 renames: {
   }
-revisionId: 227
+revisionId: 228
