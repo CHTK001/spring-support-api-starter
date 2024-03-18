@@ -6,14 +6,14 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>spring-support-api-starter</artifactId>
-        <version>3.1.0</version>
+        <version>4.0.0</version>
     </parent>
 
     <artifactId>spring-api-support-deepleanring-starter</artifactId>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--依赖输出目录-->
         <lib-path>output/lib</lib-path>
@@ -42,31 +42,31 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-rapid-starter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-baidu-starter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-opencv-starter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-pytorch-starter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-seetafacev6-starter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
     </dependencies>
 
