@@ -15,7 +15,7 @@ import com.chua.starter.monitor.server.factory.MonitorServerFactory;
 import com.chua.starter.monitor.server.service.MonitorAppService;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Optional;
 
 

@@ -10,7 +10,7 @@ import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 
 

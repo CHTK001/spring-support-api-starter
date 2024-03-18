@@ -8,7 +8,7 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 
 /**

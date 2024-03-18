@@ -12,7 +12,7 @@ import com.chua.starter.admin.mapper.SysMessageTemplateMapper;
 import com.chua.starter.admin.service.SysMessageTemplateService;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
