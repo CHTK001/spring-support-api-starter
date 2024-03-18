@@ -2,10 +2,13 @@
 branches: {
   }
 fileChange:
-  /pom.xml:
-    newFile: !uuid '7b8af914c0d23b0d007ec89bac12aa8550f49775'
-    oldFile: !uuid '0405a418928fbdbb2828a5345b3ef0776a81e28d'
-gitCommitId: !uuid '20ac9996bf0de886b0d69f94ea01befa3ab7aca9'
+  /spring-api-support-admin-starter:
+    newFile: !uuid '8884891dbc0f4219c367ba313de0a8ad36299fff'
+    oldFile: !uuid '7af8e3e8e569d9c54b9d77a2d20cf335a155895c'
+  /spring-api-support-admin-starter/pom.xml:
+    newFile: !uuid 'ad52ab3d9334eec59d7aebe0d1c031eceb194f74'
+    oldFile: !uuid '9665d2108fd857056adee09d5678e86d50ff9c85'
+gitCommitId: !uuid '866b7a4594179c9461786b349d9f1dc9ce4284c5'
 renames: {
   }
-revisionId: 228
+revisionId: 229
