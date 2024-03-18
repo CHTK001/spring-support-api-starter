@@ -12,8 +12,8 @@ import com.chua.starter.admin.query.SysUserUpdate;
 import com.chua.starter.admin.query.UserPageQuery;
 import com.chua.starter.common.support.result.Result;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 /**

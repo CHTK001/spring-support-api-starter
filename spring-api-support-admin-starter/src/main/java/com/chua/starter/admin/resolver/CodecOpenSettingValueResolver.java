@@ -4,7 +4,7 @@ import com.chua.common.support.annotations.Spi;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.common.support.provider.CodecProvider;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
