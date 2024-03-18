@@ -7,7 +7,7 @@ import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.sso.service.UserService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 
 /**

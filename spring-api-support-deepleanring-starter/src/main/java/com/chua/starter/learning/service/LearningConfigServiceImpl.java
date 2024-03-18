@@ -16,7 +16,7 @@ import org.hibernate.internal.util.collections.ConcurrentReferenceHashMap;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Map;
 
 /**
