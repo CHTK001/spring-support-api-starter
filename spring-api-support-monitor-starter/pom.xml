@@ -45,6 +45,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-monitor-server-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
