@@ -3,10 +3,10 @@
     <Properties>
         <!--日志目录-->
         <Property name="basedir">logs</Property>
-        <Property name="projectName">system</Property>
+        <Property name="projectName">monitor</Property>
         <!-- 彩色日志格式 -->
         <Property name="console_log_pattern_color1">%highlight{[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] [%logger:%L] - %msg%n}</Property>
-        <Property name="console_log_pattern_color">[%d{yyyy-MM-dd HH:mm:ss}] [%highlight{%6p}] [%style{%5pid}{bright,magenta}] [%-5level] [%style{%logger{39}:%L}{bright,cyan}] : %m%n</Property>
+        <Property name="console_log_pattern_color">[%d{yyyy-MM-dd HH:mm:ss}] [%highlight{%-6p}] [%style{%5pid}{bright,magenta}] [%style{%logger{39}:%L}{bright,cyan}] : %m%n</Property>
         <Property name="console_log_pattern">[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] %logger:%L - %msg%n</Property>
     </Properties>
 
@@ -48,7 +48,7 @@
         <logger name="com.ning.http.client.providers" level="OFF" additivity="false"/>
 
         <!--根记录全部输出到控制台上-->
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="console"/>
             <appender-ref ref="rollingFile"/>
         </root>

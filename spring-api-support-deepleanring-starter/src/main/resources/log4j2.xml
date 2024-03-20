@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration monitoringInterval="3600" shutdownHook="disable">
+    <Properties>
+        <!--日志目录-->
+        <Property name="basedir">logs</Property>
+        <Property name="projectName">deepleanring</Property>
+        <!-- 彩色日志格式 -->
+        <Property name="console_log_pattern_color1">%highlight{[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] [%logger:%L] - %msg%n}</Property>
+        <Property name="console_log_pattern_color">[%d{yyyy-MM-dd HH:mm:ss}] [%highlight{%-6p}] [%style{%5pid}{bright,magenta}] [%style{%logger{39}:%L}{bright,cyan}] : %m%n</Property>
+        <Property name="console_log_pattern">[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] %logger:%L - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!--控制台输出-->
+        <Console name="console" target="SYSTEM_OUT">
+            <!--日志样式pattern-->
+            <PatternLayout pattern="${console_log_pattern_color}"/>
+        </Console>
+
+        <!--全部日志输出-->
+        <!--RollingFile实现日志文件滚动更新-->
+        <RollingFile name="rollingFile" fileName="${basedir}/${projectName}.log" append="true" filePattern="${basedir}/$${date:yyyy-MM}/${projectName}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${console_log_pattern}"/>
+            <Policies>
+                <!--单个日志文件大小，-->
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+                <!--只留一个文件，其他的全部压缩-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <!--max参数指定了计数器的最大值。一旦计数器达到了最大值，过旧的文件将被删除-->
+            <DefaultRolloverStrategy max="30" compressionLevel="9">
+                <!--basePath指定了扫描开始路径，为baseDir文件夹。maxDepth指定了目录扫描深度，为2表示扫描baseDir文件夹及其子文件夹。IfFileName指定了文件名需满足的条件，IfLastModified指定了文件修改时间需要满足的条件。-->
+                <Delete basePath="${basedir}" maxDepth="2">
+                    <IfFileName glob="*/*.log.gz"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
+        <logger name="io.netty" level="OFF" additivity="false"/>
+        <logger name="com.alibaba.nacos" level="OFF" additivity="false"/>
+        <logger name="com.jcabi" level="OFF" additivity="false"/>
+        <logger name="org.zbus.net.tcp.TcpClient" level="OFF" additivity="false"/>
+        <logger name="com.ning.http.client.providers" level="OFF" additivity="false"/>
+
+        <!--根记录全部输出到控制台上-->
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+            <appender-ref ref="rollingFile"/>
+        </root>
+
+    </Loggers>
+
+</Configuration>
