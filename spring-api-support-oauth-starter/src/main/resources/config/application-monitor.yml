@@ -14,8 +14,3 @@ plugin:
         - disk
         - network
         - process
-    subscribe:
-      config:
-        - limit
-      apps:
-        - oss
