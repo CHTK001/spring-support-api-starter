@@ -4,7 +4,6 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.protocol.boot.BootResponse;
 import com.chua.common.support.protocol.boot.CommandType;
-import com.chua.common.support.protocol.boot.ModuleType;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.SocketIOListener;
@@ -13,9 +12,9 @@ import com.chua.socketio.support.session.SocketSession;
 import com.chua.starter.monitor.request.MonitorRequest;
 import com.chua.starter.monitor.server.factory.MonitorServerFactory;
 import com.chua.starter.monitor.server.service.MonitorAppService;
+import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Configuration;
 
-import jakarta.annotation.Resource;
 import java.util.Optional;
 
 
@@ -53,8 +52,9 @@ public class MonitorSocketIOListener implements SocketIOListener {
         }
 
         try {
-            BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), ModuleType.SHELL, CommandType.REQUEST);
-            session.send("terminal", new JsonObject().fluent("data", Optional.ofNullable(bootResponse.getContent()).orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
+            BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), "SHELL", CommandType.REQUEST);
+            session.send("terminal", new JsonObject()
+                    .fluent("data", Optional.ofNullable(bootResponse.getData()).orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
     }
