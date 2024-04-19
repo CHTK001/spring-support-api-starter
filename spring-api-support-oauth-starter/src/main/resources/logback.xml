@@ -13,7 +13,7 @@
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
-    <conversionRule conversionWord="traceId" converterClass="com.chua.starter.common.support.logback.TraceMessageConverter"/>
+    <conversionRule conversionWord="traceId" converterClass="com.chua.starter.log.support.logback.TraceMessageConverter"/>
     <property name="log_file_location" value="./logs/oss"/>
 
     <!-- 彩色日志格式 -->
