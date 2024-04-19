@@ -6,8 +6,8 @@
         <Property name="projectName">monitor</Property>
         <!-- 彩色日志格式 -->
         <Property name="console_log_pattern_color1">%highlight{[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] [%logger:%L] - %msg%n}</Property>
-        <Property name="console_log_pattern_color">[%d{yyyy-MM-dd HH:mm:ss}] [%highlight{%-6p}] [%style{%5pid}{bright,magenta}] [%style{%logger{39}:%L}{bright,cyan}] : %m%n</Property>
-        <Property name="console_log_pattern">[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId}] [%thread] %logger:%L - %msg%n</Property>
+        <Property name="console_log_pattern_color">[%d{yyyy-MM-dd HH:mm:ss}] [$X{traceId}] [%highlight{%-6p}] [%style{%5pid}{bright,magenta}] [%style{%logger{39}:%L}{bright,cyan}] : %m%n</Property>
+        <Property name="console_log_pattern">[%date{yyyy-MM-dd HH:mm:ss}] [$X{traceId}] [%-5level] [%X{traceId}] [%thread] %logger:%L - %msg%n</Property>
     </Properties>
 
     <Appenders>
