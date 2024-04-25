@@ -29,7 +29,7 @@ public class FileStorageUtils {
         fileStorageService.register(sysFileStorage.getFsBucket(), FileStorage.createStorage(
                 sysFileStorage.getFsType(),
                 FileStorageOption.builder()
-                        .storagePath(sysFileStorage.getFsStoragePath())
+                        .parentPath(sysFileStorage.getFsStoragePath())
                         .domain(sysFileStorage.getFsDomain())
                         .accessKeyId(sysFileStorage.getFsAccessKeyId())
                         .accessKeySecret(sysFileStorage.getFsAccessKeySecret())
