@@ -117,7 +117,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-poi-starter</artifactId>
+                <artifactId>utils-support-excel-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
