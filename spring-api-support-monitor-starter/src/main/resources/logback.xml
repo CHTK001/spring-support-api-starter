@@ -13,8 +13,7 @@
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
-
-    <property name="log_file_location" value="./logs/system"/>
+    <property name="log_file_location" value="./logs"/>
 
     <!-- 彩色日志格式 -->
     <property name="console_log_pattern_color"
@@ -29,6 +28,12 @@
         </encoder>
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
+    <logger name="io.netty" level="OFF" additivity="false"/>
+    <logger name="com.alibaba.nacos" level="OFF" additivity="false"/>
+    <logger name="com.jcabi" level="OFF" additivity="false"/>
+    <logger name="org.burningwave" level="OFF" additivity="false"/>
+    <logger name="org.zbus.net.tcp.TcpClient" level="OFF" additivity="false"/>
+    <logger name="com.ning.http.server.providers" level="OFF" additivity="false"/>
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -55,7 +60,7 @@
 
     <!-- 至多只能配置一个root -->
     <root>
-        <level value="INFO"/>
+        <level value="info"/>
         <appender-ref ref="console"/>
         <appender-ref ref="async"/>
     </root>
