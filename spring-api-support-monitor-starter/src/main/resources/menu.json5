@@ -303,4 +303,30 @@
       }
     ]
   },
+  {
+    "path": "/proxy",
+    "component": "proxy/index",
+    "name": "代理管理",
+    "hidden": false,
+    "meta": {
+      "title": "代理管理",
+      "icon": "sc-icon-proxy",
+      "type": "menu",
+    },
+    children: [
+      {
+        "path": "/proxy/info",
+        "component": "proxy/info/index",
+        "name": "代理管理",
+        "hidden": false,
+        "meta": {
+          "title": "代理管理",
+          "icon": "el-icon-alarm-clock",
+          "affix": false,
+          "type": "menu",
+        }
+      },
+
+    ]
+  }
 ]
