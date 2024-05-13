@@ -1,6 +1,6 @@
 plugin:
   socket:
-    open: true
+    enable: true
     port: 31257
 management:
   endpoints:
