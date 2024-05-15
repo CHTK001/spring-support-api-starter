@@ -7,9 +7,8 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.properties.IpProperties;
 import com.chua.starter.service.IptablesService;
-import org.springframework.stereotype.Service;
-
 import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
 
 /**
  * ip
@@ -22,6 +21,8 @@ public class IptablesServiceImpl implements IptablesService {
 
     @Resource
     private IpProperties ipProperties;
+    private volatile IpPosition ipPosition;
+    private volatile boolean isLoaded = false;
     /**
      * 翻译地址
      * @param address 地址
@@ -33,7 +34,19 @@ public class IptablesServiceImpl implements IptablesService {
             return ReturnResult.illegal("地址不能为空");
         }
 
-        IpPosition ipPosition = ServiceProvider.of(IpPosition.class).getExtension(ipProperties.getIpType());
-        return null == ipPosition ? ReturnResult.illegal("解析失败") : ReturnResult.ok(ipPosition.getCity(address));
+        if(!isLoaded) {
+            synchronized (this) {
+                if(!isLoaded) {
+                    isLoaded = true;
+                    ipPosition = ServiceProvider.of(IpPosition.class).getNewExtension(ipProperties.getIpType(), ipProperties.getDatabaseFile());
+                }
+            }
+        }
+
+        if(null == ipPosition) {
+            return ReturnResult.illegal("解析失败");
+        }
+        ipPosition.afterPropertiesSet();
+        return ReturnResult.ok(ipPosition.getCity(address));
     }
 }
