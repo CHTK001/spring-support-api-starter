@@ -17,10 +17,10 @@ import com.chua.starter.sso.impl.SysUserRole;
 import com.chua.starter.sso.impl.SysUserTripartiteBind;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -46,8 +46,8 @@ public class UserService implements UserInfoService, Constant {
     private SysUserMapper sysUserMapper;
 
     @Override
-    public UserResult checkLogin(String accessKey, String secretKey, String address, Object ext) {
-        String newAccessKey = LOGIN_ERROR + accessKey;
+    public UserResult checkLogin(String username, String password, String address, Object ext) {
+        String newAccessKey = LOGIN_ERROR + username;
         Boolean boos = stringRedisTemplate.hasKey(newAccessKey);
         if (null != boos && boos) {
             int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
@@ -56,7 +56,7 @@ public class UserService implements UserInfoService, Constant {
             }
         }
 
-        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, accessKey));
+        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username));
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
         }
@@ -66,7 +66,7 @@ public class UserService implements UserInfoService, Constant {
         }
 
         String salt = user.getUserSalt();
-        String md5String = DigestUtils.md5Hex(secretKey + salt);
+        String md5String = DigestUtils.md5Hex(password + salt);
         if (!StringUtils.safeEquals(md5String, user.getUserPassword())) {
             return check(newAccessKey, boos);
         }
@@ -74,16 +74,16 @@ public class UserService implements UserInfoService, Constant {
 //        sysUserMapper.updateById(user);
         stringRedisTemplate.delete(newAccessKey);
 
-        return loginInfo(accessKey, user);
+        return loginInfo(username, user);
     }
 
     @Override
-    public UserResult getUserInfo(String accessKey) {
+    public UserResult upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectOne(new MPJLambdaWrapper<SysUser>()
                 .select("IFNULL(t.user_avatar, t1.login_avatar) user_avatar")
                 .select("IFNULL(t.user_nickname, t1.login_name) user_nickname")
                 .leftJoin(SysUserTripartiteBind.class, SysUserTripartiteBind::getUserId, SysUser::getUserId)
-                .eq(SysUser::getUsername, accessKey));
+                .eq(SysUser::getUsername, userResult.getUsername()));
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
         }
@@ -91,7 +91,7 @@ public class UserService implements UserInfoService, Constant {
         if (1 != user.getUserStatus()) {
             return new UserResult().setMessage("账号已被禁用");
         }
-        return loginInfo(accessKey, user);
+        return loginInfo(userResult.getUsername(), user);
     }
 
     /**

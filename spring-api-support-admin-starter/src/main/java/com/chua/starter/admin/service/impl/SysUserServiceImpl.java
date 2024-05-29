@@ -32,6 +32,9 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.google.common.base.Strings;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -40,12 +43,9 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 
-import static com.chua.common.support.discovery.Constants.CAPTCHA_SESSION_KEY;
+import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.*;
 import static com.chua.starter.common.support.constant.Constant.ADMIN;
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
@@ -181,7 +181,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUserRoleService.saveBatch(roles);
             return true;
         });
-        refresh();
+        upgrade();
         return Result.ok();
     }
 
@@ -284,8 +284,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return Result.success(loginResult);
     }
 
-    private void refresh() {
-        AuthClientExecute.getInstance().refreshToken();
+    private void upgrade() {
+        AuthClientExecute.getInstance().upgrade();
     }
 
 }
