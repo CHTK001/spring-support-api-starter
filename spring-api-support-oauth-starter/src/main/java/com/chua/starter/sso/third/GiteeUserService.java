@@ -5,9 +5,8 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.sso.impl.SysUser;
 import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.sso.service.UserService;
-import org.springframework.stereotype.Service;
-
 import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
 
 
 /**
@@ -24,8 +23,8 @@ public class GiteeUserService extends UserService {
     @Resource
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
     @Override
-    public UserResult checkLogin(String accessKey, String secretKey, String address, Object ext) {
-        SysUser sysUser = sysUserTripartiteBindMapper.getSysUser(accessKey, "gitee");
+    public UserResult checkLogin(String username, String password, String address, Object ext) {
+        SysUser sysUser = sysUserTripartiteBindMapper.getSysUser(username, "gitee");
         return null == sysUser ? null : loginInfo(sysUser.getUsername(), sysUser);
     }
 
