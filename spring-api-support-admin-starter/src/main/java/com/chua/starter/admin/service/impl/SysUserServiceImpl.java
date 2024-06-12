@@ -27,6 +27,7 @@ import com.chua.starter.common.support.notice.NoticeType;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.enums.AuthType;
+import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
@@ -285,7 +286,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     private void upgrade() {
-        AuthClientExecute.getInstance().upgrade();
+        AuthClientExecute.getInstance().upgrade(UpgradeType.TIMESTAMP);
     }
 
 }
