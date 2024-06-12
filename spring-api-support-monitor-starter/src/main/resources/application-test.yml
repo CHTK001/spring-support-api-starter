@@ -12,7 +12,7 @@ spring:
     port: 6379
 logging:
   level:
-    com.chua.starter.unified.server.support.mapper: debug
+    com.chua.starter.monitor.server.mapper: debug
 plugin:
   oauth:
     address: http://127.0.0.1:19180/oauth

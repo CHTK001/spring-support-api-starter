@@ -33,6 +33,12 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-nacos-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-influxdb-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
