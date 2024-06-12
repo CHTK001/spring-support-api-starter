@@ -3,21 +3,19 @@ server:
 spring:
   datasource:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
-    url: jdbc:p6spy:mysql://172.16.2.226:3306/monitor?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:p6spy:mysql://120.26.74.94:3306/monitor?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: boren1818_mysql_admin
 
-  redis:
-    host: 172.16.2.226
-    port: 6379
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
 logging:
   level:
-    com.chua.starter.unified.server.support.mapper: debug
-
+    com.chua.starter.monitor.server.mapper: debug
 
 plugin:
   oauth:
-    address: http://172.16.2.226:19180/oauth
-  table:
-    enable: true
-    packages: com.chua.starter.monitor.server.entity
+    #address: http://172.16.2.226:19180/oauth
+    protocol: static
