@@ -54,8 +54,8 @@ public class SysFileStorageController {
         JsonObject res = new JsonObject();
         res.put("impl", fileStorageService.getType());
         res.put("filter", fileStorageService.getFilter());
-        res.put("plugin", fileStorageService.getPlugin());
-        res.put("named", fileStorageService.getPlugin());
+//        res.put("plugin", fileStorageService.getPlugin());
+//        res.put("named", fileStorageService.getPlugin());
         return ReturnResult.ok(res);
     }
     /**
