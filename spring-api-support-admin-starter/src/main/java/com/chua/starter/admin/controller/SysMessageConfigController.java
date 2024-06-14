@@ -6,12 +6,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.MessagePush;
-import com.chua.common.support.spi.Option;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.SpiOption;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.admin.entity.SysMessageTemplate;
 import com.chua.starter.admin.entity.SysMessageConfig;
+import com.chua.starter.admin.entity.SysMessageTemplate;
 import com.chua.starter.admin.service.SysMessageConfigService;
 import com.chua.starter.common.support.utils.LocaleUtils;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -45,7 +45,7 @@ public class SysMessageConfigController {
      */
     @Operation(summary = "查询SMS消息实现方式")
     @GetMapping("smsType")
-    public ReturnResult<List<Option<String>>> smsType() {
+    public ReturnResult<List<SpiOption<String>>> smsType() {
         return ReturnResult.ok(ServiceProvider.of(MessagePush.class).options());
     }
     /**
