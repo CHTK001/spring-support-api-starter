@@ -5,7 +5,7 @@ spring:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://127.0.0.1:3306/monitor?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: boren1818_mysql_admin
+    password: root
 
   data:
     redis:
@@ -14,8 +14,12 @@ spring:
 logging:
   level:
     com.chua.starter.monitor.server.mapper: debug
-
 plugin:
+  codec:
+    enable: true
   oauth:
     #address: http://172.16.2.226:19180/oauth
     protocol: static
+  monitor:
+    job:
+      enable: false

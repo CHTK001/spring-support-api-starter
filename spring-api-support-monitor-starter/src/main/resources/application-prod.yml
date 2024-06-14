@@ -13,3 +13,6 @@ spring:
 logging:
   level:
     com.chua.starter.monitor.server.mapper: debug
+plugin:
+  codec:
+    enable: true
