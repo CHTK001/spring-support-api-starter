@@ -35,7 +35,7 @@
           params: null,
         },
       },
-    ],
+    ]
   },
   {
     path: "/monitor",
@@ -174,7 +174,7 @@
           hidden: true
         },
       },
-    ],
+    ]
   },
   {
     path: "/data",
@@ -232,102 +232,101 @@
         },
       },
       //      {
-      //        path: "/monitor/data/shell",
-      //        component: "monitor/data/shell/index",
-      //        name: "脚本管理",
-      //        hidden: false,
-      //        meta: {
-      //          title: "脚本管理",
-      //          icon: "sc-icon-shell",
-      //          type: "menu",
+      //        path:"/monitor/data/shell",
+      //        component:"monitor/data/shell/index",
+      //        name:"脚本管理",
+      //        hidden:false,
+      //        meta:{
+      //          title:"脚本管理",
+      //          icon:"sc-icon-shell",
+      //          type:"menu",
       //        },
       //      },
-      {
-        path: "/data/version",
-        component: "data/version/index",
-        name: "版本管理",
-        hidden: false,
-        meta: {
-          title: "版本管理",
-          icon: "sc-icon-version",
-          type: "menu",
-        },
-      },
-      {
-        path: "/monitor/test/index",
-        component: "monitor/test/index",
-        name: "测试",
-        hidden: false,
-        meta: {
-          title: "测试",
-          icon: "sc-icon-shell",
-          type: "menu",
-        },
-      }
+//      {
+//        path: "/data/version",
+//        component: "data/version/index",
+//        name: "版本管理",
+//        hidden: false,
+//        meta: {
+//          title: "版本管理",
+//          icon: "sc-icon-version",
+//          type: "menu",
+//        },
+//      },
+//      {
+//        path: "/monitor/test/index",
+//        component: "monitor/test/index",
+//        name: "测试",
+//        hidden: false,
+//        meta: {
+//          title: "测试",
+//          icon: "sc-icon-shell",
+//          type: "menu",
+//        },
+//      }
     ]
   },
   {
-    "path": "/task",
+    path: "/task",
     condition: "plugin.monitor.job.enable",
-    "component": "task/index",
-    "name": "任务管理",
-    "hidden": false,
-    "meta": {
-      "title": "任务管理",
-      "icon": "sc-icon-scheduler",
-      "type": "menu",
+    component: "task/index",
+    name: "任务管理",
+    hidden: false,
+    meta: {
+      title: "任务管理",
+      icon: "sc-icon-scheduler",
+      type: "menu",
     },
     children: [
       {
-        "path": "/task/info",
-        "component": "task/info/index",
-        "name": "任务管理",
-        "hidden": false,
-        "meta": {
-          "title": "任务管理",
-          "icon": "el-icon-alarm-clock",
-          "affix": false,
-          "type": "menu",
+        path: "/task/info",
+        component: "task/info/index",
+        name: "任务管理",
+        hidden: false,
+        meta: {
+          title: "任务管理",
+          icon: "el-icon-alarm-clock",
+          affix: false,
+          type: "menu",
         }
       },
       {
-        "path": "/task/log",
-        "component": "task/log/index",
-        "name": "任务日志",
-        "hidden": false,
-        "meta": {
-          "title": "任务日志",
-          "icon": "sc-icon-log",
-          "affix": false,
-          "type": "menu",
+        path: "/task/log",
+        component: "task/log/index",
+        name: "任务日志",
+        hidden: false,
+        meta: {
+          title: "任务日志",
+          icon: "sc-icon-log",
+          affix: false,
+          type: "menu",
         }
       }
     ]
   },
   {
-    "path": "/proxy",
-    "component": "proxy/index",
-    "name": "代理管理",
-    "hidden": false,
-    "meta": {
-      "title": "代理管理",
-      "icon": "sc-icon-proxy",
-      "type": "menu",
+    path: "/proxy",
+    component: "proxy/index",
+    name: "代理管理",
+    hidden: false,
+    meta: {
+      title: "代理管理",
+      icon: "sc-icon-proxy",
+      type: "menu",
     },
     children: [
       {
-        "path": "/proxy/info",
-        "component": "proxy/info/index",
-        "name": "代理管理",
-        "hidden": false,
-        "meta": {
-          "title": "代理管理",
-          "icon": "el-icon-alarm-clock",
-          "affix": false,
-          "type": "menu",
+        path: "/proxy/info",
+        component: "proxy/info/index",
+        name: "代理管理",
+        hidden: false,
+        meta: {
+          title: "代理管理",
+          icon: "sc-icon-proxy",
+          affix: false,
+          type: "menu",
         }
       },
-
     ]
   }
 ]

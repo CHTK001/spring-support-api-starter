@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 12/06/2024 13:58:51
+ Date: 19/06/2024 09:29:19
 */
 
 SET NAMES utf8mb4;
@@ -32,7 +32,12 @@ CREATE TABLE `monitor_app`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '应用管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_app
+-- ----------------------------
+INSERT INTO `monitor_app` VALUES (1, '单点登录', 'oss', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_config
@@ -53,7 +58,11 @@ CREATE TABLE `monitor_config`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置中心' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_config
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_job
@@ -88,7 +97,12 @@ CREATE TABLE `monitor_job`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`job_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '任务' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_job
+-- ----------------------------
+INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NULL, '测试', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, NULL, NULL, 'FIRST', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_job_log
@@ -110,7 +124,15 @@ CREATE TABLE `monitor_job_log`  (
   `start_date` datetime NULL DEFAULT NULL,
   `end_date` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3909 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '任务日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3909 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_job_log
+-- ----------------------------
+INSERT INTO `monitor_job_log` VALUES (3905, '2024-06-12', '2024-06-12 10:19:08', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3906, '2024-06-12', '2024-06-12 10:19:09', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3907, '2024-06-12', '2024-06-12 10:19:43', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3908, '2024-06-12', '2024-06-12 10:19:50', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_limit
@@ -134,7 +156,11 @@ CREATE TABLE `monitor_limit`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`limit_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_limit
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_log
@@ -159,7 +185,11 @@ CREATE TABLE `monitor_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_log
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_mybatis
@@ -183,7 +213,11 @@ CREATE TABLE `monitor_mybatis`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_mybatis_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'mybatis管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_mybatis
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_patch
@@ -205,7 +239,11 @@ CREATE TABLE `monitor_patch`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_patch
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_project
@@ -223,6 +261,10 @@ CREATE TABLE `monitor_project`  (
   `project_control_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'uid',
   PRIMARY KEY (`project_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '版本管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_project
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_project_version
@@ -243,6 +285,11 @@ CREATE TABLE `monitor_project_version`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '版本控制-子版本' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
+-- Records of monitor_project_version
+-- ----------------------------
+INSERT INTO `monitor_project_version` VALUES (2, 2, 'attendance', 'start.sh', NULL, '/zxb2/attendance/start.log', NULL, '01hqq7ts3b8qhamn6z6phn4rsb', 0, '1');
+
+-- ----------------------------
 -- Table structure for monitor_proxy
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy`;
@@ -256,7 +303,75 @@ CREATE TABLE `monitor_proxy`  (
   `proxy_status` int NULL DEFAULT NULL COMMENT '0: 未开启',
   `proxy_version` int NULL DEFAULT NULL COMMENT '版本',
   PRIMARY KEY (`proxy_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理管理' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_proxy
+-- ----------------------------
+INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.0.1', 12345, 'proxy', 0, NULL);
+
+-- ----------------------------
+-- Table structure for monitor_proxy_config
+-- ----------------------------
+DROP TABLE IF EXISTS `monitor_proxy_config`;
+CREATE TABLE `monitor_proxy_config`  (
+  `config_id` int NOT NULL AUTO_INCREMENT,
+  `config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置名称',
+  `config_value` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置值',
+  `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置描述',
+  `proxy_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '代理ID',
+  PRIMARY KEY (`config_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_proxy_config
+-- ----------------------------
+INSERT INTO `monitor_proxy_config` VALUES (4, 'balance', 'WEIGHT', '负载均衡', '5');
+INSERT INTO `monitor_proxy_config` VALUES (8, 'open-log', 'true', '开启日志', '5');
+INSERT INTO `monitor_proxy_config` VALUES (9, 'serviceDiscovery', 'NACOS', '发现服务', '5');
+
+-- ----------------------------
+-- Table structure for monitor_proxy_plugin
+-- ----------------------------
+DROP TABLE IF EXISTS `monitor_proxy_plugin`;
+CREATE TABLE `monitor_proxy_plugin`  (
+  `plugin_id` int NOT NULL AUTO_INCREMENT,
+  `proxy_id` int NULL DEFAULT NULL COMMENT '代理ID',
+  `plugin_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件描述',
+  `plugin_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名称',
+  `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `plugin_sort` int NULL DEFAULT NULL COMMENT '优先级',
+  PRIMARY KEY (`plugin_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 81 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_proxy_plugin
+-- ----------------------------
+INSERT INTO `monitor_proxy_plugin` VALUES (79, 5, '动态路由', 'ASYNCHTTPROUTINGGATEWAYFILTER', NULL, 0);
+INSERT INTO `monitor_proxy_plugin` VALUES (80, 5, 'ws动态路由', 'ASYNCWEBSOCKETROUTINGGATEWAYFILTER', NULL, 1);
+
+-- ----------------------------
+-- Table structure for monitor_proxy_plugin_config
+-- ----------------------------
+DROP TABLE IF EXISTS `monitor_proxy_plugin_config`;
+CREATE TABLE `monitor_proxy_plugin_config`  (
+  `plugin_config_id` int NOT NULL AUTO_INCREMENT,
+  `proxy_id` int NULL DEFAULT NULL COMMENT '代理ID',
+  `plugin_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名字',
+  `plugin_sort` int NULL DEFAULT NULL COMMENT '插件优先级',
+  `plugin_config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置名称',
+  `plugin_config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置',
+  `plugin_config_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置类型',
+  `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`plugin_config_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of monitor_proxy_plugin_config
+-- ----------------------------
+INSERT INTO `monitor_proxy_plugin_config` VALUES (1, 5, 'LIMIT', 0, 'limit', '1', NULL, '2024-06-18 17:32:26');
+INSERT INTO `monitor_proxy_plugin_config` VALUES (2, 5, 'LIMIT', 0, 'permitsPerSecond', '0', 'NUMBER', '2024-06-19 09:01:33');
+INSERT INTO `monitor_proxy_plugin_config` VALUES (3, 5, 'LIMIT', 2, 'permitsPerSecond', '0', 'NUMBER', NULL);
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen
@@ -277,7 +392,12 @@ CREATE TABLE `monitor_sys_gen`  (
   `gen_database_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
   `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
   PRIMARY KEY (`gen_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen
+-- ----------------------------
+INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'Q3BONUo0c0FFbStnbG5rM2NPUmg2QT09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'a1U09DGg2DwXaAb7');
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_column
@@ -305,7 +425,11 @@ CREATE TABLE `monitor_sys_gen_column`  (
   `col_dict_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '字典类型',
   `col_sort` int NULL DEFAULT NULL COMMENT '排序',
   PRIMARY KEY (`col_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器字段' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen_column
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_remark
@@ -325,7 +449,11 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen_remark
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_shell
@@ -348,7 +476,11 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen_shell
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_table
@@ -371,7 +503,11 @@ CREATE TABLE `monitor_sys_gen_table`  (
   `tab_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `tab_tpl_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '使用的模板（crud单表操作 tree树表操作 sub主子表操作）',
   PRIMARY KEY (`tab_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen_table
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_template
@@ -391,6 +527,10 @@ CREATE TABLE `monitor_sys_gen_template`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`template_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器模板' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of monitor_sys_gen_template
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

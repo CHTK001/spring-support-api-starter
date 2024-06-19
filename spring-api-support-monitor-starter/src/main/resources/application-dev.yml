@@ -15,8 +15,6 @@ logging:
   level:
     com.chua.starter.monitor.server.mapper: debug
 plugin:
-  codec:
-    enable: true
   oauth:
     #address: http://172.16.2.226:19180/oauth
     protocol: static
