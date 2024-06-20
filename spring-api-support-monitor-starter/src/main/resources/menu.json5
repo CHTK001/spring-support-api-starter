@@ -328,5 +328,31 @@
         }
       },
     ]
+  },
+  {
+    path: "/terminal1",
+    condition: "#user.role.admin",
+    component: "terminal1/index",
+    name: "终端管理",
+    hidden: false,
+    meta: {
+      title: "终端管理",
+      icon: "sc-icon-terminal",
+      type: "menu",
+    },
+    children: [
+      {
+        path: "/terminal",
+        component: "terminal/index",
+        name: "终端管理",
+        hidden: false,
+        meta: {
+          title: "终端管理",
+          icon: "sc-icon-terminal",
+          affix: false,
+          type: "menu",
+        }
+      },
+    ]
   }
 ]
