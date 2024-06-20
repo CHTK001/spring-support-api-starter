@@ -54,7 +54,8 @@ public class MonitorSocketIOListener implements SocketIOListener {
         try {
             BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), "SHELL", CommandType.REQUEST);
             session.send("terminal", new JsonObject()
-                    .fluent("data", Optional.ofNullable(bootResponse.getData()).orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
+                    .fluent("data", Optional.ofNullable(bootResponse.getData())
+                            .orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
     }
