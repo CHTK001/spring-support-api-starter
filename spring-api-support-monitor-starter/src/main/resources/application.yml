@@ -3,7 +3,7 @@ spring:
     name: monitor
   profiles:
     active: dev
-    include: mybatis,swagger,socket, service-discovery
+    include: mybatis,swagger,socket, service-discovery,geo
 server:
   servlet:
     context-path: /monitor/api
