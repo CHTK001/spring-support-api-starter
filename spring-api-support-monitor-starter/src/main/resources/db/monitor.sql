@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 24/06/2024 16:45:34
+ Date: 26/06/2024 11:16:15
 */
 
 SET NAMES utf8mb4;
@@ -156,7 +156,7 @@ CREATE TABLE `monitor_limit`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`limit_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_limit
@@ -185,7 +185,7 @@ CREATE TABLE `monitor_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_log
@@ -239,7 +239,7 @@ CREATE TABLE `monitor_patch`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_patch
@@ -339,6 +339,7 @@ CREATE TABLE `monitor_proxy_limit`  (
   `limit_id` int NOT NULL AUTO_INCREMENT,
   `limit_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '限流ip地址',
   `limit_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '限流url地址',
+  `limit_black` int NULL DEFAULT 0 COMMENT '是否黑名单； 0：否',
   `limit_disable` int NULL DEFAULT 0 COMMENT '是否开启； 0：未开启',
   `limit_permits_per_second` int NULL DEFAULT NULL COMMENT '每秒生产令牌数',
   `proxy_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '代理ID',
@@ -350,7 +351,7 @@ CREATE TABLE `monitor_proxy_limit`  (
 -- ----------------------------
 -- Records of monitor_proxy_limit
 -- ----------------------------
-INSERT INTO `monitor_proxy_limit` VALUES (1, NULL, '/', 1, 1, '5', NULL, NULL);
+INSERT INTO `monitor_proxy_limit` VALUES (1, '', '/', 0, 1, 1, '5', NULL, '2024-06-24 16:46:19');
 
 -- ----------------------------
 -- Table structure for monitor_proxy_limit_log
@@ -361,25 +362,16 @@ CREATE TABLE `monitor_proxy_limit_log`  (
   `limit_log_server_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '日志对应的代理',
   `limit_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '请求地址',
   `limit_log_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '类型;deny;allow',
+  `limit_log_address_geo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'geo',
   `limit_log_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '请求端地址',
   `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_time_min` bigint NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`limit_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_proxy_limit_log
 -- ----------------------------
-INSERT INTO `monitor_proxy_limit_log` VALUES (1, '5', '/', 'allow', '127.0.0.1', '2024-06-24 16:35:15');
-INSERT INTO `monitor_proxy_limit_log` VALUES (2, '5', '/', 'allow', '127.0.0.1', '2024-06-24 16:35:15');
-INSERT INTO `monitor_proxy_limit_log` VALUES (3, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:42:35');
-INSERT INTO `monitor_proxy_limit_log` VALUES (4, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:42:35');
-INSERT INTO `monitor_proxy_limit_log` VALUES (5, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:42:35');
-INSERT INTO `monitor_proxy_limit_log` VALUES (6, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:42:35');
-INSERT INTO `monitor_proxy_limit_log` VALUES (7, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:42:35');
-INSERT INTO `monitor_proxy_limit_log` VALUES (8, '5', '/', 'allow', '127.0.0.1', '2024-06-24 16:42:36');
-INSERT INTO `monitor_proxy_limit_log` VALUES (9, '5', '/', 'allow', '127.0.0.1', '2024-06-24 16:43:41');
-INSERT INTO `monitor_proxy_limit_log` VALUES (10, '5', '/', 'deny', '127.0.0.1', '2024-06-24 16:43:43');
-INSERT INTO `monitor_proxy_limit_log` VALUES (11, '5', '/', 'allow', '127.0.0.1', '2024-06-24 16:43:44');
 
 -- ----------------------------
 -- Table structure for monitor_proxy_plugin
@@ -506,7 +498,7 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_remark
@@ -533,7 +525,7 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_shell
@@ -630,7 +622,7 @@ CREATE TABLE `monitor_terminal_base`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`base_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal_base
@@ -651,7 +643,7 @@ CREATE TABLE `monitor_terminal_project`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建地址',
   `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新地址',
   PRIMARY KEY (`terminal_project_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal_project
