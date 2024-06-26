@@ -188,6 +188,17 @@
     },
     children: [
       {
+        path: "/vab/iconselect",
+        component: "vab/iconselect",
+        name: "图标管理",
+        hidden: false,
+        meta: {
+          title: "图标管理",
+          icon: "sc-icon-icon",
+          type: "menu",
+        },
+      },
+      {
         path: "/data/redis",
         component: "data/redis/index",
         name: "REDIS管理",
