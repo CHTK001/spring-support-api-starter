@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 26/06/2024 11:16:15
+ Date: 26/06/2024 16:35:04
 */
 
 SET NAMES utf8mb4;
@@ -308,7 +308,7 @@ CREATE TABLE `monitor_proxy`  (
 -- ----------------------------
 -- Records of monitor_proxy
 -- ----------------------------
-INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.0.1', 12345, 'proxy', 1, NULL);
+INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.0.1', 12345, 'proxy', 0, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_proxy_config
@@ -351,7 +351,7 @@ CREATE TABLE `monitor_proxy_limit`  (
 -- ----------------------------
 -- Records of monitor_proxy_limit
 -- ----------------------------
-INSERT INTO `monitor_proxy_limit` VALUES (1, '', '/', 0, 1, 1, '5', NULL, '2024-06-24 16:46:19');
+INSERT INTO `monitor_proxy_limit` VALUES (1, '192.168.110.8', '/', 1, 1, 1, '5', NULL, '2024-06-24 16:46:19');
 
 -- ----------------------------
 -- Table structure for monitor_proxy_limit_log
@@ -367,11 +367,54 @@ CREATE TABLE `monitor_proxy_limit_log`  (
   `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
   `create_time_min` bigint NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`limit_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 150 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_proxy_limit_log
 -- ----------------------------
+INSERT INTO `monitor_proxy_limit_log` VALUES (107, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:20', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (108, '5', '/favicon.ico', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:22', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (109, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (110, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (111, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (112, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (113, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:38', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (114, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:38', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (115, '5', '/favicon.ico', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:39', 1719371760000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (116, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:34', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (117, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:34', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (118, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (119, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (120, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (121, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (122, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (123, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (124, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (125, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (126, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:42', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (127, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (128, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (129, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (130, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (131, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (132, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (133, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (134, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (135, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (136, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (137, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (138, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (139, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (140, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (141, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (142, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (143, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (144, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (145, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (146, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (147, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (148, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
+INSERT INTO `monitor_proxy_limit_log` VALUES (149, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
 
 -- ----------------------------
 -- Table structure for monitor_proxy_plugin
@@ -614,7 +657,7 @@ CREATE TABLE `monitor_terminal_base`  (
   `base_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '名称',
   `terminal_id` int NULL DEFAULT NULL COMMENT '终端ID',
   `base_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '描述',
-  `base_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '值',
+  `base_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '值',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -622,11 +665,25 @@ CREATE TABLE `monitor_terminal_base`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`base_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal_base
 -- ----------------------------
+INSERT INTO `monitor_terminal_base` VALUES (1, 'public-ifconfig', 1, '公网IP', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (2, 'public-ifconfig', 2, '公网IP', '36.137.212.233', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (3, 'release', 2, '系统', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (4, 'ulimit', 2, '最大连接数', '65535', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (5, 'mem-total', 2, '最大内存', '15.48', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (6, 'cpu-model', 2, 'cpu型号', 'Intel(R) Xeon(R) Gold 6278C CPU @ 2.60GHz', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (7, 'cpu-num', 2, 'cpu数', '4', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (8, 'cpu-core-num', 2, 'cpu core数', '2', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (9, 'release', 1, '系统信息', 'CentOS Linux release 7.9.2009 (Core)', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (10, 'ulimit', 1, '最大连接数', '65536', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (11, 'mem-total', 1, '最大内存', '31.21', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (12, 'cpu-model', 1, 'cpu型号', 'Intel(R) Xeon(R) CPU E3-1231 v3 @ 3.40GHz', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (13, 'cpu-num', 1, 'cpu数', '8', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (14, 'cpu-core-num', 1, 'cpu core数', '4', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_terminal_project
