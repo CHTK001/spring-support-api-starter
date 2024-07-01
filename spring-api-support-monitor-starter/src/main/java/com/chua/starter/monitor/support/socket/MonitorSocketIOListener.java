@@ -2,8 +2,8 @@ package com.chua.starter.monitor.support.socket;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
-import com.chua.common.support.protocol.boot.BootResponse;
-import com.chua.common.support.protocol.boot.CommandType;
+import com.chua.common.support.protocol.protocol.CommandType;
+import com.chua.common.support.protocol.request.Response;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.SocketIOListener;
@@ -52,9 +52,10 @@ public class MonitorSocketIOListener implements SocketIOListener {
         }
 
         try {
-            BootResponse bootResponse = monitorAppService.upload(null, heart, Json.toJSONString(command), "SHELL", CommandType.REQUEST);
+            Response response = monitorAppService.upload(null, heart, Json.toJSONString(command), "SHELL", CommandType.REQUEST);
+            JsonObject responseBody = response.getBody(JsonObject.class);
             session.send("terminal", new JsonObject()
-                    .fluent("data", Optional.ofNullable(bootResponse.getData())
+                    .fluent("data", Optional.ofNullable(responseBody.getString("data"))
                             .orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
