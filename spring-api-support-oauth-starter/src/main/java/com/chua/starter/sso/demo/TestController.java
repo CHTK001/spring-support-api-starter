@@ -1,4 +1,4 @@
-package com.chua.starter.sso;
+package com.chua.starter.sso.demo;
 
 
 import com.chua.common.support.annotations.Ignore;
@@ -6,11 +6,10 @@ import com.chua.common.support.json.Json;
 import com.chua.starter.common.support.annotations.Job;
 import com.chua.starter.monitor.annotation.ConfigValue;
 import com.chua.starter.sso.mapper.SysUserMapper;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.annotation.Resource;
 
 @RestController
 @Slf4j
