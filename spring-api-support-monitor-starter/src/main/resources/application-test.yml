@@ -6,10 +6,10 @@ spring:
     url: jdbc:p6spy:mysql://172.16.2.226:3306/monitor?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root
-
-  redis:
-    host: 127.0.0.1
-    port: 6379
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
 logging:
   level:
     com.chua.starter.monitor.server.mapper: debug
