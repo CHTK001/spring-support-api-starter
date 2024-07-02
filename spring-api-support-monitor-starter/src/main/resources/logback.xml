@@ -32,6 +32,7 @@
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
     <logger name="io.netty" level="OFF" additivity="false"/>
+    <logger name="io.zbus" level="OFF" additivity="false"/>
     <logger name="com.alibaba.nacos" level="OFF" additivity="false"/>
     <logger name="com.jcabi" level="OFF" additivity="false"/>
     <logger name="org.burningwave" level="OFF" additivity="false"/>
