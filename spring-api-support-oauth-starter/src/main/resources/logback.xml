@@ -29,7 +29,7 @@
         </encoder>
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
-    <logger name="org.burningwave.*" level="NONE" additivity="false"/>
+    <logger name="org.burningwave" level="OFF" additivity="false"/>
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">

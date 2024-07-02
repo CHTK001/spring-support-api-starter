@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TestController {
 
-    @ConfigValue(value = "test", autoRefreshed = true)
+    @ConfigValue(value = "${test:}", autoRefreshed = true)
     private String test;
 
     @Resource
