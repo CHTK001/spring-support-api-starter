@@ -18,6 +18,3 @@ plugin:
   oauth:
     #address: http://172.16.2.226:19180/oauth
     protocol: static
-  monitor:
-    job:
-      enable: false
