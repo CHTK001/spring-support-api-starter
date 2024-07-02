@@ -1,7 +1,9 @@
 package com.chua.starter.monitor.support.socket;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonArray;
 import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.json.JsonReference;
 import com.chua.common.support.protocol.protocol.CommandType;
 import com.chua.common.support.protocol.request.Response;
 import com.chua.common.support.utils.ObjectUtils;
@@ -53,10 +55,10 @@ public class MonitorSocketIOListener implements SocketIOListener {
 
         try {
             Response response = monitorAppService.upload(null, heart, Json.toJSONString(command), "SHELL", CommandType.REQUEST);
-            JsonObject responseBody = response.getBody(JsonObject.class);
+            JsonReference reference = Json.getJsonReference(response.getBody(String.class));
             session.send("terminal", new JsonObject()
-                    .fluent("data", Optional.ofNullable(responseBody.getString("data"))
-                            .orElse("{\"mode\":\"ERROR\",\"hide\":false,\"result\":\"命令不存在\"}")).fluent("command", command.getCommand()).toJSONString());
+                    .fluent("data", Optional.ofNullable(reference.isArray() ? reference.getJsonArray() : reference.getJsonObject())
+                            .orElse(JsonArray.empty())).fluent("command", command.getCommand()).toJSONString());
         } catch (Exception ignored) {
         }
     }
