@@ -9,8 +9,8 @@ spring:
 
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
+      host: 192.168.110.100
+      port: 16379
 logging:
   level:
     com.chua.starter.monitor.server.mapper: debug
