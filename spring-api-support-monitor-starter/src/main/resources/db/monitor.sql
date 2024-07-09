@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 26/06/2024 16:35:04
+ Date: 09/07/2024 13:20:45
 */
 
 SET NAMES utf8mb4;
@@ -58,11 +58,12 @@ CREATE TABLE `monitor_config`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置中心' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置中心' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_config
 -- ----------------------------
+INSERT INTO `monitor_config` VALUES (12, 'test', '123', NULL, 'test', 'oss', 1, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_job
@@ -156,7 +157,7 @@ CREATE TABLE `monitor_limit`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`limit_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_limit
@@ -185,11 +186,125 @@ CREATE TABLE `monitor_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_log
 -- ----------------------------
+INSERT INTO `monitor_log` VALUES (1, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (2, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (3, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (4, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (5, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (6, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (7, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (8, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (9, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (10, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (11, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (12, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (13, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (14, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (15, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (16, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (17, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (18, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (19, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (20, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (21, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (22, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (23, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 36510, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (24, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (25, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (26, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (27, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (28, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (29, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (30, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (31, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (32, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (33, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 37612, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (34, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 37612, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (35, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (36, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (37, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (38, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (39, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (40, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (41, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (42, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32225, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (43, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (44, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (45, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (46, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"12\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (47, 'LIMIT', '3', '{\"limitId\":2,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":0,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 35048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (48, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 30714, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (49, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (50, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (51, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (52, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (53, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (54, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (55, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (56, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (57, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (58, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (59, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (60, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (61, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (62, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (63, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (64, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (65, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (66, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (67, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (68, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (69, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (70, 'SHELL', '3', '{\"command\":\"view\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (71, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (72, 'SHELL', '3', '{\"command\":\"view -h\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (73, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (74, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (75, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (76, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (77, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (78, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (79, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (80, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (81, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (82, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (83, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (84, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (85, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (86, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (87, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (88, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (89, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (90, 'SHELL', '3', '{\"command\":\"view\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (91, 'SHELL', '3', '{\"command\":\"view -f application.yml\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (92, 'SHELL', '3', '{\"command\":\"netstat | less\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (93, 'SHELL', '3', '{\"command\":\"ip\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (94, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (95, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (96, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (97, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (98, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (99, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (100, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"12\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 35144, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (101, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"123\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38091, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (102, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (103, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (104, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (105, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (106, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (107, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (108, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (109, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (110, 'SHELL', '3', '{\"command\":\"ls\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (111, 'SHELL', '3', '{\"command\":\"encode -h\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (112, 'SHELL', '3', '{\"command\":\"encode -t md5 -s 1\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (113, 'SHELL', '3', '{\"command\":\"ls\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (114, 'SHELL', '3', '{\"command\":\"encode -t md5 -s 1\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_mybatis
@@ -213,11 +328,12 @@ CREATE TABLE `monitor_mybatis`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_mybatis_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'mybatis管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'mybatis管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_mybatis
 -- ----------------------------
+INSERT INTO `monitor_mybatis` VALUES (2, 'test', NULL, 'SELECT * FROM sys_user limit 2', 'sql', 'com.chua.starter.sso.impl.SysUser', 1, 'com.chua.starter.sso.mapper.SysUserMapper', 'test', 'oss', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_patch
@@ -239,7 +355,7 @@ CREATE TABLE `monitor_patch`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_patch
@@ -351,7 +467,7 @@ CREATE TABLE `monitor_proxy_limit`  (
 -- ----------------------------
 -- Records of monitor_proxy_limit
 -- ----------------------------
-INSERT INTO `monitor_proxy_limit` VALUES (1, '192.168.110.8', '/', 1, 1, 1, '5', NULL, '2024-06-24 16:46:19');
+INSERT INTO `monitor_proxy_limit` VALUES (1, '192.168.110.8', '/', 1, 0, 1, '5', NULL, '2024-06-24 16:46:19');
 
 -- ----------------------------
 -- Table structure for monitor_proxy_limit_log
@@ -476,15 +592,16 @@ CREATE TABLE `monitor_sys_gen`  (
   `gen_driver_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库驱动下载地址',
   `gen_database` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库名称',
   `gen_database_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
-  `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
+  `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库ID',
+  `gen_backup_status` int NULL DEFAULT NULL COMMENT '备份状态;0:未开启',
   PRIMARY KEY (`gen_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen
 -- ----------------------------
-INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'Q3BONUo0c0FFbStnbG5rM2NPUmg2QT09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'a1U09DGg2DwXaAb7');
-INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK');
+INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'Q3BONUo0c0FFbStnbG5rM2NPUmg2QT09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'a1U09DGg2DwXaAb7', NULL);
+INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL);
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_column
@@ -541,7 +658,7 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_remark
@@ -568,7 +685,7 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_shell
@@ -638,15 +755,17 @@ CREATE TABLE `monitor_terminal`  (
   `terminal_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '账号',
   `terminal_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '密码',
   `terminal_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '描述',
-  `terminal_status` int NULL DEFAULT NULL COMMENT '状态;0:未启动',
+  `terminal_status` int NULL DEFAULT NULL COMMENT '状态;0:未启动1:已启动; 2:启动中',
   PRIMARY KEY (`terminal_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端管理' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal
 -- ----------------------------
-INSERT INTO `monitor_terminal` VALUES (1, '测试', '192.168.110.100', '22', 'root', 'boren1818', NULL, 1);
+INSERT INTO `monitor_terminal` VALUES (1, '测试', '192.168.110.100', '22', 'root', 'boren1818', NULL, 0);
 INSERT INTO `monitor_terminal` VALUES (2, '36.137.212.233', '36.137.212.233', '52176', 'root', '6sVhqzx85T', NULL, 0);
+INSERT INTO `monitor_terminal` VALUES (4, '1', '120.26.74.94', '22', 'root', 'Qrkj1234.', NULL, 0);
+INSERT INTO `monitor_terminal` VALUES (5, '8.139.4.229', '8.139.4.229', '22', 'root', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_terminal_base
@@ -665,14 +784,14 @@ CREATE TABLE `monitor_terminal_base`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`base_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 80 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal_base
 -- ----------------------------
 INSERT INTO `monitor_terminal_base` VALUES (1, 'public-ifconfig', 1, '公网IP', '', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (2, 'public-ifconfig', 2, '公网IP', '36.137.212.233', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_terminal_base` VALUES (3, 'release', 2, '系统', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (3, 'release', 2, '系统', 'Linux zhdsj 4.15.0-142-generic #146-Ubuntu SMP Tue Apr 13 01:11:19 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (4, 'ulimit', 2, '最大连接数', '65535', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (5, 'mem-total', 2, '最大内存', '15.48', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (6, 'cpu-model', 2, 'cpu型号', 'Intel(R) Xeon(R) Gold 6278C CPU @ 2.60GHz', NULL, NULL, NULL, NULL, NULL, NULL);
@@ -683,7 +802,15 @@ INSERT INTO `monitor_terminal_base` VALUES (10, 'ulimit', 1, '最大连接数', 
 INSERT INTO `monitor_terminal_base` VALUES (11, 'mem-total', 1, '最大内存', '31.21', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (12, 'cpu-model', 1, 'cpu型号', 'Intel(R) Xeon(R) CPU E3-1231 v3 @ 3.40GHz', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_terminal_base` VALUES (13, 'cpu-num', 1, 'cpu数', '8', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_terminal_base` VALUES (14, 'cpu-core-num', 1, 'cpu core数', '4', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (70, 'public-ifconfig', 4, '公网IP', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (71, 'release', 4, '系统信息', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (72, 'ulimit', 4, '最大连接数', '0', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (73, 'mem-total', 4, '最大内存', '0.0', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (74, 'cpu-model', 4, 'cpu型号', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (75, 'cpu-num', 4, 'cpu数', 'null', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (76, 'cpu-core-num', 4, 'cpu core数', 'null', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (77, 'ipaddress', 4, 'ip地址名称', '', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_terminal_base` VALUES (79, 'cpu-core-num', 1, 'cpu core数', '4', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_terminal_project
@@ -693,17 +820,20 @@ CREATE TABLE `monitor_terminal_project`  (
   `terminal_project_id` int NOT NULL AUTO_INCREMENT,
   `terminal_project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目名称',
   `terminal_project_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目描述',
+  `terminal_project_status` int NULL DEFAULT NULL COMMENT '是否开启;0：关闭',
   `terminal_project_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目地址',
   `terminal_project_start_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目启动脚本',
   `terminal_project_end_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目停止脚本',
+  `terminal_id` int NULL DEFAULT NULL COMMENT '终端ID',
   `terminal_project_log` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '日志文件地址',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建地址',
   `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新地址',
   PRIMARY KEY (`terminal_project_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_terminal_project
 -- ----------------------------
+INSERT INTO `monitor_terminal_project` VALUES (1, '测试', '', NULL, '/home/zxb2/teacher', 'start.sh', 'stop.sh', 1, 'start.log', NULL, '2024-06-27 09:38:46');
 
 SET FOREIGN_KEY_CHECKS = 1;
