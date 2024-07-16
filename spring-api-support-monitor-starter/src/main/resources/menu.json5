@@ -88,7 +88,7 @@
         hidden: false,
         meta: {
           title: "mybatis管理",
-          icon: "sc-icon-mybatis",
+          icon: "sc-icon-app-mybatis",
           type: "menu",
         },
       },
@@ -205,7 +205,7 @@
         hidden: false,
         meta: {
           title: "REDIS管理",
-          icon: "sc-icon-redis",
+          icon: "sc-icon-app-redis",
           type: "menu",
         },
       },
@@ -216,7 +216,7 @@
         hidden: false,
         meta: {
           title: "zookeeper管理",
-          icon: "sc-icon-zk",
+          icon: "sc-icon-app-zk",
           type: "menu",
         },
       },
@@ -227,7 +227,7 @@
         hidden: false,
         meta: {
           title: "influxdb管理",
-          icon: "sc-icon-influxdb",
+          icon: "sc-icon-app-influxdb",
           type: "menu",
         },
       },
