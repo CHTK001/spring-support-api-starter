@@ -1,21 +1,47 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 172.16.2.226
+ Source Server         : 127.0.0.1test
  Source Server Type    : MySQL
  Source Server Version : 80036 (8.0.36)
- Source Host           : 172.16.2.226:3306
+ Source Host           : localhost:3306
  Source Schema         : monitor
 
  Target Server Type    : MySQL
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 09/07/2024 13:20:45
+ Date: 18/07/2024 16:32:37
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for audit_backup
+-- ----------------------------
+DROP TABLE IF EXISTS `audit_backup`;
+CREATE TABLE `audit_backup`  (
+  `ID` int NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `THREAD_ID` int NULL DEFAULT NULL COMMENT '线程ID',
+  `USER` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '登录用户名',
+  `ADDRESS` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '登录IP',
+  `LOGIN_TIME` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+  PRIMARY KEY (`ID`) USING BTREE,
+  INDEX `IDX_USER`(`USER` ASC) USING BTREE,
+  INDEX `IDX_HOST`(`ADDRESS` ASC) USING BTREE,
+  INDEX `IDX_LOGIN_TIME`(`LOGIN_TIME` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '普通用户审计日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of audit_backup
+-- ----------------------------
+INSERT INTO `audit_backup` VALUES (1, 545, 'test@%', 'localhost', '2024-07-17 15:05:01');
+INSERT INTO `audit_backup` VALUES (2, 546, 'test@%', 'localhost', '2024-07-17 15:05:04');
+INSERT INTO `audit_backup` VALUES (3, 547, 'test@%', 'localhost', '2024-07-17 15:05:06');
+INSERT INTO `audit_backup` VALUES (4, 670, 'test@%', 'localhost', '2024-07-18 08:40:04');
+INSERT INTO `audit_backup` VALUES (5, 671, 'test@%', 'localhost', '2024-07-18 08:40:08');
+INSERT INTO `audit_backup` VALUES (6, 672, 'test@%', 'localhost', '2024-07-18 08:40:08');
 
 -- ----------------------------
 -- Table structure for monitor_app
@@ -37,7 +63,7 @@ CREATE TABLE `monitor_app`  (
 -- ----------------------------
 -- Records of monitor_app
 -- ----------------------------
-INSERT INTO `monitor_app` VALUES (1, '单点登录', 'oss', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_app` VALUES (1, '单点登录', 'oss', NULL, NULL, '2024-07-18 15:40:30', '2024-07-18 15:40:30', '2', NULL);
 
 -- ----------------------------
 -- Table structure for monitor_config
@@ -89,8 +115,8 @@ CREATE TABLE `monitor_job`  (
   `job_execute_misfire_strategy` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '失效后策略',
   `job_execute_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执行参数',
   `job_execute_router` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执行路由策略',
-  `job_trigger_last_time` int NULL DEFAULT NULL COMMENT '任务触发的最后一次时间',
-  `job_trigger_next_time` int NULL DEFAULT NULL COMMENT '任务触发的下一次时间',
+  `job_trigger_last_time` bigint NULL DEFAULT NULL COMMENT '任务触发的最后一次时间',
+  `job_trigger_next_time` bigint NULL DEFAULT NULL COMMENT '任务触发的下一次时间',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -103,7 +129,7 @@ CREATE TABLE `monitor_job`  (
 -- ----------------------------
 -- Records of monitor_job
 -- ----------------------------
-INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NULL, '测试', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, NULL, NULL, 'FIRST', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NULL, '测试', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, NULL, NULL, 'FIRST', 0, 0, NULL, NULL, NULL, '2024-07-18 16:31:14', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_job_log
@@ -130,10 +156,10 @@ CREATE TABLE `monitor_job_log`  (
 -- ----------------------------
 -- Records of monitor_job_log
 -- ----------------------------
-INSERT INTO `monitor_job_log` VALUES (3905, '2024-06-12', '2024-06-12 10:19:08', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3906, '2024-06-12', '2024-06-12 10:19:09', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3907, '2024-06-12', '2024-06-12 10:19:43', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3908, '2024-06-12', '2024-06-12 10:19:50', 'S9999C0000', 'PADDING', '', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3905, '2024-06-12', '2024-06-12 10:19:08', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3906, '2024-06-12', '2024-06-12 10:19:09', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3907, '2024-06-12', '2024-06-12 10:19:43', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3908, '2024-06-12', '2024-06-12 10:19:50', 'S9999C0000', 'PADDING', '测试', 'dev', '', '测试', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_limit
@@ -205,22 +231,22 @@ INSERT INTO `monitor_log` VALUES (11, 'LIMIT', '3', '{\"limitId\":1,\"limitName\
 INSERT INTO `monitor_log` VALUES (12, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (13, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (14, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (15, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (16, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (17, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (18, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (19, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (20, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (21, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (22, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (23, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 36510, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (15, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (16, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (17, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (18, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (19, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (20, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (21, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (22, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (23, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 36510, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (24, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (25, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (26, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (27, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (28, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (29, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (30, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (30, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (31, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (32, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (33, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 37612, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -586,7 +612,7 @@ CREATE TABLE `monitor_sys_gen`  (
   `gen_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库用户名',
   `gen_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库密码',
   `gen_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库地址',
-  `gen_port` int NULL DEFAULT NULL COMMENT '数据库端口\"',
+  `gen_port` int NULL DEFAULT NULL COMMENT '数据库端口',
   `gen_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库说明',
   `gen_driver` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库驱动地址',
   `gen_driver_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库驱动下载地址',
@@ -594,14 +620,18 @@ CREATE TABLE `monitor_sys_gen`  (
   `gen_database_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
   `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库ID',
   `gen_backup_status` int NULL DEFAULT NULL COMMENT '备份状态;0:未开启',
+  `gen_jdbc_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'JDBC类型',
+  `gen_driver_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件路径',
+  `gen_driver_remote_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件下载目录',
   PRIMARY KEY (`gen_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen
 -- ----------------------------
-INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'Q3BONUo0c0FFbStnbG5rM2NPUmg2QT09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'a1U09DGg2DwXaAb7', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL);
+INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'N0wreGdBQUlyYmRLSWJqRFBocGVjZz09', '127.0.0.1', 3306, '测试', 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'WCPMnTZhjY03gNOv', 1, 'MYSQL', NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, '测试', NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (8, '11', 'REDIS', '', NULL, '192.168.110.100', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_column
