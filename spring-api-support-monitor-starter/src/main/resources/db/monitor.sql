@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 18/07/2024 16:32:37
+ Date: 20/07/2024 15:40:26
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `audit_backup`  (
   INDEX `IDX_USER`(`USER` ASC) USING BTREE,
   INDEX `IDX_HOST`(`ADDRESS` ASC) USING BTREE,
   INDEX `IDX_LOGIN_TIME`(`LOGIN_TIME` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '普通用户审计日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '普通用户审计日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of audit_backup
@@ -40,8 +40,13 @@ INSERT INTO `audit_backup` VALUES (1, 545, 'test@%', 'localhost', '2024-07-17 15
 INSERT INTO `audit_backup` VALUES (2, 546, 'test@%', 'localhost', '2024-07-17 15:05:04');
 INSERT INTO `audit_backup` VALUES (3, 547, 'test@%', 'localhost', '2024-07-17 15:05:06');
 INSERT INTO `audit_backup` VALUES (4, 670, 'test@%', 'localhost', '2024-07-18 08:40:04');
-INSERT INTO `audit_backup` VALUES (5, 671, 'test@%', 'localhost', '2024-07-18 08:40:08');
-INSERT INTO `audit_backup` VALUES (6, 672, 'test@%', 'localhost', '2024-07-18 08:40:08');
+INSERT INTO `audit_backup` VALUES (5, 671, 'test@%', 'localhost', '2024-07-18 08:40:09');
+INSERT INTO `audit_backup` VALUES (6, 672, 'test@%', 'localhost', '2024-07-18 08:40:09');
+INSERT INTO `audit_backup` VALUES (7, 1198, 'test@%', 'localhost', '2024-07-19 08:57:30');
+INSERT INTO `audit_backup` VALUES (8, 1432, 'test@%', 'localhost', '2024-07-19 10:52:44');
+INSERT INTO `audit_backup` VALUES (9, 1433, 'test@%', 'localhost', '2024-07-19 10:52:44');
+INSERT INTO `audit_backup` VALUES (10, 2096, 'test@%', 'localhost', '2024-07-20 15:40:18');
+INSERT INTO `audit_backup` VALUES (11, 2097, 'test@%', 'localhost', '2024-07-20 15:40:26');
 
 -- ----------------------------
 -- Table structure for monitor_app
@@ -129,7 +134,7 @@ CREATE TABLE `monitor_job`  (
 -- ----------------------------
 -- Records of monitor_job
 -- ----------------------------
-INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NULL, '测试', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, NULL, NULL, 'FIRST', 0, 0, NULL, NULL, NULL, '2024-07-18 16:31:14', NULL, NULL);
+INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NULL, '测试', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, NULL, NULL, 'FIRST', 0, 0, NULL, NULL, NULL, '2024-07-18 16:32:59', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_job_log
@@ -151,7 +156,7 @@ CREATE TABLE `monitor_job_log`  (
   `start_date` datetime NULL DEFAULT NULL,
   `end_date` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3909 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3925 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_job_log
@@ -160,6 +165,22 @@ INSERT INTO `monitor_job_log` VALUES (3905, '2024-06-12', '2024-06-12 10:19:08',
 INSERT INTO `monitor_job_log` VALUES (3906, '2024-06-12', '2024-06-12 10:19:09', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
 INSERT INTO `monitor_job_log` VALUES (3907, '2024-06-12', '2024-06-12 10:19:43', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
 INSERT INTO `monitor_job_log` VALUES (3908, '2024-06-12', '2024-06-12 10:19:50', 'S9999C0000', 'PADDING', '测试', 'dev', '', '测试', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3909, '2024-07-18', '2024-07-18 16:32:47', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3910, '2024-07-18', '2024-07-18 16:32:48', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3911, '2024-07-18', '2024-07-18 16:32:49', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3912, '2024-07-18', '2024-07-18 16:32:50', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3913, '2024-07-18', '2024-07-18 16:32:51', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3914, '2024-07-18', '2024-07-18 16:32:52', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3915, '2024-07-18', '2024-07-18 16:32:53', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3916, '2024-07-18', '2024-07-18 16:32:54', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3917, '2024-07-18', '2024-07-18 16:32:55', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3918, '2024-07-18', '2024-07-18 16:32:56', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3919, '2024-07-18', '2024-07-18 16:32:57', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3920, '2024-07-18', '2024-07-18 16:32:58', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3921, '2024-07-18', '2024-07-18 16:32:59', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3922, '2024-07-18', '2024-07-18 16:33:00', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3923, '2024-07-18', '2024-07-18 16:33:01', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
+INSERT INTO `monitor_job_log` VALUES (3924, '2024-07-18', '2024-07-18 16:33:02', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_limit
@@ -227,10 +248,10 @@ INSERT INTO `monitor_log` VALUES (7, 'LIMIT', '3', '{\"limitId\":1,\"limitName\"
 INSERT INTO `monitor_log` VALUES (8, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (9, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (10, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (11, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (12, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (13, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (14, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (11, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (12, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (13, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_log` VALUES (14, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (15, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (16, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_log` VALUES (17, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -381,7 +402,7 @@ CREATE TABLE `monitor_patch`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_patch
@@ -457,7 +478,7 @@ INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_config`;
 CREATE TABLE `monitor_proxy_config`  (
-  `config_id` int NOT NULL AUTO_INCREMENT,
+  `config_id` int NOT NULL COMMENT '主键',
   `config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置名称',
   `config_value` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置值',
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置描述',
@@ -620,18 +641,23 @@ CREATE TABLE `monitor_sys_gen`  (
   `gen_database_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
   `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库ID',
   `gen_backup_status` int NULL DEFAULT NULL COMMENT '备份状态;0:未开启',
+  `gen_jdbc_custom_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'JDBC类型',
   `gen_jdbc_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'JDBC类型',
   `gen_driver_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件路径',
   `gen_driver_remote_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件下载目录',
+  `gen_backup_period` int NULL DEFAULT 720 COMMENT '备份时间分钟(默认720)',
+  `gen_backup_event` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备份事件',
   PRIMARY KEY (`gen_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen
 -- ----------------------------
-INSERT INTO `monitor_sys_gen` VALUES (1, '本地mysql', 'JDBC', 'root', 'N0wreGdBQUlyYmRLSWJqRFBocGVjZz09', '127.0.0.1', 3306, '测试', 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'WCPMnTZhjY03gNOv', 1, 'MYSQL', NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, '测试', NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (8, '11', 'REDIS', '', NULL, '192.168.110.100', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (1, '本地 - MYSQL', 'JDBC', 'root', 'N0wreGdBQUlyYmRLSWJqRFBocGVjZz09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'WCPMnTZhjY03gNOv', 1, 'JDBC', 'MYSQL', NULL, NULL, NULL, 'CREATE,DELETE');
+INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (8, '11', 'REDIS', '', NULL, '192.168.110.100', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (9, 'Sqlite', 'JDBC', '', 'Nnl5WXFhZXVCVkFoVWlDYzZ1dmVmZz09', '127.0.0.1', 3306, NULL, 'org.sqlite.JDBC', NULL, '', 'F:\\workspace\\utils-support-parent-starter\\gen\\9\\data\\1.db', 'OjndF5PYVMmD1BOW', NULL, 'FILE', 'SQLITE', NULL, NULL, 720, '');
+INSERT INTO `monitor_sys_gen` VALUES (10, 'H2', 'JDBC', '', NULL, '127.0.0.1', 3306, NULL, 'org.h2.Driver', NULL, NULL, 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\data\\1.db', NULL, NULL, 'FILE', 'H2', 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\driver\\h2-2.1.214.jar', NULL, 720, '');
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_column
@@ -659,12 +685,12 @@ CREATE TABLE `monitor_sys_gen_column`  (
   `col_dict_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '字典类型',
   `col_sort` int NULL DEFAULT NULL COMMENT '排序',
   PRIMARY KEY (`col_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器字段' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器字段' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_column
 -- ----------------------------
-INSERT INTO `monitor_sys_gen_column` VALUES (6, 2, 'config_id', NULL, 'INT', 10, 0, 'Integer', 'configId', NULL, '0', '0', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
+INSERT INTO `monitor_sys_gen_column` VALUES (6, 2, 'config_id', '主键', 'INT', 10, 0, 'Integer', 'configId', NULL, '0', '0', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
 INSERT INTO `monitor_sys_gen_column` VALUES (7, 2, 'config_name', '配置名称', 'VARCHAR', 255, 0, ' String', 'configName', NULL, '0', '1', '1', '1', '1', '1', 'LIKE', 'input', NULL, NULL);
 INSERT INTO `monitor_sys_gen_column` VALUES (8, 2, 'config_value', '配置值', 'VARCHAR', 4096, 0, ' String', 'configValue', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
 INSERT INTO `monitor_sys_gen_column` VALUES (9, 2, 'config_desc', '配置描述', 'VARCHAR', 255, 0, ' String', 'configDesc', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
@@ -688,7 +714,7 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_remark
@@ -715,7 +741,7 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_shell
@@ -742,7 +768,7 @@ CREATE TABLE `monitor_sys_gen_table`  (
   `tab_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `tab_tpl_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '使用的模板（crud单表操作 tree树表操作 sub主子表操作）',
   PRIMARY KEY (`tab_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_table
