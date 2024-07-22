@@ -223,10 +223,10 @@
       {
         path: "/data/influxdb",
         component: "data/influxdb/index",
-        name: "influxdb管理",
+        name: "influxdb v2管理",
         hidden: false,
         meta: {
-          title: "influxdb管理",
+          title: "influxdb v2管理",
           icon: "sc-icon-app-influxdb",
           type: "menu",
         },
