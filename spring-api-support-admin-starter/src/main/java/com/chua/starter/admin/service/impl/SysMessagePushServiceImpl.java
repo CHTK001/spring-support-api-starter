@@ -4,9 +4,8 @@ import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.starter.admin.service.SysMessagePushService;
 import com.chua.starter.admin.service.SysUserSettingService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import jakarta.annotation.Resource;
 
 /**
  * sys消息推送服务impl
@@ -14,10 +13,10 @@ import jakarta.annotation.Resource;
  * @author CH
  */
 @Service
+@RequiredArgsConstructor
 public class SysMessagePushServiceImpl implements SysMessagePushService {
 
-    @Resource
-    private SysUserSettingService sysUserSettingService;
+    final SysUserSettingService sysUserSettingService;
 
 
     @Override

@@ -16,6 +16,7 @@ import com.chua.starter.common.support.constant.OperatorType;
 import com.chua.starter.common.support.properties.VersionProperties;
 import com.chua.starter.common.support.provider.CodecProvider;
 import com.chua.starter.common.support.utils.StreamUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -24,23 +25,20 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, ApplicationContextAware, InitializingBean {
 
     private VersionProperties versionProperties;
 
-    @Resource
-    private CodecProvider codecProvider;
+    final CodecProvider codecProvider;
 
-    @Resource
-    private SysSettingService sysSettingService;
+    final SysSettingService sysSettingService;
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public List<SysSetting> getSettings(String name) {
@@ -133,10 +131,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             ServiceProvider.of(SettingValueResolver.class).getExtension(sysSetting1.getSettingName())
                     .resolve(Collections.singletonList(sysSetting));
             String settingValue = sysSetting.getSettingValue();
-            if(null == settingValue) {
-                return false;
-            }
-            return true;
+            return null != settingValue;
         }
         return false;
     }

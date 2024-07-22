@@ -1,10 +1,10 @@
 package com.chua.starter.admin.resolver;
 
 import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.common.support.provider.CodecProvider;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -16,7 +16,7 @@ import java.util.List;
 public class CodecOpenSettingValueResolver implements SettingValueResolver{
 
 
-    @Resource
+    @AutoInject
     private CodecProvider codecProvider;
 
     @Override

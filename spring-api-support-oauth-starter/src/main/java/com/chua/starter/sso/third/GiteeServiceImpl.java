@@ -1,16 +1,14 @@
 package com.chua.starter.sso.third;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.gitee.GiteeService;
 import com.chua.starter.sso.impl.SysUserTripartiteBind;
-import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
+import lombok.RequiredArgsConstructor;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 
 
@@ -22,10 +20,10 @@ import java.time.LocalDateTime;
  * @since 2024/01/29
  */
 @Service
+@RequiredArgsConstructor
 public class GiteeServiceImpl implements GiteeService {
 
-    @Resource
-    private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
+    final SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
     public void binder(AuthUser data, UserResult userResult) {
@@ -54,7 +52,6 @@ public class GiteeServiceImpl implements GiteeService {
             selectOne.setUpdateBy(Integer.valueOf(id));
             selectOne.setUpdateName(userResult.getUsername());
             sysUserTripartiteBindMapper.updateById(selectOne);
-            return;
         }
     }
 

@@ -27,7 +27,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,13 +40,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService, Constant {
 
-
-    @Resource
-    private SysUserSettingService sysUserSettingService;
-    @Resource
-    private SysMenuService sysMenuService;
-    @Resource
-    private SysUserService sysUserService;
+    final SysUserSettingService sysUserSettingService;
+    final SysMenuService sysMenuService;
+    final SysUserService sysUserService;
     @Override
     public List<RouteVO> myMenu(List<SysMenu> sysMenus, Set<String> roles) {
         List<SysMenu> tplMenus = sysMenus.stream().filter(it -> {

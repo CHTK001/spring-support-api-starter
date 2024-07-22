@@ -242,6 +242,17 @@
           type: "menu",
         },
       },
+      {
+        path: "/data/oss",
+        component: "data/oss/index",
+        name: "oss管理",
+        hidden: false,
+        meta: {
+          title: "oss管理",
+          icon: "sc-icon-oss",
+          type: "menu",
+        },
+      },
       //      {
       //        path:"/monitor/data/shell",
       //        component:"monitor/data/shell/index",
