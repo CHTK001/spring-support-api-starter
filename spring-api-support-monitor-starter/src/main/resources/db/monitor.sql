@@ -1,67 +1,93 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1
+ Source Server         : 172.16.0.40
  Source Server Type    : MySQL
- Source Server Version : 80036 (8.0.36)
- Source Host           : 127.0.0.1:3306
+ Source Server Version : 80016 (8.0.16)
+ Source Host           : 172.16.0.40:3306
  Source Schema         : monitor
 
  Target Server Type    : MySQL
- Target Server Version : 80036 (8.0.36)
+ Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 22/07/2024 10:03:41
+ Date: 22/07/2024 10:33:28
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for audit_backup
+-- Table structure for file_storage
 -- ----------------------------
-DROP TABLE IF EXISTS `audit_backup`;
-CREATE TABLE `audit_backup`  (
-  `ID` int NOT NULL AUTO_INCREMENT COMMENT '自增ID',
-  `THREAD_ID` int NULL DEFAULT NULL COMMENT '线程ID',
-  `USER` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '登录用户名',
-  `ADDRESS` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '登录IP',
-  `LOGIN_TIME` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
-  PRIMARY KEY (`ID`) USING BTREE,
-  INDEX `IDX_USER`(`USER` ASC) USING BTREE,
-  INDEX `IDX_HOST`(`ADDRESS` ASC) USING BTREE,
-  INDEX `IDX_LOGIN_TIME`(`LOGIN_TIME` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '普通用户审计日志表' ROW_FORMAT = Dynamic;
+DROP TABLE IF EXISTS `file_storage`;
+CREATE TABLE `file_storage`  (
+  `file_storage_id` int(11) NOT NULL,
+  `file_storage_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '文件存储名称',
+  `file_storage_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '实现类型',
+  `file_storage_user` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '账号',
+  `file_storage_password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '密码',
+  `file_storage_endpoint` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '远程访问端点',
+  `file_storage_bucket` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'bucket',
+  `file_storage_plugins` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '插件列表，多个逗号分隔',
+  `file_storage_setting` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '配置列表，多个逗号分隔',
+  `file_storage_plugin_open` int(11) NULL DEFAULT NULL COMMENT '是否开启插件；0:不开启',
+  `file_storage_setting_open` int(11) NULL DEFAULT NULL COMMENT '是否开启配置；0:不开启',
+  `file_storage_protocol_id` int(255) NULL DEFAULT NULL COMMENT '服务器协议; HTTP',
+  `file_storage_status` int(11) NULL DEFAULT NULL COMMENT '状态;0:停用',
+  PRIMARY KEY (`file_storage_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of audit_backup
+-- Records of file_storage
 -- ----------------------------
-INSERT INTO `audit_backup` VALUES (1, 545, 'test@%', 'localhost', '2024-07-17 15:05:01');
-INSERT INTO `audit_backup` VALUES (2, 546, 'test@%', 'localhost', '2024-07-17 15:05:04');
-INSERT INTO `audit_backup` VALUES (3, 547, 'test@%', 'localhost', '2024-07-17 15:05:06');
-INSERT INTO `audit_backup` VALUES (4, 670, 'test@%', 'localhost', '2024-07-18 08:40:04');
-INSERT INTO `audit_backup` VALUES (5, 671, 'test@%', 'localhost', '2024-07-18 08:40:09');
-INSERT INTO `audit_backup` VALUES (6, 672, 'test@%', 'localhost', '2024-07-18 08:40:09');
-INSERT INTO `audit_backup` VALUES (7, 1198, 'test@%', 'localhost', '2024-07-19 08:57:30');
-INSERT INTO `audit_backup` VALUES (8, 1432, 'test@%', 'localhost', '2024-07-19 10:52:44');
-INSERT INTO `audit_backup` VALUES (9, 1433, 'test@%', 'localhost', '2024-07-19 10:52:44');
-INSERT INTO `audit_backup` VALUES (10, 2096, 'test@%', 'localhost', '2024-07-20 15:40:18');
-INSERT INTO `audit_backup` VALUES (11, 2097, 'test@%', 'localhost', '2024-07-20 15:40:26');
+
+-- ----------------------------
+-- Table structure for file_storage_log
+-- ----------------------------
+DROP TABLE IF EXISTS `file_storage_log`;
+CREATE TABLE `file_storage_log`  (
+  `file_storage_log_id` int(11) NOT NULL,
+  `file_storage_id` int(11) NULL DEFAULT NULL,
+  `file_storage_log_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '请求客户端地址',
+  `file_storage_log_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '请求文件地址',
+  PRIMARY KEY (`file_storage_log_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储日志' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of file_storage_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for file_storage_protocol
+-- ----------------------------
+DROP TABLE IF EXISTS `file_storage_protocol`;
+CREATE TABLE `file_storage_protocol`  (
+  `file_storage_protocol_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `file_storage_protocol_port` int(11) NULL DEFAULT NULL COMMENT '开启远程服务器端口',
+  `file_storage_protocol_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '服务器协议; HTTP',
+  `file_storage_protocol_host` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '开启远程服务器主机',
+  `file_storage_protocol_start` int(11) NULL DEFAULT NULL COMMENT '远程服务器状态; 0:未开启'
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储服务器协议' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of file_storage_protocol
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for monitor_app
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_app`;
 CREATE TABLE `monitor_app`  (
-  `monitor_id` int NOT NULL AUTO_INCREMENT,
+  `monitor_id` int(11) NOT NULL AUTO_INCREMENT,
   `monitor_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '监控名称',
   `monitor_appname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属应用',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '应用管理' ROW_FORMAT = DYNAMIC;
 
@@ -75,19 +101,19 @@ INSERT INTO `monitor_app` VALUES (1, '单点登录', 'oss', NULL, NULL, '2024-07
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_config`;
 CREATE TABLE `monitor_config`  (
-  `config_id` int NOT NULL AUTO_INCREMENT,
+  `config_id` int(11) NOT NULL AUTO_INCREMENT,
   `config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
   `config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '值',
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `config_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
   `config_appname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属应用',
-  `config_status` int NULL DEFAULT NULL COMMENT '0: 未开启；',
+  `config_status` int(11) NULL DEFAULT NULL COMMENT '0: 未开启；',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置中心' ROW_FORMAT = DYNAMIC;
 
@@ -101,11 +127,11 @@ INSERT INTO `monitor_config` VALUES (12, 'test', '123', NULL, 'test', 'oss', 1, 
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_job`;
 CREATE TABLE `monitor_job`  (
-  `job_id` int NOT NULL AUTO_INCREMENT,
+  `job_id` int(11) NOT NULL AUTO_INCREMENT,
   `job_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
   `job_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务类型; cron, fixed',
   `job_conf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '时间配置',
-  `job_status` int NULL DEFAULT 0 COMMENT '状态;0: 未启用； 1: 正在运行',
+  `job_status` int(11) NULL DEFAULT 0 COMMENT '状态;0: 未启用； 1: 正在运行',
   `job_app` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '对应的应用ID',
   `job_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
   `job_execute_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模式; spring, xxl-job',
@@ -115,19 +141,19 @@ CREATE TABLE `monitor_job`  (
   `job_glue_updatetime` date NULL DEFAULT NULL COMMENT 'Glue最后更新时间',
   `job_glue_source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '源码',
   `job_glue_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'Glue类型（例如：脚本、JAR等）',
-  `job_fail_retry` int NULL DEFAULT NULL COMMENT '失败重试次数',
-  `job_execute_timeout` int NULL DEFAULT NULL COMMENT '超时时间',
+  `job_fail_retry` int(11) NULL DEFAULT NULL COMMENT '失败重试次数',
+  `job_execute_timeout` int(11) NULL DEFAULT NULL COMMENT '超时时间',
   `job_execute_misfire_strategy` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '失效后策略',
   `job_execute_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执行参数',
   `job_execute_router` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执行路由策略',
-  `job_trigger_last_time` bigint NULL DEFAULT NULL COMMENT '任务触发的最后一次时间',
-  `job_trigger_next_time` bigint NULL DEFAULT NULL COMMENT '任务触发的下一次时间',
+  `job_trigger_last_time` bigint(20) NULL DEFAULT NULL COMMENT '任务触发的最后一次时间',
+  `job_trigger_next_time` bigint(20) NULL DEFAULT NULL COMMENT '任务触发的下一次时间',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`job_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务' ROW_FORMAT = DYNAMIC;
 
@@ -141,7 +167,7 @@ INSERT INTO `monitor_job` VALUES (1, '测试', 'FIXED', '1', 0, 'dev', 'oss', NU
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_job_log`;
 CREATE TABLE `monitor_job_log`  (
-  `job_log_id` int NOT NULL AUTO_INCREMENT,
+  `job_log_id` int(11) NOT NULL AUTO_INCREMENT,
   `job_log_trigger_date` date NULL DEFAULT NULL COMMENT '触发时间',
   `job_log_trigger_time` datetime NULL DEFAULT NULL COMMENT '触发时间',
   `job_log_trigger_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发状态',
@@ -156,7 +182,7 @@ CREATE TABLE `monitor_job_log`  (
   `start_date` datetime NULL DEFAULT NULL,
   `end_date` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3924 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3925 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_job_log
@@ -167,22 +193,22 @@ CREATE TABLE `monitor_job_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_limit`;
 CREATE TABLE `monitor_limit`  (
-  `limit_id` int NOT NULL AUTO_INCREMENT,
+  `limit_id` int(11) NOT NULL AUTO_INCREMENT,
   `limit_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流名称',
   `limit_mapping` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流地址',
   `limit_permits` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '每秒次数',
-  `limit_status` int NULL DEFAULT NULL COMMENT '是否开启; 0: 不开启',
+  `limit_status` int(11) NULL DEFAULT NULL COMMENT '是否开启; 0: 不开启',
   `limit_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流实现方式, guava',
   `limit_resolver` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流模式,URL, REMOTE',
   `limit_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
   `limit_app` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流应用',
   `limit_remote_list` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'REMOTE模式下的黑名单',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`limit_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流管理' ROW_FORMAT = DYNAMIC;
 
@@ -195,165 +221,51 @@ CREATE TABLE `monitor_limit`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_log`;
 CREATE TABLE `monitor_log`  (
-  `log_id` int NOT NULL AUTO_INCREMENT,
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `log_module_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块',
   `log_command_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '命令',
   `log_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '内容',
   `log_appname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用',
   `log_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
   `log_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '地址',
-  `log_port` int NULL DEFAULT NULL COMMENT '端口',
+  `log_port` int(11) NULL DEFAULT NULL COMMENT '端口',
   `log_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '响应码',
   `log_msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误消息',
-  `tenant_id` int NULL DEFAULT 0 COMMENT '租户ID',
+  `tenant_id` int(11) NULL DEFAULT 0 COMMENT '租户ID',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_log
 -- ----------------------------
-INSERT INTO `monitor_log` VALUES (1, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (2, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (3, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (4, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (5, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (6, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (7, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39822, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (8, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (9, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (10, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (11, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (12, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (13, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38193, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (14, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (15, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (16, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (17, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (18, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33268, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (19, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (20, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 39056, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (21, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (22, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 30067, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (23, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 36510, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (24, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (25, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (26, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (27, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (28, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (29, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (30, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '500', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (31, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (32, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 33270, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (33, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 37612, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (34, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 37612, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (35, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (36, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (37, 'LIMIT', '3', '{\"limitId\":1,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":1,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (38, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (39, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (40, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (41, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38496, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (42, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32225, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (43, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (44, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (45, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"1\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (46, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"12\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 32956, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (47, 'LIMIT', '3', '{\"limitId\":2,\"limitName\":\"测试\",\"limitMapping\":\"/test\",\"limitPermits\":\"1\",\"limitStatus\":0,\"limitType\":\"Guava\",\"limitResolver\":\"URL\",\"limitProfile\":\"test\",\"limitApp\":\"oss\",\"limitRemoteList\":\"[]\"}', 'oss', 'default', '192.168.110.8', 35048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (48, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 30714, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (49, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (50, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (51, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (52, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (53, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (54, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (55, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (56, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (57, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (58, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (59, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (60, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '500', '系统繁忙', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (61, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (62, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (63, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (64, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (65, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (66, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (67, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (68, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (69, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (70, 'SHELL', '3', '{\"command\":\"view\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (71, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (72, 'SHELL', '3', '{\"command\":\"view -h\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (73, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (74, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (75, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (76, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (77, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (78, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (79, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (80, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (81, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (82, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (83, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (84, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (85, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (86, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (87, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (88, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (89, 'SHELL', '3', '{\"command\":\"date\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (90, 'SHELL', '3', '{\"command\":\"view\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (91, 'SHELL', '3', '{\"command\":\"view -f application.yml\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (92, 'SHELL', '3', '{\"command\":\"netstat | less\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (93, 'SHELL', '3', '{\"command\":\"ip\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (94, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (95, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (96, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (97, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (98, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (99, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 37048, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (100, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"12\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 35144, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (101, 'CONFIG', '1', '{\"configId\":12,\"configName\":\"test\",\"configValue\":\"123\",\"configProfile\":\"test\",\"configAppname\":\"oss\",\"configStatus\":1}', 'oss', 'test', '192.168.110.8', 38091, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (102, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (103, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (104, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (105, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (106, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (107, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (108, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (109, 'SHELL', '3', '{\"command\":\"help\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (110, 'SHELL', '3', '{\"command\":\"ls\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (111, 'SHELL', '3', '{\"command\":\"encode -h\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (112, 'SHELL', '3', '{\"command\":\"encode -t md5 -s 1\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (113, 'SHELL', '3', '{\"command\":\"ls\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_log` VALUES (114, 'SHELL', '3', '{\"command\":\"encode -t md5 -s 1\",\"appName\":\"oss\",\"appModel\":\"192.168.110.8:19180\"}', 'oss', 'default', '192.168.110.8', 38078, '200', '', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_mybatis
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_mybatis`;
 CREATE TABLE `monitor_mybatis`  (
-  `monitor_mybatis_id` int NOT NULL AUTO_INCREMENT,
+  `monitor_mybatis_id` int(11) NOT NULL AUTO_INCREMENT,
   `monitor_mybatis_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
   `monitor_mybatis_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `monitor_mybatis_sql` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'sql',
   `monitor_mybatis_sql_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'sql类型, xml, sql',
   `monitor_mybatis_model_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'model',
-  `monitor_mybatis_status` int NULL DEFAULT NULL COMMENT '0: 未开启；',
+  `monitor_mybatis_status` int(11) NULL DEFAULT NULL COMMENT '0: 未开启；',
   `monitor_mybatis_mapper_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'mapper',
   `monitor_mybatis_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
   `monitor_appname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_mybatis_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'mybatis管理' ROW_FORMAT = DYNAMIC;
 
@@ -367,7 +279,7 @@ INSERT INTO `monitor_mybatis` VALUES (2, 'test', NULL, 'SELECT * FROM sys_user l
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_patch`;
 CREATE TABLE `monitor_patch`  (
-  `monitor_patch_id` int NOT NULL AUTO_INCREMENT,
+  `monitor_patch_id` int(11) NOT NULL AUTO_INCREMENT,
   `monitor_patch_profile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '补丁所属环境',
   `monitor_patch_app` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '补丁所属应用',
   `monitor_patch_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '补丁名称',
@@ -376,13 +288,13 @@ CREATE TABLE `monitor_patch`  (
   `monitor_patch_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `monitor_patch_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_patch
@@ -393,7 +305,7 @@ CREATE TABLE `monitor_patch`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_project`;
 CREATE TABLE `monitor_project`  (
-  `project_id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) NOT NULL AUTO_INCREMENT,
   `project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本名称',
   `project_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `project_control_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
@@ -414,15 +326,15 @@ CREATE TABLE `monitor_project`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_project_version`;
 CREATE TABLE `monitor_project_version`  (
-  `version_id` int NOT NULL AUTO_INCREMENT,
-  `project_id` int NULL DEFAULT NULL COMMENT '版本ID',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) NULL DEFAULT NULL COMMENT '版本ID',
   `version_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
   `version_run_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '启动脚本名称',
   `version_stop_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '停止脚本名称',
   `version_log` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志名称',
   `version_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本说明',
   `version_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本编号',
-  `version_status` int NULL DEFAULT NULL COMMENT '状态; 0:未启动',
+  `version_status` int(11) NULL DEFAULT NULL COMMENT '状态; 0:未启动',
   `version_log_path_position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '版本状态;0: 未启动',
   PRIMARY KEY (`version_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '版本控制-子版本' ROW_FORMAT = DYNAMIC;
@@ -437,16 +349,16 @@ INSERT INTO `monitor_project_version` VALUES (2, 2, 'attendance', 'start.sh', NU
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy`;
 CREATE TABLE `monitor_proxy`  (
-  `proxy_id` int NOT NULL AUTO_INCREMENT,
+  `proxy_id` int(11) NOT NULL AUTO_INCREMENT,
   `proxy_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
   `proxy_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `proxy_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0.0.0.0' COMMENT '启动地址',
-  `proxy_port` int NULL DEFAULT NULL COMMENT '端口',
+  `proxy_port` int(11) NULL DEFAULT NULL COMMENT '端口',
   `proxy_protocol` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '协议',
-  `proxy_status` int NULL DEFAULT NULL COMMENT '0: 未开启',
-  `proxy_version` int NULL DEFAULT NULL COMMENT '版本',
+  `proxy_status` int(11) NULL DEFAULT NULL COMMENT '0: 未开启',
+  `proxy_version` int(11) NULL DEFAULT NULL COMMENT '版本',
   PRIMARY KEY (`proxy_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy
@@ -458,13 +370,13 @@ INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_config`;
 CREATE TABLE `monitor_proxy_config`  (
-  `config_id` int NOT NULL COMMENT '主键',
+  `config_id` int(11) NOT NULL COMMENT '主键',
   `config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置名称',
   `config_value` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置值',
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置描述',
   `proxy_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '代理ID',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理配置' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy_config
@@ -479,17 +391,17 @@ INSERT INTO `monitor_proxy_config` VALUES (10, 'open-limit', 'true', '开启限�
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_limit`;
 CREATE TABLE `monitor_proxy_limit`  (
-  `limit_id` int NOT NULL AUTO_INCREMENT,
+  `limit_id` int(11) NOT NULL AUTO_INCREMENT,
   `limit_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '限流ip地址',
   `limit_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '限流url地址',
-  `limit_black` int NULL DEFAULT 0 COMMENT '是否黑名单； 0：否',
-  `limit_disable` int NULL DEFAULT 0 COMMENT '是否开启； 0：未开启',
-  `limit_permits_per_second` int NULL DEFAULT NULL COMMENT '每秒生产令牌数',
+  `limit_black` int(11) NULL DEFAULT 0 COMMENT '是否黑名单； 0：否',
+  `limit_disable` int(11) NULL DEFAULT 0 COMMENT '是否开启； 0：未开启',
+  `limit_permits_per_second` int(11) NULL DEFAULT NULL COMMENT '每秒生产令牌数',
   `proxy_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '代理ID',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`limit_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理限流器' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理限流器' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy_limit
@@ -501,16 +413,16 @@ INSERT INTO `monitor_proxy_limit` VALUES (1, '192.168.110.8', '/', 1, 0, 1, '5',
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_limit_log`;
 CREATE TABLE `monitor_proxy_limit_log`  (
-  `limit_log_id` int NOT NULL AUTO_INCREMENT,
+  `limit_log_id` int(11) NOT NULL AUTO_INCREMENT,
   `limit_log_server_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '日志对应的代理',
   `limit_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '请求地址',
   `limit_log_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '类型;deny;allow',
   `limit_log_address_geo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'geo',
   `limit_log_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '请求端地址',
   `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_time_min` bigint NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time_min` bigint(20) NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`limit_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 149 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 150 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy_limit_log
@@ -521,14 +433,14 @@ CREATE TABLE `monitor_proxy_limit_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin`;
 CREATE TABLE `monitor_proxy_plugin`  (
-  `plugin_id` int NOT NULL AUTO_INCREMENT,
-  `proxy_id` int NULL DEFAULT NULL COMMENT '代理ID',
+  `plugin_id` int(11) NOT NULL AUTO_INCREMENT,
+  `proxy_id` int(11) NULL DEFAULT NULL COMMENT '代理ID',
   `plugin_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件描述',
   `plugin_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名称',
   `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
-  `plugin_sort` int NULL DEFAULT NULL COMMENT '优先级',
+  `plugin_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   PRIMARY KEY (`plugin_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 81 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 81 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy_plugin
@@ -541,16 +453,16 @@ INSERT INTO `monitor_proxy_plugin` VALUES (80, 5, 'ws动态路由', 'ASYNCWEBSOC
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin_config`;
 CREATE TABLE `monitor_proxy_plugin_config`  (
-  `plugin_config_id` int NOT NULL AUTO_INCREMENT,
-  `proxy_id` int NULL DEFAULT NULL COMMENT '代理ID',
+  `plugin_config_id` int(11) NOT NULL AUTO_INCREMENT,
+  `proxy_id` int(11) NULL DEFAULT NULL COMMENT '代理ID',
   `plugin_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '插件名字',
-  `plugin_sort` int NULL DEFAULT NULL COMMENT '插件优先级',
+  `plugin_sort` int(11) NULL DEFAULT NULL COMMENT '插件优先级',
   `plugin_config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置名称',
   `plugin_config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置',
   `plugin_config_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置类型',
   `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`plugin_config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '过滤器配置' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_proxy_plugin_config
@@ -564,50 +476,51 @@ INSERT INTO `monitor_proxy_plugin_config` VALUES (3, 5, 'LIMIT', 2, 'permitsPerS
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen`;
 CREATE TABLE `monitor_sys_gen`  (
-  `gen_id` int NOT NULL AUTO_INCREMENT,
+  `gen_id` int(11) NOT NULL AUTO_INCREMENT,
   `gen_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库名称说明',
   `gen_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库类型',
   `gen_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库用户名',
   `gen_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库密码',
   `gen_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库地址',
-  `gen_port` int NULL DEFAULT NULL COMMENT '数据库端口',
+  `gen_port` int(11) NULL DEFAULT NULL COMMENT '数据库端口',
   `gen_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库说明',
   `gen_driver` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库驱动地址',
   `gen_driver_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库驱动下载地址',
   `gen_database` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库名称',
   `gen_database_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库数据目录',
   `gen_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件数据库ID',
-  `gen_backup_status` int NULL DEFAULT NULL COMMENT '备份状态;0:未开启',
+  `gen_backup_status` int(11) NULL DEFAULT NULL COMMENT '备份状态;0:未开启',
   `gen_jdbc_custom_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'JDBC类型',
   `gen_jdbc_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'JDBC类型',
   `gen_driver_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件路径',
   `gen_driver_remote_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '驱动文件下载目录',
-  `gen_backup_period` int NULL DEFAULT 720 COMMENT '备份时间分钟(默认720)',
+  `gen_backup_period` int(11) NULL DEFAULT 720 COMMENT '备份时间分钟(默认720)',
   `gen_backup_event` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备份事件',
   PRIMARY KEY (`gen_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen
 -- ----------------------------
-INSERT INTO `monitor_sys_gen` VALUES (1, '本地 - MYSQL', 'JDBC', 'root', 'N0wreGdBQUlyYmRLSWJqRFBocGVjZz09', '127.0.0.1', 3306, NULL, 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'WCPMnTZhjY03gNOv', 1, 'JDBC', 'MYSQL', NULL, NULL, NULL, 'CREATE,DELETE');
+INSERT INTO `monitor_sys_gen` VALUES (1, '本地 - MYSQL', 'JDBC', 'root', 'OHFOL3NPS3J0VXB6eGg5N1g5RVludz09', '172.16.0.40', 3306, '测试', 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'OtPRaynDelFeVkVl', 0, 'JDBC', 'MYSQL', NULL, NULL, NULL, 'CREATE,DELETE');
 INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'bUxOUU1URWNpaWd3WDhlVjJqRDNOUT09', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (8, '11', 'REDIS', '', NULL, '192.168.110.100', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, NULL);
+INSERT INTO `monitor_sys_gen` VALUES (8, '11', 'REDIS', '', NULL, '172.16.0.40', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, NULL);
 INSERT INTO `monitor_sys_gen` VALUES (9, 'Sqlite', 'JDBC', '', 'Nnl5WXFhZXVCVkFoVWlDYzZ1dmVmZz09', '127.0.0.1', 3306, NULL, 'org.sqlite.JDBC', NULL, '', 'F:\\workspace\\utils-support-parent-starter\\gen\\9\\data\\1.db', 'OjndF5PYVMmD1BOW', NULL, 'FILE', 'SQLITE', NULL, NULL, 720, '');
 INSERT INTO `monitor_sys_gen` VALUES (10, 'H2', 'JDBC', '', NULL, '127.0.0.1', 3306, NULL, 'org.h2.Driver', NULL, NULL, 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\data\\1.db', NULL, NULL, 'FILE', 'H2', 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\driver\\h2-2.1.214.jar', NULL, 720, '');
+INSERT INTO `monitor_sys_gen` VALUES (11, '112.124.44.21', 'INFLUXDB', 'root', 'ZE9FZGpLeDlkOVJERTBCZE5sczdPUT09', '112.124.44.21', 8086, NULL, NULL, NULL, 'smartiot', NULL, 'CL32rLzJtPBLkNcS', NULL, NULL, '', NULL, NULL, 720, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_sys_gen_column
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_column`;
 CREATE TABLE `monitor_sys_gen_column`  (
-  `col_id` int NOT NULL AUTO_INCREMENT,
-  `tab_id` int NULL DEFAULT NULL COMMENT '表ID',
+  `col_id` int(11) NOT NULL AUTO_INCREMENT,
+  `tab_id` int(11) NULL DEFAULT NULL COMMENT '表ID',
   `col_column_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列名称',
   `col_column_comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列描述',
   `col_column_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列类型',
-  `col_column_length` int NULL DEFAULT NULL COMMENT '列长度',
-  `col_column_decimal` int NULL DEFAULT NULL COMMENT '小数点长度',
+  `col_column_length` int(11) NULL DEFAULT NULL COMMENT '列长度',
+  `col_column_decimal` int(11) NULL DEFAULT NULL COMMENT '小数点长度',
   `col_java_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA类型',
   `col_java_field` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA字段名',
   `col_is_pk` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否主键（1是）',
@@ -620,7 +533,7 @@ CREATE TABLE `monitor_sys_gen_column`  (
   `col_query_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '查询方式（等于、不等于、大于、小于、范围）',
   `col_html_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件）',
   `col_dict_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '字典类型',
-  `col_sort` int NULL DEFAULT NULL COMMENT '排序',
+  `col_sort` int(11) NULL DEFAULT NULL COMMENT '排序',
   PRIMARY KEY (`col_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器字段' ROW_FORMAT = DYNAMIC;
 
@@ -638,20 +551,20 @@ INSERT INTO `monitor_sys_gen_column` VALUES (10, 2, 'proxy_id', '代理ID', 'VAR
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_remark`;
 CREATE TABLE `monitor_sys_gen_remark`  (
-  `remark_id` int NOT NULL AUTO_INCREMENT,
+  `remark_id` int(11) NOT NULL AUTO_INCREMENT,
   `remark_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
-  `gen_id` int NULL DEFAULT NULL COMMENT 'gen_id',
+  `gen_id` int(11) NULL DEFAULT NULL COMMENT 'gen_id',
   `remark_table` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '表',
   `remark_database` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据库',
   `remark_column` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '字段',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_remark
@@ -662,23 +575,23 @@ CREATE TABLE `monitor_sys_gen_remark`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_shell`;
 CREATE TABLE `monitor_sys_gen_shell`  (
-  `shell_id` int NOT NULL AUTO_INCREMENT,
+  `shell_id` int(11) NOT NULL AUTO_INCREMENT,
   `shell_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本名称',
   `shell_script_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本路径',
   `shell_log_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志路径',
   `shell_args` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本参数',
   `shell_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '说明',
   `shell_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本内容',
-  `gen_id` int NULL DEFAULT NULL COMMENT 'gen表ID',
-  `shell_status` int NULL DEFAULT 0 COMMENT '状态;0: 待开启; 1:开启',
+  `gen_id` int(11) NULL DEFAULT NULL COMMENT 'gen表ID',
+  `shell_status` int(11) NULL DEFAULT 0 COMMENT '状态;0: 待开启; 1:开启',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_shell
@@ -689,11 +602,11 @@ CREATE TABLE `monitor_sys_gen_shell`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_table`;
 CREATE TABLE `monitor_sys_gen_table`  (
-  `tab_id` int NOT NULL AUTO_INCREMENT,
+  `tab_id` int(11) NOT NULL AUTO_INCREMENT,
   `tab_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '表名称',
   `tab_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `gen_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属数据源名称, 用于处理内部数据源',
-  `gen_id` int NULL DEFAULT NULL COMMENT '所属数据源',
+  `gen_id` int(11) NULL DEFAULT NULL COMMENT '所属数据源',
   `tab_class_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '实体类名称',
   `tab_package_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '生成包路径',
   `tab_module_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '生成模块名',
@@ -717,18 +630,18 @@ INSERT INTO `monitor_sys_gen_table` VALUES (2, 'monitor_proxy_config', '代理�
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_template`;
 CREATE TABLE `monitor_sys_gen_template`  (
-  `template_id` int NOT NULL AUTO_INCREMENT,
+  `template_id` int(11) NOT NULL AUTO_INCREMENT,
   `template_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板名称',
   `template_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板类型',
-  `gen_id` int NULL DEFAULT NULL COMMENT '工具ID',
+  `gen_id` int(11) NULL DEFAULT NULL COMMENT '工具ID',
   `template_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '目录',
   `template_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器模板' ROW_FORMAT = DYNAMIC;
 
@@ -741,16 +654,16 @@ CREATE TABLE `monitor_sys_gen_template`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_terminal`;
 CREATE TABLE `monitor_terminal`  (
-  `terminal_id` int NOT NULL AUTO_INCREMENT,
+  `terminal_id` int(11) NOT NULL AUTO_INCREMENT,
   `terminal_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '名称',
   `terminal_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '地址',
   `terminal_port` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '端口',
   `terminal_user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '账号',
   `terminal_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '密码',
   `terminal_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '描述',
-  `terminal_status` int NULL DEFAULT NULL COMMENT '状态;0:未启动1:已启动; 2:启动中',
+  `terminal_status` int(11) NULL DEFAULT NULL COMMENT '状态;0:未启动1:已启动; 2:启动中',
   PRIMARY KEY (`terminal_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_terminal
@@ -765,19 +678,19 @@ INSERT INTO `monitor_terminal` VALUES (5, '8.139.4.229', '8.139.4.229', '22', 'r
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_terminal_base`;
 CREATE TABLE `monitor_terminal_base`  (
-  `base_id` int NOT NULL AUTO_INCREMENT,
+  `base_id` int(11) NOT NULL AUTO_INCREMENT,
   `base_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '名称',
-  `terminal_id` int NULL DEFAULT NULL COMMENT '终端ID',
+  `terminal_id` int(11) NULL DEFAULT NULL COMMENT '终端ID',
   `base_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '描述',
   `base_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '值',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`base_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 80 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 80 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '终端基本信息' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_terminal_base
@@ -810,19 +723,19 @@ INSERT INTO `monitor_terminal_base` VALUES (79, 'cpu-core-num', 1, 'cpu core数'
 -- ----------------------------
 DROP TABLE IF EXISTS `monitor_terminal_project`;
 CREATE TABLE `monitor_terminal_project`  (
-  `terminal_project_id` int NOT NULL AUTO_INCREMENT,
+  `terminal_project_id` int(11) NOT NULL AUTO_INCREMENT,
   `terminal_project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目名称',
   `terminal_project_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目描述',
-  `terminal_project_status` int NULL DEFAULT NULL COMMENT '是否开启;0：关闭',
+  `terminal_project_status` int(11) NULL DEFAULT NULL COMMENT '是否开启;0：关闭',
   `terminal_project_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目地址',
   `terminal_project_start_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目启动脚本',
   `terminal_project_end_script` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '项目停止脚本',
-  `terminal_id` int NULL DEFAULT NULL COMMENT '终端ID',
+  `terminal_id` int(11) NULL DEFAULT NULL COMMENT '终端ID',
   `terminal_project_log` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '日志文件地址',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建地址',
   `update_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新地址',
   PRIMARY KEY (`terminal_project_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '项目管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_terminal_project

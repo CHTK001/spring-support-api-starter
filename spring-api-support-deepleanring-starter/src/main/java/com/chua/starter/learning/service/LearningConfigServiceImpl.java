@@ -12,11 +12,11 @@ import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.learning.pojo.LearningRequest;
 import com.chua.starter.learning.properties.LearningProperties;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.internal.util.collections.ConcurrentReferenceHashMap;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -27,9 +27,9 @@ import java.util.Map;
  * @since 2024/01/24
  */
 @Service
+@RequiredArgsConstructor
 public class LearningConfigServiceImpl implements LearningConfigService, DisposableBean {
-    @Resource
-    private LearningProperties learningProperties;
+    final LearningProperties learningProperties;
 
     static final Map<String, IdentificationEngine> ENGINE_MAP = new ConcurrentReferenceHashMap<>();
 

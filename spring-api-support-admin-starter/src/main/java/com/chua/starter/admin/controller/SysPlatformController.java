@@ -5,7 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.service.IptablesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "操作系统信息")
 @RequestMapping("/v1/platform")
+@RequiredArgsConstructor
 public class SysPlatformController {
 
-    @Resource
-    private IptablesService iptablesService;
+    private final IptablesService iptablesService;
     /**
      * 翻译地址
      * @param address 地址

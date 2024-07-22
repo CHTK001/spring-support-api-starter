@@ -14,7 +14,7 @@ import com.chua.socketio.support.session.SocketSession;
 import com.chua.starter.monitor.request.MonitorRequest;
 import com.chua.starter.monitor.server.factory.MonitorServerFactory;
 import com.chua.starter.monitor.server.service.MonitorAppService;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Optional;
@@ -28,12 +28,11 @@ import java.util.Optional;
  * @since 2024/02/06
  */
 @Configuration
+@RequiredArgsConstructor
 public class MonitorSocketIOListener implements SocketIOListener {
 
-    @Resource
-    private MonitorServerFactory monitorServerFactory;
-    @Resource
-    private MonitorAppService monitorAppService;
+    private final MonitorServerFactory monitorServerFactory;
+    private final MonitorAppService monitorAppService;
     @OnEvent("terminal-request")
     public void onEvent(SocketSession session, Command command) {
         String appName = command.getAppName();
