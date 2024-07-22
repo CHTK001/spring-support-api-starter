@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1test
+ Source Server         : 127.0.0.1
  Source Server Type    : MySQL
  Source Server Version : 80036 (8.0.36)
- Source Host           : localhost:3306
+ Source Host           : 127.0.0.1:3306
  Source Schema         : monitor
 
  Target Server Type    : MySQL
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 20/07/2024 15:40:26
+ Date: 22/07/2024 10:03:41
 */
 
 SET NAMES utf8mb4;
@@ -156,31 +156,11 @@ CREATE TABLE `monitor_job_log`  (
   `start_date` datetime NULL DEFAULT NULL,
   `end_date` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3925 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3924 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_job_log
 -- ----------------------------
-INSERT INTO `monitor_job_log` VALUES (3905, '2024-06-12', '2024-06-12 10:19:08', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3906, '2024-06-12', '2024-06-12 10:19:09', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3907, '2024-06-12', '2024-06-12 10:19:43', 'S9999C0000', 'PADDING', '测试', 'dev', '', '', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3908, '2024-06-12', '2024-06-12 10:19:50', 'S9999C0000', 'PADDING', '测试', 'dev', '', '测试', '测试', 'oss', 'jobconf_trigger_type_manual', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3909, '2024-07-18', '2024-07-18 16:32:47', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3910, '2024-07-18', '2024-07-18 16:32:48', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3911, '2024-07-18', '2024-07-18 16:32:49', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3912, '2024-07-18', '2024-07-18 16:32:50', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3913, '2024-07-18', '2024-07-18 16:32:51', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3914, '2024-07-18', '2024-07-18 16:32:52', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3915, '2024-07-18', '2024-07-18 16:32:53', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3916, '2024-07-18', '2024-07-18 16:32:54', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3917, '2024-07-18', '2024-07-18 16:32:55', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3918, '2024-07-18', '2024-07-18 16:32:56', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3919, '2024-07-18', '2024-07-18 16:32:57', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3920, '2024-07-18', '2024-07-18 16:32:58', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3921, '2024-07-18', '2024-07-18 16:32:59', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3922, '2024-07-18', '2024-07-18 16:33:00', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3923, '2024-07-18', '2024-07-18 16:33:01', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
-INSERT INTO `monitor_job_log` VALUES (3924, '2024-07-18', '2024-07-18 16:33:02', 'S9999C0000', 'PADDING', '', 'dev', '', NULL, '测试', 'oss', 'jobconf_trigger_type_cron', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for monitor_limit
@@ -402,7 +382,7 @@ CREATE TABLE `monitor_patch`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_patch_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'hotswap包管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_patch
@@ -484,7 +464,7 @@ CREATE TABLE `monitor_proxy_config`  (
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '配置描述',
   `proxy_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '代理ID',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代理配置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_proxy_config
@@ -530,54 +510,11 @@ CREATE TABLE `monitor_proxy_limit_log`  (
   `create_time` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
   `create_time_min` bigint NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`limit_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 150 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 149 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '限流日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of monitor_proxy_limit_log
 -- ----------------------------
-INSERT INTO `monitor_proxy_limit_log` VALUES (107, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:20', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (108, '5', '/favicon.ico', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:22', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (109, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (110, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (111, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (112, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:37', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (113, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:38', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (114, '5', '/test', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:38', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (115, '5', '/favicon.ico', 'allow', '局域网', '192.168.110.8', '2024-06-26 11:16:39', 1719371760000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (116, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:34', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (117, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:34', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (118, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (119, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (120, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (121, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (122, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (123, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (124, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (125, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:39', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (126, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:42', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (127, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (128, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (129, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (130, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (131, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (132, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (133, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (134, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (135, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (136, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (137, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (138, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (139, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (140, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:43', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (141, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (142, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (143, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (144, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (145, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (146, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (147, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (148, '5', '/test', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
-INSERT INTO `monitor_proxy_limit_log` VALUES (149, '5', '/favicon.ico', 'deny', '局域网', '192.168.110.8', '2024-06-26 11:29:44', 1719372540000);
 
 -- ----------------------------
 -- Table structure for monitor_proxy_plugin
@@ -714,7 +651,7 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`remark_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_remark
@@ -741,7 +678,7 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`shell_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_sys_gen_shell
