@@ -7,7 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.properties.IpProperties;
 import com.chua.starter.service.IptablesService;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
  * @since 2024/01/19
  */
 @Service
+@RequiredArgsConstructor
 public class IptablesServiceImpl implements IptablesService {
 
-    @Resource
-    private IpProperties ipProperties;
+    private final IpProperties ipProperties;
     private volatile IpPosition ipPosition;
     private volatile boolean isLoaded = false;
     /**

@@ -1,29 +1,26 @@
 package com.chua.starter.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.starter.admin.entity.SysMessageConfig;
-import com.chua.starter.admin.entity.SysMessageTemplateConfig;
-import com.chua.starter.admin.service.SysMessageTemplateConfigService;
-import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.admin.entity.SysMessageTemplate;
+import com.chua.starter.admin.entity.SysMessageTemplateConfig;
 import com.chua.starter.admin.mapper.SysMessageTemplateMapper;
+import com.chua.starter.admin.service.SysMessageTemplateConfigService;
 import com.chua.starter.admin.service.SysMessageTemplateService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplateMapper, SysMessageTemplate> implements SysMessageTemplateService{
 
-    @Resource
-    private TransactionTemplate transactionTemplate;
-    @Resource
-    private SysMessageTemplateConfigService sysMessageTemplateConfigService;
+    final TransactionTemplate transactionTemplate;
+    final SysMessageTemplateConfigService sysMessageTemplateConfigService;
 
     @Override
     public SysMessageTemplate saveTemplate(SysMessageTemplate template) {

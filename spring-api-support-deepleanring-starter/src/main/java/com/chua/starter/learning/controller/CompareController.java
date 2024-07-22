@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 
@@ -31,8 +30,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CompareController {
 
-    @Resource
-    private LearningConfigService learningConfigService;
+    final LearningConfigService learningConfigService;
 
 
 

@@ -1,15 +1,24 @@
 package com.chua.starter.admin.mybatisplus;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.chua.common.support.constant.Action;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
+import java.util.function.Supplier;
+
+import static com.chua.common.support.constant.Action.CREATE;
+import static com.chua.common.support.constant.Action.UPDATE;
 
 /**
  * mybatis-plus 字段自动填充
@@ -19,10 +28,10 @@ import java.time.LocalDateTime;
  * @since 2022/10/14
  */
 @Component
+@RequiredArgsConstructor
 public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
-    @Resource
-    private AuthClientProperties authProperties;
+    private final AuthClientProperties authProperties;
 
     /**
      * 新增填充创建时间
@@ -31,13 +40,12 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, "createTime", LocalDateTime::now, LocalDateTime.class);
+        registerField(metaObject, "createTime", CREATE);
+        
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
-            this.strictInsertFill(metaObject, "createBy", () -> userLoginInfo.getExtValue("userId"), String.class);
-            this.strictInsertFill(metaObject, "createName", () -> StringUtils.defaultString(
-                    userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()
-            ), String.class);
+            registerField(metaObject, "createBy",  userLoginInfo.getExtValue("userId"), CREATE);
+            registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
         }
 
     }
@@ -49,14 +57,61 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime::now, LocalDateTime.class);
+        registerField(metaObject, "updateTime", UPDATE);
+
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
-            this.strictUpdateFill(metaObject, "updateBy", () -> userLoginInfo.getExtValue("userId"), String.class);
-            this.strictUpdateFill(metaObject, "updateName", () -> StringUtils.defaultString(
-                    userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()
-            ), String.class);
+            registerField(metaObject, "updateBy",  userLoginInfo.getExtValue("userId"), UPDATE);
+            registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
         }
+    }
+
+    private void registerField(MetaObject metaObject, String name, Action action) {
+        Class<?> type = metaObject.getGetterType(name);
+        if(LocalDateTime.class.isAssignableFrom(type)) {
+            if(action == CREATE) {
+                this.strictInsertFill(metaObject, name, LocalDateTime::now, LocalDateTime.class);
+            } else if(action == UPDATE) {
+                this.strictUpdateFill(metaObject, name, LocalDateTime::now, LocalDateTime.class);
+            }
+            return;
+        }
+
+        if(LocalDate.class.isAssignableFrom(type)) {
+            if(action == CREATE) {
+                this.strictInsertFill(metaObject, name, LocalDate::now, LocalDate.class);
+            } else if(action == UPDATE) {
+                this.strictUpdateFill(metaObject, name, LocalDate::now, LocalDate.class);
+            }
+            return;
+        }
+
+        if(LocalTime.class.isAssignableFrom(type)) {
+            if(action == CREATE) {
+                this.strictInsertFill(metaObject, name, LocalTime::now, LocalTime.class);
+            } else if(action == UPDATE) {
+                this.strictUpdateFill(metaObject, name, LocalTime::now, LocalTime.class);
+            }
+            return;
+        }
+
+        if(Date.class.isAssignableFrom(type)) {
+            if(action == CREATE) {
+                this.strictInsertFill(metaObject, name, Date::new, Date.class);
+            } else if(action == UPDATE) {
+                this.strictUpdateFill(metaObject, name, Date::new, Date.class);
+            }
+        }
+
+    }
+    @SuppressWarnings("unchecked")
+    private void registerField(MetaObject metaObject, String name, Object value, Action action) {
+        Class<?> type = metaObject.getGetterType(name);
+        if(action == CREATE) {
+            this.strictInsertFill(metaObject, name, (Supplier) () -> Converter.convertIfNecessary(value, type), type);
+            return;
+        }
+        this.strictUpdateFill(metaObject, name, (Supplier) () -> Converter.convertIfNecessary(value, type), type);
     }
 
 }

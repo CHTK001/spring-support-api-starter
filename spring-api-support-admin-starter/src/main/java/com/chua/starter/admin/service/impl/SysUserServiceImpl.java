@@ -33,7 +33,6 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.google.common.base.Strings;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -60,12 +59,9 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 @Service
 @RequiredArgsConstructor
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
-    @Resource
-    private AuthClientProperties authProperties;
-    @Resource
-    private TransactionTemplate transactionTemplate;
-    @Resource
-    private SysUserRoleService sysUserRoleService;
+    final AuthClientProperties authProperties;
+    final TransactionTemplate transactionTemplate;
+    final SysUserRoleService sysUserRoleService;
 
     /**
      * 获取用户分页列表

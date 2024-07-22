@@ -9,11 +9,11 @@ import com.chua.starter.admin.mapper.SysFileStorageMapper;
 import com.chua.starter.admin.service.SysFileStorageService;
 import com.chua.starter.admin.utils.FileStorageUtils;
 import com.chua.starter.common.support.filestorage.FileStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -23,10 +23,10 @@ import java.util.List;
 */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SysFileStorageServiceImpl extends ServiceImpl<SysFileStorageMapper, SysFileStorage>
     implements SysFileStorageService, InitializingBean {
-    @Resource
-    public FileStorageService fileStorageService;
+    public final FileStorageService fileStorageService;
 
     @Override
     public void afterPropertiesSet() {
