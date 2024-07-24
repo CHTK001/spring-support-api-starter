@@ -1,0 +1,6 @@
+plugin:
+  spi:
+    mapping:
+      fileStorageSetting: com.chua.common.support.image.setting.ImageSettingResolver
+      fileStoragePlugin: com.chua.common.support.image.filter.ImageFilter
+      fileStorage: com.chua.common.support.oss.FileStorage

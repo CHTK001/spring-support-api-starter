@@ -249,7 +249,7 @@
         hidden: false,
         meta: {
           title: "oss管理",
-          icon: "sc-icon-oss",
+          icon: "sc-icon-database",
           type: "menu",
         },
       },
@@ -260,7 +260,7 @@
       //        hidden:false,
       //        meta:{
       //          title:"脚本管理",
-      //          icon:"sc-icon-shell",
+      //          icon:"sc-icon-shell",S
       //          type:"menu",
       //        },
       //      },
