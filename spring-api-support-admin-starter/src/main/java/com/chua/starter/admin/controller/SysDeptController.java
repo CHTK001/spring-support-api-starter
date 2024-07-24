@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE;
+import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE_MIN;
 import static com.chua.starter.common.support.constant.Constant.SYSTEM;
 
 /**
@@ -49,7 +49,7 @@ public class SysDeptController {
      */
     @Operation(summary = "机构树")
     @GetMapping("tree")
-    @Cacheable(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept-tree'")
+    @Cacheable(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept-tree'")
     public ReturnResult<List<SysDeptNode>> tree() {
         CustomTreeNode<SysDeptNode, Long> customTreeNode = new CustomTreeNode<>(SysDeptNode::getDeptId, SysDeptNode::getDeptParentId, 0L);
         List<SysDept> list = sysDeptService.list();
@@ -98,8 +98,8 @@ public class SysDeptController {
     @PostMapping("save")
     @OperateLog
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept'"),
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept-tree'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept-tree'"),
     })
     public ReturnResult<SysDept> save(@RequestBody SysDept sysDept) {
         if (StringUtils.isBlank(sysDept.getDeptTreePath())) {
@@ -119,8 +119,8 @@ public class SysDeptController {
     @PutMapping("update")
     @OperateLog
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept'"),
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept-tree'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept-tree'"),
     })
     public ReturnResult<SysDept> update(@RequestBody SysDept sysDept) {
         if (null == sysDept.getDeptId()) {
@@ -158,8 +158,8 @@ public class SysDeptController {
     @SysLogger
     @OperateLog
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept'"),
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept-tree'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept-tree'"),
     })
     public ReturnResult<Long> delete(Long deptId) {
         if (null == deptId) {
@@ -179,8 +179,8 @@ public class SysDeptController {
     @DeleteMapping("batchDelete")
     @OperateLog
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept'"),
-            @CacheEvict(cacheManager = REDIS_CACHE, cacheNames = REDIS_CACHE, key = "'dept-tree'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept'"),
+            @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept-tree'"),
     })
     public ReturnResult<Void> batchDelete(String sysDeptId) {
         if (StringUtils.isBlank(sysDeptId)) {
