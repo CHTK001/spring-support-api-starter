@@ -179,6 +179,7 @@
   {
     path: "/data",
     component: "monitor/data",
+    condition: "plugin.monitor.data.enable",
     name: "数据库管理",
     hidden: false,
     meta: {
@@ -329,6 +330,7 @@
   {
     path: "/proxy",
     component: "proxy/index",
+    condition: "plugin.monitor.proxy.enable",
     name: "代理管理",
     hidden: false,
     meta: {
@@ -395,6 +397,32 @@
         meta: {
           title: "终端管理",
           icon: "sc-icon-terminal",
+          affix: false,
+          type: "menu",
+        }
+      },
+    ]
+  },
+  {
+    path: "/gis",
+    condition: "plugin.monitor.gis.enable",
+    component: "gis/index",
+    name: "gis管理",
+    hidden: false,
+    meta: {
+      title: "gis管理",
+      icon: "sc-icon-map",
+      type: "menu",
+    },
+    children: [
+      {
+        path: "/gis",
+        component: "gis/index",
+        name: "gis管理",
+        hidden: false,
+        meta: {
+          title: "gis管理",
+          icon: "sc-icon-map",
           affix: false,
           type: "menu",
         }
