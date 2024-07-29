@@ -33,6 +33,19 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-minio-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ftp-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-nacos-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
