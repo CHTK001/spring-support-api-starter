@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 22/07/2024 10:33:28
+ Date: 29/07/2024 13:18:29
 */
 
 SET NAMES utf8mb4;
@@ -22,37 +22,38 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `file_storage`;
 CREATE TABLE `file_storage`  (
-  `file_storage_id` int(11) NOT NULL,
-  `file_storage_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '文件存储名称',
+  `file_storage_id` int(11) NOT NULL AUTO_INCREMENT,
+  `file_storage_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '文件存储路径',
+  `file_storage_desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '存储名称',
   `file_storage_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '实现类型',
   `file_storage_user` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '账号',
   `file_storage_password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '密码',
+  `file_storage_icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '图表',
   `file_storage_endpoint` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '远程访问端点',
   `file_storage_bucket` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'bucket',
-  `file_storage_plugins` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '插件列表，多个逗号分隔',
-  `file_storage_setting` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '配置列表，多个逗号分隔',
-  `file_storage_plugin_open` int(11) NULL DEFAULT NULL COMMENT '是否开启插件；0:不开启',
-  `file_storage_setting_open` int(11) NULL DEFAULT NULL COMMENT '是否开启配置；0:不开启',
-  `file_storage_protocol_id` int(255) NULL DEFAULT NULL COMMENT '服务器协议; HTTP',
+  `file_storage_protocol_id` int(255) NULL DEFAULT NULL COMMENT '服务器协议; ',
   `file_storage_status` int(11) NULL DEFAULT NULL COMMENT '状态;0:停用',
+  `file_storage_cookie` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'cookie',
   PRIMARY KEY (`file_storage_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of file_storage
 -- ----------------------------
+INSERT INTO `file_storage` VALUES (3, '本地磁盘测试', NULL, 'FILESYSTEM', NULL, NULL, 'el-icon-apple', 'Z://', 'test', 2, 1, NULL);
+INSERT INTO `file_storage` VALUES (6, '本地FTP1', NULL, 'FTP', NULL, NULL, 'sc-icon-clipboard', 'ftp://127.0.0.1:21', 'oss', 2, 1, NULL);
 
 -- ----------------------------
 -- Table structure for file_storage_log
 -- ----------------------------
 DROP TABLE IF EXISTS `file_storage_log`;
 CREATE TABLE `file_storage_log`  (
-  `file_storage_log_id` int(11) NOT NULL,
+  `file_storage_log_id` int(11) NOT NULL AUTO_INCREMENT,
   `file_storage_id` int(11) NULL DEFAULT NULL,
   `file_storage_log_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '请求客户端地址',
   `file_storage_log_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '请求文件地址',
   PRIMARY KEY (`file_storage_log_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of file_storage_log
@@ -63,16 +64,28 @@ CREATE TABLE `file_storage_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `file_storage_protocol`;
 CREATE TABLE `file_storage_protocol`  (
-  `file_storage_protocol_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `file_storage_protocol_id` int(255) NOT NULL AUTO_INCREMENT,
   `file_storage_protocol_port` int(11) NULL DEFAULT NULL COMMENT '开启远程服务器端口',
+  `file_storage_protocol_desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '服务器说明',
   `file_storage_protocol_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '服务器协议; HTTP',
   `file_storage_protocol_host` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '开启远程服务器主机',
-  `file_storage_protocol_start` int(11) NULL DEFAULT NULL COMMENT '远程服务器状态; 0:未开启'
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储服务器协议' ROW_FORMAT = Dynamic;
+  `file_storage_protocol_status` int(11) NULL DEFAULT NULL COMMENT '远程服务器状态; 0:未开启',
+  `file_storage_protocol_plugins` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '插件列表，多个逗号分隔',
+  `file_storage_protocol_setting` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '配置列表，多个逗号分隔',
+  `file_storage_protocol_plugin_open` int(11) NULL DEFAULT NULL COMMENT '是否开启插件；0:不开启',
+  `file_storage_protocol_setting_open` int(11) NULL DEFAULT NULL COMMENT '是否开启配置；0:不开启',
+  `file_storage_protocol_rang_open` int(11) NULL DEFAULT NULL COMMENT '是否开启Range；0:不开启',
+  `file_storage_protocol_ua_open` int(11) NULL DEFAULT NULL COMMENT '是否开启UA；0:不开启',
+  `file_storage_protocol_download_ua` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'UA',
+  `file_storage_protocol_ua` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'UA',
+  `file_storage_protocol_preview_or_download` int(11) NULL DEFAULT NULL COMMENT '0: 全部支持;1:预览; 2:下载',
+  PRIMARY KEY (`file_storage_protocol_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '文件存储服务器协议' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of file_storage_protocol
 -- ----------------------------
+INSERT INTO `file_storage_protocol` VALUES (2, 8184, '测试', 'HTTP', '0.0.0.0', 1, '', '', 0, 0, NULL, 0, NULL, 'PC;OSS', 2);
 
 -- ----------------------------
 -- Table structure for monitor_app
@@ -182,7 +195,7 @@ CREATE TABLE `monitor_job_log`  (
   `start_date` datetime NULL DEFAULT NULL,
   `end_date` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3925 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_job_log
@@ -239,7 +252,7 @@ CREATE TABLE `monitor_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_log
