@@ -352,18 +352,6 @@
         }
       },
       {
-        path: "/proxy/limit",
-        component: "proxy/limit/index",
-        name: "代理防火墙",
-        hidden: false,
-        meta: {
-          title: "代理防火墙",
-          icon: "sc-icon-firewall",
-          affix: false,
-          type: "menu",
-        }
-      },
-      {
         path: "/proxy/limit/log",
         component: "proxy/limit/log/index",
         name: "防火墙日志",
