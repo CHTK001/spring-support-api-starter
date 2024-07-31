@@ -68,6 +68,10 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     private void registerField(MetaObject metaObject, String name, Action action) {
         Class<?> type = metaObject.getGetterType(name);
+        Object value = metaObject.getValue(name);
+        if(null != value) {
+            return ;
+        }
         if(LocalDateTime.class.isAssignableFrom(type)) {
             if(action == CREATE) {
                 this.strictInsertFill(metaObject, name, LocalDateTime::now, LocalDateTime.class);
