@@ -3,8 +3,8 @@ package com.chua.starter.learning.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.ml.feature.DetectionConfiguration;
 import com.chua.common.support.ml.identification.IdentificationEngine;
-import com.chua.common.support.spi.Option;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.SpiOption;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class LearningController {
      */
     @GetMapping("engine")
     @Operation(summary = "引擎列表")
-    public ReturnResult<List<Option<String>>> engine() {
+    public ReturnResult<List<SpiOption>> engine() {
         return ReturnResult.ok(ServiceProvider.of(IdentificationEngine.class).options());
     }
     /**
@@ -45,7 +45,7 @@ public class LearningController {
      */
     @GetMapping("module")
     @Operation(summary = "引擎列表")
-    public ReturnResult<List<Option<String>>> engine(String engine) {
+    public ReturnResult<List<SpiOption>> engine(String engine) {
         IdentificationEngine identificationEngine = ServiceProvider.of(IdentificationEngine.class).getNewExtension(engine, DetectionConfiguration.DEFAULT);
         if(null == identificationEngine) {
             return ReturnResult.ok(Collections.emptyList());
@@ -62,7 +62,7 @@ public class LearningController {
      */
     @GetMapping("implType")
     @Operation(summary = "实现类型")
-    public ReturnResult<List<Option<String>>> implType(String engine, String moduleType) {
+    public ReturnResult<List<SpiOption>> implType(String engine, String moduleType) {
         // 获取指定引擎类型的识别引擎
         IdentificationEngine identificationEngine = ServiceProvider.of(IdentificationEngine.class).getNewExtension(engine, DetectionConfiguration.DEFAULT);
         if (null == identificationEngine) {
