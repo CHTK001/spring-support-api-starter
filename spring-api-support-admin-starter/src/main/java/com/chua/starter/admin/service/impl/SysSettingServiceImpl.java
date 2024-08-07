@@ -12,9 +12,9 @@ import com.chua.starter.admin.entity.SysSetting;
 import com.chua.starter.admin.mapper.SysSettingMapper;
 import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
+import com.chua.starter.common.support.codec.CodecFactory;
 import com.chua.starter.common.support.constant.OperatorType;
 import com.chua.starter.common.support.properties.VersionProperties;
-import com.chua.starter.common.support.provider.CodecProvider;
 import com.chua.starter.common.support.utils.StreamUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
@@ -34,7 +34,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     private VersionProperties versionProperties;
 
-    final CodecProvider codecProvider;
+    final CodecFactory codecFactory;
 
     final SysSettingService sysSettingService;
 
@@ -168,14 +168,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         SysSetting sysSetting = StreamUtils.getFirst(codecSetting, SysSetting::getSettingName, OperatorType.EQ, "response_codec_open");
         if(null != sysSetting) {
-            codecProvider.setEnable(Boolean.parseBoolean(sysSetting.getSettingValue()));
+            codecFactory.setEnable(Boolean.parseBoolean(sysSetting.getSettingValue()));
         }
     }
 
     private void doRegister() {
         SysSetting item1 = new SysSetting();
         item1.setSettingName("response_codec_open");
-        item1.setSettingValue(codecProvider.isEnable() + "");
+        item1.setSettingValue(codecFactory.isEnable() + "");
         item1.setSettingVersion(versionProperties.getNo());
 
         LambdaUpdateWrapper<SysSetting> eq = Wrappers.<SysSetting>lambdaUpdate()
