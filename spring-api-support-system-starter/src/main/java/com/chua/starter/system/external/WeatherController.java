@@ -31,7 +31,7 @@ import static java.util.concurrent.TimeUnit.HOURS;
 @RestController
 @Api(value = "天气接口", tags = "天气接口")
 @Tag(name = "天气接口")
-@RequestMapping("/v1/Weather")
+@RequestMapping("/v1/weather")
 public class WeatherController {
     private static final Cache<String, Value<Weather>> CACHE = CacheBuilder.newBuilder().expireAfterWrite(1, HOURS).build();
 
@@ -45,7 +45,7 @@ public class WeatherController {
      */
     @ApiOperation("获取当前地址天气")
     @Operation(summary = "获取当前地址天气")
-    @GetMapping("weather/address")
+    @GetMapping("address")
     @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'weather:' + #{(T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress(#request))}")
     public ReturnResult<Weather> getWeather(HttpServletRequest request) {
         String ipAddress = RequestUtils.getIpAddress(request);
@@ -65,7 +65,7 @@ public class WeatherController {
      */
     @Operation(summary = "根据城市获取天气")
     @ApiOperation("根据城市获取天气")
-    @GetMapping("weather")
+    @GetMapping("city")
     @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'weather:'+#p0")
     public ReturnResult<Weather> getWeather(@RequestParam(value = "city", required = false) String city) {
         city = city == null ? "" : city;
