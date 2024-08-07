@@ -14,7 +14,7 @@ import com.chua.starter.admin.resolver.SettingValueResolver;
 import com.chua.starter.admin.service.SysSettingService;
 import com.chua.starter.common.support.codec.CodecFactory;
 import com.chua.starter.common.support.constant.OperatorType;
-import com.chua.starter.common.support.properties.VersionProperties;
+import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.StreamUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
@@ -32,7 +32,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, ApplicationContextAware, InitializingBean {
 
-    private VersionProperties versionProperties;
+    private ControlProperties controlProperties;
 
     final CodecFactory codecFactory;
 
@@ -53,7 +53,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(SysSetting::getSettingName, strings)
-                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                .eq(StringUtils.isNotBlank(controlProperties.getNo()), SysSetting::getSettingVersion, controlProperties.getNo())
         );
         if(CollectionUtils.isEmpty(sysSettings)) {
             return cacheSetting(strings, Collections.emptyList());
@@ -112,9 +112,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public boolean saveSetting(SysSetting sysSetting) {
-        sysSetting.setSettingVersion(versionProperties.getNo());
+        sysSetting.setSettingVersion(controlProperties.getNo());
         SysSetting sysSetting1 = baseMapper.selectOne(Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
+                .eq(StringUtils.isNotBlank(controlProperties.getNo()), SysSetting::getSettingVersion, controlProperties.getNo()));
         int result = 0;
         if(null == sysSetting1) {
             result = baseMapper.insert(sysSetting);
@@ -122,7 +122,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         } else {
             result = baseMapper.update(sysSetting,
                     Wrappers.<SysSetting>lambdaUpdate().eq(SysSetting::getSettingName, sysSetting.getSettingName())
-                            .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                            .eq(StringUtils.isNotBlank(controlProperties.getNo()), SysSetting::getSettingVersion, controlProperties.getNo())
             );
         }
 
@@ -154,7 +154,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         ThreadUtils.newStaticThreadPool().execute(() -> {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSettingName, "response_codec_open")
-                    .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo()));
+                    .eq(StringUtils.isNotBlank(controlProperties.getNo()), SysSetting::getSettingVersion, controlProperties.getNo()));
             doCodec(list);
         });
 
@@ -176,10 +176,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         SysSetting item1 = new SysSetting();
         item1.setSettingName("response_codec_open");
         item1.setSettingValue(codecFactory.isEnable() + "");
-        item1.setSettingVersion(versionProperties.getNo());
+        item1.setSettingVersion(controlProperties.getNo());
 
         LambdaUpdateWrapper<SysSetting> eq = Wrappers.<SysSetting>lambdaUpdate()
-                .eq(StringUtils.isNotBlank(versionProperties.getNo()), SysSetting::getSettingVersion, versionProperties.getNo())
+                .eq(StringUtils.isNotBlank(controlProperties.getNo()), SysSetting::getSettingVersion, controlProperties.getNo())
                 .eq(SysSetting::getSettingName, item1.getSettingName());
 
         if(sysSettingService.count(eq) == 0) {
@@ -192,7 +192,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        versionProperties = Binder.get(applicationContext.getEnvironment())
-                .bindOrCreate(VersionProperties.PRE, VersionProperties.class);
+        controlProperties = Binder.get(applicationContext.getEnvironment())
+                .bindOrCreate(ControlProperties.PRE, ControlProperties.class);
     }
 }
