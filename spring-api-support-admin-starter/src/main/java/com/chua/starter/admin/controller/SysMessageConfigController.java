@@ -45,7 +45,7 @@ public class SysMessageConfigController {
      */
     @Operation(summary = "查询SMS消息实现方式")
     @GetMapping("smsType")
-    public ReturnResult<List<SpiOption<String>>> smsType() {
+    public ReturnResult<List<SpiOption>> smsType() {
         return ReturnResult.ok(ServiceProvider.of(MessagePush.class).options());
     }
     /**

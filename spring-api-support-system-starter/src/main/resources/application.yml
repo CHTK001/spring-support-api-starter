@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: system
+  profiles:
+    active: dev,mybatis,swagger,socket
+plugin:
+  parameter:
+    enable: true
+server:
+  port: 18170
+  servlet:
+    context-path: /system/api
+  http2:
+    enabled: true
