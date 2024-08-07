@@ -21,6 +21,7 @@
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-deepleanring-starter</module>
+        <module>spring-api-support-system-starter</module>
     </modules>
     <version>4.0.0</version>
     

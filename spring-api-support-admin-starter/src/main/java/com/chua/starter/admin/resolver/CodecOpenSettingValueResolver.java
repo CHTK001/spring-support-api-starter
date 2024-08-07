@@ -3,7 +3,7 @@ package com.chua.starter.admin.resolver;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.admin.entity.SysSetting;
-import com.chua.starter.common.support.provider.CodecProvider;
+import com.chua.starter.common.support.codec.CodecFactory;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class CodecOpenSettingValueResolver implements SettingValueResolver{
 
 
     @AutoInject
-    private CodecProvider codecProvider;
+    private CodecFactory codecFactory;
 
     @Override
     public void resolve(List<SysSetting> result) {
@@ -27,7 +27,7 @@ public class CodecOpenSettingValueResolver implements SettingValueResolver{
 
         SysSetting sysSetting1 = result.get(0);
         try {
-            codecProvider.setEnable(Boolean.parseBoolean(sysSetting1.getSettingValue()));
+            codecFactory.setEnable(Boolean.parseBoolean(sysSetting1.getSettingValue()));
         } catch (Exception ignored) {
         }
     }
