@@ -1,0 +1,132 @@
+package com.chua.starter.system.controller;
+
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.PageResultUtils;
+import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.system.entity.SysRole;
+import com.chua.starter.system.pojo.role.RoleMenuUpdate;
+import com.chua.starter.system.service.SysRoleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+import java.util.Set;
+
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
+
+/**
+ * 角色接口
+ * @author CH
+ * @since 2024/8/7
+ */
+@Tag(name = "角色接口")
+@RestController
+@RequestMapping("/v2/role")
+@RequiredArgsConstructor
+public class SysRoleController {
+
+    private final SysRoleService sysRoleService;
+
+
+    /**
+     * 角色分页列表
+     *
+     * @param sysRole 条件
+     * @return 角色分页列表
+     */
+    @Operation(summary = "角色分页列表")
+    @GetMapping("/page")
+    public ReturnPageResult<SysRole> pageForRole(Query<SysRole> query,  SysRole sysRole, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return PageResultUtils.ok(sysRoleService.pageForRole(query, sysRole, roles));
+    }
+
+    /**
+     * 删除角色
+     *
+     * @return 更新角色
+     */
+    @Operation(summary = "删除角色")
+    @DeleteMapping("/delete")
+    @OperateLog
+    @SysLogger
+    @Transactional(rollbackOn = Exception.class)
+    @Permission(value = "sys:role:delete", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> delete(Long roleId) {
+        if (null == roleId) {
+            return Result.illegal("角色信息不存在");
+        }
+
+        return sysRoleService.delete(roleId);
+    }
+
+
+    /**
+     * 给角色添加菜单
+     *
+     * @return 更新角色
+     */
+    @Operation(summary = "给角色添加菜单")
+    @PutMapping("/update_menu")
+    @OperateLog
+    @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> updateMenu(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysRoleService.updateMenu(roles, roleMenuUpdate);
+    }
+    /**
+     * 更新角色
+     *
+     * @return 更新角色
+     */
+    @Operation(summary = "更新角色")
+    @PutMapping("/update")
+    @OperateLog
+    @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> update(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody SysRole sysRole,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysRoleService.updateRole(roles, sysRole);
+    }
+
+    /**
+     * 新增角色
+     *
+     * @return 新增角色
+     */
+    @Operation(summary = "新增角色")
+    @PostMapping("/save")
+    @OperateLog
+    @Permission(value = "sys:role:add", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysRoleService.saveRole(sysRole);
+    }
+}

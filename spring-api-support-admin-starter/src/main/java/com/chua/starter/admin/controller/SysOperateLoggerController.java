@@ -12,7 +12,7 @@ import com.chua.starter.admin.service.SysOperateLoggerService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
 import com.chua.starter.common.support.logger.LoggerIgnore;
 import com.chua.starter.common.support.result.Result;
-import com.chua.starter.mybatis.entity.PageRequest;
+import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,7 +74,7 @@ public class SysOperateLoggerController {
     @Operation(summary = "当前账号的7天日志")
     @GetMapping("mylog")
     @LoggerIgnore
-    public ReturnPageResult<SysOperateLogger> mylog(PageRequest<SysOperateLogger> page,
+    public ReturnPageResult<SysOperateLogger> mylog(Query<SysOperateLogger> page,
                                                     @Parameter(hidden = true) @UserValue("userId") String userId,
                                                     @Parameter(hidden = true) @UserValue("username") String username
     ) {

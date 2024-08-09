@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysNoticeMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysNotice">
+    <!--@mbg.generated-->
+    <!--@Table sys_notice-->
+    <id column="sys_notice_id" jdbcType="INTEGER" property="sysNoticeId" />
+    <result column="sys_notice_target" jdbcType="VARCHAR" property="sysNoticeTarget" />
+    <result column="sys_notice_content" jdbcType="VARCHAR" property="sysNoticeContent" />
+    <result column="sys_notice_type" jdbcType="VARCHAR" property="sysNoticeType" />
+    <result column="sys_notice_origin" jdbcType="VARCHAR" property="sysNoticeOrigin" />
+    <result column="sys_notice_status" jdbcType="INTEGER" property="sysNoticeStatus" />
+    <result column="sys_notice_error" jdbcType="VARCHAR" property="sysNoticeError" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    sys_notice_id, sys_notice_target, sys_notice_content, sys_notice_type, sys_notice_origin, 
+    sys_notice_status, sys_notice_error, create_name, create_by, create_time, update_time, 
+    update_name, update_by
+  </sql>
+</mapper>
