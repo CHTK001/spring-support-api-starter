@@ -48,11 +48,35 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
+        String menuTreeId = "";
+        if(null == sysDept.getSysDeptPid()) {
+            sysDept.setSysDeptPid(0);
+            menuTreeId = "0," + sysDept.getSysDeptId();
+        } else {
+            SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
+            if(null == parentSysDept) {
+                return ReturnResult.illegal("上级部门不存在");
+            }
+            menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
+        }
+        sysDept.setSysDeptTreeId(menuTreeId);
         return ReturnResult.guess(baseMapper.updateById(sysDept) > 0);
     }
 
     @Override
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
+        String menuTreeId = "";
+        if(null == sysDept.getSysDeptPid()) {
+            sysDept.setSysDeptPid(0);
+            menuTreeId = "0," + sysDept.getSysDeptId();
+        } else {
+            SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
+            if(null == parentSysDept) {
+                return ReturnResult.illegal("上级部门不存在");
+            }
+            menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
+        }
+        sysDept.setSysDeptTreeId(menuTreeId);
         baseMapper.insert(sysDept);
         return ReturnResult.guess(sysDept);
     }
