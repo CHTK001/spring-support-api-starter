@@ -7,7 +7,7 @@ import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.annotations.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
