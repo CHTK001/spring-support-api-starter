@@ -28,11 +28,11 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 字典子项接口
+ * 字典接口
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "字典子项接口")
+@Tag(name = "字典接口")
 @RestController
 @RequestMapping("/v2/dict")
 @RequiredArgsConstructor
@@ -42,23 +42,23 @@ public class SysDictController {
 
 
     /**
-     * 字典子项分页列表
+     * 字典分页列表
      *
      * @param sysDict 条件
-     * @return 字典子项分页列表
+     * @return 字典分页列表
      */
-    @Operation(summary = "字典子项分页列表")
+    @Operation(summary = "字典分页列表")
     @GetMapping("/page")
     public ReturnPageResult<SysDict> pageForRole(Query<SysDict> query, SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
     }
 
     /**
-     * 删除字典子项
+     * 删除字典
      *
-     * @return 更新字典子项
+     * @return 更新字典
      */
-    @Operation(summary = "删除字典子项")
+    @Operation(summary = "删除字典")
     @DeleteMapping("/delete")
     @OperateLog
     @SysLogger
@@ -74,11 +74,11 @@ public class SysDictController {
 
 
     /**
-     * 更新字典子项
+     * 更新字典
      *
-     * @return 更新字典子项
+     * @return 更新字典
      */
-    @Operation(summary = "更新字典子项")
+    @Operation(summary = "更新字典")
     @PutMapping("/update")
     @OperateLog
     @Permission(value = "sys:dict:update", role = {ADMIN, SUPER_ADMIN})
@@ -94,11 +94,11 @@ public class SysDictController {
     }
 
     /**
-     * 新增字典子项
+     * 新增字典
      *
-     * @return 新增字典子项
+     * @return 新增字典
      */
-    @Operation(summary = "新增字典子项")
+    @Operation(summary = "新增字典")
     @PostMapping("/save")
     @OperateLog
     @Permission(value = "sys:dict:add", role = {ADMIN, SUPER_ADMIN})

@@ -29,7 +29,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 字典接口
+ * 字典子项接口
  * @author CH
  * @since 2024/8/7
  */
@@ -43,12 +43,12 @@ public class SysDictItemController {
 
 
     /**
-     * 字典分页列表
+     * 字典子项分页列表
      *
      * @param sysDictItem 条件
-     * @return 字典分页列表
+     * @return 字典子项分页列表
      */
-    @Operation(summary = "字典分页列表")
+    @Operation(summary = "字典子项分页列表")
     @GetMapping("/page")
     public ReturnPageResult<SysDictItem> pageForRole(Query<SysDictItem> query, @Validated(SelectGroup.class) SysDictItem sysDictItem, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -58,11 +58,11 @@ public class SysDictItemController {
     }
 
     /**
-     * 删除字典
+     * 删除字典子项
      *
-     * @return 更新字典
+     * @return 更新字典子项
      */
-    @Operation(summary = "删除字典")
+    @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
     @OperateLog
     @SysLogger
@@ -70,7 +70,7 @@ public class SysDictItemController {
     @Permission(value = "sys:dict:item:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long dictItemId) {
         if (null == dictItemId) {
-            return Result.illegal("字典信息不存在");
+            return Result.illegal("字典子项信息不存在");
         }
 
         return sysDictItemService.delete(dictItemId);
@@ -78,11 +78,11 @@ public class SysDictItemController {
 
 
     /**
-     * 更新字典
+     * 更新字典子项
      *
-     * @return 更新字典
+     * @return 更新字典子项
      */
-    @Operation(summary = "更新字典")
+    @Operation(summary = "更新字典子项")
     @PutMapping("/update")
     @OperateLog
     @Permission(value = "sys:dict:item:update", role = {ADMIN, SUPER_ADMIN})
@@ -98,11 +98,11 @@ public class SysDictItemController {
     }
 
     /**
-     * 新增字典
+     * 新增字典子项
      *
-     * @return 新增字典
+     * @return 新增字典子项
      */
-    @Operation(summary = "新增字典")
+    @Operation(summary = "新增字典子项")
     @PostMapping("/save")
     @OperateLog
     @Permission(value = "sys:dict:item:add", role = {ADMIN, SUPER_ADMIN})
