@@ -7,7 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.logger.SysLogger;
+import com.chua.starter.common.support.annotations.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -53,6 +53,7 @@ public class SysSettingController {
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/page")
+    @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnPageResult<SysSetting> pageForSetting(Query<SysSetting> query,  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
     }
