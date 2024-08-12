@@ -23,7 +23,7 @@ import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
  * @since 2024/8/8
  */
 @SpringBootApplication
-public class CacheConfiguration {
+public class SystemCacheConfiguration {
 
     /**
      * 缓存配置
