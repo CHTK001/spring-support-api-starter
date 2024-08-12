@@ -1,5 +1,6 @@
 package com.chua.starter.system.controller;
 
+import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
@@ -77,7 +78,7 @@ public class SysUserController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     @OperateLog
-    @SysLogger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @SysLogger(module = "LOGIN", name = "用户登录", action = Action.LOGIN, content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
@@ -90,7 +91,7 @@ public class SysUserController {
     }
 
     @Operation(summary = "注销")
-    @SysLogger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @SysLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     @DeleteMapping("/logout")
     @OperateLog
     public Result logout(@UserValue("token") String uid, HttpServletRequest request, HttpServletResponse response) {
