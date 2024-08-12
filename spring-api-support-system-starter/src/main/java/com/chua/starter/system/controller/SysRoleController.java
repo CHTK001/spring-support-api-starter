@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,7 @@ public class SysRoleController {
      */
     @Operation(summary = "角色分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysRole> pageForRole(Query<SysRole> query,  SysRole sysRole, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysRole> pageForRole(@ParameterObject Query<SysRole> query, @ParameterObject SysRole sysRole, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysRoleService.pageForRole(query, sysRole, roles));
     }
 

@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +52,7 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnResult<List<SysMenuVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysMenuService.list(sysMenu, roles));
     }
 
@@ -63,7 +64,7 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysMenu> pageForRole(Query<SysMenu> query, SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysMenu> pageForRole(@ParameterObject Query<SysMenu> query, @ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysMenuService.pageForMenu(query, sysMenu, roles));
     }
 

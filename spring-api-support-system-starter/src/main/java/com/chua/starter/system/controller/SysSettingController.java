@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class SysSettingController {
     @Operation(summary = "设置分页列表")
     @GetMapping("/page")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    public ReturnPageResult<SysSetting> pageForSetting(Query<SysSetting> query,  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysSetting> pageForSetting(@ParameterObject  Query<SysSetting> query, @ParameterObject  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
     }
     /**
@@ -65,7 +66,7 @@ public class SysSettingController {
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysSetting>> list(SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnResult<List<SysSetting>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysSettingService.list(sysSettingUpdate, roles));
     }
 

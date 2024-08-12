@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class SysDeptController {
      */
     @Operation(summary = "组织机构列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysDeptVO>> list(SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
 
