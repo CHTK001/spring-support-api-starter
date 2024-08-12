@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -61,5 +62,10 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
                 .eq(ObjectUtils.isNotEmpty(sysUserLog.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLog.getSysLogStatus())
                 .orderByDesc(SysUserLog::getCreateTime)
         );
+    }
+
+    @Override
+    public ReturnResult<Boolean> delete(Long userLogId) {
+        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
     }
 }
