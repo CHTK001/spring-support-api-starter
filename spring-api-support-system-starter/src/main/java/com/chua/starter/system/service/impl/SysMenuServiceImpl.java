@@ -3,12 +3,16 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.TreeUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysMenuMapper;
+import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
 import lombok.RequiredArgsConstructor;
@@ -30,17 +34,30 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
 
     @Override
-    public List<SysMenu> list(SysMenu sysMenu, Set<String> roles) {
+    public List<SysMenuVO> list(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
                 .in(SysRoleMenu::getSysRoleId, roles)
                 .select(SysRoleMenu::getSysMenuId)
         );
         List<SysMenu> sysMenus = listAll();
 
-        return sysMenus.stream()
+
+        List<SysMenu> list1 = sysMenus.stream()
                 .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
                 .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
                 .toList();
+
+
+        return TreeUtils.toTree(list1, sysMenu1 -> {
+            SysMenuVO sysMenuVO = BeanUtils.copyProperties(sysMenu1, SysMenuVO.class);
+            TreeNode<SysMenuVO> treeNode = new TreeNode<>();
+            treeNode.setId(sysMenuVO.getSysMenuId().toString());
+            treeNode.setLabel(sysMenuVO.getSysMenuName());
+            treeNode.setValue(sysMenuVO.getSysMenuTreeId());
+            treeNode.setPid(sysMenuVO.getSysMenuPid().toString());
+
+            return treeNode;
+        });
     }
 
     @Override
@@ -63,13 +80,35 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
-        sysMenu.setSysMenuTreeId(StringUtils.join(",", sysMenu.getSysMenuTreeId(), sysMenu.getSysMenuName()));
+        String menuTreeId = "";
+        if(null == sysMenu.getSysMenuPid()) {
+            sysMenu.setSysMenuPid(0);
+            menuTreeId = "0," + sysMenu.getSysMenuId();
+        } else {
+            SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
+            if(null == parentSysMenu) {
+                return ReturnResult.error("父级菜单不存在");
+            }
+            menuTreeId = parentSysMenu.getSysMenuTreeId() + "," + sysMenu.getSysMenuId();
+        }
+        sysMenu.setSysMenuTreeId(menuTreeId);
         return ReturnResult.of(baseMapper.updateById(sysMenu) > 0);
     }
 
     @Override
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
-        sysMenu.setSysMenuTreeId(StringUtils.join(",", sysMenu.getSysMenuTreeId(), sysMenu.getSysMenuName()));
+        String menuTreeId = "";
+        if(null == sysMenu.getSysMenuPid()) {
+            sysMenu.setSysMenuPid(0);
+            menuTreeId = "0," + sysMenu.getSysMenuId();
+        } else {
+            SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
+            if(null == parentSysMenu) {
+                return ReturnResult.error("父级菜单不存在");
+            }
+            menuTreeId = parentSysMenu.getSysMenuTreeId() + "," + sysMenu.getSysMenuId();
+        }
+        sysMenu.setSysMenuTreeId(menuTreeId);
         baseMapper.insert(sysMenu);
         return ReturnResult.guess(sysMenu);
     }
