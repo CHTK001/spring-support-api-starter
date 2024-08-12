@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class SysDictController {
      */
     @Operation(summary = "字典分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysDict> pageForRole(Query<SysDict> query, SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
     }
 
