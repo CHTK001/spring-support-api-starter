@@ -109,10 +109,6 @@ public class UserService implements UserInfoService, Constant {
         DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
         String dataPermissionRule = "";
         String userDashboard = "";
-        if (!role.isEmpty()) {
-            SysRole sysRole = role.get(0);
-        }
-
 
         return new UserResult()
                 .setId(user.getSysUserId() + "")
