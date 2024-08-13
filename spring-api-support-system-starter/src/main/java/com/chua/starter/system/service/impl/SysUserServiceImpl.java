@@ -115,7 +115,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         String address = getIpAddress(request);
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.WEB,
+        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
                 ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
         );
         if (null == accessToken) {

@@ -20,7 +20,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param userId 用户ID
      * @return 结果
      */
-    Set<String> selectPermission(Long userId);
+    Set<String> selectPermission(Integer userId);
 
     /**
      * 查詢賬號信息

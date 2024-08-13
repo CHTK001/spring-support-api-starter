@@ -47,6 +47,13 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuName;
 
     /**
+     * 按钮权限
+     */
+    @Schema(description = "权限")
+    @TableField(value = "sys_menu_perm")
+    private String sysMenuPerm;
+
+    /**
      * 父菜单
      */
     @TableField(value = "sys_menu_pid")
