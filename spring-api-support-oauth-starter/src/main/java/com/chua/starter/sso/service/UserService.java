@@ -33,7 +33,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  * @author CH
  */
 @Service
-@LoginType("WEB")
+@LoginType("SYSTEM")
 @RequiredArgsConstructor
 public class UserService implements UserInfoService, Constant {
 
@@ -46,7 +46,7 @@ public class UserService implements UserInfoService, Constant {
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
-        String newAccessKey = LOGIN_ERROR + username;
+        String newAccessKey = "system:" + LOGIN_ERROR + username;
         Boolean boos = stringRedisTemplate.hasKey(newAccessKey);
         if (null != boos && boos) {
             int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
@@ -55,18 +55,19 @@ public class UserService implements UserInfoService, Constant {
             }
         }
 
-        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username));
+        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, username));
         if (null == user) {
+            check(newAccessKey, boos);
             return new UserResult().setMessage("账号/密码不正确");
         }
 
-        if (1 != user.getUserStatus()) {
+        if (1 != user.getSysUserStatus()) {
             return new UserResult().setMessage("账号已被禁用");
         }
 
-        String salt = user.getUserSalt();
+        String salt = user.getSysUserSalt();
         String md5String = DigestUtils.md5Hex(password + salt);
-        if (!StringUtils.safeEquals(md5String, user.getUserPassword())) {
+        if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
             return check(newAccessKey, boos);
         }
 
@@ -79,15 +80,13 @@ public class UserService implements UserInfoService, Constant {
     @Override
     public UserResult upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectOne(new MPJLambdaWrapper<SysUser>()
-                .select("IFNULL(t.user_avatar, t1.login_avatar) user_avatar")
-                .select("IFNULL(t.user_nickname, t1.login_name) user_nickname")
-                .leftJoin(SysUserTripartiteBind.class, SysUserTripartiteBind::getUserId, SysUser::getUserId)
-                .eq(SysUser::getUsername, userResult.getUsername()));
+                .leftJoin(SysUserTripartiteBind.class, SysUserTripartiteBind::getUserId, SysUser::getSysUserId)
+                .eq(SysUser::getSysUserUsername, userResult.getUsername()));
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
         }
 
-        if (1 != user.getUserStatus()) {
+        if (1 != user.getSysUserStatus()) {
             return new UserResult().setMessage("账号已被禁用");
         }
         return loginInfo(userResult.getUsername(), user);
@@ -101,37 +100,29 @@ public class UserService implements UserInfoService, Constant {
      * @return {@link UserResult}
      */
     protected UserResult loginInfo(String accessKey, SysUser user) {
-        stringRedisTemplate.opsForValue().increment("user:count:" + user.getUserId());
+        stringRedisTemplate.opsForValue().increment("system:user:count:" + user.getSysUserId());
         List<SysRole> role = getRole(user);
 
-        LinkedHashSet<String> collect = role.stream().map(SysRole::getRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
-        if (ADMIN.equalsIgnoreCase(accessKey)) {
-            collect.add(ADMIN);
-        }
+        LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
 
         String userDashboardGrid = "";
         DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
         String dataPermissionRule = "";
         String userDashboard = "";
         if (!role.isEmpty()) {
-            role.sort(Comparator.comparing(SysRole::getRoleSort));
             SysRole sysRole = role.get(0);
-            userDashboardGrid = sysRole.getRoleGrid();
-            userDashboard = sysRole.getRoleDashboard();
-            dataPermissionRule = sysRole.getRoleDataRule();
-            dataPermission = sysRole.getRoleDataScope();
         }
 
 
         return new UserResult()
-                .setId(user.getUserId() + "")
+                .setId(user.getSysUserId() + "")
                 .setRoles(collect)
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
                 .setPermission(getPermission(user))
-                .setPhone(user.getUserMobile())
+                .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
-                .setName(user.getUserNickname())
+                .setName(user.getSysUserNickname())
                 .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
                         .put("userDashboardGrid", userDashboardGrid)
@@ -145,10 +136,9 @@ public class UserService implements UserInfoService, Constant {
             List<Map<String, Object>> maps = sysUserMapper.selectMaps(new MPJLambdaWrapper<SysUser>()
                     .distinct()
                     .selectAll(SysRole.class)
-                    .leftJoin(SysUserRole.class, SysUserRole::getUserId, SysUser::getUserId)
-                    .leftJoin(SysRole.class, SysRole::getRoleId, SysUserRole::getRoleId)
-                    .eq(SysUser::getUserId, user.getUserId())
-                    .orderByAsc(SysRole::getRoleSort)
+                    .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
+                    .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
+                    .eq(SysUser::getSysUserId, user.getSysUserId())
             );
             return maps.stream().map(it -> {
                 SysRole sysRole = new SysRole();
@@ -162,7 +152,7 @@ public class UserService implements UserInfoService, Constant {
 
     private Set<String> getPermission(SysUser user) {
         try {
-            return sysUserMapper.selectPermission(user.getUserId());
+            return sysUserMapper.selectPermission(user.getSysUserId());
         } catch (Exception e) {
             return Collections.emptySet();
         }
