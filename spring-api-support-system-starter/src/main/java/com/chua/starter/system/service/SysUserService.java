@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
@@ -13,6 +14,7 @@ import com.chua.starter.system.result.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -89,4 +91,12 @@ public interface SysUserService extends IService<SysUser> {
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request);
+
+    /**
+     * 获取当前登录用户的菜单列表
+     *
+     * @param roles 用户的角色集合，用于筛选菜单
+     * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
+     */
+    List<SysMenuVO> getUserMenu(Set<String> roles);
 }
