@@ -18,6 +18,7 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
@@ -122,6 +124,16 @@ public class SysUserController {
     @GetMapping("/me")
     public Result<UserInfoVO> getUserLoginInfo() {
         return Result.success(sysUserService.getUserLoginInfo());
+    }
+    /**
+     * 获取当前登录用户菜单
+     *
+     * @return 获取当前登录用户菜单
+     */
+    @Operation(summary = "获取当前登录用户菜单")
+    @GetMapping("/menu")
+    public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return Result.success(sysUserService.getUserMenu(roles));
     }
 
     /**

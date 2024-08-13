@@ -24,10 +24,12 @@ import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
+import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.setting.VerifyCodeSetting;
@@ -65,7 +67,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysUserRoleService sysUserRoleService;
     final RestTemplate restTemplate;
     final RedisTemplate redisTemplate;
-
+    final SysMenuService sysMenuService;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
@@ -279,6 +281,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
             return sysUserUpdate;
         }));
+    }
+
+    @Override
+    public List<SysMenuVO> getUserMenu(Set<String> roles) {
+        return sysMenuService.list(new SysMenuVO(), roles);
     }
 
     /**
