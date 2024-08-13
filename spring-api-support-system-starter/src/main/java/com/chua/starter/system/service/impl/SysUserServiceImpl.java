@@ -10,6 +10,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.AuthType;
@@ -29,13 +30,16 @@ import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
+import com.chua.starter.system.setting.VerifyCodeSetting;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.google.common.base.Strings;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -43,6 +47,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.*;
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
@@ -58,6 +63,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final TransactionTemplate transactionTemplate;
     final SysRoleMapper sysRoleMapper;
     final SysUserRoleService sysUserRoleService;
+    final RestTemplate restTemplate;
+    final RedisTemplate redisTemplate;
+
+    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
     public IPage<SysUser> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
@@ -92,10 +101,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        String code = loginData.getVerifyCode();
-        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
-        if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
-            return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码错误");
+        String code = loginData.getVerifyCodeKey();
+        VerifyCodeSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(VerifyCodeSetting.class);
+        if(verifyCodeSetting.isOpen()) {
+            if(StringUtils.isEmpty(code)) {
+                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
+            }
+            Result<LoginResult> rs = checkVerifyCode(loginData, request);
+            if(null != rs) {
+                return rs;
+            }
         }
 
         String address = getIpAddress(request);
@@ -117,6 +132,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .accessToken(accessToken.getToken())
                 .build();
         return Result.success(loginResult);
+    }
+
+    @SuppressWarnings("ALL")
+    private Result<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
+        String code = loginData.getVerifyCodeKey();
+        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
+        if(StringUtils.isNotBlank(sessionKey)) {
+            if (!code.equalsIgnoreCase(sessionKey)) {
+                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+            }
+            return null;
+        }
+
+        String verifyCodeUlid = loginData.getVerifyCodeUlid();
+        if(StringUtils.isNotBlank(verifyCodeUlid)) {
+            ValueOperations valueOperations = redisTemplate.opsForValue();
+            Object object = valueOperations.get(verifyCodeUlid);
+            if (null == object || !code.equalsIgnoreCase(object.toString())) {
+                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+            }
+
+            redisTemplate.delete(verifyCodeUlid);
+            return null;
+        }
+        return Result.failed(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
     }
 
     @Override

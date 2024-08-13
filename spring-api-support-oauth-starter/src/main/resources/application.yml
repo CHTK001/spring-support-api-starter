@@ -14,5 +14,6 @@ plugin:
   core:
     config: /
 server:
+  port: 19180
   servlet:
     context-path: /oauth
