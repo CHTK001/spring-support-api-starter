@@ -162,7 +162,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
-        String userId = userLoginInfo.getExtValue("userId");
+        String userId = userLoginInfo.getId();
         SysUser sysUser = getById(userId);
         UserInfoVO userInfoVO = new UserInfoVO();
         com.chua.common.support.bean.BeanUtils.copyProperties(sysUser, userInfoVO);
