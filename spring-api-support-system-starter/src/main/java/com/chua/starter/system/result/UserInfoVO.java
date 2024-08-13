@@ -1,6 +1,14 @@
 package com.chua.starter.system.result;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.chua.common.support.validator.group.AddGroup;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Set;
@@ -15,31 +23,47 @@ import java.util.Set;
 @Data
 public class UserInfoVO {
 
-    @Schema(description = "用户ID")
-    private String userId;
+    @TableId(value = "sys_user_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @NotNull(message = "不能为null")
+    private Integer sysUserId;
 
-    @Schema(description = "用户性别")
-    private Integer userSex;
+    /**
+     * 账号
+     */
+    @TableField(value = "sys_user_username")
+    @ApiModelProperty(value = "账号")
+    @Schema(description = "账号")
+    @Size(max = 255, message = "账号最大长度要小于 255")
+    @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    private String sysUserUsername;
 
-    @Schema(description = "备注")
-    private String userMarker;
+    /**
+     * 名称
+     */
+    @TableField(value = "sys_user_nickname")
+    @ApiModelProperty(value = "名称")
+    @Schema(description = "名称")
+    @Size(max = 255, message = "名称最大长度要小于 255")
+    private String sysUserNickname;
 
-    @Schema(description = "用户名称")
-    private String userName;
-    @Schema(description = "用户真实姓名")
-    private String userRealName;
-
-    @Schema(description = "用户昵称")
-    private String nickname;
-    @Schema(description = "性别")
-    private String userGender;
-    @Schema(description = "联系方式")
-    private String userMobile;
-    @Schema(description = "联系方式")
-    private String userEmail;
-    @Schema(description = "住址")
-    private String userAddress;
-
+    /**
+     * 手机号
+     */
+    @TableField(value = "sys_user_phone")
+    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
+    @Size(max = 255, message = "手机号最大长度要小于 255")
+    private String sysUserPhone;
+    /**
+     * 邮箱
+     */
+    @TableField(value = "sys_user_email")
+    @ApiModelProperty(value = "邮箱")
+    @Schema(description = "邮箱")
+    @Size(max = 255, message = "邮箱最大长度要小于 255")
+    private String sysUserEmail;
     @Schema(description = "头像地址")
     private String avatar;
 
