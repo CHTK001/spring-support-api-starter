@@ -6,6 +6,8 @@ spring:
 plugin:
   parameter:
     enable: true
+  cors:
+    enable: true
 server:
   port: 18170
   servlet:
