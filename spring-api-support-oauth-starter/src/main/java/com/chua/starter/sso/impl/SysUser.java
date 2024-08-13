@@ -1,14 +1,18 @@
 package com.chua.starter.sso.impl;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.chua.common.support.datasource.annotation.Column;
-import com.chua.starter.mybatis.pojo.SysTenantBase;
+import com.chua.common.support.validator.group.AddGroup;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * 用户表
@@ -16,105 +20,151 @@ import javax.validation.constraints.NotNull;
  * @author CH
  * @since 2023/10/16
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class SysUser extends SysTenantBase {
-    /**
-     *
-     */
-    @TableId(type = IdType.AUTO)
-    private Long userId;
-    /**
-     * 联系方式
-     */
-    private String userAddress;
-    /**
-     * 用户编号
-     */
-    private String userCode;
-    /**
-     * 用户编号
-     */
-    private String userMarker;
+public class SysUser {
+    private static final long serialVersionUID = 1L;
+    @TableId(value = "sys_user_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @NotNull(message = "不能为null")
+    private Integer sysUserId;
 
     /**
-     * 用户名
+     * 账号
      */
-    @NotNull(message = "用户名不能为空")
-    private String username;
+    @TableField(value = "sys_user_username")
+    @ApiModelProperty(value = "账号")
+    @Schema(description = "账号")
+    @Size(max = 255, message = "账号最大长度要小于 255")
+    @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    private String sysUserUsername;
 
     /**
-     * 用户真实姓名
+     * 名称
      */
-    private String userRealName;
-
-    /**
-     * 昵称
-     */
-    private String userNickname;
-
-    /**
-     * 性别((1:男;2:女))
-     */
-    @Column(comment = "性别(1:男;2:女)")
-    private Integer userGender;
-    /**
-     * 是否系统账号(1:是)
-     */
-    @Column(comment = " 是否系统账号(1:是)")
-    private Integer userSys;
+    @TableField(value = "sys_user_nickname")
+    @ApiModelProperty(value = "名称")
+    @Schema(description = "名称")
+    @Size(max = 255, message = "名称最大长度要小于 255")
+    private String sysUserNickname;
 
     /**
      * 密码
      */
-    private String userPassword;
+    @TableField(value = "sys_user_password")
+    @ApiModelProperty(value = "密码")
+    @Schema(description = "密码")
+    @Size(max = 255, message = "密码最大长度要小于 255")
+    @NotEmpty(message = "密码不能为空", groups = {AddGroup.class})
+    private String sysUserPassword;
 
-    /**
-     * 注册IP
-     */
-    private String userRegisterIp;
-
-    /**
-     * 注册地址
-     */
-    private String userRegisterAddress;
-
-    /**
-     * 部门ID
-     */
-    @NotNull(message = "用户名部门不能为空")
-    private Long deptId;
-
-    /**
-     * 用户头像
-     */
-    private String userAvatar;
-
-    /**
-     * 联系方式
-     */
-    @NotNull(message = "联系方式不能为空")
-    private String userMobile;
-
-    /**
-     * 用户状态((1:正常;0:禁用))
-     */
-    @Column(defaultValue = "1", comment = "用户状态(1:正常;0:禁用)")
-    private Integer userStatus;
-
-    /**
-     * 用户邮箱
-     */
-    private String userEmail;
-    /**
-     * 逻辑删除标识(0:未删除;1:已删除)
-     */
-    @TableLogic(value = "0", delval = "1")
-    @Column(defaultValue = "0", comment = "逻辑删除标识(0:未删除;1:已删除)")
-    private Integer userDeleted;
     /**
      * 盐
      */
-    private String userSalt;
+    @TableField(value = "sys_user_salt")
+    @ApiModelProperty(value = "盐")
+    @Schema(description = "盐")
+    @Size(max = 255, message = "盐最大长度要小于 255")
+    private String sysUserSalt;
 
+    /**
+     * 是否删除; 0: 未删除
+     */
+    @TableField(value = "sys_user_delete")
+    @ApiModelProperty(value = "是否删除; 0: 未删除")
+    @Schema(description = "是否删除; 0: 未删除")
+    @TableLogic(value = "0", delval = "1")
+    private Integer sysUserDelete;
+
+    /**
+     * 是否启用；0：禁用
+     */
+    @TableField(value = "sys_user_status")
+    @ApiModelProperty(value = "是否启用；0：禁用")
+    @Schema(description = "是否启用；0：禁用")
+    private Integer sysUserStatus;
+
+    /**
+     * 手机号
+     */
+    @TableField(value = "sys_user_phone")
+    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
+    @Size(max = 255, message = "手机号最大长度要小于 255")
+    private String sysUserPhone;
+    /**
+     * 邮箱
+     */
+    @TableField(value = "sys_user_email")
+    @ApiModelProperty(value = "邮箱")
+    @Schema(description = "邮箱")
+    @Size(max = 255, message = "邮箱最大长度要小于 255")
+    private String sysUserEmail;
+
+    /**
+     * 性别; 0:女;1:男; 2:其他
+     */
+    @TableField(value = "sys_user_sex")
+    @ApiModelProperty(value = "性别; 0:女;1:男; 2:其他")
+    @Schema(description = "性别; 0:女;1:男; 2:其他")
+    private Integer sysUserSex;
+
+    /**
+     * 是否系统账号; 0: 非系统账号
+     */
+    @TableField(value = "sys_user_in_system")
+    @ApiModelProperty(value = "是否系统账号; 0: 非系统账号")
+    @Schema(description = "是否系统账号; 0: 非系统账号")
+    private Integer sysUserInSystem;
+
+    /**
+     * 身份证
+     */
+    @TableField(value = "sys_user_card")
+    @ApiModelProperty(value = "身份证")
+    @Schema(description = "身份证")
+    @Size(max = 255, message = "身份证最大长度要小于 255")
+    private String sysUserCard;
+
+    /**
+     * 备注
+     */
+    @TableField(value = "sys_user_remark")
+    @ApiModelProperty(value = "备注")
+    @Schema(description = "备注")
+    @Size(max = 255, message = "备注最大长度要小于 255")
+    private String sysUserRemark;
+
+    /**
+     * 最后一次登录地点
+     */
+    @TableField(value = "sys_user_last_address")
+    @ApiModelProperty(value = "最后一次登录地点")
+    @Schema(description = "最后一次登录地点")
+    @Size(max = 255, message = "最后一次登录地点最大长度要小于 255")
+    private String sysUserLastAddress;
+
+    /**
+     * 最后一次登录IP
+     */
+    @TableField(value = "sys_user_last_ip")
+    @ApiModelProperty(value = "最后一次登录IP")
+    @Schema(description = "最后一次登录IP")
+    @Size(max = 255, message = "最后一次登录IP最大长度要小于 255")
+    private String sysUserLastIp;
+    /**
+     * 注册IP
+     */
+    @TableField(value = "sys_user_register_ip")
+    @ApiModelProperty(value = "注册IP")
+    @Schema(description = "注册IP")
+    @Size(max = 255, message = "注册IP最大长度要小于 255")
+    private String sysUserRegisterIp;
+
+    /**
+     * 角色名称
+     */
+    @Schema(description = "角色(系统生成)")
+    @TableField(exist = false)
+    private List<SysRole> userRoles;
 }
