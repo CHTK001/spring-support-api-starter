@@ -1,6 +1,3 @@
-server:
-  port: 19180
-
 spring:
   datasource:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
