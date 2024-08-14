@@ -86,4 +86,12 @@ public interface SysMenuService extends IService<SysMenu>{
      * @return 返回匹配的系统菜单列表
      */
     ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles);
+
+    /**
+     * 查询所有系统菜单的缓存列表
+     * 该方法返回的结果会被缓存，使用了@Cacheable注解进行缓存管理
+     *
+     * @return 返回所有系统菜单的列表
+     */
+    ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles);
 }

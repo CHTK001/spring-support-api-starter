@@ -74,6 +74,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    public ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles) {
+        return ReturnResult.ok(listAll());
+    }
+
+    @Override
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
                 .in(SysRoleMenu::getSysRoleId, roles)
