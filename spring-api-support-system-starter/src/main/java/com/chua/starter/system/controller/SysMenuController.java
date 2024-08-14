@@ -43,7 +43,17 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysMenuController {
 
     private final SysMenuService sysMenuService;
-
+    /**
+     * 菜单列表
+     *
+     * @param sysMenu 条件
+     * @return 菜单分页列表
+     */
+    @Operation(summary = "菜单列表")
+    @GetMapping("/all")
+    public ReturnResult<List<SysMenu>> all(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysMenuService.all(sysMenu, roles);
+    }
 
     /**
      * 菜单列表
