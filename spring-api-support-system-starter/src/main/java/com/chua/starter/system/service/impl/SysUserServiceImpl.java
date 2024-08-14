@@ -20,6 +20,7 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
@@ -287,7 +288,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles) {
-        return sysMenuService.list(new SysMenuVO(), roles);
+        return sysMenuService.list(new SysMenu(), roles);
     }
 
     /**
