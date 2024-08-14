@@ -143,7 +143,7 @@ public class SysUserController implements Constant {
             return Result.success("注销成功");
         }
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        LoginAuthResult accessToken = clientExecute.logout(uid, LogoutType.LOGOUT);
+        LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
         if (null == accessToken) {
             return Result.failed("退出失败请稍后重试");
         }

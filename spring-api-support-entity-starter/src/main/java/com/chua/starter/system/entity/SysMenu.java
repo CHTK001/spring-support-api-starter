@@ -46,6 +46,15 @@ public class SysMenu extends SysBase implements Serializable {
     @Size(max = 255, message = "菜单名称最大长度要小于 255")
     private String sysMenuName;
 
+
+    /**
+     * 菜单标题
+     */
+    @Schema(description = "标题")
+    @TableField(value = "sys_menu_title")
+    @ApiModelProperty(value = "标题")
+    private String sysMenuTitle;
+
     /**
      * 按钮权限
      */
