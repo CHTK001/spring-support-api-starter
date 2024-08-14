@@ -5,12 +5,16 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.ThreadUtils;
+import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
+import com.chua.starter.system.setting.GuestDefaultSetting;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,7 @@ import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
  * @author CH    
  */
 @Service
-public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService{
+public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
 
     @Override
     @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
@@ -126,4 +130,24 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
+        globalSettingFactory.register("default", new GuestDefaultSetting());
+        globalSettingFactory.register("codec", new GuestDefaultSetting());
+        upgrade();
+    }
+
+    private void upgrade() {
+        GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
+        ThreadUtils.newStaticThreadPool().execute(() -> {
+            List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
+                    .in(SysSetting::getSysSettingGroup, "default")
+                    .eq(SysSetting::getSysSettingStatus, 1)
+            );
+            for (SysSetting sysSetting : list) {
+                globalSettingFactory.set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            }
+        });
+    }
 }

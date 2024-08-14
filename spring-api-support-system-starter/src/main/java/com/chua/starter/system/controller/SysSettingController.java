@@ -1,5 +1,6 @@
 package com.chua.starter.system.controller;
 
+import com.chua.common.support.annotations.Ignore;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -70,6 +71,18 @@ public class SysSettingController {
     @ApiPlatform("system")
     public ReturnResult<List<SysSetting>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysSettingService.list(sysSettingUpdate, roles));
+    }
+    /**
+     * 设置分页列表
+     *
+     * @return 设置分页列表
+     */
+    @Operation(summary = "默认设置列表")
+    @GetMapping("/default")
+    @ApiPlatform("system")
+    @Ignore
+    public ReturnResult<List<SysSetting>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return ReturnResult.ok(sysSettingService.list(new SysSettingUpdate("default"), roles));
     }
 
     /**

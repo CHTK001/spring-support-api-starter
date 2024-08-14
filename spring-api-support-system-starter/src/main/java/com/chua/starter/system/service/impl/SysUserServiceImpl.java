@@ -34,7 +34,7 @@ import com.chua.starter.system.result.UserInfoVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
-import com.chua.starter.system.setting.VerifyCodeSetting;
+import com.chua.starter.system.setting.GuestDefaultSetting;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -106,8 +106,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         String code = loginData.getVerifyCodeKey();
-        VerifyCodeSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(VerifyCodeSetting.class);
-        if(verifyCodeSetting.isOpen()) {
+        GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
+        if(verifyCodeSetting.isOpenVerifyCode()) {
             if(StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
