@@ -61,10 +61,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             SysMenuVO sysMenuVO = new SysMenuVO();
             sysMenuVO.setName(sysMenu1.getSysMenuName());
             sysMenuVO.setPath(sysMenu1.getSysMenuPath());
+            sysMenuVO.setSysMenuId(sysMenu1.getSysMenuId());
+            sysMenuVO.setSysMenuPid(sysMenu1.getSysMenuPid());
             sysMenuVO.setComponent(sysMenu1.getSysMenuComponent());
             SysMenuVO.Meta meta = new SysMenuVO.Meta();
             meta.setIcon(sysMenu1.getSysMenuIcon());
-            meta.setTitle(sysMenu1.getSysMenuName());
+            meta.setTitle(sysMenu1.getSysMenuTitle());
             meta.setI18nKey(sysMenu1.getSysMenuI18n());
             sysMenuVO.setMeta(meta);
 
@@ -73,6 +75,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             treeNode.setLabel(sysMenuVO.getName());
             treeNode.setValue(sysMenuVO.getName());
             treeNode.setPid(sysMenuVO.getSysMenuPid().toString());
+            treeNode.setExt(sysMenuVO);
+            treeNode.setChildrenConsumer(sysMenuVO::setChildren);
 
             return treeNode;
         }));

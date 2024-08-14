@@ -3,7 +3,6 @@ package com.chua.starter.system.pojo.menu;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chua.starter.system.entity.SysMenu;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -61,7 +60,7 @@ public class SysMenuVO {
      * 子菜单
      */
     @Schema(description = "子菜单")
-    private List<SysMenu> children;
+    private List<SysMenuVO> children;
 
 
     @Schema(description = "菜单信息")
