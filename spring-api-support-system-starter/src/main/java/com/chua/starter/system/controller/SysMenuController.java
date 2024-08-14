@@ -53,7 +53,7 @@ public class SysMenuController {
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
     public ReturnResult<List<SysMenuVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return ReturnResult.ok(sysMenuService.list(sysMenu, roles));
+        return sysMenuService.list(sysMenu, roles);
     }
 
     /**

@@ -12,6 +12,7 @@ import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.result.Result;
+import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -133,6 +134,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .build();
+        CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
         return Result.success(loginResult);
     }
 
@@ -284,7 +286,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public List<SysMenuVO> getUserMenu(Set<String> roles) {
+    public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles) {
         return sysMenuService.list(new SysMenuVO(), roles);
     }
 
