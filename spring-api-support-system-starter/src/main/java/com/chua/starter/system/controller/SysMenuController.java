@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.SysLogger;
@@ -77,6 +78,7 @@ public class SysMenuController {
     @DeleteMapping("/delete")
     @OperateLog
     @SysLogger
+    @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long menuId) {
@@ -95,6 +97,7 @@ public class SysMenuController {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
+    @ApiPlatform("system")
     @OperateLog
     @Permission(value = "sys:menu:update", role = {SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -116,6 +119,7 @@ public class SysMenuController {
     @Operation(summary = "新增菜单")
     @PostMapping("/save")
     @OperateLog
+    @ApiPlatform("system")
     @Permission(value = "sys:menu:add", role = {SUPER_ADMIN})
     public ReturnResult<SysMenu> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

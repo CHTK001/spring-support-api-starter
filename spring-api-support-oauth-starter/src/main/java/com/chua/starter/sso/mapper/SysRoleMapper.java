@@ -1,7 +1,7 @@
 package com.chua.starter.sso.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.sso.impl.SysRole;
+import com.chua.starter.system.entity.SysRole;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Set;
