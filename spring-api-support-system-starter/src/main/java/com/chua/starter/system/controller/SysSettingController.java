@@ -54,6 +54,7 @@ public class SysSettingController {
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/page")
+    @ApiPlatform("system")
     @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnPageResult<SysSetting> pageForSetting(@ParameterObject  Query<SysSetting> query, @ParameterObject  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
@@ -66,6 +67,7 @@ public class SysSettingController {
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
+    @ApiPlatform("system")
     public ReturnResult<List<SysSetting>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysSettingService.list(sysSettingUpdate, roles));
     }
@@ -79,6 +81,7 @@ public class SysSettingController {
     @DeleteMapping("/delete")
     @OperateLog
     @SysLogger
+    @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long settingId) {
@@ -97,6 +100,7 @@ public class SysSettingController {
     @Operation(summary = "更新设置")
     @PutMapping("/update")
     @OperateLog
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -117,6 +121,7 @@ public class SysSettingController {
     @Operation(summary = "新增设置")
     @PostMapping("/save")
     @OperateLog
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

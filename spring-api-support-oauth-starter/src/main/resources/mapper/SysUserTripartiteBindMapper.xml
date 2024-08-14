@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.sso.mapper.SysUserTripartiteBindMapper">
 
-  <select id="getSysUser" resultType="com.chua.starter.sso.impl.SysUser">
+  <select id="getSysUser" resultType="com.chua.starter.system.entity.SysUser">
     select su.* from sys_user su
     LEFT JOIN  sys_user_tripartite_bind sutb ON su.user_id = sutb.user_id
     WHERE login_uuid = #{uuid} AND login_code_type = #{loginType}

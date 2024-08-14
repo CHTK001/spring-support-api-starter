@@ -16,17 +16,17 @@
           AND sur.sys_user_id = #{userId}
     </select>
 
-    <select id="selectCustomOne" resultType="com.chua.starter.sso.impl.SysUser">
+    <select id="selectCustomOne" resultType="com.chua.starter.system.entity.SysUser">
         SELECT
             su.*,
             sug.copms_list
         FROM
             sys_user su
-                LEFT JOIN sys_user_grid sug ON sug.user_id = su.user_id
-        WHERE su.username = #{accessKey}
+                LEFT JOIN sys_user_grid sug ON sug.user_id = su.sys_user_id
+        WHERE su.sys_user_username = #{accessKey}
     </select>
 
-    <select id="test" resultType="com.chua.starter.sso.impl.SysUser">
+    <select id="test" resultType="com.chua.starter.system.entity.SysUser">
         SELECT * FROM sys_user limit 1
 
     </select>
