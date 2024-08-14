@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysMenu;
+import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -76,4 +77,13 @@ public interface SysMenuService extends IService<SysMenu>{
      * @return 返回新增操作的结果，包括是否成功和相关消息
      */
     ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles);
+
+    /**
+     * 根据条件查询系统菜单列表
+     *
+     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查询
+     * @param roles 当前用户拥有的角色集合，用于权限过滤
+     * @return 返回匹配的系统菜单列表
+     */
+    ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles);
 }

@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.CollectionUtils;
@@ -13,6 +14,7 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysMenuMapper;
+import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
@@ -33,7 +35,43 @@ import java.util.Set;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
     final SysRoleMenuService sysRoleMenuService;
+    @Override
+    public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
+        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
+                .in(SysRoleMenu::getSysRoleId, roles)
+                .select(SysRoleMenu::getSysMenuId)
+        );
+        List<SysMenu> sysMenus = listAll();
 
+        List<SysMenu> filterMenus = Collections.emptyList();
+        if(AuthConstant.isSuperAdmin(roles)) {
+            filterMenus = sysMenus;
+        } else {
+            filterMenus = sysMenus.stream()
+                    .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
+                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
+                    .toList();
+            if(CollectionUtils.isEmpty(filterMenus)) {
+                return ReturnResult.illegal("当前帐号权限不足");
+            }
+        }
+
+
+        return ReturnResult.ok(TreeUtils.toTree(filterMenus, sysMenu1 -> {
+            SysMenuSettingVO sysMenuSettingVO = new SysMenuSettingVO();
+            BeanUtils.copyProperties(sysMenu1, sysMenuSettingVO);
+
+            TreeNode<SysMenuSettingVO> treeNode = new TreeNode<>();
+            treeNode.setId(sysMenuSettingVO.getSysMenuId().toString());
+            treeNode.setLabel(sysMenuSettingVO.getSysMenuName());
+            treeNode.setValue(sysMenuSettingVO.getSysMenuName());
+            treeNode.setPid(sysMenuSettingVO.getSysMenuPid().toString());
+            treeNode.setExt(sysMenuSettingVO);
+            treeNode.setChildrenConsumer(sysMenuSettingVO::setChildren);
+
+            return treeNode;
+        }));
+    }
 
     @Override
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles) {
@@ -134,4 +172,6 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         baseMapper.insert(sysMenu);
         return ReturnResult.guess(sysMenu);
     }
+
+
 }
