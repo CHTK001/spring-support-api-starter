@@ -54,6 +54,23 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuPerm;
 
     /**
+     * 菜单路径
+     */
+    @TableField(value = "sys_menu_path")
+    @ApiModelProperty(value = "菜单路径")
+    @Schema(description = "菜单路径")
+    private String sysMenuPath;
+
+    /**
+     * 国际化
+     */
+    @TableField(value = "sys_menu_i18n")
+    @ApiModelProperty(value = "国际化")
+    @Schema(description = "国际化")
+    @Size(max = 255, message = "国际化最大长度要小于 255")
+    private String sysMenuI18n;
+
+    /**
      * 父菜单
      */
     @TableField(value = "sys_menu_pid")
@@ -66,7 +83,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_tree_id")
     @ApiModelProperty(value = "菜单路径")
-    @Schema(description = "菜单路径")
+    @Schema(description = "菜单路径(系统生成)")
     @Size(max = 255, message = "菜单路径最大长度要小于 255")
     private String sysMenuTreeId;
 

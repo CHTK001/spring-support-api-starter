@@ -3,7 +3,6 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.CollectionUtils;
@@ -59,11 +58,20 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
 
         return ReturnResult.ok(TreeUtils.toTree(filterMenus, sysMenu1 -> {
-            SysMenuVO sysMenuVO = BeanUtils.copyProperties(sysMenu1, SysMenuVO.class);
+            SysMenuVO sysMenuVO = new SysMenuVO();
+            sysMenuVO.setName(sysMenu1.getSysMenuName());
+            sysMenuVO.setPath(sysMenu1.getSysMenuPath());
+            sysMenuVO.setComponent(sysMenu1.getSysMenuComponent());
+            SysMenuVO.Meta meta = new SysMenuVO.Meta();
+            meta.setIcon(sysMenu1.getSysMenuIcon());
+            meta.setTitle(sysMenu1.getSysMenuName());
+            meta.setI18nKey(sysMenu1.getSysMenuI18n());
+            sysMenuVO.setMeta(meta);
+
             TreeNode<SysMenuVO> treeNode = new TreeNode<>();
             treeNode.setId(sysMenuVO.getSysMenuId().toString());
-            treeNode.setLabel(sysMenuVO.getSysMenuName());
-            treeNode.setValue(sysMenuVO.getSysMenuTreeId());
+            treeNode.setLabel(sysMenuVO.getName());
+            treeNode.setValue(sysMenuVO.getName());
             treeNode.setPid(sysMenuVO.getSysMenuPid().toString());
 
             return treeNode;
