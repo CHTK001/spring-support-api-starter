@@ -13,7 +13,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.entity.SysMenu;
-import com.chua.starter.system.pojo.menu.SysMenuVO;
+import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.service.SysMenuService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,8 +53,8 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysMenuVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return sysMenuService.list(sysMenu, roles);
+    public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysMenuService.listMenu(sysMenu, roles);
     }
 
     /**
