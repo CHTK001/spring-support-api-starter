@@ -30,7 +30,7 @@ public interface SysMenuService extends IService<SysMenu>{
      * @param roles 当前用户拥有的角色集合，用于权限过滤
      * @return 返回匹配的系统菜单列表
      */
-    List<SysMenuVO> list(SysMenu sysMenu, Set<String> roles);
+    ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles);
 
     /**
      * 查询所有系统菜单的缓存列表

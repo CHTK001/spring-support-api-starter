@@ -133,7 +133,7 @@ public class SysUserController {
     @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")
     public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return Result.success(sysUserService.getUserMenu(roles));
+        return sysUserService.getUserMenu(roles);
     }
 
     /**

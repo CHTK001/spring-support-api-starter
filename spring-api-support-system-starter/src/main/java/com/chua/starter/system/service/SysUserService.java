@@ -98,5 +98,5 @@ public interface SysUserService extends IService<SysUser> {
      * @param roles 用户的角色集合，用于筛选菜单
      * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
      */
-    List<SysMenuVO> getUserMenu(Set<String> roles);
+    ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles);
 }
