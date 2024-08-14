@@ -2,10 +2,10 @@ package com.chua.starter.sso.third;
 
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.sso.impl.SysUser;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.sso.service.UserService;
+import com.chua.starter.system.entity.SysUser;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
