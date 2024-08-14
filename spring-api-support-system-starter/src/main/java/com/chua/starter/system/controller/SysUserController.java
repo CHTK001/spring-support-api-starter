@@ -97,12 +97,12 @@ public class SysUserController {
     @SysLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @OperateLog
-    public Result logout(@UserValue("token") String uid, HttpServletRequest request, HttpServletResponse response) {
+    public Result logout(@UserValue("token") String uid,String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
             return Result.success("注销成功");
         }
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        LoginAuthResult accessToken = clientExecute.logout(uid, LogoutType.LOGOUT);
+        LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
         if (null == accessToken) {
             return Result.failed("退出失败请稍后重试");
         }
