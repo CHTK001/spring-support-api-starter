@@ -52,11 +52,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
                     .toList();
+            if(CollectionUtils.isEmpty(filterMenus)) {
+                return ReturnResult.illegal("当前帐号权限不足");
+            }
         }
 
-        if(CollectionUtils.isEmpty(filterMenus)) {
-            return ReturnResult.illegal("当前帐号权限不足");
-        }
 
         return ReturnResult.ok(TreeUtils.toTree(filterMenus, sysMenu1 -> {
             SysMenuVO sysMenuVO = BeanUtils.copyProperties(sysMenu1, SysMenuVO.class);

@@ -39,12 +39,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-mybatis-starter</artifactId>
-            <version>${module.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>spring-api-support-service-starter</artifactId>
             <version>4.0.0</version>
         </dependency>

@@ -1,8 +1,8 @@
 package com.chua.starter.sso.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.sso.impl.SysUser;
 import com.chua.starter.sso.impl.SysUserTripartiteBind;
+import com.chua.starter.system.entity.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
