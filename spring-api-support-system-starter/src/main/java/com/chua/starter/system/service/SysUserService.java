@@ -7,6 +7,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
+import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
@@ -99,4 +100,14 @@ public interface SysUserService extends IService<SysUser> {
      * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
      */
     ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles);
+
+    /**
+     * 刷新用户令牌
+     *
+     * @param refreshToken 刷新令牌对象，包含旧的令牌信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含刷新结果和可能的附加信息
+     */
+    Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
 }
