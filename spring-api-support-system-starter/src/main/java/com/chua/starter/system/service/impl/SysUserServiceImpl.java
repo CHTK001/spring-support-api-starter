@@ -15,6 +15,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.AuthType;
+import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
@@ -27,6 +28,7 @@ import com.chua.starter.system.entity.SysUserRole;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
+import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
@@ -289,6 +291,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles) {
         return sysMenuService.list(new SysMenu(), roles);
+    }
+
+    @Override
+    public Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(UpgradeType.REFRESH);
+        LoginResult loginResult = LoginResult.builder()
+                .userInfo(getUserLoginInfo(upgrade.getToken()))
+                .tokenType("Bearer")
+                .accessToken(upgrade.getToken())
+                .build();
+        CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
+        return Result.success(loginResult);
     }
 
     /**

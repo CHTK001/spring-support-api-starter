@@ -19,6 +19,7 @@ import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
+import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
@@ -91,6 +92,19 @@ public class SysUserController {
         }
 
         return sysUserService.login(loginData, request, response);
+    }
+    @Operation(summary = "刷新token")
+    @PostMapping("/refresh-token")
+    @OperateLog
+    public Result<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysUserService.refresh(refreshToken, request, response);
     }
 
     @Operation(summary = "注销")
