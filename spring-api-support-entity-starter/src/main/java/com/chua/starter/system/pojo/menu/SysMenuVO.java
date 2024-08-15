@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,7 +61,7 @@ public class SysMenuVO {
      * 子菜单
      */
     @Schema(description = "子菜单")
-    private List<SysMenuVO> children;
+    private List<SysMenuVO> children = Collections.emptyList();
 
 
     @Schema(description = "菜单信息")
@@ -84,6 +85,12 @@ public class SysMenuVO {
          */
         @Schema(description = "菜单图标")
         private String icon;
+
+        /**
+         * 是否显示父菜单
+         */
+        @Schema(description = "是否显示父菜单")
+        private boolean showParent = true;
 
     }
 }
