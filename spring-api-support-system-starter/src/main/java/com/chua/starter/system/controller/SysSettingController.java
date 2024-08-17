@@ -1,6 +1,7 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.annotations.Ignore;
+import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -15,6 +16,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
+import com.chua.starter.system.pojo.setting.SysSettingVO;
 import com.chua.starter.system.service.SysSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -81,8 +83,9 @@ public class SysSettingController {
     @GetMapping("/default")
     @ApiPlatform("system")
     @Ignore
-    public ReturnResult<List<SysSetting>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return ReturnResult.ok(sysSettingService.list(new SysSettingUpdate("default"), roles));
+    public ReturnResult<List<SysSettingVO>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default"), roles);
+        return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
     /**
