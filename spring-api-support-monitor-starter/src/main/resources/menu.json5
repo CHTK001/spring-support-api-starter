@@ -404,7 +404,7 @@
     },
     children: [
       {
-        path: "/gis",
+        path: "/gis/index",
         component: "gis/index",
         name: "gis管理",
         hidden: false,
