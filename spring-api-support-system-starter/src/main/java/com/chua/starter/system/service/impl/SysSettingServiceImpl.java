@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
@@ -36,7 +37,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
-                .eq(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, sysSettingUpdate.getSysSettingGroup())
+                .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))
         );
     }
 
