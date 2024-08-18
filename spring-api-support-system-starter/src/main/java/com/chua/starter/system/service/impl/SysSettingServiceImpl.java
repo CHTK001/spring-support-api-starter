@@ -16,7 +16,6 @@ import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -125,7 +124,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @param sysSetting 配置
      * @return 是否成功
      */
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSetting.sysSettingGroup")
+    @Override
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }
