@@ -90,6 +90,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         boolean b = baseMapper.updateById(sysSetting) > 0;
+        GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(b);
     }
@@ -108,6 +109,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
 
         if(baseMapper.insert(sysSetting) > 0) {
+            GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
             return ReturnResult.of(sysSettingService.clearCache(sysSetting));
         }
         return ReturnResult.illegal("新增失败");
