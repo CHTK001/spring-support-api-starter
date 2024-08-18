@@ -71,8 +71,9 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @ApiPlatform("system")
-    public ReturnResult<List<SysSetting>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return ReturnResult.ok(sysSettingService.list(sysSettingUpdate, roles));
+    public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
+        return ReturnResult.ok(BeanUtils.copyPropertiesList(list, SysSettingVO.class));
     }
     /**
      * 设置分页列表
