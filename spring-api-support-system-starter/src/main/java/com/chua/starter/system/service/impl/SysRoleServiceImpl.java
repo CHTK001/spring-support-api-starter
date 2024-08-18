@@ -68,7 +68,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public ReturnResult<Boolean> updateRole(Set<String> roles, SysRole sysRole) {
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
-        if(null != sysRoleInSystem && sysRoleInSystem == 1) {
+        if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isSuperAdmin(roles)) {
             return ReturnResult.fail("内置角色不允许修改");
         }
 
