@@ -155,7 +155,6 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         ThreadUtils.newStaticThreadPool().execute(() -> {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                    .in(SysSetting::getSysSettingGroup, "default")
                     .eq(SysSetting::getSysSettingStatus, 1)
             );
             for (SysSetting sysSetting : list) {
