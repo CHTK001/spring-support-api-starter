@@ -6,9 +6,12 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Set;
+
+import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * @author CH
@@ -49,7 +52,14 @@ public interface SysSettingService extends IService<SysSetting> {
      * @return 保存结果，包含成功与否的标志和消息以及保存的实体
      */
     ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles);
-
+    /**
+     * 清除缓存
+     *
+     * @param sysSetting 需要清除缓存的系统设置对象
+     * @return 清除结果，包含成功与否的标志和消息
+     */
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSetting.sysSettingGroup")
+    SysSetting clearCache(SysSetting sysSetting);
     /**
      * 分页查询系统设置
      *
