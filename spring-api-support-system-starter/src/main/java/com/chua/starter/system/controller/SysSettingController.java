@@ -100,12 +100,12 @@ public class SysSettingController {
     @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long settingId) {
-        if (null == settingId) {
+    public ReturnResult<Boolean> delete(Long sysSettingId) {
+        if (null == sysSettingId) {
             return Result.illegal("设置信息不存在");
         }
 
-        return sysSettingService.delete(settingId);
+        return sysSettingService.delete(sysSettingId);
     }
 
     /**
