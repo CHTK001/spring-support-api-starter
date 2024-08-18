@@ -90,7 +90,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         boolean b = baseMapper.updateById(sysSetting) > 0;
-        GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+        if(sysSetting.getSysSettingStatus() == 1) {
+            GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+        }
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(b);
     }
@@ -101,6 +103,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if(!AuthConstant.isSuperAdmin(roles)) {
             sysSetting.setSysSettingAppInner(0);
         }
+
+        if(null == sysSetting.getSysSettingStatus()) {
+            sysSetting.setSysSettingStatus(1);
+        }
         SysSetting setting = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
                 .eq(SysSetting::getSysSettingName, sysSetting.getSysSettingName())
                 .eq(SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup()));
@@ -109,7 +115,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
 
         if(baseMapper.insert(sysSetting) > 0) {
-            GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            if(sysSetting.getSysSettingStatus() == 1) {
+                GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            }
             return ReturnResult.of(sysSettingService.clearCache(sysSetting));
         }
         return ReturnResult.illegal("新增失败");
