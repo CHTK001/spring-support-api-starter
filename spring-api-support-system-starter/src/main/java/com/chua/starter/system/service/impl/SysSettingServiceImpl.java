@@ -16,6 +16,7 @@ import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,9 @@ import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
  */
 @Service
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
+
+    @Autowired
+    private SysSettingService sysSettingService;
 
     @Override
     @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
@@ -58,7 +62,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
 
         int b = baseMapper.deleteById(settingId);
-        clearCache(sysSetting);
+        sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(b);
     }
 
@@ -86,7 +90,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         boolean b = baseMapper.updateById(sysSetting) > 0;
-        clearCache(sysSetting);
+        sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(b);
     }
 
@@ -104,7 +108,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
 
         if(baseMapper.insert(sysSetting) > 0) {
-            return ReturnResult.of(clearCache(sysSetting));
+            return ReturnResult.of(sysSettingService.clearCache(sysSetting));
         }
         return ReturnResult.illegal("新增失败");
     }
