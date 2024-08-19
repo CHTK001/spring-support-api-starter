@@ -40,7 +40,7 @@ public interface SysMenuService extends IService<SysMenu>{
      *
      * @return 返回所有系统菜单的列表
      */
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:menu:list:all'")
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:menu:list:all'")
     List<SysMenu> listAll();
 
     /**
