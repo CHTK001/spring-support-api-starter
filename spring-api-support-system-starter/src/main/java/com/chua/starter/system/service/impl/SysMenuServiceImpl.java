@@ -82,12 +82,15 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles) {
+    public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
         List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
                 .in(SysRoleMenu::getSysRoleId, roles)
                 .select(SysRoleMenu::getSysMenuId)
         );
         List<SysMenu> sysMenus = listAll();
+        if(ignoreType > -1) {
+            sysMenus = sysMenus.stream().filter(sysMenu1 -> sysMenu1.getSysMenuType() != ignoreType).toList();
+        }
 
         List<SysMenu> filterMenus = Collections.emptyList();
         if(AuthConstant.isSuperAdmin(roles)) {
@@ -143,7 +146,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public List<SysMenu> listAll() {
-        return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery().orderByAsc(SysMenu::getSysMenuSort));
+        return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
+                .orderByAsc(SysMenu::getSysMenuSort));
     }
 
 
