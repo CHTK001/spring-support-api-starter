@@ -290,7 +290,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles) {
-        return sysMenuService.list(new SysMenu(), roles);
+        return sysMenuService.list(new SysMenu(), roles, 3);
     }
 
     @Override
