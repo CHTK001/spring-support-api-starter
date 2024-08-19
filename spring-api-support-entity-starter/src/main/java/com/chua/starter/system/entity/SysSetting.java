@@ -58,6 +58,14 @@ public class SysSetting extends SysBase implements Serializable {
     @Size(max = 255, message = "配置值最大长度要小于 255")
     private String sysSettingValue;
     /**
+     * 配置参数
+     */
+    @TableField(value = "sys_setting_config")
+    @ApiModelProperty(value = "配置参数")
+    @Schema(description = "配置参数")
+    @Size(max = 255, message = "配置参数最大长度要小于 255")
+    private String sysSettingConfig;
+    /**
      * 配置备注
      */
     @TableField(value = "sys_setting_remark")
