@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -26,9 +24,8 @@ import java.io.Serializable;
 @ApiModel(description = "用户 - 角色关系表")
 @Schema(description = "用户 - 角色关系表")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_role")
-public class SysUserRole extends SysBase implements Serializable {
+public class SysUserRole implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(value = "sys_user_role_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
