@@ -70,7 +70,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         return ReturnResult.of( sysDictItem);
     }
     @Override
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:dict:item:id:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictId")
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
     }
