@@ -162,7 +162,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid()) {
+        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
             sysMenu.setSysMenuPid(0);
             menuTreeId = "0," + sysMenu.getSysMenuId();
         } else {
@@ -179,7 +179,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid()) {
+        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
             sysMenu.setSysMenuPid(0);
             menuTreeId = "0," + sysMenu.getSysMenuId();
         } else {
