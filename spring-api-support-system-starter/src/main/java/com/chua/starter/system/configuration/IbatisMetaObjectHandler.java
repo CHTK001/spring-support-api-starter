@@ -40,12 +40,18 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        registerField(metaObject, "createTime", CREATE);
-        
+        if(null != metaObject.getGetterType("createTime")) {
+            registerField(metaObject, "createTime", CREATE);
+        }
+
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
-            registerField(metaObject, "createBy",  userLoginInfo.getExtValue("userId"), CREATE);
-            registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+            if(null != metaObject.getGetterType("createBy")) {
+                registerField(metaObject, "createBy",  userLoginInfo.getExtValue("userId"), CREATE);
+            }
+            if(null != metaObject.getGetterType("createName")) {
+                registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+            }
         }
 
     }
@@ -57,12 +63,18 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
-        registerField(metaObject, "updateTime", UPDATE);
+        if(null != metaObject.getGetterType("updateTime")) {
+            registerField(metaObject, "updateTime", UPDATE);
+        }
 
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
-            registerField(metaObject, "updateBy",  userLoginInfo.getExtValue("userId"), UPDATE);
-            registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
+            if(null != metaObject.getGetterType("updateBy")) {
+                registerField(metaObject, "updateBy",  userLoginInfo.getExtValue("userId"), UPDATE);
+            }
+            if(null != metaObject.getGetterType("updateName")) {
+                registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
+            }
         }
     }
 

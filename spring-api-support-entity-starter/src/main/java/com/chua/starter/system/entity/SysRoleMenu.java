@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -26,9 +24,8 @@ import java.io.Serializable;
 @ApiModel(description = "角色 - 菜单关系表")
 @Schema(description = "角色 - 菜单关系表")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_role_menu")
-public class SysRoleMenu extends SysBase implements Serializable {
+public class SysRoleMenu implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
