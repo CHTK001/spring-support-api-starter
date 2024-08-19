@@ -19,11 +19,11 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * 分页查询字典项
      *
      * @param query  查询条件对象，用于封装分页及排序等信息
-     * @param sysDictItem  字典项实体对象，用于过滤查询结果
+     * @param sysDictId  字典项实体对象，用于过滤查询结果
      * @param roles  用户角色集合，用于进行权限控制
      * @return 分页查询结果，包含字典项列表和分页信息
      */
-    IPage<SysDictItem> pageForDictItem(Query<SysDictItem> query, SysDictItem sysDictItem, Set<String> roles);
+    IPage<SysDictItem> listForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles);
 
     /**
      * 删除指定的字典项
@@ -50,4 +50,11 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @return 新增操作的结果，包含成功与否的标志和消息，以及新增的字典项信息
      */
     ReturnResult<SysDictItem> save(SysDictItem sysDictItem, Set<String> roles);
+
+    /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCache(SysDictItem sysDictItem);
 }

@@ -9,9 +9,14 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.mapper.SysDictItemMapper;
 import com.chua.starter.system.service.SysDictItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+
+import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
+
 /**
  *
  * @since 2024/8/7
@@ -20,12 +25,15 @@ import java.util.Set;
 @Service
 public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDictItem> implements SysDictItemService{
 
+    @Autowired
+    private SysDictItemService sysDictItemService;
+
+
     @Override
-    public IPage<SysDictItem> pageForDictItem(Query<SysDictItem> query, SysDictItem sysDictItem, Set<String> roles) {
+    public IPage<SysDictItem> listForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysDictItem>lambdaQuery()
-                .eq(SysDictItem::getSysDictId, sysDictItem.getSysDictId())
-                .like(StringUtils.isNotBlank(sysDictItem.getSysDictItemName()), SysDictItem::getSysDictItemName, sysDictItem.getSysDictItemName())
-                .like(StringUtils.isNotBlank(sysDictItem.getSysDictItemRemark()), SysDictItem::getSysDictItemRemark, sysDictItem.getSysDictItemRemark())
+                .eq(SysDictItem::getSysDictId, sysDictId)
+                .orderByAsc(SysDictItem::getSysDictItemSort)
                 .orderByDesc(SysDictItem::getCreateTime)
         );
     }
@@ -58,6 +66,12 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
             return ReturnResult.fail("字典编码已存在");
         }
         baseMapper.insert(sysDictItem);
+        sysDictItemService.deleteCache(sysDictItem);
         return ReturnResult.of( sysDictItem);
+    }
+    @Override
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:dict:item:id:' + #sysDictItem.sysDictId")
+    public void deleteCache(SysDictItem sysDictItem) {
+        //NOTHING
     }
 }
