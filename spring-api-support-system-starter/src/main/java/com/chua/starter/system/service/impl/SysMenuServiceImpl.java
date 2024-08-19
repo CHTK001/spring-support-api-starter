@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
@@ -169,7 +170,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             if(null == parentSysMenu) {
                 return ReturnResult.error("父级菜单不存在");
             }
-            menuTreeId = parentSysMenu.getSysMenuTreeId() + "," + sysMenu.getSysMenuId();
+            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuPid(), sysMenu.getSysMenuId());
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
         return ReturnResult.of(baseMapper.updateById(sysMenu) > 0);
