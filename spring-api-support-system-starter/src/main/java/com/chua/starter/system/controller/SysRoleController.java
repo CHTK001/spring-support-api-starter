@@ -101,7 +101,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:menu:get", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-            @Validated(SelectGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
+            @Validated(SelectGroup.class)  RoleMenuUpdate roleMenuUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
