@@ -187,7 +187,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             if(null == parentSysMenu) {
                 return ReturnResult.error("父级菜单不存在");
             }
-            menuTreeId = parentSysMenu.getSysMenuTreeId() + "," + sysMenu.getSysMenuId();
+            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuPid(), sysMenu.getSysMenuId());
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
         baseMapper.insert(sysMenu);
