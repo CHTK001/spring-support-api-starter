@@ -28,10 +28,11 @@ public interface SysMenuService extends IService<SysMenu>{
      * 根据条件查询系统菜单列表
      *
      * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查询
-     * @param roles 当前用户拥有的角色集合，用于权限过滤
+     * @param roles   当前用户拥有的角色集合，用于权限过滤
+     * @param  ignoreType 忽略的类型
      * @return 返回匹配的系统菜单列表
      */
-    ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles);
+    ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType);
 
     /**
      * 查询所有系统菜单的缓存列表
