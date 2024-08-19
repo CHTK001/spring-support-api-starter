@@ -37,7 +37,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private SysSettingService sysSettingService;
 
     @Override
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))

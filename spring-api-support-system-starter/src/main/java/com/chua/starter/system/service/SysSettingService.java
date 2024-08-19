@@ -58,7 +58,7 @@ public interface SysSettingService extends IService<SysSetting> {
      * @param sysSetting 需要清除缓存的系统设置对象
      * @return 清除结果，包含成功与否的标志和消息
      */
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:setting:id:' + #sysSetting.sysSettingGroup")
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:setting:id:' + #sysSetting.sysSettingGroup")
     SysSetting clearCache(SysSetting sysSetting);
     /**
      * 分页查询系统设置
