@@ -170,7 +170,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             if(null == parentSysMenu) {
                 return ReturnResult.error("父级菜单不存在");
             }
-            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuPid(), sysMenu.getSysMenuId());
+            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
         return ReturnResult.of(baseMapper.updateById(sysMenu) > 0);
@@ -187,7 +187,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             if(null == parentSysMenu) {
                 return ReturnResult.error("父级菜单不存在");
             }
-            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuPid(), sysMenu.getSysMenuId());
+            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
         baseMapper.insert(sysMenu);
