@@ -3,7 +3,6 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
-import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
@@ -19,6 +18,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
+import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * 字典子项接口
@@ -46,16 +48,16 @@ public class SysDictItemController {
     /**
      * 字典子项分页列表
      *
-     * @param sysDictItem 条件
      * @return 字典子项分页列表
      */
-    @Operation(summary = "字典子项分页列表")
-    @GetMapping("/page")
-    public ReturnPageResult<SysDictItem> pageForRole(@ParameterObject Query<SysDictItem> query, @ParameterObject @Validated(SelectGroup.class) SysDictItem sysDictItem, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ReturnPageResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+    @Operation(summary = "字典子项列表")
+    @GetMapping("/list")
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:dict:item:id:' + #dictItemId")
+    public ReturnPageResult<SysDictItem> list(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == dictItemId) {
+            return ReturnPageResult.illegal("字典不能为空");
         }
-        return PageResultUtils.ok(sysDictItemService.pageForDictItem(query, sysDictItem, roles));
+        return PageResultUtils.ok(sysDictItemService.listForItem(query, dictItemId, roles));
     }
 
     /**
@@ -69,6 +71,7 @@ public class SysDictItemController {
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dict:item:delete", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:dict:item:id:' + #dictItemId")
     public ReturnResult<Boolean> delete(Long dictItemId) {
         if (null == dictItemId) {
             return Result.illegal("字典子项信息不存在");
@@ -86,6 +89,7 @@ public class SysDictItemController {
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
     @OperateLog
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'sys:dict:item:id:' + #sysDictItem.sysDictId")
     @Permission(value = "sys:dict:item:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

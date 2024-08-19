@@ -85,4 +85,11 @@ public class SysDictItem extends SysBase implements Serializable {
     @ApiModelProperty(value = "状态;0: 隐藏")
     @Schema(description = "状态;0: 隐藏")
     private Integer sysDictItemStatus;
+    /**
+     * 优先级
+     */
+    @TableField(value = "sys_dict_item_sort")
+    @ApiModelProperty(value = "优先级")
+    @Schema(description = "优先级")
+    private Integer sysDictItemSort;
 }
