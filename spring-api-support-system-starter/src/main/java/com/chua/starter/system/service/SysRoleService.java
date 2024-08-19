@@ -57,4 +57,12 @@ public interface SysRoleService extends IService<SysRole> {
      * @return 更新结果，包含操作是否成功的标志
      */
     ReturnResult<Boolean> updateMenu(Set<String> roles, RoleMenuUpdate roleMenuUpdate);
+
+    /**
+     * 获取角色菜单
+     *
+     * @param roleMenuUpdate 角色菜单更新对象，包含角色菜单的变更信息
+     * @return 更新结果，包含操作是否成功的标志
+     */
+    ReturnResult<Set<Integer>> getMenu(RoleMenuUpdate roleMenuUpdate);
 }

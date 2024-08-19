@@ -1,5 +1,6 @@
 package com.chua.starter.system.pojo.role;
 
+import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class RoleMenuUpdate {
     /**
      * 角色ID
      */
-    @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class})
+    @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
     @Schema(description = "角色ID")
     private Integer roleId;
 

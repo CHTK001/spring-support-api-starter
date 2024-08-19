@@ -21,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -123,5 +124,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             }
             return true;
         })));
+    }
+
+    @Override
+    public ReturnResult<Set<Integer>> getMenu(RoleMenuUpdate roleMenuUpdate) {
+        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery().eq(SysRoleMenu::getSysRoleId, roleMenuUpdate.getRoleId()));
+        return ReturnResult.ok(list.stream().map(SysRoleMenu::getSysMenuId).collect(Collectors.toUnmodifiableSet()));
     }
 }

@@ -3,6 +3,7 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
@@ -83,7 +84,7 @@ public class SysRoleController {
     @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
     @OperateLog
-    @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:role:menu:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
@@ -93,6 +94,20 @@ public class SysRoleController {
         }
 
         return sysRoleService.updateMenu(roles, roleMenuUpdate);
+    }
+    @Operation(summary = "获取角色菜单")
+    @GetMapping("/get_menu")
+    @OperateLog
+    @Permission(value = "sys:role:menu:get", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Set<Integer>> getMenu(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(SelectGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysRoleService.getMenu(roleMenuUpdate);
     }
     /**
      * 更新角色
