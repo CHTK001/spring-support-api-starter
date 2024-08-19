@@ -61,6 +61,18 @@ public class SysMenu extends SysBase implements Serializable {
     @Schema(description = "权限")
     @TableField(value = "sys_menu_perm")
     private String sysMenuPerm;
+    /**
+     * 按钮权限
+     */
+    @Schema(description = "菜单激活")
+    @TableField(value = "sys_menu_active_path")
+    private String sysMenuActivePath;
+    /**
+     * 按钮权限
+     */
+    @Schema(description = "链接地址")
+    @TableField(value = "sys_menu_frame_src")
+    private String sysMenuFrameSrc;
 
     /**
      * 菜单路径
@@ -113,6 +125,14 @@ public class SysMenu extends SysBase implements Serializable {
     @Schema(description = "菜单图标")
     @Size(max = 255, message = "菜单图标最大长度要小于 255")
     private String sysMenuIcon;
+    /**
+     * 右侧菜单图标
+     */
+    @TableField(value = "sys_menu_extra_icon")
+    @ApiModelProperty(value = "右侧菜单图标")
+    @Schema(description = "右侧菜单图标")
+    @Size(max = 255, message = "右侧菜单图标最大长度要小于 255")
+    private String sysMenuExtraIcon;
 
     /**
      * 菜单 0 按钮 1
@@ -136,7 +156,49 @@ public class SysMenu extends SysBase implements Serializable {
     @ApiModelProperty(value = "所属权限")
     @Schema(description = "所属权限")
     private String sysMenuRole;
+    /**
+     * 路由重定向
+     */
+    @TableField(value = "sys_menu_redirect")
+    @ApiModelProperty(value = "路由重定向")
+    @Schema(description = "路由重定向")
+    private String sysMenuRedirect;
+    /**
+     * 进场动画
+     */
+    @TableField(value = "sys_menu_enter_transition")
+    @ApiModelProperty(value = "进场动画")
+    @Schema(description = "进场动画")
+    private String sysMenuEnterTransition;
+    /**
+     * 进场动画
+     */
+    @TableField(value = "sys_menu_leave_transition")
+    @ApiModelProperty(value = "离场动画")
+    @Schema(description = "离场动画")
+    private String sysMenuLeaveTransition;
 
+    /**
+     * 是否缓存；0:否
+     */
+    @TableField(value = "sys_menu_keep_alive")
+    @ApiModelProperty(value = "是否缓存；0:否")
+    @Schema(description = "是否缓存；0:否")
+    private Integer sysMenuKeepAlive;
+    /**
+     * 是否在标签栏隐藏；0:否
+     */
+    @TableField(value = "sys_menu_hidden_tag")
+    @ApiModelProperty(value = "是否在标签栏隐藏；0:否")
+    @Schema(description = "是否在标签栏隐藏；0:否")
+    private Integer sysMenuHiddenTag;
+    /**
+     * 是否固定标签；0:否
+     */
+    @TableField(value = "sys_menu_fixed_tag")
+    @ApiModelProperty(value = "是否固定标签；0:否")
+    @Schema(description = "是否固定标签；0:否")
+    private Integer sysMenuFixedTag;
     /**
      * 是否隐藏；0:显示
      */
@@ -144,4 +206,11 @@ public class SysMenu extends SysBase implements Serializable {
     @ApiModelProperty(value = "是否隐藏；0:显示")
     @Schema(description = "是否隐藏；0:显示")
     private Integer sysMenuHidden;
+    /**
+     * 是否隐藏；0:显示
+     */
+    @TableField(value = "sys_menu_show_parent")
+    @ApiModelProperty(value = "当一个子级菜单是否隐藏父级菜单；0:显示")
+    @Schema(description = "当一个子级菜单是否隐藏父级菜单；0:显示")
+    private Integer sysMenuShowParent;
 }
