@@ -129,6 +129,13 @@ public class SysMenu extends SysBase implements Serializable {
     @ApiModelProperty(value = "优先级")
     @Schema(description = "优先级")
     private Integer sysMenuSort;
+    /**
+     * 所属权限
+     */
+    @TableField(value = "sys_menu_role")
+    @ApiModelProperty(value = "所属权限")
+    @Schema(description = "所属权限")
+    private String sysMenuRole;
 
     /**
      * 是否隐藏；0:显示
