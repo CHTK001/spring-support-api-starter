@@ -122,8 +122,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             meta.setFrameSrc(sysMenu1.getSysMenuFrameSrc());
             meta.setActivePath(sysMenu1.getSysMenuActivePath());
             meta.setAuths(Splitter.on(",").trimResults().omitEmptyStrings().split(sysMenu1.getSysMenuPerm()));
-            meta.setShowLink(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 1));
-            meta.setShowParent(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuShowParent(), 0), 1));
+            meta.setShowLink(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0));
+            meta.setShowParent(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuShowParent(), 0), 0));
             meta.setKeepAlive(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1));
             meta.setHiddenTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHiddenTag(), 0), 1));
             meta.setFixedTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuFixedTag(), 0), 1));
@@ -143,7 +143,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public List<SysMenu> listAll() {
-        return baseMapper.selectList(Wrappers.lambdaQuery());
+        return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery().orderByAsc(SysMenu::getSysMenuSort));
     }
 
 
