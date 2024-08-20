@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
@@ -30,6 +31,7 @@ import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
+import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -75,7 +77,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
-    public IPage<SysUser> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
+    public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
 
         Page<SysUser> sysUserPage = baseMapper.selectPage(sysUserQuery.createPage(), new MPJLambdaWrapper<>(SysUser.class)
                 .selectAll(SysUser.class)
@@ -93,17 +95,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .orderByDesc(SysUser::getCreateTime)
         );
 
-        List<SysUser> records = sysUserPage.getRecords();
+        List<SysUser> records1 = sysUserPage.getRecords();
+        Page<SysUserVO> result = new Page<>();
+        result.setCurrent(sysUserPage.getCurrent())
+                .setSize(sysUserPage.getSize())
+                .setTotal(sysUserPage.getTotal())
+                .setRecords(records1.stream().map(it -> BeanUtils.copyProperties(it, SysUserVO.class)).collect(Collectors.toList()));
+        List<SysUserVO> records = result.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return sysUserPage;
+            return result;
         }
-        Set<Integer> userIds = records.stream().map(SysUser::getSysUserId).collect(Collectors.toUnmodifiableSet());
+        Set<Integer> userIds = records.stream().map(SysUserVO::getSysUserId).collect(Collectors.toUnmodifiableSet());
         List<SysRole> sysRoles = sysRoleMapper.listByUserId(userIds);
         Map<Integer, List<SysRole>> collect = sysRoles.stream().collect(Collectors.groupingBy(SysRole::getSysUserId));
-        for (SysUser sysUser : records) {
+        for (SysUserVO sysUser : records) {
             sysUser.setUserRoles(collect.getOrDefault(sysUser.getSysUserId(), Collections.emptyList()));
         }
-        return sysUserPage;
+        return result;
     }
 
     @Override
