@@ -79,13 +79,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         Page<SysUser> sysUserPage = baseMapper.selectPage(sysUserQuery.createPage(), new MPJLambdaWrapper<>(SysUser.class)
                 .selectAll(SysUser.class)
-                .innerJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
-                .innerJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
+                .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
+                .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
                 .like(StringUtils.isNotBlank(sysUserQuery.getUsername()), SysUser::getSysUserUsername, sysUserQuery.getUsername())
                 .like(StringUtils.isNotBlank(sysUserQuery.getNickname()), SysUser::getSysUserNickname, sysUserQuery.getNickname())
                 .like(StringUtils.isNotBlank(sysUserQuery.getPhone()), SysUser::getSysUserPhone, sysUserQuery.getPhone())
-                .ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
                 .notIn(!AuthConstant.hasAdmin(roles), SysRole::getSysRoleCode, AuthConstant.ADMIN)
+                .and(w -> {
+                    w.ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
+                            .or()
+                            .isNull(SysRole::getSysRoleCode);
+                })
                 .orderByDesc(SysUser::getCreateTime)
         );
 
@@ -106,12 +110,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         String code = loginData.getVerifyCodeKey();
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
-        if(verifyCodeSetting.isOpenVerifyCode()) {
-            if(StringUtils.isEmpty(code)) {
+        if (verifyCodeSetting.isOpenVerifyCode()) {
+            if (StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
             Result<LoginResult> rs = checkVerifyCode(loginData, request);
-            if(null != rs) {
+            if (null != rs) {
                 return rs;
             }
         }
@@ -142,7 +146,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private Result<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
-        if(StringUtils.isNotBlank(sessionKey)) {
+        if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
                 return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
             }
@@ -150,7 +154,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         String verifyCodeUlid = loginData.getVerifyCodeUlid();
-        if(StringUtils.isNotBlank(verifyCodeUlid)) {
+        if (StringUtils.isNotBlank(verifyCodeUlid)) {
             ValueOperations valueOperations = redisTemplate.opsForValue();
             Object object = valueOperations.get(verifyCodeUlid);
             if (null == object || !code.equalsIgnoreCase(object.toString())) {
