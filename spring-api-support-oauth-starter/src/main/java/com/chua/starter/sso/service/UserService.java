@@ -71,7 +71,8 @@ public class UserService implements UserInfoService, Constant {
             return check(newAccessKey, boos);
         }
 
-//        sysUserMapper.updateById(user);
+        user.setSysUserLastAddress(address);
+        sysUserMapper.updateById(user);
         stringRedisTemplate.delete(newAccessKey);
 
         return loginInfo(username, user);
