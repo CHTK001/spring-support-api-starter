@@ -267,6 +267,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserSalt(RandomUtils.randomString(14));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(0);
+        sysUserUpdate.setSysUserDelete(0);
+        sysUserUpdate.setSysUserStatus(1);
         sysUserUpdate.setSysUserRegisterIp(getIpAddress(request));
         sysUserUpdate.setSysUserLastIp(getIpAddress());
         sysUserUpdate.setSysUserLastAddress(null);
