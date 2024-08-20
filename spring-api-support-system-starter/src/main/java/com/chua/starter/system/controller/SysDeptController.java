@@ -110,7 +110,6 @@ public class SysDeptController {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
-
         return sysDeptService.save(SysDept, roles);
     }
 }
