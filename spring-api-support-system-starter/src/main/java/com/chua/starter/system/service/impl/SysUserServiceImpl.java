@@ -84,7 +84,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .like(StringUtils.isNotBlank(sysUserQuery.getUsername()), SysUser::getSysUserUsername, sysUserQuery.getUsername())
                 .like(StringUtils.isNotBlank(sysUserQuery.getNickname()), SysUser::getSysUserNickname, sysUserQuery.getNickname())
                 .like(StringUtils.isNotBlank(sysUserQuery.getPhone()), SysUser::getSysUserPhone, sysUserQuery.getPhone())
-                .ne(AuthConstant.isAdmin(roles), SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
+                .ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
+                .notIn(!AuthConstant.hasAdmin(roles), SysRole::getSysRoleCode, AuthConstant.ADMIN)
                 .orderByDesc(SysUser::getCreateTime)
         );
 
