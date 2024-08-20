@@ -77,10 +77,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public IPage<SysUser> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
 
-        if (!AuthConstant.hasAdmin(roles)) {
-            return new Page<>();
-        }
-
         Page<SysUser> sysUserPage = baseMapper.selectPage(sysUserQuery.createPage(), new MPJLambdaWrapper<>(SysUser.class)
                 .selectAll(SysUser.class)
                 .innerJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)

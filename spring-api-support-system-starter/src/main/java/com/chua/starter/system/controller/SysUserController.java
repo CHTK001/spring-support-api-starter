@@ -66,6 +66,7 @@ public class SysUserController {
      */
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
+    @Permission("sys:user:page")
     public ReturnPageResult<SysUser> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles));
     }
