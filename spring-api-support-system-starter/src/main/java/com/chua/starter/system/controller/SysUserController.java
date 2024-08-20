@@ -21,6 +21,7 @@ import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
+import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -67,7 +68,7 @@ public class SysUserController {
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
     @Permission("sys:user:page")
-    public ReturnPageResult<SysUser> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles));
     }
 

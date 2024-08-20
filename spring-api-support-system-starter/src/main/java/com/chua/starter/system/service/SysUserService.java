@@ -9,6 +9,7 @@ import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
+import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -31,7 +32,7 @@ public interface SysUserService extends IService<SysUser> {
      * @param roles 用户角色集合，用于筛选用户
      * @return 分页查询结果，包含用户信息列表和分页数据
      */
-    IPage<SysUser> pageForUser(SysUserQuery sysUserQuery, Set<String> roles);
+    IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles);
 
     /**
      * 用户登录方法，根据登录数据进行用户身份验证
