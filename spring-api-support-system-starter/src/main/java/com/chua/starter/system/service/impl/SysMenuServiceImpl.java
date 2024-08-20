@@ -8,10 +8,7 @@ import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.ObjectUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.TreeUtils;
+import com.chua.common.support.utils.*;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
@@ -95,6 +92,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         List<SysMenu> filterMenus = Collections.emptyList();
         if(AuthConstant.isSuperAdmin(roles)) {
             filterMenus = sysMenus;
+        } else if(AuthConstant.isAdmin(roles)) {
+            filterMenus = sysMenus.stream().filter(it -> {
+                String sysMenuRole = it.getSysMenuRole();
+                return StringUtils.isEmpty(sysMenuRole) || ArrayUtils.containsIgnoreCase(it.getSysMenuRole().split(","), AuthConstant.ADMIN);
+            }).toList();
         } else {
             filterMenus = sysMenus.stream()
                     .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
