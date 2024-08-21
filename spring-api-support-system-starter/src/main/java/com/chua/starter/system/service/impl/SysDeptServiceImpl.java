@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.ObjectUtils;
@@ -37,6 +38,12 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             treeNode.setId(String.valueOf(sysDeptVO.getSysDeptId()));
             treeNode.setPid(String.valueOf(sysDeptVO.getSysDeptPid()));
             treeNode.setExt(sysDeptVO);
+            treeNode.setChildrenConsumer(new SafeConsumer<List<SysDeptVO>>() {
+                @Override
+                public void safeAccept(List<SysDeptVO> sysDeptVOS) throws Throwable {
+                    sysDeptVO.setChildren(sysDeptVOS);
+                }
+            });
             return treeNode;
         });
     }
