@@ -84,6 +84,15 @@ public class SysUser extends SysBase implements Serializable {
     @TableLogic(value = "0", delval = "1")
     private Integer sysUserDelete;
 
+
+    /**
+     * 部门ID
+     */
+    @TableField(value = "sys_dept_id")
+    @ApiModelProperty(value = "部门ID")
+    @Schema(description = "部门ID")
+    private Integer sysDeptId;
+
     /**
      * 是否启用；0：禁用
      */
