@@ -79,4 +79,16 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     public ReturnResult<Boolean> delete(Long userLogId) {
         return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
     }
+
+    @Override
+    public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLog sysUserLog, Integer sysUserId, Set<String> roles) {
+        return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
+                .eq(SysUserLog::getCreateBy, sysUserId)
+                .like(StringUtils.isNotBlank(sysUserLog.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLog.getSysLogUsername())
+                .like(StringUtils.isNotBlank(sysUserLog.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLog.getSysLogFrom())
+                .like(StringUtils.isNotBlank(sysUserLog.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLog.getSysLogAddress())
+                .eq(ObjectUtils.isNotEmpty(sysUserLog.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLog.getSysLogStatus())
+                .orderByDesc(SysUserLog::getCreateTime)
+        );
+    }
 }
