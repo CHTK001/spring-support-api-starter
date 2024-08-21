@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,5 +21,5 @@ public class SysDeptVO extends SysDept {
     /**
      * 子部门
      */
-    private List<SysDeptVO> children;
+    private List<SysDeptVO> children = Collections.emptyList();
 }
