@@ -80,7 +80,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
-        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
+        List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
                 .in(SysRoleMenu::getSysRoleId, roles)
                 .select(SysRoleMenu::getSysMenuId)
         );
