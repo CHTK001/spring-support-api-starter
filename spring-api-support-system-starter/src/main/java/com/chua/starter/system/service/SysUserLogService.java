@@ -35,4 +35,16 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * @return 返回一个包含操作结果的对象，对象中的数据字段表示操作是否成功
      */
     ReturnResult<Boolean> delete(Long userLogId);
+
+    /**
+     * 获取当前用户的日志
+     * 此方法根据用户的角色和查询条件获取当前用户的日志，返回一个包含日志的分页数据对象
+     *
+     * @param query      查询对象，用于分页和排序设置
+     * @param sysUserLog 查询条件对象，用于筛选日志
+     * @param sysUserId  账号ID
+     * @param roles      用户角色集合，用于根据角色筛选日志
+     * @return 返回包含当前用户日志的分页数据对象
+     */
+    IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLog sysUserLog, Integer sysUserId, Set<String> roles);
 }
