@@ -1,5 +1,6 @@
 package com.chua.starter.system.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -20,15 +21,19 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
+import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * 角色接口
@@ -55,7 +60,20 @@ public class SysRoleController {
     public ReturnPageResult<SysRole> pageForRole(@ParameterObject Query<SysRole> query, @ParameterObject SysRole sysRole, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysRoleService.pageForRole(query, sysRole, roles));
     }
-
+    /**
+     * 角色列表
+     * @return 角色列表
+     */
+    @Operation(summary = "角色列表")
+    @GetMapping("list")
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
+    public ReturnResult<List<SysRole>> list() {
+        return Result.ok(sysRoleService.list(
+                Wrappers.<SysRole>lambdaQuery().ne(SysRole::getSysRoleCode, SUPER_ADMIN)
+                .eq(SysRole::getSysRoleStatus, 1)
+                .orderByAsc(SysRole::getSysRoleSort)
+        ));
+    }
     /**
      * 删除角色
      *
@@ -65,6 +83,7 @@ public class SysRoleController {
     @DeleteMapping("/delete")
     @OperateLog
     @SysLogger
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:role:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
@@ -95,6 +114,7 @@ public class SysRoleController {
 
         return sysRoleService.updateMenu(roles, roleMenuUpdate);
     }
+
     @Operation(summary = "获取角色菜单")
     @GetMapping("/get_menu")
     @OperateLog
@@ -117,6 +137,7 @@ public class SysRoleController {
     @Operation(summary = "更新角色")
     @PutMapping("/update")
     @OperateLog
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -137,6 +158,7 @@ public class SysRoleController {
     @Operation(summary = "新增角色")
     @PostMapping("/save")
     @OperateLog
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
