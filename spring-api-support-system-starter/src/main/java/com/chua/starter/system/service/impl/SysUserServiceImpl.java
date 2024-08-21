@@ -259,7 +259,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             updateById(sysUser1);
             sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
-            if (CollectionUtils.isNotEmpty(sysUser.getUserRoles())) {
+            if (CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
                 sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
                     try {
                         SysUserRole rolsysUserRole = new SysUserRole();
@@ -287,7 +287,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserLastAddress(null);
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             save(sysUserUpdate);
-            if (CollectionUtils.isNotEmpty(sysUserUpdate.getUserRoles())) {
+            if (CollectionUtils.isNotEmpty(sysUserUpdate.getRoleIds())) {
                 sysUserRoleService.saveBatch(sysUserUpdate.getRoleIds().stream().map(role -> {
                     try {
                         SysUserRole rolsysUserRole = new SysUserRole();
