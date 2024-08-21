@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 18/08/2024 13:29:03
+ Date: 21/08/2024 10:24:28
 */
 
 SET NAMES utf8mb4;
@@ -73,6 +73,7 @@ CREATE TABLE `sys_dict_item`  (
   `sys_dict_item_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '字典子项名称',
   `sys_dict_item_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `sys_dict_item_status` int(11) NULL DEFAULT NULL COMMENT '状态;0: 隐藏',
+  `sys_dict_item_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -127,25 +128,40 @@ CREATE TABLE `sys_menu`  (
   `sys_menu_tree_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '菜单路径',
   `sys_menu_component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '菜单组件',
   `sys_menu_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '菜单图标',
+  `sys_menu_extra_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '右侧菜单图标',
   `sys_menu_type` int(11) NULL DEFAULT NULL COMMENT '菜单 0 按钮 1',
   `sys_menu_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `sys_menu_hidden` int(11) NULL DEFAULT NULL COMMENT '是否隐藏；0:显示',
+  `sys_menu_show_parent` int(11) NULL DEFAULT NULL COMMENT '当一个子级菜单是否隐藏父级菜单；0:显示',
+  `sys_menu_hidden_tag` int(11) NULL DEFAULT NULL COMMENT '是否在标签栏隐藏；0:否',
+  `sys_menu_fixed_tag` int(11) NULL DEFAULT NULL COMMENT '是否固定标签；0:否',
+  `sys_menu_redirect` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由重定向',
+  `sys_menu_enter_transition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '进场动画',
+  `sys_menu_leave_transition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '离场动画',
+  `sys_menu_active_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '菜单激活',
+  `sys_menu_frame_src` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '链接地址',
+  `sys_menu_keep_alive` int(11) NULL DEFAULT NULL COMMENT '是否缓存；0:否',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  `sys_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属权限',
   PRIMARY KEY (`sys_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 'system', '/system', NULL, '系统管理', NULL, 0, '0', NULL, 'line-md:cog', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_menu` VALUES (2, 'menu', '/system/menu', NULL, '菜单管理', NULL, 1, '0,1', 'manage/menu/index', 'line-md:close-to-menu-alt-transition', 0, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_menu` VALUES (3, 'setting', '/system/setting', NULL, '系统配置', NULL, 1, '0,1', 'manage/setting/index', 'line-md:cog-filled-loop', 0, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_menu` VALUES (4, 'role', '/system/role', NULL, '角色管理', NULL, 1, '0,1', 'manage/role/index', NULL, 0, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_menu` VALUES (1, 'system', '/system', NULL, '系统管理', NULL, 0, '0,1', NULL, 'ep:setting', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (2, 'menu', '/system/menu', NULL, '菜单管理', NULL, 1, '0,1,2', 'manage/menu/index', 'ep:menu', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (3, 'setting', '/system/setting', NULL, '系统配置', NULL, 1, '0,1,3', 'manage/setting/index', 'ep:setting', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (4, 'role', '/system/role', NULL, '角色管理', NULL, 1, '0,1,4', 'manage/role/index', 'ep:user', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (8, '/system/user', '/system/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -181,11 +197,19 @@ CREATE TABLE `sys_role_menu`  (
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   `sys_menu_id` int(11) NULL DEFAULT NULL COMMENT '菜单ID',
   PRIMARY KEY (`sys_role_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_role_menu
 -- ----------------------------
+INSERT INTO `sys_role_menu` VALUES (36, 2, 1);
+INSERT INTO `sys_role_menu` VALUES (37, 2, 2);
+INSERT INTO `sys_role_menu` VALUES (38, 2, 4);
+INSERT INTO `sys_role_menu` VALUES (39, 2, 5);
+INSERT INTO `sys_role_menu` VALUES (40, 2, 6);
+INSERT INTO `sys_role_menu` VALUES (41, 2, 7);
+INSERT INTO `sys_role_menu` VALUES (42, 2, 8);
+INSERT INTO `sys_role_menu` VALUES (43, 2, 3);
 
 -- ----------------------------
 -- Table structure for sys_setting
@@ -202,6 +226,7 @@ CREATE TABLE `sys_setting`  (
   `sys_setting_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统配置; 0:非系统配置',
   `sys_setting_app_inner` int(11) NULL DEFAULT NULL COMMENT '配置是否作用域系统启动',
   `sys_setting_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置备注',
+  `sys_setting_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置参数',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -209,17 +234,18 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 'openVerifyCode', 'true', 1, 'bool', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, '2024-08-16 13:25:38', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (2, 'systemName', '后台管理系统', 1, 'string', 'default', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (3, 'openLoopDebugger', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '开启循环debugger', 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (5, 'enable', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启返回加密', 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (6, 'openStorage', 'true', 1, 'bool', 'codec', NULL, 1, NULL, '开启缓存加密', 'sa', NULL, '2024-08-18 12:10:58', NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (1, 'openVerifyCode', 'false', 1, 'bool', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, NULL, '2024-08-16 13:25:38', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (2, 'systemName', '后台管理系统', 1, 'string', 'default', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (3, 'openLoopDebugger', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '开启循环debugger', NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (5, 'enable', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启返回加密', NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (6, 'openLoopWatermark', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启缓存!', '{\"watermarkColor\" :\"#409EFF\", \"globalAlpha\": 0.15,}', 'sa', NULL, '2024-08-19 19:53:55', '2024-08-19 19:57:22', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (7, 'openVcode', 'true', 1, 'bool', 'default', NULL, 1, NULL, '滑动验证码', NULL, NULL, NULL, NULL, '2024-08-21 09:55:09', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -249,12 +275,13 @@ CREATE TABLE `sys_user`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (2, 'test', '测试', 'df4e826a775613408212096887eb3bb7', '8u7p0vil02t7f1', 0, 0, '', NULL, 2, 0, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -263,7 +290,9 @@ DROP TABLE IF EXISTS `sys_user_log`;
 CREATE TABLE `sys_user_log`  (
   `sys_log_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_log_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
-  `sys_log_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求IP',
+  `sys_log_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
+  `sys_log_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求IP',
+  `sys_log_isp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '运营商',
   `sys_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
   `sys_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求参数',
   `sys_log_cost` int(11) NULL DEFAULT NULL COMMENT '耗时',
@@ -276,26 +305,11 @@ CREATE TABLE `sys_user_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log` VALUES (2, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"BhHV6Z\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:38:01', '2024-08-18 12:38:01', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (3, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"jbq4yE\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:42:20', '2024-08-18 12:42:20', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (4, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"GTPFke\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:43:00', '2024-08-18 12:43:00', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (5, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"M7ydPF\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:44:11', '2024-08-18 12:44:11', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (6, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"8mrfc5\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:51:16', '2024-08-18 12:51:16', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (7, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"32NVqv\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 12:52:47', '2024-08-18 12:52:47', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (8, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"t8SM9h\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:01:52', '2024-08-18 13:01:52', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (9, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"tH7Jyh\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:04:10', '2024-08-18 13:04:10', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (10, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"yAZSCt\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:06:07', '2024-08-18 13:06:07', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (11, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"mQZUGu\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:08:39', '2024-08-18 13:08:39', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (12, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"fFGcTC\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:10:11', '2024-08-18 13:10:11', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (13, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"3DJ2Bw\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:11:05', '2024-08-18 13:11:05', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (14, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"RnvC93\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:14:08', '2024-08-18 13:14:08', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (15, 'sa', '192.168.0.108', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"MyAnFQ\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-18 13:16:36', '2024-08-18 13:16:36', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (16, 'sa', '192.168.0.108', '/system/api/v2/role/delete', '[]', NULL, '删除', 1, NULL, NULL, '2024-08-18 13:17:13', '2024-08-18 13:17:13', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role

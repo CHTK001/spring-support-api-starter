@@ -47,12 +47,28 @@ public class SysUserLog extends SysBase implements Serializable {
     /**
      * 请求IP
      */
-    @TableField(value = "sys_log_address")
+    @TableField(value = "sys_log_ip")
     @ApiModelProperty(value="请求IP")
     @Schema(description="请求IP")
     @Size(max = 255,message = "请求IP最大长度要小于 255")
-    private String sysLogAddress;
+    private String sysLogIp;
 
+    /**
+     * 请求地址
+     */
+    @TableField(value = "sys_log_address")
+    @ApiModelProperty(value="请求地址")
+    @Schema(description="请求地址")
+    @Size(max = 255,message = "请求地址最大长度要小于 255")
+    private String sysLogAddress;
+    /**
+     * 运营商
+     */
+    @TableField(value = "sys_log_isp")
+    @ApiModelProperty(value="运营商")
+    @Schema(description="运营商")
+    @Size(max = 255,message = "运营商最大长度要小于 255")
+    private String sysLogIsp;
     /**
      * 请求地址
      */
