@@ -156,5 +156,29 @@ public class SysMenuVO {
         @Schema(description = "是否固定")
         private boolean fixedTag;
 
+        /**
+         * 排序
+         */
+        @Schema(description = "排序")
+        private Integer rank;
+
+
+        /**
+         * 过渡动画
+         */
+        @Schema(description = "过渡动画")
+        private Transition transition;
+        /**
+         * 过渡动画
+         */
+        @Data
+        public static class Transition {
+
+            @Schema(description = "离场动画")
+            private String leaveTransition;
+            @Schema(description = "进场动画")
+            private String enterTransition;
+        }
     }
+
 }
