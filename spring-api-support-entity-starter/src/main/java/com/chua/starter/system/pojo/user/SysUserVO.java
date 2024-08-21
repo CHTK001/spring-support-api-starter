@@ -53,16 +53,6 @@ public class SysUserVO  extends SysBase implements Serializable {
     private String sysUserNickname;
 
     /**
-     * 密码
-     */
-    @TableField(value = "sys_user_password")
-    @ApiModelProperty(value = "密码")
-    @Schema(description = "密码")
-    @Size(max = 255, message = "密码最大长度要小于 255")
-    @NotEmpty(message = "密码不能为空", groups = {AddGroup.class})
-    private String sysUserPassword;
-
-    /**
      * 是否启用；0：禁用
      */
     @TableField(value = "sys_user_status")
