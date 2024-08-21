@@ -77,7 +77,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         String sysRoleCode = sysRole.getSysRoleCode();
         if(StringUtils.isNotBlank(sysRoleCode)) {
             SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
-                    .eq(SysRole::getSysRoleCode, sysRoleCode.toLowerCase())
+                    .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase())
                     .ne(SysRole::getSysRoleId, sysRole.getSysRoleId()));
             if(null != sysRole1) {
                 return ReturnResult.fail("角色编码已存在");
@@ -99,7 +99,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         }
 
         SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
-                .eq(SysRole::getSysRoleCode, sysRoleCode.toLowerCase()));
+                .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase()));
         if(null != sysRole1) {
             return ReturnResult.fail("角色编码已存在");
         }
