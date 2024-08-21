@@ -2,7 +2,7 @@ spring:
   application:
     name: system
   profiles:
-    active: dev,mybatis,swagger,socket,control,codec
+    active: dev,mybatis,swagger,socket,control,codec,ip
 plugin:
   parameter:
     enable: true
