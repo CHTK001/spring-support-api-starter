@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 21/08/2024 15:23:32
+ Date: 21/08/2024 15:39:24
 */
 
 SET NAMES utf8mb4;
@@ -200,7 +200,7 @@ CREATE TABLE `sys_role_menu`  (
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   `sys_menu_id` int(11) NULL DEFAULT NULL COMMENT '菜单ID',
   PRIMARY KEY (`sys_role_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -213,6 +213,12 @@ INSERT INTO `sys_role_menu` VALUES (40, 2, 6);
 INSERT INTO `sys_role_menu` VALUES (41, 2, 7);
 INSERT INTO `sys_role_menu` VALUES (42, 2, 8);
 INSERT INTO `sys_role_menu` VALUES (43, 2, 3);
+INSERT INTO `sys_role_menu` VALUES (44, 3, 2);
+INSERT INTO `sys_role_menu` VALUES (45, 3, 4);
+INSERT INTO `sys_role_menu` VALUES (46, 3, 5);
+INSERT INTO `sys_role_menu` VALUES (47, 3, 6);
+INSERT INTO `sys_role_menu` VALUES (48, 3, 7);
+INSERT INTO `sys_role_menu` VALUES (49, 3, 8);
 
 -- ----------------------------
 -- Table structure for sys_setting
@@ -284,7 +290,7 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, 1, NULL, NULL, NULL, '192.168.30.38', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (2, 'test', '测试', 'df4e826a775613408212096887eb3bb7', '8u7p0vil02t7f1', 0, 0, '', NULL, 2, 0, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
+INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'nokn3a3u27rt7a', 0, 1, '', NULL, 2, 0, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -323,11 +329,12 @@ CREATE TABLE `sys_user_role`  (
   `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '用户ID',
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   PRIMARY KEY (`sys_user_role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
 INSERT INTO `sys_user_role` VALUES (1, 1, 1);
+INSERT INTO `sys_user_role` VALUES (2, 2, 3);
 
 SET FOREIGN_KEY_CHECKS = 1;
