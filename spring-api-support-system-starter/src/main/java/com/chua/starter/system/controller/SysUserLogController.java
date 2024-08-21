@@ -63,7 +63,7 @@ public class SysUserLogController {
     @OperateLog
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:user:log:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:log:user:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
             return Result.illegal("操作日志信息不存在");
