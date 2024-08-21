@@ -83,7 +83,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     @Override
     public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLog sysUserLog, Integer sysUserId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
-                .eq(SysUserLog::getCreateBy, sysUserId)
+                .eq(SysUserLog::getSysLogUsername, sysUserId)
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLog.getSysLogUsername())
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLog.getSysLogFrom())
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLog.getSysLogAddress())
