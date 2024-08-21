@@ -20,5 +20,5 @@ public class SysDeptVO extends SysDept {
     /**
      * 子部门
      */
-    private List<SysDept> chilren;
+    private List<SysDept> children;
 }
