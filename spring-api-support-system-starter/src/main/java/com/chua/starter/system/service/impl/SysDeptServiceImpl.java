@@ -7,6 +7,7 @@ import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.TreeUtils;
 import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.mapper.SysDeptMapper;
@@ -64,6 +65,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             if(null == parentSysDept) {
                 return ReturnResult.illegal("上级部门不存在");
             }
+            if(StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(parentSysDept.getSysDeptId()))) {
+                return ReturnResult.error("不能选择自己作为父级菜单");
+            }
+
             menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
         }
         sysDept.setSysDeptTreeId(menuTreeId);
@@ -81,6 +86,11 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             if(null == parentSysDept) {
                 return ReturnResult.illegal("上级部门不存在");
             }
+
+            if(StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(parentSysDept.getSysDeptId()))) {
+                return ReturnResult.error("不能选择自己作为父级菜单");
+            }
+
             menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
         }
         sysDept.setSysDeptTreeId(menuTreeId);
