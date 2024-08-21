@@ -120,6 +120,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             sysMenuVO.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
             sysMenuVO.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
             SysMenuVO.Meta meta = new SysMenuVO.Meta();
+            SysMenuVO.Meta.Transition transition = new SysMenuVO.Meta.Transition();
+            transition.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
+            transition.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
+
             meta.setIcon(sysMenu1.getSysMenuIcon());
             meta.setExtraIcon(sysMenu1.getSysMenuExtraIcon());
             meta.setTitle(sysMenu1.getSysMenuTitle());
@@ -132,6 +136,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             meta.setKeepAlive(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1));
             meta.setHiddenTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHiddenTag(), 0), 1));
             meta.setFixedTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuFixedTag(), 0), 1));
+            meta.setRank(sysMenu1.getSysMenuSort());
+            meta.setTransition(transition);
             sysMenuVO.setMeta(meta);
 
             TreeNode<SysMenuVO> treeNode = new TreeNode<>();
