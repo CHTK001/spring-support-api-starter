@@ -60,6 +60,21 @@ public class SysRole extends SysBase implements Serializable {
     private String sysRoleCode;
 
     /**
+     * 是否启用
+     */
+    @TableField(value = "sys_role_status")
+    @ApiModelProperty(value = "是否启用; 0：不启用")
+    @Schema(description = "是否启用; 0：不启用")
+    private Integer sysRoleStatus;
+    /**
+     * 优先级
+     */
+    @TableField(value = "sys_role_sort")
+    @ApiModelProperty(value = "优先级")
+    @Schema(description = "优先级")
+    private Integer sysRoleSort;
+
+    /**
      * 是否系统角色; 0：非系统角色
      */
     @TableField(value = "sys_role_in_system")
