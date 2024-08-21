@@ -136,6 +136,7 @@ public class UserService implements UserInfoService, Constant {
                     .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
                     .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
                     .eq(SysUser::getSysUserId, user.getSysUserId())
+                    .eq(SysRole::getSysRoleStatus, 1)
             );
             return maps.stream().map(it -> {
                 SysRole sysRole = new SysRole();
