@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  *
@@ -103,5 +104,13 @@ public class SysUserLog extends SysBase implements Serializable {
     @ApiModelProperty(value="请求状态; 0: 失败; 1: 成功")
     @Schema(description="请求状态; 0: 失败; 1: 成功")
     private Integer sysLogStatus;
+
+    /**
+     * 耗时
+     */
+    @TableField(value = "sys_log_cost")
+    @ApiModelProperty(value="耗时")
+    @Schema(description="耗时")
+    private BigDecimal sysLogCost;
 
 }

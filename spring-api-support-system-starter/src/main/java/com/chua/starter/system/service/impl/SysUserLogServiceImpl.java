@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 /**
@@ -53,6 +54,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogParam(operateLoggerInfo.getLogParam());
         sysUserLog.setSysLogStatus(operateLoggerInfo.getLogStatus());
         sysUserLog.setSysLogUsername(operateLoggerInfo.getCreateBy());
+        sysUserLog.setSysLogCost(BigDecimal.valueOf(operateLoggerInfo.getLogCost()));
         ReturnResult<GeoCity> geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
         if(geoCityReturnResult.isOk()) {
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());
