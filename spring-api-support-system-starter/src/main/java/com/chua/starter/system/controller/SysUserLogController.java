@@ -39,7 +39,20 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysUserLogController {
 
     private final SysUserLogService sysUserLogService;
-
+    /**
+     * 操作日志分页列表
+     *
+     * @param sysUserLog 条件
+     * @return 操作日志分页列表
+     */
+    @Operation(summary = "查询当前账号日志")
+    @GetMapping("/mine-logs")
+    public ReturnPageResult<SysUserLog> mineLogs(@ParameterObject Query<SysUserLog> query,
+                                                 @ParameterObject SysUserLog sysUserLog,
+                                                 @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+                                                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return PageResultUtils.ok(sysUserLogService.mineLogs(query, sysUserLog, sysUserId, roles));
+    }
 
     /**
      * 操作日志分页列表
