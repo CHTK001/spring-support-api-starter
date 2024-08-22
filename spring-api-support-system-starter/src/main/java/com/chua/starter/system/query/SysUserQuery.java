@@ -33,4 +33,9 @@ public class SysUserQuery extends Query<SysUser> {
      */
     @Schema(description = "手机号")
     private String phone;
+    /**
+     * 部门id
+     */
+    @Schema(description = "部门id")
+    private Integer sysDeptId;
 }
