@@ -1,6 +1,7 @@
 package com.chua.starter.system.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.chua.common.support.datasource.annotation.ColumnLength;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
@@ -55,6 +56,15 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "名称")
     @Size(max = 255, message = "名称最大长度要小于 255")
     private String sysUserNickname;
+    /**
+     * 名称
+     */
+    @TableField(value = "sys_user_full_address")
+    @ApiModelProperty(value = "居住地址")
+    @Schema(description = "居住地址")
+    @ColumnLength(400)
+    @Size(max = 400, message = "居住地址最大长度要小于 400")
+    private String sysUserFullAddress;
 
     /**
      * 密码
