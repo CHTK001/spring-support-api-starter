@@ -80,6 +80,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
 
         Page<SysUser> sysUserPage = baseMapper.selectPage(sysUserQuery.createPage(), new MPJLambdaWrapper<>(SysUser.class)
+                        .distinct()
                 .selectAll(SysUser.class)
                 .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
                 .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
