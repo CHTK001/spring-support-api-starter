@@ -55,7 +55,11 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogStatus(operateLoggerInfo.getLogStatus());
         sysUserLog.setSysLogUsername(operateLoggerInfo.getCreateBy());
         sysUserLog.setSysLogCost(BigDecimal.valueOf(operateLoggerInfo.getLogCost()));
-        ReturnResult<GeoCity> geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
+        ReturnResult<GeoCity> geoCityReturnResult = null;
+        try {
+            geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
+        } catch (Exception ignored) {
+        }
         if(geoCityReturnResult.isOk()) {
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());
             sysUserLog.setSysLogIsp(geoCityReturnResult.getData().getIsp());
