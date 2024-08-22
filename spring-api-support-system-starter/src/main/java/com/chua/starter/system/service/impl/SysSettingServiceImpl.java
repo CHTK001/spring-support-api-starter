@@ -8,6 +8,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.starter.common.support.codec.CodecSetting;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysSetting;
@@ -148,6 +149,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public void afterPropertiesSet() throws Exception {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         globalSettingFactory.register("default", new GuestDefaultSetting());
+        globalSettingFactory.register("codec", new CodecSetting());
         upgrade();
     }
 
