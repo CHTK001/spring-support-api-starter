@@ -163,12 +163,12 @@ public class SysUserController {
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:delete")
-    public ReturnResult<Boolean> delete(Long userId) {
-        if (null == userId) {
+    public ReturnResult<Boolean> delete(Long sysUserId) {
+        if (null == sysUserId) {
             return Result.illegal("用户信息不存在");
         }
 
-        return sysUserService.delete(userId);
+        return sysUserService.delete(sysUserId);
     }
 
     /**
