@@ -11,6 +11,7 @@
 
     <where>
       AND su.sys_user_delete = 0
+      AND (sr.sys_role_code <![CDATA[<>]]> 'SUPER_ADMIN' OR sr.sys_role_code IS NULL)
 
       <if test="query.username != null and query.username != ''">
         AND su.sys_user_username LIKE CONCAT('%', #{query.username}, '%')
@@ -28,8 +29,6 @@
         AND su.sys_dept_id IN (SELECT sys_dept_id FROM sys_dept WHERE sys_dept_tree_id LIKE CONCAT(
             (SELECT sys_dept_tree_id FROM sys_dept WHERE su.sys_dept_id = #{query.sysDeptId}), '%'))
       </if>
-
-      AND (sr.sys_role_code <![CDATA[<>]]> 'SUPER_ADMIN' OR sr.sys_role_code IS NULL)
 
       <if test="!isAdmin">
         AND sr.sys_role_code <![CDATA[<>]]> 'ADMIN'
