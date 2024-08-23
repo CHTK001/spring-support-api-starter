@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 21/08/2024 19:26:14
+ Date: 23/08/2024 09:48:20
 */
 
 SET NAMES utf8mb4;
@@ -33,7 +33,7 @@ CREATE TABLE `sys_dept`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -42,6 +42,9 @@ INSERT INTO `sys_dept` VALUES (1, '根节点', 0, NULL, NULL, NULL, '2024-08-21 
 INSERT INTO `sys_dept` VALUES (2, '子节点1', 1, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
 INSERT INTO `sys_dept` VALUES (3, '子节点2', 1, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
 INSERT INTO `sys_dept` VALUES (5, '子节点4', 2, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
+INSERT INTO `sys_dept` VALUES (8, '子节点5', 2, 'null,null', 'sa', NULL, '2024-08-22 18:23:09', NULL, NULL, NULL);
+INSERT INTO `sys_dept` VALUES (9, '子节点6', 3, 'null,null', 'sa', NULL, '2024-08-22 18:23:19', NULL, NULL, NULL);
+INSERT INTO `sys_dept` VALUES (10, '子节点77', 1, 'null,10', 'sa', NULL, '2024-08-22 18:23:26', '2024-08-22 18:23:37', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict
@@ -160,15 +163,15 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 INSERT INTO `sys_menu` VALUES (1, 'system', '/system', NULL, '系统管理', NULL, 0, '0,1', NULL, 'ep:setting', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (2, 'menu', '/system/menu', NULL, '菜单管理', NULL, 1, '0,1,2', 'manage/menu/index', 'ep:menu', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (3, 'setting', '/system/setting', NULL, '系统配置', NULL, 1, '0,1,3', 'manage/setting/index', 'ep:setting', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (4, 'role', '/system/role', NULL, '角色管理', NULL, 1, '0,1,4', 'manage/role/index', 'ep:user', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (3, 'setting', '/system/setting', NULL, '系统配置', NULL, 1, '0,1,3', 'manage/setting/index', 'ep:setting', NULL, 0, 999, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (4, 'role', '/system/role', NULL, '角色管理', NULL, 1, '0,1,4', 'manage/role/index', 'ep:user', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '');
 INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '');
 INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (8, 'user', '/system/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (8, 'user', '/system/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (10, 'accountSetting', '/manage/account/setting', '', '账号设置', '', 1, '0,1,10', '/manage/account/setting', '', NULL, 0, 1, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:48:04', '2024-08-21 16:57:16', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (11, 'dept', '/system/dept', '', '机构管理', '', 1, '0,1,11', 'manage/dept/index', 'ep:star', NULL, 0, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (11, 'dept', '/system/dept', '', '机构管理', '', 1, '0,1,11', 'manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -278,6 +281,7 @@ CREATE TABLE `sys_user`  (
   `sys_user_phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '手机号',
   `sys_user_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱',
   `sys_user_sex` int(11) NULL DEFAULT NULL COMMENT '性别; 0:女;1:男; 2:其他',
+  `sys_user_full_address` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '居住地址',
   `sys_user_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统账号; 0: 非系统账号',
   `sys_user_card` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '身份证',
   `sys_dept_id` int(11) NULL DEFAULT NULL COMMENT '部门ID',
@@ -297,8 +301,8 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, '192.168.110.8', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'nokn3a3u27rt7a', 0, 1, '', NULL, 2, 0, NULL, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
+INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, '172.16.2.226', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -321,19 +325,13 @@ CREATE TABLE `sys_user_log`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`sys_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`sys_log_id`) USING BTREE,
+  INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log` VALUES (1, 'sa', NULL, '192.168.110.8', NULL, '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-21 16:08:21', '2024-08-21 16:08:21', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (2, 'sa', NULL, '192.168.30.38', NULL, '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', NULL, 'LOGIN', 1, NULL, NULL, '2024-08-21 16:49:44', '2024-08-21 16:49:44', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (3, 'sa', NULL, '192.168.30.38', NULL, '/system/api/v2/dept/delete', '[]', NULL, '删除', 1, NULL, NULL, '2024-08-21 17:45:57', '2024-08-21 17:45:57', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (4, 'sa', NULL, '192.168.30.38', NULL, '/system/api/v2/dept/delete', '[]', NULL, '删除', 1, NULL, NULL, '2024-08-21 17:56:04', '2024-08-21 17:56:04', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (5, 'sa', NULL, '192.168.30.38', NULL, '/system/api/v2/dept/delete', '[]', NULL, '删除', 1, NULL, NULL, '2024-08-21 18:09:16', '2024-08-21 18:09:16', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (6, 'sa', NULL, '192.168.30.38', NULL, '/system/api/v2/dept/delete', '[]', NULL, '删除', 1, NULL, NULL, '2024-08-21 18:11:08', '2024-08-21 18:11:08', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (7, 'sa', NULL, '192.168.110.8', NULL, '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 5, 'LOGIN', 1, NULL, NULL, '2024-08-21 19:15:41', '2024-08-21 19:15:41', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -344,12 +342,11 @@ CREATE TABLE `sys_user_role`  (
   `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '用户ID',
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   PRIMARY KEY (`sys_user_role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
 INSERT INTO `sys_user_role` VALUES (1, 1, 1);
-INSERT INTO `sys_user_role` VALUES (2, 2, 3);
 
 SET FOREIGN_KEY_CHECKS = 1;
