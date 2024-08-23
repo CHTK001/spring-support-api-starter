@@ -83,6 +83,8 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_avatar")
     @ApiModelProperty(value = "头像")
     @Schema(description = "头像")
+    @ColumnLength(4000)
+    @Size(max = 4000, message = "头像最大长度要小于 4000")
     private String sysUserAvatar;
 
     /**

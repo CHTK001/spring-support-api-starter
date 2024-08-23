@@ -3,9 +3,7 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.entity.SysDept;
@@ -61,8 +59,6 @@ public class SysDeptController {
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("/delete")
-    @OperateLog
-    @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dept:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
@@ -81,7 +77,6 @@ public class SysDeptController {
      */
     @Operation(summary = "更新组织机构")
     @PutMapping("/update")
-    @OperateLog
     @Permission(value = "sys:dept:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -101,7 +96,6 @@ public class SysDeptController {
      */
     @Operation(summary = "新增组织机构")
     @PostMapping("/save")
-    @OperateLog
     @Permission(value = "sys:dept:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysDept> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
