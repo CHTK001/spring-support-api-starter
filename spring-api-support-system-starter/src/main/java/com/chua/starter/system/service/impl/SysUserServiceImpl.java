@@ -78,24 +78,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
         Page<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), AuthConstant.hasAdmin(roles), sysUserQuery);
-/*        Page<SysUser> sysUserPage = baseMapper.selectPage(sysUserQuery.createPage(), new MPJLambdaWrapper<>(SysUser.class)
-                .distinct()
-                .selectAll(SysUser.class)
-                .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
-                .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
-                .like(StringUtils.isNotBlank(sysUserQuery.getUsername()), SysUser::getSysUserUsername, sysUserQuery.getUsername())
-                .like(StringUtils.isNotBlank(sysUserQuery.getNickname()), SysUser::getSysUserNickname, sysUserQuery.getNickname())
-                .like(StringUtils.isNotBlank(sysUserQuery.getPhone()), SysUser::getSysUserPhone, sysUserQuery.getPhone())
-                .likeLeft(null != sysUserQuery.getSysDeptId(), new SFunction<Wrapper, Object>() {
-                })
-                .notIn(!AuthConstant.hasAdmin(roles), SysRole::getSysRoleCode, AuthConstant.ADMIN)
-                .and(w -> {
-                    w.ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
-                            .or()
-                            .isNull(SysRole::getSysRoleCode);
-                })
-                .orderByDesc(SysUser::getCreateTime)
-        );*/
 
         List<SysUser> records1 = sysUserPage.getRecords();
         Page<SysUserVO> result = new Page<>();
