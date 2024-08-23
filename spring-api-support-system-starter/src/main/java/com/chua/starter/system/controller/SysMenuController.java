@@ -91,12 +91,12 @@ public class SysMenuController {
     @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long menuId) {
-        if (null == menuId) {
+    public ReturnResult<Boolean> delete(Long sysMenuId) {
+        if (null == sysMenuId) {
             return Result.illegal("菜单信息不存在");
         }
 
-        return sysMenuService.delete(menuId);
+        return sysMenuService.delete(sysMenuId);
     }
 
 
