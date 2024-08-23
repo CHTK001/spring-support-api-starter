@@ -87,7 +87,9 @@ public class UserService implements UserInfoService, Constant {
         if (1 != user.getSysUserStatus()) {
             return new UserResult().setMessage("账号已被禁用");
         }
-        return loginInfo(userResult.getUsername(), user);
+        UserResult userResult1 = loginInfo(userResult.getUsername(), user);
+        userResult1.setAuthType(userResult.getAuthType());
+        return userResult1;
     }
 
     /**
