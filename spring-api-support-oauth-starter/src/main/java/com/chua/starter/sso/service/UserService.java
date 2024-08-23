@@ -79,8 +79,7 @@ public class UserService implements UserInfoService, Constant {
 
     @Override
     public UserResult upgrade(UserResult userResult) {
-        SysUser user = sysUserMapper.selectOne(new MPJLambdaWrapper<SysUser>()
-                .eq(SysUser::getSysUserId, userResult.getId()));
+        SysUser user = sysUserMapper.selectById(userResult.getId());
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
         }
