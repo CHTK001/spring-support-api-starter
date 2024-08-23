@@ -37,10 +37,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     final SysRoleMenuService sysRoleMenuService;
     @Override
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
-        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
-                .in(SysRoleMenu::getSysRoleId, roles)
-                .select(SysRoleMenu::getSysMenuId)
-        );
+        List<SysRoleMenu> list = Collections.emptyList();
+        if(!roles.isEmpty()) {
+           list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
+                    .in(SysRoleMenu::getSysRoleId, roles)
+                    .select(SysRoleMenu::getSysMenuId)
+            );
+        }
         List<SysMenu> sysMenus = listAll();
 
         List<SysMenu> filterMenus = Collections.emptyList();
