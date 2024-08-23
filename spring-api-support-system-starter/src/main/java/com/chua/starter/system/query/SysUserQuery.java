@@ -33,6 +33,18 @@ public class SysUserQuery extends Query<SysUser> {
      */
     @Schema(description = "手机号")
     private String phone;
+
+    /**
+     * 性别; 0:女;1:男; 2:其他
+     */
+    @Schema(description = "性别; 0:女;1:男; 2:其他")
+    private Integer sex;
+
+    /**
+     * 是否启用；0：禁用
+     */
+    @Schema(description = "是否启用；0：禁用")
+    private Integer status;
     /**
      * 部门id
      */

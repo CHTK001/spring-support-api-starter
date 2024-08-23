@@ -4,7 +4,14 @@
 
   <select id="selectPageUser" resultType="com.chua.starter.system.entity.SysUser">
     SELECT
-      su.*
+      <if test="query.prop != null">
+        <foreach collection="query.prop" item="prop" separator=",">
+          ${prop}
+        </foreach>
+      </if>
+      <if test="query.prop == null">
+        su.*
+      </if>
     FROM sys_user su
     LEFT JOIN sys_user_role sur on su.sys_user_id = sur.sys_user_id
     LEFT JOIN sys_role sr on sur.sys_role_id = sr.sys_role_id
@@ -25,6 +32,14 @@
         AND su.sys_user_phone LIKE CONCAT('%', #{query.phone}, '%')
       </if>
 
+      <if test="query.sex != null">
+        AND su.sys_user_sex = #{query.sex}
+      </if>
+
+      <if test="query.status != null">
+        AND su.sys_user_status = #{query.status}
+      </if>
+
       <if test="query.sysDeptId != null">
         AND su.sys_dept_id IN (SELECT sys_dept_id FROM sys_dept WHERE sys_dept_tree_id LIKE CONCAT(
             (SELECT sys_dept_tree_id FROM sys_dept WHERE su.sys_dept_id = #{query.sysDeptId}), '%'))
@@ -35,7 +50,6 @@
       </if>
 
       ORDER BY su.create_time DESC
-
     </where>
 
   </select>
