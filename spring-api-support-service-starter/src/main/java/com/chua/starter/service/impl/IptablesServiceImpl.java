@@ -1,6 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.chua.common.support.geo.GeoCity;
+import com.chua.common.support.geo.GeoSetting;
 import com.chua.common.support.geo.IpPosition;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -38,7 +39,10 @@ public class IptablesServiceImpl implements IptablesService {
             synchronized (this) {
                 if(!isLoaded) {
                     isLoaded = true;
-                    ipPosition = ServiceProvider.of(IpPosition.class).getNewExtension(ipProperties.getIpType(), ipProperties.getDatabaseFile());
+                    GeoSetting geoSetting = GeoSetting.builder()
+                            .databaseFile(ipProperties.getDatabaseFile())
+                            .build();
+                    ipPosition = ServiceProvider.of(IpPosition.class).getNewExtension(ipProperties.getIpType(), geoSetting);
                 }
             }
         }
