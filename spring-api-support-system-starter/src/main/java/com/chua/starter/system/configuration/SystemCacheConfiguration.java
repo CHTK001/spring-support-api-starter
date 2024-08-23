@@ -2,7 +2,6 @@ package com.chua.starter.system.configuration;
 
 import com.chua.starter.common.support.properties.CacheProperties;
 import com.chua.starter.redis.support.CacheConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -25,8 +24,8 @@ public class SystemCacheConfiguration {
      */
     @Bean(CACHE_WITH_REDIS)
     @Primary
-    public CacheManager getDefaultCacheManager(ObjectMapper om, RedisConnectionFactory factory, CacheProperties cacheProperties) {
-        return CacheConfiguration.createRedisCacheManager(om, factory, Math.toIntExact(cacheProperties.getRedis().getTtl()));
+    public CacheManager getDefaultCacheManager(RedisConnectionFactory factory, CacheProperties cacheProperties) {
+        return CacheConfiguration.createRedisCacheManager(null, factory, Math.toIntExact(cacheProperties.getRedis().getTtl()));
     }
 
 }
