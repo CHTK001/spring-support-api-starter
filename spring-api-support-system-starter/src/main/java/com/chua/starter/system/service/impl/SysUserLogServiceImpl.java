@@ -60,7 +60,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
             geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
         } catch (Exception ignored) {
         }
-        if(geoCityReturnResult.isOk()) {
+        if(null != geoCityReturnResult && geoCityReturnResult.isOk()) {
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());
             sysUserLog.setSysLogIsp(geoCityReturnResult.getData().getIsp());
         }
