@@ -238,26 +238,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         sysUser1.setSysUserUsername(null);
         sysUser1.setSysUserInSystem(null);
-        return ReturnResult.ok(transactionTemplate.execute(status -> {
-            updateById(sysUser1);
+        try {
+            return ReturnResult.ok(transactionTemplate.execute(status -> {
+                updateById(sysUser1);
+                if(sysUser.isUpdateRole()) {
+                    sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
+                }
+                if (CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
+                    sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
+                        try {
+                            SysUserRole rolsysUserRole = new SysUserRole();
+                            rolsysUserRole.setSysUserId(sysUser1.getSysUserId());
+                            rolsysUserRole.setSysRoleId(Integer.valueOf(role));
+                            return rolsysUserRole;
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
+                    }).filter(Objects::nonNull).collect(Collectors.toList()));
+                }
+                return sysUser1;
+            }));
+        } finally {
             AuthClientExecute.getInstance().upgrade(UpgradeType.TIMESTAMP);
-            if(sysUser.isUpdateRole()) {
-                sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
-            }
-            if (CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
-                sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
-                    try {
-                        SysUserRole rolsysUserRole = new SysUserRole();
-                        rolsysUserRole.setSysUserId(sysUser1.getSysUserId());
-                        rolsysUserRole.setSysRoleId(Integer.valueOf(role));
-                        return rolsysUserRole;
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                }).filter(Objects::nonNull).collect(Collectors.toList()));
-            }
-            return sysUser1;
-        }));
+        }
     }
 
     @Override
