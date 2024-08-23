@@ -76,6 +76,15 @@ public class SysUser extends SysBase implements Serializable {
     @NotEmpty(message = "密码不能为空", groups = {AddGroup.class})
     private String sysUserPassword;
 
+
+    /**
+     * 头像
+     */
+    @TableField(value = "sys_user_avatar")
+    @ApiModelProperty(value = "头像")
+    @Schema(description = "头像")
+    private String sysUserAvatar;
+
     /**
      * 盐
      */
