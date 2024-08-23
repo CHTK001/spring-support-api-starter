@@ -11,7 +11,6 @@ import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
-import com.chua.starter.sso.impl.SysUserTripartiteBind;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
@@ -81,8 +80,7 @@ public class UserService implements UserInfoService, Constant {
     @Override
     public UserResult upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectOne(new MPJLambdaWrapper<SysUser>()
-                .leftJoin(SysUserTripartiteBind.class, SysUserTripartiteBind::getUserId, SysUser::getSysUserId)
-                .eq(SysUser::getSysUserUsername, userResult.getUsername()));
+                .eq(SysUser::getSysUserId, userResult.getId()));
         if (null == user) {
             return new UserResult().setMessage("账号/密码不正确");
         }
