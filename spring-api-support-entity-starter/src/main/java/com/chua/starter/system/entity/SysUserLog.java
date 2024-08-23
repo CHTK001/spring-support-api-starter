@@ -46,6 +46,23 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUsername;
 
     /**
+     * 浏览器
+     */
+    @TableField(value = "sys_log_browser")
+    @ApiModelProperty(value="浏览器")
+    @Schema(description="浏览器")
+    @Size(max = 255,message = "浏览器最大长度要小于 255")
+    private String sysLogBrowser;
+    /**
+     * 系统
+     */
+    @TableField(value = "sys_log_system")
+    @ApiModelProperty(value="系统")
+    @Schema(description="系统")
+    @Size(max = 255,message = "系统最大长度要小于 255")
+    private String sysLogSystem;
+
+    /**
      * 请求IP
      */
     @TableField(value = "sys_log_ip")
