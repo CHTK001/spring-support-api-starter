@@ -231,11 +231,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         BeanUtils.copyProperties(sysUser, sysUser1);
-        if(null == sysUser1.getSysUserSalt()) {
-            sysUser1.setSysUserSalt(RandomUtils.randomString(14));
-        }
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
+            if(null == sysUser1.getSysUserSalt()) {
+                sysUser1.setSysUserSalt(RandomUtils.randomString(14));
+            }
             sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
