@@ -22,4 +22,10 @@ public class SysUserUpdate extends SysUser {
      */
     @Schema(title = "角色ID")
     private List<String> roleIds;
+
+    /**
+     * 是否更新角色
+     */
+    @Schema(title = "是否更新角色")
+    private boolean updateRole;
 }
