@@ -73,6 +73,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     @Override
     public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLog sysUserLog, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
+                .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGOUT")
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLog.getSysLogUsername())
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLog.getSysLogFrom())
                 .like(StringUtils.isNotBlank(sysUserLog.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLog.getSysLogAddress())
