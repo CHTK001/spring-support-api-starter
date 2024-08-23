@@ -10,6 +10,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.entity.SysUserLog;
+import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,28 +43,28 @@ public class SysUserLogController {
     /**
      * 操作日志分页列表
      *
-     * @param sysUserLog 条件
+     * @param sysUserLogQuery 条件
      * @return 操作日志分页列表
      */
     @Operation(summary = "查询当前账号日志")
     @GetMapping("/mine-logs")
     public ReturnPageResult<SysUserLog> mineLogs(@ParameterObject Query<SysUserLog> query,
-                                                 @ParameterObject SysUserLog sysUserLog,
+                                                 @ParameterObject SysUserLogQuery sysUserLogQuery,
                                                  @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
                                                  @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return PageResultUtils.ok(sysUserLogService.mineLogs(query, sysUserLog, sysUserId, roles));
+        return PageResultUtils.ok(sysUserLogService.mineLogs(query, sysUserLogQuery, sysUserId, roles));
     }
 
     /**
      * 操作日志分页列表
      *
-     * @param sysUserLog 条件
+     * @param sysUserLogQuery 条件
      * @return 操作日志分页列表
      */
     @Operation(summary = "操作日志分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysUserLog> pageForRole(@ParameterObject Query<SysUserLog> query, @ParameterObject SysUserLog sysUserLog, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return PageResultUtils.ok(sysUserLogService.pageForUserLog(query, sysUserLog, roles));
+    public ReturnPageResult<SysUserLog> pageForRole(@ParameterObject Query<SysUserLog> query, @ParameterObject SysUserLogQuery sysUserLogQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return PageResultUtils.ok(sysUserLogService.pageForUserLog(query, sysUserLogQuery, roles));
     }
 
     /**

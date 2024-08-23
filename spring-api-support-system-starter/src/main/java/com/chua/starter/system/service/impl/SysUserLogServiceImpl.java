@@ -14,6 +14,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.IptablesService;
 import com.chua.starter.system.entity.SysUserLog;
 import com.chua.starter.system.mapper.SysUserLogMapper;
+import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
@@ -23,9 +24,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 /**
- *
+ * @author CH
  * @since 2024/8/8
- * @author CH    
  */
 @Service
 @RequiredArgsConstructor
@@ -37,11 +37,14 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     public void onApplicationEvent(OperateLoggerInfo operateLoggerInfo) {
         SysUserLog sysUserLog = createSysUserLog(operateLoggerInfo);
         ThreadUtils.newStaticThreadPool()
-                .execute(() -> {baseMapper.insert(sysUserLog);});
+                .execute(() -> {
+                    baseMapper.insert(sysUserLog);
+                });
     }
 
     /**
      * 创建日志
+     *
      * @param operateLoggerInfo 日志
      * @return 日志
      */
@@ -60,7 +63,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
             geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
         } catch (Exception ignored) {
         }
-        if(null != geoCityReturnResult && geoCityReturnResult.isOk()) {
+        if (null != geoCityReturnResult && geoCityReturnResult.isOk()) {
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());
             sysUserLog.setSysLogIsp(geoCityReturnResult.getData().getIsp());
         }
@@ -71,13 +74,16 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLog sysUserLog, Set<String> roles) {
+    public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
                 .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGOUT")
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLog.getSysLogUsername())
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLog.getSysLogFrom())
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLog.getSysLogAddress())
-                .eq(ObjectUtils.isNotEmpty(sysUserLog.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLog.getSysLogStatus())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLogQuery.getSysLogAddress())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogIp()), SysUserLog::getSysLogIp, sysUserLogQuery.getSysLogIp())
+                .eq(ObjectUtils.isNotEmpty(sysUserLogQuery.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLogQuery.getSysLogStatus())
+                .ge(null != sysUserLogQuery.getStartDate(), SysUserLog::getCreateTime, sysUserLogQuery.getStartDate())
+                .le(null != sysUserLogQuery.getEndDate(), SysUserLog::getCreateTime, sysUserLogQuery.getEndDate())
                 .orderByDesc(SysUserLog::getCreateTime)
         );
     }
@@ -88,13 +94,13 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLog sysUserLog, Integer sysUserId, Set<String> roles) {
+    public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
                 .eq(SysUserLog::getSysLogUsername, sysUserId)
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLog.getSysLogUsername())
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLog.getSysLogFrom())
-                .like(StringUtils.isNotBlank(sysUserLog.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLog.getSysLogAddress())
-                .eq(ObjectUtils.isNotEmpty(sysUserLog.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLog.getSysLogStatus())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
+                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLogQuery.getSysLogAddress())
+                .eq(ObjectUtils.isNotEmpty(sysUserLogQuery.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLogQuery.getSysLogStatus())
                 .orderByDesc(SysUserLog::getCreateTime)
         );
     }
