@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysUserLog;
+import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 
 import java.util.Set;
 
@@ -21,11 +22,11 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * 此方法允许根据不同的查询条件和角色筛选，返回用户日志的分页数据
      *
      * @param query 查询对象，用于分页和排序设置
-     * @param sysUserLog 查询条件对象，用于筛选日志
+     * @param sysUserLogQuery 查询条件对象，用于筛选日志
      * @param roles 用户角色集合，用于根据角色筛选日志
      * @return 返回包含用户日志的分页数据对象
      */
-    IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLog sysUserLog, Set<String> roles);
+    IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Set<String> roles);
 
     /**
      * 删除指定的用户日志
@@ -41,10 +42,10 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * 此方法根据用户的角色和查询条件获取当前用户的日志，返回一个包含日志的分页数据对象
      *
      * @param query      查询对象，用于分页和排序设置
-     * @param sysUserLog 查询条件对象，用于筛选日志
+     * @param sysUserLogQuery 查询条件对象，用于筛选日志
      * @param sysUserId  账号ID
      * @param roles      用户角色集合，用于根据角色筛选日志
      * @return 返回包含当前用户日志的分页数据对象
      */
-    IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLog sysUserLog, Integer sysUserId, Set<String> roles);
+    IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles);
 }
