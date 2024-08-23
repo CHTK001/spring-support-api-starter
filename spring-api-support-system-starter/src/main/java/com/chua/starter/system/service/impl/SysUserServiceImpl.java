@@ -241,7 +241,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             updateById(sysUser1);
             AuthClientExecute.getInstance().upgrade(UpgradeType.TIMESTAMP);
-            sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
+            if(sysUser.isUpdateRole()) {
+                sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
+            }
             if (CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
                 sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
                     try {
