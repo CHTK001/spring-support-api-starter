@@ -20,6 +20,7 @@ import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
+import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
@@ -208,7 +209,25 @@ public class SysUserController {
         return sysUserService.reset(userId);
     }
 
+    /**
+     * 更新当前账号密码
+     *
+     * @return 更新用户
+     */
+    @Operation(summary = "更新用户自身密码")
+    @PutMapping("/updateOwner")
+    @OperateLog
+    public ReturnResult<SysUser> updateOwner(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Parameter(hidden = true) @UserValue("userId") Long userId,
+            @Validated(UpdateGroup.class) @RequestBody SysUserPasswordUpdate sysUserPasswordUpdate,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
 
+        return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
+    }
     /**
      * 更新用户
      *
