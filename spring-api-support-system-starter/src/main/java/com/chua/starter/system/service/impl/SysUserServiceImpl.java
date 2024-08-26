@@ -322,17 +322,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("您的账号已被禁用, 无法进行操作");
         }
 
-        if(null != sysUser.getSysUserInSystem() && sysUser.getSysUserInSystem() == 1) {
-            return ReturnResult.illegal("您的账号为系统账号权限不足, 无法进行操作");
-        }
-
         String oldPassword = sysUserPasswordUpdate.getOldPassword();
         if (StringUtils.isNotBlank(oldPassword)) {
             if (!DigestUtils.md5Hex(oldPassword + sysUser.getSysUserSalt()).equals(sysUser.getSysUserPassword())) {
-                return ReturnResult.illegal("旧密码错误");
+                return ReturnResult.illegal("当前密码错误");
             }
         } else {
-            return ReturnResult.illegal("旧密码不能为空");
+            return ReturnResult.illegal("当前密码不能为空");
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
