@@ -14,6 +14,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.pojo.setting.SysSettingVO;
@@ -73,6 +74,9 @@ public class SysSettingController {
     @ApiPlatform("system")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
+        if(!AuthConstant.hasAdmin(roles)) {
+            list = list.stream().filter(it -> null != it.getSysSettingAdmin() && it.getSysSettingAdmin() != 1).toList();
+        }
         return ReturnResult.ok(BeanUtils.copyPropertiesList(list, SysSettingVO.class));
     }
     /**
