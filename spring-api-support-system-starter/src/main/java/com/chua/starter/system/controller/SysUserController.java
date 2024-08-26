@@ -182,7 +182,7 @@ public class SysUserController {
     @GetMapping("/resetOwner")
     @OperateLog
     @Transactional(rollbackOn = Exception.class)
-    public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("userId") Long userId) {
+    public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
             return Result.illegal("请重新登录或者联系管理员");
         }
@@ -219,7 +219,7 @@ public class SysUserController {
     @OperateLog
     public ReturnResult<SysUser> updateOwner(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-            @Parameter(hidden = true) @UserValue("userId") Long userId,
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
             @Validated(UpdateGroup.class) @RequestBody SysUserPasswordUpdate sysUserPasswordUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -238,7 +238,7 @@ public class SysUserController {
     @OperateLog
     public ReturnResult<SysUser> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-            @Parameter(hidden = true) @UserValue("userId") Long userId,
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
             @Validated(UpdateGroup.class) @RequestBody SysUserUpdate sysUser,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
