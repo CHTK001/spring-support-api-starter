@@ -41,8 +41,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
+        Integer isAdmin = null;
+        if(AuthConstant.hasAdmin(roles)) {
+            isAdmin = 1;
+        }
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))
+                .eq(null != isAdmin, SysSetting::getSysSettingAdmin, 1)
         );
     }
 

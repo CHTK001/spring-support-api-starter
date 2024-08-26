@@ -83,6 +83,14 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingStatus;
 
     /**
+     * 是否只有管理员生效
+     */
+    @TableField(value = "sys_setting_admin")
+    @ApiModelProperty(value = "是否只有管理员生效; 0:不生效")
+    @Schema(description = "是否只有管理员生效; 0:不生效")
+    private Integer sysSettingAdmin;
+
+    /**
      * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
      */
     @TableField(value = "sys_setting_value_type")
