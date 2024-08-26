@@ -32,6 +32,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
                         .like(ObjectUtils.isNotEmpty(sysDept.getSysDeptName()), SysDept::getSysDeptName, sysDept.getSysDeptName())
+                        .orderByAsc(SysDept::getSysDeptSort)
         );
 
         return TreeUtils.toTree(sysDepts, sysDept1 -> {
