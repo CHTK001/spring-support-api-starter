@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 26/08/2024 15:58:30
+ Date: 26/08/2024 17:29:39
 */
 
 SET NAMES utf8mb4;
@@ -256,21 +256,21 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
 INSERT INTO `sys_setting` VALUES (1, 'openVerifyCode', 'false', 1, 'bool', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, NULL, NULL, '2024-08-16 13:25:38', 'sa', NULL);
 INSERT INTO `sys_setting` VALUES (2, 'systemName', '后台管理系统', 1, 'string', 'default', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (3, 'openLoopDebugger', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '开启循环debugger', NULL, NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', NULL, NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (5, 'enable', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启返回加密', NULL, NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (6, 'openLoopWatermark', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启缓存!', '{\"watermarkColor\" :\"#409EFF\", \"globalAlpha\": 0.15,}', NULL, 'sa', NULL, '2024-08-19 19:53:55', '2024-08-19 19:57:22', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (7, 'openVcode', 'true', 1, 'bool', 'default', NULL, 1, NULL, '滑动验证码', NULL, NULL, NULL, NULL, NULL, '2024-08-21 09:55:09', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (8, 'version', '1', 1, 'number', 'version', NULL, 1, NULL, '系统版本', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (9, 'socket_url', 'http://127.0.0.1:31256', 1, 'array', 'config', NULL, 1, NULL, 'socket服务器地址', NULL, NULL, NULL, NULL, NULL, '2024-08-26 15:55:21', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (10, 'socket_open', 'true', 1, 'bool', 'config', NULL, 1, NULL, 'socket是否开启', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (3, 'openVcode', 'true', 1, 'bool', 'default', NULL, 1, NULL, '滑动验证码', NULL, NULL, NULL, NULL, NULL, '2024-08-21 09:55:09', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'config', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', NULL, NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (5, 'openCodec', 'false', 1, 'bool', 'config', NULL, 1, NULL, '是否开启返回加密', NULL, NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (6, 'openLoopWatermark', 'false', 1, 'bool', 'config', NULL, 1, NULL, '是否开启缓存!', '{\"watermarkColor\" :\"#409EFF\", \"globalAlpha\": 0.15,}', NULL, 'sa', NULL, '2024-08-19 19:53:55', '2024-08-19 19:57:22', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (7, 'openLoopDebugger', 'false', 1, 'bool', 'config', NULL, 1, NULL, '开启循环debugger', NULL, NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (8, 'version', '1', 1, 'number', 'config', NULL, 1, NULL, '系统版本', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (9, 'socket_url', 'http://127.0.0.1:31256', 1, 'array', 'config', NULL, 1, NULL, 'socket服务器地址', NULL, 1, NULL, NULL, NULL, '2024-08-26 15:55:21', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (10, 'openSocket', 'true', 1, 'bool', 'config', NULL, 1, NULL, 'socket是否开启', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -336,18 +336,11 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log` VALUES (1, 'sa', '局域网', '192.168.110.8', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 237, 'LOGIN', 1, NULL, 1, '2024-08-24 12:16:06', '2024-08-24 12:16:06', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (2, 'sa', NULL, '192.168.110.8', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 2168, 'LOGIN', 1, NULL, 1, '2024-08-26 11:01:11', '2024-08-26 11:01:11', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (3, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 2296, 'LOGIN', 1, NULL, 1, '2024-08-26 11:39:11', '2024-08-26 11:39:11', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (4, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 492, 'LOGIN', 1, NULL, NULL, '2024-08-26 14:52:26', '2024-08-26 14:52:26', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (5, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 120, 'LOGIN', 1, NULL, NULL, '2024-08-26 15:00:02', '2024-08-26 15:00:02', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (6, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 321, 'LOGIN', 1, NULL, 1, '2024-08-26 15:00:40', '2024-08-26 15:00:40', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (7, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/setting/delete', '[]', 45, '删除', 1, NULL, NULL, '2024-08-26 15:55:26', '2024-08-26 15:55:26', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
