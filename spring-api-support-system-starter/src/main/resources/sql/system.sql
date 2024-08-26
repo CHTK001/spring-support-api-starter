@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 23/08/2024 09:48:20
+ Date: 26/08/2024 15:58:30
 */
 
 SET NAMES utf8mb4;
@@ -26,6 +26,10 @@ CREATE TABLE `sys_dept`  (
   `sys_dept_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '机构名称',
   `sys_dept_pid` int(11) NULL DEFAULT NULL COMMENT '父机构',
   `sys_dept_tree_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '机构链路',
+  `sys_dept_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组织编码',
+  `sys_dept_principal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门负责人',
+  `sys_dept_contact` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '负责人联系方式',
+  `sys_dept_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -33,18 +37,14 @@ CREATE TABLE `sys_dept`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
-INSERT INTO `sys_dept` VALUES (1, '根节点', 0, NULL, NULL, NULL, '2024-08-21 16:37:12', '2024-08-21 16:37:14', NULL, NULL);
-INSERT INTO `sys_dept` VALUES (2, '子节点1', 1, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
-INSERT INTO `sys_dept` VALUES (3, '子节点2', 1, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
-INSERT INTO `sys_dept` VALUES (5, '子节点4', 2, NULL, NULL, NULL, '2024-08-21 16:37:41', '2024-08-21 16:37:43', NULL, NULL);
-INSERT INTO `sys_dept` VALUES (8, '子节点5', 2, 'null,null', 'sa', NULL, '2024-08-22 18:23:09', NULL, NULL, NULL);
-INSERT INTO `sys_dept` VALUES (9, '子节点6', 3, 'null,null', 'sa', NULL, '2024-08-22 18:23:19', NULL, NULL, NULL);
-INSERT INTO `sys_dept` VALUES (10, '子节点77', 1, 'null,10', 'sa', NULL, '2024-08-22 18:23:26', '2024-08-22 18:23:37', 'sa', NULL);
+INSERT INTO `sys_dept` VALUES (1, '一级', 0, '0', 'YJ', NULL, NULL, NULL, 'sa', NULL, '2024-08-26 10:09:09', NULL, NULL, NULL);
+INSERT INTO `sys_dept` VALUES (2, '二级1-1', 1, '0,2', 'EJ', NULL, NULL, 1, 'sa', NULL, '2024-08-26 10:18:51', '2024-08-26 13:40:20', 'sa', NULL);
+INSERT INTO `sys_dept` VALUES (3, '二级1-2', 1, '0,3', 'EJ', NULL, NULL, 2, 'sa', NULL, '2024-08-26 13:43:17', '2024-08-26 13:43:24', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict
@@ -156,7 +156,7 @@ CREATE TABLE `sys_menu`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `sys_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属权限',
   PRIMARY KEY (`sys_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -170,8 +170,10 @@ INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, 
 INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '');
 INSERT INTO `sys_menu` VALUES (8, 'user', '/system/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (10, 'accountSetting', '/manage/account/setting', '', '账号设置', '', 1, '0,1,10', '/manage/account/setting', '', NULL, 0, 1, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:48:04', '2024-08-21 16:57:16', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (11, 'dept', '/system/dept', '', '机构管理', '', 1, '0,1,11', 'manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -246,6 +248,7 @@ CREATE TABLE `sys_setting`  (
   `sys_setting_app_inner` int(11) NULL DEFAULT NULL COMMENT '配置是否作用域系统启动',
   `sys_setting_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置备注',
   `sys_setting_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置参数',
+  `sys_setting_admin` int(11) NULL DEFAULT NULL COMMENT '是否只有管理员生效',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -253,18 +256,21 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 'openVerifyCode', 'false', 1, 'bool', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, NULL, '2024-08-16 13:25:38', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (2, 'systemName', '后台管理系统', 1, 'string', 'default', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (3, 'openLoopDebugger', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '开启循环debugger', NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (5, 'enable', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启返回加密', NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (6, 'openLoopWatermark', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启缓存!', '{\"watermarkColor\" :\"#409EFF\", \"globalAlpha\": 0.15,}', 'sa', NULL, '2024-08-19 19:53:55', '2024-08-19 19:57:22', 'sa', NULL);
-INSERT INTO `sys_setting` VALUES (7, 'openVcode', 'true', 1, 'bool', 'default', NULL, 1, NULL, '滑动验证码', NULL, NULL, NULL, NULL, '2024-08-21 09:55:09', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (1, 'openVerifyCode', 'false', 1, 'bool', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, NULL, NULL, '2024-08-16 13:25:38', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (2, 'systemName', '后台管理系统', 1, 'string', 'default', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (3, 'openLoopDebugger', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '开启循环debugger', NULL, NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-08-18 10:52:47', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (4, 'openLoopRedirect', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '当开启调试模式自动崩溃当前页', NULL, NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-08-18 11:23:15', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (5, 'enable', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启返回加密', NULL, NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-08-18 11:32:06', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (6, 'openLoopWatermark', 'false', 1, 'bool', 'codec', NULL, 1, NULL, '是否开启缓存!', '{\"watermarkColor\" :\"#409EFF\", \"globalAlpha\": 0.15,}', NULL, 'sa', NULL, '2024-08-19 19:53:55', '2024-08-19 19:57:22', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (7, 'openVcode', 'true', 1, 'bool', 'default', NULL, 1, NULL, '滑动验证码', NULL, NULL, NULL, NULL, NULL, '2024-08-21 09:55:09', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (8, 'version', '1', 1, 'number', 'version', NULL, 1, NULL, '系统版本', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (9, 'socket_url', 'http://127.0.0.1:31256', 1, 'array', 'config', NULL, 1, NULL, 'socket服务器地址', NULL, NULL, NULL, NULL, NULL, '2024-08-26 15:55:21', 'sa', NULL);
+INSERT INTO `sys_setting` VALUES (10, 'socket_open', 'true', 1, 'bool', 'config', NULL, 1, NULL, 'socket是否开启', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -283,6 +289,7 @@ CREATE TABLE `sys_user`  (
   `sys_user_sex` int(11) NULL DEFAULT NULL COMMENT '性别; 0:女;1:男; 2:其他',
   `sys_user_full_address` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '居住地址',
   `sys_user_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统账号; 0: 非系统账号',
+  `sys_user_avatar` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '头像',
   `sys_user_card` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '身份证',
   `sys_dept_id` int(11) NULL DEFAULT NULL COMMENT '部门ID',
   `sys_user_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
@@ -301,8 +308,8 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, '172.16.2.226', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
+INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, '12345', 'test@qq.com', NULL, NULL, 1, 'data:image/jpeg;base64,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', NULL, NULL, NULL, NULL, '172.16.2.226', NULL, NULL, NULL, NULL, '2024-08-26 14:14:15', 'sa', NULL);
+INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, 1, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -314,6 +321,8 @@ CREATE TABLE `sys_user_log`  (
   `sys_log_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
   `sys_log_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求IP',
   `sys_log_isp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '运营商',
+  `sys_log_system` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '系统',
+  `sys_log_browser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
   `sys_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
   `sys_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求参数',
   `sys_log_cost` int(11) NULL DEFAULT NULL COMMENT '耗时',
@@ -327,11 +336,18 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
+INSERT INTO `sys_user_log` VALUES (1, 'sa', '局域网', '192.168.110.8', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 237, 'LOGIN', 1, NULL, 1, '2024-08-24 12:16:06', '2024-08-24 12:16:06', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (2, 'sa', NULL, '192.168.110.8', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 2168, 'LOGIN', 1, NULL, 1, '2024-08-26 11:01:11', '2024-08-26 11:01:11', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (3, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 2296, 'LOGIN', 1, NULL, 1, '2024-08-26 11:39:11', '2024-08-26 11:39:11', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (4, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 492, 'LOGIN', 1, NULL, NULL, '2024-08-26 14:52:26', '2024-08-26 14:52:26', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (5, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 120, 'LOGIN', 1, NULL, NULL, '2024-08-26 15:00:02', '2024-08-26 15:00:02', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (6, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 321, 'LOGIN', 1, NULL, 1, '2024-08-26 15:00:40', '2024-08-26 15:00:40', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (7, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/setting/delete', '[]', 45, '删除', 1, NULL, NULL, '2024-08-26 15:55:26', '2024-08-26 15:55:26', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
