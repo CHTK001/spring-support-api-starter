@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -46,6 +48,15 @@ public class SysDept extends SysBase implements Serializable {
     @Size(max = 255, message = "机构名称最大长度要小于 255")
     private String sysDeptName;
 
+    /**
+     * 机构编码
+     */
+    @TableField(value = "sys_dept_code")
+    @ApiModelProperty(value = "机构编码")
+    @Schema(description = "机构编码")
+    @Size(max = 255, message = "机构名称最大长度要小于 255")
+    @NotBlank(message = "机构编码不能为空", groups = {AddGroup.class})
+    private String sysDeptCode;
     /**
      * 父机构
      */
