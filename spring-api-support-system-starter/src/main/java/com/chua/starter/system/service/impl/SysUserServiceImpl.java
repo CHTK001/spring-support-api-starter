@@ -332,6 +332,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
+            sysUser.setSysUserSalt(RandomUtils.randomString(14));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空");
