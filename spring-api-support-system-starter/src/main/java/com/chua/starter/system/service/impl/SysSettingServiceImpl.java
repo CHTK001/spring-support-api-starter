@@ -154,9 +154,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public void afterPropertiesSet() throws Exception {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
-        globalSettingFactory.register("default", new GuestDefaultSetting());
-        globalSettingFactory.register("codec", new CodecSetting());
-        globalSettingFactory.register("version", new VersionSetting());
+        globalSettingFactory.register("config", new GuestDefaultSetting());
+        globalSettingFactory.register("config", new CodecSetting());
+        globalSettingFactory.register("config", new VersionSetting());
         upgrade();
     }
 
