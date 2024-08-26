@@ -16,6 +16,7 @@ import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
+import com.chua.starter.system.setting.VersionSetting;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -150,6 +151,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         globalSettingFactory.register("default", new GuestDefaultSetting());
         globalSettingFactory.register("codec", new CodecSetting());
+        globalSettingFactory.register("version", new VersionSetting());
         upgrade();
     }
 
