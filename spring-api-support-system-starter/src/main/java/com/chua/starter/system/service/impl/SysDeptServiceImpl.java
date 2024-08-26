@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
@@ -69,7 +70,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
                 return ReturnResult.error("不能选择自己作为父级菜单");
             }
 
-            menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
+            menuTreeId = Joiner.on(",").join( parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
         }
         sysDept.setSysDeptTreeId(menuTreeId);
         return ReturnResult.guess(baseMapper.updateById(sysDept) > 0);
@@ -91,7 +92,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
                 return ReturnResult.error("不能选择自己作为父级菜单");
             }
 
-            menuTreeId = parentSysDept.getSysDeptTreeId() + "," + sysDept.getSysDeptId();
+            menuTreeId = Joiner.on(",").join( parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
         }
         sysDept.setSysDeptTreeId(menuTreeId);
         baseMapper.insert(sysDept);
