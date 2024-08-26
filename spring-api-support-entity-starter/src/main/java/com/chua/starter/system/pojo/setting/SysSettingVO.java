@@ -34,4 +34,14 @@ public class SysSettingVO {
     @Schema(description = "配置值")
     @Size(max = 255, message = "配置值最大长度要小于 255")
     private String sysSettingValue;
+
+    /**
+     * 配置所属分组
+     */
+    @TableField(value = "sys_setting_group")
+    @ApiModelProperty(value = "配置所属分组")
+    @Schema(description = "配置所属分组")
+    @Size(max = 255, message = "配置所属分组最大长度要小于 255")
+    @NotNull(message = "配置名称不能为null", groups = {AddGroup.class})
+    private String sysSettingGroup;
 }
