@@ -35,7 +35,7 @@
 
       <if test="query.sysDeptId != null">
         AND su.sys_dept_id IN (SELECT sys_dept_id FROM sys_dept WHERE sys_dept_tree_id LIKE CONCAT(
-            (SELECT sys_dept_tree_id FROM sys_dept WHERE su.sys_dept_id = #{query.sysDeptId}), '%'))
+            (SELECT sys_dept_tree_id FROM sys_dept WHERE sys_dept_id = #{query.sysDeptId}), '%'))
       </if>
 
       <if test="!isAdmin">
