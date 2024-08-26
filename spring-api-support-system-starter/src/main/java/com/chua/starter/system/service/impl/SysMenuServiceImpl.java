@@ -181,7 +181,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
             sysMenu.setSysMenuPid(0);
-            menuTreeId = "0," + sysMenu.getSysMenuId();
+            menuTreeId = Joiner.on(",").join( 0, sysMenu.getSysMenuId());
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
@@ -203,7 +203,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
             sysMenu.setSysMenuPid(0);
-            menuTreeId = "0," + sysMenu.getSysMenuId();
+            menuTreeId = Joiner.on(",").join( 0, sysMenu.getSysMenuId());
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
