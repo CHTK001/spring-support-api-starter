@@ -49,6 +49,30 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptName;
 
     /**
+     * 部门负责人
+     */
+    @TableField(value = "sys_dept_principal")
+    @ApiModelProperty(value = "部门负责人")
+    @Schema(description = "部门负责人")
+    @Size(max = 255, message = "部门负责人最大长度要小于 255")
+    private String sysDeptPrincipal;
+    /**
+     * 负责人联系方式
+     */
+    @TableField(value = "sys_dept_contact")
+    @ApiModelProperty(value = "负责人联系方式")
+    @Schema(description = "负责人联系方式")
+    @Size(max = 255, message = "负责人联系方式最大长度要小于 255")
+    private String sysDeptContact;
+    /**
+     * 优先级
+     */
+    @TableField(value = "sys_dept_sort")
+    @ApiModelProperty(value = "优先级")
+    @Schema(description = "优先级")
+    @Size(max = 255, message = "优先级最大长度要小于 255")
+    private Integer sysDeptSort;
+    /**
      * 机构编码
      */
     @TableField(value = "sys_dept_code")
