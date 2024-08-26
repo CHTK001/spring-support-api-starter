@@ -60,7 +60,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         String menuTreeId = "";
         if(null == sysDept.getSysDeptPid()) {
             sysDept.setSysDeptPid(0);
-            menuTreeId = "0," + sysDept.getSysDeptId();
+            menuTreeId = Joiner.on(",").join( 0, sysDept.getSysDeptId());
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
@@ -81,7 +81,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         String menuTreeId = "";
         if(null == sysDept.getSysDeptPid()) {
             sysDept.setSysDeptPid(0);
-            menuTreeId = "0," + sysDept.getSysDeptId();
+            menuTreeId = Joiner.on(",").join( 0, sysDept.getSysDeptId());
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
