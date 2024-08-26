@@ -30,6 +30,7 @@ import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
+import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
@@ -308,6 +309,40 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
         return Result.success(loginResult);
+    }
+
+    @Override
+    public ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate) {
+        SysUser sysUser = baseMapper.selectById(userId);
+        if(null == sysUser) {
+            return ReturnResult.illegal("请重新登录!");
+        }
+
+        if(null != sysUser.getSysUserStatus() && sysUser.getSysUserStatus() == 0) {
+            return ReturnResult.illegal("您的账号已被禁用, 无法进行操作");
+        }
+
+        if(null != sysUser.getSysUserInSystem() && sysUser.getSysUserInSystem() == 1) {
+            return ReturnResult.illegal("您的账号为系统账号权限不足, 无法进行操作");
+        }
+
+        String oldPassword = sysUserPasswordUpdate.getOldPassword();
+        if (StringUtils.isNotBlank(oldPassword)) {
+            if (!DigestUtils.md5Hex(oldPassword + sysUser.getSysUserSalt()).equals(sysUser.getSysUserPassword())) {
+                return ReturnResult.illegal("旧密码错误");
+            }
+        } else {
+            return ReturnResult.illegal("旧密码不能为空");
+        }
+
+        if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
+            sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
+        } else {
+            return ReturnResult.illegal("新密码不能为空");
+        }
+
+        updateById(sysUser);
+        return ReturnResult.ok(sysUser);
     }
 
     /**

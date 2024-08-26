@@ -8,6 +8,7 @@ import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.RefreshToken;
+import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.query.SysUserQuery;
@@ -111,4 +112,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return 结果对象，包含刷新结果和可能的附加信息
      */
     Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 更新指定用户的登录密码
+     *
+     * @param userId 用户ID，用于确定要更新的用户
+     * @param sysUserPasswordUpdate 更新的用户密码信息对象
+     * @return 操作结果对象，包含操作是否成功和相关提示信息
+     */
+    ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate);
 }
