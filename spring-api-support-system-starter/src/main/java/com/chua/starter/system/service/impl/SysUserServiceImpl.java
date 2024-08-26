@@ -315,7 +315,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate) {
         SysUser sysUser = baseMapper.selectById(userId);
         if(null == sysUser) {
-            return ReturnResult.illegal("请重新登录!");
+            return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
         }
 
         if(null != sysUser.getSysUserStatus() && sysUser.getSysUserStatus() == 0) {
