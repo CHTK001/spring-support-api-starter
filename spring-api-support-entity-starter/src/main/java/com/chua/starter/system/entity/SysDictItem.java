@@ -57,7 +57,14 @@ public class SysDictItem extends SysBase implements Serializable {
     @Schema(description = "字典子项名称")
     @Size(max = 255, message = "字典子项名称最大长度要小于 255")
     private String sysDictItemName;
-
+    /**
+     * 字典i18n
+     */
+    @TableField(value = "sys_dict_item_i18n")
+    @ApiModelProperty(value = "字典i18n, 唯一")
+    @Schema(description = "字典i18n, 唯一")
+    @Size(max = 255, message = "字典i18n, 唯一最大长度要小于 255")
+    private String sysDictItemI18n;
 
     /**
      * 字典子项名称
