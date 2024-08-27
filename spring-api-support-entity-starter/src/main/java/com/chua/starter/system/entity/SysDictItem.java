@@ -69,7 +69,7 @@ public class SysDictItem extends SysBase implements Serializable {
     /**
      * 字典子项名称
      */
-    @TableField(value = "sys_dict_item_codec")
+    @TableField(value = "sys_dict_item_code")
     @ApiModelProperty(value = "字典子项编码")
     @Schema(description = "字典子项编码")
     @NotNull(message = "字典子项编码不能为null", groups = {AddGroup.class})
