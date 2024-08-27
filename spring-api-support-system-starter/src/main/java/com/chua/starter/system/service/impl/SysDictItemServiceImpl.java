@@ -1,5 +1,6 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
@@ -30,7 +32,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
 
     @Override
-    public IPage<SysDictItem> listForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
+    public IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysDictItem>lambdaQuery()
                 .eq(SysDictItem::getSysDictId, sysDictId)
                 .orderByAsc(SysDictItem::getSysDictItemSort)
@@ -73,5 +75,13 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictId")
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
+    }
+
+    @Override
+    public List<SysDictItem> listForItem(Query<SysDictItem> query, Integer dictItemId, Set<String> roles) {
+        QueryWrapper<SysDictItem> wrapper = query.wrapper();
+        return baseMapper.selectList(wrapper.lambda().eq(SysDictItem::getSysDictItemStatus, 1)
+                .eq(SysDictItem::getSysDictId, dictItemId)
+        );
     }
 }
