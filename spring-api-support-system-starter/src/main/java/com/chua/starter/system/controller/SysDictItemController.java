@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
@@ -46,18 +47,32 @@ public class SysDictItemController {
 
 
     /**
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     */
+    @Operation(summary = "字典子项列表")
+    @GetMapping("/list")
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #dictItemId")
+    public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == dictItemId) {
+            return ReturnResult.illegal("字典不能为空");
+        }
+        return ReturnResult.ok(sysDictItemService.listForItem(query, dictItemId, roles));
+    }
+    /**
      * 字典子项分页列表
      *
      * @return 字典子项分页列表
      */
     @Operation(summary = "字典子项列表")
-    @GetMapping("/list")
+    @GetMapping("/page")
     @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #dictItemId")
-    public ReturnPageResult<SysDictItem> list(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == dictItemId) {
             return ReturnPageResult.illegal("字典不能为空");
         }
-        return PageResultUtils.ok(sysDictItemService.listForItem(query, dictItemId, roles));
+        return PageResultUtils.ok(sysDictItemService.pageForItem(query, dictItemId, roles));
     }
 
     /**
