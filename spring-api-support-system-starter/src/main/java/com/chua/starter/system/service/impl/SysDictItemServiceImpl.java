@@ -71,6 +71,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         if(null != sysDictItem1) {
             return ReturnResult.fail("字典编码已存在");
         }
+
+        if(null == sysDictItem.getSysDictItemStatus()) {
+            sysDictItem.setSysDictItemStatus(1);
+        }
+
         baseMapper.insert(sysDictItem);
         sysDictItemService.deleteCache(sysDictItem);
         return ReturnResult.of( sysDictItem);
