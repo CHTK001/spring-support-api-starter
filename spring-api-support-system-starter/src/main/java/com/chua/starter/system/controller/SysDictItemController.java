@@ -53,12 +53,12 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #dictItemId")
-    public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == dictItemId) {
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:id:' + #sysDictId")
+    public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
         }
-        return ReturnResult.ok(sysDictItemService.listForItem(query, dictItemId, roles));
+        return ReturnResult.ok(sysDictItemService.listForItem(query, sysDictId, roles));
     }
     /**
      * 字典子项分页列表
@@ -67,12 +67,12 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/page")
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #dictItemId")
-    public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer dictItemId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == dictItemId) {
+    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:id:' + #sysDictId")
+    public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictId) {
             return ReturnPageResult.illegal("字典不能为空");
         }
-        return PageResultUtils.ok(sysDictItemService.pageForItem(query, dictItemId, roles));
+        return PageResultUtils.ok(sysDictItemService.pageForItem(query, sysDictId, roles));
     }
 
     /**
@@ -86,13 +86,13 @@ public class SysDictItemController {
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dict:item:delete", role = {ADMIN, SUPER_ADMIN})
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #dictItemId")
-    public ReturnResult<Boolean> delete(Long dictItemId) {
-        if (null == dictItemId) {
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItemId")
+    public ReturnResult<Boolean> delete(Long sysDictItemId) {
+        if (null == sysDictItemId) {
             return Result.illegal("字典子项信息不存在");
         }
 
-        return sysDictItemService.delete(dictItemId);
+        return sysDictItemService.delete(sysDictItemId);
     }
 
 
@@ -104,7 +104,7 @@ public class SysDictItemController {
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
     @OperateLog
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId")
     @Permission(value = "sys:dict:item:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

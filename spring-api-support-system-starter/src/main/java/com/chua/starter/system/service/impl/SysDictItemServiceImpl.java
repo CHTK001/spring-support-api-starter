@@ -12,6 +12,7 @@ import com.chua.starter.system.mapper.SysDictItemMapper;
 import com.chua.starter.system.service.SysDictItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,7 +43,10 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Override
     public ReturnResult<Boolean> delete(Long dictItemId) {
-        return ReturnResult.guess(baseMapper.deleteById(dictItemId) > 0);
+        SysDictItem sysDictItem = baseMapper.selectById(dictItemId);
+        boolean b = baseMapper.deleteById(dictItemId) > 0;
+        sysDictItemService.deleteCache(sysDictItem);
+        return ReturnResult.guess(b);
     }
 
     @Override
@@ -56,7 +60,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
                 return ReturnResult.fail("字典编码已存在");
             }
         }
-
+        sysDictItemService.deleteCache(sysDictItem);
         return ReturnResult.of(baseMapper.updateById(sysDictItem) > 0);
     }
 
@@ -72,7 +76,10 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         return ReturnResult.of( sysDictItem);
     }
     @Override
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictId")
+    @Caching(evict = {
+            @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:id:' + #sysDictItem.sysDictId"),
+            @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId")
+    })
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
     }
