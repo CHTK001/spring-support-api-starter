@@ -65,12 +65,12 @@ public class SysDictController {
     @SysLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dict:delete", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long dictId) {
-        if (null == dictId) {
+    public ReturnResult<Boolean> delete(Long sysDictId) {
+        if (null == sysDictId) {
             return Result.illegal("字典信息不存在");
         }
 
-        return sysDictService.delete(dictId);
+        return sysDictService.delete(sysDictId);
     }
 
 
