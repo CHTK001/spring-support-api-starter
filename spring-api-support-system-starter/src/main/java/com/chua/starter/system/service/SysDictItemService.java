@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDictItem;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,7 +24,7 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @param roles  用户角色集合，用于进行权限控制
      * @return 分页查询结果，包含字典项列表和分页信息
      */
-    IPage<SysDictItem> listForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles);
+    IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles);
 
     /**
      * 删除指定的字典项
@@ -57,4 +58,14 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @param sysDictItem  待清除缓存的字典项实体对象
      */
     void deleteCache(SysDictItem sysDictItem);
+
+    /**
+     * 查询字典项列表
+     *
+     * @param query  查询条件对象，用于封装分页及排序等信息
+     * @param dictItemId  字典项实体对象，用于过滤查询结果
+     * @param roles  用户角色集合，用于进行权限控制
+     * @return 字典项列表
+     */
+    List<SysDictItem> listForItem(Query<SysDictItem> query, Integer dictItemId, Set<String> roles);
 }
