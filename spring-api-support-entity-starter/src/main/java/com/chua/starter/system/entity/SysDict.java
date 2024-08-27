@@ -69,6 +69,14 @@ public class SysDict extends SysBase implements Serializable {
     @Schema(description = "字典编码, 唯一")
     @Size(max = 255, message = "字典编码, 唯一最大长度要小于 255")
     private String sysDictCode;
+    /**
+     * 字典i18n
+     */
+    @TableField(value = "sys_dict_i18n")
+    @ApiModelProperty(value = "字典i18n, 唯一")
+    @Schema(description = "字典i18n, 唯一")
+    @Size(max = 255, message = "字典i18n, 唯一最大长度要小于 255")
+    private String sysDictI18n;
 
     /**
      * 描述
