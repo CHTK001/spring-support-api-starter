@@ -8,7 +8,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -85,7 +85,11 @@ public class SysUserController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     @OperateLog
-    @SysLogger(module = "LOGIN", name = "用户登录", action = Action.LOGIN, content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @UserLogger(module = "LOGIN",
+            name = "用户登录",
+            action = Action.LOGIN,
+            loginType = "WEB",
+            content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
@@ -111,7 +115,7 @@ public class SysUserController {
     }
 
     @Operation(summary = "注销")
-    @SysLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @OperateLog
     public Result logout(@UserValue("token") String uid,String loginType, HttpServletRequest request, HttpServletResponse response) {
@@ -161,7 +165,7 @@ public class SysUserController {
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
     @OperateLog
-    @SysLogger
+    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {

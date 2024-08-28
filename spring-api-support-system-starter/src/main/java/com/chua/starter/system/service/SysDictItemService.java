@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 定义系统字典项服务接口
  * @author CH
  * @since 2024/8/7
  */
-// 定义系统字典项服务接口
 public interface SysDictItemService extends IService<SysDictItem> {
 
     /**

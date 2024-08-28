@@ -9,7 +9,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -40,7 +40,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "系统设置接口")
+@Tag(name = "系统全局设置接口")
 @RestController
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
@@ -101,7 +101,7 @@ public class SysSettingController {
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
     @OperateLog
-    @SysLogger
+    @UserLogger
     @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
