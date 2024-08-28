@@ -44,6 +44,14 @@ public class SysUserLog extends SysBase implements Serializable {
     @Schema(description="账号")
     @Size(max = 255,message = "账号最大长度要小于 255")
     private String sysLogUsername;
+    /**
+     * 登录方式
+     */
+    @TableField(value = "sys_log_login_type")
+    @ApiModelProperty(value="登录方式")
+    @Schema(description="登录方式")
+    @Size(max = 255,message = "账号最大长度要小于 255")
+    private String sysLogLoginType;
 
     /**
      * 浏览器
