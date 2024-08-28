@@ -75,12 +75,12 @@ public class SysConfigController {
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:config:delete", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long sysConfigId) {
+    public ReturnResult<Boolean> delete(@Parameter(hidden = true) @UserValue("roles") Set<String> roles,Long sysConfigId) {
         if (null == sysConfigId) {
             return Result.illegal("系统配置信息不存在");
         }
 
-        return sysConfigService.delete(sysConfigId);
+        return sysConfigService.delete(sysConfigId, roles);
     }
 
     /**
