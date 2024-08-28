@@ -10,6 +10,7 @@
     <result column="sys_config_value" jdbcType="VARCHAR" property="sysConfigValue" />
     <result column="sys_config_type" jdbcType="VARCHAR" property="sysConfigType" />
     <result column="sys_config_remark" jdbcType="VARCHAR" property="sysConfigRemark" />
+    <result column="sys_config_in_system" jdbcType="INTEGER" property="sysConfigInSystem" />
     <result column="create_name" jdbcType="VARCHAR" property="createName" />
     <result column="create_by" jdbcType="INTEGER" property="createBy" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -20,7 +21,7 @@
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     sys_config_id, sys_config_group, sys_config_name, sys_config_value, sys_config_type, 
-    sys_config_remark, create_name, create_by, create_time, update_time, update_name, 
-    update_by
+    sys_config_remark, sys_config_in_system, create_name, create_by, create_time, update_time, 
+    update_name, update_by
   </sql>
 </mapper>
