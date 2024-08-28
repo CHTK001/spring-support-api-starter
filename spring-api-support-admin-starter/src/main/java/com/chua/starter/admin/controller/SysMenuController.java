@@ -9,7 +9,7 @@ import com.chua.starter.admin.result.UserMenuResult;
 import com.chua.starter.admin.service.SysMenuService;
 import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.annotations.OperateLog;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -59,7 +59,7 @@ public class SysMenuController implements Constant, InitializingBean {
      *
      * @return 删除菜单
      */
-    @SysLogger
+    @UserLogger
     @Operation(summary = "删除菜单")
     @DeleteMapping("delete")
     @OperateLog
@@ -76,7 +76,7 @@ public class SysMenuController implements Constant, InitializingBean {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("update")
-    @SysLogger
+    @UserLogger
     @OperateLog
     public Result<Boolean> update(@RequestBody SysMenuTreeResult sysMenu) {
         return Result.success(menuService.updateMenu(sysMenu.toSysMenu()));

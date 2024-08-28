@@ -11,7 +11,7 @@ import com.chua.starter.admin.node.SysDeptNode;
 import com.chua.starter.admin.service.SysDeptService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
 import com.chua.starter.common.support.annotations.OperateLog;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -155,7 +155,7 @@ public class SysDeptController {
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("delete")
-    @SysLogger
+    @UserLogger
     @OperateLog
     @Caching(evict = {
             @CacheEvict(cacheManager = REDIS_CACHE_MIN, cacheNames = REDIS_CACHE_MIN, key = "'dept'"),

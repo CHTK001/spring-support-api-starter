@@ -10,7 +10,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.admin.entity.SysDict;
 import com.chua.starter.admin.service.SysDictService;
 import com.chua.starter.common.support.annotations.OperateLog;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -103,7 +103,7 @@ public class SysDictController implements Constant {
      *
      * @return 删除字典
      */
-    @SysLogger
+    @UserLogger
     @Operation(summary = "删除字典")
     @DeleteMapping("delete")
     @OperateLog

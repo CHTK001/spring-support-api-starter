@@ -6,7 +6,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -83,7 +83,7 @@ public class SysDictItemController {
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
     @OperateLog
-    @SysLogger
+    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dict:item:delete", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItemId")

@@ -17,7 +17,7 @@ import com.chua.starter.admin.service.SysUserService;
 import com.chua.starter.admin.service.SysUserSettingService;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
@@ -122,7 +122,7 @@ public class SysUserController implements Constant {
     @Operation(summary = "登录")
     @PostMapping("/login")
     @OperateLog
-    @SysLogger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @UserLogger(value = "用户登录", action = "登录", content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
@@ -135,7 +135,7 @@ public class SysUserController implements Constant {
     }
 
     @Operation(summary = "注销")
-    @SysLogger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
+    @UserLogger(value = "用户登出", action = "登出", content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})}]}")
     @DeleteMapping("/logout")
     @OperateLog
     public Result logout(@UserValue("token") String uid, HttpServletRequest request, HttpServletResponse response) {
@@ -175,7 +175,7 @@ public class SysUserController implements Constant {
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
     @OperateLog
-    @SysLogger
+    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:del")
     public ReturnResult<SysUser> delete(Long userId) {
