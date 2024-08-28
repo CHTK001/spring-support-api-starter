@@ -9,7 +9,7 @@ import com.chua.common.support.lang.date.DateUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
-import com.chua.starter.common.support.logger.OperateLoggerInfo;
+import com.chua.starter.common.support.logger.UserLoggerInfo;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.IptablesService;
 import com.chua.starter.system.entity.SysUserLog;
@@ -29,13 +29,13 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
-public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService, ApplicationListener<OperateLoggerInfo> {
+public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService, ApplicationListener<UserLoggerInfo> {
 
     final IptablesService iptablesService;
 
     @Override
-    public void onApplicationEvent(OperateLoggerInfo operateLoggerInfo) {
-        SysUserLog sysUserLog = createSysUserLog(operateLoggerInfo);
+    public void onApplicationEvent(UserLoggerInfo userLoggerInfo) {
+        SysUserLog sysUserLog = createSysUserLog(userLoggerInfo);
         ThreadUtils.newStaticThreadPool()
                 .execute(() -> {
                     baseMapper.insert(sysUserLog);
@@ -45,23 +45,23 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     /**
      * 创建日志
      *
-     * @param operateLoggerInfo 日志
+     * @param userLoggerInfo 日志
      * @return 日志
      */
-    private SysUserLog createSysUserLog(OperateLoggerInfo operateLoggerInfo) {
+    private SysUserLog createSysUserLog(UserLoggerInfo userLoggerInfo) {
         SysUserLog sysUserLog = new SysUserLog();
 
-        sysUserLog.setSysLogIp(operateLoggerInfo.getClientIp());
-        sysUserLog.setSysLogUrl(operateLoggerInfo.getLogMapping());
-        sysUserLog.setSysLogFrom(operateLoggerInfo.getLogModule());
-        sysUserLog.setSysLogParam(operateLoggerInfo.getLogParam());
-        sysUserLog.setSysLogStatus(operateLoggerInfo.getLogStatus());
-        sysUserLog.setSysLogUsername(operateLoggerInfo.getCreateName());
-        sysUserLog.setSysLogCost(BigDecimal.valueOf(operateLoggerInfo.getLogCost()));
-        sysUserLog.setSysLogBrowser(operateLoggerInfo.getBrowser());
-        sysUserLog.setSysLogSystem(operateLoggerInfo.getSystem());
+        sysUserLog.setSysLogIp(userLoggerInfo.getClientIp());
+        sysUserLog.setSysLogUrl(userLoggerInfo.getLogMapping());
+        sysUserLog.setSysLogFrom(userLoggerInfo.getLogModule());
+        sysUserLog.setSysLogParam(userLoggerInfo.getLogParam());
+        sysUserLog.setSysLogStatus(userLoggerInfo.getLogStatus());
+        sysUserLog.setSysLogUsername(userLoggerInfo.getCreateName());
+        sysUserLog.setSysLogCost(BigDecimal.valueOf(userLoggerInfo.getLogCost()));
+        sysUserLog.setSysLogBrowser(userLoggerInfo.getBrowser());
+        sysUserLog.setSysLogSystem(userLoggerInfo.getSystem());
         try {
-            sysUserLog.setCreateBy(Integer.valueOf(operateLoggerInfo.getCreateBy()));
+            sysUserLog.setCreateBy(Integer.valueOf(userLoggerInfo.getCreateBy()));
         } catch (NumberFormatException ignored) {
         }
         ReturnResult<GeoCity> geoCityReturnResult = null;
@@ -73,8 +73,8 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());
             sysUserLog.setSysLogIsp(geoCityReturnResult.getData().getIsp());
         }
-        sysUserLog.setCreateTime(DateUtils.toLocalDateTime(operateLoggerInfo.getCreateTime()));
-        sysUserLog.setUpdateTime(DateUtils.toLocalDateTime(operateLoggerInfo.getCreateTime()));
+        sysUserLog.setCreateTime(DateUtils.toLocalDateTime(userLoggerInfo.getCreateTime()));
+        sysUserLog.setUpdateTime(DateUtils.toLocalDateTime(userLoggerInfo.getCreateTime()));
 
         return sysUserLog;
     }
