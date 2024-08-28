@@ -16,7 +16,7 @@ import com.chua.starter.admin.service.SysRoleService;
 import com.chua.starter.admin.service.SysUserRoleService;
 import com.chua.starter.admin.utils.ServicePageResultUtils;
 import com.chua.starter.common.support.annotations.OperateLog;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -210,7 +210,7 @@ public class SysRoleController implements Constant {
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("delete")
-    @SysLogger
+    @UserLogger
     @OperateLog
     @javax.transaction.Transactional(rollbackOn = Exception.class)
     @CacheEvict(cacheManager = SYSTEM, cacheNames = SYSTEM, key = "'role'")
@@ -239,7 +239,7 @@ public class SysRoleController implements Constant {
      * 批量删除角色
      * @return 批量删除角色
      */
-    @SysLogger
+    @UserLogger
     @Operation(summary = "批量删除角色")
     @DeleteMapping("batchDelete")
     @javax.transaction.Transactional(rollbackOn = Exception.class)

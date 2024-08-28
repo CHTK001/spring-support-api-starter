@@ -14,6 +14,7 @@ import java.util.Set;
 import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
+ * 系统全局配置
  * @author CH
  * @since 2024/8/7
  */

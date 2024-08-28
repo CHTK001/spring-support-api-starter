@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.SysLogger;
+import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -61,7 +61,7 @@ public class SysLogController {
     @Operation(summary = "删除系统日志")
     @DeleteMapping("/delete")
     @OperateLog
-    @SysLogger
+    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:log:delete", role = {SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long logId) {

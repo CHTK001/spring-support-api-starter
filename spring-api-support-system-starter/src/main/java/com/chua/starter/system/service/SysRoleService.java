@@ -10,6 +10,7 @@ import com.chua.starter.system.pojo.role.RoleMenuUpdate;
 import java.util.Set;
 
 /**
+ * 系统角色
  * @author CH
  * @since 2024/8/7
  */
