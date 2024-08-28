@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 28/08/2024 13:18:28
+ Date: 28/08/2024 14:06:37
 */
 
 SET NAMES utf8mb4;
@@ -28,6 +28,7 @@ CREATE TABLE `sys_config`  (
   `sys_config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值',
   `sys_config_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置类型',
   `sys_config_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置描述',
+  `sys_config_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统默认配置；1:系统配置',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -337,6 +338,27 @@ INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337b
 INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, 1, '', NULL, '172.16.2.226', '172.16.2.226', 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
+-- Table structure for sys_user_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user_config`;
+CREATE TABLE `sys_user_config`  (
+  `sys_user_config_id` int(11) NOT NULL,
+  `sys_user_config_wx_openid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信openid',
+  `sys_user_config_wx_unionid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信unionid',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_user_config_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息 - 用户设置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_user_config
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for sys_user_log
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_log`;
@@ -353,6 +375,7 @@ CREATE TABLE `sys_user_log`  (
   `sys_log_cost` int(11) NULL DEFAULT NULL COMMENT '耗时',
   `sys_log_from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求模块',
   `sys_log_status` int(11) NULL DEFAULT NULL COMMENT '请求状态; 0: 失败; 1: 成功',
+  `sys_log_login_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '登录方式',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -366,7 +389,7 @@ CREATE TABLE `sys_user_log`  (
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log` VALUES (1, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 515, 'LOGIN', 1, NULL, 1, '2024-08-28 09:04:03', '2024-08-28 09:04:03', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (1, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 515, 'LOGIN', 1, NULL, NULL, 1, '2024-08-28 09:04:03', '2024-08-28 09:04:03', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
