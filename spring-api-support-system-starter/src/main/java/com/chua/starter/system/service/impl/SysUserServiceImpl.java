@@ -22,17 +22,12 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.system.entity.SysMenu;
-import com.chua.starter.system.entity.SysRole;
-import com.chua.starter.system.entity.SysUser;
-import com.chua.starter.system.entity.SysUserRole;
+import com.chua.starter.system.entity.*;
 import com.chua.starter.system.mapper.SysRoleMapper;
+import com.chua.starter.system.mapper.SysUserLayoutMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
-import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
-import com.chua.starter.system.pojo.user.SysUserUpdate;
-import com.chua.starter.system.pojo.user.SysUserVO;
+import com.chua.starter.system.pojo.user.*;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -74,6 +69,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final RestTemplate restTemplate;
     final RedisTemplate redisTemplate;
     final SysMenuService sysMenuService;
+    final SysUserLayoutMapper sysUserLayoutMapper;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
@@ -340,6 +336,36 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         updateById(sysUser);
         return ReturnResult.ok(sysUser);
+    }
+
+    @Override
+    public UserLayout getUserLayout(Long userId, Set<String> roles) {
+        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
+        UserLayout userLayout = new UserLayout();
+        if(null != sysUserLayout) {
+            userLayout.setLayout(sysUserLayout.getSysLayoutLayout());
+            userLayout.setGrid(sysUserLayout.getSysLayoutGrid());
+            userLayout.setComponent(sysUserLayout.getSysLayoutComponent());
+            return userLayout;
+        }
+        return null;
+    }
+
+    @Override
+    public UserLayout saveUserLayout(Long userId, UserLayout userLayout) {
+        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
+        if(null == sysUserLayout) {
+            sysUserLayout = new SysUserLayout();
+        }
+        sysUserLayout.setSysLayoutComponent(userLayout.getComponent());
+        sysUserLayout.setSysLayoutGrid(userLayout.getGrid());
+        sysUserLayout.setSysLayoutLayout(userLayout.getLayout());
+        sysUserLayout.setSysLayoutUserId(Math.toIntExact(userId));
+
+
+        sysUserLayoutMapper.update(sysUserLayout, Wrappers.<SysUserLayout>lambdaUpdate()
+                .eq(SysUserLayout::getSysLayoutUserId, userId));
+        return userLayout;
     }
 
     /**
