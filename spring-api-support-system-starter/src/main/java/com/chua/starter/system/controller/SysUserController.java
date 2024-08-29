@@ -19,10 +19,7 @@ import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
-import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
-import com.chua.starter.system.pojo.user.SysUserUpdate;
-import com.chua.starter.system.pojo.user.SysUserVO;
+import com.chua.starter.system.pojo.user.*;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -145,6 +142,31 @@ public class SysUserController {
     @GetMapping("/me")
     public Result<UserInfoVO> getUserLoginInfo() {
         return Result.success(sysUserService.getUserLoginInfo());
+    }
+
+
+    /**
+     * 获取当前用户布局
+     *
+     * @return 获取当前用户布局
+     */
+    @Operation(summary = "获取当前用户布局")
+    @GetMapping("/layout")
+    public ReturnResult<UserLayout> getUserLayout(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return ReturnResult.ok(sysUserService.getUserLayout(userId, roles));
+    }
+    /**
+     * 保存当前用户布局
+     *
+     * @return 更新用户
+     */
+    @Operation(summary = "保存当前用户布局")
+    @PutMapping("/layout")
+    public ReturnResult<UserLayout> saveUserLayout(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId, @RequestBody UserLayout userLayout) {
+        return ReturnResult.ok(sysUserService.saveUserLayout(userId, userLayout));
     }
     /**
      * 获取当前登录用户菜单
