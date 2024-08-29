@@ -7,10 +7,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
-import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
-import com.chua.starter.system.pojo.user.SysUserUpdate;
-import com.chua.starter.system.pojo.user.SysUserVO;
+import com.chua.starter.system.pojo.user.*;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
@@ -121,4 +118,22 @@ public interface SysUserService extends IService<SysUser> {
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate);
+
+    /**
+     * 获取当前登录用户的布局信息
+     *
+     * @param userId 用户ID，
+     * @param roles  用户的角色集合，用于筛选布局信息
+     * @return 布局信息对象，包含当前登录用户的布局信息
+     */
+    UserLayout getUserLayout(Long userId, Set<String> roles);
+
+    /**
+     * 保存用户布局信息
+     *
+     * @param userId 用户ID，用于确定要保存布局的用户
+     * @param userLayout 用户布局信息对象，包含用户的布局信息
+     * @return 布局信息对象，包含保存后的布局信息
+     */
+    UserLayout saveUserLayout(Long userId, UserLayout userLayout);
 }
