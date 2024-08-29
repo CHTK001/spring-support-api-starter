@@ -16,13 +16,13 @@ public class UserLayout {
      * 布局网格
      */
     @Schema(description = "布局网格")
-    private String[] grid;
+    private String grid;
 
     /**
      * 布局
      */
     @Schema(description = "布局")
-    private String[] layout;
+    private String layout;
 
     /**
      * 主题
@@ -39,5 +39,5 @@ public class UserLayout {
      * 组件列表
      */
     @Schema(description = "组件列表")
-    private String[] component;
+    private String component;
 }
