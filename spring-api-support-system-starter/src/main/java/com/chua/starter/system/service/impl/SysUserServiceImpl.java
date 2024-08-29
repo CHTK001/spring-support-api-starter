@@ -343,9 +343,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         UserLayout userLayout = new UserLayout();
         if(null != sysUserLayout) {
-            userLayout.setLayout(StringUtils.split(sysUserLayout.getSysLayoutLayout(), ","));
-            userLayout.setGrid(StringUtils.split(sysUserLayout.getSysLayoutGrid(), ","));
-            userLayout.setComponent(StringUtils.split(sysUserLayout.getSysLayoutComponent(), ","));
+            userLayout.setLayout(sysUserLayout.getSysLayoutLayout());
+            userLayout.setGrid(sysUserLayout.getSysLayoutGrid());
+            userLayout.setComponent(sysUserLayout.getSysLayoutComponent());
             return userLayout;
         }
         return null;
@@ -357,9 +357,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(null == sysUserLayout) {
             sysUserLayout = new SysUserLayout();
         }
-        sysUserLayout.setSysLayoutComponent(StringUtils.join(userLayout.getComponent(), ","));
-        sysUserLayout.setSysLayoutGrid(StringUtils.join(userLayout.getGrid(), ","));
-        sysUserLayout.setSysLayoutLayout(StringUtils.join(userLayout.getLayout(), ","));
+        sysUserLayout.setSysLayoutComponent(userLayout.getComponent());
+        sysUserLayout.setSysLayoutGrid(userLayout.getGrid());
+        sysUserLayout.setSysLayoutLayout(userLayout.getLayout());
         sysUserLayout.setSysLayoutUserId(Math.toIntExact(userId));
 
         if(null == sysUserLayout.getSysLayoutId()) {
