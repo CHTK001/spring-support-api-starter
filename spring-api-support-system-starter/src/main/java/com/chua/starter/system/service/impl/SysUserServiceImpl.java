@@ -343,9 +343,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         UserLayout userLayout = new UserLayout();
         if(null != sysUserLayout) {
-            userLayout.setLayout(sysUserLayout.getSysLayoutLayout());
-            userLayout.setGrid(sysUserLayout.getSysLayoutGrid());
-            userLayout.setComponent(sysUserLayout.getSysLayoutComponent());
+            userLayout.setLayout(StringUtils.split(sysUserLayout.getSysLayoutLayout(), ","));
+            userLayout.setGrid(StringUtils.split(sysUserLayout.getSysLayoutGrid(), ","));
+            userLayout.setComponent(StringUtils.split(sysUserLayout.getSysLayoutComponent(), ","));
             return userLayout;
         }
         return null;
@@ -357,14 +357,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(null == sysUserLayout) {
             sysUserLayout = new SysUserLayout();
         }
-        sysUserLayout.setSysLayoutComponent(userLayout.getComponent());
-        sysUserLayout.setSysLayoutGrid(userLayout.getGrid());
-        sysUserLayout.setSysLayoutLayout(userLayout.getLayout());
+        sysUserLayout.setSysLayoutComponent(StringUtils.join(userLayout.getComponent(), ","));
+        sysUserLayout.setSysLayoutGrid(StringUtils.join(userLayout.getGrid(), ","));
+        sysUserLayout.setSysLayoutLayout(StringUtils.join(userLayout.getLayout(), ","));
         sysUserLayout.setSysLayoutUserId(Math.toIntExact(userId));
 
+        if(null == sysUserLayout.getSysLayoutId()) {
+            sysUserLayoutMapper.insert(sysUserLayout);
+        } else {
+            sysUserLayoutMapper.updateById(sysUserLayout);
+        }
 
-        sysUserLayoutMapper.update(sysUserLayout, Wrappers.<SysUserLayout>lambdaUpdate()
-                .eq(SysUserLayout::getSysLayoutUserId, userId));
         return userLayout;
     }
 

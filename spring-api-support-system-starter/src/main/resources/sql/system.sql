@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 29/08/2024 16:29:59
+ Date: 29/08/2024 16:58:07
 */
 
 SET NAMES utf8mb4;
@@ -390,10 +390,10 @@ CREATE TABLE `sys_user_config`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_layout`;
 CREATE TABLE `sys_user_layout`  (
-  `sys_layout_id` int(11) NOT NULL,
+  `sys_layout_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_layout_layout` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '布局',
   `sys_layout_grid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '布局网格',
-  `sys_layout_copmsList` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件',
+  `sys_layout_component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件',
   `sys_layout_user_id` int(11) NULL DEFAULT NULL COMMENT '所属用户',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
