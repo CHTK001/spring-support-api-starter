@@ -1,3 +1,4 @@
 plugin:
   codec:
     enable: true
+    ext-inject: true
