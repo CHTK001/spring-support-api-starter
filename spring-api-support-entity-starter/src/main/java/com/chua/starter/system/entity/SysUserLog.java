@@ -56,6 +56,15 @@ public class SysUserLog extends SysBase implements Serializable {
     /**
      * 浏览器
      */
+    @TableField(value = "sys_log_ua")
+    @ApiModelProperty(value="浏览器ua")
+    @Schema(description="浏览器ua")
+    @Size(max = 255,message = "浏览器ua最大长度要小于 255")
+    private String sysLogUa;
+
+    /**
+     * 浏览器
+     */
     @TableField(value = "sys_log_browser")
     @ApiModelProperty(value="浏览器")
     @Schema(description="浏览器")

@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 30/08/2024 14:02:38
+ Date: 30/08/2024 14:16:49
 */
 
 SET NAMES utf8mb4;
@@ -282,11 +282,12 @@ CREATE TABLE `sys_secret`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_secret_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_secret
 -- ----------------------------
+INSERT INTO `sys_secret` VALUES (1, 'haikang', 'hk', '1', '1', 0, 1, NULL, NULL, NULL, 'sa', NULL, '2024-08-30 14:02:51', '2024-08-30 14:07:01', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_setting
