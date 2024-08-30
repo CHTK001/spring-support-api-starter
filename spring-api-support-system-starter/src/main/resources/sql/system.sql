@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 30/08/2024 14:16:49
+ Date: 30/08/2024 14:32:59
 */
 
 SET NAMES utf8mb4;
@@ -424,6 +424,7 @@ CREATE TABLE `sys_user_log`  (
   `sys_log_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求IP',
   `sys_log_isp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '运营商',
   `sys_log_system` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '系统',
+  `sys_log_ua` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'ua',
   `sys_log_browser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
   `sys_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
   `sys_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求参数',
@@ -439,18 +440,11 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log` VALUES (1, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 515, 'LOGIN', 1, NULL, NULL, 1, '2024-08-28 09:04:03', '2024-08-28 09:04:03', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (2, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 378, 'LOGIN', 1, NULL, NULL, 1, '2024-08-28 14:49:07', '2024-08-28 14:49:07', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (3, 'sa', '局域网', '192.168.110.8', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 10130, 'LOGIN', 1, NULL, NULL, 1, '2024-08-29 13:08:42', '2024-08-29 13:08:42', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (4, 'sa', '局域网', '192.168.110.8', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 325, 'LOGIN', 1, NULL, NULL, 1, '2024-08-29 13:08:50', '2024-08-29 13:08:50', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (5, 'sa', NULL, '192.168.110.8', NULL, 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 6281, 'LOGIN', 1, NULL, NULL, 1, '2024-08-30 09:13:10', '2024-08-30 09:13:10', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (6, 'sa', '局域网', '192.168.110.8', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 326, 'LOGIN', 1, NULL, NULL, 1, '2024-08-30 10:00:59', '2024-08-30 10:00:59', NULL, NULL);
-INSERT INTO `sys_user_log` VALUES (7, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 3864, 'LOGIN', 1, NULL, NULL, 1, '2024-08-30 13:35:28', '2024-08-30 13:35:28', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
