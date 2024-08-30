@@ -1,9 +1,6 @@
 package com.chua.starter.system.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
@@ -92,6 +89,15 @@ public class SysDictItem extends SysBase implements Serializable {
     @ApiModelProperty(value = "状态;0: 隐藏")
     @Schema(description = "状态;0: 隐藏")
     private Integer sysDictItemStatus;
+
+    /**
+     * 是否删除0:未删除
+     */
+    @TableField(value = "sys_dict_item_delete")
+    @ApiModelProperty(value = "是否删除0:未删除")
+    @Schema(description = "是否删除0:未删除")
+    @TableLogic(value = "0", delval = "1")
+    private Integer sysDictItemDelete;
     /**
      * 优先级
      */
