@@ -60,6 +60,8 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogCost(BigDecimal.valueOf(userLoggerInfo.getLogCost()));
         sysUserLog.setSysLogBrowser(userLoggerInfo.getBrowser());
         sysUserLog.setSysLogSystem(userLoggerInfo.getSystem());
+        sysUserLog.setSysLogLoginType(userLoggerInfo.getLoginType());
+        sysUserLog.setSysLogUa(userLoggerInfo.getUa());
         try {
             sysUserLog.setCreateBy(Integer.valueOf(userLoggerInfo.getCreateBy()));
         } catch (NumberFormatException ignored) {
