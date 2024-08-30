@@ -46,7 +46,8 @@ public class WeatherController {
     @ApiOperation("获取当前地址天气")
     @Operation(summary = "获取当前地址天气")
     @GetMapping("address")
-    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'weather:' + #{(T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress(#request))}")
+    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR,
+            key = "'cache:weather:' + T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress()")
     public ReturnResult<Weather> getWeather(HttpServletRequest request) {
         String ipAddress = RequestUtils.getIpAddress(request);
         Value<Weather> ifPresent = CACHE.getIfPresent(ipAddress);
@@ -66,7 +67,7 @@ public class WeatherController {
     @Operation(summary = "根据城市获取天气")
     @ApiOperation("根据城市获取天气")
     @GetMapping("city")
-    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'weather:'+#p0")
+    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'cache:weather:'+#p0")
     public ReturnResult<Weather> getWeather(@RequestParam(value = "city", required = false) String city) {
         city = city == null ? "" : city;
         Value<Weather> ifPresent = CACHE.getIfPresent(city);
