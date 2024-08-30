@@ -17,22 +17,21 @@ import java.io.Serializable;
 
 /**
  *
- * @since 2024/8/29
+ * @since 2024/8/30
  * @author CH    
  */
-
 /**
  * 用户布局
  */
-@ApiModel(description = "用户布局")
-@Schema(description = "用户布局")
+@ApiModel(description="用户布局")
+@Schema(description="用户布局")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_user_layout")
 public class SysUserLayout extends SysBase implements Serializable {
     @TableId(value = "sys_layout_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value="")
+    @Schema(description="")
     @NotNull(message = "不能为null")
     private Integer sysLayoutId;
 
@@ -40,34 +39,34 @@ public class SysUserLayout extends SysBase implements Serializable {
      * 布局
      */
     @TableField(value = "sys_layout_layout")
-    @ApiModelProperty(value = "布局")
-    @Schema(description = "布局")
-    @Size(max = 255, message = "布局最大长度要小于 255")
+    @ApiModelProperty(value="布局")
+    @Schema(description="布局")
+    @Size(max = 255,message = "布局最大长度要小于 255")
     private String sysLayoutLayout;
 
     /**
      * 布局网格
      */
     @TableField(value = "sys_layout_grid")
-    @ApiModelProperty(value = "布局网格")
-    @Schema(description = "布局网格")
-    @Size(max = 255, message = "布局网格最大长度要小于 255")
+    @ApiModelProperty(value="布局网格")
+    @Schema(description="布局网格")
+    @Size(max = 255,message = "布局网格最大长度要小于 255")
     private String sysLayoutGrid;
 
     /**
      * 组件
      */
     @TableField(value = "sys_layout_component")
-    @ApiModelProperty(value = "组件")
-    @Schema(description = "组件")
-    @Size(max = 255, message = "组件最大长度要小于 255")
+    @ApiModelProperty(value="组件")
+    @Schema(description="组件")
+    @Size(max = 255,message = "组件最大长度要小于 255")
     private String sysLayoutComponent;
 
     /**
      * 所属用户
      */
     @TableField(value = "sys_layout_user_id")
-    @ApiModelProperty(value = "所属用户")
-    @Schema(description = "所属用户")
+    @ApiModelProperty(value="所属用户")
+    @Schema(description="所属用户")
     private Integer sysLayoutUserId;
 }
