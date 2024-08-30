@@ -42,7 +42,11 @@ public class SysSecretServiceImpl extends ServiceImpl<SysSecretMapper, SysSecret
 
     @Override
     public ReturnResult<SysSecret> save(SysSecret sysSecret, Set<String> roles) {
-        int insert = baseMapper.insert(sysSecret);
+        sysSecret.setSysSecretDelete(0);
+        if(null == sysSecret.getSysSecretStatus()) {
+            sysSecret.setSysSecretStatus(1);
+        }
+        baseMapper.insert(sysSecret);
         return ReturnResult.guess(sysSecret);
     }
 }
