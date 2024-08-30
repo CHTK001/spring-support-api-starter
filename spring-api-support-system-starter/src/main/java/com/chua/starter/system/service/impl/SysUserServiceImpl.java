@@ -38,6 +38,7 @@ import com.chua.starter.system.setting.GuestDefaultSetting;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  * @since 2024/8/7
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
     final AuthClientProperties authProperties;
@@ -111,9 +113,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         String address = getIpAddress(request);
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        long startTime = System.currentTimeMillis();
         LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
                 ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
         );
+
+        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
             return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
         }
