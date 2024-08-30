@@ -24,6 +24,7 @@ public class SysSecretServiceImpl extends ServiceImpl<SysSecretMapper, SysSecret
     public IPage<SysSecret> pageForSecret(Query<SysSecret> query, SysSecret sysSecret, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), query.lambda()
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretGroup()), SysSecret::getSysSecretGroup, sysSecret.getSysSecretGroup())
+                .like(StringUtils.isNotBlank(sysSecret.getSysSecretCode()), SysSecret::getSysSecretCode, sysSecret.getSysSecretCode())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretAppId()), SysSecret::getSysSecretAppId, sysSecret.getSysSecretAppId())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretAppSecret()), SysSecret::getSysSecretAppSecret, sysSecret.getSysSecretAppSecret())
         );
