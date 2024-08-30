@@ -42,6 +42,6 @@ public class SysSecretServiceImpl extends ServiceImpl<SysSecretMapper, SysSecret
     @Override
     public ReturnResult<SysSecret> save(SysSecret sysSecret, Set<String> roles) {
         int insert = baseMapper.insert(sysSecret);
-        return ReturnResult.guess(insert);
+        return ReturnResult.guess(sysSecret);
     }
 }
