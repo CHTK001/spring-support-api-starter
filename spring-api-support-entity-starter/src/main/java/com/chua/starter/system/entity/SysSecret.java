@@ -42,6 +42,15 @@ public class SysSecret extends SysBase implements Serializable {
     private String sysSecretGroup;
 
     /**
+     * 编码, 可自行作为唯一标识
+     */
+    @TableField(value = "sys_secret_code")
+    @ApiModelProperty(value = "编码, 可自行作为唯一标识")
+    @Schema(description = "编码, 可自行作为唯一标识")
+    @Size(max = 255, message = "编码, 可自行作为唯一标识最大长度要小于 255")
+    private String sysSecretCode;
+
+    /**
      * appid
      */
     @TableField(value = "sys_secret_app_id")
