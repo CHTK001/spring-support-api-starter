@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysDict;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.mapper.SysDictItemMapper;
@@ -67,7 +68,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     public ReturnResult<Boolean> update(Set<String> roles, SysDict sysDict) {
         SysDict sysDict1 = baseMapper.selectById(sysDict.getSysDictId());
         Integer sysRoleInSystem = sysDict1.getSysDictInSystem();
-        if(null != sysRoleInSystem && sysRoleInSystem == 1) {
+        if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.hasAdmin(roles)) {
             return ReturnResult.fail("内置字典不允许修改");
         }
         sysDict.setSysDictInSystem(null);
