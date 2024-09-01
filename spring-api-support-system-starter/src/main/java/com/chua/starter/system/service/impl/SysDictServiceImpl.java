@@ -71,7 +71,9 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.hasAdmin(roles)) {
             return ReturnResult.fail("内置字典不允许修改");
         }
-        sysDict.setSysDictInSystem(null);
+        if(!AuthConstant.hasAdmin(roles)) {
+            sysDict.setSysDictInSystem(null);
+        }
         String sysRoleCode = sysDict.getSysDictCode();
         if(StringUtils.isNotBlank(sysRoleCode)) {
             SysDict sysRole11 = baseMapper.selectOne(Wrappers.<SysDict>lambdaQuery()
