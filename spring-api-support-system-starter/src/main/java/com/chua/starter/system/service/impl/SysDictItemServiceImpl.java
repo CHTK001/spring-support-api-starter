@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysDict;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.mapper.SysDictItemMapper;
 import com.chua.starter.system.service.SysDictItemService;
@@ -83,7 +84,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @Override
     @Caching(evict = {
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:id:' + #sysDictItem.sysDictId"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId")
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:code:' + #sysDictItem.sysDictItemCode")
     })
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
@@ -94,6 +96,15 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         QueryWrapper<SysDictItem> wrapper = query.wrapper();
         return baseMapper.selectList(wrapper.lambda().eq(SysDictItem::getSysDictItemStatus, 1)
                 .eq(SysDictItem::getSysDictId, dictItemId)
+        );
+    }
+
+    @Override
+    public List<SysDictItem> listForItemCode(Query<SysDictItem> query, Integer sysDictCode, Set<String> roles) {
+        return baseMapper.selectList(query.mpjLambda()
+                .innerJoin(SysDict.class, SysDict::getSysDictId, SysDictItem::getSysDictId)
+                .eq(SysDictItem::getSysDictItemStatus, 1)
+                .eq(SysDict::getSysDictCode, sysDictCode)
         );
     }
 }
