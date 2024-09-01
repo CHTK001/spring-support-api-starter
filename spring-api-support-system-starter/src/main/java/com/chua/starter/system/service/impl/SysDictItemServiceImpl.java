@@ -85,7 +85,6 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @Caching(evict = {
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:id:' + #sysDictItem.sysDictId"),
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:code:' + #sysDictItem.sysDictItemCode")
     })
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
