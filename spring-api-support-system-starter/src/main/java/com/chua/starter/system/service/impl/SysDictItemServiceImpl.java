@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  *
@@ -75,15 +75,15 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         if(null == sysDictItem.getSysDictItemStatus()) {
             sysDictItem.setSysDictItemStatus(1);
         }
-
+        sysDictItem.setSysDictItemDelete(0);
         baseMapper.insert(sysDictItem);
         sysDictItemService.deleteCache(sysDictItem);
         return ReturnResult.of( sysDictItem);
     }
     @Override
     @Caching(evict = {
-            @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:id:' + #sysDictItem.sysDictId"),
-            @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId")
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:id:' + #sysDictItem.sysDictId"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:item:id:' + #sysDictItem.sysDictItemId")
     })
     public void deleteCache(SysDictItem sysDictItem) {
         //NOTHING
