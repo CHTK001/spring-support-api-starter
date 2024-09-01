@@ -90,6 +90,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     @Override
     public ReturnResult<SysDict> save(SysDict sysDict, Set<String> roles) {
         sysDict.setSysDictInSystem(0);
+        sysDict.setSysDictStatus(1);
         SysDict sysRole1 = baseMapper.selectOne(Wrappers.<SysDict>lambdaQuery()
                 .eq(SysDict::getSysDictCode, sysDict.getSysDictCode()));
         if(null != sysRole1) {
