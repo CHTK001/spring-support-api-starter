@@ -1,7 +1,10 @@
 package com.chua.starter.system.pojo.setting;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +18,27 @@ import lombok.Data;
 @Schema(description = "系统设置")
 @Data
 public class SysSettingVO {
-
+    @TableId(value = "sys_setting_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
+    private Integer sysSettingId;
+    /**
+     * 配置备注
+     */
+    @TableField(value = "sys_setting_remark")
+    @ApiModelProperty(value = "配置备注")
+    @Schema(description = "配置备注")
+    @Size(max = 255, message = "配置备注最大长度要小于 255")
+    private String sysSettingRemark;
+    /**
+     * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
+     */
+    @TableField(value = "sys_setting_value_type")
+    @ApiModelProperty(value = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
+    @Schema(description = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
+    @Size(max = 255, message = "配置类型; 用于前端组件判断; e.g.BOOL：布尔最大长度要小于 255")
+    private String sysSettingValueType;
     /**
      * 配置名称
      */
