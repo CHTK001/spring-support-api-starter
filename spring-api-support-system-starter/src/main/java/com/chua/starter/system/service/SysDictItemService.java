@@ -68,4 +68,14 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @return 字典项列表
      */
     List<SysDictItem> listForItem(Query<SysDictItem> query, Integer dictItemId, Set<String> roles);
+
+    /**
+     * 查询字典项列表
+     *
+     * @param query  查询条件对象，用于封装分页及排序等信息
+     * @param sysDictCode  字典项实体对象，用于过滤查询结果
+     * @param roles  用户角色集合，用于进行权限控制
+     * @return 字典项列表
+     */
+    List<SysDictItem> listForItemCode(Query<SysDictItem> query, Integer sysDictCode, Set<String> roles);
 }

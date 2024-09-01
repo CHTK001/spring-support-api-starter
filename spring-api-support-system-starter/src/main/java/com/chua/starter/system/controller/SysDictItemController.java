@@ -51,6 +51,22 @@ public class SysDictItemController {
      * @return 字典子项列表
      */
     @Operation(summary = "字典子项列表")
+    @GetMapping("/code")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:code:' + #sysDictCode")
+    public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, Integer sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictCode) {
+            return ReturnResult.illegal("字典不能为空");
+        }
+        return ReturnResult.ok(sysDictItemService.listForItemCode(query, sysDictCode, roles));
+    }
+
+
+    /**
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     */
+    @Operation(summary = "字典子项列表")
     @GetMapping("/list")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:id:' + #sysDictId")
     public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
