@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysSecret;
 import com.chua.starter.system.mapper.SysSecretMapper;
 import com.chua.starter.system.service.SysSecretService;
@@ -22,7 +23,9 @@ public class SysSecretServiceImpl extends ServiceImpl<SysSecretMapper, SysSecret
 
     @Override
     public IPage<SysSecret> pageForSecret(Query<SysSecret> query, SysSecret sysSecret, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), query.lambda()
+        return baseMapper.selectPage(query.createPage(), query.mpjLambda()
+                .selectAs(SysDictItem::getSysDictItemName, SysSecret::getSysSecretDictItemName)
+                .innerJoin(SysDictItem.class, SysDictItem::getSysDictId, SysSecret::getSysSecretDictItemId)
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretGroup()), SysSecret::getSysSecretGroup, sysSecret.getSysSecretGroup())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretCode()), SysSecret::getSysSecretCode, sysSecret.getSysSecretCode())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretAppId()), SysSecret::getSysSecretAppId, sysSecret.getSysSecretAppId())
