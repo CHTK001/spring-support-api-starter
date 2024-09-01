@@ -11,36 +11,11 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 30/08/2024 17:16:38
+ Date: 01/09/2024 10:11:01
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for sys_config
--- ----------------------------
-DROP TABLE IF EXISTS `sys_config`;
-CREATE TABLE `sys_config`  (
-  `sys_config_id` int(11) NOT NULL,
-  `sys_config_group` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置分组',
-  `sys_config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置名称',
-  `sys_config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值',
-  `sys_config_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置类型',
-  `sys_config_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置描述',
-  `sys_config_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统默认配置；1:系统配置',
-  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`sys_config_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统设置' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sys_config
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_dept
@@ -87,11 +62,12 @@ CREATE TABLE `sys_dict`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dict
 -- ----------------------------
+INSERT INTO `sys_dict` VALUES (1, '三方厂家', 1, 0, 'SFCJ', '三方厂家', '', 'sa', NULL, '2024-08-31 20:29:00', '2024-08-31 20:35:57', 'sa', NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -114,11 +90,14 @@ CREATE TABLE `sys_dict_item`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dict_item
 -- ----------------------------
+INSERT INTO `sys_dict_item` VALUES (1, 1, '海康云耀', '海康云耀', 1, 1, '', 'HKYY', 0, 'sa', NULL, '2024-09-01 10:02:02', '2024-09-01 10:08:45', 'sa', NULL);
+INSERT INTO `sys_dict_item` VALUES (2, 1, '阿里云', '阿里云', 1, 1, NULL, 'ALIYUN', 0, 'sa', NULL, '2024-09-01 10:10:03', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES (3, 1, '百度云', '百度云', 1, 1, NULL, 'BDYUN', 0, 'sa', NULL, '2024-09-01 10:10:13', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_log
@@ -282,7 +261,7 @@ CREATE TABLE `sys_secret`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_secret_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_secret
@@ -439,7 +418,7 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log
