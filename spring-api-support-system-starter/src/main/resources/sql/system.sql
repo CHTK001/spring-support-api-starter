@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 02/09/2024 15:15:31
+ Date: 02/09/2024 15:53:09
 */
 
 SET NAMES utf8mb4;
@@ -311,6 +311,59 @@ INSERT INTO `sys_setting` VALUES (7, 'openLoopDebugger', 'false', 1, 'bool', 'co
 INSERT INTO `sys_setting` VALUES (8, 'version', '1', 1, 'number', 'config', NULL, 1, NULL, '系统版本', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_setting` VALUES (9, 'socket_url', 'http://127.0.0.1:31256', 1, 'array', 'config', NULL, 1, NULL, 'socket服务器地址', NULL, 1, NULL, NULL, NULL, '2024-08-26 15:55:21', 'sa', NULL);
 INSERT INTO `sys_setting` VALUES (10, 'openSocket', 'true', 1, 'bool', 'config', NULL, 1, NULL, 'socket是否开启', NULL, 1, NULL, NULL, NULL, '2024-09-01 13:23:43', 'sa', NULL);
+
+-- ----------------------------
+-- Table structure for sys_template
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_template`;
+CREATE TABLE `sys_template`  (
+  `sys_template_id` int(11) NOT NULL,
+  `sys_template_sort` int(11) NULL DEFAULT NULL COMMENT '模板优先级',
+  `sys_template_group_id` int(11) NULL DEFAULT NULL COMMENT '分组ID',
+  `sys_template_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
+  `sys_template_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '唯一编码',
+  `sys_template_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '模板内容',
+  `sys_template_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除0:未删除',
+  `sys_template_status` int(11) NULL DEFAULT NULL COMMENT '是否启用:0:未启用',
+  `sys_template_type` int(11) NULL DEFAULT NULL COMMENT '模板类型;0:系统;1:用户;2:其它',
+  `sys_template_approve` int(11) NULL DEFAULT NULL COMMENT '审批状态;0:未审批; 1: 审批中; 2:已通过; 3: 未通过',
+  `sys_template_approve_reject` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '拒绝原因',
+  `sys_template_approve_create_by` int(11) NULL DEFAULT NULL COMMENT '审批人',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_template_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_template
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sys_template_group
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_template_group`;
+CREATE TABLE `sys_template_group`  (
+  `sys_template_group_id` int(11) NOT NULL,
+  `sys_template_group_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板名称',
+  `sys_template_group_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板唯一编码',
+  `sys_template_group_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除;0:未删除',
+  `sys_template_group_sort` int(11) NULL DEFAULT NULL COMMENT '模板优先级',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_template_group_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板分组' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_template_group
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_user
