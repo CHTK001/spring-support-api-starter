@@ -57,4 +57,12 @@ public interface SysTemplateService extends IService<SysTemplate> {
      * @param sysTemplate 系统模板对象，用于删除缓存
      */
     void deleteCache(SysTemplate sysTemplate);
+    /**
+     * 回滚系统模板
+     *
+     * @param roles 当前用户的角色集合，用于权限控制
+     * @param sysTemplate 需要回滚的系统模板对象
+     * @return 回滚操作的结果，包含成功标志和消息
+     */
+    ReturnResult<Boolean> rollback(Set<String> roles, SysTemplate sysTemplate);
 }
