@@ -22,5 +22,7 @@
         AND sys_template_group_delete = #{query.sysTemplateGroupDelete}
       </if>
     </where>
+
+    ORDER BY sys_template_group_sort
   </select>
 </mapper>

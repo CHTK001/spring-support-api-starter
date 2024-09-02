@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -65,4 +67,24 @@ public interface SysTemplateService extends IService<SysTemplate> {
      * @return 回滚操作的结果，包含成功标志和消息
      */
     ReturnResult<Boolean> rollback(Set<String> roles, SysTemplate sysTemplate);
+
+    /**
+     * 根据模板组代码获取模板列表
+     *
+     * @param query 分页查询对象，携带分页和排序信息
+     * @param sysTemplateGroupCode 模板组代码，用于查询模板列表
+     * @param roles 当前用户的角色集合，用于权限控制
+     * @return 模板列表
+     */
+    List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateGroupCode, Set<String> roles);
+
+    /**
+     * 根据模板组ID获取模板列表
+     *
+     * @param query 分页查询对象，携带分页和排序信息
+     * @param sysTemplateGroupId 模板组ID，用于查询模板列表
+     * @param roles 当前用户的角色集合，用于权限控制
+     * @return 模板列表
+     */
+    List<SysTemplate> listForItem(Query<SysDictItem> query, Integer sysTemplateGroupId, Set<String> roles);
 }

@@ -40,8 +40,10 @@
             AND st.sys_template_delete = 0
         </if>
 
-        <if test="isAdmin != null and isAdmin">
+        <if test="isAdmin != null and isAdmin and query.sysTemplateDelete != null">
             AND st.sys_template_delete = #{query.sysTemplateDelete}
         </if>
+
+        ORDER BY st.sys_template_sort
     </select>
 </mapper>
