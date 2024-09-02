@@ -95,6 +95,26 @@ public class SysTemplateGroupController {
     }
 
     /**
+     * 还原模板分组
+     *
+     * @return 更新模板分组
+     */
+    @Operation(summary = "还原模板分组")
+    @PutMapping("/rollback")
+    @OperateLog
+    @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> rollback(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody SysTemplateGroup sysTemplateGroup,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysTemplateGroupService.rollback(roles, sysTemplateGroup);
+    }
+
+    /**
      * 新增模板分组
      *
      * @return 新增模板分组

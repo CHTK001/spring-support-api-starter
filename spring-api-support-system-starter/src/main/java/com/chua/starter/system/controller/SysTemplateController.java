@@ -86,6 +86,26 @@ public class SysTemplateController {
 
 
     /**
+     * 还原模板
+     *
+     * @return 还原模板
+     */
+    @Operation(summary = "还原模板")
+    @PutMapping("/rollback")
+    @OperateLog
+    @Permission(value = "sys:template:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> rollback(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody SysTemplate sysTemplate,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysTemplateService.rollback(roles, sysTemplate);
+    }
+
+    /**
      * 更新模板
      *
      * @return 更新模板

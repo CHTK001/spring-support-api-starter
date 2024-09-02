@@ -56,4 +56,14 @@ public interface SysTemplateGroupService extends IService<SysTemplateGroup> {
      * @return 新增操作的结果，包含操作成功或失败的标志及提示信息，以及新增的系统模板组对象
      */
     ReturnResult<SysTemplateGroup> save(SysTemplateGroup sysTemplateGroup, Set<String> roles);
+
+    /**
+     * 回滚系统模板组
+     * 根据提供的系统模板组对象进行回滚操作，并考虑权限控制
+     *
+     * @param sysTemplateGroup 要回滚的系统模板组对象
+     * @param roles 用户角色集合，用于权限控制
+     * @return 回滚操作的结果，包含操作成功或失败的标志及提示信息
+     */
+    ReturnResult<Boolean> rollback(Set<String> roles, SysTemplateGroup sysTemplateGroup);
 }
