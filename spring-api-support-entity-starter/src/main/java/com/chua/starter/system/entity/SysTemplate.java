@@ -39,6 +39,13 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "分组ID")
     @Schema(description = "分组ID")
     private Integer sysTemplateGroupId;
+    /**
+     * 厂家ID
+     */
+    @TableField(value = "sys_dict_item_id")
+    @ApiModelProperty(value = "厂家ID, 字典(dictId = 2)子项")
+    @Schema(description = "厂家ID,字典(dictId = 2)子项")
+    private Integer sysDictItemId;
 
     /**
      * 模板优先级
@@ -54,6 +61,13 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "分组名称")
     @Schema(description = "分组名称")
     private String sysTemplateGroupName;
+    /**
+     * 分组名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "分组名称")
+    @Schema(description = "分组名称")
+    private String sysTemplateGroupCode;
 
     /**
      * 模板类型
@@ -127,4 +141,12 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "是否启用:0:未启用")
     @Schema(description = "是否启用:0:未启用")
     private Integer sysTemplateStatus;
+
+    /**
+     * 是否启用:0:未启用
+     */
+    @TableField(value = "sys_template_default")
+    @ApiModelProperty(value = "是否默认:0:未启用")
+    @Schema(description = "是否默认:0:未启用")
+    private Integer sysTemplateDefault;
 }

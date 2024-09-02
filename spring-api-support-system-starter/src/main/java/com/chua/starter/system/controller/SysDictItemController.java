@@ -52,7 +52,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/code")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:dict:code:' + #sysDictCode")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:code:' + #sysDictCode")
     public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, Integer sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");

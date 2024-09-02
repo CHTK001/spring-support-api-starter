@@ -45,6 +45,13 @@ public class SysDictItem extends SysBase implements Serializable {
     @Schema(description = "字典ID")
     @NotNull(message = "字典ID不能为null", groups = {UpdateGroup.class, AddGroup.class, SelectGroup.class})
     private Integer sysDictId;
+    /**
+     * 字典ID
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "字典code")
+    @Schema(description = "字典code")
+    private String sysDictCode;
 
     /**
      * 字典子项名称
