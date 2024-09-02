@@ -8,7 +8,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysTemplate;
-import com.chua.starter.system.entity.SysTemplateGroup;
 import com.chua.starter.system.mapper.SysTemplateMapper;
 import com.chua.starter.system.service.SysTemplateService;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +37,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
 
     @Override
     public IPage<SysTemplate> page(Query<SysTemplate> query, SysTemplate sysTemplate, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), query.mpjLambda()
-                .innerJoin(SysTemplateGroup.class, SysTemplateGroup::getSysTemplateGroupId, SysTemplate::getSysTemplateGroupId)
-                .orderByAsc(SysTemplate::getSysTemplateSort)
-                .orderByDesc(SysTemplate::getCreateTime)
-        );
+        return baseMapper.selectPageForRoles(query.createPage(), sysTemplate, AuthConstant.hasAdmin(roles));
     }
 
     @Override
@@ -98,5 +93,11 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     })
     public void deleteCache(SysTemplate sysTemplate) {
 
+    }
+
+    @Override
+    public ReturnResult<Boolean> rollback(Set<String> roles, SysTemplate sysTemplate) {
+        sysTemplate.setSysTemplateDelete(0);
+        return ReturnResult.of(baseMapper.updateById(sysTemplate) > 0);
     }
 }

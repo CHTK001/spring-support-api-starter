@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysTemplate;
 import com.chua.starter.system.entity.SysTemplateGroup;
 import com.chua.starter.system.mapper.SysTemplateGroupMapper;
@@ -31,11 +32,7 @@ public class SysTemplateGroupServiceImpl extends ServiceImpl<SysTemplateGroupMap
 
     @Override
     public IPage<SysTemplateGroup> page(Query<SysTemplateGroup> query, SysTemplateGroup sysTemplateGroup, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), query.lambda()
-                .like(StringUtils.isNotBlank(sysTemplateGroup.getSysTemplateGroupName()), SysTemplateGroup::getSysTemplateGroupName, sysTemplateGroup.getSysTemplateGroupName())
-                .eq(StringUtils.isNotBlank(sysTemplateGroup.getSysTemplateGroupCode()), SysTemplateGroup::getSysTemplateGroupCode, sysTemplateGroup.getSysTemplateGroupCode())
-                .orderByDesc(SysTemplateGroup::getCreateTime)
-        );
+        return baseMapper.selectPageByRoles(query.createPage(), sysTemplateGroup, AuthConstant.hasAdmin(roles));
     }
 
     @Override
@@ -77,5 +74,11 @@ public class SysTemplateGroupServiceImpl extends ServiceImpl<SysTemplateGroupMap
             return ReturnResult.of(sysTemplateGroup);
         }
         return ReturnResult.illegal("新增失败");
+    }
+
+    @Override
+    public ReturnResult<Boolean> rollback(Set<String> roles, SysTemplateGroup sysTemplateGroup) {
+        sysTemplateGroup.setSysTemplateGroupDelete(0);
+        return ReturnResult.of(baseMapper.updateById(sysTemplateGroup) > 0);
     }
 }
