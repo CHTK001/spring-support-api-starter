@@ -12,6 +12,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
 import com.chua.starter.system.service.SysTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
@@ -44,6 +46,35 @@ public class SysTemplateController {
 
     private final SysTemplateService sysTemplateService;
 
+
+    /**
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     */
+    @Operation(summary = "模板分组列表")
+    @GetMapping("/code")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:code:' + #sysTemplateGroupCode")
+    public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateGroupCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysTemplateGroupCode) {
+            return ReturnResult.illegal("模板分组不能为空");
+        }
+        return ReturnResult.ok(sysTemplateService.listForItemCode(query, sysTemplateGroupCode, roles));
+    }
+    /**
+     * 模板分组列表
+     *
+     * @return 模板分组列表
+     */
+    @Operation(summary = "模板分组列表")
+    @GetMapping("/list")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:id:' + #sysTemplateGroupId")
+    public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateGroupId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysTemplateGroupId) {
+            return ReturnResult.illegal("模板分组不能为空");
+        }
+        return ReturnResult.ok(sysTemplateService.listForItem(query, sysTemplateGroupId, roles));
+    }
 
     /**
      * 模板分页列表
