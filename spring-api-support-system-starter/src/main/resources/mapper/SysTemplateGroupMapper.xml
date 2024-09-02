@@ -18,6 +18,9 @@
       <if test="isAdmin == null or !isAdmin">
         AND sys_template_group_delete = 0
       </if>
+      <if test="isAdmin != null and isAdmin">
+        AND sys_template_group_delete = #{query.sysTemplateGroupDelete}
+      </if>
     </where>
   </select>
 </mapper>
