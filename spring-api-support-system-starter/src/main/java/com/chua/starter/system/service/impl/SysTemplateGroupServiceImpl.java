@@ -61,7 +61,7 @@ public class SysTemplateGroupServiceImpl extends ServiceImpl<SysTemplateGroupMap
                 return ReturnResult.fail("编码已存在");
             }
         }
-
+        sysTemplateGroup.setSysTemplateGroupDelete(null);
         return ReturnResult.of(baseMapper.updateById(sysTemplateGroup) > 0);
     }
 
@@ -72,6 +72,7 @@ public class SysTemplateGroupServiceImpl extends ServiceImpl<SysTemplateGroupMap
         if(null != templateGroup) {
             return ReturnResult.fail("字典编码已存在");
         }
+        sysTemplateGroup.setSysTemplateGroupDelete(0);
         if(baseMapper.insert(sysTemplateGroup) > 0) {
             return ReturnResult.of(sysTemplateGroup);
         }

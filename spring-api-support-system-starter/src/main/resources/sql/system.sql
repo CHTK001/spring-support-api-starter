@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 02/09/2024 15:53:09
+ Date: 02/09/2024 16:17:01
 */
 
 SET NAMES utf8mb4;
@@ -162,7 +162,7 @@ CREATE TABLE `sys_menu`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `sys_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属权限',
   PRIMARY KEY (`sys_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -180,10 +180,11 @@ INSERT INTO `sys_menu` VALUES (11, 'dept', '/system/dept', '', '机构管理', '
 INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '');
 INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '');
 INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1', '/manage/dict/index', 'humbleicons:dashboard', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', NULL, NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard', NULL, 0, 996, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -317,7 +318,7 @@ INSERT INTO `sys_setting` VALUES (10, 'openSocket', 'true', 1, 'bool', 'config',
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_template`;
 CREATE TABLE `sys_template`  (
-  `sys_template_id` int(11) NOT NULL,
+  `sys_template_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_template_sort` int(11) NULL DEFAULT NULL COMMENT '模板优先级',
   `sys_template_group_id` int(11) NULL DEFAULT NULL COMMENT '分组ID',
   `sys_template_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
@@ -347,7 +348,7 @@ CREATE TABLE `sys_template`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_template_group`;
 CREATE TABLE `sys_template_group`  (
-  `sys_template_group_id` int(11) NOT NULL,
+  `sys_template_group_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_template_group_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板名称',
   `sys_template_group_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板唯一编码',
   `sys_template_group_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除;0:未删除',
