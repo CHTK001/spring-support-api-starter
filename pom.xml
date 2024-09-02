@@ -16,11 +16,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-oauth-starter</module>
-        <module>spring-api-support-admin-starter</module>
+<!--        <module>spring-api-support-admin-starter</module>-->
         <module>spring-api-support-service-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-monitor-starter</module>
-        <module>spring-api-support-deepleanring-starter</module>
+<!--        <module>spring-api-support-deepleanring-starter</module>-->
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-entity-starter</module>
     </modules>
