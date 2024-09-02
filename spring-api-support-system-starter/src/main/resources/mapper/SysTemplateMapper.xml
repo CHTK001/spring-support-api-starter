@@ -1,45 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysTemplateMapper">
+    <select id="selectPageForRoles" resultType="com.chua.starter.system.entity.SysTemplate">
+        SELECT st.*,
+               stg.sys_template_group_name
+        FROM sys_template st
+                 INNER JOIN sys_template_group stg ON st.sys_template_group_id = stg.sys_template_group_id
+        WHERE st.sys_template_group_id = #{query.sysTemplateGroupId}
 
-  <select id="selectPageForRoles" resultType="com.chua.starter.system.entity.SysTemplate">
-    SELECT
-      *
-    FROM sys_template
-    WHERE sys_template_group_id = #{query.sysTemplateGroupId}
+        <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
+            AND st.sys_template_name LIKE CONCAT('%', #{query.sysTemplateName}, '%')
+        </if>
 
-    <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
-      AND sys_template_name LIKE CONCAT('%',#{query.sysTemplateName},'%')
-    </if>
+        <if test="query.sysTemplateCode != null and query.sysTemplateCode != ''">
+            AND st.sys_template_code LIKE CONCAT('%', #{query.sysTemplateCode}, '%')
+        </if>
 
-    <if test="query.sysTemplateCode != null and query.sysTemplateCode != ''">
-      AND sys_template_code LIKE CONCAT('%',#{query.sysTemplateCode},'%')
-    </if>
+        <if test="query.sysTemplateStatus != null">
+            AND st.sys_template_status = #{query.sysTemplateStatus}
+        </if>
 
-    <if test="query.sysTemplateStatus != null">
-      AND sys_template_status = #{query.sysTemplateStatus}
-    </if>
+        <if test="query.sysTemplateType != null">
+            AND st.sys_template_type = #{query.sysTemplateType}
+        </if>
 
-    <if test="query.sysTemplateType != null">
-      AND sys_template_type = #{query.sysTemplateType}
-    </if>
+        <if test="query.sysTemplateApprove != null">
+            AND st.sys_template_approve = #{query.sysTemplateApprove}
+        </if>
 
-    <if test="query.sysTemplateApprove != null">
-      AND sys_template_approve = #{query.sysTemplateApprove}
-    </if>
+        <if test="query.sysTemplateApproveReject != null and query.sysTemplateApproveReject != ''">
+            AND st.sys_template_approve_reject LIKE CONCAT('%', #{query.sysTemplateApproveReject}, '%')
+        </if>
 
-    <if test="query.sysTemplateApproveReject != null and query.sysTemplateApproveReject != ''">
-      AND sys_template_approve_reject LIKE CONCAT('%',#{query.sysTemplateApproveReject},'%')
-    </if>
+        <if test="query.sysTemplateApproveCreateBy != null">
+            AND st.sys_template_approve_create_by = #{query.sysTemplateApproveCreateBy}
+        </if>
 
-    <if test="query.sysTemplateApproveCreateBy != null">
-      AND sys_template_approve_create_by = #{query.sysTemplateApproveCreateBy}
-    </if>
+        <if test="isAdmin == null || !isAdmin">
+            AND st.sys_template_delete = 0
+        </if>
 
-    <if test="isAdmin == null || !isAdmin" >
-      AND sys_template_delete = 0
-    </if>
-
-
-  </select>
+        <if test="isAdmin != null and isAdmin">
+            AND st.sys_template_delete = #{query.sysTemplateDelete}
+        </if>
+    </select>
 </mapper>
