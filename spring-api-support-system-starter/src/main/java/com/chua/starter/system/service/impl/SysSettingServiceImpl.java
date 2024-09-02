@@ -92,7 +92,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         boolean b = baseMapper.updateById(sysSetting) > 0;
-        if(sysSetting.getSysSettingStatus() == 1) {
+        if(null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 1) {
             GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
         }
         sysSettingService.clearCache(sysSetting);
