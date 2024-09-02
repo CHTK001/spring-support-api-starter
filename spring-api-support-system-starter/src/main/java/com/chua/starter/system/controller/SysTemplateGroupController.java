@@ -65,12 +65,12 @@ public class SysTemplateGroupController {
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:template:group:delete", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long sysTemplateId) {
-        if (null == sysTemplateId) {
+    public ReturnResult<Boolean> delete(Long sysTemplateGroupId) {
+        if (null == sysTemplateGroupId) {
             return Result.illegal("模板分组信息不存在");
         }
 
-        return sysTemplateGroupService.delete(sysTemplateId);
+        return sysTemplateGroupService.delete(sysTemplateGroupId);
     }
 
 
