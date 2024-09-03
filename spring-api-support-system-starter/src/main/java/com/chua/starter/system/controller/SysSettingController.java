@@ -111,6 +111,25 @@ public class SysSettingController {
      * @return 更新设置
      */
     @Operation(summary = "更新设置")
+    @PutMapping("/updateBatch")
+    @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> updateBatch(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody List<SysSetting> sysSetting,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysSettingService.updateBatch(roles, sysSetting);
+    }
+
+    /**
+     * 更新设置
+     *
+     * @return 更新设置
+     */
+    @Operation(summary = "更新设置")
     @PutMapping("/update")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
