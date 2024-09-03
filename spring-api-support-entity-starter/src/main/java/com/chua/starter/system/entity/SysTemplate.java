@@ -48,6 +48,13 @@ public class SysTemplate extends SysBase implements Serializable {
     private Integer sysDictItemId;
 
     /**
+     * 模板类型
+     */
+    @TableField(value = "sys_template_category")
+    @ApiModelProperty(value = "模板类型,字典(dictId = 3)子项")
+    @Schema(description = "模板类型,字典(dictId = 3)子项")
+    private Integer sysTemplateCategory;
+    /**
      * 模板优先级
      */
     @TableField(value = "sys_template_sort")

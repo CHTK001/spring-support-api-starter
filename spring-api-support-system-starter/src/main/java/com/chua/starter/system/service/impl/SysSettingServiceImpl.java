@@ -19,13 +19,14 @@ import com.chua.starter.system.setting.GuestDefaultSetting;
 import com.chua.starter.system.setting.VersionSetting;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  *
@@ -39,7 +40,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private SysSettingService sysSettingService;
 
     @Override
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))
@@ -135,12 +136,22 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         );
     }
 
+    @Override
+    public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting) {
+        sysSettingService.updateBatchById(sysSetting);
+        for (SysSetting setting : sysSetting) {
+            sysSettingService.clearCache(setting);
+        }
+        return ReturnResult.of(true);
+    }
+
     /**
      * 清理缓存
      * @param sysSetting 配置
      * @return 是否成功
      */
     @Override
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:setting:id:' + #sysSetting.sysSettingGroup")
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }
