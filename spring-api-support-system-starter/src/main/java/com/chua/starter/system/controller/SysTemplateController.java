@@ -84,8 +84,7 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分页列表")
     @GetMapping("/page")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:page:sys:template:id:' + #sysTemplate.sysTemplateGroupId")
-    public ReturnPageResult<SysTemplate> pageForRole(@ParameterObject Query<SysTemplate> query, 
+    public ReturnPageResult<SysTemplate> pageForRole(@ParameterObject Query<SysTemplate> query,
                                                      @Validated(SelectGroup.class) @ParameterObject SysTemplate sysTemplate,
                                                      @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                                                      BindingResult bindingResult
