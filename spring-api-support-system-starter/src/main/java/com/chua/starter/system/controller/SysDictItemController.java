@@ -82,7 +82,6 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/page")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:page:sys:dict:id:' + #sysDictId")
     public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnPageResult.illegal("字典不能为空");
