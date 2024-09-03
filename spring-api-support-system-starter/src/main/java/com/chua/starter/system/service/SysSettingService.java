@@ -6,12 +6,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
-import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Set;
-
-import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * 系统全局配置
@@ -59,7 +56,6 @@ public interface SysSettingService extends IService<SysSetting> {
      * @param sysSetting 需要清除缓存的系统设置对象
      * @return 清除结果，包含成功与否的标志和消息
      */
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:setting:id:' + #sysSetting.sysSettingGroup")
     SysSetting clearCache(SysSetting sysSetting);
     /**
      * 分页查询系统设置
@@ -70,4 +66,13 @@ public interface SysSettingService extends IService<SysSetting> {
      * @return 分页结果，包含分页数据和相关分页信息
      */
     IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, Set<String> roles);
+
+    /**
+     * 批量更新系统设置
+     *
+     * @param roles 当前用户的角色集合，用于权限控制
+     * @param sysSetting 需要更新的系统设置列表
+     * @return 更新结果，包含成功与否的标志和消息
+     */
+    ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting);
 }
