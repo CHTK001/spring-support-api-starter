@@ -9,7 +9,7 @@
         FROM sys_template st
                  INNER JOIN sys_template_group stg ON st.sys_template_group_id = stg.sys_template_group_id
                  LEFT JOIN sys_dict_item sdi  ON sdi.sys_dict_item_id = st.sys_template_manufacturer_id and sdi.sys_dict_id = 1
-                 LEFT JOIN sys_dict_item sdi2  ON sdi2.sys_dict_item_id = st.sys_template_category and sdi.sys_dict_id = 2
+                 LEFT JOIN sys_dict_item sdi2  ON sdi2.sys_dict_item_id = st.sys_template_category and sdi2.sys_dict_id = 2
         WHERE st.sys_template_group_id = #{query.sysTemplateGroupId}
 
         <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
