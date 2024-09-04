@@ -3,6 +3,7 @@ package com.chua.starter.system.pojo.setting;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,6 +24,14 @@ public class SysSettingVO {
     @Schema(description = "")
     @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
     private Integer sysSettingId;
+    /**
+     * 是否启用; 0:不启用
+     */
+    @TableField(value = "sys_setting_version")
+    @ApiModelProperty(value = "版本")
+    @Schema(description = "版本")
+    @Version
+    private Integer sysSettingVersion;
     /**
      * 配置备注
      */
