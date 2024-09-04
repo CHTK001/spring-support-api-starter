@@ -101,7 +101,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         String code = loginData.getVerifyCodeKey();
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
-        if (verifyCodeSetting.isOpenVerifyCode()) {
+        if (verifyCodeSetting.isCheckCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
