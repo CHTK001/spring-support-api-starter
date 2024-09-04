@@ -1,4 +1,4 @@
-package com.chua.starter.system.setting;
+package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.lang.mail.MailConfiguration;
@@ -15,6 +15,10 @@ import lombok.Data;
  */
 @Data
 public class SmtpSetting implements Upgrade<SmtpSetting> {
+    /**
+     * 发送人
+     */
+    private String from;
     /**
      * 主机
      */

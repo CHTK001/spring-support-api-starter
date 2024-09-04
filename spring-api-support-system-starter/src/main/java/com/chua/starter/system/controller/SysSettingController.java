@@ -95,6 +95,7 @@ public class SysSettingController {
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
+    @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSettingId) {
@@ -112,6 +113,7 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/updateBatch")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> updateBatch(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -131,6 +133,7 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/update")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -150,6 +153,7 @@ public class SysSettingController {
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
