@@ -15,6 +15,6 @@ public class SystemVersionArgumentResolver implements VersionArgumentResolver {
 
     @Override
     public String version() {
-        return GlobalSettingFactory.getInstance().get("version", VersionSetting.class).getVersion();
+        return GlobalSettingFactory.getInstance().get("config", VersionSetting.class).getVersion();
     }
 }

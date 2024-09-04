@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
@@ -94,6 +95,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        version.setSysSettingConfig(UUID.randomUUID().toString());
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
         sysSettings.add(version);
@@ -146,6 +148,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting) {
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        version.setSysSettingConfig(UUID.randomUUID().toString());
         sysSetting.add(version);
         sysSettingService.updateBatchById(sysSetting);
         for (SysSetting setting : sysSetting) {
