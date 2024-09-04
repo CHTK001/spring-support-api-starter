@@ -117,11 +117,11 @@ public class SysSetting extends SysBase implements Serializable {
     /**
      * 配置所属来源
      */
-    @TableField(value = "sys_setting_from_app")
-    @ApiModelProperty(value = "配置所属来源")
-    @Schema(description = "配置所属来源")
-    @Size(max = 255, message = "配置所属来源最大长度要小于 255")
-    private String sysSettingFromApp;
+    @TableField(value = "sys_setting_collect")
+    @ApiModelProperty(value = "是否是多个配置集合;0:单个")
+    @Schema(description = "是否是多个配置集合;0:单个")
+    @Size(max = 255, message = "是否是多个配置集合;0:单个最大长度要小于 255")
+    private Integer sysSettingCollect;
 
     /**
      * 是否系统配置; 0:非系统配置

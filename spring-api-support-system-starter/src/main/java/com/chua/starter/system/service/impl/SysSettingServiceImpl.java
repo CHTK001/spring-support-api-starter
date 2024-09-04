@@ -1,11 +1,13 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
+import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.codec.CodecSetting;
@@ -16,6 +18,7 @@ import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
+import com.chua.starter.system.setting.SmtpSetting;
 import com.chua.starter.system.setting.VersionSetting;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +26,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
@@ -153,9 +154,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         sysSettingService.updateBatchById(sysSetting);
         for (SysSetting setting : sysSetting) {
             sysSettingService.clearCache(setting);
-            GlobalSettingFactory.getInstance().set(setting.getSysSettingGroup(), setting.getSysSettingName(), setting.getSysSettingValue());
         }
-        upgradeVersion(version);
+        register(GlobalSettingFactory.getInstance(), sysSetting);
         return ReturnResult.of(true);
     }
 
@@ -181,6 +181,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("config", new GuestDefaultSetting());
         globalSettingFactory.register("config", new CodecSetting());
         globalSettingFactory.register("config", new VersionSetting());
+        globalSettingFactory.register("smtp", new SmtpSetting());
         upgrade();
     }
 
@@ -190,9 +191,50 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSysSettingStatus, 1)
             );
-            for (SysSetting sysSetting : list) {
-                globalSettingFactory.set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
-            }
+            register(globalSettingFactory, list);
         });
+    }
+
+    /**
+     * 注册配置
+     * @param globalSettingFactory 配置工厂
+     * @param list 配置列表
+     */
+    private void register(GlobalSettingFactory globalSettingFactory, List<SysSetting> list) {
+        Map<String, List<SysSetting>> collect = list.stream().collect(Collectors.groupingBy(SysSetting::getSysSettingGroup));
+        for (Map.Entry<String, List<SysSetting>> entry : collect.entrySet()) {
+            register(globalSettingFactory, entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * 注册配置
+     * @param globalSettingFactory 配置工厂
+     * @param key 配置组
+     * @param value 配置
+     */
+    private void register(GlobalSettingFactory globalSettingFactory, String key, List<SysSetting> value) {
+        Map<String, Object> map = value.stream().collect(Collectors.toMap(SysSetting::getSysSettingName, SysSetting::getSysSettingValue));
+        globalSettingFactory.register(key, map);
+    }
+
+    /**
+     * 注册配置
+     * @param globalSettingFactory 配置工厂
+     * @param sysSetting 配置
+     */
+    private void register(GlobalSettingFactory globalSettingFactory, SysSetting sysSetting) {
+        if(sysSetting.getSysSettingCollect() == 0) {
+            globalSettingFactory.set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            return;
+        }
+
+        String sysSettingValue = sysSetting.getSysSettingValue();
+        if(StringUtils.isEmpty(sysSettingValue)) {
+            return;
+        }
+        JsonObject jsonObject = Json.getJsonObject(sysSettingValue);
+        globalSettingFactory.set(sysSetting.getSysSettingGroup(), jsonObject);
+
     }
 }
