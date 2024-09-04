@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -92,12 +93,18 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 return ReturnResult.fail("配置编码已存在");
             }
         }
-        boolean b = baseMapper.updateById(sysSetting) > 0;
+        SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        List<SysSetting> sysSettings = new LinkedList<>();
+        sysSettings.add(sysSetting);
+        sysSettings.add(version);
+        sysSettingService.updateBatchById(sysSettings);
+
         if(null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 1) {
             GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            upgradeVersion(version);
         }
         sysSettingService.clearCache(sysSetting);
-        return ReturnResult.of(b);
+        return ReturnResult.of(sysSetting);
     }
 
     @Override
@@ -138,12 +145,19 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting) {
+        SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        sysSetting.add(version);
         sysSettingService.updateBatchById(sysSetting);
         for (SysSetting setting : sysSetting) {
             sysSettingService.clearCache(setting);
             GlobalSettingFactory.getInstance().set(setting.getSysSettingGroup(), setting.getSysSettingName(), setting.getSysSettingValue());
         }
+        upgradeVersion(version);
         return ReturnResult.of(true);
+    }
+
+    private void upgradeVersion(SysSetting version) {
+        GlobalSettingFactory.getInstance().set("config", "version", version.getSysSettingVersion());
     }
 
     /**
