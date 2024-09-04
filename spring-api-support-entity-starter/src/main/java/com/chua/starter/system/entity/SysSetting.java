@@ -77,7 +77,6 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_sort")
     @ApiModelProperty(value = "优先级")
     @Schema(description = "优先级")
-    @Version
     private Integer sysSettingSort;
     /**
      * 是否启用; 0:不启用
