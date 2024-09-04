@@ -141,6 +141,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         sysSettingService.updateBatchById(sysSetting);
         for (SysSetting setting : sysSetting) {
             sysSettingService.clearCache(setting);
+            GlobalSettingFactory.getInstance().set(setting.getSysSettingGroup(), setting.getSysSettingName(), setting.getSysSettingValue());
         }
         return ReturnResult.of(true);
     }
