@@ -7,6 +7,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
@@ -214,7 +215,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @param value 配置
      */
     private void register(GlobalSettingFactory globalSettingFactory, String key, List<SysSetting> value) {
-        Map<String, Object> map = value.stream().collect(Collectors.toMap(SysSetting::getSysSettingName, SysSetting::getSysSettingValue));
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (SysSetting sysSetting : value) {
+            String sysSettingName = sysSetting.getSysSettingName();
+            map.put(sysSettingName, ObjectUtils.equalsIgnore("version", sysSettingName) ? sysSetting.getSysSettingVersion() : sysSetting.getSysSettingValue());
+        }
         globalSettingFactory.set(key, map);
     }
 
