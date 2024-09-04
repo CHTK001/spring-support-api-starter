@@ -5,7 +5,7 @@ import com.chua.common.support.lang.mail.MailConfiguration;
 import com.chua.common.support.lang.mail.MailSender;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.ObjectUtils;
-import com.chua.starter.mail.support.SpringHtmlMailSender;
+import com.chua.starter.email.support.SpringHtmlMailSender;
 import lombok.Data;
 
 /**

@@ -95,7 +95,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-mail-starter</artifactId>
+                <artifactId>spring-support-email-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 

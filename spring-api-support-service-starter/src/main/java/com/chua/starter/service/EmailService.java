@@ -1,7 +1,7 @@
 package com.chua.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.mail.Mail;
+import com.chua.common.support.lang.mail.Email;
 
 /**
  * 邮件服务
@@ -13,8 +13,8 @@ public interface EmailService {
 
     /**
      * 发送邮件
-     * @param mail      邮件
+     * @param email      邮件
      * @return 是否成功
      */
-    ReturnResult<Boolean> send(Mail mail);
+    ReturnResult<Boolean> send(Email email);
 }
