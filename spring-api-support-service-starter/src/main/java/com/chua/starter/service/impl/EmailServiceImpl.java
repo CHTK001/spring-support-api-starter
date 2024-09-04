@@ -1,7 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.mail.Mail;
+import com.chua.common.support.lang.mail.Email;
 import com.chua.common.support.lang.mail.MailSender;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
@@ -19,7 +19,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public ReturnResult<Boolean> send(Mail mail) {
+    public ReturnResult<Boolean> send(Email email) {
         SmtpSetting smtpSetting = GlobalSettingFactory.getInstance().get("smtp", SmtpSetting.class);
         MailSender mailSender = smtpSetting.getMailSender();
         if(StringUtils.isEmpty(smtpSetting.getFrom())) {
@@ -30,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
             return ReturnResult.fail("暂不支持邮件发送/邮件设置未设置");
         }
         try {
-            mailSender.send(smtpSetting.getFrom(), mail);
+            mailSender.send(smtpSetting.getFrom(), email);
             return ReturnResult.success(true);
         } catch (Exception e) {
             e.printStackTrace();
