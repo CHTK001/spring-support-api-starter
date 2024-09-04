@@ -1,14 +1,14 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.mail.Email;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.service.EmailService;
+import com.chua.starter.system.pojo.email.EmailRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +43,11 @@ public class EmailController {
     @Operation(summary = "发送邮件")
     @GetMapping
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> sendEmail(HttpServletRequest request, HttpServletResponse response) {
-
+    public ReturnResult<Boolean> sendEmail(EmailRequest request) {
+        return emailService.send(Email.builder()
+                .title(request.getTitle())
+                .to(request.getTo())
+                .content(request.getContent())
+                .build());
     }
 }
