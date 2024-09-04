@@ -64,6 +64,10 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-excel-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mail-starter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
