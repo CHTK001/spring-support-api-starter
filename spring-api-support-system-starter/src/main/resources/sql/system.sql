@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 04/09/2024 10:41:22
+ Date: 04/09/2024 17:18:55
 */
 
 SET NAMES utf8mb4;
@@ -187,7 +187,7 @@ INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1
 INSERT INTO `sys_menu` VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard', NULL, 0, 996, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', NULL, '');
+INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', 1, '');
 INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '');
 
 -- ----------------------------
@@ -283,17 +283,19 @@ CREATE TABLE `sys_secret`  (
 DROP TABLE IF EXISTS `sys_setting`;
 CREATE TABLE `sys_setting`  (
   `sys_setting_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_setting_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `sys_setting_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置名称',
   `sys_setting_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值',
   `sys_setting_status` int(11) NULL DEFAULT NULL COMMENT '是否启用; 0:不启用',
   `sys_setting_value_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置类型; 用于前端组件判断; e.g.BOOL：布尔',
   `sys_setting_group` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置所属分组',
-  `sys_setting_from_app` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置所属来源',
+  `sys_setting_collect` int(255) NULL DEFAULT NULL COMMENT '是否是多个配置集合;0:单个',
   `sys_setting_in_system` int(11) NULL DEFAULT NULL COMMENT '是否系统配置; 0:非系统配置',
   `sys_setting_app_inner` int(11) NULL DEFAULT NULL COMMENT '配置是否作用域系统启动',
   `sys_setting_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置备注',
   `sys_setting_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置参数',
   `sys_setting_admin` int(11) NULL DEFAULT NULL COMMENT '是否只有管理员生效',
+  `sys_setting_version` int(11) NULL DEFAULT NULL COMMENT '版本',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -301,26 +303,31 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 1, 0, '验证码开关', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:47:01', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (2, 'SystemName', '后台管理系统', 1, 'String', 'default', NULL, 1, 0, '系统标题', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:47:01', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', 'true', 1, 'Boolean', 'default', NULL, 1, 0, '滑动验证码', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:47:01', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (4, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', NULL, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 'sa', NULL, '2024-08-18 11:22:26', '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (5, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', NULL, 1, 0, '返回加密', NULL, NULL, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (6, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', NULL, 1, 0, '开启水印', NULL, NULL, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (7, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', NULL, 1, 0, '开启循环debugger', NULL, NULL, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (8, 'Version', '1', 1, 'Number', 'config', NULL, 1, 0, '系统版本', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (9, 'SocketUrl', 'http://127.0.0.1:31256', 1, 'Array', 'config', NULL, 1, 0, 'socket服务器地址', NULL, 1, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (10, 'SocketOpen', 'false', 1, 'Boolean', 'config', NULL, 1, 0, 'socket是否开启', NULL, 1, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (12, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', NULL, 1, 0, '水印颜色', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (13, 'WatermarkAlpha', '0.15', 1, 'Number', 'config', NULL, 1, 0, '水印透明度', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (14, 'WatermarkRotate', '-30', 1, 'Number', 'config', NULL, 1, 0, '水印角度', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (15, 'CodecRequestOpen', 'true', 1, 'Boolean', 'config', NULL, 1, 0, '请求加密', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (16, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', NULL, 1, 1, '请求加密密钥', NULL, NULL, NULL, NULL, NULL, '2024-09-04 09:41:02', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (1, NULL, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (2, NULL, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (3, NULL, 'SlidingBlockOpen', 'true', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (4, NULL, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 0, 'sa', NULL, '2024-08-18 11:22:26', '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (5, NULL, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 0, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (6, NULL, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 0, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (7, NULL, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 0, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (8, NULL, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'edb95a70-5622-4842-8a36-f097f9482f8b', NULL, 7, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (9, NULL, 'SocketUrl', 'http://127.0.0.1:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (10, NULL, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (12, NULL, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (13, NULL, 'WatermarkAlpha', '0.15', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (14, NULL, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (15, NULL, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (16, NULL, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (17, NULL, 'host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (18, NULL, 'port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (19, NULL, 'password', NULL, 1, 'Password', 'smtp', 1, 1, 0, 'smtp密码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (20, NULL, 'to', NULL, 1, 'Mail', 'smtp', 1, 1, 0, '测试接收账号', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (21, NULL, 'from', NULL, 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_template
