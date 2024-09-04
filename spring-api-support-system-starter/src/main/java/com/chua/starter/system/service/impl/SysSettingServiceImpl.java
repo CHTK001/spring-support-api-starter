@@ -215,7 +215,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     private void register(GlobalSettingFactory globalSettingFactory, String key, List<SysSetting> value) {
         Map<String, Object> map = value.stream().collect(Collectors.toMap(SysSetting::getSysSettingName, SysSetting::getSysSettingValue));
-        globalSettingFactory.register(key, map);
+        globalSettingFactory.set(key, map);
     }
 
     /**
