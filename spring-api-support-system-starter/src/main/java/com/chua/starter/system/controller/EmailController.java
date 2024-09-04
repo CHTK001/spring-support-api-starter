@@ -1,0 +1,49 @@
+package com.chua.starter.system.controller;
+
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.service.EmailService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
+
+/**
+ * 邮件接口
+ *
+ * @author CH
+ * @since 2024/9/4
+ */
+@RestController
+@Slf4j
+@Api(tags = "邮件接口")
+@Tag(name = "邮件接口")
+@RequestMapping("/v2/email")
+@RequiredArgsConstructor
+public class EmailController {
+
+    final EmailService emailService;
+
+    /**
+     * 校验码
+     *
+     * @param request 请求
+     */
+    @ApiOperation("发送邮件")
+    @Operation(summary = "发送邮件")
+    @GetMapping
+    @Permission(role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> sendEmail(HttpServletRequest request, HttpServletResponse response) {
+
+    }
+}
