@@ -34,6 +34,10 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-service-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mail-starter</artifactId>
+        </dependency>
 
     </dependencies>
 

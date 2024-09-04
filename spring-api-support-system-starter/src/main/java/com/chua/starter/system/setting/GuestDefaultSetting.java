@@ -4,6 +4,7 @@ import com.chua.common.support.function.Upgrade;
 import lombok.Data;
 
 /**
+ * 校验码设置
  * @author CH
  * @since 2024/8/13
  */
