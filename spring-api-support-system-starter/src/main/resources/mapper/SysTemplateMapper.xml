@@ -4,72 +4,80 @@
     <select id="selectPageForRoles" resultType="com.chua.starter.system.entity.SysTemplate">
         SELECT st.*,
                stc.sys_template_category_name sysTemplateCategoryName,
-               sdi.sys_dict_item_name      sysTemplateManufacturerName
+               sdi.sys_dict_item_name         sysTemplateManufacturerName
         FROM sys_template st
-                 INNER JOIN sys_template_category stc ON st.sys_template_category_id = stc.sys_template_category_id
-                 LEFT JOIN sys_dict_item sdi  ON sdi.sys_dict_item_id = st.sys_template_manufacturer_id and sdi.sys_dict_id = 1
-        WHERE st.sys_template_group_id = #{query.sysTemplateGroupId}
+                LEFT JOIN sys_template_category stc ON st.sys_template_category_id = stc.sys_template_category_id
+                 LEFT JOIN sys_dict_item sdi
+                           ON sdi.sys_dict_item_id = st.sys_template_manufacturer_id and sdi.sys_dict_id = 1
+        <where>
+            <if test="query.sysTemplateCategoryId != null">
+                AND st.sys_template_category_id = #{query.sysTemplateCategoryId}
+            </if>
 
-        <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
-            AND st.sys_template_name LIKE CONCAT('%', #{query.sysTemplateName}, '%')
-        </if>
+            <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
+                AND st.sys_template_name LIKE CONCAT('%', #{query.sysTemplateName}, '%')
+            </if>
 
-        <if test="query.sysTemplateCode != null and query.sysTemplateCode != ''">
-            AND st.sys_template_code LIKE CONCAT('%', #{query.sysTemplateCode}, '%')
-        </if>
+            <if test="query.sysTemplateCode != null and query.sysTemplateCode != ''">
+                AND st.sys_template_code LIKE CONCAT('%', #{query.sysTemplateCode}, '%')
+            </if>
 
-        <if test="query.sysTemplateStatus != null">
-            AND st.sys_template_status = #{query.sysTemplateStatus}
-        </if>
+            <if test="query.sysTemplateStatus != null">
+                AND st.sys_template_status = #{query.sysTemplateStatus}
+            </if>
 
-        <if test="query.sysTemplateType != null">
-            AND st.sys_template_type = #{query.sysTemplateType}
-        </if>
+            <if test="query.sysTemplateType != null">
+                AND st.sys_template_type = #{query.sysTemplateType}
+            </if>
 
-        <if test="query.sysTemplateApprove != null">
-            AND st.sys_template_approve = #{query.sysTemplateApprove}
-        </if>
+            <if test="query.sysTemplateApprove != null">
+                AND st.sys_template_approve = #{query.sysTemplateApprove}
+            </if>
 
-        <if test="query.sysTemplateApproveReject != null and query.sysTemplateApproveReject != ''">
-            AND st.sys_template_approve_reject LIKE CONCAT('%', #{query.sysTemplateApproveReject}, '%')
-        </if>
+            <if test="query.sysTemplateApproveReject != null and query.sysTemplateApproveReject != ''">
+                AND st.sys_template_approve_reject LIKE CONCAT('%', #{query.sysTemplateApproveReject}, '%')
+            </if>
 
-        <if test="query.sysTemplateApproveCreateBy != null">
-            AND st.sys_template_approve_create_by = #{query.sysTemplateApproveCreateBy}
-        </if>
+            <if test="query.sysTemplateApproveCreateBy != null">
+                AND st.sys_template_approve_create_by = #{query.sysTemplateApproveCreateBy}
+            </if>
 
-        <if test="isAdmin == null || !isAdmin">
-            AND st.sys_template_delete = 0
-        </if>
+            <if test="isAdmin == null || !isAdmin">
+                AND st.sys_template_delete = 0
+            </if>
 
-        <if test="isAdmin != null and isAdmin and query.sysTemplateDelete != null">
-            AND st.sys_template_delete = #{query.sysTemplateDelete}
-        </if>
+            <if test="isAdmin != null and isAdmin and query.sysTemplateDelete != null">
+                AND st.sys_template_delete = #{query.sysTemplateDelete}
+            </if>
+        </where>
+        ORDER BY st.sys_template_sort,
+        st.create_time DESC
 
-        ORDER BY st.sys_template_sort
     </select>
 
     <select id="listForItemCode" resultType="com.chua.starter.system.entity.SysTemplate">
-
-        SELECT
-            st.*
+        SELECT st.*
         FROM sys_template st
-         LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
-        WHERE st.sys_template_delete = 0 AND st.sys_template_approve = 2
+                 LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
+        WHERE st.sys_template_delete = 0
+          AND st.sys_template_approve = 2
         <if test="sysTemplateCategoryCode != null and sysTemplateCategoryCode != ''">
-            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id FROM
-            sys_template_category WHERE sys_template_category_code = #{sysTemplateCategoryCode}))
+            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id
+                                                          FROM sys_template_category
+                                                          WHERE sys_template_category_code = #{sysTemplateCategoryCode}))
         </if>
     </select>
 
     <select id="listForItem" resultType="com.chua.starter.system.entity.SysTemplate">
-        SELECT
-        st.*
+        SELECT st.*
         FROM sys_template st
-        LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
-        WHERE st.sys_template_delete = 0 AND st.sys_template_approve = 2
+                 LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
+        WHERE st.sys_template_delete = 0
+          AND st.sys_template_approve = 2
         <if test="sysTemplateCategoryId != null">
-            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id FROM sys_template_category WHERE sys_template_category_code = #{sysTemplateCategoryId}))
+            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id
+                                                          FROM sys_template_category
+                                                          WHERE sys_template_category_code = #{sysTemplateCategoryId}))
         </if>
     </select>
 </mapper>
