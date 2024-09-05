@@ -9,6 +9,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.*;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
@@ -19,11 +20,15 @@ import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  *
@@ -158,6 +163,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    @ApiCacheKey("'sys:menu:list:all'")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));
@@ -172,11 +179,15 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    @ApiCacheKey("'sys:menu:list:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<Boolean> delete(Long menuId) {
         return ReturnResult.guess(baseMapper.deleteById(menuId) > 0);
     }
 
     @Override
+    @ApiCacheKey("'sys:menu:list:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
@@ -199,6 +210,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    @ApiCacheKey("'sys:menu:list:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {

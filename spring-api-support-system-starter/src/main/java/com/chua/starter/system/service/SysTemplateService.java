@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
+import com.chua.starter.system.entity.SysTemplateCategory;
 
 import java.util.List;
 import java.util.Set;
@@ -56,9 +57,16 @@ public interface SysTemplateService extends IService<SysTemplate> {
     /**
      * 删除缓存
      *
-     * @param sysTemplate 系统模板对象，用于删除缓存
+     * @param sysTemplateCategory 系统模板对象，用于删除缓存
      */
-    void deleteCache(SysTemplate sysTemplate);
+    void deleteCacheId(SysTemplateCategory sysTemplateCategory);
+
+    /**
+     * 删除缓存
+     *
+     * @param sysTemplateCategory 系统模板对象，用于删除缓存
+     */
+    void deleteCacheCode(SysTemplateCategory sysTemplateCategory);
     /**
      * 回滚系统模板
      *

@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
@@ -32,7 +33,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 类别接口
+ * 类别接口(缓存)
  * @author CH
  * @since 2024/8/7
  */
@@ -51,20 +52,10 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "类别树")
     @GetMapping("/tree")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
+    @ApiCacheKey("'cache:list:sys:category:all'")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysTemplateCategoryTree>> tree(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysTemplateCategoryService.tree(query, sysTemplateCategory, roles);
-    }
-    /**
-     * 类别分页列表
-     *
-     * @param sysTemplateCategory 条件
-     * @return 类别分页列表
-     */
-    @Operation(summary = "类别列表")
-    @GetMapping("/list")
-    public ReturnResult<List<SysTemplateCategory>> listForRole(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return ReturnResult.ok(sysTemplateCategoryService.list(query, sysTemplateCategory, roles));
     }
 
     /**
@@ -87,7 +78,8 @@ public class SysTemplateCategoryController {
     @Operation(summary = "删除类别")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
+    @ApiCacheKey("'cache:list:sys:category:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     @Permission(value = "sys:template:group:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysTemplateCategoryId) {
         if (null == sysTemplateCategoryId) {
@@ -105,7 +97,8 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "更新类别")
     @PutMapping("/update")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
+    @ApiCacheKey("'cache:list:sys:category:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -126,7 +119,8 @@ public class SysTemplateCategoryController {
     @Operation(summary = "还原类别")
     @PutMapping("/rollback")
     @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
+    @ApiCacheKey("'cache:list:sys:category:all'")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<Boolean> rollback(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
