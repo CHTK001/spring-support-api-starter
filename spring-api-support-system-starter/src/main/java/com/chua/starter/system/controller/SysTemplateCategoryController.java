@@ -4,9 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -19,6 +17,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +27,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
@@ -50,6 +51,7 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "类别树")
     @GetMapping("/tree")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
     public ReturnResult<List<SysTemplateCategoryTree>> tree(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysTemplateCategoryService.tree(query, sysTemplateCategory, roles);
     }
@@ -84,9 +86,8 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "删除类别")
     @DeleteMapping("/delete")
-    @OperateLog
-    @UserLogger
     @Transactional(rollbackOn = Exception.class)
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
     @Permission(value = "sys:template:group:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysTemplateCategoryId) {
         if (null == sysTemplateCategoryId) {
@@ -104,7 +105,7 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "更新类别")
     @PutMapping("/update")
-    @OperateLog
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
     @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -124,8 +125,8 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "还原类别")
     @PutMapping("/rollback")
-    @OperateLog
     @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
     public ReturnResult<Boolean> rollback(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
@@ -144,7 +145,7 @@ public class SysTemplateCategoryController {
      */
     @Operation(summary = "新增类别")
     @PostMapping("/save")
-    @OperateLog
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:all'")
     @Permission(value = "sys:template:group:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysTemplateCategory> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

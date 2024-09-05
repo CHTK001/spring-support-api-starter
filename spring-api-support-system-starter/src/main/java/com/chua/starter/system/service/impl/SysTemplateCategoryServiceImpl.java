@@ -126,7 +126,7 @@ public class SysTemplateCategoryServiceImpl extends ServiceImpl<SysTemplateCateg
 
     @Override
     public ReturnResult<List<SysTemplateCategoryTree>> tree(Query<SysTemplateCategory> query, SysTemplateCategory sysTemplateCategory, Set<String> roles) {
-        List<SysTemplateCategory> sysTemplateCategories = baseMapper.selectListByRoles(query.createPage(), sysTemplateCategory, AuthConstant.hasAdmin(roles));
+        List<SysTemplateCategory> sysTemplateCategories = baseMapper.selectListByRoles(query.createPage(), new SysTemplateCategory(), AuthConstant.hasAdmin(roles));
         return ReturnResult.ok(TreeUtils.toTree(sysTemplateCategories, item -> {
             SysTemplateCategoryTree sysTemplateCategoryTree = new SysTemplateCategoryTree();
             BeanUtils.copyProperties(item, sysTemplateCategoryTree);

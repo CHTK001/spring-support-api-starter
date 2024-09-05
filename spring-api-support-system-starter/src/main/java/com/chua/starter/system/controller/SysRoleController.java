@@ -6,9 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -81,8 +79,6 @@ public class SysRoleController {
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
-    @OperateLog
-    @UserLogger
     @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:role:delete", role = {ADMIN, SUPER_ADMIN})
@@ -102,7 +98,6 @@ public class SysRoleController {
      */
     @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
-    @OperateLog
     @Permission(value = "sys:role:menu:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -117,7 +112,6 @@ public class SysRoleController {
 
     @Operation(summary = "获取角色菜单")
     @GetMapping("/get_menu")
-    @OperateLog
     @Permission(value = "sys:role:menu:get", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -136,7 +130,6 @@ public class SysRoleController {
      */
     @Operation(summary = "更新角色")
     @PutMapping("/update")
-    @OperateLog
     @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -157,7 +150,6 @@ public class SysRoleController {
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")
-    @OperateLog
     @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {

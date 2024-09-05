@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 04/09/2024 17:18:55
+ Date: 05/09/2024 10:29:18
 */
 
 SET NAMES utf8mb4;
@@ -308,26 +308,26 @@ CREATE TABLE `sys_setting`  (
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, NULL, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (2, NULL, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (3, NULL, 'SlidingBlockOpen', 'true', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (4, NULL, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 0, 'sa', NULL, '2024-08-18 11:22:26', '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (5, NULL, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 0, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (6, NULL, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 0, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (7, NULL, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 0, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (8, NULL, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'edb95a70-5622-4842-8a36-f097f9482f8b', NULL, 7, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (9, NULL, 'SocketUrl', 'http://127.0.0.1:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (10, NULL, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (12, NULL, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (13, NULL, 'WatermarkAlpha', '0.15', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (14, NULL, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (15, NULL, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (16, NULL, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 13:54:47', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (17, NULL, 'host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (18, NULL, 'port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (19, NULL, 'password', NULL, 1, 'Password', 'smtp', 1, 1, 0, 'smtp密码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 14:46:53', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (20, NULL, 'to', NULL, 1, 'Mail', 'smtp', 1, 1, 0, '测试接收账号', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_setting` VALUES (21, NULL, 'from', NULL, 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_setting` VALUES (1, 2, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (2, 1, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (3, 3, 'SlidingBlockOpen', 'true', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 0, NULL, NULL, NULL, '2024-09-04 14:16:30', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 7, 'sa', NULL, '2024-08-18 11:22:26', '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (5, 2, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 7, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (6, 7, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 7, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 7, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', '6bb1ef11-04d4-40b6-97d2-b30477b8220d', NULL, 19, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (9, 6, 'SocketUrl', 'http://127.0.0.1:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (10, 7, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (12, 8, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (13, 9, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (14, 10, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (15, 11, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (16, 11, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 7, NULL, NULL, NULL, '2024-09-04 19:24:52', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (17, 2, 'host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 08:45:54', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (18, 3, 'port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 08:45:54', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (19, 4, 'password', NULL, 1, 'Password', 'smtp', 1, 1, 0, 'smtp密码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 08:45:54', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (20, 5, 'to', '784412312@qq.com', 1, 'Mail', 'smtp1', 1, 1, 0, '测试接收账号', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-04 17:25:55', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (21, 1, 'from', 'yemengzhidiandi@163.com', 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 08:45:54', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_template
@@ -335,8 +335,8 @@ INSERT INTO `sys_setting` VALUES (21, NULL, 'from', NULL, 1, 'Mail', 'smtp', 1, 
 DROP TABLE IF EXISTS `sys_template`;
 CREATE TABLE `sys_template`  (
   `sys_template_id` int(11) NOT NULL AUTO_INCREMENT,
-  `sys_template_manufacturer_id` int(11) NULL DEFAULT NULL COMMENT '厂家类型, 字典(dictId = 1)子项',
-  `sys_template_category` int(11) NULL DEFAULT NULL COMMENT '模板类型, 字典(dictId = 2)子项',
+  `sys_template_manufacturer_id` int(11) NULL DEFAULT NULL COMMENT '适用厂家类型, 字典(dictId = 1)子项',
+  `sys_template_category_id` int(11) NULL DEFAULT NULL COMMENT '类别',
   `sys_template_sort` int(11) NULL DEFAULT NULL COMMENT '模板优先级',
   `sys_template_group_id` int(11) NULL DEFAULT NULL COMMENT '分组ID',
   `sys_template_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
@@ -364,30 +364,32 @@ CREATE TABLE `sys_template`  (
 INSERT INTO `sys_template` VALUES (1, 2, 5, 1, 1, '验证码', 'SMS_CODE_2_0000', NULL, 0, 1, 0, NULL, 2, NULL, NULL, 'sa', 1, '2024-09-02 19:53:49', '2024-09-02 20:04:01', 'sa', 1);
 
 -- ----------------------------
--- Table structure for sys_template_group
+-- Table structure for sys_template_category
 -- ----------------------------
-DROP TABLE IF EXISTS `sys_template_group`;
-CREATE TABLE `sys_template_group`  (
-  `sys_template_group_id` int(11) NOT NULL AUTO_INCREMENT,
-  `sys_template_group_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板名称',
-  `sys_template_group_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板唯一编码',
-  `sys_template_group_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除;0:未删除',
-  `sys_template_group_sort` int(11) NULL DEFAULT NULL COMMENT '模板优先级',
+DROP TABLE IF EXISTS `sys_template_category`;
+CREATE TABLE `sys_template_category`  (
+  `sys_template_category_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_template_category_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类别名称',
+  `sys_template_category_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类别唯一编码',
+  `sys_template_category_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除;0:未删除',
+  `sys_template_category_sort` int(11) NULL DEFAULT NULL COMMENT '类别优先级',
+  `sys_template_category_pid` int(11) NULL DEFAULT NULL COMMENT '类别父ID',
+  `sys_template_category_tree_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类别ID集合',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`sys_template_group_id`) USING BTREE
+  PRIMARY KEY (`sys_template_category_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板分组' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of sys_template_group
+-- Records of sys_template_category
 -- ----------------------------
-INSERT INTO `sys_template_group` VALUES (1, '验证码', 'YZM', 0, 1, 'sa', NULL, '2024-09-02 16:18:15', '2024-09-03 09:54:41', 'sa', 1);
-INSERT INTO `sys_template_group` VALUES (2, '邮件', 'EMAIL', 0, 1, 'sa', NULL, '2024-09-02 16:32:18', '2024-09-02 16:34:08', 'sa', NULL);
-INSERT INTO `sys_template_group` VALUES (3, '站内消息', 'ZNXX', 1, 1, 'sa', 1, '2024-09-02 16:34:21', NULL, NULL, NULL);
+INSERT INTO `sys_template_category` VALUES (1, '验证码', 'YZM', 0, 1, NULL, NULL, 'sa', NULL, '2024-09-02 16:18:15', '2024-09-03 09:54:41', 'sa', 1);
+INSERT INTO `sys_template_category` VALUES (2, '邮件', 'EMAIL', 0, 1, NULL, NULL, 'sa', NULL, '2024-09-02 16:32:18', '2024-09-02 16:34:08', 'sa', NULL);
+INSERT INTO `sys_template_category` VALUES (3, '站内消息', 'ZNXX', 1, 1, NULL, NULL, 'sa', 1, '2024-09-02 16:34:21', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -471,7 +473,7 @@ CREATE TABLE `sys_user_layout`  (
 -- ----------------------------
 -- Records of sys_user_layout
 -- ----------------------------
-INSERT INTO `sys_user_layout` VALUES (1, '[18,6]', '[]', '[[\"/src/views/home/components/weather.vue\"],[\"/src/views/home/components/time.vue\"]]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', NULL);
+INSERT INTO `sys_user_layout` VALUES (1, '[18,6]', '[]', '[[\"/src/views/home/components/weather.vue\"],[\"/src/views/home/components/time.vue\"]]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_user_log
