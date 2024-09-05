@@ -54,7 +54,27 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext));
         String expValue = exp.getValue(evaluationContext, String.class);
         key.append(expValue);
+        logprint(key, evaluationContext);
         return key.toString();
+    }
+
+    private void logprint(StringBuilder key, EvaluationContext evaluationContext) {
+        Object value = evaluationContext.getRootObject().getValue();
+        if(value instanceof CacheableOperation cacheableOperation) {
+            log.info("缓存key: {}", key);
+            return;
+        }
+
+        if(value instanceof CacheEvictOperation cacheEvictOperation) {
+            log.info("删除key: {}", key);
+            return;
+        }
+
+        if(value instanceof CachePutOperation cachePutOperation) {
+            log.info("更新key: {}", key);
+            return;
+        }
+
     }
 
     private String getKey(EvaluationContext evaluationContext) {
