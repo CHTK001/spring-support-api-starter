@@ -72,11 +72,11 @@ public interface SysTemplateService extends IService<SysTemplate> {
      * 根据模板组代码获取模板列表
      *
      * @param query 分页查询对象，携带分页和排序信息
-     * @param sysTemplateGroupCode 模板组代码，用于查询模板列表
+     * @param sysTemplateCategoryCode 模板组代码，用于查询模板列表
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 模板列表
      */
-    List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateGroupCode, Set<String> roles);
+    List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateCategoryCode, Set<String> roles);
 
     /**
      * 根据模板组ID获取模板列表
