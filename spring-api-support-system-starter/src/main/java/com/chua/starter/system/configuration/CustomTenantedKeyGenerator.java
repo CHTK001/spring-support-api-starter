@@ -46,11 +46,9 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         if(null == evaluationContext) {
             return SimpleKeyGenerator.generateKey(params);
         }
-        String name = method.getName();
         StringBuilder key = new StringBuilder(PREFIX);
         key.append(controlProperties.getPlatform().getName()).append(":");
         key.append(RequestUtils.getTenantId()).append(":");
-        key.append(name).append(":");
         Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext));
         String expValue = exp.getValue(evaluationContext, String.class);
         key.append(expValue);
