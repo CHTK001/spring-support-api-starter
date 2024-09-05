@@ -7,6 +7,7 @@ import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.function.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.TreeUtils;
 import com.chua.starter.mybatis.entity.Query;
@@ -135,7 +136,7 @@ public class SysTemplateCategoryServiceImpl extends ServiceImpl<SysTemplateCateg
             treeNode.setId(sysTemplateCategoryTree.getSysTemplateCategoryId().toString());
             treeNode.setLabel(sysTemplateCategoryTree.getSysTemplateCategoryName());
             treeNode.setValue(sysTemplateCategoryTree.getSysTemplateCategoryName());
-            treeNode.setPid(sysTemplateCategoryTree.getSysTemplateCategoryPid().toString());
+            treeNode.setPid(ObjectUtils.defaultIfNull(sysTemplateCategoryTree.getSysTemplateCategoryPid(), 0).toString());
             treeNode.setExt(sysTemplateCategoryTree);
             treeNode.setChildrenConsumer(sysTemplateCategoryTree::setChildren);
 
