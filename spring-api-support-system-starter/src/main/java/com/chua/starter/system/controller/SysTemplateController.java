@@ -54,12 +54,12 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/code")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:code:' + #sysTemplateGroupCode")
-    public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateGroupCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == sysTemplateGroupCode) {
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:code:' + #sysTemplateCategoryCode")
+    public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateCategoryCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysTemplateCategoryCode) {
             return ReturnResult.illegal("模板分组不能为空");
         }
-        return ReturnResult.ok(sysTemplateService.listForItemCode(query, sysTemplateGroupCode, roles));
+        return ReturnResult.ok(sysTemplateService.listForItemCode(query, sysTemplateCategoryCode, roles));
     }
     /**
      * 模板分组列表
@@ -68,12 +68,12 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/list")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:id:' + #sysTemplateGroupId")
-    public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateGroupId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == sysTemplateGroupId) {
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:id:' + #sysTemplateCategoryId")
+    public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateCategoryId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysTemplateCategoryId) {
             return ReturnResult.illegal("模板分组不能为空");
         }
-        return ReturnResult.ok(sysTemplateService.listForItem(query, sysTemplateGroupId, roles));
+        return ReturnResult.ok(sysTemplateService.listForItem(query, sysTemplateCategoryId, roles));
     }
 
     /**

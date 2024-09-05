@@ -48,7 +48,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))
-                .orderByDesc(SysSetting::getSysSettingSort)
+                .orderByAsc(SysSetting::getSysSettingSort)
                 .orderByDesc(SysSetting::getCreateTime)
         );
     }

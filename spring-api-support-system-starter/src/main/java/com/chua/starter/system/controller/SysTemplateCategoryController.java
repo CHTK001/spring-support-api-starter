@@ -1,0 +1,159 @@
+package com.chua.starter.system.controller;
+
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.annotations.UserLogger;
+import com.chua.starter.common.support.result.Result;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.PageResultUtils;
+import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.system.entity.SysTemplateCategory;
+import com.chua.starter.system.pojo.category.SysTemplateCategoryTree;
+import com.chua.starter.system.service.SysTemplateCategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
+
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
+
+/**
+ * 类别接口
+ * @author CH
+ * @since 2024/8/7
+ */
+@Tag(name = "模板类别接口")
+@RestController
+@RequestMapping("/v2/template/category")
+@RequiredArgsConstructor
+public class SysTemplateCategoryController {
+
+    private final SysTemplateCategoryService sysTemplateCategoryService;
+    /**
+     * 类别树
+     *
+     * @param sysTemplateCategory 条件
+     * @return 类别分页列表
+     */
+    @Operation(summary = "类别树")
+    @GetMapping("/tree")
+    public ReturnResult<List<SysTemplateCategoryTree>> tree(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysTemplateCategoryService.tree(query, sysTemplateCategory, roles);
+    }
+    /**
+     * 类别分页列表
+     *
+     * @param sysTemplateCategory 条件
+     * @return 类别分页列表
+     */
+    @Operation(summary = "类别列表")
+    @GetMapping("/list")
+    public ReturnResult<List<SysTemplateCategory>> listForRole(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return ReturnResult.ok(sysTemplateCategoryService.list(query, sysTemplateCategory, roles));
+    }
+
+    /**
+     * 类别分页列表
+     *
+     * @param sysTemplateCategory 条件
+     * @return 类别分页列表
+     */
+    @Operation(summary = "类别分页列表")
+    @GetMapping("/page")
+    public ReturnPageResult<SysTemplateCategory> pageForRole(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return PageResultUtils.ok(sysTemplateCategoryService.page(query, sysTemplateCategory, roles));
+    }
+
+    /**
+     * 删除类别
+     *
+     * @return 更新类别
+     */
+    @Operation(summary = "删除类别")
+    @DeleteMapping("/delete")
+    @OperateLog
+    @UserLogger
+    @Transactional(rollbackOn = Exception.class)
+    @Permission(value = "sys:template:group:delete", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> delete(Long sysTemplateCategoryId) {
+        if (null == sysTemplateCategoryId) {
+            return Result.illegal("类别信息不存在");
+        }
+
+        return sysTemplateCategoryService.delete(sysTemplateCategoryId);
+    }
+
+
+    /**
+     * 更新类别
+     *
+     * @return 更新类别
+     */
+    @Operation(summary = "更新类别")
+    @PutMapping("/update")
+    @OperateLog
+    @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> update(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysTemplateCategoryService.update(roles, sysTemplateCategory);
+    }
+
+    /**
+     * 还原类别
+     *
+     * @return 更新类别
+     */
+    @Operation(summary = "还原类别")
+    @PutMapping("/rollback")
+    @OperateLog
+    @Permission(value = "sys:template:group:update", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> rollback(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysTemplateCategoryService.rollback(roles, sysTemplateCategory);
+    }
+
+    /**
+     * 新增类别
+     *
+     * @return 新增类别
+     */
+    @Operation(summary = "新增类别")
+    @PostMapping("/save")
+    @OperateLog
+    @Permission(value = "sys:template:group:add", role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<SysTemplateCategory> save(
+                @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                @Validated(AddGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
+                BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysTemplateCategoryService.save(sysTemplateCategory, roles);
+    }
+}
