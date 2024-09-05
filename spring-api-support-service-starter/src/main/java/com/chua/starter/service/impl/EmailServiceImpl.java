@@ -34,6 +34,13 @@ public class EmailServiceImpl implements EmailService {
             return ReturnResult.success(true);
         } catch (Exception e) {
             e.printStackTrace();
+            String message = e.getMessage();
+            if(message.contains("User not found")) {
+                return ReturnResult.illegal("收件人邮箱不存在");
+            }
+            if(message.contains("553") || message.contains("Authentication failed")) {
+                return ReturnResult.noAuth("邮箱验证失败，请检查邮箱设置");
+            }
             return ReturnResult.fail("发送失败!");
         }
     }
