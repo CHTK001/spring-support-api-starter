@@ -1,7 +1,6 @@
 package com.chua.starter.system.configuration;
 
 import com.chua.starter.common.support.annotations.ApiCacheKey;
-import com.chua.starter.common.support.annotations.ApiCacheKeys;
 import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.RequestUtils;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ public class CustomKeyGenerator implements KeyGenerator {
     public Object generate(Object target, Method method, Object... params) {
         ApiCacheKey apiCacheKey = method.getDeclaredAnnotation(ApiCacheKey.class);
         if(null == apiCacheKey) {
-            ApiCacheKeys apiCacheKeys = method.getDeclaredAnnotation(ApiCacheKeys.class);
             log.warn("@ApiCacheKey is null");
             return SimpleKeyGenerator.generateKey(params);
         }
