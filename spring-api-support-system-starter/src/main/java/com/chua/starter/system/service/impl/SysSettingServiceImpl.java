@@ -172,7 +172,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     @Override
     @ApiCacheKey("'sys:setting:' + #sysSetting.sysSettingGroup")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }

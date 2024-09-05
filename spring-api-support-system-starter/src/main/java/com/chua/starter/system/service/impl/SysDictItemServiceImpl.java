@@ -98,13 +98,13 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
     @Override
     @ApiCacheKey("'sys:dict:id:' + #sysDictItem.sysDictId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheId(SysDictItem sysDictItem) {
         //NOTHING
     }
     @Override
     @ApiCacheKey("'sys:dict:code:' + #sysDictItem.sysDictCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheCode(SysDictItem sysDictItem) {
         //NOTHING
     }
