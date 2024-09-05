@@ -67,6 +67,12 @@ public class UserInfoVO {
     @Schema(description = "头像地址")
     private String avatar;
 
+    /**
+     * 租户ID
+     */
+    @Schema(description = "租户ID")
+    private String tenantId;
+
     @Schema(description = "用户角色编码集合")
     private Set<String> roles;
 
