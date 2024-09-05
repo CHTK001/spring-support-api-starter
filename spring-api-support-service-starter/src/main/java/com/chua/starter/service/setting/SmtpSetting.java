@@ -5,6 +5,7 @@ import com.chua.common.support.lang.mail.MailConfiguration;
 import com.chua.common.support.lang.mail.MailSender;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.ObjectUtils;
+import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.email.support.SpringHtmlMailSender;
 import lombok.Data;
 
@@ -64,7 +65,9 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
             mailConfiguration.setPassword(smtpSetting.getPassword());
             mailConfiguration.setSmtpPort(smtpSetting.getPort());
             try {
-                setMailSender(new SpringHtmlMailSender(mailConfiguration));
+                SpringHtmlMailSender springHtmlMailSender = new SpringHtmlMailSender(mailConfiguration);
+                SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(springHtmlMailSender);
+                setMailSender(springHtmlMailSender);
             } catch (Exception ignored) {
             }
         }

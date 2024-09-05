@@ -54,7 +54,7 @@ public class SysTemplateCategoryServiceImpl extends ServiceImpl<SysTemplateCateg
         }
         return ReturnResult.guess(transactionTemplate.execute(stats -> {
             int deleted = baseMapper.deleteById(sysTemplateId);
-            sysTemplateMapper.delete(Wrappers.<SysTemplate>lambdaQuery().eq(SysTemplate::getSysTemplateGroupId, sysTemplateId));
+            sysTemplateMapper.delete(Wrappers.<SysTemplate>lambdaQuery().eq(SysTemplate::getSysTemplateCategoryId, sysTemplateId));
             return deleted > 0;
         }));
     }
