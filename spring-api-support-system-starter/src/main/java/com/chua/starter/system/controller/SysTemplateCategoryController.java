@@ -53,7 +53,7 @@ public class SysTemplateCategoryController {
     @Operation(summary = "类别树")
     @GetMapping("/tree")
     @ApiCacheKey("'sys:category:all'")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysTemplateCategoryTree>> tree(@ParameterObject Query<SysTemplateCategory> query, @ParameterObject SysTemplateCategory sysTemplateCategory, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysTemplateCategoryService.tree(query, sysTemplateCategory, roles);
     }
@@ -79,7 +79,7 @@ public class SysTemplateCategoryController {
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
     @ApiCacheKey("'sys:category:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     @Permission(value = "sys:template:category:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysTemplateCategoryId) {
         if (null == sysTemplateCategoryId) {
@@ -98,7 +98,7 @@ public class SysTemplateCategoryController {
     @Operation(summary = "更新类别")
     @PutMapping("/update")
     @ApiCacheKey("'sys:category:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     @Permission(value = "sys:template:category:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -120,7 +120,7 @@ public class SysTemplateCategoryController {
     @PutMapping("/rollback")
     @Permission(value = "sys:template:category:update", role = {ADMIN, SUPER_ADMIN})
     @ApiCacheKey("'sys:category:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> rollback(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysTemplateCategory sysTemplateCategory,
@@ -140,7 +140,7 @@ public class SysTemplateCategoryController {
     @Operation(summary = "新增类别")
     @PostMapping("/save")
     @ApiCacheKey("'sys:category:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     @Permission(value = "sys:template:category:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysTemplateCategory> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

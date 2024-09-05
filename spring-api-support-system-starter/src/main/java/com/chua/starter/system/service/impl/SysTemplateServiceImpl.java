@@ -102,14 +102,14 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     }
     @Override
     @ApiCacheKey("'sys:category:id:' + #sysTemplateCategory.sysTemplateCategoryId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheId(SysTemplateCategory sysTemplateCategory) {
 
     }
 
     @Override
     @ApiCacheKey("'sys:category:code:' + #sysTemplateCategory.sysTemplateCategoryCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheCode(SysTemplateCategory sysTemplateCategory) {
 
     }

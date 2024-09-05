@@ -24,11 +24,11 @@ import java.lang.reflect.Method;
  * @author CH
  * @since 2024/9/5
  */
-@Configuration("customKeyGenerator")
+@Configuration("customTenantedKeyGenerator")
 @RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("ALL")
-public class CustomKeyGenerator implements KeyGenerator {
+public class CustomTenantedKeyGenerator implements KeyGenerator {
 
     private static final String PREFIX = "cache:";
 
