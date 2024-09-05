@@ -7,12 +7,9 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Set;
-
-import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * 系统菜单服务接口，定义了与系统菜单相关的业务操作
@@ -40,7 +37,6 @@ public interface SysMenuService extends IService<SysMenu>{
      *
      * @return 返回所有系统菜单的列表
      */
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:sys:menu:list:all'")
     List<SysMenu> listAll();
 
     /**

@@ -57,7 +57,13 @@ public interface SysDictItemService extends IService<SysDictItem> {
      *
      * @param sysDictItem  待清除缓存的字典项实体对象
      */
-    void deleteCache(SysDictItem sysDictItem);
+    void deleteCacheId(SysDictItem sysDictItem);
+    /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCacheCode(SysDictItem sysDictItem);
 
     /**
      * 查询字典项列表
@@ -77,5 +83,5 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @param roles  用户角色集合，用于进行权限控制
      * @return 字典项列表
      */
-    List<SysDictItem> listForItemCode(Query<SysDictItem> query, Integer sysDictCode, Set<String> roles);
+    List<SysDictItem> listForItemCode(Query<SysDictItem> query, String sysDictCode, Set<String> roles);
 }

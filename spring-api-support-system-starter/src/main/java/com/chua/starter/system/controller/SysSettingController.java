@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +32,12 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 系统设置接口
+ * 系统设置接口(缓存)
  * @author CH
  * @since 2024/8/7
  */
@@ -68,6 +71,8 @@ public class SysSettingController {
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
+    @ApiCacheKey("'sys:setting:' + #sysSettingUpdate.sysSettingGroup")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
         if(!AuthConstant.hasAdmin(roles)) {
@@ -83,6 +88,8 @@ public class SysSettingController {
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
     @Ignore
+    @ApiCacheKey("'sys:setting:default'")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default"), roles);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));

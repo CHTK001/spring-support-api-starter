@@ -1,0 +1,4 @@
+plugin:
+  control:
+    platform:
+      name: "system"
