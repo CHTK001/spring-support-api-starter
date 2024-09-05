@@ -72,7 +72,7 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @ApiCacheKey("'sys:setting:' + #sysSettingUpdate.sysSettingGroup")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
         if(!AuthConstant.hasAdmin(roles)) {
@@ -89,7 +89,7 @@ public class SysSettingController {
     @GetMapping("/default")
     @Ignore
     @ApiCacheKey("'sys:setting:default'")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default"), roles);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));

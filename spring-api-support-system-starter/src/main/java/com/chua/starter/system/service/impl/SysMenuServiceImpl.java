@@ -164,7 +164,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @ApiCacheKey("'sys:menu:list:all'")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));
@@ -180,14 +180,14 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> delete(Long menuId) {
         return ReturnResult.guess(baseMapper.deleteById(menuId) > 0);
     }
 
     @Override
     @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
@@ -211,7 +211,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {

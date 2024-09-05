@@ -54,7 +54,7 @@ public class SysTemplateController {
     @Operation(summary = "模板分组列表")
     @GetMapping("/code")
     @ApiCacheKey("'sys:category:code:' + #sysTemplateCategoryCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateCategoryCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysTemplateCategoryCode) {
             return ReturnResult.illegal("模板分组不能为空");
@@ -69,7 +69,7 @@ public class SysTemplateController {
     @Operation(summary = "模板分组列表")
     @GetMapping("/list")
     @ApiCacheKey("'sys:category:id:' + #sysTemplateCategoryId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateCategoryId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysTemplateCategoryId) {
             return ReturnResult.illegal("模板分组不能为空");
