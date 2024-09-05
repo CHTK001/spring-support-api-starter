@@ -4,9 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -61,8 +59,6 @@ public class SysDictController {
      */
     @Operation(summary = "删除字典")
     @DeleteMapping("/delete")
-    @OperateLog
-    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:dict:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictId) {
@@ -81,7 +77,6 @@ public class SysDictController {
      */
     @Operation(summary = "更新字典")
     @PutMapping("/update")
-    @OperateLog
     @Permission(value = "sys:dict:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -101,7 +96,6 @@ public class SysDictController {
      */
     @Operation(summary = "新增字典")
     @PostMapping("/save")
-    @OperateLog
     @Permission(value = "sys:dict:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysDict> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,

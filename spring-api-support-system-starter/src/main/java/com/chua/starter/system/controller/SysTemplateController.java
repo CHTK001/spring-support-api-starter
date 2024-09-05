@@ -5,9 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -102,8 +100,6 @@ public class SysTemplateController {
      */
     @Operation(summary = "删除模板")
     @DeleteMapping("/delete")
-    @OperateLog
-    @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:template:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysTemplateId) {
@@ -122,7 +118,6 @@ public class SysTemplateController {
      */
     @Operation(summary = "还原模板")
     @PutMapping("/rollback")
-    @OperateLog
     @Permission(value = "sys:template:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> rollback(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -142,7 +137,6 @@ public class SysTemplateController {
      */
     @Operation(summary = "更新模板")
     @PutMapping("/update")
-    @OperateLog
     @Permission(value = "sys:template:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -162,7 +156,6 @@ public class SysTemplateController {
      */
     @Operation(summary = "新增模板")
     @PostMapping("/save")
-    @OperateLog
     @Permission(value = "sys:template:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysTemplate> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
