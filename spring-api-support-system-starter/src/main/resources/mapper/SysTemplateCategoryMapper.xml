@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysTemplateCategoryMapper">
+
+  <select id="selectPageByRoles" resultType="com.chua.starter.system.entity.SysTemplateCategory">
+    SELECT
+    *
+    FROM sys_template_category
+    <where>
+      <if test="query.sysTemplateCategoryCode != null and query.sysTemplateCategoryCode != ''">
+        AND sys_template_category_code LIKE CONCAT('%',#{query.sysTemplateCategoryCode},'%')
+      </if>
+
+      <if test="query.sysTemplateCategoryName != null and query.sysTemplateCategoryName != ''">
+        AND sys_template_category_name LIKE CONCAT('%',#{query.sysTemplateCategoryName},'%')
+      </if>
+
+      <if test="isAdmin == null or !isAdmin">
+        AND sys_template_category_delete = 0
+      </if>
+      <if test="isAdmin != null and isAdmin and query.sysTemplateCategoryDelete != null">
+        AND sys_template_category_delete = #{query.sysTemplateCategoryDelete}
+      </if>
+    </where>
+
+    ORDER BY sys_template_category_sort
+  </select>
+
+  <select id="selectListByRoles" resultType="com.chua.starter.system.entity.SysTemplateCategory">
+    SELECT
+    *
+    FROM sys_template_category
+    <where>
+      <if test="query.sysTemplateCategoryCode != null and query.sysTemplateCategoryCode != ''">
+        AND sys_template_category_code LIKE CONCAT('%',#{query.sysTemplateCategoryCode},'%')
+      </if>
+
+      <if test="query.sysTemplateCategoryName != null and query.sysTemplateCategoryName != ''">
+        AND sys_template_category_name LIKE CONCAT('%',#{query.sysTemplateCategoryName},'%')
+      </if>
+
+      <if test="isAdmin == null or !isAdmin">
+        AND sys_template_category_delete = 0
+      </if>
+      <if test="isAdmin != null and isAdmin and query.sysTemplateCategoryDelete != null">
+        AND sys_template_category_delete = #{query.sysTemplateCategoryDelete}
+      </if>
+    </where>
+
+    ORDER BY sys_template_category_sort
+    <if test="page.orders != null and page.orders.size() != 0">
+      <foreach collection="page.orders" item="order" separator=" " open="ORDER BY" close="">
+        ${order.column} ${order.asc ? 'asc' : 'desc'}
+      </foreach>
+    </if>
+  </select>
+</mapper>

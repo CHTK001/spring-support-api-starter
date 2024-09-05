@@ -50,4 +50,28 @@
 
         ORDER BY st.sys_template_sort
     </select>
+
+    <select id="listForItemCode" resultType="com.chua.starter.system.entity.SysTemplate">
+
+        SELECT
+            st.*
+        FROM sys_template st
+         LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
+        WHERE st.sys_template_delete = 0 AND st.sys_template_approve = 2
+        <if test="sysTemplateCategoryCode != null and sysTemplateCategoryCode != ''">
+            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id FROM
+            sys_template_category WHERE sys_template_category_code = #{sysTemplateCategoryCode}))
+        </if>
+    </select>
+
+    <select id="listForItem" resultType="com.chua.starter.system.entity.SysTemplate">
+        SELECT
+        st.*
+        FROM sys_template st
+        LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
+        WHERE st.sys_template_delete = 0 AND st.sys_template_approve = 2
+        <if test="sysTemplateCategoryId != null">
+            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id FROM sys_template_category WHERE sys_template_category_code = #{sysTemplateCategoryId}))
+        </if>
+    </select>
 </mapper>

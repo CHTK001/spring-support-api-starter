@@ -43,30 +43,30 @@ public class SysTemplate extends SysBase implements Serializable {
      * 厂家ID
      */
     @TableField(value = "sys_template_manufacturer_id")
-    @ApiModelProperty(value = "厂家类型, 字典(dictId = 1)子项")
-    @Schema(description = "厂家类型, 字典(dictId = 1)子项")
+    @ApiModelProperty(value = "适用于厂家类型, 字典(dictId = 1)子项")
+    @Schema(description = "适用于厂家类型, 字典(dictId = 1)子项")
     private Integer sysTemplateManufacturerId;
     /**
      * 厂家名称
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "厂家名称, 字典(dictId = 1)子项")
-    @Schema(description = "厂家名称,字典(dictId = 1)子项")
+    @ApiModelProperty(value = "适用于厂家名称, 字典(dictId = 1)子项")
+    @Schema(description = "适用于厂家名称,字典(dictId = 1)子项")
     private String sysTemplateManufacturerName;
 
     /**
      * 模板类型
      */
-    @TableField(value = "sys_template_category")
-    @ApiModelProperty(value = "模板类型,字典(dictId = 2)子项")
-    @Schema(description = "模板类型,字典(dictId = 2)子项")
-    private Integer sysTemplateCategory;
+    @TableField(value = "sys_template_category_id")
+    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
+    private Integer sysTemplateCategoryId;
     /**
      * 模板类型
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "模板类型,字典(dictId = 3)子项")
-    @Schema(description = "模板类型,字典(dictId = 3)子项")
+    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
     private String sysTemplateCategoryName;
     /**
      * 模板优先级

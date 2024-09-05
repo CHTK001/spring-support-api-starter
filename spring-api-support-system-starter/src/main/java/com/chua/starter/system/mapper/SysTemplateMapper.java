@@ -7,6 +7,8 @@ import com.chua.starter.system.entity.SysTemplate;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  *
  * @since 2024/9/2
@@ -26,4 +28,18 @@ public interface SysTemplateMapper extends BaseMapper<SysTemplate> {
             @Param("page") Page<SysTemplate> page,
             @Param("query") SysTemplate sysTemplate,
             @Param("isAdmin") boolean isAdmin);
+
+    /**
+     * 根据模板分组查询模板
+     * @param sysTemplateCategoryCode 模板分组
+     * @return 模板列表
+     */
+    List<SysTemplate> listForItemCode(@Param("sysTemplateCategoryCode") String sysTemplateCategoryCode);
+
+    /**
+     * 根据模板分组查询模板
+     * @param sysTemplateCategoryId 类别ID
+     * @return 模板列表
+     */
+    List<SysTemplate> listForItem(@Param("sysTemplateCategoryId")Integer sysTemplateCategoryId);
 }

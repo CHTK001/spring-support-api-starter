@@ -9,8 +9,8 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
-import com.chua.starter.system.entity.SysTemplateGroup;
-import com.chua.starter.system.mapper.SysTemplateGroupMapper;
+import com.chua.starter.system.entity.SysTemplateCategory;
+import com.chua.starter.system.mapper.SysTemplateCategoryMapper;
 import com.chua.starter.system.mapper.SysTemplateMapper;
 import com.chua.starter.system.service.SysTemplateService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
 
     final TransactionTemplate transactionTemplate;
 
-    final SysTemplateGroupMapper sysTemplateGroupMapper;
+    final SysTemplateCategoryMapper sysTemplateCategoryMapper;
 
     @Autowired
     private SysTemplateService sysTemplateService;
@@ -49,8 +49,8 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     @Override
     public ReturnResult<Boolean> delete(Long sysTemplateId) {
         SysTemplate sysTemplate = baseMapper.selectById(sysTemplateId);
-        SysTemplateGroup templateGroup = sysTemplateGroupMapper.selectById(sysTemplate.getSysTemplateGroupId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateGroupCode());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateGroupId());
+        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         boolean b = baseMapper.deleteById(sysTemplateId) > 0;
         sysTemplateService.deleteCache(sysTemplate);
         return ReturnResult.guess(b);
@@ -68,8 +68,8 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
             }
         }
         sysTemplate.setSysTemplateDelete(null);
-        SysTemplateGroup templateGroup = sysTemplateGroupMapper.selectById(sysTemplate.getSysTemplateGroupId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateGroupCode());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateGroupId());
+        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         sysTemplateService.deleteCache(sysTemplate);
         return ReturnResult.of(baseMapper.updateById(sysTemplate) > 0);
     }
@@ -91,18 +91,18 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
         }
 
         sysTemplate.setSysTemplateDelete(0);
-        SysTemplateGroup templateGroup = sysTemplateGroupMapper.selectById(sysTemplate.getSysTemplateGroupId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateGroupCode());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateGroupId());
+        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         baseMapper.insert(sysTemplate);
         sysTemplateService.deleteCache(sysTemplate);
         return ReturnResult.of( sysTemplate);
     }
     @Override
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:page:sys:template:id:' + #sysTemplate.sysTemplateGroupId"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:id:' + #sysTemplate.sysTemplateGroupId"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:template:code:' + #sysTemplate.sysTemplateGroupCode"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:template:id:' + #sysTemplate.sysTemplateGroupId"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:page:sys:category:id:' + #sysTemplate.sysTemplateGroupId"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:id:' + #sysTemplate.sysTemplateGroupId"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:code:' + #sysTemplate.sysTemplateGroupCode"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:category:id:' + #sysTemplate.sysTemplateGroupId"),
     })
     public void deleteCache(SysTemplate sysTemplate) {
 
@@ -115,23 +115,13 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     }
 
     @Override
-    public List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateGroupCode, Set<String> roles) {
-        return baseMapper.selectList(
-                Wrappers.<SysTemplate>lambdaQuery()
-                .eq(SysTemplate::getSysTemplateGroupCode, sysTemplateGroupCode)
-                .eq(SysTemplate::getSysTemplateStatus, 1)
-                .eq(SysTemplate::getSysTemplateApprove, 2)
-        );
+    public List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateCategoryCode, Set<String> roles) {
+        return baseMapper.listForItemCode(sysTemplateCategoryCode);
     }
 
     @Override
-    public List<SysTemplate> listForItem(Query<SysDictItem> query, Integer sysTemplateGroupId, Set<String> roles) {
-        return baseMapper.selectList(
-                Wrappers.<SysTemplate>lambdaQuery()
-                        .eq(SysTemplate::getSysTemplateGroupId, sysTemplateGroupId)
-                        .eq(SysTemplate::getSysTemplateStatus, 1)
-                        .eq(SysTemplate::getSysTemplateApprove, 2)
-        );
+    public List<SysTemplate> listForItem(Query<SysDictItem> query, Integer sysTemplateCategoryId, Set<String> roles) {
+        return baseMapper.listForItem(sysTemplateCategoryId);
     }
 
 }
