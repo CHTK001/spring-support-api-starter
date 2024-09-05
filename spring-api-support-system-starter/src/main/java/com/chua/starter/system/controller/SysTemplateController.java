@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
@@ -18,7 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 模板接口
+ * 模板接口(缓存)
  * @author CH
  * @since 2024/8/7
  */
@@ -52,7 +53,8 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/code")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:code:' + #sysTemplateCategoryCode")
+    @ApiCacheKey("'sys:category:code:' + #sysTemplateCategoryCode")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateCategoryCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysTemplateCategoryCode) {
             return ReturnResult.illegal("模板分组不能为空");
@@ -66,7 +68,8 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/list")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:category:id:' + #sysTemplateCategoryId")
+    @ApiCacheKey("'sys:category:id:' + #sysTemplateCategoryId")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateCategoryId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysTemplateCategoryId) {
             return ReturnResult.illegal("模板分组不能为空");

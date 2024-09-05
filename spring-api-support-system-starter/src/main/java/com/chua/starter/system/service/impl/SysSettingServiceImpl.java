@@ -10,6 +10,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.codec.CodecSetting;
 import com.chua.starter.mybatis.entity.Query;
@@ -24,7 +25,6 @@ import com.chua.starter.system.setting.VersionSetting;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -44,7 +44,6 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private SysSettingService sysSettingService;
 
     @Override
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:setting:id:' + #sysSettingUpdate.sysSettingGroup")
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysSettingUpdate.getSysSettingGroup()))
@@ -172,7 +171,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @return 是否成功
      */
     @Override
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:sys:setting:id:' + #sysSetting.sysSettingGroup")
+    @ApiCacheKey("'sys:setting:' + #sysSetting.sysSettingGroup")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }

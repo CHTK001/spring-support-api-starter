@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDict;
 import com.chua.starter.system.entity.SysDictItem;
@@ -15,7 +16,6 @@ import com.chua.starter.system.service.SysDictItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,7 +53,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
         sysDictItem.setSysDictCode(sysDict.getSysDictCode());
         boolean b = baseMapper.deleteById(dictItemId) > 0;
-        sysDictItemService.deleteCache(sysDictItem);
+        sysDictItemService.deleteCacheId(sysDictItem);
+        sysDictItemService.deleteCacheCode(sysDictItem);
         return ReturnResult.guess(b);
     }
 
@@ -70,7 +71,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         }
         SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
         sysDictItem.setSysDictCode(sysDict.getSysDictCode());
-        sysDictItemService.deleteCache(sysDictItem);
+        sysDictItemService.deleteCacheId(sysDictItem);
+        sysDictItemService.deleteCacheCode(sysDictItem);
         return ReturnResult.of(baseMapper.updateById(sysDictItem) > 0);
     }
 
@@ -90,16 +92,20 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         sysDictItem.setSysDictCode(sysDict.getSysDictCode());
         sysDictItem.setSysDictItemDelete(0);
         baseMapper.insert(sysDictItem);
-        sysDictItemService.deleteCache(sysDictItem);
+        sysDictItemService.deleteCacheId(sysDictItem);
+        sysDictItemService.deleteCacheCode(sysDictItem);
         return ReturnResult.of( sysDictItem);
     }
     @Override
-    @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:id:' + #sysDictItem.sysDictId"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:code:' + #sysDictItem.sysDictCode"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:item:id:' + #sysDictItem.sysDictItemId"),
-    })
-    public void deleteCache(SysDictItem sysDictItem) {
+    @ApiCacheKey("'sys:dict:id:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    public void deleteCacheId(SysDictItem sysDictItem) {
+        //NOTHING
+    }
+    @Override
+    @ApiCacheKey("'sys:dict:code:' + #sysDictItem.sysDictCode")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    public void deleteCacheCode(SysDictItem sysDictItem) {
         //NOTHING
     }
 
@@ -112,7 +118,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     @Override
-    public List<SysDictItem> listForItemCode(Query<SysDictItem> query, Integer sysDictCode, Set<String> roles) {
+    public List<SysDictItem> listForItemCode(Query<SysDictItem> query, String sysDictCode, Set<String> roles) {
         return baseMapper.selectList(query.mpjLambda()
                 .innerJoin(SysDict.class, SysDict::getSysDictId, SysDictItem::getSysDictId)
                 .eq(SysDictItem::getSysDictItemStatus, 1)

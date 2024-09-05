@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
@@ -30,7 +31,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 字典子项接口
+ * 字典子项接口(缓存)
  * @author CH
  * @since 2024/8/7
  */
@@ -50,8 +51,9 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/code")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:code:' + #sysDictCode")
-    public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, Integer sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    @ApiCacheKey("'sys:dict:code:' + #sysDictCode")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
+    public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");
         }
@@ -66,7 +68,8 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'cache:list:sys:dict:id:' + #sysDictId")
+    @ApiCacheKey("'sys:dict:id:' + #sysDictId")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customKeyGenerator")
     public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
