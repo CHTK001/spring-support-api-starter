@@ -33,13 +33,6 @@ public class SysTemplate extends SysBase implements Serializable {
     private Integer sysTemplateId;
 
     /**
-     * 分组ID
-     */
-    @TableField(value = "sys_template_group_id")
-    @ApiModelProperty(value = "分组ID")
-    @Schema(description = "分组ID")
-    private Integer sysTemplateGroupId;
-    /**
      * 厂家ID
      */
     @TableField(value = "sys_template_manufacturer_id")
