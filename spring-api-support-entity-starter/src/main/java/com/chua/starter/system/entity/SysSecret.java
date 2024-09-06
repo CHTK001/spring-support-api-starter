@@ -90,6 +90,16 @@ public class SysSecret extends SysBase implements Serializable {
     @Schema(description = "appsecret")
     @Size(max = 255, message = "appsecret最大长度要小于 255")
     private String sysSecretAppSecret;
+    /**
+     * 签名
+     */
+    @TableField(value = "sys_secret_sign")
+    @ApiModelProperty(value = "签名")
+    @Schema(description = "签名")
+    @Size(max = 255, message = "签名最大长度要小于 255")
+    private String sysSecretSign;
+
+
 
     /**
      * 是否删除0:未删除
