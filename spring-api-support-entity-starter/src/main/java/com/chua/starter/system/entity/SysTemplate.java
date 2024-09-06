@@ -108,6 +108,22 @@ public class SysTemplate extends SysBase implements Serializable {
     private String sysTemplateApproveReject;
 
     /**
+     * origin
+     */
+    @TableField(value = "sys_template_origin")
+    @ApiModelProperty(value = "来源")
+    @Schema(description = "来源")
+    @Size(max = 255, message = "来源最大长度要小于 255")
+    private String sysTemplateOrigin;
+    /**
+     * origin uuid
+     */
+    @TableField(value = "sys_template_origin_uuid")
+    @ApiModelProperty(value = "来源uuid")
+    @Schema(description = "来源uuid")
+    @Size(max = 255, message = "来源uid最大长度要小于 255")
+    private String sysTemplateOriginUuid;
+    /**
      * 名称
      */
     @TableField(value = "sys_template_name")
