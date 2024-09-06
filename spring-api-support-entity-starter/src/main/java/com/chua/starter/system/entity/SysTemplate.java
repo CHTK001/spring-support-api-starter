@@ -74,8 +74,16 @@ public class SysTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_template_type")
     @ApiModelProperty(value = "模板类型;0:系统;1:用户;2:其它")
-    @Schema(description = "模板类型;0:系统;1:用户;2:其它")
+    @Schema(description = "模板类型;0:系统;1:用户;2:其它;")
     private Integer sysTemplateType;
+
+    /**
+     * 模板编辑状态
+     */
+    @TableField(value = "sys_template_disabled")
+    @ApiModelProperty(value = "模板编辑状态;0:可编辑; 1: 不可编辑;")
+    @Schema(description = "模板编辑状态;0:可编辑; 1: 不可编辑;")
+    private Integer sysTemplateDisabled;
     /**
      * 审批状态;0:未审批; 1: 审批中; 2:已通过; 3: 未通过
      */

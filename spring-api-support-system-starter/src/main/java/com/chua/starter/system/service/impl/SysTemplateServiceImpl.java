@@ -50,7 +50,6 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     public ReturnResult<Boolean> delete(Long sysTemplateId) {
         SysTemplate sysTemplate = baseMapper.selectById(sysTemplateId);
         SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         boolean b = baseMapper.deleteById(sysTemplateId) > 0;
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);
@@ -68,9 +67,13 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
                 return ReturnResult.fail("字典编码已存在");
             }
         }
+        SysTemplate oldSysTemplate = getById(sysTemplate.getSysTemplateId());
+        if(oldSysTemplate.getSysTemplateDisabled() == 1) {
+            return ReturnResult.fail("模板不允许修改");
+        }
+
         sysTemplate.setSysTemplateDelete(null);
         SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);
         return ReturnResult.of(baseMapper.updateById(sysTemplate) > 0);
@@ -94,7 +97,6 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
 
         sysTemplate.setSysTemplateDelete(0);
         SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
-        sysTemplate.setSysTemplateGroupCode(templateGroup.getSysTemplateCategoryCode());
         baseMapper.insert(sysTemplate);
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);

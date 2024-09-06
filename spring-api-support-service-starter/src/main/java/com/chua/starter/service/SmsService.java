@@ -1,7 +1,9 @@
 package com.chua.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.message.config.PushSetting;
 import com.chua.common.support.lang.message.result.PushResult;
+import com.chua.common.support.lang.message.result.TemplateResult;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 
 import java.util.List;
@@ -23,4 +25,12 @@ public interface SmsService {
      */
     ReturnResult<List<PushResult>> send(String sysTemplateCode, SmsRequest request);
 
+    /**
+     * 同步短信模板
+     *
+     * @param sysDictItemCode 短信模板
+     * @param pushSetting     推送设置
+     * @return 发送结果
+     */
+    ReturnResult<TemplateResult> syncTemplate(String sysDictItemCode, PushSetting pushSetting);
 }
