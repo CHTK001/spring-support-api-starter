@@ -25,6 +25,14 @@ public class SysSettingVO {
     @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
     private Integer sysSettingId;
     /**
+     * 配置参数
+     */
+    @TableField(value = "sys_setting_config")
+    @ApiModelProperty(value = "配置参数")
+    @Schema(description = "配置参数")
+    @Size(max = 255, message = "配置参数最大长度要小于 255")
+    private String sysSettingConfig;
+    /**
      * 是否启用; 0:不启用
      */
     @TableField(value = "sys_setting_version")
