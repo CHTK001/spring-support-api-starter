@@ -29,6 +29,8 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${console_log_pattern_color}</pattern>
         </encoder>
+
+        <filter class="com.chua.starter.system.configuration.CustomLogbackFilter" />
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
 
