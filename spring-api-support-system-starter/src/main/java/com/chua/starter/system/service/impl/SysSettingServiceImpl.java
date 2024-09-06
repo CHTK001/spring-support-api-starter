@@ -237,6 +237,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("config", new CodecSetting());
         globalSettingFactory.register("config", new VersionSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());
+        globalSettingFactory.register("sms", new SmtpSetting());
         upgrade();
     }
 

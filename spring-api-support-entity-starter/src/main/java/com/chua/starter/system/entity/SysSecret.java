@@ -61,16 +61,16 @@ public class SysSecret extends SysBase implements Serializable {
      * 字典项ID(字典10000)
      */
     @TableField(value = "sys_secret_dict_item_id")
-    @ApiModelProperty(value = "字典项ID(字典10000)")
-    @Schema(description = "字典项ID(字典10000)")
-    @Size(max = 11, message = "字典项ID(字典10000)最大长度要小于 11")
+    @ApiModelProperty(value = "厂家字典项ID(字典1)")
+    @Schema(description = "厂家字典项ID(字典1)")
+    @Size(max = 11, message = "厂家字典项ID(字典1)最大长度要小于 11")
     private Integer sysSecretDictItemId;
     /**
      * 字典项ID(字典10000)名称
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "字典项ID(字典10000)名称")
-    @Schema(description = "字典项ID(字典10000)名称")
+    @ApiModelProperty(value = "厂家字典项ID(字典1)名称")
+    @Schema(description = "厂家字典项ID(字典2)名称")
     private String sysSecretDictItemName;
 
     /**
@@ -98,7 +98,6 @@ public class SysSecret extends SysBase implements Serializable {
     @Schema(description = "签名")
     @Size(max = 255, message = "签名最大长度要小于 255")
     private String sysSecretSign;
-
 
 
     /**
