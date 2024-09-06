@@ -24,8 +24,9 @@ public class SysSecretServiceImpl extends ServiceImpl<SysSecretMapper, SysSecret
     @Override
     public IPage<SysSecret> pageForSecret(Query<SysSecret> query, SysSecret sysSecret, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), query.mpjLambda()
+                .selectAll(SysSecret.class)
                 .selectAs(SysDictItem::getSysDictItemName, SysSecret::getSysSecretDictItemName)
-                .innerJoin(SysDictItem.class, SysDictItem::getSysDictId, SysSecret::getSysSecretDictItemId)
+                .leftJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysSecret::getSysSecretDictItemId)
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretGroup()), SysSecret::getSysSecretGroup, sysSecret.getSysSecretGroup())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretCode()), SysSecret::getSysSecretCode, sysSecret.getSysSecretCode())
                 .like(StringUtils.isNotBlank(sysSecret.getSysSecretAppId()), SysSecret::getSysSecretAppId, sysSecret.getSysSecretAppId())
