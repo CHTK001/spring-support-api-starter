@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 06/09/2024 13:32:59
+ Date: 06/09/2024 14:46:48
 */
 
 SET NAMES utf8mb4;
@@ -277,7 +277,7 @@ CREATE TABLE `sys_secret`  (
 -- ----------------------------
 -- Records of sys_secret
 -- ----------------------------
-INSERT INTO `sys_secret` VALUES (1, '阿里系', 'ALI', 'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '犀鸟校园', 0, 1, NULL, NULL, NULL, 2, NULL, 'sa', 1, '2024-09-06 13:32:21', NULL, NULL, NULL);
+INSERT INTO `sys_secret` VALUES (1, '阿里系', 'ALI', 'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '犀鸟校园', 0, 1, NULL, NULL, NULL, 2, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_setting
@@ -360,6 +360,8 @@ CREATE TABLE `sys_template`  (
   `sys_template_approve_reject` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '拒绝原因',
   `sys_template_approve_create_by` int(11) NULL DEFAULT NULL COMMENT '审批人',
   `sys_template_disabled` int(11) NULL DEFAULT NULL COMMENT '模板编辑状态;0:可编辑; 1: 不可编辑;',
+  `sys_template_origin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源',
+  `sys_template_origin_uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源uuid',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -372,7 +374,6 @@ CREATE TABLE `sys_template`  (
 -- ----------------------------
 -- Records of sys_template
 -- ----------------------------
-INSERT INTO `sys_template` VALUES (1, 2, 1, 1, '短信验证码', 'SMS_CODE_2_0000', NULL, 0, 1, 0, NULL, 2, NULL, NULL, NULL, 'sa', 1, '2024-09-02 19:53:49', '2024-09-02 20:04:01', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_template_category
