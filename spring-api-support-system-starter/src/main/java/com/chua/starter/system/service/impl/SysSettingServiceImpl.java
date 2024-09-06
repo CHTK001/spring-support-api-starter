@@ -3,25 +3,36 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.codec.CodecSetting;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.service.setting.SmtpSetting;
+import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
 import com.chua.starter.system.setting.VersionSetting;
+import me.zhyd.oauth.cache.AuthDefaultStateCache;
+import me.zhyd.oauth.cache.AuthStateCache;
+import me.zhyd.oauth.config.AuthConfig;
+import me.zhyd.oauth.request.AuthGiteeRequest;
+import me.zhyd.oauth.request.AuthRequest;
+import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,6 +41,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
@@ -42,6 +54,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Autowired
     private SysSettingService sysSettingService;
+    static final String[] APP_KEY = new String[]{"appId", "clientId"};
+    static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"};
+    static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"};
 
     @Override
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
@@ -159,6 +174,43 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
         register(GlobalSettingFactory.getInstance(), sysSetting);
         return ReturnResult.of(true);
+    }
+
+    @Override
+    public SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData) {
+        List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                .in(SysSetting::getSysSettingGroup, loginData.getLoginType(), "sso")
+                .eq(SysSetting::getSysSettingStatus, 1)
+        );
+
+        Set<SysSetting> sso = sysSettings.stream().filter(item -> StringUtils.equals(item.getSysSettingGroup(), "sso"))
+                .filter(item -> StringUtils.equals(item.getSysSettingName(), loginData.getLoginType()))
+                .filter(item -> StringUtils.equals(CommonConstant.TRUE, item.getSysSettingValue())).collect(Collectors.toUnmodifiableSet());
+
+        if(sso.isEmpty()) {
+            return null;
+        }
+
+        AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
+
+        AuthConfig authConfig = AuthConfig.builder()
+                .clientId(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
+                .clientSecret(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
+                .redirectUri(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
+                .build();
+        String state = AuthStateUtils.createState();
+        authStateCache.cache(state + "_userId", RequestUtils.getUserId());
+        authStateCache.cache(state + "_thirdType", loginData.getThirdType());
+        authStateCache.cache(state + "_info", loginData.getLoginCode());
+        authStateCache.cache(state + "_clientId", authConfig.getClientId());
+        authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
+        authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
+        authStateCache.cache(state + "_system_callback", loginData.getCallback());
+        switch (loginData.getLoginType()) {
+            case "gitee":
+                return new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
+        }
+        return null;
     }
 
     private void upgradeVersion(SysSetting version) {

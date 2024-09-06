@@ -20,18 +20,22 @@ import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
+import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.*;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserLayoutMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.*;
 import com.chua.starter.system.query.SysUserQuery;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
 import com.chua.starter.system.service.SysMenuService;
+import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.setting.GuestDefaultSetting;
@@ -39,6 +43,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.zhyd.oauth.cache.AuthStateCache;
+import me.zhyd.oauth.request.AuthRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -70,7 +76,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysUserRoleService sysUserRoleService;
     final RestTemplate restTemplate;
     final RedisTemplate redisTemplate;
+    final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     final SysMenuService sysMenuService;
+    final SysSettingService sysSettingService;
     final SysUserLayoutMapper sysUserLayoutMapper;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
@@ -375,6 +383,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return userLayout;
+    }
+
+    @Override
+    public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
+        SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
+        if(null == authRequest) {
+            return ReturnResult.fail("第三方登录暂不支持");
+        }
+        long startTime = System.currentTimeMillis();
+        AuthRequest requestRequest = authRequest.getRequest();
+        String authorize = requestRequest.authorize(authRequest.getState());
+
+        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
+        return ReturnResult.ok(authorize);
+    }
+
+    @Override
+    public ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
+        return thirdLoginCode(loginData, request, response);
+    }
+
+    @Override
+    public ReturnResult<List<String>> thirdBindInfo(String userId) {
+        List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
+        return ReturnResult.ok(sysUserThirdParties.stream().map(SysUserThirdParty::getSysUserThirdPartyType).distinct().toList());
     }
 
     /**

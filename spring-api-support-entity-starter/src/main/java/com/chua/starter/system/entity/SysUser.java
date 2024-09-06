@@ -96,6 +96,7 @@ public class SysUser extends SysBase implements Serializable {
     @Size(max = 255, message = "盐最大长度要小于 255")
     private String sysUserSalt;
 
+
     /**
      * 是否删除; 0: 未删除
      */
@@ -146,6 +147,14 @@ public class SysUser extends SysBase implements Serializable {
     @ApiModelProperty(value = "性别; 0:女;1:男; 2:其他")
     @Schema(description = "性别; 0:女;1:男; 2:其他")
     private Integer sysUserSex;
+
+    /**
+     * 登录次数
+     */
+    @TableField(value = "sys_user_login_count")
+    @ApiModelProperty(value = "登录次数")
+    @Schema(description = "登录次数")
+    private Integer sysUserLongCount;
 
     /**
      * 是否系统账号; 0: 非系统账号

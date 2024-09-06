@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
+import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.*;
@@ -20,6 +21,7 @@ import java.util.Set;
 /**
  * 系统用户服务接口，定义了与系统用户相关的操作
  * 继承了通用的服务接口IService，为系统用户提供增删查改等操作
+ * @author Administrator
  */
 public interface SysUserService extends IService<SysUser> {
 
@@ -136,4 +138,32 @@ public interface SysUserService extends IService<SysUser> {
      * @return 布局信息对象，包含保存后的布局信息
      */
     UserLayout saveUserLayout(Long userId, UserLayout userLayout);
+
+    /**
+     * 三方登录
+     *
+     * @param loginData 登录数据对象，包含三方登录信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含三方登录结果和可能的附加信息
+     */
+    ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 三方绑定
+     *
+     * @param loginData 登录数据对象，包含三方登录信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含三方绑定结果和可能的附加信息
+     */
+    ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 获取三方绑定信息
+     *
+     * @param userId 用户ID，用于确定要获取绑定信息的用户
+     * @return 绑定信息列表，包含当前用户绑定的三方信息
+     */
+    ReturnResult<List<String>> thirdBindInfo(String userId);
 }
