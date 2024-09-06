@@ -4,17 +4,20 @@ import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.MessagePush;
 import com.chua.common.support.lang.message.config.PushSetting;
+import com.chua.common.support.lang.message.entity.TemplateInfo;
 import com.chua.common.support.lang.message.factory.TemplateFactory;
 import com.chua.common.support.lang.message.option.TemplateSetting;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.lang.message.result.TemplateResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.SmsService;
 import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -51,7 +54,25 @@ public class SmsServiceImpl implements SmsService {
         }
 
         TemplateFactory templateFactory = messagePush.getTemplateFactory();
+        List<TemplateInfo> data = new LinkedList<>();
         TemplateResult template = templateFactory.getTemplate(1, 50);
+        data.addAll(template.getData());
+        if(template.getTotal() >= 50) {
+            int page = 2;
+            while (template.getTotal() >= 50) {
+                template = templateFactory.getTemplate(page, 50);
+                List<TemplateInfo> data1 = template.getData();
+                if(CollectionUtils.isEmpty(data1)) {
+                    break;
+                }
+                data.addAll(data1);
+                if(page > 10) {
+                    break;
+                }
+                page++;
+            }
+        }
+        template.setData(data);
         return ReturnResult.ok(template);
     }
 }

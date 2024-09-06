@@ -75,6 +75,8 @@ public class SysSmsServiceImpl implements SysSmsService {
                 sysTemplate.setSysTemplateDefault(0);
                 sysTemplate.setSysTemplateType(0);
                 sysTemplate.setSysTemplateDisabled(1);
+                sysTemplate.setSysTemplateOrigin("sms同步");
+                sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
                 sysTemplate.setSysTemplateCategoryId(null != templateCategory ? templateCategory.getSysTemplateCategoryId() : null);
 
                 LambdaQueryWrapper<SysTemplate> wrapper = Wrappers.<SysTemplate>lambdaQuery()
