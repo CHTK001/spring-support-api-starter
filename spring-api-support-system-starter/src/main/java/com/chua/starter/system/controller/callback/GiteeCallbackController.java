@@ -3,12 +3,18 @@ package com.chua.starter.system.controller.callback;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Ignore;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.json.Json;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserThirdParty;
+import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.service.SysUserThirdPartyService;
 import io.swagger.annotations.Api;
@@ -48,6 +54,7 @@ public class GiteeCallbackController {
 
     final SysUserService sysUserService;
     final SysUserThirdPartyService sysUserThirdPartyService;
+    final AuthClientProperties authProperties;
 
     /**
      * 校验码
@@ -141,8 +148,18 @@ public class GiteeCallbackController {
         Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
                 .put("loginType", "gitee")
                 .put("address", RequestUtils.getIpAddress()).build();
-        AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
+        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
+        LoginResult loginResult = LoginResult.builder()
+                .userInfo(sysUserService.getUserLoginInfo(accessToken.getToken()))
+                .tokenType("Bearer")
+                .accessToken(accessToken.getToken())
+                .build();
+        CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
         RedirectView view = new RedirectView();
+        String nanoTime = StringUtils.padAfter(System.nanoTime() + "", 16, "0");
+        String encrypt = DigestUtils.aesEncrypt(Json.toJson(loginResult), "1234567890Oil#@1");
+        response.setHeader("x-response-time", nanoTime);
+        view.addStaticAttribute("redirectParam", encrypt);
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         return view;
     }

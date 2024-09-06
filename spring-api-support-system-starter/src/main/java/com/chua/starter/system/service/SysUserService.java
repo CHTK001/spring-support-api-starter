@@ -50,7 +50,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return 用户信息对象，包含用户的基本信息
      */
     UserInfoVO getUserLoginInfo();
-
+    /**
+     * 获取当前登录用户的信息
+     *
+     * @param token 用户的令牌，用于确定当前登录用户
+     * @return 用户信息对象，包含用户的基本信息
+     */
+    UserInfoVO getUserLoginInfo(String token);
     /**
      * 删除指定用户
      *
@@ -166,4 +172,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return 绑定信息列表，包含当前用户绑定的三方信息
      */
     ReturnResult<List<String>> thirdBindInfo(String userId);
+
+    /**
+     * 三方解绑
+     *
+     * @param userId 用户ID，用于确定要解绑的用户
+     * @param thirdPartyUnbindRequest 解绑请求对象，包含要解绑的三方信息
+     * @return 操作结果对象，包含操作是否成功和相关提示信息
+     */
+    ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest);
 }
