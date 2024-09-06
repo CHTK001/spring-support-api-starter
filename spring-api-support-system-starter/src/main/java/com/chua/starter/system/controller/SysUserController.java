@@ -16,6 +16,7 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
+import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
@@ -70,6 +71,59 @@ public class SysUserController {
         return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles));
     }
 
+    /**
+     * 三方登录
+     *
+     * @param loginData     登录信息
+     * @param request       请求
+     * @param response      响应
+     * @param bindingResult 参数处理
+     * @return 结果
+     */
+    @Operation(summary = "三方登录码")
+    @PostMapping("/third/login/code")
+    public ReturnResult<String> thirdLoginCode(@Valid @RequestBody ThirdLoginData loginData,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysUserService.thirdLoginCode(loginData, request, response);
+    }
+    /**
+     * 三方绑定
+     *
+     * @param loginData     登录信息
+     * @param request       请求
+     * @param response      响应
+     * @param bindingResult 参数处理
+     * @return 结果
+     */
+    @Operation(summary = "三方绑定码")
+    @PostMapping("/third/bind/code")
+    public ReturnResult<String> thirdBindCode(@Valid @RequestBody ThirdLoginData loginData,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysUserService.thirdBindCode(loginData, request, response);
+    }
+    /**
+     * 三方绑定
+     *
+     * @param userId       userId
+     * @return 结果
+     */
+    @Operation(summary = "三方绑定情况")
+    @PostMapping("/third/bind/info")
+    public ReturnResult<List<String>> thirdBindInfo(@UserValue("userId") String userId) {
+        return sysUserService.thirdBindInfo(userId);
+    }
     /**
      * 登录
      *

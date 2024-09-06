@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
+import me.zhyd.oauth.cache.AuthStateCache;
+import me.zhyd.oauth.request.AuthRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -75,4 +79,12 @@ public interface SysSettingService extends IService<SysSetting> {
      * @return 更新结果，包含成功与否的标志和消息
      */
     ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting);
+
+    /**
+     * 获取第三方登录请求
+     *
+     * @param loginData 第三方登录数据对象，包含第三方登录类型和回调URL
+     * @return 第三方登录请求对象
+     */
+    SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData);
 }

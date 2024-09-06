@@ -18,6 +18,7 @@ import com.chua.starter.system.entity.SysUserRole;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,7 +40,6 @@ public class UserService implements UserInfoService, Constant {
     final StringRedisTemplate stringRedisTemplate;
     private final int count = 6;
     private final int timeout = 5;
-
 
     final SysUserMapper sysUserMapper;
 
@@ -74,7 +74,7 @@ public class UserService implements UserInfoService, Constant {
         sysUserMapper.updateById(user);
         stringRedisTemplate.delete(newAccessKey);
 
-        return loginInfo(username, user);
+        return loginInfo(username, user, address);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class UserService implements UserInfoService, Constant {
         if (1 != user.getSysUserStatus()) {
             return new UserResult().setMessage("账号已被禁用");
         }
-        UserResult userResult1 = loginInfo(userResult.getUsername(), user);
+        UserResult userResult1 = loginInfo(userResult.getUsername(), user, null);
         userResult1.setAuthType(userResult.getAuthType());
         return userResult1;
     }
@@ -97,10 +97,19 @@ public class UserService implements UserInfoService, Constant {
      *
      * @param accessKey 访问密钥
      * @param user      使用者
+     * @param address
      * @return {@link UserResult}
      */
-    protected UserResult loginInfo(String accessKey, SysUser user) {
-        stringRedisTemplate.opsForValue().increment("system:user:count:" + user.getSysUserId());
+    protected UserResult loginInfo(String accessKey, SysUser user, String address) {
+        ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
+        String countKey = "system:user:count:" + user.getSysUserId();
+        stringStringValueOperations.increment(countKey);
+
+        if(null != address) {
+            user.setSysUserLastIp(address);
+            user.setSysUserLongCount(NumberUtils.toInt(stringStringValueOperations.get(countKey)));
+            sysUserMapper.updateById(user);
+        }
         List<SysRole> role = getRole(user);
 
         LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -112,6 +121,7 @@ public class UserService implements UserInfoService, Constant {
 
         return new UserResult()
                 .setId(user.getSysUserId() + "")
+                .setUserId(user.getSysUserId() + "")
                 .setRoles(collect)
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
