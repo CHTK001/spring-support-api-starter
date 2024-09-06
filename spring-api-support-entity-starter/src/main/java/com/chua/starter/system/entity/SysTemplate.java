@@ -68,20 +68,6 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "模板优先级")
     @Schema(description = "模板优先级")
     private Integer sysTemplateSort;
-    /**
-     * 分组名称
-     */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "分组名称")
-    @Schema(description = "分组名称")
-    private String sysTemplateGroupName;
-    /**
-     * 分组名称
-     */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "分组名称")
-    @Schema(description = "分组名称")
-    private String sysTemplateGroupCode;
 
     /**
      * 模板类型
