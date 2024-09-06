@@ -3,6 +3,7 @@ package com.chua.starter.sso.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -101,13 +102,13 @@ public class UserService implements UserInfoService, Constant {
      * @return {@link UserResult}
      */
     protected UserResult loginInfo(String accessKey, SysUser user, String address) {
-        ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
+        ValueOperations stringStringValueOperations = stringRedisTemplate.opsForValue();
         String countKey = "system:user:count:" + user.getSysUserId();
         stringStringValueOperations.increment(countKey);
 
         if(null != address) {
             user.setSysUserLastIp(address);
-            user.setSysUserLongCount(NumberUtils.toInt(stringStringValueOperations.get(countKey)));
+            user.setSysUserLongCount(Converter.convertIfNecessary(stringStringValueOperations.get(countKey), Integer.class));
             sysUserMapper.updateById(user);
         }
         List<SysRole> role = getRole(user);

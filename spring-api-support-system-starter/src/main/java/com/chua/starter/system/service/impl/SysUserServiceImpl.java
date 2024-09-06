@@ -410,12 +410,24 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return ReturnResult.ok(sysUserThirdParties.stream().map(SysUserThirdParty::getSysUserThirdPartyType).distinct().toList());
     }
 
+    @Override
+    public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
+        if(StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
+            return ReturnResult.fail("登录类型不能为空");
+        }
+        if(sysUserThirdPartyMapper.delete(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId).eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType())) > 0) {
+            return ReturnResult.ok();
+        }
+        return ReturnResult.fail("解绑失败");
+    }
+
     /**
      * 获取用户信息
      *
      * @param token token
      * @return UserInfoVO
      */
+    @Override
     public UserInfoVO getUserLoginInfo(String token) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes == null || StringUtils.isBlank(token)) {

@@ -125,6 +125,17 @@ public class SysUserController {
         return sysUserService.thirdBindInfo(userId);
     }
     /**
+     * 三方绑定
+     *
+     * @param userId       userId
+     * @return 结果
+     */
+    @Operation(summary = "三方绑定解绑")
+    @PostMapping("/third/unbind")
+    public ReturnResult<Boolean> thirdBindInfo(@UserValue("userId") String userId, @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
+        return sysUserService.thirdUnbind(userId, thirdPartyUnbindRequest);
+    }
+    /**
      * 登录
      *
      * @param loginData     登录信息
