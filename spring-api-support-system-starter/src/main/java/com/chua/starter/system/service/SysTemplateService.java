@@ -56,16 +56,9 @@ public interface SysTemplateService extends IService<SysTemplate> {
     /**
      * 删除缓存
      *
-     * @param sysTemplateCategory 系统模板对象，用于删除缓存
+     * @param sysTemplate 系统模板对象，用于删除缓存
      */
-    void deleteCacheId(SysTemplateCategory sysTemplateCategory);
-
-    /**
-     * 删除缓存
-     *
-     * @param sysTemplateCategory 系统模板对象，用于删除缓存
-     */
-    void deleteCacheCode(SysTemplateCategory sysTemplateCategory);
+    void deleteCacheId(SysTemplate sysTemplate);
     /**
      * 回滚系统模板
      *
@@ -79,19 +72,19 @@ public interface SysTemplateService extends IService<SysTemplate> {
      * 根据模板组代码获取模板列表
      *
      * @param query 分页查询对象，携带分页和排序信息
-     * @param sysTemplateCategoryCode 模板组代码，用于查询模板列表
+     * @param sysDictItem2 模板组代码，用于查询模板列表
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 模板列表
      */
-    List<SysTemplate> listForItemCode(Query<SysDictItem> query, String sysTemplateCategoryCode, Set<String> roles);
+    List<SysTemplate> listForItemCode(Query<SysDictItem> query, Integer sysDictItem2, Set<String> roles);
 
     /**
      * 根据模板组ID获取模板列表
      *
      * @param query 分页查询对象，携带分页和排序信息
-     * @param sysTemplateGroupId 模板组ID，用于查询模板列表
+     * @param sysDictItem2 模板组ID，用于查询模板列表
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 模板列表
      */
-    List<SysTemplate> listForItem(Query<SysDictItem> query, Integer sysTemplateGroupId, Set<String> roles);
+    List<SysTemplate> listForItem(Query<SysDictItem> query, Integer sysDictItem2, Set<String> roles);
 }
