@@ -63,6 +63,7 @@ public class SysSmsServiceImpl implements SysSmsService {
             for (TemplateInfo datum : templateResult.getData()) {
                 SysTemplate sysTemplate = new SysTemplate();
                 sysTemplate.setSysDictItem1(sysDictItem.getSysDictItemId());
+                sysTemplate.setSysDictItem2(templateCategory.getSysDictItemId());
                 sysTemplate.setSysTemplateStatus(1);
                 sysTemplate.setSysTemplateApprove(2);
                 sysTemplate.setSysTemplateContent(datum.getTemplateContent());
@@ -73,6 +74,7 @@ public class SysSmsServiceImpl implements SysSmsService {
                 sysTemplate.setSysTemplateType(0);
                 sysTemplate.setSysTemplateDisabled(1);
                 sysTemplate.setSysTemplateOrigin("sms同步");
+                sysTemplate.setSysSecretId(sysSecret.getSysSecretId());
                 sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
                 sysTemplate.setSysDictItem2(null != templateCategory ? templateCategory.getSysDictItemId() : null);
 
