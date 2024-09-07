@@ -11,14 +11,14 @@
                  LEFT JOIN sys_dict_item sdi1 ON sdi1.sys_dict_item_id = st.sys_dict_item_id1 and sdi1.sys_dict_id = 1
                  LEFT JOIN sys_dict_item sdi3 ON sdi3.sys_dict_item_id = st.sys_dict_item_id3 and sdi3.sys_dict_id = 3
         <where>
-            <if test="query.sysDictItem1 != null">
-                AND st.sys_dict_item_id1 = #{query.sysDictItem1}
+            <if test="query.sysDictItemId1 != null">
+                AND st.sys_dict_item_id1 = #{query.sysDictItemId1}
             </if>
-            <if test="query.sysDictItem2 != null">
-                AND st.sys_dict_item_id2 = #{query.sysDictItem2}
+            <if test="query.sysDictItemId2 != null">
+                AND st.sys_dict_item_id2 = #{query.sysDictItemId2}
             </if>
-            <if test="query.sysDictItem3 != null">
-                AND st.sys_dict_item_id3 = #{query.sysDictItem3}
+            <if test="query.sysDictItemId3 != null">
+                AND st.sys_dict_item_id3 = #{query.sysDictItemId3}
             </if>
 
             <if test="query.sysTemplateName != null and query.sysTemplateName != ''">

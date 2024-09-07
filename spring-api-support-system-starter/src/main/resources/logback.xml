@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="false" scanPeriod="60000" debug="false">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
     <property name="MONITOR_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS}|%thread|%X{serverId}|%msg%n"/>
     <contextName>${project.artifactId}</contextName>
     <springProperty scope="context" name="projectArtifactId" source="spring.application.name"/>
@@ -30,7 +31,6 @@
             <pattern>${console_log_pattern_color}</pattern>
         </encoder>
 
-        <filter class="com.chua.starter.system.configuration.CustomLogbackFilter" />
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
 

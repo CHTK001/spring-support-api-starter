@@ -25,6 +25,7 @@ import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
 import com.chua.starter.system.service.SysSettingService;
+import com.chua.starter.system.setting.ExpireSetting;
 import com.chua.starter.system.setting.GuestDefaultSetting;
 import com.chua.starter.system.setting.VersionSetting;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
@@ -238,6 +239,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("config", new VersionSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());
         globalSettingFactory.register("sms", new SmtpSetting());
+        globalSettingFactory.register("expire", new ExpireSetting());
         upgrade();
     }
 
