@@ -3,6 +3,7 @@ package com.chua.starter.system.configuration;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.mdc.LogTrace;
 import com.chua.redis.support.client.RedisClient;
@@ -44,16 +45,26 @@ public class CustomLogbackFilter extends Filter<ILoggingEvent> {
         }
 
         if(null != socketSessionTemplate) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("[").append(DateTime.of(event.getTimeStamp()).toStandard()).append("]")
-                            .append(" [").append(event.getLevel()).append("] ")
-                            .append(" [").append(MDC.get(LogTrace.TRACE_ID)).append("] ")
-                            .append(" [").append(event.getThreadName()).append("] ")
-                            .append(" [").append(event.getLoggerName()).append("] ")
-                            .append(" - ")
-                            .append(event.getFormattedMessage());
-            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE+ ":LOG", stringBuilder.toString());
-            registerRedisSearch(stringBuilder.toString(), event);
+            String stringBuilder = "[" + DateTime.of(event.getTimeStamp()).toStandard() + "]" +
+                    " [" + event.getLevel() + "] " +
+                    " [" + MDC.get(LogTrace.TRACE_ID) + "] " +
+                    " [" + event.getThreadName() + "] " +
+                    " [" + event.getLoggerName() + "] " +
+                    " - " +
+                    event.getFormattedMessage();
+            JsonObject jsonObject = JsonObject.create()
+                            .fluent("level", event.getLevel().toString())
+                            .fluent("traceId", MDC.get(LogTrace.TRACE_ID))
+                            .fluent("message", event.getFormattedMessage())
+                            .fluent("logger", event.getLoggerName())
+                            .fluent("thread", event.getThreadName())
+                            .fluent("level", event.getLevel().toString())
+                            .fluent("timestamp", event.getTimeStamp())
+                            .fluent("class", event.getCallerData()[0].getClassName())
+                            .fluent("line", event.getCallerData()[0].getLineNumber());
+
+            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE+ ":LOG", jsonObject.toJSONString());
+            registerRedisSearch(stringBuilder, event);
         }
         return FilterReply.ACCEPT;
     }

@@ -35,32 +35,53 @@ public class SysTemplate extends SysBase implements Serializable {
     /**
      * 厂家ID
      */
-    @TableField(value = "sys_template_manufacturer_id")
+    @TableField(value = "sys_dict_item_id1")
     @ApiModelProperty(value = "适用于厂家类型, 字典(dictId = 1)子项")
     @Schema(description = "适用于厂家类型, 字典(dictId = 1)子项")
-    private Integer sysTemplateManufacturerId;
+    private Integer sysDictItem1;
     /**
      * 厂家名称
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "适用于厂家名称, 字典(dictId = 1)子项")
     @Schema(description = "适用于厂家名称,字典(dictId = 1)子项")
-    private String sysTemplateManufacturerName;
+    private String sysDictItem1Name;
 
     /**
      * 模板类型
      */
-    @TableField(value = "sys_template_category_id")
-    @ApiModelProperty(value = "类别")
-    @Schema(description = "类别")
-    private Integer sysTemplateCategoryId;
+    @TableField(value = "sys_dict_item_id2")
+    @ApiModelProperty(value = "类别字典表(dictId=2)")
+    @Schema(description = "类别字典表(dictId=2)")
+    private Integer sysDictItem2;
     /**
      * 模板类型
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "类别")
     @Schema(description = "类别")
-    private String sysTemplateCategoryName;
+    private String sysDictItem2Name;
+    /**
+     * 模板类型
+     */
+    @TableField(value = "sys_dict_item_id3")
+    @ApiModelProperty(value = "子类别字典表(dictId=3)")
+    @Schema(description = "子类别字典表(dictId=3)")
+    private Integer sysDictItem3;
+    /**
+     * 模板类型
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
+    private String sysDictItem3Name;
+    /**
+     * 模板类型
+     */
+    @TableField(value = "sys_secret_id")
+    @ApiModelProperty(value = "密钥ID")
+    @Schema(description = "密钥ID")
+    private Integer sysSecretId;
     /**
      * 模板优先级
      */
