@@ -31,7 +31,6 @@ public class SysSmsServiceImpl implements SysSmsService {
 
     final SmsService smsService;
     final SysTemplateService sysTemplateService;
-    final SysTemplateCategoryService sysTemplateCategoryService;
     final SysDictItemService sysDictItemService;
     @Override
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
@@ -50,8 +49,8 @@ public class SysSmsServiceImpl implements SysSmsService {
         if(null == sysDictItem) {
             return ReturnResult.error("字典不存在");
         }
-        SysTemplateCategory templateCategory = sysTemplateCategoryService.getOne(Wrappers.<SysTemplateCategory>lambdaQuery()
-                .eq(SysTemplateCategory::getSysTemplateCategoryCode, "SMS")
+        SysDictItem templateCategory = sysDictItemService.getOne(Wrappers.<SysDictItem>lambdaQuery()
+                .eq(SysDictItem::getSysDictItemCode, "SMS")
         );
         PushSetting pushSetting = PushSetting.builder()
                 .accessKeyId(sysSecret.getSysSecretAppId())
@@ -75,7 +74,7 @@ public class SysSmsServiceImpl implements SysSmsService {
                 sysTemplate.setSysTemplateDisabled(1);
                 sysTemplate.setSysTemplateOrigin("sms同步");
                 sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
-                sysTemplate.setSysDictItem2(null != templateCategory ? templateCategory.getSysTemplateCategoryId() : null);
+                sysTemplate.setSysDictItem2(null != templateCategory ? templateCategory.getSysDictItemId() : null);
 
                 LambdaQueryWrapper<SysTemplate> wrapper = Wrappers.<SysTemplate>lambdaQuery()
                         .eq(SysTemplate::getSysDictItem2, sysTemplate.getSysDictItem2())
