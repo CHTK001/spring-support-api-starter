@@ -29,17 +29,11 @@ public interface SysTemplateMapper extends BaseMapper<SysTemplate> {
             @Param("query") SysTemplate sysTemplate,
             @Param("isAdmin") boolean isAdmin);
 
-    /**
-     * 根据模板分组查询模板
-     * @param sysTemplateCategoryCode 模板分组
-     * @return 模板列表
-     */
-    List<SysTemplate> listForItemCode(@Param("sysTemplateCategoryCode") String sysTemplateCategoryCode);
 
     /**
      * 根据模板分组查询模板
-     * @param sysTemplateCategoryId 类别ID
+     * @param sysDictItem2 类别ID
      * @return 模板列表
      */
-    List<SysTemplate> listForItem(@Param("sysTemplateCategoryId")Integer sysTemplateCategoryId);
+    List<SysTemplate> listForItem(@Param("sysDictItem2")Integer sysDictItem2);
 }

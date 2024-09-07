@@ -47,34 +47,19 @@ public class SysTemplateController {
 
 
     /**
-     * 字典子项列表
-     *
-     * @return 字典子项列表
-     */
-    @Operation(summary = "模板分组列表")
-    @GetMapping("/code")
-    @ApiCacheKey("'sys:category:code:' + #sysTemplateCategoryCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<List<SysTemplate>> code(@ParameterObject Query<SysDictItem> query, String sysTemplateCategoryCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == sysTemplateCategoryCode) {
-            return ReturnResult.illegal("模板分组不能为空");
-        }
-        return ReturnResult.ok(sysTemplateService.listForItemCode(query, sysTemplateCategoryCode, roles));
-    }
-    /**
      * 模板分组列表
      *
      * @return 模板分组列表
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/list")
-    @ApiCacheKey("'sys:category:id:' + #sysTemplateCategoryId")
+    @ApiCacheKey("'sys:category:id:' + #sysDictItem2")
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysTemplateCategoryId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        if(null == sysTemplateCategoryId) {
+    public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictItem2, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictItem2) {
             return ReturnResult.illegal("模板分组不能为空");
         }
-        return ReturnResult.ok(sysTemplateService.listForItem(query, sysTemplateCategoryId, roles));
+        return ReturnResult.ok(sysTemplateService.listForItem(query, sysDictItem2, roles));
     }
 
     /**
