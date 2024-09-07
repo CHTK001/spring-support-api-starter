@@ -7,7 +7,7 @@
                sdi1.sys_dict_item_name         sysDictItem1Name,
                sdi3.sys_dict_item_name         sysDictItem3Name
         FROM sys_template st
-                LEFT JOIN sys_dict_item sdi2 ON st.sys_dict_item_id2 = sdi2.sys_dict_item_id  and sdi1.sys_dict_id = 1
+                LEFT JOIN sys_dict_item sdi2 ON st.sys_dict_item_id2 = sdi2.sys_dict_item_id  and sdi2.sys_dict_id = 1
                  LEFT JOIN sys_dict_item sdi1 ON sdi1.sys_dict_item_id = st.sys_dict_item_id1 and sdi1.sys_dict_id = 1
                  LEFT JOIN sys_dict_item sdi3 ON sdi1.sys_dict_item_id = st.sys_dict_item_id3 and sdi1.sys_dict_id = 3
         <where>
@@ -62,29 +62,12 @@
 
     </select>
 
-    <select id="listForItemCode" resultType="com.chua.starter.system.entity.SysTemplate">
-        SELECT st.*
-        FROM sys_template st
-                 LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
-        WHERE st.sys_template_delete = 0
-          AND st.sys_template_approve = 2
-        <if test="sysTemplateCategoryCode != null and sysTemplateCategoryCode != ''">
-            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id
-                                                          FROM sys_template_category
-                                                          WHERE sys_template_category_code = #{sysTemplateCategoryCode}))
-        </if>
-    </select>
-
     <select id="listForItem" resultType="com.chua.starter.system.entity.SysTemplate">
         SELECT st.*
         FROM sys_template st
-                 LEFT JOIN sys_template_category stg ON st.sys_template_category_id = stg.sys_template_category_id
+        LEFT JOIN sys_dict_item sdi2 ON sdi2.sys_dict_item_id = st.sys_dict_item_id1 and sdi2.sys_dict_id = 2
         WHERE st.sys_template_delete = 0
-          AND st.sys_template_approve = 2
-        <if test="sysTemplateCategoryId != null">
-            AND FIND_IN_SET(st.sys_template_category_id, (SELECT stg.sys_template_category_tree_id
-                                                          FROM sys_template_category
-                                                          WHERE sys_template_category_code = #{sysTemplateCategoryId}))
-        </if>
+        AND st.sys_template_approve = 2
+        AND st.sys_dict_item_id2 = #{sysDictItem2}
     </select>
 </mapper>
