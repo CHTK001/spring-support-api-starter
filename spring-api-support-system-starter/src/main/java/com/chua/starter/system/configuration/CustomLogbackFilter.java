@@ -3,7 +3,7 @@ package com.chua.starter.system.configuration;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.mdc.LogTrace;
 import com.chua.redis.support.client.RedisClient;
@@ -13,6 +13,7 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.redis.support.service.RedisSearchService;
+import com.chua.starter.system.dto.event.LogEvent;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 
@@ -52,24 +53,22 @@ public class CustomLogbackFilter extends Filter<ILoggingEvent> {
                     " [" + event.getLoggerName() + "] " +
                     " - " +
                     event.getFormattedMessage();
-            JsonObject jsonObject = JsonObject.create()
-                            .fluent("level", event.getLevel().toString())
-                            .fluent("traceId", MDC.get(LogTrace.TRACE_ID))
-                            .fluent("message", event.getFormattedMessage())
-                            .fluent("logger", event.getLoggerName())
-                            .fluent("thread", event.getThreadName())
-                            .fluent("level", event.getLevel().toString())
-                            .fluent("timestamp", event.getTimeStamp())
-                            .fluent("class", event.getCallerData()[0].getClassName())
-                            .fluent("line", event.getCallerData()[0].getLineNumber());
-
-            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE+ ":LOG", jsonObject.toJSONString());
-            registerRedisSearch(stringBuilder, event);
+            LogEvent logEvent = new LogEvent();
+            logEvent.setLine(event.getCallerData()[0].getLineNumber());
+            logEvent.setMessage(stringBuilder);
+            logEvent.setTraceId(MDC.get(LogTrace.TRACE_ID));
+            logEvent.setClassName(event.getCallerData()[0].getClassName());
+            logEvent.setLevel(event.getLevel().toString());
+            logEvent.setThread(event.getThreadName());
+            logEvent.setLogger(event.getLoggerName());
+            logEvent.setTimestamp(event.getTimeStamp());
+            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE+ ":LOG", Json.toJSONString(logEvent));
+            registerRedisSearch(logEvent);
         }
         return FilterReply.ACCEPT;
     }
 
-    private void registerRedisSearch(String logMessage, ILoggingEvent event) {
+    private void registerRedisSearch(LogEvent logEvent) {
         checkSearch();
         if(null != redisSearchService) {
             try {
@@ -78,7 +77,7 @@ public class CustomLogbackFilter extends Filter<ILoggingEvent> {
             }
 
             try {
-                registerDocument(logMessage, event);
+                registerDocument(logEvent);
             } catch (Exception ignored) {
             }
         }
@@ -86,14 +85,19 @@ public class CustomLogbackFilter extends Filter<ILoggingEvent> {
 
     /**
      * 注册文档
-     * @param logMessage 日志信息
-     * @param event 事件
+     * @param logEvent 日志信息
      */
-    private void registerDocument(String logMessage, ILoggingEvent event) {
+    private void registerDocument(LogEvent logEvent) {
         Map<String, String> document = new HashMap<>(3);
-        document.put("text",  logMessage);
-        document.put("timestamp", String.valueOf(event.getTimeStamp()));
-        document.put("level", event.getLevel().toString());
+        document.put("message",  logEvent.getMessage());
+        document.put("timestamp", String.valueOf(logEvent.getTimestamp()));
+        document.put("level", logEvent.getLevel());
+        document.put("traceId", logEvent.getTraceId());
+        document.put("className", logEvent.getClassName());
+        document.put("applicationActive", logEvent.getApplicationActive());
+        document.put("applicationHost", logEvent.getApplicationHost());
+        document.put("applicationPort", String.valueOf(logEvent.getApplicationPort()));
+        document.put("applicationName", logEvent.getApplicationName());
         redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + applicationName, document);
     }
 
@@ -105,8 +109,14 @@ public class CustomLogbackFilter extends Filter<ILoggingEvent> {
         searchIndex.setName(LOG_INDEX_NAME_PREIX + applicationName);
         searchIndex.setLanguage("chinese");
         SearchSchema searchSchema = new SearchSchema();
-        searchSchema.addTextField("text", 10);
+        searchSchema.addTextField("message", 10);
         searchSchema.addTextField("level", 1);
+        searchSchema.addTextField("className", 1);
+        searchSchema.addTextField("traceId", 10);
+        searchSchema.addTextField("applicationName", 1);
+        searchSchema.addTextField("applicationPort", 1);
+        searchSchema.addTextField("applicationHost", 1);
+        searchSchema.addTextField("applicationActive", 1);
         searchSchema.addSortableNumericField("timestamp");
         searchIndex.setSchema(searchSchema);
         redisSearchService.createIndex(searchIndex);

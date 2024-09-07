@@ -1,5 +1,6 @@
 package com.chua.starter.system.configuration;
 
+import com.chua.common.support.json.Json;
 import com.chua.redis.support.client.RedisClient;
 import com.chua.redis.support.search.SearchIndex;
 import com.chua.redis.support.search.SearchSchema;
@@ -8,6 +9,7 @@ import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.datasource.spy.SimpleAppender;
 import com.chua.starter.redis.support.service.RedisSearchService;
+import com.chua.starter.system.dto.event.SqlEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -48,14 +50,16 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
     public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {
         if(null != socketSessionTemplate) {
             if(!sql.contains("SUPER_ADMIN")) {
-                socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + ":SQL", sql);
-                registerRedisSearch(sql);
+                SqlEvent sqlEvent = new SqlEvent();
+                sqlEvent.setSql(sql);
+                socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + ":SQL", Json.toJSONString(sqlEvent));
+                registerRedisSearch(sqlEvent);
             }
         }
         return super.formatMessage(connectionId, now, elapsed, category, prepared, sql, url);
     }
 
-    private void registerRedisSearch(String sql) {
+    private void registerRedisSearch(SqlEvent sqlEvent) {
         if(null != redisClient) {
             if(null ==  redisSearchService) {
                 redisSearchService = SpringBeanUtils.getBean(RedisSearchService.class);
@@ -67,7 +71,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
             }
 
             try {
-                registerDocument(sql);
+                registerDocument(sqlEvent);
             } catch (Exception ignored) {
             }
 
@@ -75,12 +79,16 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
         }
     }
 
-    private void registerDocument(String sql) {
+    private void registerDocument(SqlEvent sqlEvent) {
 
         try {
             Map<String, String> document = new HashMap<>(2);
-            document.put("text",  sql);
+            document.put("sql",  sqlEvent.getSql());
             document.put("timestamp", String.valueOf(System.currentTimeMillis()));
+            document.put("applicationActive", sqlEvent.getApplicationActive());
+            document.put("applicationHost", sqlEvent.getApplicationHost());
+            document.put("applicationPort", String.valueOf(sqlEvent.getApplicationPort()));
+            document.put("applicationName", sqlEvent.getApplicationName());
             redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + applicationName, document);
         } catch (Exception ignored) {
         }
@@ -92,7 +100,11 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
             searchIndex.setName(LOG_INDEX_NAME_PREIX + applicationName);
             searchIndex.setLanguage("chinese");
             SearchSchema searchSchema = new SearchSchema();
-            searchSchema.addTextField("text", 10);
+            searchSchema.addTextField("sql", 10);
+            searchSchema.addTextField("applicationName", 1);
+            searchSchema.addTextField("applicationPort", 1);
+            searchSchema.addTextField("applicationHost", 1);
+            searchSchema.addTextField("applicationActive", 1);
             searchSchema.addSortableNumericField("timestamp");
             searchIndex.setSchema(searchSchema);
             redisSearchService.createIndex(searchIndex);
