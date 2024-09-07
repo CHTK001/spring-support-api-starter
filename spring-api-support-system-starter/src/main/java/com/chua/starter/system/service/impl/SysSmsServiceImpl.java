@@ -11,11 +11,9 @@ import com.chua.starter.service.SmsService;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysSecret;
 import com.chua.starter.system.entity.SysTemplate;
-import com.chua.starter.system.entity.SysTemplateCategory;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import com.chua.starter.system.service.SysDictItemService;
 import com.chua.starter.system.service.SysSmsService;
-import com.chua.starter.system.service.SysTemplateCategoryService;
 import com.chua.starter.system.service.SysTemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,7 +63,7 @@ public class SysSmsServiceImpl implements SysSmsService {
             TemplateResult templateResult = templateResultReturnResult.getData();
             for (TemplateInfo datum : templateResult.getData()) {
                 SysTemplate sysTemplate = new SysTemplate();
-                sysTemplate.setSysTemplateManufacturerId(sysDictItem.getSysDictItemId());
+                sysTemplate.setSysDictItem1(sysDictItem.getSysDictItemId());
                 sysTemplate.setSysTemplateStatus(1);
                 sysTemplate.setSysTemplateApprove(2);
                 sysTemplate.setSysTemplateContent(datum.getTemplateContent());
@@ -77,12 +75,12 @@ public class SysSmsServiceImpl implements SysSmsService {
                 sysTemplate.setSysTemplateDisabled(1);
                 sysTemplate.setSysTemplateOrigin("sms同步");
                 sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
-                sysTemplate.setSysTemplateCategoryId(null != templateCategory ? templateCategory.getSysTemplateCategoryId() : null);
+                sysTemplate.setSysDictItem2(null != templateCategory ? templateCategory.getSysTemplateCategoryId() : null);
 
                 LambdaQueryWrapper<SysTemplate> wrapper = Wrappers.<SysTemplate>lambdaQuery()
-                        .eq(SysTemplate::getSysTemplateCategoryId, sysTemplate.getSysTemplateCategoryId())
+                        .eq(SysTemplate::getSysDictItem2, sysTemplate.getSysDictItem2())
                         .eq(SysTemplate::getSysTemplateCode, sysTemplate.getSysTemplateCode())
-                        .eq(SysTemplate::getSysTemplateManufacturerId, sysTemplate.getSysTemplateManufacturerId());
+                        .eq(SysTemplate::getSysDictItem1, sysTemplate.getSysDictItem1());
 
                 if(sysTemplateService.count(wrapper) > 0) {
                     try {
