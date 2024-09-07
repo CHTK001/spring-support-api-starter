@@ -3,15 +3,22 @@
 <mapper namespace="com.chua.starter.system.mapper.SysTemplateMapper">
     <select id="selectPageForRoles" resultType="com.chua.starter.system.entity.SysTemplate">
         SELECT st.*,
-               stc.sys_template_category_name sysTemplateCategoryName,
-               sdi.sys_dict_item_name         sysTemplateManufacturerName
+               sdi2.sys_dict_item_name sysDictItem2Name,
+               sdi1.sys_dict_item_name         sysDictItem1Name,
+               sdi3.sys_dict_item_name         sysDictItem3Name
         FROM sys_template st
-                LEFT JOIN sys_template_category stc ON st.sys_template_category_id = stc.sys_template_category_id
-                 LEFT JOIN sys_dict_item sdi
-                           ON sdi.sys_dict_item_id = st.sys_template_manufacturer_id and sdi.sys_dict_id = 1
+                LEFT JOIN sys_dict_item sdi2 ON st.sys_dict_item_id2 = sdi2.sys_dict_item_id  and sdi1.sys_dict_id = 1
+                 LEFT JOIN sys_dict_item sdi1 ON sdi1.sys_dict_item_id = st.sys_dict_item_id1 and sdi1.sys_dict_id = 1
+                 LEFT JOIN sys_dict_item sdi3 ON sdi1.sys_dict_item_id = st.sys_dict_item_id3 and sdi1.sys_dict_id = 3
         <where>
-            <if test="query.sysTemplateCategoryId != null">
-                AND st.sys_template_category_id = #{query.sysTemplateCategoryId}
+            <if test="query.sysDictItem1 != null">
+                AND st.sys_dict_item_id1 = #{query.sysDictItem1}
+            </if>
+            <if test="query.sysDictItem2 != null">
+                AND st.sys_dict_item_id2 = #{query.sysDictItem2}
+            </if>
+            <if test="query.sysDictItem3 != null">
+                AND st.sys_dict_item_id3 = #{query.sysDictItem3}
             </if>
 
             <if test="query.sysTemplateName != null and query.sysTemplateName != ''">

@@ -10,8 +10,6 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
-import com.chua.starter.system.entity.SysTemplateCategory;
-import com.chua.starter.system.mapper.SysTemplateCategoryMapper;
 import com.chua.starter.system.mapper.SysTemplateMapper;
 import com.chua.starter.system.service.SysTemplateService;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +47,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     @Override
     public ReturnResult<Boolean> delete(Long sysTemplateId) {
         SysTemplate sysTemplate = baseMapper.selectById(sysTemplateId);
-        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysDictItem2());
         boolean b = baseMapper.deleteById(sysTemplateId) > 0;
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);
@@ -73,7 +71,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
         }
 
         sysTemplate.setSysTemplateDelete(null);
-        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysDictItem2());
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);
         return ReturnResult.of(baseMapper.updateById(sysTemplate) > 0);
@@ -96,7 +94,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
         }
 
         sysTemplate.setSysTemplateDelete(0);
-        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysTemplateCategoryId());
+        SysTemplateCategory templateGroup = sysTemplateCategoryMapper.selectById(sysTemplate.getSysDictItem2());
         baseMapper.insert(sysTemplate);
         sysTemplateService.deleteCacheId(templateGroup);
         sysTemplateService.deleteCacheCode(templateGroup);
