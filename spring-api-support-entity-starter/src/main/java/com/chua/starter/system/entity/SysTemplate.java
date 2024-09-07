@@ -38,7 +38,7 @@ public class SysTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_id1")
     @ApiModelProperty(value = "适用于厂家类型, 字典(dictId = 1)子项")
     @Schema(description = "适用于厂家类型, 字典(dictId = 1)子项")
-    private Integer sysDictItem1;
+    private Integer sysDictItemId1;
     /**
      * 厂家名称
      */
@@ -53,7 +53,7 @@ public class SysTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_id2")
     @ApiModelProperty(value = "类别字典表(dictId=2)")
     @Schema(description = "类别字典表(dictId=2)")
-    private Integer sysDictItem2;
+    private Integer sysDictItemId2;
     /**
      * 模板类型
      */
@@ -67,7 +67,7 @@ public class SysTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_id3")
     @ApiModelProperty(value = "子类别字典表(dictId=3)")
     @Schema(description = "子类别字典表(dictId=3)")
-    private Integer sysDictItem3;
+    private Integer sysDictItemId3;
     /**
      * 模板类型
      */
