@@ -23,4 +23,9 @@ public class SqlEvent extends ProjectEvent implements Serializable {
      */
     private String sql;
 
+    /**
+     * 时间戳
+     */
+    private long timestamp = System.currentTimeMillis();
+
 }

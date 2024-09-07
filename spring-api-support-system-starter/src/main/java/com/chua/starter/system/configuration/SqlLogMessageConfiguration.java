@@ -1,15 +1,18 @@
 package com.chua.starter.system.configuration;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.utils.NumberUtils;
 import com.chua.redis.support.client.RedisClient;
 import com.chua.redis.support.search.SearchIndex;
 import com.chua.redis.support.search.SearchSchema;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.datasource.spy.SimpleAppender;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import com.chua.starter.system.dto.event.SqlEvent;
+import com.chua.starter.system.setting.ExpireSetting;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -22,6 +25,7 @@ import static com.chua.starter.system.constant.SystemConstant.SUPER_ADMIN_EVENT_
 
 /**
  * sql日志
+ *
  * @author CH
  * @since 2024/9/6
  */
@@ -48,20 +52,18 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
 
     @Override
     public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {
-        if(null != socketSessionTemplate) {
-            if(!sql.contains("SUPER_ADMIN")) {
-                SqlEvent sqlEvent = new SqlEvent();
-                sqlEvent.setSql(sql);
-                socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + ":SQL", Json.toJSONString(sqlEvent));
-                registerRedisSearch(sqlEvent);
-            }
+        if (null != socketSessionTemplate) {
+            SqlEvent sqlEvent = new SqlEvent();
+            sqlEvent.setSql(sql);
+            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + "_SQL", Json.toJSONString(sqlEvent));
+            registerRedisSearch(sqlEvent);
         }
         return super.formatMessage(connectionId, now, elapsed, category, prepared, sql, url);
     }
 
     private void registerRedisSearch(SqlEvent sqlEvent) {
-        if(null != redisClient) {
-            if(null ==  redisSearchService) {
+        if (null != redisClient) {
+            if (null == redisSearchService) {
                 redisSearchService = SpringBeanUtils.getBean(RedisSearchService.class);
             }
 
@@ -83,12 +85,14 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
 
         try {
             Map<String, String> document = new HashMap<>(2);
-            document.put("sql",  sqlEvent.getSql());
+            document.put("sql", sqlEvent.getSql());
             document.put("timestamp", String.valueOf(System.currentTimeMillis()));
             document.put("applicationActive", sqlEvent.getApplicationActive());
             document.put("applicationHost", sqlEvent.getApplicationHost());
             document.put("applicationPort", String.valueOf(sqlEvent.getApplicationPort()));
             document.put("applicationName", sqlEvent.getApplicationName());
+            ExpireSetting expire = GlobalSettingFactory.getInstance().get("expire", ExpireSetting.class);
+            document.put("expire", String.valueOf(NumberUtils.defaultIfNullOrPositive(expire.getSql(), 86400 * 30)));
             redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + applicationName, document);
         } catch (Exception ignored) {
         }
