@@ -62,8 +62,8 @@ public class SysSmsServiceImpl implements SysSmsService {
             TemplateResult templateResult = templateResultReturnResult.getData();
             for (TemplateInfo datum : templateResult.getData()) {
                 SysTemplate sysTemplate = new SysTemplate();
-                sysTemplate.setSysDictItem1(sysDictItem.getSysDictItemId());
-                sysTemplate.setSysDictItem2(templateCategory.getSysDictItemId());
+                sysTemplate.setSysDictItemId1(sysDictItem.getSysDictItemId());
+                sysTemplate.setSysDictItemId2(templateCategory.getSysDictItemId());
                 sysTemplate.setSysTemplateStatus(1);
                 sysTemplate.setSysTemplateApprove(2);
                 sysTemplate.setSysTemplateContent(datum.getTemplateContent());
@@ -71,17 +71,19 @@ public class SysSmsServiceImpl implements SysSmsService {
                 sysTemplate.setSysTemplateName(datum.getTemplateName());
                 sysTemplate.setSysTemplateSort(2);
                 sysTemplate.setSysTemplateDefault(0);
+                sysTemplate.setSysTemplateDelete(0);
                 sysTemplate.setSysTemplateType(0);
                 sysTemplate.setSysTemplateDisabled(1);
                 sysTemplate.setSysTemplateOrigin("sms同步");
                 sysTemplate.setSysSecretId(sysSecret.getSysSecretId());
                 sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
-                sysTemplate.setSysDictItem2(null != templateCategory ? templateCategory.getSysDictItemId() : null);
+                sysTemplate.setSysDictItemId2(null != templateCategory ? templateCategory.getSysDictItemId() : null);
 
                 LambdaQueryWrapper<SysTemplate> wrapper = Wrappers.<SysTemplate>lambdaQuery()
-                        .eq(SysTemplate::getSysDictItem2, sysTemplate.getSysDictItem2())
+                        .eq(SysTemplate::getSysDictItemId2, sysTemplate.getSysDictItemId2())
                         .eq(SysTemplate::getSysTemplateCode, sysTemplate.getSysTemplateCode())
-                        .eq(SysTemplate::getSysDictItem1, sysTemplate.getSysDictItem1());
+                        .eq(SysTemplate::getSysDictItemId1, sysTemplate.getSysDictItemId1())
+                        .eq(null != sysTemplate.getSysDictItemId3() , SysTemplate::getSysDictItemId3, sysTemplate.getSysDictItemId3());
 
                 if(sysTemplateService.count(wrapper) > 0) {
                     try {
