@@ -50,6 +50,14 @@ public class SysSecret extends SysBase implements Serializable {
     @Size(max = 255, message = "编码, 可自行作为唯一标识最大长度要小于 255")
     private String sysSecretCode;
     /**
+     * 功能
+     */
+    @TableField(value = "sys_secret_function")
+    @ApiModelProperty(value = "功能")
+    @Schema(description = "功能")
+    @Size(max = 255, message = "功能最大长度要小于 255")
+    private String sysSecretFunction;
+    /**
      * api地址
      */
     @TableField(value = "sys_secret_api_address")
