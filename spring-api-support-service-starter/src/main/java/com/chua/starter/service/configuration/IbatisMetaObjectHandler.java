@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.chua.common.support.constant.Action;

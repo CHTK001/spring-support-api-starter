@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.NumberUtils;
@@ -11,6 +11,7 @@ import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.datasource.spy.SimpleAppender;
 import com.chua.starter.redis.support.service.RedisSearchService;
+import com.chua.starter.service.constant.SystemConstant;
 import com.chua.starter.system.dto.event.SqlEvent;
 import com.chua.starter.system.setting.ExpireSetting;
 import org.springframework.beans.BeansException;
@@ -20,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.chua.redis.support.constant.RedisConstant.REDIS_SEARCH_PREFIX;
-import static com.chua.starter.system.constant.SystemConstant.SQL_NAME;
-import static com.chua.starter.system.constant.SystemConstant.SUPER_ADMIN_EVENT_SQL_MESSAGE;
 
 /**
  * sql日志
@@ -35,7 +34,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
     private RedisClient redisClient;
     private SocketSessionTemplate socketSessionTemplate;
     private RedisSearchService redisSearchService;
-    public static final String LOG_INDEX_NAME_PREIX = REDIS_SEARCH_PREFIX + SQL_NAME + ":";
+    public static final String LOG_INDEX_NAME_PREIX = REDIS_SEARCH_PREFIX + SystemConstant.SQL_NAME + ":";
 
     public SqlLogMessageConfiguration() {
         ApplicationContext applicationContext = SpringBeanUtils.getApplicationContext();
@@ -55,7 +54,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
         if (null != socketSessionTemplate) {
             SqlEvent sqlEvent = new SqlEvent();
             sqlEvent.setSql(sql);
-            socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + "_SQL", Json.toJSONString(sqlEvent));
+            socketSessionTemplate.send(SystemConstant.SUPER_ADMIN_EVENT_SQL_MESSAGE + "_SQL", Json.toJSONString(sqlEvent));
             registerRedisSearch(sqlEvent);
         }
         return super.formatMessage(connectionId, now, elapsed, category, prepared, sql, url);
@@ -101,7 +100,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
     private void registerIndex() {
         try {
             SearchIndex searchIndex = new SearchIndex();
-            searchIndex.setName(LOG_INDEX_NAME_PREIX + applicationName);
+            searchIndex.setName(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid());
             searchIndex.setLanguage("chinese");
             SearchSchema searchSchema = new SearchSchema();
             searchSchema.addTextField("sql", 10);

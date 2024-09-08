@@ -31,7 +31,7 @@ import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-import static com.chua.starter.system.constant.SystemConstant.CACHE_WITH_REDIS;
+import static com.chua.starter.service.constant.SystemConstant.CACHE_WITH_REDIS;
 
 /**
  * 角色接口
