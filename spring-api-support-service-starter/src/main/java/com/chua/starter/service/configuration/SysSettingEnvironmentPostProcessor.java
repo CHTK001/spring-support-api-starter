@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;

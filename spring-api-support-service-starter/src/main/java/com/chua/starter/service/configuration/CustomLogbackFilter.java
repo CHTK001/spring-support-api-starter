@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -14,6 +14,7 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.redis.support.service.RedisSearchService;
+import com.chua.starter.service.constant.SystemConstant;
 import com.chua.starter.system.dto.event.LogEvent;
 import com.chua.starter.system.setting.ExpireSetting;
 import org.slf4j.MDC;
@@ -24,8 +25,6 @@ import java.util.Map;
 
 import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.redis.support.constant.RedisConstant.REDIS_SEARCH_PREFIX;
-import static com.chua.starter.system.constant.SystemConstant.LOG_NAME;
-import static com.chua.starter.system.constant.SystemConstant.SUPER_ADMIN_EVENT_SQL_MESSAGE;
 
 /**
  * 自定义日志
@@ -45,7 +44,7 @@ public class CustomLogbackFilter extends TurboFilter {
         this.applicationName = Project.getInstance().getApplicationName();
     }
 
-    public static final String LOG_INDEX_NAME_PREIX = REDIS_SEARCH_PREFIX + LOG_NAME + ":";
+    public static final String LOG_INDEX_NAME_PREIX = REDIS_SEARCH_PREFIX + SystemConstant.LOG_NAME + ":";
 
     @Override
     public FilterReply decide(Marker marker, Logger logger, Level level, String format, Object[] params, Throwable t) {
@@ -70,7 +69,7 @@ public class CustomLogbackFilter extends TurboFilter {
         logEvent.setThread(threadName);
         logEvent.setLogger(logger.getName());
         logEvent.setTimestamp(System.currentTimeMillis());
-        socketSessionTemplate.send(SUPER_ADMIN_EVENT_SQL_MESSAGE + "_LOG", Json.toJSONString(logEvent));
+        socketSessionTemplate.send(SystemConstant.SUPER_ADMIN_EVENT_SQL_MESSAGE + "_LOG", Json.toJSONString(logEvent));
         registerRedisSearch(logEvent);
         return FilterReply.ACCEPT;
     }
@@ -113,7 +112,7 @@ public class CustomLogbackFilter extends TurboFilter {
      */
     private void registerIndex() {
         SearchIndex searchIndex = new SearchIndex();
-        searchIndex.setName(LOG_INDEX_NAME_PREIX + applicationName);
+        searchIndex.setName(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid());
         searchIndex.setLanguage("chinese");
         SearchSchema searchSchema = new SearchSchema();
         searchSchema.addTextField("message", 10);
