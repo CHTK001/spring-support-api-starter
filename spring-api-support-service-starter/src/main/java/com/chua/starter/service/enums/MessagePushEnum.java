@@ -1,4 +1,4 @@
-package com.chua.starter.system.enums;
+package com.chua.starter.service.enums;
 
 import lombok.AllArgsConstructor;
 

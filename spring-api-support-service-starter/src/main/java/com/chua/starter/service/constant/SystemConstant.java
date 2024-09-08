@@ -1,4 +1,4 @@
-package com.chua.starter.system.constant;
+package com.chua.starter.service.constant;
 
 /**
  * 系统常量

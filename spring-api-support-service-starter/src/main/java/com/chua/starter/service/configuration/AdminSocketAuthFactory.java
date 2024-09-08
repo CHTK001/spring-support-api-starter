@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.auth.SocketAuthFactory;

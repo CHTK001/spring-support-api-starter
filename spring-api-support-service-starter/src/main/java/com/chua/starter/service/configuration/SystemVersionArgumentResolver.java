@@ -1,8 +1,8 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.configuration.resolver.VersionArgumentResolver;
-import com.chua.starter.system.setting.VersionSetting;
+import com.chua.starter.service.setting.VersionSetting;
 import org.springframework.context.annotation.Configuration;
 
 /**

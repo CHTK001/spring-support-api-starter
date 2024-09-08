@@ -1,4 +1,4 @@
-package com.chua.starter.system.setting;
+package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
 import lombok.Data;

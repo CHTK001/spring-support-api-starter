@@ -1,4 +1,4 @@
-package com.chua.starter.system.configuration;
+package com.chua.starter.service.configuration;
 
 import ch.qos.logback.classic.LoggerContext;
 import com.chua.socketio.support.session.SocketSessionTemplate;
