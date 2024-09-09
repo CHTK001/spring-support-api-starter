@@ -17,7 +17,7 @@ import com.chua.starter.system.setting.ExpireSetting;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.chua.redis.support.constant.RedisConstant.REDIS_SEARCH_PREFIX;
@@ -53,6 +53,22 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
     public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {
         if (null != socketSessionTemplate) {
             SqlEvent sqlEvent = new SqlEvent();
+            Thread thread = Thread.currentThread();
+            StackTraceElement[] stackTrace = thread.getStackTrace();
+            sqlEvent.setThread(thread.getName());
+            sqlEvent.setClassName(stackTrace[0].getClassName());
+            String newSql = sql.toLowerCase().trim();
+            if(newSql.startsWith("select")) {
+                sqlEvent.setEvent("SELECT");
+            } else if(newSql.startsWith("insert")) {
+                sqlEvent.setEvent("INSERT");
+            } else if(newSql.startsWith("update")) {
+                sqlEvent.setEvent("UPDATE");
+            } else if(newSql.startsWith("delete")) {
+                sqlEvent.setEvent("DELETE");
+            } else {
+                sqlEvent.setEvent("OTHER");
+            }
             sqlEvent.setSql(sql);
             socketSessionTemplate.send(SystemConstant.SUPER_ADMIN_EVENT_SQL_MESSAGE + "_SQL", Json.toJSONString(sqlEvent));
             registerRedisSearch(sqlEvent);
@@ -83,8 +99,11 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
     private void registerDocument(SqlEvent sqlEvent) {
 
         try {
-            Map<String, String> document = new HashMap<>(2);
-            document.put("sql", sqlEvent.getSql());
+            Map<String, String> document = new LinkedHashMap<>();
+            document.put("text", sqlEvent.getSql());
+            document.put("type", "sql");
+            document.put("className", sqlEvent.getClassName());
+            document.put("thread", sqlEvent.getThread());
             document.put("timestamp", String.valueOf(System.currentTimeMillis()));
             document.put("applicationActive", sqlEvent.getApplicationActive());
             document.put("applicationHost", sqlEvent.getApplicationHost());
@@ -92,7 +111,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
             document.put("applicationName", sqlEvent.getApplicationName());
             ExpireSetting expire = GlobalSettingFactory.getInstance().get("expire", ExpireSetting.class);
             document.put("expire", String.valueOf(NumberUtils.defaultIfNullOrPositive(expire.getSql(), 86400 * 30)));
-            redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + applicationName, document);
+            redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid(), document);
         } catch (Exception ignored) {
         }
     }
@@ -103,7 +122,11 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
             searchIndex.setName(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid());
             searchIndex.setLanguage("chinese");
             SearchSchema searchSchema = new SearchSchema();
-            searchSchema.addTextField("sql", 10);
+            searchSchema.addTextField("text", 10);
+            searchSchema.addTextField("event", 10);
+            searchSchema.addTextField("type", 10);
+            searchSchema.addTextField("className", 10);
+            searchSchema.addTextField("thread", 10);
             searchSchema.addTextField("applicationName", 1);
             searchSchema.addTextField("applicationPort", 1);
             searchSchema.addTextField("applicationHost", 1);
