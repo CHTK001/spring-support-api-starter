@@ -59,11 +59,11 @@ public class EventRequest extends ProjectEvent {
     public String getKeyword() {
         List<String> line = new LinkedList<>();
         if (StringUtils.isNotBlank(keyword)) {
-            line.add(keyword);
+            line.add("text:" + keyword);
         }
 
 
-        if (null != startTime && null != endTime) {
+         if (null != startTime && null != endTime) {
             line.add("timestamp:[" + startTime + "~" + endTime + "]");
         } else if (null != startTime) {
             line.add("timestamp >=" + startTime + "]");
@@ -74,6 +74,8 @@ public class EventRequest extends ProjectEvent {
         if(StringUtils.isNotBlank(action)) {
             line.add("event:" + action);
         }
+
+        line.add("type:" +  event);
 
         return StringUtils.join(line, " AND ");
     }
