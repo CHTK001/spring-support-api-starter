@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 09/09/2024 09:28:32
+ Date: 09/09/2024 14:45:41
 */
 
 SET NAMES utf8mb4;
@@ -63,14 +63,15 @@ CREATE TABLE `sys_dict`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dict
 -- ----------------------------
-INSERT INTO `sys_dict` VALUES (1, '厂家', 1, 0, 'CJ', '三方厂家', '', 0, 'sa', NULL, '2024-08-31 20:29:00', '2024-08-31 20:35:57', 'sa', 1);
-INSERT INTO `sys_dict` VALUES (2, '模板类型', 1, 0, 'MBLX', '', '', 0, 'sa', NULL, '2024-09-01 18:16:46', NULL, NULL, NULL);
-INSERT INTO `sys_dict` VALUES (3, '短信', 1, 0, 'DX', '', '', 2, 'sa', 1, '2024-09-07 09:07:09', '2024-09-09 09:23:22', 'sa', 1);
+INSERT INTO `sys_dict` VALUES (1, '厂家', 1, 0, 'CHANG_JIA', '三方厂家', '', 0, 'sa', NULL, '2024-08-31 20:29:00', '2024-08-31 20:35:57', 'sa', 1);
+INSERT INTO `sys_dict` VALUES (2, '模板类型', 1, 0, 'MU_BAN_LEI_XING', '', '', 0, 'sa', NULL, '2024-09-01 18:16:46', '2024-09-09 09:33:56', 'sa', 1);
+INSERT INTO `sys_dict` VALUES (3, '短信', 1, 0, 'DUAN_XIN', '', '', 2, 'sa', 1, '2024-09-07 09:07:09', '2024-09-09 09:23:22', 'sa', 1);
+INSERT INTO `sys_dict` VALUES (4, '微信', 1, 0, 'WEI_XIN', NULL, NULL, 2, 'sa', 1, '2024-09-09 10:07:50', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -93,7 +94,7 @@ CREATE TABLE `sys_dict_item`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_dict_item
@@ -101,11 +102,12 @@ CREATE TABLE `sys_dict_item`  (
 INSERT INTO `sys_dict_item` VALUES (1, 1, '海康云耀', '海康云耀', 1, 1, '', 'HAIKANGYUNYAO', 0, 'sa', NULL, '2024-09-01 10:02:02', '2024-09-01 10:08:45', 'sa', 1);
 INSERT INTO `sys_dict_item` VALUES (2, 1, '阿里云', '阿里云', 1, 1, NULL, 'ALIYUN', 0, 'sa', NULL, '2024-09-01 10:10:03', NULL, NULL, NULL);
 INSERT INTO `sys_dict_item` VALUES (3, 1, '百度云', '百度云', 1, 1, NULL, 'BDYUN', 0, 'sa', NULL, '2024-09-01 10:10:13', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (4, 2, '邮件', '', 1, 1, '', 'EMAIL', 0, 'sa', 1, '2024-09-03 13:35:36', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (5, 2, '短信', '', 1, 2, '', 'SMS', 0, 'sa', 1, '2024-09-03 13:48:51', '2024-09-05 16:13:21', 'sa', 1);
+INSERT INTO `sys_dict_item` VALUES (4, 2, '短信', '', 1, 1, '', 'SMS', 0, 'sa', 1, '2024-09-03 13:35:36', '2024-09-09 10:04:58', 'sa', 1);
+INSERT INTO `sys_dict_item` VALUES (5, 3, '短信通知', '', 1, 2, '', 'DUAN_XIN_TONG_ZHI', 0, 'sa', 1, '2024-09-03 13:48:51', '2024-09-05 16:13:21', 'sa', 1);
 INSERT INTO `sys_dict_item` VALUES (6, 2, '站内', '', 1, 2, '', 'WEB', 0, 'sa', 1, '2024-09-03 13:54:31', '2024-09-03 13:55:18', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (7, 2, '微信', NULL, 1, 2, NULL, 'WX', 0, 'sa', 1, '2024-09-03 13:55:13', '2024-09-05 15:54:08', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (8, 3, '验证码', '', 1, 1, '', 'YZM', 0, 'sa', 1, '2024-09-09 09:24:59', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES (7, 2, '微信', NULL, 1, 2, NULL, 'WECHAT', 0, 'sa', 1, '2024-09-03 13:55:13', '2024-09-05 15:54:08', 'sa', 1);
+INSERT INTO `sys_dict_item` VALUES (8, 3, '验证码', '', 1, 1, '', 'YAN_ZHENG_MA', 0, 'sa', 1, '2024-09-09 09:24:59', '2024-09-09 09:31:22', 'sa', 1);
+INSERT INTO `sys_dict_item` VALUES (9, 4, '微信通知', NULL, 1, NULL, NULL, 'WEI_XIN_TONG_ZHI', 0, 'sa', 1, '2024-09-09 10:08:38', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_log
@@ -193,7 +195,7 @@ INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框�
 INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', 1, '');
 INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (21, '/monitor', '/monitor', '', '系统监控', '', 0, '0,21', '', 'ep:monitor', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:00:57', '2024-09-06 15:01:08', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (22, 'sql', '/monitor/sql', '', 'SQL', '', 21, '0,21,22', '/monitor/sql/index', 'simple-icons:themoviedatabase', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:02:12', '2024-09-06 15:03:09', 'sa', 1, '');
+INSERT INTO `sys_menu` VALUES (22, 'sql', '/monitor/sql', '', 'SQL', '', 21, '0,21,22', '/monitor/sql/index', 'simple-icons:themoviedatabase', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:02:12', '2024-09-06 15:03:09', 'sa', 1, 'SUPER_ADMIN');
 INSERT INTO `sys_menu` VALUES (23, 'log', '/monitor/log', '', '实时日志', '', 21, '0,21,23', '/monitor/log/index', 'humbleicons:logout', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 17:23:07', '2024-09-07 14:23:09', 'sa', 1, 'SUPER_ADMIN');
 
 -- ----------------------------
@@ -391,18 +393,6 @@ CREATE TABLE `sys_template`  (
 -- ----------------------------
 -- Records of sys_template
 -- ----------------------------
-INSERT INTO `sys_template` VALUES (1, 2, 5, NULL, 2, '调代课-上课前10分钟提醒（代课）', 'SMS_463614480', '代课提醒：${name1}老师：下一节课(${time1}第${number1}节)，您将要上${class}的${subject1}（原课是${name2}老师的${subject2} ），请不要忘记，谢谢。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:32', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (2, 2, 5, NULL, 2, '调代课-上课前10分钟提醒（调课）', 'SMS_463639554', '调课提醒：${name1}老师：下一节课(${time1}第${number1}节)，您将要上${class}的${subject1}（同(${time2}第${number2}节对调）（原课是${name2}老师的${subject2} ），请不要忘记，谢谢。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (3, 2, 5, NULL, 2, '调代课通知-被申请方', 'SMS_463632994', '${name}老师:  由于[${teacher}老师](${reason})， 在${class}(时间：${time}) 第${number}节的${subject}  将由您代授 ，请做好交接工作，谢谢您对教导处工作的支持。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (4, 2, 5, NULL, 2, '调代课通知-申请方', 'SMS_463602234', '${name}老师:  由于您(${reason})，您在 ${class}(时间：${time}) 第${number}节的${subject}  将由 [${teacher}老师]代授 ，请做好交接工作，谢谢您对教导处工作的支持。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (5, 2, 5, NULL, 2, '乡贤调解一件事云评价提示', 'SMS_251040478', '您的案件已经办结，您可以通过事项链接中的“乡贤评价‘’按钮，对参与办案的乡贤进行评价。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (6, 2, 5, NULL, 2, '乡贤调解一件事事项提醒', 'SMS_249080566', '您有新的调解事项动态，请登陆查看！', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (7, 2, 5, NULL, 2, '智校邦学生审核失败', 'SMS_249130041', '尊敬的${parentName}家长您好：\n您的${studentName}学生账号审核未通过，请修改信息重新申请或联系校方。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (8, 2, 5, NULL, 2, '智校邦学生审核通过', 'SMS_249170028', '尊敬的${parentName}家长您好：\n您的${studentName}学生账号审核已通过，请打开智校邦小程序查看。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (9, 2, 5, NULL, 2, '居家养老告警信息-副本', 'SMS_229637958', '位于${village}的${addName}设备，发出异常警告，警告名称${deviceName}，请留意处理。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (10, 2, 5, NULL, 2, '居家养老告警信息', 'SMS_229610452', '您的${addName}设备，发出异常警告，警告名称${deviceName}，请留意处理。', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (11, 2, 5, NULL, 2, '数字门牌短信通知', 'SMS_229470909', '您有新的求助，求助人：${consignee}，联系方式：${number}，求助类型${helptext}请您及时查收！', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
-INSERT INTO `sys_template` VALUES (12, 2, 5, NULL, 2, '验证码短信', 'SMS_229240120', '您的验证码为：${code}，请勿泄露于他人！', 0, 1, 0, 0, 2, NULL, NULL, 1, 'sms同步', '1', 1, 'sa', 1, '2024-09-07 10:01:34', '2024-09-07 10:01:44', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_user

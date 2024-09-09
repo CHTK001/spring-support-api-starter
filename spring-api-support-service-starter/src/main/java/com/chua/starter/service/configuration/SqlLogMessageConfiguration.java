@@ -102,6 +102,7 @@ public class SqlLogMessageConfiguration extends SimpleAppender {
             Map<String, String> document = new LinkedHashMap<>();
             document.put("text", sqlEvent.getSql());
             document.put("type", "sql");
+            document.put("event", sqlEvent.getEvent());
             document.put("className", sqlEvent.getClassName());
             document.put("thread", sqlEvent.getThread());
             document.put("timestamp", String.valueOf(System.currentTimeMillis()));
