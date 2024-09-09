@@ -20,6 +20,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.service.setting.GuestDefaultSetting;
+import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.service.setting.VersionSetting;
 import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
@@ -238,7 +239,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("config", new CodecSetting());
         globalSettingFactory.register("config", new VersionSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());
-        globalSettingFactory.register("sms", new SmtpSetting());
+        globalSettingFactory.register("sms", new SmsSetting());
         globalSettingFactory.register("expire", new ExpireSetting());
         upgrade();
     }

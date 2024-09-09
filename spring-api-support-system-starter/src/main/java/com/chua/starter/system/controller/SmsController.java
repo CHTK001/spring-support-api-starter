@@ -40,8 +40,8 @@ public class SmsController {
      *
      * @param request 请求
      */
-    @ApiOperation("发送邮件")
-    @Operation(summary = "发送邮件")
+    @ApiOperation("发送短信")
+    @Operation(summary = "发送短信")
     @GetMapping
     @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
