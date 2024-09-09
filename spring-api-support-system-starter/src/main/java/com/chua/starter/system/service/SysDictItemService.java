@@ -17,6 +17,31 @@ import java.util.Set;
 public interface SysDictItemService extends IService<SysDictItem> {
 
     /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCacheId(SysDictItem sysDictItem);
+    /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCacheCode(SysDictItem sysDictItem);
+
+    /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCachePid(SysDictItem sysDictItem);
+    /**
+     * 清除缓存
+     *
+     * @param sysDictItem  待清除缓存的字典项实体对象
+     */
+    void deleteCachePcode(SysDictItem sysDictItem);
+    /**
      * 分页查询字典项
      *
      * @param query  查询条件对象，用于封装分页及排序等信息
@@ -53,27 +78,14 @@ public interface SysDictItemService extends IService<SysDictItem> {
     ReturnResult<SysDictItem> save(SysDictItem sysDictItem, Set<String> roles);
 
     /**
-     * 清除缓存
-     *
-     * @param sysDictItem  待清除缓存的字典项实体对象
-     */
-    void deleteCacheId(SysDictItem sysDictItem);
-    /**
-     * 清除缓存
-     *
-     * @param sysDictItem  待清除缓存的字典项实体对象
-     */
-    void deleteCacheCode(SysDictItem sysDictItem);
-
-    /**
      * 查询字典项列表
      *
      * @param query  查询条件对象，用于封装分页及排序等信息
-     * @param dictItemId  字典项实体对象，用于过滤查询结果
+     * @param sysDictId  字典项实体对象，用于过滤查询结果
      * @param roles  用户角色集合，用于进行权限控制
      * @return 字典项列表
      */
-    List<SysDictItem> listForItem(Query<SysDictItem> query, Integer dictItemId, Set<String> roles);
+    List<SysDictItem> listForItemId(Query<SysDictItem> query, Integer sysDictId, Set<String> roles);
 
     /**
      * 查询字典项列表
@@ -84,4 +96,27 @@ public interface SysDictItemService extends IService<SysDictItem> {
      * @return 字典项列表
      */
     List<SysDictItem> listForItemCode(Query<SysDictItem> query, String sysDictCode, Set<String> roles);
+
+    /**
+     * 查询字典项列表
+     *
+     * @param query  查询条件对象，用于封装分页及排序等信息
+     * @param sysDictCode  字典项实体对象，用于过滤查询结果
+     * @param roles  用户角色集合，用于进行权限控制
+     * @return 字典项列表
+     */
+    List<SysDictItem> listForItemPcode(Query<SysDictItem> query, String sysDictCode, Set<String> roles);
+
+    /**
+     * 根据字典项的父ID查询字典项列表，并进行权限控制
+     * 此方法用于根据特定字典的父字典项ID检索字典项，同时考虑当前用户的角色来进行数据过滤，
+     * 确保用户只能看到其有权限访问的字典项数据
+     *
+     * @param query 查询条件对象，用于指定查询条件
+     * @param sysDictId 字典项的父ID，用于确定属于哪个字典的字典项
+     * @param roles 当前用户的角色集合，用于权限控制
+     * @return 返回经过权限过滤的字典项列表如果用户对某些字典项没有访问权限，
+     *         这些字典项将不会包含在返回的列表中
+     */
+    List<SysDictItem> listForItemPid(Query<SysDictItem> query, Integer sysDictId, Set<String> roles);
 }

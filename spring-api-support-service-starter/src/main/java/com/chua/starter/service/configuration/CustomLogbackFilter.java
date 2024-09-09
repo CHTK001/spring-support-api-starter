@@ -93,7 +93,8 @@ public class CustomLogbackFilter extends TurboFilter {
      */
     private void registerDocument(LogEvent logEvent) {
         Map<String, String> document = new HashMap<>(3);
-        document.put("message", logEvent.getMessage());
+        document.put("text", logEvent.getMessage());
+        document.put("type", "log");
         document.put("timestamp", String.valueOf(logEvent.getTimestamp()));
         document.put("level", logEvent.getLevel());
         document.put("traceId", StringUtils.defaultString(logEvent.getTraceId() , EMPTY));
@@ -104,7 +105,7 @@ public class CustomLogbackFilter extends TurboFilter {
         document.put("applicationName", logEvent.getApplicationName());
         ExpireSetting expire = GlobalSettingFactory.getInstance().get("expire", ExpireSetting.class);
         document.put("expire", String.valueOf(NumberUtils.defaultIfNullOrPositive(expire.getLog(), 86400 * 7)));
-        redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + applicationName, document);
+        redisSearchService.addDocument(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid(), document);
     }
 
     /**
@@ -112,10 +113,11 @@ public class CustomLogbackFilter extends TurboFilter {
      */
     private void registerIndex() {
         SearchIndex searchIndex = new SearchIndex();
-        searchIndex.setName(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid());
+        searchIndex.setName(LOG_INDEX_NAME_PREIX + Project.getInstance().calcApplicationUuid() );
         searchIndex.setLanguage("chinese");
         SearchSchema searchSchema = new SearchSchema();
-        searchSchema.addTextField("message", 10);
+        searchSchema.addTextField("text", 10);
+        searchSchema.addTextField("type", 10);
         searchSchema.addTextField("level", 1);
         searchSchema.addTextField("className", 1);
         searchSchema.addTextField("traceId", 10);

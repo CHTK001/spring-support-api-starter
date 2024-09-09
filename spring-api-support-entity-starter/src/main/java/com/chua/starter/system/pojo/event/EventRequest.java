@@ -6,8 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * 事件请求
+ *
  * @author CH
  * @since 2024/9/7
  */
@@ -35,10 +39,16 @@ public class EventRequest extends ProjectEvent {
     private String keyword;
 
     /**
+     * 动作
+     */
+    @Schema(description = "动作")
+    private String action;
+    /**
      * 开始时间
      */
     @Schema(description = "开始时间")
     private Long startTime;
+
 
     /**
      * 结束时间
@@ -47,32 +57,24 @@ public class EventRequest extends ProjectEvent {
     private Long endTime;
 
     public String getKeyword() {
-        if(StringUtils.isBlank(keyword)) {
-            if(null == startTime && null == endTime) {
-                return "*";
-            }
-
-            if(null != startTime && null != endTime) {
-                return "timestamp:["+ startTime+"~"+ endTime+"]";
-            }
-
-            if(null != startTime) {
-                return "timestamp >="+ startTime+"]";
-            }
-            return "timestamp <="+ endTime+"]";
+        List<String> line = new LinkedList<>();
+        if (StringUtils.isNotBlank(keyword)) {
+            line.add(keyword);
         }
 
-        if(null == startTime && null == endTime) {
-            return keyword;
+
+        if (null != startTime && null != endTime) {
+            line.add("timestamp:[" + startTime + "~" + endTime + "]");
+        } else if (null != startTime) {
+            line.add("timestamp >=" + startTime + "]");
+        } else if(null != endTime) {
+            line.add("timestamp <=" + endTime + "]");
         }
 
-        if(null != startTime && null != endTime) {
-            return keyword + " and timestamp:["+ startTime+"~"+ endTime+"]";
+        if(StringUtils.isNotBlank(action)) {
+            line.add("event:" + action);
         }
 
-        if(null != startTime) {
-            return keyword + " and timestamp >="+ startTime+"]";
-        }
-        return keyword + " and timestamp <="+ endTime+"]";
+        return StringUtils.join(line, " AND ");
     }
 }

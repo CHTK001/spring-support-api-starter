@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -36,7 +37,14 @@ public class SysDict extends SysBase implements Serializable {
     @Schema(description = "")
     @NotNull(message = "不能为null")
     private Integer sysDictId;
-
+    /**
+     * 父级id
+     */
+    @TableField(value = "sys_dict_pid")
+    @ApiModelProperty(value = "")
+    @Schema(description = "")
+    @NotNull(message = "pid不能为null")
+    private Integer sysDictPid;
     /**
      * 字典名称
      */
@@ -86,4 +94,11 @@ public class SysDict extends SysBase implements Serializable {
     @Schema(description = "描述")
     @Size(max = 255, message = "描述最大长度要小于 255")
     private String sysDictRemark;
+
+
+    /**
+     * 子级
+     */
+    @TableField(exist = false)
+    private List<SysDict> children;
 }
