@@ -60,7 +60,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
             }
         }
         SysTemplate oldSysTemplate = getById(sysTemplate.getSysTemplateId());
-        if(oldSysTemplate.getSysTemplateDisabled() == 1) {
+        if(!AuthConstant.hasAdmin(roles) && oldSysTemplate.getSysTemplateDisabled() == 1) {
             return ReturnResult.fail("模板不允许修改");
         }
 

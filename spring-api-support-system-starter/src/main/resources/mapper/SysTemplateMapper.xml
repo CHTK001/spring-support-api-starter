@@ -3,13 +3,18 @@
 <mapper namespace="com.chua.starter.system.mapper.SysTemplateMapper">
     <select id="selectPageForRoles" resultType="com.chua.starter.system.entity.SysTemplate">
         SELECT st.*,
-               sdi2.sys_dict_item_name sysDictItem2Name,
+               sdi2.sys_dict_item_name         sysDictItem2Name,
                sdi1.sys_dict_item_name         sysDictItem1Name,
-               sdi3.sys_dict_item_name         sysDictItem3Name
+               sdi3.sys_dict_item_name         sysDictItem3Name,
+               sdi2.sys_dict_item_code         sysDictItem2Code,
+               sdi1.sys_dict_item_code         sysDictItem1Code,
+               sdi3.sys_dict_item_code         sysDictItem3Code
         FROM sys_template st
                  LEFT JOIN sys_dict_item sdi2 ON sdi2.sys_dict_item_id = st.sys_dict_item_id2 and sdi2.sys_dict_id = 2
                  LEFT JOIN sys_dict_item sdi1 ON sdi1.sys_dict_item_id = st.sys_dict_item_id1 and sdi1.sys_dict_id = 1
-                 LEFT JOIN sys_dict_item sdi3 ON sdi3.sys_dict_item_id = st.sys_dict_item_id3 and sdi3.sys_dict_id = 3
+                 LEFT JOIN sys_dict_item sdi3 ON sdi3.sys_dict_item_id = st.sys_dict_item_id3 and sdi3.sys_dict_id IN (
+                    SELECT sd.sys_dict_id FROM sys_dict sd WHERE sd.sys_dict_pid = 2
+                 )
         <where>
             <if test="query.sysDictItemId1 != null">
                 AND st.sys_dict_item_id1 = #{query.sysDictItemId1}
@@ -19,6 +24,30 @@
             </if>
             <if test="query.sysDictItemId3 != null">
                 AND st.sys_dict_item_id3 = #{query.sysDictItemId3}
+            </if>
+
+            <if test="query.sysDictItem1Name != null and query.sysDictItem1Name != ''">
+                AND sdi1.sys_dict_item_name LIKE CONCAT('%', #{query.sysDictItem1Name}, '%')
+            </if>
+
+            <if test="query.sysDictItem2Name != null and query.sysDictItem2Name != ''">
+                AND sdi2.sys_dict_item_name LIKE CONCAT('%', #{query.sysDictItem2Name}, '%')
+            </if>
+
+            <if test="query.sysDictItem3Name != null and query.sysDictItem3Name != ''">
+                AND sdi3.sys_dict_item_name LIKE CONCAT('%', #{query.sysDictItem3Name}, '%')
+            </if>
+
+            <if test="query.sysDictItem1Code != null and query.sysDictItem1Code != ''">
+                AND sdi1.sys_dict_item_code  = #{query.sysDictItem1Code}
+            </if>
+
+            <if test="query.sysDictItem2Code != null and query.sysDictItem2Code != ''">
+                AND sdi2.sys_dict_item_code  = #{query.sysDictItem2Code}
+            </if>
+
+            <if test="query.sysDictItem3Code != null and query.sysDictItem3Code != ''">
+                AND sdi3.sys_dict_item_code  = #{query.sysDictItem3Code}
             </if>
 
             <if test="query.sysTemplateName != null and query.sysTemplateName != ''">
@@ -65,7 +94,6 @@
     <select id="listForItem" resultType="com.chua.starter.system.entity.SysTemplate">
         SELECT st.*
         FROM sys_template st
-        LEFT JOIN sys_dict_item sdi2 ON sdi2.sys_dict_item_id = st.sys_dict_item_id1 and sdi2.sys_dict_id = 2
         WHERE st.sys_template_delete = 0
         AND st.sys_template_approve = 2
         AND st.sys_dict_item_id2 = #{sysDictItem2}

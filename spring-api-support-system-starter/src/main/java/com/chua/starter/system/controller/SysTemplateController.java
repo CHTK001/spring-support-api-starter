@@ -5,7 +5,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +26,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
@@ -53,8 +50,6 @@ public class SysTemplateController {
      */
     @Operation(summary = "模板分组列表")
     @GetMapping("/list")
-    @ApiCacheKey("'sys:category:id:' + #sysDictItem2")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysTemplate>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictItem2, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictItem2) {
             return ReturnResult.illegal("模板分组不能为空");

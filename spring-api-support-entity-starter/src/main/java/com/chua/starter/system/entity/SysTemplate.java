@@ -46,6 +46,13 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "适用于厂家名称, 字典(dictId = 1)子项")
     @Schema(description = "适用于厂家名称,字典(dictId = 1)子项")
     private String sysDictItem1Name;
+    /**
+     * 厂家名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "适用于厂家名称, 字典(dictId = 1)子项")
+    @Schema(description = "适用于厂家名称,字典(dictId = 1)子项")
+    private String sysDictItem1Code;
 
     /**
      * 模板类型
@@ -64,6 +71,13 @@ public class SysTemplate extends SysBase implements Serializable {
     /**
      * 模板类型
      */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
+    private String sysDictItem2Code;
+    /**
+     * 模板类型
+     */
     @TableField(value = "sys_dict_item_id3")
     @ApiModelProperty(value = "子类别字典表(dictId=3)")
     @Schema(description = "子类别字典表(dictId=3)")
@@ -75,6 +89,13 @@ public class SysTemplate extends SysBase implements Serializable {
     @ApiModelProperty(value = "类别")
     @Schema(description = "类别")
     private String sysDictItem3Name;
+    /**
+     * 模板类型
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
+    private String sysDictItem3Code;
     /**
      * 模板类型
      */
