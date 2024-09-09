@@ -89,7 +89,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         }
 
         Integer sysDictPid = sysDict.getSysDictPid();
-        if(null != sysDictPid) {
+        if(null != sysDictPid && sysDictPid != 0) {
             SysDict sysDict11 = baseMapper.selectById(sysDictPid);
             if(null == sysDict11) {
                 return ReturnResult.fail("父级字典不存在");
@@ -121,7 +121,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
                 .eq(SysDict::getSysDictCode, sysDict.getSysDictCode()));
 
         Integer sysDictPid = sysDict.getSysDictPid();
-        if(null == sysDictPid) {
+        if(null == sysDictPid || sysDictPid == 0) {
             sysDict.setSysDictPid(0);
         } else {
             SysDict sysDict1 = baseMapper.selectById(sysDictPid);
@@ -129,7 +129,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
                 return ReturnResult.fail("父级字典不存在");
             }
 
-            if(null != sysDict1.getSysDictPid() && sysDict.getSysDictPid() != 0) {
+            if(null != sysDict1.getSysDictPid() && sysDict1.getSysDictPid() != 0) {
                 return ReturnResult.fail("只允许挂载在一级节点上");
             }
         }
