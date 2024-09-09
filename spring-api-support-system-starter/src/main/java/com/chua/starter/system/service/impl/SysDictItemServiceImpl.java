@@ -1,6 +1,5 @@
 package com.chua.starter.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -40,11 +39,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Override
     public IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), Wrappers.<SysDictItem>lambdaQuery()
-                .eq(SysDictItem::getSysDictId, sysDictId)
-                .orderByAsc(SysDictItem::getSysDictItemSort)
-                .orderByDesc(SysDictItem::getCreateTime)
-        );
+        return baseMapper.selectPageForQuery(query.createPage(), sysDictId);
     }
 
     @Override
@@ -55,6 +50,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         boolean b = baseMapper.deleteById(dictItemId) > 0;
         sysDictItemService.deleteCacheId(sysDictItem);
         sysDictItemService.deleteCacheCode(sysDictItem);
+        sysDictItemService.deleteCachePid(sysDictItem);
+        sysDictItemService.deleteCachePcode(sysDictItem);
         return ReturnResult.guess(b);
     }
 
@@ -73,6 +70,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         sysDictItem.setSysDictCode(sysDict.getSysDictCode());
         sysDictItemService.deleteCacheId(sysDictItem);
         sysDictItemService.deleteCacheCode(sysDictItem);
+        sysDictItemService.deleteCachePid(sysDictItem);
+        sysDictItemService.deleteCachePcode(sysDictItem);
         return ReturnResult.of(baseMapper.updateById(sysDictItem) > 0);
     }
 
@@ -94,6 +93,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         baseMapper.insert(sysDictItem);
         sysDictItemService.deleteCacheId(sysDictItem);
         sysDictItemService.deleteCacheCode(sysDictItem);
+        sysDictItemService.deleteCachePid(sysDictItem);
+        sysDictItemService.deleteCachePcode(sysDictItem);
         return ReturnResult.of( sysDictItem);
     }
     @Override
@@ -110,19 +111,39 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     @Override
-    public List<SysDictItem> listForItem(Query<SysDictItem> query, Integer dictItemId, Set<String> roles) {
-        QueryWrapper<SysDictItem> wrapper = query.wrapper();
-        return baseMapper.selectList(wrapper.lambda().eq(SysDictItem::getSysDictItemStatus, 1)
-                .eq(SysDictItem::getSysDictId, dictItemId)
-        );
+    @ApiCacheKey("'sys:dict:pid:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public void deleteCachePid(SysDictItem sysDictItem) {
+
+    }
+
+    @Override
+    @ApiCacheKey("'sys:dict:pcode:' + #sysDictItem.sysDictCode")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public void deleteCachePcode(SysDictItem sysDictItem) {
+
+    }
+
+    @Override
+    public List<SysDictItem> listForItemId(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
+        return baseMapper.selectListById(sysDictId, false);
     }
 
     @Override
     public List<SysDictItem> listForItemCode(Query<SysDictItem> query, String sysDictCode, Set<String> roles) {
-        return baseMapper.selectList(query.mpjLambda()
-                .innerJoin(SysDict.class, SysDict::getSysDictId, SysDictItem::getSysDictId)
-                .eq(SysDictItem::getSysDictItemStatus, 1)
-                .eq(SysDict::getSysDictCode, sysDictCode)
-        );
+        return baseMapper.selectListByCode(sysDictCode, false);
+
+    }
+
+    @Override
+    public List<SysDictItem> listForItemPcode(Query<SysDictItem> query, String sysDictCode, Set<String> roles) {
+        return baseMapper.selectListByCode(sysDictCode, true);
+
+    }
+
+    @Override
+    public List<SysDictItem> listForItemPid(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
+        return baseMapper.selectListById(sysDictId, true);
+
     }
 }

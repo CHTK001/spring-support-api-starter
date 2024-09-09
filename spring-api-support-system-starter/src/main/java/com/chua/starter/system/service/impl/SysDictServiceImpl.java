@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
@@ -16,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -32,12 +34,22 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
     @Override
     public IPage<SysDict> pageForDict(Query<SysDict> query, SysDict sysDict, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), Wrappers.<SysDict>lambdaQuery()
+        Page<SysDict> sysDictPage = baseMapper.selectPage(query.createPage(), Wrappers.<SysDict>lambdaQuery()
+                .eq(SysDict::getSysDictPid, 0)
                 .like(StringUtils.isNotBlank(sysDict.getSysDictCode()), SysDict::getSysDictCode, sysDict.getSysDictCode())
                 .like(StringUtils.isNotBlank(sysDict.getSysDictName()), SysDict::getSysDictName, sysDict.getSysDictName())
                 .like(StringUtils.isNotBlank(sysDict.getSysDictRemark()), SysDict::getSysDictRemark, sysDict.getSysDictRemark())
                 .orderByDesc(SysDict::getCreateTime)
         );
+
+        List<SysDict> records = sysDictPage.getRecords();
+        List<Integer> ids = records.stream().map(SysDict::getSysDictId).toList();
+        List<SysDict> sysDicts = baseMapper.selectList(Wrappers.<SysDict>lambdaQuery().in(SysDict::getSysDictPid, ids));
+        Map<Integer, List<SysDict>> sysDictMap = sysDicts.stream().collect(Collectors.groupingBy(SysDict::getSysDictPid));
+        for (SysDict record : records) {
+            record.setChildren(Optional.ofNullable(sysDictMap.get(record.getSysDictId())).orElse(Collections.emptyList()));
+        }
+        return sysDictPage;
     }
 
     @Override
@@ -71,9 +83,23 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.hasAdmin(roles)) {
             return ReturnResult.fail("内置字典不允许修改");
         }
+
         if(!AuthConstant.hasAdmin(roles)) {
             sysDict.setSysDictInSystem(null);
         }
+
+        Integer sysDictPid = sysDict.getSysDictPid();
+        if(null != sysDictPid) {
+            SysDict sysDict11 = baseMapper.selectById(sysDictPid);
+            if(null == sysDict11) {
+                return ReturnResult.fail("父级字典不存在");
+            }
+
+            if(null != sysDict11.getSysDictPid() && sysDict11.getSysDictPid() != 0) {
+                return ReturnResult.fail("只允许挂载在一级节点上");
+            }
+        }
+
         String sysRoleCode = sysDict.getSysDictCode();
         if(StringUtils.isNotBlank(sysRoleCode)) {
             SysDict sysRole11 = baseMapper.selectOne(Wrappers.<SysDict>lambdaQuery()
@@ -93,6 +119,21 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         sysDict.setSysDictStatus(1);
         SysDict sysRole1 = baseMapper.selectOne(Wrappers.<SysDict>lambdaQuery()
                 .eq(SysDict::getSysDictCode, sysDict.getSysDictCode()));
+
+        Integer sysDictPid = sysDict.getSysDictPid();
+        if(null == sysDictPid) {
+            sysDict.setSysDictPid(0);
+        } else {
+            SysDict sysDict1 = baseMapper.selectById(sysDictPid);
+            if(null == sysDict1) {
+                return ReturnResult.fail("父级字典不存在");
+            }
+
+            if(null != sysDict1.getSysDictPid() && sysDict.getSysDictPid() != 0) {
+                return ReturnResult.fail("只允许挂载在一级节点上");
+            }
+        }
+
         if(null != sysRole1) {
             return ReturnResult.fail("字典编码已存在");
         }

@@ -50,6 +50,22 @@ public class SysDictItemController {
      * @return 字典子项列表
      */
     @Operation(summary = "字典子项列表")
+    @GetMapping("/pCode")
+    @ApiCacheKey("'sys:dict:pcode:' + #sysDictCode")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public ReturnResult<List<SysDictItem>> pCode(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictCode) {
+            return ReturnResult.illegal("字典不能为空");
+        }
+        return ReturnResult.ok(sysDictItemService.listForItemPcode(query, sysDictCode, roles));
+    }
+
+    /**
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     */
+    @Operation(summary = "字典子项列表")
     @GetMapping("/code")
     @ApiCacheKey("'sys:dict:code:' + #sysDictCode")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
@@ -67,6 +83,22 @@ public class SysDictItemController {
      * @return 字典子项列表
      */
     @Operation(summary = "字典子项列表")
+    @GetMapping("/pList")
+    @ApiCacheKey("'sys:dict:pid:' + #sysDictId")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public ReturnResult<List<SysDictItem>> pList(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if(null == sysDictId) {
+            return ReturnResult.illegal("字典不能为空");
+        }
+        return ReturnResult.ok(sysDictItemService.listForItemPid(query, sysDictId, roles));
+    }
+
+    /**
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     */
+    @Operation(summary = "字典子项列表")
     @GetMapping("/list")
     @ApiCacheKey("'sys:dict:id:' + #sysDictId")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
@@ -74,7 +106,7 @@ public class SysDictItemController {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
         }
-        return ReturnResult.ok(sysDictItemService.listForItem(query, sysDictId, roles));
+        return ReturnResult.ok(sysDictItemService.listForItemId(query, sysDictId, roles));
     }
     /**
      * 字典子项分页列表
