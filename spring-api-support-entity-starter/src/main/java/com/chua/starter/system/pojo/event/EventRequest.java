@@ -56,6 +56,10 @@ public class EventRequest extends ProjectEvent {
     @Schema(description = "结束时间")
     private Long endTime;
 
+    public String getEvent() {
+        return null == event ? null : event.replaceAll("'", "");
+    }
+
     public String getKeyword() {
         List<String> line = new LinkedList<>();
         if (StringUtils.isNotBlank(keyword)) {
@@ -75,7 +79,7 @@ public class EventRequest extends ProjectEvent {
             line.add("event:" + action);
         }
 
-        line.add("type:" +  event);
+        line.add("type:" +  getEvent());
 
         return StringUtils.join(line, " AND ");
     }
