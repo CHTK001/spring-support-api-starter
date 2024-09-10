@@ -30,20 +30,26 @@
         </dependency>
 
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-discovery-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>5.1.3</version>
         </dependency>
 
         <dependency>
-            <groupId>com.redislabs</groupId>
-            <artifactId>jredisearch</artifactId>
-            <version>2.2.0</version>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-common-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-common-starter</artifactId>
+            <artifactId>utils-support-nacos-starter</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
@@ -71,6 +77,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-redis-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jredisearch</artifactId>
+                    <groupId>com.redislabs</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

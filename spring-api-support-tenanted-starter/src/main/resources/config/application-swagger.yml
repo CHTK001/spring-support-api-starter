@@ -1,0 +1,7 @@
+plugin:
+  swagger:
+    knife4j:
+      - group-name: 系统配置
+        base-package: com.chua.starter.system.controller
+      - group-name: 扩展服务
+        base-package: com.chua.starter.system.external

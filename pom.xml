@@ -23,6 +23,7 @@
 <!--        <module>spring-api-support-deepleanring-starter</module>-->
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-entity-starter</module>
+        <module>spring-api-support-tenanted-starter</module>
     </modules>
     <version>4.0.0</version>
     
