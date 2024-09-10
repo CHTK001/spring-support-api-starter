@@ -54,7 +54,25 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-support-sse-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-alibaba-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-zhipu-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-xunfei-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 
@@ -99,6 +117,7 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-excel-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
