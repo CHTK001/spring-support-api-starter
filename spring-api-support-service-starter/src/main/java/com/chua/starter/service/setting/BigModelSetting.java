@@ -1,0 +1,70 @@
+package com.chua.starter.service.setting;
+
+import com.chua.common.support.bigmodel.BigModelClient;
+import com.chua.common.support.function.Upgrade;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.StringUtils;
+import lombok.Data;
+
+/**
+ * 大模型设置类，用于存储和处理与大模型应用相关的配置信息
+ *
+ * @author CH
+ * @since 2024/9/10
+ */
+@Data
+public class BigModelSetting implements Upgrade<BigModelSetting> {
+
+    /**
+     * 应用类型，标识大模型应用的类别
+     */
+    private String appType;
+
+    /**
+     * 应用ID，唯一标识一个大模型应用
+     */
+    private String appId;
+
+    /**
+     * 应用密钥，用于应用的安全验证
+     */
+    private String appSecret;
+
+    /**
+     * 应用公钥，与应用密钥配合使用，增强应用的安全性
+     */
+    private String appKey;
+
+
+    private BigModelClient bigModelClient;
+
+    public BigModelClient getBigModelClient() {
+        if(null == bigModelClient) {
+            throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+        }
+        return bigModelClient;
+    }
+
+    @Override
+    public void upgrade(BigModelSetting bigModelSetting) {
+         if (null != bigModelSetting) {
+             this.appType = bigModelSetting.getAppType();
+             this.appId = bigModelSetting.getAppId();
+             this.appSecret = bigModelSetting.getAppSecret();
+             this.appKey = bigModelSetting.getAppKey();
+             if(null != this.bigModelClient) {
+                 IoUtils.closeQuietly(bigModelClient);
+             }
+             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.getAppType(), com.chua.common.support.bigmodel.BigModelSetting.builder()
+                     .appId(appId)
+                     .appKey(appKey)
+                     .appSecret(appSecret)
+                     .build());
+             if(null == bigModelClient) {
+                 throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+             }
+         }
+    }
+}
+

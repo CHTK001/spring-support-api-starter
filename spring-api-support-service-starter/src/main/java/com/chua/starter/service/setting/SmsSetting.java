@@ -51,6 +51,9 @@ public class SmsSetting implements Upgrade<SmsSetting> {
         }
         ServiceProvider<MessagePush> serviceProvider = ServiceProvider.of(MessagePush.class);
         this.messagePush = serviceProvider.getNewExtension(appType, pushSetting);
+        if(null == messagePush) {
+            throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+        }
     }
 
     /**
