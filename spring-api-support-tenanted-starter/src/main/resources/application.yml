@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: system
+  profiles:
+    active: dev,mybatis,swagger,socket,control,codec,ip
+plugin:
+  parameter:
+    enable: true
+  cors:
+    enable: true
+server:
+  port: 18171
+  servlet:
+    context-path: /tenant/api
+  http2:
+    enabled: true

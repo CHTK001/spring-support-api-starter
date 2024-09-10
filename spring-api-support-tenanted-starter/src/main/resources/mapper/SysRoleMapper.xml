@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysRoleMapper">
+
+  <select id="listByUserId" resultType="com.chua.starter.system.entity.SysRole">
+     SELECT sr.*, sur.sys_user_id FROM sys_role sr
+     LEFT JOIN sys_user_role sur ON sr.sys_role_id = sur.sys_role_id
+     WHERE sur.sys_user_id IN
+     <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+        #{userId}
+     </foreach>
+  </select>
+</mapper>
