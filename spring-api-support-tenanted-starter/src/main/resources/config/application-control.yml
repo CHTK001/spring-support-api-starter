@@ -1,4 +1,4 @@
 plugin:
   control:
     platform:
-      name: system
+      name: tenant
