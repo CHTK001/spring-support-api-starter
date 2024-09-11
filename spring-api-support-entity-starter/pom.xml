@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>spring-api-support-entity-starter</artifactId>
+    <description>通用实体</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
