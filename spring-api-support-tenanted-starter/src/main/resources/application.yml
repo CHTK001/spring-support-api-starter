@@ -1,8 +1,9 @@
 spring:
   application:
-    name: system
+    name: tenant
   profiles:
-    active: dev,mybatis,swagger,socket,control,codec,ip
+    active: dev
+    include: mybatis,swagger,socket,control,codec,ip,discovery
 plugin:
   parameter:
     enable: true
