@@ -4,3 +4,7 @@ plugin:
       - namespace: monitor
         protocol: nacos
         address: 172.16.0.40:8848
+
+      - namespace: tenant
+        protocol: nacos
+        address: 172.16.0.40:8848
