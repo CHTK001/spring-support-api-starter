@@ -1,5 +1,0 @@
-plugin:
-  swagger:
-    knife4j:
-      - group-name: 监听管理
-        base-package: com.chua.starter.monitor
