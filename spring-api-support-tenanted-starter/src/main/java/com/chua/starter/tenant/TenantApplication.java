@@ -11,8 +11,8 @@ import org.springframework.cache.annotation.EnableCaching;
  */
 @EnableCaching
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.service"})
-public class SystemApplication {
+public class TenantApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SystemApplication.class, args);
+        SpringApplication.run(TenantApplication.class, args);
     }
 }
