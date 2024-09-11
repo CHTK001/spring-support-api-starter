@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>spring-api-support-system-starter</artifactId>
+    <description>平台端</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 09/09/2024 14:45:41
+ Date: 10/09/2024 10:27:54
 */
 
 SET NAMES utf8mb4;
@@ -322,7 +322,7 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_setting
@@ -334,7 +334,7 @@ INSERT INTO `sys_setting` VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 
 INSERT INTO `sys_setting` VALUES (5, 2, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 9, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-07 12:40:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (6, 7, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 9, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-07 12:40:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 9, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'cfea5663-e4f4-4218-8d9f-3bc02aa5856f', NULL, 51, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', '6c074061-c467-4fd2-9e8b-5d5d5e3e5fca', NULL, 53, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (9, 6, 'SocketUrl', 'http://172.16.2.226:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (10, 7, 'SocketOpen', 'true', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (12, 8, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
@@ -351,11 +351,12 @@ INSERT INTO `sys_setting` VALUES (22, 2, 'appSecret', 'abff9e5a7541a5db21a819b08
 INSERT INTO `sys_setting` VALUES (23, 1, 'appId', 'f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (24, 2, 'appSecret', '158ced91fe30cfa06798c638d2b477d54e57b623a7e869c42d34d3125e88f1b7', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (25, 3, 'gitee', 'true', 1, 'Boolean', 'sso', 1, 1, 0, 'Gitee登录', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-06 14:49:50', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (26, 1, 'gitee', 'true', 1, 'Boolean', 'sso1', 1, 1, 0, 'Gitee登录', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 17:10:12', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (27, 1, 'appId', 'LTAI5tKQQnvCS3yEjGxjHmCd', 1, 'String', 'sms', 1, 1, 0, '短信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-06 11:11:15', '', 1);
-INSERT INTO `sys_setting` VALUES (28, 2, 'appSecret', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', 1, 'String', 'sms', 1, 1, 0, '短信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-06 11:11:15', '', 1);
-INSERT INTO `sys_setting` VALUES (29, 3, 'appSign', '犀鸟校园', 1, 'String', 'sms', 1, 1, 0, '短信签名', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-06 11:11:15', '', 1);
-INSERT INTO `sys_setting` VALUES (30, 4, 'appType', 'ALIYUN', 1, 'Dict', 'sms', 1, 1, 0, '短信厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-06 11:11:15', '', 1);
+INSERT INTO `sys_setting` VALUES (26, 1, 'appId', 'LTAI5tKQQnvCS3yEjGxjHmCd', 1, 'String', 'sms', 1, 1, 0, '短信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (27, 2, 'appSecret', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAhh', 1, 'String', 'sms', 1, 1, 0, '短信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (28, 3, 'appSign', '犀鸟校园', 1, 'String', 'sms', 1, 1, 0, '短信签名', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (29, 4, 'appType', 'ALIYUN', 1, 'Dict', 'sms', 1, 1, 0, '短信厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (30, 1, 'appKey', 'YfuzeuBcnvSluLjHkviR:WFjoVbqyzcqfttbxnsZu', 1, 'AppKey', 'llm', 1, 1, 0, '密钥', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:26:15', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (31, 2, 'appType', 'true', 1, 'Dict', 'llm', 1, 1, 0, '语言模型厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-05 17:10:12', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_template
@@ -388,7 +389,7 @@ CREATE TABLE `sys_template`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_template_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_template
@@ -507,7 +508,7 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_user_log

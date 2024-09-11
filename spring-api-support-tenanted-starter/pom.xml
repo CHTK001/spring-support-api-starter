@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>spring-api-support-tenanted-starter</artifactId>
+    <description>租户端</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
