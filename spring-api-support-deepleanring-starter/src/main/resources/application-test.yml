@@ -1,7 +1,0 @@
-server:
-  port: 18171
-  servlet:
-    context-path: /learning/api
-plugin:
-  learning:
-    module-path: "E:\\workspace\\environment"
