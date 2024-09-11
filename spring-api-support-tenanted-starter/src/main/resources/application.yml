@@ -3,7 +3,7 @@ spring:
     name: tenant
   profiles:
     active: dev
-    include: mybatis,swagger,socket,control,codec,ip,discovery
+    include: mybatis,swagger,socket,control,codec,ip,discovery,tenant
 plugin:
   parameter:
     enable: true
