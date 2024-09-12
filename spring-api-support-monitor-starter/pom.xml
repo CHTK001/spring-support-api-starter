@@ -9,7 +9,7 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-govern-starter</artifactId>
+    <artifactId>spring-api-support-monitor-starter</artifactId>
     <description>治理端</description>
 
     <properties>
@@ -40,6 +40,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-server-starter</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
     </dependencies>
