@@ -21,8 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
-
 /**
  *
  * @since 2024/9/2
@@ -90,7 +88,7 @@ public class SysTemplateServiceImpl extends ServiceImpl<SysTemplateMapper, SysTe
     }
     @Override
     @ApiCacheKey("'sys:category:id:' + #sysTemplate.sysDictItem2")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheId(SysTemplate sysTemplate) {
 
     }

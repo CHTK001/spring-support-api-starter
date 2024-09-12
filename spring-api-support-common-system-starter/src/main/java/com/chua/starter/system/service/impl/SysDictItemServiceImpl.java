@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
-
 /**
  *
  * @since 2024/8/7
@@ -99,27 +97,27 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
     @Override
     @ApiCacheKey("'sys:dict:id:' + #sysDictItem.sysDictId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheId(SysDictItem sysDictItem) {
         //NOTHING
     }
     @Override
     @ApiCacheKey("'sys:dict:code:' + #sysDictItem.sysDictCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheCode(SysDictItem sysDictItem) {
         //NOTHING
     }
 
     @Override
     @ApiCacheKey("'sys:dict:pid:' + #sysDictItem.sysDictId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCachePid(SysDictItem sysDictItem) {
 
     }
 
     @Override
     @ApiCacheKey("'sys:dict:pcode:' + #sysDictItem.sysDictCode")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public void deleteCachePcode(SysDictItem sysDictItem) {
 
     }

@@ -41,8 +41,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
-
 /**
  * @author CH
  * @since 2024/8/7
@@ -186,8 +184,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserInSystem(0);
         sysUserUpdate.setSysUserDelete(0);
         sysUserUpdate.setSysUserStatus(1);
-        sysUserUpdate.setSysUserRegisterIp(getIpAddress(request));
-        sysUserUpdate.setSysUserLastIp(getIpAddress());
+        sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
+        sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress());
         sysUserUpdate.setSysUserLastAddress(null);
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             save(sysUserUpdate);

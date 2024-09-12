@@ -66,24 +66,24 @@ public class CaptchaContoller {
         String fontName = captchaProperties.getFontName();
 
         switch (type) {
-            case ARITHMETIC:
+            case CaptchaTypeEnum.ARITHMETIC:
                 captcha = new ArithmeticCaptcha(width, height);
                 //固定设置为两位，图片为算数运算表达式
                 captcha.setLen(length);
                 break;
-            case CHINESE:
+            case CaptchaTypeEnum.CHINESE:
                 captcha = new ChineseCaptcha(width, height);
                 captcha.setLen(length);
                 break;
-            case CHINESE_GIF:
+            case CaptchaTypeEnum.CHINESE_GIF:
                 captcha = new ChineseGifCaptcha(width, height);
                 captcha.setLen(length);
                 break;
-            case GIF:
+            case CaptchaTypeEnum.GIF:
                 captcha = new GifCaptcha(width, height);
                 captcha.setLen(length);
                 break;
-            case SPEC:
+            case CaptchaTypeEnum.SPEC:
                 captcha = new SpecCaptcha(width, height);
                 captcha.setCharType(Captcha.TYPE_DEFAULT);
                 captcha.setLen(length);

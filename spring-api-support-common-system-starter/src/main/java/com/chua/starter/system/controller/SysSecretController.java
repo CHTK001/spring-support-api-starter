@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 密钥接口
  *
@@ -57,7 +54,7 @@ public class SysSecretController {
     @Operation(summary = "删除密钥")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:secret:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:secret:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSecretId) {
         if (null == sysSecretId) {
             return Result.illegal("密钥信息不存在");
@@ -74,7 +71,7 @@ public class SysSecretController {
      */
     @Operation(summary = "更新密钥")
     @PutMapping("/update")
-    @Permission(value = "sys:secret:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:secret:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysSecret sysSecret,
@@ -93,7 +90,7 @@ public class SysSecretController {
      */
     @Operation(summary = "新增密钥")
     @PostMapping("/save")
-    @Permission(value = "sys:secret:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:secret:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysSecret> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(AddGroup.class) @RequestBody SysSecret sysSecret,

@@ -10,6 +10,7 @@ import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
@@ -31,9 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
-
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
  * 用户接口
@@ -142,7 +140,7 @@ public class SysUserController {
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
     @OperateLog
-    @Permission(value = "sys:user:reset", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:user:reset", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
@@ -199,7 +197,7 @@ public class SysUserController {
     @Operation(summary = "新增用户")
     @PostMapping("/save")
     @OperateLog
-    @Permission(value = "sys:user:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:user:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());

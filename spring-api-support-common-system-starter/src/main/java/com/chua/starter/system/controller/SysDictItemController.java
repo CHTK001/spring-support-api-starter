@@ -26,10 +26,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 字典子项接口(缓存)
  * @author CH
@@ -52,7 +48,7 @@ public class SysDictItemController {
     @Operation(summary = "字典子项列表")
     @GetMapping("/pCode")
     @ApiCacheKey("'sys:dict:pcode:' + #sysDictCode")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> pCode(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");
@@ -68,7 +64,7 @@ public class SysDictItemController {
     @Operation(summary = "字典子项列表")
     @GetMapping("/code")
     @ApiCacheKey("'sys:dict:code:' + #sysDictCode")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");
@@ -85,7 +81,7 @@ public class SysDictItemController {
     @Operation(summary = "字典子项列表")
     @GetMapping("/pList")
     @ApiCacheKey("'sys:dict:pid:' + #sysDictId")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> pList(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
@@ -101,7 +97,7 @@ public class SysDictItemController {
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
     @ApiCacheKey("'sys:dict:id:' + #sysDictId")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
@@ -130,7 +126,7 @@ public class SysDictItemController {
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:dict:item:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictItemId) {
         if (null == sysDictItemId) {
             return Result.illegal("字典子项信息不存在");
@@ -147,7 +143,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
-    @Permission(value = "sys:dict:item:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDictItem sysDictItem,
@@ -166,7 +162,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "新增字典子项")
     @PostMapping("/save")
-    @Permission(value = "sys:dict:item:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDictItem> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                 @Validated(AddGroup.class) @RequestBody SysDictItem sysDictItem,
