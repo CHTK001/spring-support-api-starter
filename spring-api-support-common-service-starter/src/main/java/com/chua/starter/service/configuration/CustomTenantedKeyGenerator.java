@@ -5,6 +5,7 @@ import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.RequestUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +35,10 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
 
     final ControlProperties controlProperties;
 
+    @Value("${spring.application.name:}")
+    private String applicationName;
+
+
     @Override
     public Object generate(Object target, Method method, Object... params) {
         ApiCacheKey apiCacheKey = method.getDeclaredAnnotation(ApiCacheKey.class);
@@ -47,6 +52,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
             return SimpleKeyGenerator.generateKey(params);
         }
         StringBuilder key = new StringBuilder(PREFIX);
+        key.append(applicationName).append(":");
         key.append(controlProperties.getPlatform().getName()).append(":");
         key.append(RequestUtils.getTenantId()).append(":");
         Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext));
