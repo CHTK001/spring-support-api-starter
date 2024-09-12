@@ -1,4 +1,4 @@
-package com.chua.starter.system.mapper;
+package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.system.entity.SysSetting;

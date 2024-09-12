@@ -1,4 +1,4 @@
-package com.chua.starter.system.service.impl;
+package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -19,12 +19,12 @@ import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.service.SysSettingService;
+import com.chua.starter.service.mapper.SysSettingMapper;
 import com.chua.starter.service.setting.*;
 import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysSetting;
-import com.chua.starter.system.mapper.SysSettingMapper;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
-import com.chua.starter.system.service.SysSettingService;
 import com.chua.starter.system.setting.ExpireSetting;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;

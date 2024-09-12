@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: monitor
+  profiles:
+    active: dev
+    include: mybatis,swagger,socket,control,codec,ip,discovery
+plugin:
+  parameter:
+    enable: true
+  cors:
+    enable: true
+server:
+  port: 19170
+  servlet:
+    context-path: /monitor/api
+  http2:
+    enabled: true

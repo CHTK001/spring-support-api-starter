@@ -1,4 +1,4 @@
-package com.chua.starter.system.service;
+package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
