@@ -9,7 +9,7 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-entity-starter</artifactId>
+    <artifactId>spring-api-support-common-entity-starter</artifactId>
     <description>通用实体</description>
 
     <properties>
