@@ -10,6 +10,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysTemplate;
 import com.chua.starter.system.service.SysTemplateService;

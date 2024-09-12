@@ -6,6 +6,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.pojo.dept.SysDeptVO;
 import com.chua.starter.system.service.SysDeptService;
