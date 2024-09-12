@@ -29,10 +29,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-import static com.chua.starter.service.constant.SystemConstant.CACHE_WITH_REDIS;
-
 /**
  * 角色接口
  * @author CH
@@ -64,10 +60,10 @@ public class SysRoleController {
      */
     @Operation(summary = "角色列表")
     @GetMapping("list")
-    @Cacheable(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
+    @Cacheable(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     public ReturnResult<List<SysRole>> list() {
         return Result.ok(sysRoleService.list(
-                Wrappers.<SysRole>lambdaQuery().ne(SysRole::getSysRoleCode, SUPER_ADMIN)
+                Wrappers.<SysRole>lambdaQuery().ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
                 .eq(SysRole::getSysRoleStatus, 1)
                 .orderByAsc(SysRole::getSysRoleSort)
         ));
@@ -79,9 +75,9 @@ public class SysRoleController {
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:role:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {
             return Result.illegal("角色信息不存在");
@@ -98,7 +94,7 @@ public class SysRoleController {
      */
     @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
-    @Permission(value = "sys:role:menu:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
@@ -112,7 +108,7 @@ public class SysRoleController {
 
     @Operation(summary = "获取角色菜单")
     @GetMapping("/get_menu")
-    @Permission(value = "sys:role:menu:get", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:role:menu:get", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(SelectGroup.class)  RoleMenuUpdate roleMenuUpdate,
@@ -130,8 +126,8 @@ public class SysRoleController {
      */
     @Operation(summary = "更新角色")
     @PutMapping("/update")
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
-    @Permission(value = "sys:role:update", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
+    @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysRole sysRole,
@@ -150,8 +146,8 @@ public class SysRoleController {
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")
-    @CacheEvict(cacheManager = CACHE_WITH_REDIS, cacheNames = CACHE_WITH_REDIS, key = "'cache:role'")
-    @Permission(value = "sys:role:add", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
+    @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());

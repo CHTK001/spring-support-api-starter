@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 短信接口
  *
@@ -43,7 +40,7 @@ public class SmsController {
     @ApiOperation("发送短信")
     @Operation(summary = "发送短信")
     @GetMapping
-    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
         return sysSmsService.send(request);
     }
@@ -55,7 +52,7 @@ public class SmsController {
      * @param sysSecret 密钥
      */
     @Operation(summary = "同步模板")
-    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @PostMapping("/syncTemplate")
     @ApiOperation("同步模板")
     public ReturnResult<Boolean> syncTemplate(@RequestBody SysSecret sysSecret) {

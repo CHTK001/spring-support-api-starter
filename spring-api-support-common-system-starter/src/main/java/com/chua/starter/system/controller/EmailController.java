@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 邮件接口
  *
@@ -42,7 +39,7 @@ public class EmailController {
     @ApiOperation("发送邮件")
     @Operation(summary = "发送邮件")
     @GetMapping
-    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> sendEmail(EmailRequest request) {
         return emailService.send(Email.builder()
                 .title(request.getTitle())

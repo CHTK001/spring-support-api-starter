@@ -25,9 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 操作日志接口
  * @author CH
@@ -77,7 +74,7 @@ public class SysUserLogController {
     @OperateLog
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:log:user:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:log:user:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
             return Result.illegal("操作日志信息不存在");

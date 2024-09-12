@@ -21,6 +21,7 @@
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
+        <module>spring-api-support-common-system-starter</module>
     </modules>
     <version>4.0.0</version>
     

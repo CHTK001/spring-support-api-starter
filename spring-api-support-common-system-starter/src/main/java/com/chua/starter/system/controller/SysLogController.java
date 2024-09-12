@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 系统日志接口
  * @author CH
@@ -46,7 +44,7 @@ public class SysLogController {
      */
     @Operation(summary = "系统日志分页列表")
     @GetMapping("/page")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {AuthConstant.SUPER_ADMIN})
     public ReturnPageResult<SysLog> pageForRole(@ParameterObject Query<SysLog> query, @ParameterObject SysLog sysLog, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysLogService.pageForLog(query, sysLog, roles));
     }
@@ -59,7 +57,7 @@ public class SysLogController {
     @Operation(summary = "删除系统日志")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:log:delete", role = {SUPER_ADMIN})
+    @Permission(value = "sys:log:delete", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long logId) {
         if (null == logId) {
             return Result.illegal("系统日志信息不存在");
