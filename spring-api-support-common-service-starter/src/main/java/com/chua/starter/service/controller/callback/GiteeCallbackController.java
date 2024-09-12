@@ -1,4 +1,4 @@
-package com.chua.starter.system.controller.callback;
+package com.chua.starter.service.controller.callback;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Ignore;
@@ -12,11 +12,12 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.service.SysLoginCallbackService;
+import com.chua.starter.service.SysLoginService;
 import com.chua.starter.service.SysUserThirdPartyService;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserThirdParty;
 import com.chua.starter.system.result.LoginResult;
-import com.chua.starter.system.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,8 +53,9 @@ import java.util.Map;
 public class GiteeCallbackController {
 
 
-    final SysUserService sysUserService;
+    final SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService;
+    final SysLoginService sysLoginService;
     final AuthClientProperties authProperties;
 
     /**
@@ -90,7 +92,7 @@ public class GiteeCallbackController {
         AuthGiteeRequest authGiteeRequest = new AuthGiteeRequest(authConfig, AuthDefaultStateCache.INSTANCE);
         AuthResponse login = authGiteeRequest.login(authCallback);
         AuthUser authUser = (AuthUser) login.getData();
-        SysUser userServiceById = sysUserService.getById(userId);
+        SysUser userServiceById = sysLoginCallbackService.getById(userId);
         SysUserThirdParty sysUserThirdParty = new SysUserThirdParty();
         sysUserThirdParty.setSysUserId(Integer.valueOf(userId));
         sysUserThirdParty.setSysUserThirdPartyType("gitee");
@@ -108,7 +110,7 @@ public class GiteeCallbackController {
         }
 
         if(updateUserInfo) {
-            sysUserService.updateById(userServiceById);
+            sysLoginCallbackService.updateById(userServiceById);
         }
         sysUserThirdPartyService.save(sysUserThirdParty);
         return view;
@@ -150,7 +152,7 @@ public class GiteeCallbackController {
                 .put("address", RequestUtils.getIpAddress()).build();
         LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(sysUserService.getUserLoginInfo(accessToken.getToken()))
+                .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .build();
