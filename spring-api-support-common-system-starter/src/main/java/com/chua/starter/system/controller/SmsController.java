@@ -3,6 +3,7 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysSecret;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import com.chua.starter.system.service.SysSmsService;
