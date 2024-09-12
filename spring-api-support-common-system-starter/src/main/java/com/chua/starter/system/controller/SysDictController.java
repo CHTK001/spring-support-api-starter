@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 字典接口
  * @author CH
@@ -60,7 +57,7 @@ public class SysDictController {
     @Operation(summary = "删除字典")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:dict:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictId) {
         if (null == sysDictId) {
             return Result.illegal("字典信息不存在");
@@ -77,7 +74,7 @@ public class SysDictController {
      */
     @Operation(summary = "更新字典")
     @PutMapping("/update")
-    @Permission(value = "sys:dict:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDict sysDict,
@@ -96,7 +93,7 @@ public class SysDictController {
      */
     @Operation(summary = "新增字典")
     @PostMapping("/save")
-    @Permission(value = "sys:dict:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dict:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDict> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                 @Validated(AddGroup.class) @RequestBody SysDict sysDict,

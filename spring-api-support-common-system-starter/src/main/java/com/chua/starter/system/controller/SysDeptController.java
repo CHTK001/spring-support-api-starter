@@ -22,9 +22,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 组织机构接口
  *
@@ -60,7 +57,7 @@ public class SysDeptController {
     @Operation(summary = "删除组织机构")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:dept:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
             return Result.illegal("组织机构信息不存在");
@@ -77,7 +74,7 @@ public class SysDeptController {
      */
     @Operation(summary = "更新组织机构")
     @PutMapping("/update")
-    @Permission(value = "sys:dept:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dept:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDept SysDept,
@@ -96,7 +93,7 @@ public class SysDeptController {
      */
     @Operation(summary = "新增组织机构")
     @PostMapping("/save")
-    @Permission(value = "sys:dept:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:dept:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDept> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(AddGroup.class) @RequestBody SysDept SysDept,

@@ -26,9 +26,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
-
 /**
  * 模板接口(缓存)
  * @author CH
@@ -84,7 +81,7 @@ public class SysTemplateController {
     @Operation(summary = "删除模板")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:template:delete", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:template:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysTemplateId) {
         if (null == sysTemplateId) {
             return Result.illegal("模板信息不存在");
@@ -101,7 +98,7 @@ public class SysTemplateController {
      */
     @Operation(summary = "还原模板")
     @PutMapping("/rollback")
-    @Permission(value = "sys:template:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:template:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> rollback(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysTemplate sysTemplate,
@@ -120,7 +117,7 @@ public class SysTemplateController {
      */
     @Operation(summary = "更新模板")
     @PutMapping("/update")
-    @Permission(value = "sys:template:update", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:template:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysTemplate sysTemplate,
@@ -139,7 +136,7 @@ public class SysTemplateController {
      */
     @Operation(summary = "新增模板")
     @PostMapping("/save")
-    @Permission(value = "sys:template:add", role = {ADMIN, SUPER_ADMIN})
+    @Permission(value = "sys:template:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysTemplate> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                 @Validated(AddGroup.class) @RequestBody SysTemplate sysTemplate,

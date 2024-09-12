@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE_HOUR;
-
 /**
  * 外部控制器
  *
@@ -39,7 +37,7 @@ public class WeatherController {
     @ApiOperation("获取当前地址天气")
     @Operation(summary = "获取当前地址天气")
     @GetMapping("address")
-    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR,
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR,
             key = "'cache:weather:' + T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress()")
     public ReturnResult<Weather> getWeather(HttpServletRequest request) {
         String ipAddress = RequestUtils.getIpAddress(request);
@@ -55,7 +53,7 @@ public class WeatherController {
     @Operation(summary = "根据城市获取天气")
     @ApiOperation("根据城市获取天气")
     @GetMapping("city")
-    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = REDIS_CACHE_HOUR, key = "'cache:weather:'+#p0")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR, key = "'cache:weather:'+#p0")
     public ReturnResult<Weather> getWeather(@RequestParam(value = "city", required = false) String city) {
         city = city == null ? "" : city;
         Weather weather = WeatherResolver.newDefault().getWeather(city);
