@@ -6,10 +6,12 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.service.SysMenuService;
@@ -82,7 +84,7 @@ public class SysMenuController {
      */
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")
-    @ApiPlatform("system")
+    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:menu:delete", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
@@ -101,7 +103,7 @@ public class SysMenuController {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
-    @ApiPlatform("system")
+    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
     @Permission(value = "sys:menu:update", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -121,7 +123,7 @@ public class SysMenuController {
      */
     @Operation(summary = "新增菜单")
     @PostMapping("/save")
-    @ApiPlatform("system")
+    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
     @Permission(value = "sys:menu:add", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysMenu> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
