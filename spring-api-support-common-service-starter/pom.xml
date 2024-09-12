@@ -9,7 +9,7 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-service-starter</artifactId>
+    <artifactId>spring-api-support-common-service-starter</artifactId>
     <description>通用服务</description>
 
     <properties>
@@ -79,7 +79,7 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-entity-starter</artifactId>
+            <artifactId>spring-api-support-common-entity-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 

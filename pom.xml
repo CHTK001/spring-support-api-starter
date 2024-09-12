@@ -16,9 +16,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-oauth-starter</module>
-        <module>spring-api-support-service-starter</module>
+        <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-system-starter</module>
-        <module>spring-api-support-entity-starter</module>
+        <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
     </modules>
@@ -54,7 +54,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-service-starter</artifactId>
+                <artifactId>spring-api-support-common-service-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
