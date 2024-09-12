@@ -3,6 +3,7 @@ package com.chua.starter.system.external;
 import com.chua.common.support.external.Weather;
 import com.chua.common.support.external.WeatherResolver;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.utils.RequestUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
