@@ -1,8 +1,3 @@
 plugin:
   socket:
     enable: true
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'

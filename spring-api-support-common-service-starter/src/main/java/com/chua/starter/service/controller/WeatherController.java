@@ -1,4 +1,4 @@
-package com.chua.starter.system.external;
+package com.chua.starter.service.controller;
 
 import com.chua.common.support.external.Weather;
 import com.chua.common.support.external.WeatherResolver;
