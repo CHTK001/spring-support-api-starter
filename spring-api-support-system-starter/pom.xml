@@ -26,6 +26,12 @@
             <version>8.0.33</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-start</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.chua</groupId>
