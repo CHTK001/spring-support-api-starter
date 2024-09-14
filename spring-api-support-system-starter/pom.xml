@@ -28,13 +28,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-report-client-start</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-system-starter</artifactId>
             <version>4.0.0</version>
         </dependency>

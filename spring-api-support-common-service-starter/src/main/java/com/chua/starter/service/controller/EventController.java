@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.search.SearchResultItem;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.EventService;
-import com.chua.starter.system.pojo.event.EventRequest;
+import com.chua.starter.service.event.EventRequest;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

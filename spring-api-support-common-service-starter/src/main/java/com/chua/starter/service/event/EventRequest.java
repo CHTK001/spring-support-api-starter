@@ -1,7 +1,7 @@
-package com.chua.starter.system.pojo.event;
+package com.chua.starter.service.event;
 
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.system.dto.event.ProjectEvent;
+import com.chua.report.client.starter.report.event.ReportEvent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "事件请求")
-public class EventRequest extends ProjectEvent {
+public class EventRequest extends ReportEvent {
 
     /**
      * 事件
