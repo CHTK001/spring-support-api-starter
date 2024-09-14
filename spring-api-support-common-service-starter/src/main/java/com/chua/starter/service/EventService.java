@@ -3,7 +3,7 @@ package com.chua.starter.service;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.search.SearchResultItem;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.pojo.event.EventRequest;
+import com.chua.starter.service.event.EventRequest;
 
 /**
  * 事件服务
