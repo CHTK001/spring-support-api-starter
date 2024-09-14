@@ -25,6 +25,14 @@
             <version>2.0.1.Final</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-start</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-socketio-starter</artifactId>

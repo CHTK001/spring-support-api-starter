@@ -40,7 +40,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
 
     @Override
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
-        BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("sms", BigModelSetting.class);
+        BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
         BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
         return ReturnResult.of(bigModelClient.call(com.chua.common.support.bigmodel.BigModelRequest .builder()
                 .prompt(request.getUser())

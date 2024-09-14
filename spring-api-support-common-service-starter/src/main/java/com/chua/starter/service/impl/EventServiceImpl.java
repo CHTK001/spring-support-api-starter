@@ -7,7 +7,7 @@ import com.chua.starter.common.support.project.Project;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import com.chua.starter.service.EventService;
-import com.chua.starter.system.pojo.event.EventRequest;
+import com.chua.starter.service.event.EventRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
