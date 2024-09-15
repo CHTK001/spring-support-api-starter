@@ -2,7 +2,9 @@ package com.chua.starter.service.controller;
 
 import com.chua.common.support.external.Weather;
 import com.chua.common.support.external.WeatherResolver;
+import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.net.NetUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.utils.RequestUtils;
 import io.swagger.annotations.Api;
@@ -42,6 +44,9 @@ public class WeatherController {
             key = "'cache:weather:' + T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress()")
     public ReturnResult<Weather> getWeather(HttpServletRequest request) {
         String ipAddress = RequestUtils.getIpAddress(request);
+        if(NetUtils.isLocalHost(ipAddress)) {
+            ipAddress = NetUtils.getPublicAddress();
+        }
         Weather weather = WeatherResolver.newDefault().getWeather(ipAddress);
         return ReturnResult.of(weather);
     }
