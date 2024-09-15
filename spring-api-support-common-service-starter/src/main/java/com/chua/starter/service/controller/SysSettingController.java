@@ -92,7 +92,7 @@ public class SysSettingController {
     @ApiCacheKey("'sys:setting:default'")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default"), roles);
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), roles);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
