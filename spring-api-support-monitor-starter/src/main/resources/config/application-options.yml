@@ -1,0 +1,5 @@
+plugin:
+  spi:
+    mapping:
+      robin: com.chua.common.support.lang.robin.Robin
+      serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
