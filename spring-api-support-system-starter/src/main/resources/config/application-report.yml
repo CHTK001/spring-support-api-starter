@@ -3,3 +3,9 @@ plugin:
     client:
       address: http://127.0.0.1:19170
       enable: true
+      report:
+        - jvm
+        - sys
+        - cpu
+        - mem
+        - disk
