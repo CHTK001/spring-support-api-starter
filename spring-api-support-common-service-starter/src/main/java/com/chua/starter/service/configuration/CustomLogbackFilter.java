@@ -38,7 +38,7 @@ public class CustomLogbackFilter extends TurboFilter {
         }
 
         String name = logger.getName();
-        if( name.startsWith("org.burningwave.core")) {
+        if(name.startsWith("io.zbus") || name.startsWith("org.burningwave.core")) {
             return FilterReply.DENY;
         }
 
