@@ -8,10 +8,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.ArrayUtils;
-import com.chua.common.support.utils.ObjectUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.codec.CodecSetting;
@@ -25,7 +22,6 @@ import com.chua.starter.service.setting.*;
 import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
-import com.chua.starter.system.setting.ExpireSetting;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
@@ -238,7 +234,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("smtp", new SmtpSetting());
         globalSettingFactory.register("llm", new BigModelSetting());
         globalSettingFactory.register("sms", new SmsSetting());
-        globalSettingFactory.register("expire", new ExpireSetting());
+        if(ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {
+            globalSettingFactory.register("expire", ClassUtils.forObject("com.chua.report.client.starter.setting.ReportExpireSetting"));
+        }
         upgrade();
     }
 
