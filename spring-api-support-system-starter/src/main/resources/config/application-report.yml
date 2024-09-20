@@ -9,3 +9,5 @@ plugin:
         - cpu
         - mem
         - disk
+        - network
+        - usb
