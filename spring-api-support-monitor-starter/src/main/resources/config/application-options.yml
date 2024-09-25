@@ -3,3 +3,6 @@ plugin:
     mapping:
       robin: com.chua.common.support.lang.robin.Robin
       serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
+      fileStorageSetting: com.chua.common.support.image.setting.ImageSettingResolver
+      fileStoragePlugin: com.chua.common.support.image.filter.ImageFilter
+      fileStorage: com.chua.common.support.oss.FileStorage
