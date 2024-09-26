@@ -47,7 +47,7 @@ public class WeatherController {
         if(NetUtils.isLocalHost(ipAddress)) {
             ipAddress = NetUtils.getPublicAddress();
         }
-        Weather weather = WeatherResolver.newDefault().getWeather(ipAddress);
+        Weather weather = WeatherResolver.create("jike").getWeather(ipAddress);
         return ReturnResult.of(weather);
     }
     /**
@@ -62,7 +62,7 @@ public class WeatherController {
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR, key = "'cache:weather:'+#p0")
     public ReturnResult<Weather> getWeather(@RequestParam(value = "city", required = false) String city) {
         city = city == null ? "" : city;
-        Weather weather = WeatherResolver.newDefault().getWeather(city);
+        Weather weather = WeatherResolver.create("jike").getWeather(city);
         return ReturnResult.of(weather);
     }
 }
