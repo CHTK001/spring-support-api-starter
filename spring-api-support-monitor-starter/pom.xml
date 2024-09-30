@@ -84,6 +84,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.9.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-minio-starter</artifactId>
             <version>4.0.0</version>
