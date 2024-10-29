@@ -3,9 +3,12 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.UrlUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysRole;
@@ -15,9 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -42,13 +44,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public IPage<SysSfc> pageForUserId(Query<SysSfc> query, SysSfc sysSfc, Set<String> roles, String userId) {
-        return baseMapper.selectPage(query.createPage(), query.mpjLambda()
-                .selectAll(SysSfc.class)
-                .select("IF(t.user_id is null, 0, 1) sysSfcInstall")
-                .leftJoin(SysSfcInstall.class, SysSfcInstall::getSysSfcId, SysSfc::getSysSfcId)
-                .like(StringUtils.isNotBlank(sysSfc.getSysSfcName()), SysSfc::getSysSfcName, sysSfc.getSysSfcName())
-                .like(StringUtils.isNotBlank(sysSfc.getSysSfcDesc()), SysSfc::getSysSfcDesc, sysSfc.getSysSfcDesc())
-        );
+        return baseMapper.selectPageForSfc(query.createPage(), sysSfc, userId);
     }
 
     @Override
@@ -77,17 +73,17 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles) {
-        if(!AuthConstant.isAdmin(roles)) {
+        if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限新增组件");
         }
-        sysSfc.setSysSfcStatus(0);
+        sysSfc.setSysSfcStatus(1);
         baseMapper.insert(sysSfc);
         return ReturnResult.of(sysSfc);
     }
 
     @Override
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
-        if(!AuthConstant.isAdmin(roles)) {
+        if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限修改组件");
         }
         return ReturnResult.of(baseMapper.updateById(sysSfc) > 0);
@@ -95,7 +91,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public ReturnResult<Boolean> delete(Long sysSfcId, Set<String> roles) {
-        if(!AuthConstant.isAdmin(roles)) {
+        if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限删除组件");
         }
 
@@ -152,6 +148,45 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
             return ReturnResult.error("卸载失败");
         });
+    }
+
+    @Override
+    public ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId) {
+        SysSfc sysSfc = baseMapper.selectById(sysSfcId);
+        if(sysSfc.getSysSfcType() == 0 && StringUtils.isBlank(sysSfc.getSysSfcPath())) {
+            return ReturnResult.error("组件不存在");
+        }
+
+        Integer sysSfcType = sysSfc.getSysSfcType();
+        if(null == sysSfcType) {
+            sysSfcType = 0;
+        }
+
+        if(sysSfcType == 1) {
+            return ReturnResult.of(sysSfc.getSysSfcContent());
+        }
+
+        String sysSfcProxy = sysSfc.getSysSfcProxy();
+        if(StringUtils.isNotBlank(sysSfcProxy)) {
+            return ReturnResult.of(HttpClient
+                    .get()
+                    .url(UrlUtils.normalize(sysSfcProxy, sysSfc.getSysSfcPath()))
+                    .newInvoker()
+                    .execute()
+                    .content(String.class)
+            );
+        }
+
+        File newFile = new File( sysSfc.getSysSfcPath());
+        if(!newFile.exists()) {
+            return ReturnResult.error("组件不存在");
+        }
+
+        try (FileInputStream fis = new FileInputStream(newFile)) {
+            return ReturnResult.of(IoUtils.toString(fis, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

@@ -55,6 +55,17 @@ public class SysSfcController {
     }
 
 
+
+    /**
+     * 获取组件列表
+     *
+     * @return 组件列表
+     */
+    @Operation(summary = "获取组件")
+    @GetMapping("/get")
+    public ReturnResult<String> getSfc(Long sysSfcId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("userId") String userId) {
+        return sysSfcService.get(sysSfcId, roles, userId);
+    }
     /**
      * 添加组件
      *
@@ -123,7 +134,7 @@ public class SysSfcController {
      * @return 是否成功
      */
     @Operation(summary = "安装组件")
-    @PostMapping("/install")
+    @PutMapping("/install")
     public ReturnResult<Boolean> install(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("userId") Integer userId) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
@@ -137,7 +148,7 @@ public class SysSfcController {
      * @return 是否成功
      */
     @Operation(summary = "卸载组件")
-    @PostMapping("/uninstall")
+    @PutMapping("/uninstall")
     public ReturnResult<Boolean> uninstall(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("userId") Integer userId) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());

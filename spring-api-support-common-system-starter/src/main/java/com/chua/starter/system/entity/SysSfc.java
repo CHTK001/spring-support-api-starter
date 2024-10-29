@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
-import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -50,6 +49,23 @@ public class SysSfc extends SysBase implements Serializable {
     private String sysSfcName;
 
     /**
+     * 组件中文名称
+     */
+    @TableField(value = "sys_sfc_chinese_name")
+    @ApiModelProperty(value = "组件中文名称")
+    @Schema(description = "组件中文名称")
+    @Size(max = 255, message = "组件中文名称最大长度要小于 255", groups = {AddGroup.class})
+    private String sysSfcChineseName;
+
+
+    /**
+     * 缓存模式
+     */
+    @TableField(value = "sys_sfc_model_cache")
+    @ApiModelProperty(value = "缓存模式")
+    @Schema(description = "缓存模式")
+    private String sysSfcModelCache;
+    /**
      * 组件功能, 多个逗号分隔
      */
     @TableField(value = "sys_sfc_function")
@@ -70,11 +86,11 @@ public class SysSfc extends SysBase implements Serializable {
     /**
      * 分类；HOME
      */
-    @TableField(value = "sys_sfc_categroy")
+    @TableField(value = "sys_sfc_category")
     @ApiModelProperty(value = "分类；HOME")
     @Schema(description = "分类；HOME")
     @Size(max = 255, message = "分类；HOME最大长度要小于 255",  groups = {AddGroup.class})
-    private String sysSfcCategroy;
+    private String sysSfcCategory;
 
     /**
      * 组件存放路径
@@ -84,7 +100,39 @@ public class SysSfc extends SysBase implements Serializable {
     @Schema(description = "组件存放路径")
     @Size(max = 255, message = "组件存放路径最大长度要小于 255")
     private String sysSfcPath;
+    /**
+     * 组件代理地址
+     */
+    @TableField(value = "sys_sfc_proxy")
+    @ApiModelProperty(value = "组件代理地址")
+    @Schema(description = "组件代理地址")
+    @Size(max = 255, message = "组件代理地址最大长度要小于 255")
+    private String sysSfcProxy;
 
+
+    /**
+     * 组件类型; 0:文件; 1:文本
+     */
+    @TableField(value = "sys_sfc_type")
+    @ApiModelProperty(value = "组件类型; 0:文件; 1:文本")
+    @Schema(description = "组件类型; 0:文件; 1:文本")
+    private Integer sysSfcType;
+
+    /**
+     * 组件版本
+     */
+    @TableField(value = "sys_sfc_version")
+    @ApiModelProperty(value = "组件版本")
+    @Schema(description = "组件版本")
+    private String sysSfcVersion;
+
+    /**
+     * 组件内容
+     */
+    @TableField(value = "sys_sfc_content")
+    @ApiModelProperty(value = "组件内容")
+    @Schema(description = "组件内容")
+    private String sysSfcContent;
     /**
      * 组件状态; 0:未启用
      */
