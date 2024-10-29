@@ -188,5 +188,10 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, String userId) {
+        return ReturnResult.of(baseMapper.mine(sysSfcCategory, userId));
+    }
 }
 
