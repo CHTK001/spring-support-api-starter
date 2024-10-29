@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysSfcMapper">
+
+  <select id="selectPageForSfc" resultType="com.chua.starter.system.entity.SysSfc">
+   SELECT
+     T.*,
+      T.sys_sfc_category sysSfCategory
+   FROM
+     (
+    SELECT
+      ss.*,
+      (IF(ssi.user_id is null, 0, 1)) sysSfcInstall
+    FROM sys_sfc ss
+    LEFT JOIN sys_sfc_install ssi ON ssi.sys_sfc_id =  ss.sys_sfc_id
+
+    <where>
+      <if test="condition.sysSfcId != null">
+        AND ss.sys_sfc_id = #{condition.sysSfcId}
+      </if>
+
+      <if test="condition.sysSfcName != null">
+        AND  ss.sys_sfc_name LIKE CONCAT('%',#{condition.sysSfcName},'%')
+      </if>
+
+      <if test="condition.sysSfcFunction != null">
+        AND  ss.sys_sfc_function LIKE CONCAT('%',#{condition.sysSfcFunction},'%')
+      </if>
+
+      <if test="condition.sysSfcStatus != null">
+        AND  ss.sys_sfc_status = #{condition.sysSfcStatus}
+      </if>
+
+      <if test="condition.sysSfcDesc != null">
+        AND  ss.sys_sfc_desc LIKE CONCAT('%',#{condition.sysSfcDesc},'%')
+      </if>
+
+      <if test="condition.sysSfcInstall != null and condition.sysSfcInstall != 0">
+        AND  ssi.user_id = #{userId}
+      </if>
+    </where>) T ORDER BY sysSfcInstall DESC
+
+  </select>
+</mapper>
