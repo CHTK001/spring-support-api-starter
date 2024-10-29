@@ -78,4 +78,13 @@ public interface SysSfcService extends IService<SysSfc> {
      * @return 卸载结果
      */
     ReturnResult<Boolean> uninstall(SysSfc sysSfc, Integer userId);
+
+    /**
+     * 获取组件
+     * @param sysSfcId 组件id
+     * @param roles 角色
+     * @param userId 用户id
+     * @return 组件信息
+     */
+    ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId);
 }
