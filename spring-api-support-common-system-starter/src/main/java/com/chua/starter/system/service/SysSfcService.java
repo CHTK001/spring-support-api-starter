@@ -8,6 +8,7 @@ import com.chua.starter.system.entity.SysSfc;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -87,4 +88,12 @@ public interface SysSfcService extends IService<SysSfc> {
      * @return 组件信息
      */
     ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId);
+
+    /**
+     * 我的组件
+     * @param sysSfcCategory 组件分类
+     * @param userId 用户id
+     * @return 组件列表
+     */
+    ReturnResult<List<SysSfc>> mine(String sysSfcCategory, String userId);
 }
