@@ -2,6 +2,7 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
@@ -23,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -63,8 +65,25 @@ public class SysSfcController {
      */
     @Operation(summary = "获取组件")
     @GetMapping("/get")
-    public ReturnResult<String> getSfc(Long sysSfcId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("userId") String userId) {
+    public ReturnResult<String> getSfc(Long sysSfcId,
+                                       @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                       @Parameter(hidden = true) @UserValue("userId") String userId) {
         return sysSfcService.get(sysSfcId, roles, userId);
+    }
+
+
+    /**
+     * 我的组件
+     *
+     * @return 我的组件
+     */
+    @Operation(summary = "我的组件")
+    @GetMapping("/mine")
+    public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, @Parameter(hidden = true) @UserValue("userId") String userId) {
+        if(StringUtils.isBlank(sysSfcCategory)) {
+            return ReturnResult.fail("分类不能为空");
+        }
+        return sysSfcService.mine(sysSfcCategory, userId);
     }
     /**
      * 添加组件
