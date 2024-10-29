@@ -79,6 +79,7 @@ public class SysSfcController {
      */
     @Operation(summary = "我的组件")
     @GetMapping("/mine")
+
     public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, @Parameter(hidden = true) @UserValue("userId") String userId) {
         if(StringUtils.isBlank(sysSfcCategory)) {
             return ReturnResult.fail("分类不能为空");
