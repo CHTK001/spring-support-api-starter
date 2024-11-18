@@ -18,7 +18,7 @@ import org.springframework.context.ApplicationContextAware;
  * @author CH
  * @since 2024/9/7
  */
-@SpringBootConfiguration
+//@SpringBootConfiguration
 public class SystemConfiguration implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
