@@ -55,6 +55,12 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-image-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-image-jai-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
@@ -140,6 +146,24 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-influxdb-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-email-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-html-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 
