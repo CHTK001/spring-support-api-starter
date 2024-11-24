@@ -157,7 +157,7 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-aspose-html-starter</artifactId>
+            <artifactId>utils-support-aspose-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 
