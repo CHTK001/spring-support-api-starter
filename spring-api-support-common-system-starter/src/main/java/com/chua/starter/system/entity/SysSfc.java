@@ -140,6 +140,20 @@ public class SysSfc extends SysBase implements Serializable {
     @ApiModelProperty(value = "组件状态; 0:未启用")
     @Schema(description = "组件状态; 0:未启用")
     private Integer sysSfcStatus;
+    /**
+     * 延迟时间; 2000
+     */
+    @TableField(value = "sys_sfc_delay")
+    @ApiModelProperty(value = "延迟时间; 2000")
+    @Schema(description = "延迟时间; 2000")
+    private Integer sysSfcDelay;
+    /**
+     * 超时时间; 3000
+     */
+    @TableField(value = "sys_sfc_timeout")
+    @ApiModelProperty(value = "超时时间; 3000")
+    @Schema(description = "超时时间; 3000")
+    private Integer sysSfcTimeout;
 
     /**
      * 组件描述
