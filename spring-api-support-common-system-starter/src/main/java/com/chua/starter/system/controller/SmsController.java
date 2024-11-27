@@ -40,9 +40,9 @@ public class SmsController {
      */
     @ApiOperation("发送短信")
     @Operation(summary = "发送短信")
-    @GetMapping
+    @PutMapping
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<List<PushResult>> send(SmsRequest request) {
+    public ReturnResult<List<PushResult>> send(@RequestBody SmsRequest request) {
         return sysSmsService.send(request);
     }
 
