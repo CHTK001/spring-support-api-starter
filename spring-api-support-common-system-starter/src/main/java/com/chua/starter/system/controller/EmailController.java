@@ -12,9 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 邮件接口
@@ -39,9 +37,9 @@ public class EmailController {
      */
     @ApiOperation("发送邮件")
     @Operation(summary = "发送邮件")
-    @GetMapping
+    @PutMapping
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<Boolean> sendEmail(EmailRequest request) {
+    public ReturnResult<Boolean> sendEmail(@RequestBody EmailRequest request) {
         return emailService.send(Email.builder()
                 .title(request.getTitle())
                 .to(request.getTo())
