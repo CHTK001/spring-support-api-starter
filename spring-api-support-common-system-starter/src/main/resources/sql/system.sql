@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 10/09/2024 10:27:54
+ Date: 28/11/2024 16:03:41
 */
 
 SET NAMES utf8mb4;
@@ -37,7 +37,7 @@ CREATE TABLE `sys_dept`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -63,7 +63,7 @@ CREATE TABLE `sys_dict`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict
@@ -72,6 +72,7 @@ INSERT INTO `sys_dict` VALUES (1, '厂家', 1, 0, 'CHANG_JIA', '三方厂家', '
 INSERT INTO `sys_dict` VALUES (2, '模板类型', 1, 0, 'MU_BAN_LEI_XING', '', '', 0, 'sa', NULL, '2024-09-01 18:16:46', '2024-09-09 09:33:56', 'sa', 1);
 INSERT INTO `sys_dict` VALUES (3, '短信', 1, 0, 'DUAN_XIN', '', '', 2, 'sa', 1, '2024-09-07 09:07:09', '2024-09-09 09:23:22', 'sa', 1);
 INSERT INTO `sys_dict` VALUES (4, '微信', 1, 0, 'WEI_XIN', NULL, NULL, 2, 'sa', 1, '2024-09-09 10:07:50', NULL, NULL, NULL);
+INSERT INTO `sys_dict` VALUES (5, '组件功能', 1, 0, 'ZU_JIAN_GONG_NENG', '', '', 0, 'sa', 1, '2024-10-24 17:17:50', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -94,7 +95,7 @@ CREATE TABLE `sys_dict_item`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_item
@@ -108,6 +109,9 @@ INSERT INTO `sys_dict_item` VALUES (6, 2, '站内', '', 1, 2, '', 'WEB', 0, 'sa'
 INSERT INTO `sys_dict_item` VALUES (7, 2, '微信', NULL, 1, 2, NULL, 'WECHAT', 0, 'sa', 1, '2024-09-03 13:55:13', '2024-09-05 15:54:08', 'sa', 1);
 INSERT INTO `sys_dict_item` VALUES (8, 3, '验证码', '', 1, 1, '', 'YAN_ZHENG_MA', 0, 'sa', 1, '2024-09-09 09:24:59', '2024-09-09 09:31:22', 'sa', 1);
 INSERT INTO `sys_dict_item` VALUES (9, 4, '微信通知', NULL, 1, NULL, NULL, 'WEI_XIN_TONG_ZHI', 0, 'sa', 1, '2024-09-09 10:08:38', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES (10, 1, '讯飞', '', 1, 1, '', 'XUN_FEI', 0, 'sa', 1, '2024-10-24 15:07:24', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES (11, 5, '天气', '', 1, 1, '', 'TIAN_QI', 0, 'sa', 1, '2024-10-24 17:18:02', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item` VALUES (12, 5, '时间', '', 1, 1, '', 'SHI_JIAN', 0, 'sa', 1, '2024-10-28 09:31:55', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_log
@@ -129,7 +133,7 @@ CREATE TABLE `sys_log`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_log
@@ -170,33 +174,31 @@ CREATE TABLE `sys_menu`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `sys_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属权限',
+  `sys_menu_home` int(11) NULL DEFAULT NULL COMMENT '是否只显示在主页',
   PRIMARY KEY (`sys_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 'system', '/manage', NULL, '系统管理', NULL, 0, '0,1', NULL, 'ep:setting', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (2, 'menu', '/manage/menu', NULL, '菜单管理', NULL, 1, '0,1,2', 'manage/menu/index', 'ep:menu', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (3, 'setting', '/manage/setting', NULL, '系统配置', NULL, 1, '0,1,3', 'manage/setting/index', 'ep:setting', NULL, 0, 999, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, 'SUPER_ADMIN,ADMIN');
-INSERT INTO `sys_menu` VALUES (4, 'role', '/manage/role', NULL, '角色管理', NULL, 1, '0,1,4', 'manage/role/index', 'ep:user', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (8, 'user', '/manage/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (11, 'dept', '/manage/dept', '', '机构管理', '', 1, '0,1,11', 'manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (15, 'chineseDict', '/manage/chineseDict', '', '字典管理', '', 1, '0,1,15', '/manage/chineseDict/index', 'humbleicons:dashboard', NULL, 0, 996, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '');
-INSERT INTO `sys_menu` VALUES (21, '/monitor', '/monitor', '', '系统监控', '', 0, '0,21', '', 'ep:monitor', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:00:57', '2024-09-06 15:01:08', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (22, 'sql', '/monitor/sql', '', 'SQL', '', 21, '0,21,22', '/monitor/sql/index', 'simple-icons:themoviedatabase', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:02:12', '2024-09-06 15:03:09', 'sa', 1, 'SUPER_ADMIN');
-INSERT INTO `sys_menu` VALUES (23, 'log', '/monitor/log', '', '实时日志', '', 21, '0,21,23', '/monitor/log/index', 'humbleicons:logout', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 17:23:07', '2024-09-07 14:23:09', 'sa', 1, 'SUPER_ADMIN');
+INSERT INTO `sys_menu` VALUES (1, 'system', '/manage', NULL, '系统管理', NULL, 0, '0,1', NULL, 'ep:setting', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '', NULL);
+INSERT INTO `sys_menu` VALUES (2, 'menu', '/manage/menu', NULL, '菜单管理', NULL, 1, '0,1,2', '/manage/menu/index', 'ep:menu', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '', NULL);
+INSERT INTO `sys_menu` VALUES (3, 'setting', '/manage/setting', NULL, '系统配置', NULL, 1, '0,1,3', '/manage/setting/index', 'ep:setting', NULL, 0, 999, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL);
+INSERT INTO `sys_menu` VALUES (4, 'role', '/manage/role', NULL, '角色管理', NULL, 1, '0,1,4', '/manage/role/index', 'ep:user', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', 1, '', NULL);
+INSERT INTO `sys_menu` VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (8, 'user', '/manage/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', 1, '', NULL);
+INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (11, 'dept', '/manage/dept', '', '机构管理', '', 1, '0,1,11', '/manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', 1, '', NULL);
+INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard', NULL, 0, 996, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '', NULL);
+INSERT INTO `sys_menu` VALUES (24, 'sfc', '/manage/sfc', '', '组件管理', NULL, 1, '0,1,24', '/manage/sfc/index', 'ri:compasses-2-fill', NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-10-24 16:34:53', '2024-10-24 16:35:51', 'sa', 1, '', NULL);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -217,7 +219,7 @@ CREATE TABLE `sys_role`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
@@ -235,7 +237,7 @@ CREATE TABLE `sys_role_menu`  (
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   `sys_menu_id` int(11) NULL DEFAULT NULL COMMENT '菜单ID',
   PRIMARY KEY (`sys_role_menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 98 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 98 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色 - 菜单关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -289,7 +291,7 @@ CREATE TABLE `sys_secret`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_secret_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_secret
@@ -322,7 +324,7 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_setting
@@ -330,22 +332,22 @@ CREATE TABLE `sys_setting`  (
 INSERT INTO `sys_setting` VALUES (1, 2, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 1, NULL, NULL, NULL, '2024-09-05 13:07:16', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (2, 1, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 1, NULL, NULL, NULL, '2024-09-05 13:07:16', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (3, 3, 'SlidingBlockOpen', 'true', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 1, NULL, NULL, NULL, '2024-09-05 13:07:16', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 9, 'sa', NULL, '2024-08-18 11:22:26', '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (5, 2, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 9, 'sa', NULL, '2024-08-18 11:31:57', '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (6, 7, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 9, 'sa', NULL, '2024-08-19 19:53:55', '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 9, 'sa', NULL, '2024-08-18 10:52:15', '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', '6c074061-c467-4fd2-9e8b-5d5d5e3e5fca', NULL, 53, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (9, 6, 'SocketUrl', 'http://172.16.2.226:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (10, 7, 'SocketOpen', 'true', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (12, 8, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (13, 9, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (14, 10, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (15, 11, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (16, 11, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 9, NULL, NULL, NULL, '2024-09-07 12:40:46', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (17, 2, 'host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 14:46:31', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (18, 3, 'port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 14:46:31', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (19, 4, 'password', 'CVIRRMZQPYLQIQMW_C', 1, 'Password', 'smtp', 1, 1, 0, '授权码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 14:46:31', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (20, 1, 'from', 'yemengzhidiandi@163.com', 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 14:46:31', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启调试模式崩溃当前页', NULL, NULL, 17, 'sa', NULL, '2024-08-18 11:22:26', '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (5, 2, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 17, 'sa', NULL, '2024-08-18 11:31:57', '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (6, 7, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启水印', NULL, NULL, 17, 'sa', NULL, '2024-08-19 19:53:55', '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '开启循环debugger', NULL, NULL, 17, 'sa', NULL, '2024-08-18 10:52:15', '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'a7b54e74-df59-4efb-903d-9d79e8d43deb', NULL, 70, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (9, 6, 'SocketUrl', 'http://172.16.2.226:31256', 1, 'Array', 'config', 0, 1, 0, 'socket服务器地址', NULL, 1, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (10, 7, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket是否开启', NULL, 1, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (12, 8, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (13, 9, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (14, 10, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (15, 11, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (16, 11, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 17, NULL, NULL, NULL, '2024-11-27 13:52:39', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (17, 2, 'host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (18, 3, 'port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (19, 4, 'password', 'CVIRRMZQPYLQIQMW_C', 1, 'Password', 'smtp', 1, 1, 0, '授权码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (20, 1, 'from', 'yemengzhidiandi@163.com', 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (21, 1, 'appId', 'wx8cd1bb691119e3f7', 1, 'String', 'weixin', 1, 1, 0, '微信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:32:37', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (22, 2, 'appSecret', 'abff9e5a7541a5db21a819b087ecbf10', 1, 'String', 'weixin', 1, 1, 0, '微信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:32:37', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (23, 1, 'appId', 'f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
@@ -355,8 +357,101 @@ INSERT INTO `sys_setting` VALUES (26, 1, 'appId', 'LTAI5tKQQnvCS3yEjGxjHmCd', 1,
 INSERT INTO `sys_setting` VALUES (27, 2, 'appSecret', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAhh', 1, 'String', 'sms', 1, 1, 0, '短信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (28, 3, 'appSign', '犀鸟校园', 1, 'String', 'sms', 1, 1, 0, '短信签名', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (29, 4, 'appType', 'ALIYUN', 1, 'Dict', 'sms', 1, 1, 0, '短信厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (30, 1, 'appKey', 'YfuzeuBcnvSluLjHkviR:WFjoVbqyzcqfttbxnsZu', 1, 'AppKey', 'llm', 1, 1, 0, '密钥', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:26:15', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (31, 2, 'appType', 'true', 1, 'Dict', 'llm', 1, 1, 0, '语言模型厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-05 17:10:12', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (30, 1, 'appKey', 'YfuzeuBcnvSluLjHkviR:WFjoVbqyzcqfttbxnsZu', 1, 'AppKey', 'llm', 1, 1, 0, '密钥', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (31, 2, 'appType', 'XUN_FEI', 1, 'Dict', 'llm', 1, 1, 0, '语言模型厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (32, 3, 'appId', '7d9dec86', 1, 'String', 'llm', 1, 1, 0, '模型AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
+INSERT INTO `sys_setting` VALUES (33, 4, 'appSecret', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', 1, 'AppSecret', 'llm', 1, 1, 0, '模型AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_sfc
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_sfc`;
+CREATE TABLE `sys_sfc`  (
+  `sys_sfc_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_sfc_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件名称',
+  `sys_sfc_chinese_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件名称',
+  `sys_sfc_function` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件功能, 多个逗号分隔',
+  `sys_sfc_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件图标',
+  `sys_sfc_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类；HOME',
+  `sys_sfc_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件存放路径',
+  `sys_sfc_status` int(11) NULL DEFAULT NULL COMMENT '组件状态; 0:未启用',
+  `sys_sfc_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件描述',
+  `sys_sfc_proxy` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '代理地址',
+  `sys_sfc_type` int(11) NULL DEFAULT NULL COMMENT '组件类型; 0:文件; 1:文本',
+  `sys_sfc_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '组件文本',
+  `sys_sfc_model_cache` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '模块缓存',
+  `sys_sfc_delay` int(11) NULL DEFAULT NULL COMMENT '延迟时间; 2000',
+  `sys_sfc_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  `sys_sfc_timeout` int(11) NULL DEFAULT NULL COMMENT '超时时间; 3000',
+  PRIMARY KEY (`sys_sfc_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组件库' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_sfc
+-- ----------------------------
+INSERT INTO `sys_sfc` VALUES (2, 'time', '时间组件', '时间', 'ep:timer', 'HOME', NULL, 1, NULL, NULL, 1, '<template>\n  <el-card shadow=\"hover\" header=\"时钟\" class=\"item-background\">\n    <div class=\"time\">\n      <h2>{{ time }}</h2>\n      <p>{{ day }}</p>\n    </div>\n  </el-card>\n</template>\n\n<script>\nimport { dateFormat } from \"@/utils/date\";\nexport default {\n  title: \"时钟\",\n  icon: \"ep:clock\",\n  description: \"演示部件效果\",\n  data() {\n    return {\n      time: \"\",\n      day: \"\"\n    };\n  },\n  mounted() {\n    this.showTime();\n    setInterval(() => {\n      this.showTime();\n    }, 1000);\n	this.$emit(\"loaded\", true);\n  },\n  methods: {\n    showTime() {\n      this.time = dateFormat(new Date(), \"hh:mm:ss\");\n      this.day = dateFormat(new Date(), \"yyyy年MM月dd日\");\n    }\n  }\n};\n</script>\n\n<style scoped>\n.item-background {\n  background: linear-gradient(to right, #8e54e9, #4776e6);\n  color: #fff;\n}\n.time h2 {\n  font-size: 40px;\n}\n.time p {\n  font-size: 14px;\n  margin-top: 13px;\n  opacity: 0.7;\n}\n</style>\n', '[{\"name\":\"Date\",\"value\":\"import * as Date from \\\"@/utils/date\\\";\"}]', NULL, '1.0.0', 'sa', 1, '2024-10-25 09:26:42', '2024-10-25 09:27:12', 'sa', 1, NULL);
+INSERT INTO `sys_sfc` VALUES (3, 'weather', '天气', '天气', 'meteocons:clear-day', 'HOME', '.\\sfc\\3\\weather.vue', 1, NULL, NULL, 0, 'null', 'null', NULL, '1.0.0', 'sa', 1, '2024-10-28 09:32:27', '2024-10-28 13:36:56', 'sa', 1, NULL);
+INSERT INTO `sys_sfc` VALUES (4, 'local-weather', '本地天气组件', '天气', 'ep:basketball', 'HOME', '@repo/module/weather/index.vue', 1, NULL, NULL, 3, NULL, '[]', NULL, '1.0.0', 'sa', 1, '2024-11-24 10:09:56', '2024-11-24 10:10:49', 'sa', 1, NULL);
+INSERT INTO `sys_sfc` VALUES (5, 'frame', 'test', '天气', 'ep:trophy-base', 'HOME', 'https://blog.csdn.net/m0_64494670/article/details/135143478', 1, NULL, NULL, 2, NULL, '[]', NULL, '1.0.0', 'sa', 1, '2024-11-24 12:55:03', '2024-11-24 13:21:45', 'sa', 1, NULL);
+
+-- ----------------------------
+-- Table structure for sys_sfc_install
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_sfc_install`;
+CREATE TABLE `sys_sfc_install`  (
+  `sys_sfc_install_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NULL DEFAULT NULL COMMENT '安裝的用户ID',
+  `sys_sfc_id` int(11) NULL DEFAULT NULL COMMENT '组件ID',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_sfc_install_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户安装的组件' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_sfc_install
+-- ----------------------------
+INSERT INTO `sys_sfc_install` VALUES (1, 1, 2, 'sa', 1, '2024-10-25 09:33:10', NULL, NULL, NULL);
+INSERT INTO `sys_sfc_install` VALUES (2, 1, 3, 'sa', 1, '2024-10-29 10:46:53', NULL, NULL, NULL);
+INSERT INTO `sys_sfc_install` VALUES (3, 1, 4, 'sa', 1, '2024-11-24 10:16:03', NULL, NULL, NULL);
+INSERT INTO `sys_sfc_install` VALUES (4, 1, 5, 'sa', 1, '2024-11-24 12:55:07', NULL, NULL, NULL);
+
+-- ----------------------------
+-- Table structure for sys_sms_log
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_sms_log`;
+CREATE TABLE `sys_sms_log`  (
+  `sys_sms_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_sms_log_target` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接收人',
+  `sys_sms_log_template_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板ID',
+  `sys_sms_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '参数',
+  `sys_sms_cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '耗时时间',
+  `sys_sms_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误码',
+  `sys_sms_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误信息',
+  `sys_sms_app_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信厂家',
+  `sys_sms_app_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信密钥',
+  `sys_sms_app_sign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '签名',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_sms_log_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '短信下发日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_sms_log
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_template
@@ -389,7 +484,7 @@ CREATE TABLE `sys_template`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_template_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_template
@@ -427,12 +522,12 @@ CREATE TABLE `sys_user`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, '12345678901', 'test@qq.com', NULL, NULL, 1, 'data:image/jpeg;base64,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', NULL, NULL, NULL, NULL, '172.16.2.226', NULL, 1, NULL, NULL, NULL, '2024-08-28 10:09:26', 'sa', NULL);
+INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '4852bee906775d75337bfca410ba8e7d', '123456', 0, 1, '12345678901', 'test@qq.com', NULL, NULL, 1, 'data:image/jpeg;base64,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', NULL, NULL, NULL, NULL, '172.16.2.226', NULL, 37, NULL, NULL, NULL, '2024-08-28 10:09:26', 'sa', NULL);
 INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, 1, '', NULL, '172.16.2.226', '172.16.2.226', NULL, 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
 
 -- ----------------------------
@@ -451,7 +546,7 @@ CREATE TABLE `sys_user_config`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_user_config_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息 - 用户设置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息 - 用户设置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_config
@@ -474,12 +569,12 @@ CREATE TABLE `sys_user_layout`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_layout_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户布局' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户布局' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_layout
 -- ----------------------------
-INSERT INTO `sys_user_layout` VALUES (1, '[18,6]', '[]', '[[\"/src/views/home/components/weather.vue\"],[\"/src/views/home/components/time.vue\"]]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', 1);
+INSERT INTO `sys_user_layout` VALUES (1, '[{\"x\":0,\"y\":0,\"w\":9,\"h\":4,\"id\":4}]', '[]', '[{\"x\":0,\"y\":0,\"w\":9,\"h\":4,\"id\":4}]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -508,11 +603,25 @@ CREATE TABLE `sys_user_log`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
+INSERT INTO `sys_user_log` VALUES (1, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 251, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-12 14:59:28', '2024-09-12 14:59:28', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (2, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 353, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-13 16:37:39', '2024-09-13 16:37:39', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (3, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 110, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-13 16:38:30', '2024-09-13 16:38:30', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (4, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 102, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-13 16:41:11', '2024-09-13 16:41:11', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (5, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 98, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-13 16:43:10', '2024-09-13 16:43:10', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (6, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 637, 'LOGIN', 1, 'WEB', NULL, 1, '2024-09-26 15:10:34', '2024-09-26 15:10:34', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (7, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 521, 'LOGIN', 1, 'WEB', NULL, 1, '2024-10-24 15:03:58', '2024-10-24 15:03:58', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (8, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36', 'CHROME12', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 159, 'LOGIN', 1, 'WEB', NULL, 1, '2024-10-24 16:54:17', '2024-10-24 16:54:17', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (9, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 1457, 'LOGIN', 1, 'WEB', NULL, 1, '2024-10-28 08:44:11', '2024-10-28 08:44:11', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (10, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 171, 'LOGIN', 1, 'WEB', NULL, 1, '2024-11-26 09:01:01', '2024-11-26 09:01:01', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (11, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 51, 'LOGIN', 1, 'WEB', NULL, 1, '2024-11-26 13:29:28', '2024-11-26 13:29:28', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (12, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 219, 'LOGIN', 1, 'WEB', NULL, 1, '2024-11-28 15:30:32', '2024-11-28 15:30:32', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (13, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 66, 'LOGIN', 1, 'WEB', NULL, 1, '2024-11-28 15:30:58', '2024-11-28 15:30:58', NULL, NULL);
+INSERT INTO `sys_user_log` VALUES (14, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'CHROME13', '/system/api/v2/user/login', '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]', 46, 'LOGIN', 1, 'WEB', NULL, 1, '2024-11-28 15:41:11', '2024-11-28 15:41:11', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -523,7 +632,7 @@ CREATE TABLE `sys_user_role`  (
   `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '用户ID',
   `sys_role_id` int(11) NULL DEFAULT NULL COMMENT '角色ID',
   PRIMARY KEY (`sys_user_role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户 - 角色关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_role
@@ -548,7 +657,7 @@ CREATE TABLE `sys_user_third_party`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_user_third_party_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_third_party
