@@ -20,6 +20,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public ReturnResult<Boolean> send(Email email) {
+        if(StringUtils.isBlank(email.getTo())) {
+            return ReturnResult.fail("收件人不能为空");
+        }
         SmtpSetting smtpSetting = GlobalSettingFactory.getInstance().get("smtp", SmtpSetting.class);
         MailSender mailSender = smtpSetting.getMailSender();
         if(StringUtils.isEmpty(smtpSetting.getFrom())) {

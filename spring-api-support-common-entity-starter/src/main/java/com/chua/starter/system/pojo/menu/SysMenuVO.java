@@ -128,6 +128,12 @@ public class SysMenuVO {
         private String icon;
 
         /**
+         * 是否首页
+         */
+        @Schema(description = "是否首页")
+        private Boolean home;
+
+        /**
          * 额外图标
          */
         @Schema(description = "额外图标")

@@ -47,6 +47,15 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuName;
 
 
+
+    /**
+     * 是否首页
+     */
+    @TableField(value = "sys_menu_home")
+    @ApiModelProperty(value = "是否首页; 0:否")
+    @Schema(description = "是否首页; 0:否")
+    private Integer sysMenuHome;
+
     /**
      * 菜单标题
      */
