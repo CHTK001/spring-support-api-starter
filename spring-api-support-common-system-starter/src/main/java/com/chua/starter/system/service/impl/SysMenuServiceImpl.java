@@ -133,6 +133,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             transition.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
             transition.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
 
+            meta.setHome(null == sysMenu1.getSysMenuHome() ? true : sysMenu1.getSysMenuHome() == 1);
             meta.setIcon(sysMenu1.getSysMenuIcon());
             meta.setExtraIcon(sysMenu1.getSysMenuExtraIcon());
             meta.setTitle(sysMenu1.getSysMenuTitle());
