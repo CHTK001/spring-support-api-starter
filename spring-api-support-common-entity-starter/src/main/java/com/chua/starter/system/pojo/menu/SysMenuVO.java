@@ -134,6 +134,12 @@ public class SysMenuVO {
         private Boolean home;
 
         /**
+         * 是否引擎
+         */
+        @Schema(description = "是否引擎")
+        private Boolean engine;
+
+        /**
          * 额外图标
          */
         @Schema(description = "额外图标")
