@@ -55,6 +55,13 @@ public class SysMenu extends SysBase implements Serializable {
     @ApiModelProperty(value = "是否首页; 0:否")
     @Schema(description = "是否首页; 0:否")
     private Integer sysMenuHome;
+    /**
+     * 菜单引擎
+     */
+    @TableField(value = "sys_menu_engine")
+    @ApiModelProperty(value = "是否engine布局主页；0: 否")
+    @Schema(description = "是否engine布局主页；0: 否")
+    private Integer sysMenuEngine;
 
     /**
      * 菜单标题
