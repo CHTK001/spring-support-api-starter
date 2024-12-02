@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2022/7/25 10:59
  */
 @SpringBootApplication
-@MapperScan("com.chua.starter.sso")
+@MapperScan({"com.chua.starter.sso", "com.chua.starter.service"})
 public class AuthApplication {
 
     public static void main(String[] args) {
