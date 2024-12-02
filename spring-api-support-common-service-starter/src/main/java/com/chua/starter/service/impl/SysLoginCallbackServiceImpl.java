@@ -1,4 +1,4 @@
-package com.chua.starter.system.service;
+package com.chua.starter.service.impl;
 
 import com.chua.starter.service.SysLoginCallbackService;
 import com.chua.starter.system.entity.SysUser;

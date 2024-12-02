@@ -79,4 +79,18 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @Schema(description = "三方用户ID")
     @Size(max = 255, message = "三方用户ID最大长度要小于 255")
     private String sysUserThirdPartyUid;
+
+    /**
+     * 三方类型
+     */
+    public static enum Type {
+        /**
+         * Gitee
+         */
+        GITEE,
+        /**
+         * 微信小程序
+         */
+        WX_MINI_APP
+    }
 }
