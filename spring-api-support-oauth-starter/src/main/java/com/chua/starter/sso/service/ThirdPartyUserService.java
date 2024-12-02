@@ -4,7 +4,6 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
-import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
