@@ -6,6 +6,7 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
 import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,11 @@ import org.springframework.stereotype.Service;
 @Service
 @LoginType("THIRD_PARTY")
 public class ThirdPartyUserService extends UserService implements UserInfoService, Constant {
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
-    public ThirdPartyUserService(StringRedisTemplate stringRedisTemplate, SysUserMapper sysUserMapper) {
-        super(stringRedisTemplate, sysUserMapper);
-    }
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
