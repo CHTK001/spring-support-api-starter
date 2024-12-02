@@ -42,7 +42,7 @@ public class SysCityController {
     @ApiOperation("行政区划级联查询")
     @Operation(summary = "行政区划级联查询")
     @GetMapping("/tree")
-    public Result<List<SysCity>> queryCity(SysCityQuery query) {
+    public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
     }
 }
