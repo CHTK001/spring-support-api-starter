@@ -57,7 +57,10 @@ public class UserService implements UserInfoService, Constant {
             }
         }
 
-        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, username));
+        SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, username)
+                .or()
+                .eq(SysUser::getSysUserPhone, username)
+                .last("limit 1"));
         if (null == user) {
             check(newAccessKey, boos);
             return new UserResult().setMessage("账号/密码不正确");
@@ -108,7 +111,7 @@ public class UserService implements UserInfoService, Constant {
         String countKey = "system:user:count:" + user.getSysUserId();
         stringStringValueOperations.increment(countKey);
 
-        if(null != address) {
+        if (null != address) {
             user.setSysUserLastIp(address);
             user.setSysUserLongCount(Converter.convertIfNecessary(stringStringValueOperations.get(countKey), Integer.class));
             sysUserMapper.updateById(user);
