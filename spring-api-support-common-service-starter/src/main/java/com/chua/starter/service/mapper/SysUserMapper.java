@@ -2,10 +2,12 @@ package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.system.entity.SysUser;
-import com.chua.starter.system.query.SysUserQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Set;
 
 /**
  * @author CH
@@ -13,7 +15,19 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
+    /**
+     * 用戶權限
+     * @param userId 用户ID
+     * @return 结果
+     */
+    Set<String> selectPermission(Integer userId);
 
+    /**
+     * 查詢賬號信息
+     * @param accessKey 賬號
+     * @return 用户信息
+     */
+    SysUser selectCustomOne(String accessKey);
     /**
      * 查询系统用户分页数据
      * 此方法用于根据不同的筛选条件分页查询系统用户信息
