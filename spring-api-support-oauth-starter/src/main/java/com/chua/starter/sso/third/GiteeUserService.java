@@ -6,6 +6,7 @@ import com.chua.starter.sso.mapper.SysUserMapper;
 import com.chua.starter.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.sso.service.UserService;
 import com.chua.starter.system.entity.SysUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,13 @@ import org.springframework.stereotype.Service;
 @Service
 @LoginType("gitee")
 public class GiteeUserService extends UserService {
+    @Autowired
+    private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
-    final SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
-
-    public GiteeUserService(StringRedisTemplate stringRedisTemplate, SysUserMapper sysUserMapper, SysUserTripartiteBindMapper sysUserTripartiteBindMapper) {
-        super(stringRedisTemplate, sysUserMapper);
-        this.sysUserTripartiteBindMapper = sysUserTripartiteBindMapper;
-    }
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
