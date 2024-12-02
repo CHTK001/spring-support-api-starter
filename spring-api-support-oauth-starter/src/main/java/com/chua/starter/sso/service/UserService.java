@@ -17,7 +17,9 @@ import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -35,14 +37,14 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  */
 @Service
 @LoginType("SYSTEM")
-@RequiredArgsConstructor
 public class UserService implements UserInfoService, Constant {
-
-    final StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     private final int count = 6;
     private final int timeout = 5;
 
-    final SysUserMapper sysUserMapper;
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
