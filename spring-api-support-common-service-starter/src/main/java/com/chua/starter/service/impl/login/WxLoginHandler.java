@@ -41,7 +41,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  * @author CH
  * @since 2024/12/2
  */
-@Spi("wx")
+@Spi("WX_MINI_APP")
 @Slf4j
 public class WxLoginHandler implements LoginHandler {
 
