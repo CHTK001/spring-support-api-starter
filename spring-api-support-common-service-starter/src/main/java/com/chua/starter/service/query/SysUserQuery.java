@@ -1,4 +1,4 @@
-package com.chua.starter.system.query;
+package com.chua.starter.service.query;
 
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysUser;
