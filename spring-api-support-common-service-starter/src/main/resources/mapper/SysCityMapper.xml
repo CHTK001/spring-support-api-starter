@@ -6,12 +6,16 @@
         SELECT * FROM sys_city
         <where>
             <if test="query.parentCode != null and query.parentCode != ''">
-                AND pcode = #{query.parentCode}
+                AND sys_city_parent_code = #{query.parentCode}
             </if>
 
             <if test="query.cityName != null and query.cityName != ''">
-                and `name` like concat('%', #${query.cityName}, '%')
+                and sys_city_name like concat('%', #${query.cityName}, '%')
             </if>
+        </where>
+    </select>
+    <select id="queryCityForProvince" resultType="com.chua.starter.system.entity.SysCity">
+        SELECT * FROM sys_city WHERE sys_city_tree_path  like concat('%', #{query.parentCode}, '%')
         </where>
     </select>
 </mapper>
