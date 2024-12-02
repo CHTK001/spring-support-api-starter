@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.service.mapper.SysCityMapper">
+
+    <select id="cascadeList" resultType="com.chua.starter.system.entity.SysCity">
+        SELECT * FROM sys_city
+        <where>
+            <if test="query.parentCode != null and query.parentCode != ''">
+                AND pcode = #{query.parentCode}
+            </if>
+
+            <if test="query.cityName != null and query.cityName != ''">
+                and `name` like concat('%', #${query.cityName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>
