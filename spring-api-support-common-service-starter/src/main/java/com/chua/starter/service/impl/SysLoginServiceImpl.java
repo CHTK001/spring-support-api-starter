@@ -1,24 +1,22 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
-import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.service.SysLoginService;
 import com.chua.starter.service.SysSettingService;
+import com.chua.starter.service.impl.login.LoginHandler;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysUserThirdParty;
 import com.chua.starter.system.pojo.user.RefreshToken;
@@ -45,8 +43,7 @@ import java.util.Optional;
 
 import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
-import static com.chua.common.support.lang.code.ReturnCode.*;
-import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
+import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
  * 登录接口实现
@@ -64,50 +61,17 @@ public class SysLoginServiceImpl implements SysLoginService {
     final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     final RedisTemplate redisTemplate;
     final SysSettingService sysSettingService;
-    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
+    public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        String code = loginData.getVerifyCodeKey();
-        GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
-        if (verifyCodeSetting.isCheckCodeOpen()) {
-            if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
-            }
-            Result<LoginResult> rs = checkVerifyCode(loginData, request);
-            if (null != rs) {
-                return rs;
-            }
-        }
-
-        String address = getIpAddress(request);
-        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        long startTime = System.currentTimeMillis();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
-                ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
-        );
-
-        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
-        if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
-        }
-
-        if (accessToken.getCode() != 200) {
-            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
-        }
-
-        LoginResult loginResult = LoginResult.builder()
-                .userInfo(getUserLoginInfo(accessToken.getToken()))
-                .tokenType("Bearer")
-                .accessToken(accessToken.getToken())
-                .build();
-        CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return Result.success(loginResult);
+        return ServiceProvider.of(LoginHandler.class).getNewExtension(loginData.getLoginType())
+                .login(this, loginData, request, response);
     }
 
     @SuppressWarnings("ALL")
-    private Result<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
+    public Result<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
         if (StringUtils.isNotBlank(sessionKey)) {
