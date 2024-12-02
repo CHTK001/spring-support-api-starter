@@ -45,6 +45,14 @@ public class SysDict extends SysBase implements Serializable {
     @Schema(description = "")
     @NotNull(message = "pid不能为null")
     private Integer sysDictPid;
+
+    /**
+     * 排序
+     */
+    @TableField(value = "sys_dict_sort")
+    @ApiModelProperty(value = "排序")
+    @Schema(description = "排序")
+    private Integer sysDictSort;
     /**
      * 字典名称
      */
