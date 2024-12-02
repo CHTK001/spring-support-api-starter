@@ -45,4 +45,16 @@ public class SysCityController {
     public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
     }
+
+    /**
+     * 行政区划级子集查询
+     * @param query
+     * @return
+     */
+    @ApiOperation("获取省份下所有子行政机构")
+    @Operation(summary = "获取省份下所有子行政机构")
+    @GetMapping("/province")
+    public Result<List<SysCity>> queryCityForProvince(@ParameterObject SysCityQuery query) {
+        return sysCityService.queryCityForProvince(query);
+    }
 }
