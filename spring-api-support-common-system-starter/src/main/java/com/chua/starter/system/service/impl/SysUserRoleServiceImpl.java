@@ -12,5 +12,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUserRole> implements SysUserRoleService{
-
+    @Override
+    public void saveUserRole(Integer sysUserId, String roleCode) {
+        baseMapper.saveUserRole(sysUserId, roleCode);
+    }
 }

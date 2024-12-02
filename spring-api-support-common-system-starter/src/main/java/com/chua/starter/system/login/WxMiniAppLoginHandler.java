@@ -1,4 +1,4 @@
-package com.chua.starter.service.impl.login;
+package com.chua.starter.system.login;
 
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
@@ -15,12 +15,14 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.system.service.SysUserRoleService;
+import com.chua.tencent.support.miniapp.TencentMaHandler;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.SysUserThirdPartyService;
+import com.chua.starter.service.impl.SysLoginServiceImpl;
+import com.chua.starter.service.impl.login.LoginHandler;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserThirdParty;
-import com.chua.tencent.support.miniapp.TencentMaHandler;
-import com.chua.starter.service.impl.SysLoginServiceImpl;
 import com.chua.starter.system.result.LoginResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,7 +45,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  */
 @Spi("WX_MINI_APP")
 @Slf4j
-public class WxLoginHandler implements LoginHandler {
+public class WxMiniAppLoginHandler implements LoginHandler {
 
     @AutoInject
     private TencentMaHandler tencentMaHandler;
@@ -58,6 +60,8 @@ public class WxLoginHandler implements LoginHandler {
     @AutoInject
     private TransactionTemplate transactionTemplate;
 
+    @AutoInject
+    private SysUserRoleService sysUserRoleService;
 
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
@@ -68,7 +72,7 @@ public class WxLoginHandler implements LoginHandler {
             // 调用微信 API 获取用户的 openid 和 session_key
             WxMaJscode2SessionResult session = tencentMaHandler.getSessionInfo(code);
             openid = session.getOpenid();
-            res = check(session, loginData);
+            res = check(session, loginData, "PTYH");
         } catch (WxErrorException e) {
             return Result.failed(e.getError().getErrorMsg());
         }
@@ -103,7 +107,7 @@ public class WxLoginHandler implements LoginHandler {
         return Result.success(loginResult);
     }
 
-    private Result<LoginResult> check(WxMaJscode2SessionResult session, LoginData loginData) {
+    protected Result<LoginResult> check(WxMaJscode2SessionResult session, LoginData loginData, String roleCode) {
         String code = loginData.getUsername();
         String openid = session.getOpenid();
         WxMaUserInfo userInfo = null;
@@ -132,6 +136,7 @@ public class WxLoginHandler implements LoginHandler {
         List<SysUserThirdParty> list = sysUserThirdPartyService.list(Wrappers.<SysUserThirdParty>lambdaQuery()
                 .eq(SysUserThirdParty::getSysUserThirdPartyUid, openid)
                 .eq(SysUserThirdParty::getSysUserThirdPartyType, SysUserThirdParty.Type.WX_MINI_APP.name()));
+
         if (!CollectionUtils.isEmpty(list)) {
             return null;
         }
@@ -151,6 +156,7 @@ public class WxLoginHandler implements LoginHandler {
                 sysUser.setSysUserDelete(0);
                 sysUser.setSysUserStatus(1);
                 sysUserService.save(sysUser);
+                sysUserRoleService.saveUserRole(sysUser.getSysUserId(), roleCode);
                 sysUserThirdParty.setSysUserId(sysUser.getSysUserId());
                 sysUserThirdPartyService.save(sysUserThirdParty);
                 return 0;
@@ -158,6 +164,7 @@ public class WxLoginHandler implements LoginHandler {
         } catch (TransactionException e) {
             return Result.failed("绑定信息失败, 请重试!");
         }
+
         return null;
     }
 }

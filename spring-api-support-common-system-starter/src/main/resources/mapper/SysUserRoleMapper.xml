@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysUserRoleMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysUserRole">
-    <!--@mbg.generated-->
-    <!--@Table sys_user_role-->
-    <id column="sys_user_role_id" jdbcType="INTEGER" property="sysUserRoleId" />
-    <result column="sys_user_id" jdbcType="INTEGER" property="sysUserId" />
-    <result column="sys_role_id" jdbcType="INTEGER" property="sysRoleId" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    sys_user_role_id, sys_user_id, sys_role_id
-  </sql>
+
+  <insert id="saveUserRole">
+    INSERT INTO sys_user_role(sys_user_id, sys_role_id) VALUES(#{sysUserId}, (SELECT sys_role_id FROM sys_role WHERE sys_role_code = #{roleCode}))
+  </insert>
 </mapper>

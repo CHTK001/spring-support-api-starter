@@ -11,4 +11,12 @@ import com.chua.starter.system.entity.SysUserRole;
 public interface SysUserRoleService extends IService<SysUserRole> {
 
 
+
+    /**
+     * 保存用户角色
+     *
+     * @param sysUserId 用户ID
+     * @param roleCode 角色编码
+     */
+    void saveUserRole(Integer sysUserId, String roleCode);
 }
