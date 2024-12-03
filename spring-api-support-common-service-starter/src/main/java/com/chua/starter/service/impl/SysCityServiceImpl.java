@@ -32,9 +32,9 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
 
         TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
             TreeNode<SysCity> node = new TreeNode<>();
-            node.setId(sysCity.getSysCityCode().toString());
+            node.setId(sysCity.getSysCityCode());
             node.setLabel(sysCity.getSysCityName());
-            node.setPid(sysCity.getSysCityParentCode().toString());
+            node.setPid("0");
             node.setExt(sysCity);
             return node;
         });
@@ -52,9 +52,9 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
 
         TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
             TreeNode<SysCity> node = new TreeNode<>();
-            node.setId(sysCity.getSysCityCode().toString());
+            node.setId(sysCity.getSysCityCode());
             node.setLabel(sysCity.getSysCityName());
-            node.setPid(sysCity.getSysCityParentCode().toString());
+            node.setPid(sysCity.getSysCityParentCode());
             node.setExt(sysCity);
             return node;
         });

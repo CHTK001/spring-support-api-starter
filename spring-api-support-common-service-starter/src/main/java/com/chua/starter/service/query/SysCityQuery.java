@@ -1,7 +1,9 @@
 package com.chua.starter.service.query;
 
+import com.chua.common.support.validator.group.SelectGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -18,6 +20,7 @@ public class SysCityQuery {
      */
     @ApiModelProperty("父级代码")
     @Schema(description = "父级代码")
+    @NotNull(message = "父级代码不能为空", groups = {SelectGroup.class})
     private String parentCode;
     /**
      * 城市名称
