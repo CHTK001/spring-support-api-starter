@@ -23,7 +23,7 @@ public class SysCity implements Serializable {
     @TableField("sys_city_code")
     @Schema(description = "区划代码")
     @ApiModelProperty("区划代码")
-    private Double sysCityCode;
+    private String sysCityCode;
 
     /**
      * 地区区号
@@ -54,7 +54,7 @@ public class SysCity implements Serializable {
     @TableField("sys_city_parent_code")
     @Schema(description = "父级区划代码")
     @ApiModelProperty("父级区划代码")
-    private Double sysCityParentCode;
+    private String sysCityParentCode;
 
     /**
      * 树路径
