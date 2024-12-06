@@ -93,10 +93,13 @@ public class SysCity implements Serializable {
     @ApiModelProperty("排序")
     private Integer sysCitySort;
 
-
     /**
      * 子级
      */
     @TableField(exist = false)
     private List<SysCity> children;
+
+    public static void main(String[] args) {
+
+    }
 }
