@@ -12,6 +12,7 @@ import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
+import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
@@ -125,12 +126,16 @@ public class UserService implements UserInfoService, Constant {
         return new UserResult()
                 .setId(user.getSysUserId() + "")
                 .setUserId(user.getSysUserId() + "")
+                .setClientId(user.getSysClientId())
+                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
+                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
                 .setRoles(collect)
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
                 .setPermission(getPermission(user))
                 .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
+                .setLoginCnt(user.getSysUserLongCount())
                 .setName(user.getSysUserNickname())
                 .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)

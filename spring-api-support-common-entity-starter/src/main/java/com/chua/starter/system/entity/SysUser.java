@@ -209,6 +209,13 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRegisterIp;
 
     /**
+     * 客户端ID
+     */
+    @TableField(value = "sys_client_id")
+    @ApiModelProperty(value = "客户端ID")
+    @Schema(description = "客户端ID")
+    private String sysClientId;
+    /**
      * 角色名称
      */
     @Schema(description = "角色(系统生成)")
