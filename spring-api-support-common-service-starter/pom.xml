@@ -93,8 +93,8 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-tencent-starter</artifactId>
-            <version>4.0.0</version>
+            <artifactId>spring-support-tencent-starter</artifactId>
+            <version>4.0.0.1</version>
         </dependency>
 
         <dependency>
@@ -111,6 +111,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
+            <version>4.0.0.1</version>
         </dependency>
 
         <dependency>
@@ -132,6 +133,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
+            <version>4.0.0.2</version>
         </dependency>
 
         <dependency>
@@ -144,11 +146,6 @@
             <artifactId>spring-support-email-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-tencent-starter</artifactId>
-            <version>4.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>
