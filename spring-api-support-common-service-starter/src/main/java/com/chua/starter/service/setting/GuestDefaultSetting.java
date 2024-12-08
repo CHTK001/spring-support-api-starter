@@ -16,8 +16,14 @@ public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
      */
     private boolean checkCodeOpen;
 
+    /**
+     * 是否开启
+     */
+    private boolean checkTotpCodeOpen;
+
     @Override
     public void upgrade(GuestDefaultSetting guestDefaultSetting) {
         this.checkCodeOpen = guestDefaultSetting.isCheckCodeOpen();
+        this.checkTotpCodeOpen = guestDefaultSetting.isCheckTotpCodeOpen();
     }
 }
