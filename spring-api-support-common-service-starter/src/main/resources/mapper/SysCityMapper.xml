@@ -10,12 +10,8 @@
             </if>
 
             <if test="query.cityName != null and query.cityName != ''">
-                and sys_city_name like concat('%', #${query.cityName}, '%')
+                and sys_city_name like concat('%', #{query.cityName}, '%')
             </if>
-        </where>
-    </select>
-    <select id="queryCityForProvince" resultType="com.chua.starter.system.entity.SysCity">
-        SELECT * FROM sys_city WHERE sys_city_tree_path  like concat('%', #{query.parentCode}, '%')
         </where>
     </select>
 </mapper>

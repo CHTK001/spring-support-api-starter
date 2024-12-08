@@ -94,12 +94,21 @@ public class SysCity implements Serializable {
     private Integer sysCitySort;
 
     /**
+     * 车牌
+     */
+    @TableField("sys_city_car_plate")
+    @Schema(description = "车牌")
+    private String sysCityCarPlate;
+    /**
+     * 车牌号
+     */
+    @TableField("sys_city_car_plate_no")
+    @Schema(description = "车牌号")
+    private String sysCityCarPlateNo;
+
+    /**
      * 子级
      */
     @TableField(exist = false)
     private List<SysCity> children;
-
-    public static void main(String[] args) {
-
-    }
 }
