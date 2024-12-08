@@ -1,9 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.oshi.support.Sys;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.mapper.SysCityMapper;
@@ -41,24 +39,5 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
 
         return Result.success(treeNode.toList());
 
-    }
-
-    @Override
-    public Result<List<SysCity>> queryCityForProvince(SysCityQuery query) {
-        List<SysCity> sysCities = baseMapper.queryCityForProvince(query);
-        if("LIST".equals(query.getReturnType())) {
-            return Result.success(sysCities);
-        }
-
-        TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
-            TreeNode<SysCity> node = new TreeNode<>();
-            node.setId(sysCity.getSysCityCode());
-            node.setLabel(sysCity.getSysCityName());
-            node.setPid(sysCity.getSysCityParentCode());
-            node.setExt(sysCity);
-            return node;
-        });
-
-        return Result.success(treeNode.toList());
     }
 }

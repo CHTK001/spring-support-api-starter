@@ -1,5 +1,6 @@
 package com.chua.starter.service.impl;
 
+import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.SysLoginCallbackService;
 import com.chua.starter.system.entity.SysUser;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SysLoginCallbackServiceImpl implements SysLoginCallbackService {
 
-    final SysUserService sysUserService;
+    final SimpleSysUserService sysUserService;
 
 
     @Override
