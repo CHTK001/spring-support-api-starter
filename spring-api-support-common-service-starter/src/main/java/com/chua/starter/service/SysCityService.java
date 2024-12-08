@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.query.SysCityQuery;
 import com.chua.starter.system.entity.SysCity;
-import com.chua.starter.system.entity.SysUser;
 
 import java.util.List;
 
@@ -25,11 +24,4 @@ public interface SysCityService extends IService<SysCity> {
      * @return 返回一个Result对象，其中包含查询结果的城市列表如果查询没有结果，列表将为空
      */
     Result<List<SysCity>> queryCity(SysCityQuery query);
-
-    /**
-     * 查询城市列表
-     * @param query 查询条件
-     * @return
-     */
-    Result<List<SysCity>> queryCityForProvince(SysCityQuery query);
 }

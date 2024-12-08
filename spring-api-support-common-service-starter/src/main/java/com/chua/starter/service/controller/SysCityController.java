@@ -1,21 +1,11 @@
 package com.chua.starter.service.controller;
 
-import com.chua.common.support.lang.code.ReturnCode;
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.oss.result.ResultCode;
-import com.chua.common.support.validator.group.SelectGroup;
-import com.chua.redis.support.search.SearchResultItem;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.result.Result;
-import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysCityService;
-import com.chua.starter.service.event.EventRequest;
 import com.chua.starter.service.query.SysCityQuery;
 import com.chua.starter.system.entity.SysCity;
-import com.github.xiaoymin.knife4j.annotations.Ignore;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +45,4 @@ public class SysCityController {
     public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
     }
-
-
 }
