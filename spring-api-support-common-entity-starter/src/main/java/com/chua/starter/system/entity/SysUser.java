@@ -96,6 +96,14 @@ public class SysUser extends SysBase implements Serializable {
     @Size(max = 255, message = "盐最大长度要小于 255")
     private String sysUserSalt;
 
+    /**
+     * TOTP
+     */
+    @TableField(value = "sys_user_totp_code")
+    @ApiModelProperty(value = "TOTP")
+    @Schema(description = "TOTP")
+    private String sysUserTotpCode;
+
 
     /**
      * 是否删除; 0: 未删除
@@ -215,6 +223,8 @@ public class SysUser extends SysBase implements Serializable {
     @ApiModelProperty(value = "客户端ID")
     @Schema(description = "客户端ID")
     private String sysClientId;
+
+
     /**
      * 角色名称
      */
