@@ -41,7 +41,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-discovery-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
@@ -58,43 +57,36 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-nacos-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-sse-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-alibaba-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-baidu-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-zhipu-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-tencent-starter</artifactId>
-            <version>4.0.0.1</version>
         </dependency>
 
         <dependency>
@@ -132,7 +124,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
-            <version>4.0.0.2</version>
         </dependency>
 
         <dependency>
