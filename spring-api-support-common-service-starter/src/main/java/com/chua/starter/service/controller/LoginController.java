@@ -48,70 +48,6 @@ public class LoginController {
 
     final SysLoginService sysLoginService;
     /**
-     * 三方登录
-     *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
-     */
-    @Operation(summary = "三方登录码")
-    @PostMapping("/third/login/code")
-    public ReturnResult<String> thirdLoginCode(@Valid @RequestBody ThirdLoginData loginData,
-                                               HttpServletRequest request,
-                                               HttpServletResponse response,
-                                               BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
-        }
-
-        return sysLoginService.thirdLoginCode(loginData, request, response);
-    }
-    /**
-     * 三方绑定
-     *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
-     */
-    @Operation(summary = "三方绑定码")
-    @PostMapping("/third/bind/code")
-    public ReturnResult<String> thirdBindCode(@Valid @RequestBody ThirdLoginData loginData,
-                                              HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
-        }
-
-        return sysLoginService.thirdBindCode(loginData, request, response);
-    }
-    /**
-     * 三方绑定
-     *
-     * @param userId       userId
-     * @return 结果
-     */
-    @Operation(summary = "三方绑定情况")
-    @PostMapping("/third/bind/info")
-    public ReturnResult<List<String>> thirdBindInfo(@UserValue("userId") String userId) {
-        return sysLoginService.thirdBindInfo(userId);
-    }
-    /**
-     * 三方绑定
-     *
-     * @param userId       userId
-     * @return 结果
-     */
-    @Operation(summary = "三方绑定解绑")
-    @PostMapping("/third/unbind")
-    public ReturnResult<Boolean> thirdBindInfo(@UserValue("userId") String userId, @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
-        return sysLoginService.thirdUnbind(userId, thirdPartyUnbindRequest);
-    }
-    /**
      * 登录
      *
      * @param loginData     登录信息
@@ -184,6 +120,8 @@ public class LoginController {
     public Result<UserInfoVO> getUserLoginInfo() {
         return Result.success(sysLoginService.getUserLoginInfo());
     }
+
+
 
 
 }
