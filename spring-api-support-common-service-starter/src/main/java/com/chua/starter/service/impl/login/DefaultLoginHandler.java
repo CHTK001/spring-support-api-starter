@@ -5,6 +5,7 @@ import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.otp.TotpGenerator;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
@@ -16,7 +17,9 @@ import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.system.result.LoginResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -34,7 +37,10 @@ import static com.chua.starter.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_F
  */
 @SpiDefault
 @Slf4j
+@RequiredArgsConstructor
 public class DefaultLoginHandler implements LoginHandler {
+
+    final StringRedisTemplate stringRedisTemplate;
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
@@ -93,7 +99,12 @@ public class DefaultLoginHandler implements LoginHandler {
             if (StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
-            String secretString = loginData.getUsername() + loginData.getLoginType();
+
+            Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, loginData.getUsername());
+            if(null == key) {
+                return Result.failed("请先绑定fa验证码");
+            }
+            String secretString = key.toString();
             byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
 
             TotpGenerator otpGenerator = ServiceProvider.of(TotpGenerator.class).getNewExtension("default", bytes, ZoneOffset.UTC);
