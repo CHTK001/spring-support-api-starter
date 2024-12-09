@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserThirdParty;
