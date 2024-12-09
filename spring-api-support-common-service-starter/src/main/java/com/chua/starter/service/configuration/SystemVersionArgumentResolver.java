@@ -2,7 +2,9 @@ package com.chua.starter.service.configuration;
 
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.configuration.resolver.VersionArgumentResolver;
+import com.chua.starter.service.properties.SsoProperties;
 import com.chua.starter.service.setting.VersionSetting;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2024/8/26
  */
 @Configuration
+@EnableConfigurationProperties(SsoProperties.class)
 public class SystemVersionArgumentResolver implements VersionArgumentResolver {
 
     @Override
