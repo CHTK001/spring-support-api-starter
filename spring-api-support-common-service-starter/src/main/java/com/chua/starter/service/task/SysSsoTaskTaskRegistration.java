@@ -11,6 +11,7 @@ import com.chua.starter.system.pojo.sso.SysFileUploadRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2024/12/4
  */
 @RequiredArgsConstructor
+@SpringBootApplication
 public class SysSsoTaskTaskRegistration implements Runnable, DisposableBean, InitializingBean {
     private static final ExecutorService FULL_SUB_TASK = ThreadUtils.newFixedThreadExecutor(100, "SysTaskSsoServiceImpl#合并分片子任务");
     private static final LinkedBlockingQueue<SysTaskSsoWrapper> SYS_TASK_SSO = new LinkedBlockingQueue<>();
