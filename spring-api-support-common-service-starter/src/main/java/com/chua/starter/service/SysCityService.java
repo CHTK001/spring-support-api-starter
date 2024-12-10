@@ -24,4 +24,15 @@ public interface SysCityService extends IService<SysCity> {
      * @return 返回一个Result对象，其中包含查询结果的城市列表如果查询没有结果，列表将为空
      */
     Result<List<SysCity>> queryCity(SysCityQuery query);
+
+    /**
+     * 获取下级以及子集行政区划
+     *
+     * 本方法通过接收SysCityQuery对象作为查询条件，返回符合条件的城市列表
+     * 主要用于获取下级行政区划信息的场景，如获取某个城市的下级行政区划等
+     *
+     * @param query 查询条件对象，包含需要查询的城市的相关条件
+     * @return 返回一个Result对象，其中包含查询结果的城市列表如果查询没有结果，列表将为空
+     */
+    Result<List<SysCity>> childrenAll(SysCityQuery query);
 }
