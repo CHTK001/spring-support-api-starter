@@ -86,9 +86,94 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>spring-support-report-server-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-ucanaccess-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-ssh-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-qiniu-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-postgres-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-minio-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-image-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-image-jai-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-ftp-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-nacos-starter</artifactId>
                 <version>4.0.0.2</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-influxdb-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-aspose-email-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-aspose-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-webjar-pdf-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-webjar-ofd-starter</artifactId>
+                <version>4.0.0.2</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.chua</groupId>
