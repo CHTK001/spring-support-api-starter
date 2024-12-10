@@ -2,6 +2,7 @@ package com.chua.starter.service.impl.login;
 
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.otp.TotpGenerator;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
@@ -37,10 +38,10 @@ import static com.chua.starter.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_F
  */
 @SpiDefault
 @Slf4j
-@RequiredArgsConstructor
 public class DefaultLoginHandler implements LoginHandler {
 
-    final StringRedisTemplate stringRedisTemplate;
+    @AutoInject
+    StringRedisTemplate stringRedisTemplate;
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);

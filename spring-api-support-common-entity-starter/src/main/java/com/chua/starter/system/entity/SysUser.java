@@ -226,6 +226,16 @@ public class SysUser extends SysBase implements Serializable {
 
 
     /**
+     * TOTP
+     */
+    @ColumnLength(600)
+    @TableField(value = "sys_user_totp")
+    @ApiModelProperty(value = "TOTP")
+    @Schema(description = "TOTP")
+    private String sysUserTotp;
+
+
+    /**
      * 角色名称
      */
     @Schema(description = "角色(系统生成)")
