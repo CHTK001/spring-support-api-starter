@@ -2,6 +2,7 @@ package com.chua.starter.service.impl.login;
 
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.otp.TotpGenerator;
 import com.chua.common.support.spi.ServiceProvider;
@@ -13,6 +14,7 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.impl.SysLoginServiceImpl;
 import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.system.result.LoginResult;
@@ -42,6 +44,10 @@ public class DefaultLoginHandler implements LoginHandler {
 
     @AutoInject
     StringRedisTemplate stringRedisTemplate;
+
+    @AutoInject
+    SimpleSysUserService simpleSysUserService;
+
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
@@ -100,17 +106,8 @@ public class DefaultLoginHandler implements LoginHandler {
             if (StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
-
-            Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, loginData.getUsername());
-            if(null == key) {
-                return Result.failed("请先绑定fa验证码");
-            }
-            String secretString = key.toString();
-            byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
-
-            TotpGenerator otpGenerator = ServiceProvider.of(TotpGenerator.class).getNewExtension("default", bytes, ZoneOffset.UTC);
-            boolean verify = otpGenerator.verify(code);
-            if (!verify) {
+            ReturnResult<Boolean> verify = simpleSysUserService.verify(code, loginData.getUsername());
+            if (!verify.isOk()) {
                 return Result.failed("验证码不正确");
             }
 
