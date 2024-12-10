@@ -40,4 +40,23 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
         return Result.success(treeNode.toList());
 
     }
+
+    @Override
+    public Result<List<SysCity>> childrenAll(SysCityQuery query) {
+        List<SysCity> sysCities = baseMapper.childrenAll(query);
+        if("LIST".equals(query.getReturnType())) {
+            return Result.success(sysCities);
+        }
+
+        TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
+            TreeNode<SysCity> node = new TreeNode<>();
+            node.setId(sysCity.getSysCityCode());
+            node.setLabel(sysCity.getSysCityName());
+            node.setPid("0");
+            node.setExt(sysCity);
+            return node;
+        });
+
+        return Result.success(treeNode.toList());
+    }
 }

@@ -27,4 +27,11 @@ public interface SysCityMapper extends BaseMapper<SysCity> {
      * @return 行政区划级联查询
      */
     List<SysCity> cascadeList(@Param("query") SysCityQuery query);
+
+    /**
+     * 获取下级行政区划
+     *
+     * @return 获取下级行政区划
+     */
+    List<SysCity> childrenAll(@Param("query")SysCityQuery query);
 }

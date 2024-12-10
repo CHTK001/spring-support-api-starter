@@ -37,6 +37,12 @@ public class SysCityController {
     final SysCityService sysCityService;
 
 
+    /**
+     * 获取下级行政区划信息
+     *
+     * @param query 包含父级行政区划代码的查询对象
+     * @return 返回下级行政区划列表
+     */
     @ApiOperation("获取下级行政区划")
     @Operation(summary = "获取下级行政区划")
     @GetMapping("/children")
@@ -44,5 +50,20 @@ public class SysCityController {
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
+    }
+
+    /**
+     * 获取下级以及所有子集行政区划信息
+     *
+     * @param query 包含父级行政区划代码的查询对象
+     * @return 返回下级以及子集行政区划列表
+     */
+    @ApiOperation("获取下级以及子集行政区划")
+    @Operation(summary = "获取下级以及子集行政区划")
+    @GetMapping("/childrenAll")
+    @ApiCacheKey("'sys:city:all:' + #query.parentCode")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public Result<List<SysCity>> childrenAll(@ParameterObject SysCityQuery query) {
+        return sysCityService.childrenAll(query);
     }
 }
