@@ -55,7 +55,8 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         String sha512Hex = DigestUtils.sha512Hex(seed);
         stringRedisTemplate.opsForHash().put(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername(), sha512Hex);
         sysUser.setSysUserTotpCode(sha512Hex);
-        return null;
+        baseMapper.updateById(sysUser);
+        return ReturnResult.ok(true);
     }
 
     @Override
@@ -66,7 +67,8 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         }
         stringRedisTemplate.opsForHash().delete(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         sysUser.setSysUserTotpCode(EMPTY);
-        return null;
+        baseMapper.updateById(sysUser);
+        return ReturnResult.ok(true);
     }
 
     @Override
