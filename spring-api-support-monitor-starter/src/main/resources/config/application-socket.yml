@@ -1,4 +1,6 @@
 plugin:
   socket:
     enable: true
-    port: -1
+    port:
+      - -1
+      - -2
