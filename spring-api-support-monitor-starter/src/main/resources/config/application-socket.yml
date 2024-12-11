@@ -1,6 +1,8 @@
 plugin:
   socket:
     enable: true
-    port:
+    room:
       - -1
+        default
       - -2
+        webrtc
