@@ -29,7 +29,7 @@ import java.util.List;
 @Schema(description = "用户表")
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "sys_user")
+@TableName(value = "system.sys_user")
 public class SysUser extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(value = "sys_user_id", type = IdType.AUTO)
