@@ -180,6 +180,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
+        if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
+        ) > 0L) {
+            return ReturnResult.illegal("账号已存在");
+        }
         sysUserUpdate.setSysUserSalt(RandomUtils.randomString(14));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(0);
