@@ -14,13 +14,16 @@ import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
+import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysMenuMapper;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
+import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -39,18 +42,22 @@ import java.util.Set;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
     final SysRoleMenuService sysRoleMenuService;
+    @Autowired
+    private SysMenuServiceImpl sysMenuService;
     @Override
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
         if(!roles.isEmpty()) {
-           list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
-                    .in(SysRoleMenu::getSysRoleId, roles)
-                    .select(SysRoleMenu::getSysMenuId)
+            list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
+                    MPJWrappers.<SysRoleMenu>lambdaJoin()
+                            .select(SysRoleMenu::getSysMenuId)
+                            .leftJoin(SysRole.class, SysRole::getSysRoleId, SysRole::getSysRoleId)
+                            .in(SysRole::getSysRoleCode, roles)
             );
         } else {
             list = Collections.emptyList();
         }
-        List<SysMenu> sysMenus = listAll();
+        List<SysMenu> sysMenus = sysMenuService.listAll();
 
         List<SysMenu> filterMenus = Collections.emptyList();
         if(AuthConstant.isSuperAdmin(roles)) {
@@ -89,11 +96,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
-        List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery()
-                .in(SysRoleMenu::getSysRoleId, roles)
-                .select(SysRoleMenu::getSysMenuId)
+        List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
+                MPJWrappers.<SysRoleMenu>lambdaJoin()
+                        .select(SysRoleMenu::getSysMenuId)
+                        .leftJoin(SysRole.class, SysRole::getSysRoleId, SysRole::getSysRoleId)
+                        .in(SysRole::getSysRoleCode, roles)
         );
-        List<SysMenu> sysMenus = listAll();
+        List<SysMenu> sysMenus = sysMenuService.listAll();
         if(ignoreType > -1) {
             sysMenus = sysMenus.stream().filter(sysMenu1 -> sysMenu1.getSysMenuType() != ignoreType).toList();
         }
