@@ -92,7 +92,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-common-starter</artifactId>
+                <artifactId>spring-support-websockify-starter</artifactId>
                 <version>4.0.0.3</version>
             </dependency>
 
