@@ -142,6 +142,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-diagram-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-aspose-email-starter</artifactId>
         </dependency>
 
