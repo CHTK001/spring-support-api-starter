@@ -3,7 +3,7 @@ spring:
     name: monitor
   profiles:
     active: dev
-    include: mybatis,swagger,socket,control,codec,ip,discovery,options,websockify
+    include: mybatis,swagger,socket,control,codec,ip,discovery,options
 plugin:
   parameter:
     enable: true
