@@ -235,6 +235,20 @@
             </plugin>
 
             <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <version>0.10.4</version>
+                <configuration>
+                    <buildArgs>
+                        <buildArg> --enable-native-access=ALL-UNNAMED </buildArg>
+                        <buildArg> -H:+ForeignAPISupport</buildArg>
+                        <buildArg> -H:+UnlockExperimentalVMOptions</buildArg>
+                        <buildArg> --enable-preview</buildArg>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
