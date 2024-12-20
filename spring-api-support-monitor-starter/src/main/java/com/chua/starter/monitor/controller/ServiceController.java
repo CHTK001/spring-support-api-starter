@@ -2,6 +2,7 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.debounce.Debounce;
 import com.chua.starter.discovery.support.service.DiscoveryService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +38,7 @@ public class ServiceController {
      */
     @Operation(summary = "服务列表")
     @GetMapping("/list")
+    @Debounce(key = "#{#uriSpec}")
     public ReturnResult<Set<Discovery>> list(@RequestParam String uriSpec) {
         return ReturnResult.success(discoveryService.getDiscoveryAll(uriSpec));
     }
