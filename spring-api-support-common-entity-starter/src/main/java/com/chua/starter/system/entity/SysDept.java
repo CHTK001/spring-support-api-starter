@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -36,7 +37,7 @@ public class SysDept extends SysBase implements Serializable {
     @TableId(value = "sys_dept_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
-    @NotNull(message = "不能为null")
+    @NotNull(message = "机构ID不能为空", groups = UpdateGroup.class)
     private Integer sysDeptId;
 
     /**

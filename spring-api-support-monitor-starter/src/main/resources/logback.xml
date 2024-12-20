@@ -32,8 +32,11 @@
         </encoder>
 
     </appender>
-    <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
-    <logger name="org.burningwave.*" level="DEBUG" additivity="false"/>
+    <logger name="*.mapper.*" level="DEBUG" />
+    <logger name="io.zbus.transport" level="OFF" />
+    <logger name="org.burningwave.core.assembler.StaticComponentContainer" level="OFF" />
+    <logger name="com.chua.common.support.reflection.reflections.Reflections" level="TRACE" />
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorCheckers" level="DEBUG" />
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
