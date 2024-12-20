@@ -16,6 +16,8 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import java.lang.reflect.Method;
@@ -55,7 +57,8 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         key.append(applicationName).append(":");
         key.append(controlProperties.getPlatform().getName()).append(":");
         key.append(RequestUtils.getTenantId()).append(":");
-        Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext));
+        ParserContext parserContext = new TemplateParserContext();
+        Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext), parserContext);
         String expValue = exp.getValue(evaluationContext, String.class);
         key.append(expValue);
         logprint(key, evaluationContext);
