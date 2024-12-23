@@ -1,5 +1,6 @@
 package com.chua.starter.service.configuration;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -57,8 +58,9 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         key.append(applicationName).append(":");
         key.append(controlProperties.getPlatform().getName()).append(":");
         key.append(RequestUtils.getTenantId()).append(":");
-        ParserContext parserContext = new TemplateParserContext();
-        Expression exp = (new SpelExpressionParser()).parseExpression(getKey(evaluationContext), parserContext);
+        String key1 = getKey(evaluationContext);
+        int count = StringUtils.count(key1, "#");
+        Expression exp = (new SpelExpressionParser()).parseExpression(key1, count > 1 ? new TemplateParserContext() : null);
         String expValue = exp.getValue(evaluationContext, String.class);
         key.append(expValue);
         logprint(key, evaluationContext);
