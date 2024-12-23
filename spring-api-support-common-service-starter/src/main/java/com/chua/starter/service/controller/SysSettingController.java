@@ -30,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -91,8 +92,8 @@ public class SysSettingController {
     @Ignore
     @ApiCacheKey("'sys:setting:default'")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<List<SysSettingVO>> listForDefault(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), roles);
+    public ReturnResult<List<SysSettingVO>> listForDefault() {
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
