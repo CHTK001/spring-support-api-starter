@@ -47,7 +47,7 @@ public class SysDictItemController {
      *
      * @return 字典子项列表
      */
-    @Operation(summary = "字典子项列表")
+    @Operation(summary = "字典子项列表(父code码查询)")
     @GetMapping("/pCode")
     @ApiCacheKey("'sys:dict:pcode:' + #sysDictCode")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
@@ -63,7 +63,7 @@ public class SysDictItemController {
      *
      * @return 字典子项列表
      */
-    @Operation(summary = "字典子项列表")
+    @Operation(summary = "字典子项列表(code码查询)")
     @GetMapping("/code")
     @ApiCacheKey("'sys:dict:code:' + #sysDictCode")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
@@ -80,7 +80,7 @@ public class SysDictItemController {
      *
      * @return 字典子项列表
      */
-    @Operation(summary = "字典子项列表")
+    @Operation(summary = "字典子项列表(父ID)")
     @GetMapping("/pList")
     @ApiCacheKey("'sys:dict:pid:' + #sysDictId")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
@@ -111,7 +111,7 @@ public class SysDictItemController {
      *
      * @return 字典子项分页列表
      */
-    @Operation(summary = "字典子项列表")
+    @Operation(summary = "字典子项分页")
     @GetMapping("/page")
     public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
