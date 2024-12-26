@@ -37,7 +37,7 @@ public class SysRole extends SysBase implements Serializable {
     @TableId(value = "sys_role_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
-    @NotNull(message = "不能为null", groups = {UpdateGroup.class})
+    @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class})
     private Integer sysRoleId;
 
     /**

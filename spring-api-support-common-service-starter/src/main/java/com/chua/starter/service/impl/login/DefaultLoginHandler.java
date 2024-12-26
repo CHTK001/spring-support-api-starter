@@ -94,12 +94,7 @@ public class DefaultLoginHandler implements LoginHandler {
             if (StringUtils.isEmpty(code)) {
                 return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
-            Result<LoginResult> rs = sysLoginService.checkVerifyCode(loginData, request);
-            if (null != rs) {
-                return rs;
-            }
-
-            return null;
+            return sysLoginService.checkVerifyCode(loginData, request);
         }
 
         if(verifyCodeSetting.isCheckTotpCodeOpen()) {
