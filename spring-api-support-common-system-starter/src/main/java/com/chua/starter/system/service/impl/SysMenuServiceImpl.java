@@ -112,6 +112,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             filterMenus = sysMenus;
         } else if(AuthConstant.isAdmin(roles)) {
             filterMenus = sysMenus.stream().filter(it -> {
+                Integer sysMenuType = it.getSysMenuType();
+                if(null == sysMenuType || sysMenuType == 1) {
+                    return true;
+                }
                 String sysMenuRole = it.getSysMenuRole();
                 return StringUtils.isEmpty(sysMenuRole) || ArrayUtils.containsIgnoreCase(it.getSysMenuRole().split(","), AuthConstant.ADMIN);
             }).toList();
