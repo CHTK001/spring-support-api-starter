@@ -188,13 +188,11 @@ public class UserService implements UserInfoService, Constant {
             //如果boos为true,则证明redis中有此key,获取key的数值并加1
             Integer inte = NumberUtils.toInt(stringRedisTemplate.opsForValue().get(newAccessKey));
             inte++;
-            stringRedisTemplate.opsForValue().set(newAccessKey, inte + "");
+            stringRedisTemplate.opsForValue().set(newAccessKey, inte + "", timeout, TimeUnit.MINUTES);
             return checkLimit(inte);
         }
         //false,则证明redis中没有此key,密码是第一次错误,故走以下逻辑
-        stringRedisTemplate.opsForValue().set(newAccessKey, 1 + "");
-        //redis中设置key的过期时间
-        stringRedisTemplate.expire(newAccessKey, timeout, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(newAccessKey, 1 + "", timeout, TimeUnit.MINUTES);
         return checkLimit(1);
     }
 
