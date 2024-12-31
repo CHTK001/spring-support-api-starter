@@ -2,15 +2,14 @@ package com.chua.starter.pay.support.controller;
 
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.pay.support.pojo.PayOrderCreateRequest;
-import com.chua.starter.pay.support.pojo.PayOrderRequest;
-import com.chua.starter.pay.support.pojo.PayRefundCreateRequest;
-import com.chua.starter.pay.support.pojo.PayRefundRequest;
+import com.chua.starter.pay.support.pojo.*;
 import com.chua.starter.pay.support.result.PayOrderResponse;
 import com.chua.starter.pay.support.result.PayRefundResponse;
+import com.chua.starter.pay.support.result.PaySignResponse;
 import com.chua.starter.pay.support.service.PayMerchantService;
 import com.chua.starter.pay.support.service.PayOrderService;
 import io.swagger.annotations.Api;
@@ -19,10 +18,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,7 +48,7 @@ public class PayController {
      */
     @PutMapping("/refund")
     @Operation(summary = "退款")
-    public ReturnResult<PayRefundResponse> refund(@Validated(UpdateGroup.class) @ParameterObject PayRefundCreateRequest request, @Parameter(hidden = true) @UserValue("userId") String userId, BindingResult bindingResult) {
+    public ReturnResult<PayRefundResponse> refund(@Validated(UpdateGroup.class) @RequestBody PayRefundCreateRequest request, @Parameter(hidden = true) @UserValue("userId") String userId, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
@@ -63,14 +62,27 @@ public class PayController {
      */
     @PutMapping("/createOrder")
     @Operation(summary = "创建订单")
-    public ReturnResult<PayOrderResponse> createOrder(@Validated(AddGroup.class) @ParameterObject PayOrderCreateRequest request,
+    public ReturnResult<PayOrderResponse> createOrder(@Validated(AddGroup.class) @RequestBody PayOrderCreateRequest request,
                                                       @Parameter(hidden = true) @UserValue("userId") String userId,
                                                       BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
         PayOrderRequest payOrderRequest = BeanUtils.copyProperties(request, PayOrderRequest.class);
-        payOrderRequest.setUserId("oKAK06xoEXmuSKB-XdbCsPKzZM4I");
+        payOrderRequest.setUserId(StringUtils.defaultString(request.getOpenId(), userId));
         return payOrderService.createOrder(payOrderRequest);
+    }
+    /**
+     * 创建签名
+     */
+    @PutMapping("/createSign")
+    @Operation(summary = "创建签名")
+    public ReturnResult<PaySignResponse> createSign(@Validated(AddGroup.class) @RequestBody PaySignCreateRequest request,
+                                                    @Parameter(hidden = true) @UserValue("userId") String userId,
+                                                    BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+        return payOrderService.createSign(request);
     }
 }
