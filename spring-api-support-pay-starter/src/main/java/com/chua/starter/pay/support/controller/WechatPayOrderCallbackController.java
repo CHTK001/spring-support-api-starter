@@ -33,29 +33,31 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WechatPayOrderCallbackController {
 
-
     final PayOrderService payOrderService;
+
     final PayMerchantConfigWechatMapper payMerchantConfigWechatMapper;
 
 
-    @PostMapping(value = "/notify", produces = MediaType.APPLICATION_XML_VALUE)
+    @PostMapping(value = "/notify/{payMerchantOrderId}/{payMerchantOrderCode}", produces = MediaType.APPLICATION_XML_VALUE)
     @ApiOperation("订单结果通知")
     @Operation(summary = "订单结果通知")
     @Ignore
     public ResponseEntity<?> notifyOrder(
             @RequestBody String requestBody,
+            @PathVariable("payMerchantOrderId") String payMerchantOrderId,
+            @PathVariable("payMerchantOrderCode") String payMerchantOrderCode,
+
             @RequestHeader("Wechatpay-Signature") String wechatSignature,
             @RequestHeader("Wechatpay-Nonce") String wechatpayNonce,
             @RequestHeader("Wechatpay-Serial") String wechatPaySerial,
             @RequestHeader("Wechatpay-Timestamp") String wechatTimestamp,
             @RequestHeader("Wechatpay-Signature-Type") String wechatpaySignatureType
     ) {
-        CallbackNotificationParser callbackNotificationParser = new WebchatCallbackNotificationParser(payMerchantConfigWechatMapper, requestBody, wechatSignature, wechatpayNonce, wechatPaySerial, wechatTimestamp, wechatpaySignatureType);
-        WechatOrderCallbackResponse response = payOrderService.notifyOrder(callbackNotificationParser);
+        CallbackNotificationParser parser = new WebchatCallbackNotificationParser(payMerchantConfigWechatMapper, requestBody, wechatSignature, wechatpayNonce, wechatPaySerial, wechatTimestamp, wechatpaySignatureType, payMerchantOrderId, payMerchantOrderCode);
+        WechatOrderCallbackResponse response = payOrderService.notifyOrder(parser);
         if("SUCCESS".equals(response.getReturnCode())) {
             return ResponseEntity.status(HttpStatus.OK).build();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-
 }

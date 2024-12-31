@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <module.version>4.0.0.</module.version>
+        <module.version>4.0.0.9</module.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
@@ -64,224 +64,224 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-swagger-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-common-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-datasource-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-email-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-report-client-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-report-server-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-websockify-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ucanaccess-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ssh-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-qiniu-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-postgres-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-minio-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-image-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-image-jai-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ftp-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-nacos-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-influxdb-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-aspose-diagram-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-aspose-email-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-aspose-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-webjars-pdf-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-webjars-prism-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-webjars-ofd-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-mybatis-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-redis-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-datasource-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-excel-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-zookeeper-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-socketio-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-zhipu-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-sse-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-xunfei-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-tencent-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-discovery-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-alibaba-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-baidu-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-oauth-client-starter</artifactId>
-                <version>4.0.0.</version>
+                <version>4.0.0.9</version>
             </dependency>
 
         </dependencies>
