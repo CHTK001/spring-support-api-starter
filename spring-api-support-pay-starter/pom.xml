@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-pay-starter</artifactId>
-            <version>4.0.0.8</version>
+            <version>4.0.0.</version>
         </dependency>
 
         <dependency>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-log-logback-starter</artifactId>
-            <version>4.0.0.8</version>
+            <version>4.0.0.</version>
         </dependency>
 
         <dependency>
