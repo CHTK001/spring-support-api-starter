@@ -38,13 +38,13 @@ public class WechatPayOrderCallbackController {
     final PayMerchantConfigWechatMapper payMerchantConfigWechatMapper;
 
 
-    @PostMapping(value = "/notify/{payMerchantOrderId}/{payMerchantOrderCode}", produces = MediaType.APPLICATION_XML_VALUE)
+    @PostMapping(value = "/notify/{payMerchantCode}/{payMerchantOrderCode}", produces = MediaType.APPLICATION_XML_VALUE)
     @ApiOperation("订单结果通知")
     @Operation(summary = "订单结果通知")
     @Ignore
     public ResponseEntity<?> notifyOrder(
             @RequestBody String requestBody,
-            @PathVariable("payMerchantOrderId") String payMerchantOrderId,
+            @PathVariable("payMerchantCode") String payMerchantCode,
             @PathVariable("payMerchantOrderCode") String payMerchantOrderCode,
 
             @RequestHeader("Wechatpay-Signature") String wechatSignature,
@@ -53,7 +53,15 @@ public class WechatPayOrderCallbackController {
             @RequestHeader("Wechatpay-Timestamp") String wechatTimestamp,
             @RequestHeader("Wechatpay-Signature-Type") String wechatpaySignatureType
     ) {
-        CallbackNotificationParser parser = new WebchatCallbackNotificationParser(payMerchantConfigWechatMapper, requestBody, wechatSignature, wechatpayNonce, wechatPaySerial, wechatTimestamp, wechatpaySignatureType, payMerchantOrderId, payMerchantOrderCode);
+        CallbackNotificationParser parser = new WebchatCallbackNotificationParser(payMerchantConfigWechatMapper,
+                requestBody,
+                wechatSignature,
+                wechatpayNonce,
+                wechatPaySerial,
+                wechatTimestamp,
+                wechatpaySignatureType,
+                payMerchantCode,
+                payMerchantOrderCode);
         WechatOrderCallbackResponse response = payOrderService.notifyOrder(parser);
         if("SUCCESS".equals(response.getReturnCode())) {
             return ResponseEntity.status(HttpStatus.OK).build();
