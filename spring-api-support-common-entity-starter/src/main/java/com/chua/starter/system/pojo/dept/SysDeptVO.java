@@ -15,7 +15,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(title = "组织部门")
+@Schema(description = "组织部门")
 public class SysDeptVO extends SysDept {
 
     /**

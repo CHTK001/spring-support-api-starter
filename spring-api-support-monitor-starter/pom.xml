@@ -157,12 +157,17 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-webjar-pdf-starter</artifactId>
+            <artifactId>utils-support-webjars-prism-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-webjar-ofd-starter</artifactId>
+            <artifactId>utils-support-webjars-pdf-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-webjars-ofd-starter</artifactId>
         </dependency>
 
     </dependencies>

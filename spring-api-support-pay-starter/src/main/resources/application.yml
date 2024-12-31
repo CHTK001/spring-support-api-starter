@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: pay
+  profiles:
+    active: prod
+    include: mybatis,swagger,socket,control,codec,ip,discovery,actuator
+plugin:
+  parameter:
+    enable: true
+  cors:
+    enable: true
+server:
+  port: 21070
+  servlet:
+    context-path: /pay/api
+  http2:
+    enabled: true
