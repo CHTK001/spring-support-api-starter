@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.pay.support.pojo.*;
 import com.chua.starter.pay.support.result.PayOrderResponse;
@@ -48,6 +49,7 @@ public class PayController {
      */
     @PutMapping("/refund")
     @Operation(summary = "退款")
+    @Permission({"sys:pay:refund"})
     public ReturnResult<PayRefundResponse> refund(@Validated(UpdateGroup.class) @RequestBody PayRefundCreateRequest request, @Parameter(hidden = true) @UserValue("userId") String userId, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
