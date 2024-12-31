@@ -1,6 +1,10 @@
 package com.chua.starter.pay.support.controller;
 
 import com.chua.common.support.annotations.Ignore;
+import com.chua.starter.pay.support.entity.PayMerchantConfigWechat;
+import com.chua.starter.pay.support.handler.CallbackNotificationParser;
+import com.chua.starter.pay.support.handler.wechat.WebchatCallbackNotificationParser;
+import com.chua.starter.pay.support.mapper.PayMerchantConfigWechatMapper;
 import com.chua.starter.pay.support.pojo.WechatOrderCallbackRequest;
 import com.chua.starter.pay.support.pojo.WechatOrderCallbackResponse;
 import com.chua.starter.pay.support.service.PayOrderService;
@@ -8,13 +12,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kong.unirest.HttpStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 支付回调
@@ -32,13 +35,27 @@ public class WechatPayOrderCallbackController {
 
 
     final PayOrderService payOrderService;
+    final PayMerchantConfigWechatMapper payMerchantConfigWechatMapper;
+
 
     @PostMapping(value = "/notify", produces = MediaType.APPLICATION_XML_VALUE)
     @ApiOperation("订单结果通知")
     @Operation(summary = "订单结果通知")
     @Ignore
-    public WechatOrderCallbackResponse notifyOrder(@RequestBody WechatOrderCallbackRequest wechatOrderCallbackRequest) {
-        return payOrderService.notifyOrder(wechatOrderCallbackRequest, "wechat_" + wechatOrderCallbackRequest.getTradeType());
+    public ResponseEntity<?> notifyOrder(
+            @RequestBody String requestBody,
+            @RequestHeader("Wechatpay-Signature") String wechatSignature,
+            @RequestHeader("Wechatpay-Nonce") String wechatpayNonce,
+            @RequestHeader("Wechatpay-Serial") String wechatPaySerial,
+            @RequestHeader("Wechatpay-Timestamp") String wechatTimestamp,
+            @RequestHeader("Wechatpay-Signature-Type") String wechatpaySignatureType
+    ) {
+        CallbackNotificationParser callbackNotificationParser = new WebchatCallbackNotificationParser(payMerchantConfigWechatMapper, requestBody, wechatSignature, wechatpayNonce, wechatPaySerial, wechatTimestamp, wechatpaySignatureType);
+        WechatOrderCallbackResponse response = payOrderService.notifyOrder(callbackNotificationParser);
+        if("SUCCESS".equals(response.getReturnCode())) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 }
