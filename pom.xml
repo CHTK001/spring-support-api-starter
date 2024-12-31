@@ -23,6 +23,7 @@
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-common-device-starter</module>
+        <module>spring-api-support-pay-starter</module>
     </modules>
     <version>4.0.0</version>
     
@@ -181,13 +182,19 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-webjar-pdf-starter</artifactId>
+                <artifactId>utils-support-webjars-pdf-starter</artifactId>
                 <version>4.0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-webjar-ofd-starter</artifactId>
+                <artifactId>utils-support-webjars-prism-starter</artifactId>
+                <version>4.0.0.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-webjars-ofd-starter</artifactId>
                 <version>4.0.0.6</version>
             </dependency>
 

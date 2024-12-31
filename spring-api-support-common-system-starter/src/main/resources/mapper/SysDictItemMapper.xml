@@ -4,7 +4,7 @@
     <select id="selectListById" resultType="com.chua.starter.system.entity.SysDictItem">
         SELECT sdi.*
         FROM sys_dict_item sdi
-        WHERE sdi.sys_dict_id IN (
+        WHERE sdi.sys_dict_item_delete = 0 AND sdi.sys_dict_id IN (
         SELECT sd.sys_dict_id
         FROM sys_dict sd
         WHERE sd.sys_dict_status = 1
