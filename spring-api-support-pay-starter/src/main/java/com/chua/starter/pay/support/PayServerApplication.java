@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @MapperScan({"com.chua.starter.**.mapper"})
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.pay"})
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.pay", "com.chua.starter.service"})
 public class PayServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(PayServerApplication.class, args);
