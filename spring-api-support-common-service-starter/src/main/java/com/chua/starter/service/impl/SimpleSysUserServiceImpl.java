@@ -30,7 +30,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 
-import static org.apache.commons.lang.StringUtils.EMPTY;
 
 /**
  * @author CH
@@ -66,7 +65,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
             return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
         }
         stringRedisTemplate.opsForHash().delete(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
-        sysUser.setSysUserTotpCode(EMPTY);
+        sysUser.setSysUserTotpCode("");
         baseMapper.updateById(sysUser);
         return ReturnResult.ok(true);
     }
