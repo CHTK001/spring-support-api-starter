@@ -34,7 +34,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @RestController
 @RequestMapping("/v2/protocol")
 @RequiredArgsConstructor
-@ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
+@ApiPlatform("system")
 public class UserProtocolController {
 
     private final SysSettingService sysSettingService;

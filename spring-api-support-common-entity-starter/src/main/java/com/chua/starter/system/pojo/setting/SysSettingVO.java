@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class SysSettingVO {
     @ApiModelProperty(value = "")
     @Schema(description = "")
     @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
+    @ApiIgnore(SysSettingVO.class)
     private Integer sysSettingId;
     /**
      * 配置参数

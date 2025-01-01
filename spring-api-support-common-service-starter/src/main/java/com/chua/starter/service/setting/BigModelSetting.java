@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 大模型设置类，用于存储和处理与大模型应用相关的配置信息
@@ -14,6 +15,7 @@ import lombok.Data;
  * @since 2024/9/10
  */
 @Data
+@Slf4j
 public class BigModelSetting implements Upgrade<BigModelSetting> {
 
     /**
@@ -62,7 +64,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
                      .appSecret(appSecret)
                      .build());
              if(null == bigModelClient) {
-                 throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+                 log.warn(StringUtils.format("暂不支持{}, 请重新设置!", appType));
              }
          }
     }
