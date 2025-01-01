@@ -10,7 +10,7 @@ plugin:
   cors:
     enable: true
 server:
-  port: 21070
+  port: 27010
   servlet:
     context-path: /pay/api
   http2:
