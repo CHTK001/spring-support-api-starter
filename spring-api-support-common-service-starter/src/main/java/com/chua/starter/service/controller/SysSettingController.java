@@ -10,7 +10,7 @@ import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.ApiGroup;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.properties.ControlProperties;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -91,7 +91,7 @@ public class SysSettingController {
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
     @Ignore
-    @ApiGroup(SysSettingVO.class)
+    @ApiGroup(IgnoreGroup.class)
     @ApiCacheKey("'sys:setting:default'")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault() {

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.Version;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.ApiIgnore;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class SysSettingVO {
     @ApiModelProperty(value = "")
     @Schema(description = "")
     @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
-    @ApiIgnore(SysSettingVO.class)
+    @ApiIgnore(IgnoreGroup.class)
     private Integer sysSettingId;
     /**
      * 配置参数
@@ -41,6 +42,7 @@ public class SysSettingVO {
     @ApiModelProperty(value = "版本")
     @Schema(description = "版本")
     @Version
+    @ApiIgnore(IgnoreGroup.class)
     private Integer sysSettingVersion;
     /**
      * 配置备注
@@ -57,6 +59,7 @@ public class SysSettingVO {
     @ApiModelProperty(value = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
     @Schema(description = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
     @Size(max = 255, message = "配置类型; 用于前端组件判断; e.g.BOOL：布尔最大长度要小于 255")
+    @ApiIgnore(IgnoreGroup.class)
     private String sysSettingValueType;
     /**
      * 配置名称
@@ -85,5 +88,6 @@ public class SysSettingVO {
     @Schema(description = "配置所属分组")
     @Size(max = 255, message = "配置所属分组最大长度要小于 255")
     @NotNull(message = "配置名称不能为null", groups = {AddGroup.class})
+    @ApiIgnore(IgnoreGroup.class)
     private String sysSettingGroup;
 }
