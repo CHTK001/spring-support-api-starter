@@ -84,7 +84,7 @@ public class SysMenuController {
      */
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")
-    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
+    @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:menu:delete", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
@@ -103,7 +103,7 @@ public class SysMenuController {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
-    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
+    @ApiPlatform("system")
     @Permission(value = "sys:menu:update", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -123,7 +123,7 @@ public class SysMenuController {
      */
     @Operation(summary = "新增菜单")
     @PostMapping("/save")
-    @ApiPlatform(ControlProperties.PlatformKey.SYSTEM)
+    @ApiPlatform("system")
     @Permission(value = "sys:menu:add", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysMenu> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
