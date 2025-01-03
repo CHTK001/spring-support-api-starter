@@ -1,0 +1,6 @@
+plugin:
+  rpc:
+    enable: false
+    open: true
+    registry:
+      - address: nacos://172.16.0.40:8848
