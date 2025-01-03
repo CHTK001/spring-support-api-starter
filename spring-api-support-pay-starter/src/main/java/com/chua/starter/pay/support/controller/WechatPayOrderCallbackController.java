@@ -1,11 +1,9 @@
 package com.chua.starter.pay.support.controller;
 
 import com.chua.common.support.annotations.Ignore;
-import com.chua.starter.pay.support.entity.PayMerchantConfigWechat;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
 import com.chua.starter.pay.support.handler.wechat.WebchatCallbackNotificationParser;
 import com.chua.starter.pay.support.mapper.PayMerchantConfigWechatMapper;
-import com.chua.starter.pay.support.pojo.WechatOrderCallbackRequest;
 import com.chua.starter.pay.support.pojo.WechatOrderCallbackResponse;
 import com.chua.starter.pay.support.service.PayOrderService;
 import io.swagger.annotations.Api;

@@ -1,6 +1,5 @@
 package com.chua.starter.pay.support.controller;
 
-import com.chua.starter.pay.support.pojo.WechatOrderCallbackRequest;
 import com.chua.starter.pay.support.pojo.WechatOrderCallbackResponse;
 import com.chua.starter.pay.support.pojo.WechatOrderRefundCallbackRequest;
 import com.chua.starter.pay.support.service.PayOrderService;
