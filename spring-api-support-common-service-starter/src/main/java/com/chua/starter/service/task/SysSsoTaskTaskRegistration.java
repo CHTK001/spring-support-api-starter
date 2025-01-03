@@ -8,9 +8,11 @@ import com.chua.starter.service.properties.SsoProperties;
 import com.chua.starter.system.entity.SysTaskSso;
 import com.chua.starter.system.entity.SysTaskSsoItem;
 import com.chua.starter.system.pojo.sso.SysFileUploadRequest;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.ByteArrayOutputStream;
@@ -24,15 +26,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 2024/12/4
  */
-@RequiredArgsConstructor
 @SpringBootApplication
 public class SysSsoTaskTaskRegistration implements Runnable, DisposableBean, InitializingBean {
     private static final ExecutorService FULL_SUB_TASK = ThreadUtils.newFixedThreadExecutor(100, "SysTaskSsoServiceImpl#合并分片子任务");
     private static final LinkedBlockingQueue<SysTaskSsoWrapper> SYS_TASK_SSO = new LinkedBlockingQueue<>();
     private static final ExecutorService FULL_TASK = ThreadUtils.newFixedThreadExecutor(1, "SysTaskSsoServiceImpl#合并分片任务");
     private static final AtomicBoolean STATUS = new AtomicBoolean(true);
-    private final SsoProperties ssoProperties;
-    private final SysTaskSsoItemService sysTaskSsoItemService;
+    @Autowired
+    private SsoProperties ssoProperties;
+    @Autowired
+    private SysTaskSsoItemService sysTaskSsoItemService;
 
     /**
      * 注册
