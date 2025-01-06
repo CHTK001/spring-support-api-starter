@@ -3,4 +3,11 @@ plugin:
     enable: false
     open: true
     registry:
-      - address: nacos://172.16.0.40:8848
+      - address: nacos://192.168.110.100:8848
+        parameters:
+          register-consumer-url: true
+    scan:
+      - com.chua.starter.pay
+    protocols:
+      - name: dubbo
+        port: 20881
