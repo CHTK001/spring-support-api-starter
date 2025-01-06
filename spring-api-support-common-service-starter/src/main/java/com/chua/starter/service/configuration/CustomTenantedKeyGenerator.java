@@ -17,7 +17,6 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.ParserContext;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
@@ -128,7 +127,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         builder.setCacheNames(cachePut.cacheNames());
         builder.setCacheManager(cachePut.cacheManager());
         builder.setCondition(cachePut.condition());
-        builder.setUnless(cachePut.unless());
+        builder.setUnless(StringUtils.defaultString(cachePut.unless(), "#result == null"));
         builder.setCacheNames(cachePut.cacheNames());
         CachePutOperation cacheableOperation = new CachePutOperation(builder);
         return new MethodBasedEvaluationContext(cacheableOperation, method, params, paramNameDiscoverer);
@@ -153,7 +152,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         builder.setCacheNames(cacheable.cacheNames());
         builder.setCacheManager(cacheable.cacheManager());
         builder.setCondition(cacheable.condition());
-        builder.setUnless(cacheable.unless());
+        builder.setUnless(StringUtils.defaultString(cacheable.unless(), "#result == null"));
         builder.setSync(cacheable.sync());
         builder.setCacheNames(cacheable.cacheNames());
         CacheableOperation cacheableOperation = new CacheableOperation(builder);
