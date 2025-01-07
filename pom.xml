@@ -32,8 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <module.version>4.0.0.13</module.version>
-        <utils.version>4.0.0.12</utils.version>
+        <module.version>4.0.0.16</module.version>
+        <utils.version>4.0.0.14</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
