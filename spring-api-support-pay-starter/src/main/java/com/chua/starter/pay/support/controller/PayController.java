@@ -47,6 +47,21 @@ public class PayController {
     /**
      * 退款
      */
+    @PutMapping("/cancel")
+    @Operation(summary = "关闭订单")
+    @Permission({"sys:pay:cancel"})
+    public ReturnResult<PayRefundResponse> cancel(@Validated(UpdateGroup.class) @RequestBody PayRefundCreateRequest request, @Parameter(hidden = true) @UserValue("userId") String userId, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        PayRefundRequest refundRequest = BeanUtils.copyProperties(request, PayRefundRequest.class);
+        BeanUtils.copyProperties(request, refundRequest);
+        return payOrderService.cancel(refundRequest);
+    }
+    /**
+     * 退款
+     */
     @PutMapping("/refund")
     @Operation(summary = "退款")
     @Permission({"sys:pay:refund"})
