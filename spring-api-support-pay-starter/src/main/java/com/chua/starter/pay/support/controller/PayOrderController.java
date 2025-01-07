@@ -2,9 +2,11 @@ package com.chua.starter.pay.support.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.pojo.PayMerchantOrderQueryRequest;
+import com.chua.starter.pay.support.pojo.PayOrderQueryRequest;
 import com.chua.starter.pay.support.service.PayMerchantOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +47,26 @@ public class PayOrderController {
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询订单")
+    @Permission({"sys:pay:order:page"})
+    public ReturnPageResult<PayMerchantOrder> page(@ParameterObject Query<PayMerchantOrder> page,
+                                                   @Validated(SelectGroup.class) @ParameterObject PayOrderQueryRequest request,
+                                                   BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return ReturnPageResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+        return payMerchantOrderService.page(page, request);
+    }
+    /**
+     * 分页查询
+     *
+     * @param page         分页
+     * @param request      请求
+     * @param bindingResult 验证
+     * @return
+     */
+    @GetMapping("/merchant")
+    @Operation(summary = "分页查询订单")
+    @Permission({"sys:pay:order:page"})
     public ReturnPageResult<PayMerchantOrder> page(@ParameterObject Query<PayMerchantOrder> page,
                                                    @Validated(SelectGroup.class) @ParameterObject PayMerchantOrderQueryRequest request,
                                                    BindingResult bindingResult) {
