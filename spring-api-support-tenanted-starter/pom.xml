@@ -34,7 +34,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-tenant-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>
