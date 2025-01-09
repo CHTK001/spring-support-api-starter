@@ -41,6 +41,14 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
     private String applicationName;
 
 
+    public StringBuilder getKeyPref() {
+        StringBuilder key = new StringBuilder(PREFIX);
+        key.append(applicationName).append(":");
+        key.append(controlProperties.getPlatform().getName()).append(":");
+        key.append(RequestUtils.getTenantId()).append(":");
+        return key;
+    }
+
     @Override
     public Object generate(Object target, Method method, Object... params) {
         ApiCacheKey apiCacheKey = method.getDeclaredAnnotation(ApiCacheKey.class);
@@ -53,11 +61,8 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         if(null == evaluationContext) {
             return SimpleKeyGenerator.generateKey(params);
         }
-        StringBuilder key = new StringBuilder(PREFIX);
-        key.append(applicationName).append(":");
-        key.append(controlProperties.getPlatform().getName()).append(":");
-        key.append(RequestUtils.getTenantId()).append(":");
-        String key1 = getKey(evaluationContext);
+        StringBuilder key = getKeyPref();
+        String key1 = getKeyPref(evaluationContext);
         int count = StringUtils.count(key1, "#");
         Expression exp = (new SpelExpressionParser()).parseExpression(key1, count > 1 ? new TemplateParserContext() : null);
         String expValue = exp.getValue(evaluationContext, String.class);
@@ -85,7 +90,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
 
     }
 
-    private String getKey(EvaluationContext evaluationContext) {
+    private String getKeyPref(EvaluationContext evaluationContext) {
         Object value = evaluationContext.getRootObject().getValue();
         if(value instanceof CacheableOperation cacheableOperation) {
             return cacheableOperation.getKey();
@@ -127,7 +132,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         builder.setCacheNames(cachePut.cacheNames());
         builder.setCacheManager(cachePut.cacheManager());
         builder.setCondition(cachePut.condition());
-        builder.setUnless(StringUtils.defaultString(cachePut.unless(), "#result == null"));
+        builder.setUnless(StringUtils.defaultString(cachePut.unless(), "false"));
         builder.setCacheNames(cachePut.cacheNames());
         CachePutOperation cacheableOperation = new CachePutOperation(builder);
         return new MethodBasedEvaluationContext(cacheableOperation, method, params, paramNameDiscoverer);
@@ -152,7 +157,7 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         builder.setCacheNames(cacheable.cacheNames());
         builder.setCacheManager(cacheable.cacheManager());
         builder.setCondition(cacheable.condition());
-        builder.setUnless(StringUtils.defaultString(cacheable.unless(), "#result == null"));
+        builder.setUnless(StringUtils.defaultString(cacheable.unless(), "false"));
         builder.setSync(cacheable.sync());
         builder.setCacheNames(cacheable.cacheNames());
         CacheableOperation cacheableOperation = new CacheableOperation(builder);
