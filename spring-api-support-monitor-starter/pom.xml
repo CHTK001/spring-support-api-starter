@@ -183,21 +183,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>${project.build.directory}/output/</outputDirectory>
                     <!--不打入jar包的文件类型或者路径-->
                     <excludes>
                         <exclude>**/*.properties</exclude>
@@ -208,11 +196,16 @@
                         <exclude>**/*.xml</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.bat</exclude>
+                        <exclude>**/*.dat</exclude>
+                        <exclude>static/**/*.*</exclude>
+                        <exclude>mapper/**/*.*</exclude>
+                        <exclude>sql/**/*.*</exclude>
+                        <exclude>bin/**/*.*</exclude>
                     </excludes>
                     <archive>
                         <manifest>
                             <!-- 执行的主程序路径 -->
-                            <mainClass>com.boren.testPaperScanning.RunApplication</mainClass>
+                            <mainClass>com.chua.starter.monitor.MonitorServerApplication</mainClass>
                             <!--是否要把第三方jar放到manifest的classpath中-->
                             <addClasspath>true</addClasspath>
                             <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
@@ -223,25 +216,10 @@
                         <manifestEntries>
                             <!-- 在 Class-Path 下添加配置文件的路径 -->
                             <Class-Path>config/</Class-Path>
+                            <Class-Path>static/</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/output/lib/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -259,60 +237,29 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <!--把配置文件打包到指定路径-->
-                                <resource>
-                                    <directory>src/main/resources/</directory>
-                                    <includes>
-                                        <include>**/*.properties</include>
-                                        <include>**/*.yml</include>
-                                        <include>**/*.yaml</include>
-                                        <include>**/*.sql</include>
-                                        <include>**/*.json</include>
-                                        <include>**/*.xml</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>package.xml</exclude>
-                                        <exclude>**/*.sh</exclude>
-                                        <exclude>static/*</exclude>
-                                    </excludes>
-                                </resource>
-                            </resources>
-                            <outputDirectory>${project.build.directory}/output/config</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
+
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptors>
+                        <!-- 按照 package.xml 打包 -->
+                        <descriptor>src/main/resources/package.xml</descriptor>
+                    </descriptors>
+
+                </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <target>
-                                <echo message="开始重构输出目录"/>
-                                <property name="dist">output</property>
-                                <property name="app-name">${project.artifactId}-${project.version}</property>
-                                <!--                                <copy file="target/classes/bin" tofile="output/" />-->
-                                <echo message="重构完成..."/>
-                            </target>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <finalName>${project.artifactId}</finalName>
     </build>
+
 </project>

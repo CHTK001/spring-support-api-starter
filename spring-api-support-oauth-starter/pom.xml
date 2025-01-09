@@ -23,12 +23,10 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-server-starter</artifactId>
-            <version>4.0.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
-            <version>4.0.0.1</version>
         </dependency>
 
         <dependency>
