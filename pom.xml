@@ -32,8 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <module.version>4.0.0.22</module.version>
-        <utils.version>4.0.0.16</utils.version>
+        <module.version>4.0.0.25</module.version>
+        <utils.version>4.0.0.18</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
@@ -71,6 +71,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-common-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-configcenter-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
