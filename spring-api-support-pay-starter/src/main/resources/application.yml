@@ -2,7 +2,7 @@ spring:
   application:
     name: pay
   profiles:
-    active: kuntu
+    active: dev
     include: mybatis,swagger,socket,control,codec,ip,discovery,actuator,jackson
 plugin:
   parameter:

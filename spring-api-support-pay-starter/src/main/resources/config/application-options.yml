@@ -1,5 +1,0 @@
-plugin:
-  spi:
-    mapping:
-      balance: com.chua.common.support.lang.robin.Robin
-      serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
