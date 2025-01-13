@@ -20,6 +20,9 @@ logging:
 
 
 plugin:
+  config-center:
+    protocol: nacos
+    address: 172.16.0.40:8848
   table:
     packages: com.chua.starter.admin.entity
     enable: true
