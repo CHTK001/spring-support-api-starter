@@ -6,6 +6,7 @@ import com.chua.starter.monitor.pojo.response.FileSystemResponse;
 import com.chua.starter.monitor.service.FileSystemService;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -24,16 +25,19 @@ public class FileSystemServiceImpl implements FileSystemService {
     public ReturnResult<List<FileSystemResponse>> list(String parentPath, String name) {
         if (StringUtils.isEmpty(parentPath)) {
             List<FileSystemResponse> list = new LinkedList<>();
-            FileSystems.getDefault().getFileStores().forEach(fileStore -> {
-                list.add(new FileSystemResponse(fileStore.name(), fileStore.name(), FileSystemResponse.FileType.DIRECTORY));
-            });
+            File[] roots = File.listRoots();
+            for (File root : roots) {
+                list.add(new FileSystemResponse(root.getPath(), root.getPath(), FileSystemResponse.FileType.DIRECTORY, false));
+            }
 
             return ReturnResult.ok(list);
         }
 
         try {
             return ReturnResult.ok(Files.list(Path.of(parentPath))
-                    .map(path -> new FileSystemResponse(path.getFileName().toString(), path.toString(), path.toFile().isDirectory() ?  FileSystemResponse.FileType.DIRECTORY : FileSystemResponse.FileType.FILE))
+                    .map(path -> new FileSystemResponse(path.getFileName().toString(), path.toString(),
+                            path.toFile().isDirectory() ?  FileSystemResponse.FileType.DIRECTORY : FileSystemResponse.FileType.FILE,
+                            !path.toFile().isDirectory()))
                     .toList());
         } catch (IOException e) {
             throw new RuntimeException(e);

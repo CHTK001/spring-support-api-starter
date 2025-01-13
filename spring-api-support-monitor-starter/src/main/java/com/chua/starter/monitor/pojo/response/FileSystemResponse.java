@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.pojo.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,12 @@ public class FileSystemResponse {
     @Schema(description = "文件类型")
     private FileType fileType;
 
+    /**
+     * 是否是叶子节点
+     */
+    @Schema(description = "是否是叶子节点")
+    @JsonProperty("isLeaf")
+    private Boolean isLeaf;
 
     public static enum FileType {
 
