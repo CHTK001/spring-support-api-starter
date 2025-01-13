@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Api(tags = "文件列表接口")
 @Tag(name = "文件列表接口")
-@RequestMapping("/v2/file")
+@RequestMapping("/v2/filesystem")
 @RequiredArgsConstructor
 public class FileController {
 
