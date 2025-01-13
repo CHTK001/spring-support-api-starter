@@ -2,8 +2,8 @@ spring:
   application:
     name: pay
   profiles:
-    active: dev
-    include: mybatis,swagger,socket,control,codec,ip,discovery,actuator,jackson
+    active: kuntu
+    include: mybatis,swagger,socket,control,codec,ip,discovery,actuator,jackson,mqtt
 plugin:
   parameter:
     enable: true
