@@ -57,17 +57,13 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
 
     @Override
     public ReturnResult<PutObjectResult> upload(SysFileUploadRequest request, MultipartFile multipartFile) {
-        if(StringUtils.isBlank(request.getFileName())) {
-            request.setFileName(multipartFile.getOriginalFilename());
-        }
-
-        BucketSetting bucketSetting = createSetting(request);
+        BucketSetting bucketSetting = createSetting(request, multipartFile.getOriginalFilename());
 
         try (FileStorage fileStorage = FileStorage.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
-                            .byteSource(new ByteSourceArray(multipartFile.getInputStream()))
-                            .fileName(StringUtils.defaultString(request.getFileName(), multipartFile.getOriginalFilename()))
-                            .metadata(new MapMetadata(Collections.emptyMap()))
+                    .byteSource(new ByteSourceArray(multipartFile.getInputStream()))
+                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
+                    .metadata(new MapMetadata(Collections.emptyMap()))
                     .build()));
         } catch (Exception e) {
             return ReturnResult.error(e);
@@ -76,12 +72,12 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
 
     @Override
     public ReturnResult<PutObjectResult> upload(SysFileUploadRequest request, File file) {
-        BucketSetting bucketSetting = createSetting(request);
+        BucketSetting bucketSetting = createSetting(request, file.getName());
 
         try (FileStorage fileStorage = FileStorage.createStorage(request.getFileBucket(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceFile(file))
-                    .fileName(StringUtils.defaultString(request.getFileName(), file.getName()))
+                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(file.getName())))
                     .metadata(new MapMetadata(Collections.emptyMap()))
                     .build()));
         } catch (Exception e) {
@@ -91,7 +87,7 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
 
     @Override
     public ReturnResult<PutObjectResult> upload(SysFileUploadRequest request, String fileName, byte[] bytes) {
-        BucketSetting bucketSetting = createSetting(request);
+        BucketSetting bucketSetting = createSetting(request, fileName);
         try (FileStorage fileStorage = FileStorage.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceArray(bytes))
@@ -105,22 +101,24 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
 
     /**
      * 创建设置
-     * @param request 请求
+     *
+     * @param request          请求
+     * @param originalFilename
      * @return 设置
      */
-    private BucketSetting createSetting(SysFileUploadRequest request) {
+    private BucketSetting createSetting(SysFileUploadRequest request, String originalFilename) {
         return BucketSetting.builder()
                 .bucket(request.getFileBucket())
                 .nameResolver(new NamingResolver() {
                     @Override
                     public String transform(Metadata metadata, ByteSource byteSource) {
-                        return request.getFileName();
+                        return StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(originalFilename));
                     }
                 })
                 .accessKeyId(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase()+ ".app-id"))
                 .accessKeySecret(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase()+ ".app-secret"))
                 .charset(StandardCharsets.UTF_8)
-                .endpoint(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase()+ ".endpoint"))
+                .endpoint(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase()+ ".endpoint", "oss/system"))
                 .region(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase()+ ".region"))
                 .build();
     }
@@ -132,7 +130,7 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
         String taskUid = IdUtils.createUlid();
         SysTaskSso sysTaskSso = new SysTaskSso();
         sysTaskSso.setSysTaskSsoTid(taskUid);
-        sysTaskSso.setSysTaskSsoName(request.getFileName());
+        sysTaskSso.setSysTaskSsoName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(request.getFileType())));
         sysTaskSso.setSysTaskSsoNumber(chuck);
         sysTaskSso.setSysTaskSsoStatus(0);
         sysTaskSso.setSysTaskSsoSummary(request.getFileSummary());
@@ -167,8 +165,8 @@ public class SysTaskSsoServiceImpl extends ServiceImpl<SysTaskSsoMapper, SysTask
     @Override
     public ReturnResult<SysFileUploadTaskPartResponse> uploadTask(SysFileUploadTaskPartRequest request, MultipartFile multipartFile) {
         SysTaskSso sysTaskSso = getOne(Wrappers.<SysTaskSso>lambdaQuery()
-                        .eq(SysTaskSso::getSysTaskSsoTid, request.getTaskId())
-                );
+                .eq(SysTaskSso::getSysTaskSsoTid, request.getTaskId())
+        );
 
         if(null == sysTaskSso) {
             return ReturnResult.error("任务不存在");
