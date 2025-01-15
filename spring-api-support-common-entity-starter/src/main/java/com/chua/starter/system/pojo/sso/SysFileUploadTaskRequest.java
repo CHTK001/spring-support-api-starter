@@ -19,7 +19,6 @@ public class SysFileUploadTaskRequest {
      * 文件名称
      */
     @Schema(description = "文件名称")
-    @NotNull(message = "文件名称不能为空", groups = {UploadGroup.class})
     private String fileName;
     /**
      * 文件md5
@@ -27,6 +26,13 @@ public class SysFileUploadTaskRequest {
     @Schema(description = "文件md5")
     @NotNull(message = "文件md5不能为空", groups = {UploadGroup.class})
     private String fileMd5;
+
+    /**
+     * 文件类型
+     */
+    @Schema(description = "文件类型")
+    @NotNull(message = "文件类型不能为空", groups = {UploadGroup.class})
+    private String fileType;
 
     /**
      * 任务摘要
