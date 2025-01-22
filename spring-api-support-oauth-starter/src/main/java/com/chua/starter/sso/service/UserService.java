@@ -130,6 +130,7 @@ public class UserService implements UserInfoService, Constant {
                 .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
                 .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
                 .setRoles(collect)
+                .setDeptId(user.getSysDeptId() + "")
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
                 .setPermission(getPermission(user))
