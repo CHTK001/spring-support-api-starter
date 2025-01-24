@@ -46,7 +46,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         }
         return transactionTemplate.execute(it -> {
             saveOrUpdateDefault(sysProject);
-            return ReturnResult.guess(baseMapper.updateById(sysProjectId) > 0);
+            return ReturnResult.guess(baseMapper.deleteById(sysProjectId) > 0);
         });
     }
 
