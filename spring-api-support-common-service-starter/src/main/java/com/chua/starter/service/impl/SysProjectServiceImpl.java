@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysProjectService;
 import com.chua.starter.service.mapper.SysProjectMapper;
-import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysProject;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +21,8 @@ import java.util.Set;
 public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProject> implements SysProjectService {
     @Override
     public IPage<SysProject> pageFor(Query<SysProject> query, SysProject sysProject, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), query.mpjLambda()
-                .selectAll(SysProject.class)
-                .selectAs(SysDictItem::getSysDictItemName, SysProject::getSysProjectDictItemLabel)
-                .leftJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysProject::getSysProjectDictItemId)
-                .like(StringUtils.isNotBlank(sysProject.getSysProjectGroup()), SysProject::getSysProjectGroup, sysProject.getSysProjectGroup())
-        );
+        return baseMapper.selectPageFor(query.createPage(), sysProject);
+        )
     }
 
     @Override
