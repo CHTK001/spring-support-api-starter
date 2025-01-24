@@ -25,6 +25,14 @@ public interface SysProjectService extends IService<SysProject> {
      */
     IPage<SysProject> pageFor(Query<SysProject> query, SysProject sysProject, Set<String> roles);
 
+
+    /**
+     * 获取默认的系统项目
+     *
+     * @param typeName 项目类型名称
+     * @return 返回默认的系统项目信息
+     */
+    SysProject getDefault(String typeName);
     /**
      * 删除系统项目
      *
