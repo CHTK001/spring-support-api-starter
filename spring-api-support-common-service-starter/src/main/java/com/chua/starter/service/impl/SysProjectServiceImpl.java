@@ -22,7 +22,6 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     @Override
     public IPage<SysProject> pageFor(Query<SysProject> query, SysProject sysProject, Set<String> roles) {
         return baseMapper.selectPageFor(query.createPage(), sysProject);
-        )
     }
 
     @Override
