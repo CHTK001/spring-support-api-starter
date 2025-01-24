@@ -39,6 +39,11 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
+    public SysProject getDefault(String typeName) {
+        return null;
+    }
+
+    @Override
     public ReturnResult<Boolean> delete(Long sysProjectId) {
         SysProject sysProject = getById(sysProjectId);
         if (null == sysProject) {
@@ -65,6 +70,8 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         if (StringUtils.isNotBlank(sysProjectFunctionDefaultLabel)) {
             Set<String> strings = Splitter.on(",").omitEmptyStrings().trimResults().splitToSet(sysProjectFunctionDefaultLabel);
             sysProjectDefaultService.remove(Wrappers.<SysProjectDefault>lambdaQuery().eq(SysProjectDefault::getSysProjectId, sysProject.getSysProjectId()));
+            sysProjectDefaultService.remove(Wrappers.<SysProjectDefault>lambdaQuery()
+                    .in(SysProjectDefault::getSysProjectDefaultType, strings));
             List<SysProjectDefault> sysProjectDefaults = new ArrayList<>(strings.size());
             for (String string : strings) {
                 SysProjectDefault sysProjectDefault = new SysProjectDefault();
