@@ -25,7 +25,7 @@ import javax.transaction.Transactional;
 import java.util.Set;
 
 /**
- * 密钥接口
+ * 项目接口
  *
  * @author CH
  * @since 2024/8/7
@@ -39,28 +39,28 @@ public class SysProjectController {
     private final SysProjectService sysProjectService;
 
     /**
-     * 密钥列表
+     * 项目列表
      *
-     * @return 密钥列表
+     * @return 项目列表
      */
-    @Operation(summary = "角色密钥列表")
+    @Operation(summary = "角色项目列表")
     @GetMapping("/page")
     public ReturnPageResult<SysProject> page(@ParameterObject Query<SysProject> query, @ParameterObject SysProject sysProject, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysProjectService.pageFor(query, sysProject, roles));
     }
 
     /**
-     * 删除密钥
+     * 删除项目
      *
-     * @return 更新密钥
+     * @return 更新项目
      */
-    @Operation(summary = "删除密钥")
+    @Operation(summary = "删除项目")
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:secret:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysProjectId) {
         if (null == sysProjectId) {
-            return Result.illegal("密钥信息不存在");
+            return Result.illegal("项目信息不存在");
         }
 
         return sysProjectService.delete(sysProjectId);
@@ -68,11 +68,11 @@ public class SysProjectController {
 
 
     /**
-     * 更新密钥
+     * 更新项目
      *
-     * @return 更新密钥
+     * @return 更新项目
      */
-    @Operation(summary = "更新密钥")
+    @Operation(summary = "更新项目")
     @PutMapping("/update")
     @Permission(value = "sys:project:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -87,11 +87,11 @@ public class SysProjectController {
     }
 
     /**
-     * 新增密钥
+     * 新增项目
      *
-     * @return 新增密钥
+     * @return 新增项目
      */
-    @Operation(summary = "新增密钥")
+    @Operation(summary = "新增项目")
     @PostMapping("/save")
     @Permission(value = "sys:project:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysProject> save(
