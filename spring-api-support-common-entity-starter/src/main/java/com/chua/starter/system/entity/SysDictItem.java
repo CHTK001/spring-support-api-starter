@@ -97,6 +97,7 @@ public class SysDictItem extends SysBase implements Serializable {
     @Schema(description = "状态;0: 隐藏")
     private Integer sysDictItemStatus;
 
+
     /**
      * 是否删除0:未删除
      */
