@@ -34,7 +34,7 @@
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
     <logger name="io.zbus.*" level="OFF" additivity="false"/>
-    <logger name="org.burningwave.core.*" level="OFF" additivity="false"/>
+    <logger name="org.burningwave.core" level="OFF" additivity="false"/>
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
