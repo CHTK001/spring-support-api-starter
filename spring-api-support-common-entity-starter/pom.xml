@@ -29,5 +29,4 @@
             <artifactId>spring-support-mybatis-starter</artifactId>
         </dependency>
     </dependencies>
-
 </project>
