@@ -61,6 +61,15 @@ public class SysDictItem extends SysBase implements Serializable {
     @Schema(description = "字典子项名称")
     @Size(max = 255, message = "字典子项名称最大长度要小于 255")
     private String sysDictItemName;
+
+
+    /**
+     * 字典子项图标
+     */
+    @TableField(value = "sys_dict_item_icon")
+    @ApiModelProperty(value = "字典子项图标")
+    @Schema(description = "字典子项图标")
+    private String sysDictItemIcon;
     /**
      * 字典i18n
      */
