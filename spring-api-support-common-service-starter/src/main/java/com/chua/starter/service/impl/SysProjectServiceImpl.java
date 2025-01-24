@@ -7,6 +7,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysProjectDefaultService;
 import com.chua.starter.service.SysProjectService;
@@ -39,7 +40,14 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
 
     @Override
     public ReturnResult<Boolean> delete(Long sysProjectId) {
-        return ReturnResult.guess(baseMapper.deleteById(sysProjectId) > 0);
+        SysProject sysProject = getById(sysProjectId);
+        if (null == sysProject) {
+            return Result.illegal("项目信息不存在");
+        }
+        return transactionTemplate.execute(it -> {
+            saveOrUpdateDefault(sysProject);
+            return ReturnResult.guess(baseMapper.updateById(sysProjectId) > 0);
+        });
     }
 
     @Override
