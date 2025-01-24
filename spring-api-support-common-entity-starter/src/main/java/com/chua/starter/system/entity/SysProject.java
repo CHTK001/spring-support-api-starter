@@ -160,4 +160,13 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value = "功能; 字典表6")
     @Schema(description = "功能; 字典表6")
     private String sysProjectFunction;
+
+
+    /**
+     * 默认功能
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "默认功能")
+    @Schema(description = "默认功能")
+    private String sysProjectFunctionDefaultLabel;
 }
