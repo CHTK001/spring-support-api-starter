@@ -169,4 +169,12 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value = "默认功能")
     @Schema(description = "默认功能")
     private String sysProjectFunctionDefaultLabel;
+
+    /**
+     * 是否默认
+     */
+    @TableField(value = "sys_project_function_default")
+    @ApiModelProperty(value = "是否默认")
+    @Schema(description = "是否默认")
+    private Boolean sysProjectFunctionDefault;
 }
