@@ -37,6 +37,15 @@ public class SysProject extends SysBase {
     @Schema(description = "项目名称")
     @NotBlank(message = "名称不能为空", groups = {AddGroup.class})
     private String sysProjectName;
+
+
+    /**
+     * 图标
+     */
+    @TableField(value = "sys_project_icon")
+    @ApiModelProperty(value = "图标")
+    @Schema(description = "图标")
+    private String sysProjectIcon;
     /**
      * 分组
      */
