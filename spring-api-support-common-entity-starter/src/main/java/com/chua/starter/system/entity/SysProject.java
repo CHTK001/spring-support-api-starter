@@ -157,7 +157,7 @@ public class SysProject extends SysBase {
      * 功能
      */
     @TableField(value = "sys_project_function")
-    @ApiModelProperty(value = "功能")
-    @Schema(description = "功能")
+    @ApiModelProperty(value = "功能; 字典表6")
+    @Schema(description = "功能; 字典表6")
     private String sysProjectFunction;
 }
