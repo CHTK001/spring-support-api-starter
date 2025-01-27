@@ -24,7 +24,7 @@ public class SmsRequest {
      * 模板ID
      */
     @Schema(description = "模板ID")
-    private String sysTemplateId;
+    private String sysSmsTemplateId;
 
     /**
      * 短信参数

@@ -1,26 +1,31 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.config.PushSetting;
 import com.chua.common.support.lang.message.entity.TemplateInfo;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.lang.message.result.TemplateResult;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.SmsService;
+import com.chua.starter.service.SysProjectService;
+import com.chua.starter.service.SysSmsTemplateService;
+import com.chua.starter.service.mapper.SysSmsTemplateMapper;
 import com.chua.starter.service.setting.SmsSetting;
-import com.chua.starter.system.entity.SysDictItem;
-import com.chua.starter.system.entity.SysSecret;
-import com.chua.starter.system.entity.SysSmsLog;
-import com.chua.starter.system.entity.SysTemplate;
-import com.chua.starter.system.mapper.SysSmsLogMapper;
+import com.chua.starter.system.entity.*;
+import com.chua.starter.system.pojo.sms.SmsPageV1Request;
 import com.chua.starter.system.pojo.sms.SmsRequest;
+import com.chua.starter.system.pojo.sms.SmsSyncV1Request;
 import com.chua.starter.system.service.SysDictItemService;
 import com.chua.starter.system.service.SysSmsLogService;
 import com.chua.starter.system.service.SysSmsService;
-import com.chua.starter.system.service.SysTemplateService;
+import com.google.common.base.Splitter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,32 +43,40 @@ import java.util.List;
 public class SysSmsServiceImpl implements SysSmsService {
 
     final SmsService smsService;
-    final SysTemplateService sysTemplateService;
     final SysDictItemService sysDictItemService;
     final SysSmsLogService sysSmsLogService;
+    final SysProjectService sysProjectService;
+    final SysSmsTemplateMapper sysSmsTemplateMapper;
+    final SysSmsTemplateService sysSmsTemplateService;
     @Override
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
-        SysTemplate sysTemplateServiceById = sysTemplateService.getById(request.getSysTemplateId());
+        SysSmsTemplate sysTemplateServiceById = sysSmsTemplateService.getById(request.getSysSmsTemplateId());
         if(null == sysTemplateServiceById) {
             return ReturnResult.error("模板不存在");
         }
-        SmsSetting smsSetting = GlobalSettingFactory.getInstance().get("sms", SmsSetting.class);
-        String sysTemplateCode = sysTemplateServiceById.getSysTemplateCode();
-        ReturnResult<List<PushResult>> send = smsService.send(sysTemplateCode, request);
+
+        if(ArrayUtils.isEmpty(request.getTarget())) {
+            return ReturnResult.error("接收人不能为空");
+        }
+        SysProject sysProject = sysProjectService.getOne(sysTemplateServiceById.getSysProjectId());
+        String sysTemplateCode = sysTemplateServiceById.getSysSmsTemplateCode();
+        ReturnResult<List<PushResult>> send = smsService.send(sysTemplateCode, sysProject, request);
         List<PushResult> data = send.getData();
+        if(null == data) {
+            return send;
+        }
         List<SysSmsLog> sysSmsLogs = new ArrayList<>(data.size());
         for (PushResult item : data) {
             SysSmsLog sysSmsLog = new SysSmsLog();
-            sysSmsLog.setSysSmsAppSign(smsSetting.getAppSign());
-            sysSmsLog.setSysSmsAppType(smsSetting.getAppType());
-            sysSmsLog.setSysSmsAppId(smsSetting.getAppId());
+            sysSmsLog.setSysSmsAppSign(sysProject.getSysProjectSign());
+            sysSmsLog.setSysSmsAppId(sysProject.getSysProjectAppId());
 
             sysSmsLog.setSysSmsCode(item.getCode().name());
             sysSmsLog.setSysSmsMessage(item.getMessage());
             sysSmsLog.setSysSmsLogParam(Json.toPrettyFormat(request.getParams()));
             sysSmsLog.setSysSmsLogTarget(item.getTarget());
             sysSmsLog.setSysSmsCost(BigDecimal.valueOf(item.getCost()));
-            sysSmsLog.setSysSmsLogTemplateId(request.getSysTemplateId());
+            sysSmsLog.setSysSmsLogTemplateId(request.getSysSmsTemplateId());
 
             sysSmsLogs.add(sysSmsLog);
         }
@@ -77,50 +90,52 @@ public class SysSmsServiceImpl implements SysSmsService {
     }
 
     @Override
-    public ReturnResult<Boolean> syncTemplate(SysSecret sysSecret) {
-        SysDictItem sysDictItem = sysDictItemService.getById(sysSecret.getSysSecretDictItemId());
-        if(null == sysDictItem) {
-            return ReturnResult.error("字典不存在");
-        }
-        SysDictItem templateCategory = sysDictItemService.getOne(Wrappers.<SysDictItem>lambdaQuery()
-                .eq(SysDictItem::getSysDictItemCode, "SMS")
-        );
+    public ReturnResult<Boolean> syncTemplate(SmsSyncV1Request request) {
+        SysProject sysProject = sysProjectService.getOne(request.getSysProjectId());
         PushSetting pushSetting = PushSetting.builder()
-                .accessKeyId(sysSecret.getSysSecretAppId())
-                .accessKeySecret(sysSecret.getSysSecretAppSecret())
+                .accessKeyId(sysProject.getSysProjectAppId())
+                .accessKeySecret(sysProject.getSysProjectAppSecret())
                 .build();
-        String sysDictItemCode = sysDictItem.getSysDictItemCode();
+
+        String sysProjectFunction = sysProject.getSysProjectFunction();
+        Integer sysProjectType = null;
+        if(!StringUtils.isEmpty(sysProjectFunction)) {
+            List<SysDictItem> list = sysDictItemService.list(Wrappers.<SysDictItem>lambdaQuery().in(SysDictItem::getSysDictItemId, Splitter.on(",").trimResults().omitEmptyStrings().splitToList(sysProjectFunction)));
+            for (SysDictItem sysDictItem : list) {
+                if("DUAN_XIN".equals(sysDictItem.getSysDictItemCode())) {
+                    sysProjectType = sysDictItem.getSysDictItemId();
+                    break;
+                }
+            }
+        }
+
+        String sysDictItemCode = sysProject.getSysProjectDictItemCode();
         ReturnResult<TemplateResult> templateResultReturnResult = smsService.syncTemplate(sysDictItemCode, pushSetting);
         if(templateResultReturnResult.isOk()) {
             TemplateResult templateResult = templateResultReturnResult.getData();
             for (TemplateInfo datum : templateResult.getData()) {
-                SysTemplate sysTemplate = new SysTemplate();
-                sysTemplate.setSysDictItemId1(sysDictItem.getSysDictItemId());
-                sysTemplate.setSysDictItemId2(templateCategory.getSysDictItemId());
-                sysTemplate.setSysTemplateStatus(1);
-                sysTemplate.setSysTemplateApprove(2);
-                sysTemplate.setSysTemplateContent(datum.getTemplateContent());
-                sysTemplate.setSysTemplateCode(datum.getTemplateCode());
-                sysTemplate.setSysTemplateName(datum.getTemplateName());
-                sysTemplate.setSysTemplateSort(2);
-                sysTemplate.setSysTemplateDefault(0);
-                sysTemplate.setSysTemplateDelete(0);
-                sysTemplate.setSysTemplateType(0);
-                sysTemplate.setSysTemplateDisabled(1);
-                sysTemplate.setSysTemplateOrigin("sms同步");
-                sysTemplate.setSysSecretId(sysSecret.getSysSecretId());
-                sysTemplate.setSysTemplateOriginUuid(String.valueOf(sysSecret.getSysSecretId()));
-                sysTemplate.setSysDictItemId2(null != templateCategory ? templateCategory.getSysDictItemId() : null);
+                SysSmsTemplate sysTemplate = new SysSmsTemplate();
+                sysTemplate.setSysSmsTemplateStatus(1);
+                sysTemplate.setSysSmsTemplateApprove(2);
+                sysTemplate.setSysSmsTemplateContent(datum.getTemplateContent());
+                sysTemplate.setSysSmsTemplateCode(datum.getTemplateCode());
+                sysTemplate.setSysSmsTemplateName(datum.getTemplateName());
+                sysTemplate.setSysSmsTemplateSort(2);
+                sysTemplate.setSysSmsTemplateDefault(0);
+                sysTemplate.setSysSmsTemplateDelete(0);
+                sysTemplate.setSysSmsTemplateType(0);
+                sysTemplate.setSysSmsTemplateDisabled(1);
+                sysTemplate.setSysSmsTemplateOrigin("sms同步");
+                sysTemplate.setSysProjectId(sysProject.getSysProjectId());
+                sysTemplate.setSysProjectType(sysProjectType);
 
-                LambdaQueryWrapper<SysTemplate> wrapper = Wrappers.<SysTemplate>lambdaQuery()
-                        .eq(SysTemplate::getSysDictItemId2, sysTemplate.getSysDictItemId2())
-                        .eq(SysTemplate::getSysTemplateCode, sysTemplate.getSysTemplateCode())
-                        .eq(SysTemplate::getSysDictItemId1, sysTemplate.getSysDictItemId1())
-                        .eq(null != sysTemplate.getSysDictItemId3() , SysTemplate::getSysDictItemId3, sysTemplate.getSysDictItemId3());
+                LambdaQueryWrapper<SysSmsTemplate> wrapper = Wrappers.<SysSmsTemplate>lambdaQuery()
+                        .eq(SysSmsTemplate::getSysSmsTemplateCode, sysTemplate.getSysSmsTemplateCode())
+                        .eq(SysSmsTemplate::getSysProjectId, sysTemplate.getSysProjectId());
 
-                if(sysTemplateService.count(wrapper) > 0) {
+                if(sysSmsTemplateService.count(wrapper) > 0) {
                     try {
-                        sysTemplateService.update(sysTemplate, wrapper);
+                        sysSmsTemplateService.update(sysTemplate, wrapper);
                     } catch (Exception e) {
                         continue;
                     }
@@ -128,13 +143,40 @@ public class SysSmsServiceImpl implements SysSmsService {
                 }
 
                 try {
-                    sysTemplateService.save(sysTemplate);
-                } catch (Exception e) {
-                    continue;
+                    sysSmsTemplateService.save(sysTemplate);
+                } catch (Exception ignored) {
                 }
             }
 
         }
         return ReturnResult.of(templateResultReturnResult);
+    }
+
+    @Override
+    public IPage<SysSmsTemplate> pageFor(SmsPageV1Request request) {
+        if(null == request.getSysProjectId()) {
+            return new Page<>();
+        }
+        return sysSmsTemplateMapper.pageFor(request.createPage(), request);
+    }
+
+    @Override
+    public ReturnResult<Boolean> delete(SysSmsTemplate sysSmsTemplate) {
+        return ReturnResult.of(
+                sysSmsTemplateMapper.deleteById(sysSmsTemplate)
+        );
+    }
+
+    @Override
+    public ReturnResult<Boolean> update(SysSmsTemplate sysSmsTemplate) {
+        sysSmsTemplate.setSysProjectType(null);
+        sysSmsTemplate.setSysProjectId(null);
+        return ReturnResult.of(sysSmsTemplateMapper.updateById(sysSmsTemplate) > 0);
+    }
+
+    @Override
+    public ReturnResult<SysSmsTemplate> save(SysSmsTemplate sysSmsTemplate) {
+        sysSmsTemplateMapper.insert(sysSmsTemplate);
+        return ReturnResult.of(sysSmsTemplate);
     }
 }
