@@ -137,7 +137,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>

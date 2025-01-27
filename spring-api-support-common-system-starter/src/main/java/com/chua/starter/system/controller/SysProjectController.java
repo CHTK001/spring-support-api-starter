@@ -50,6 +50,19 @@ public class SysProjectController {
         return PageResultUtils.ok(sysProjectService.pageFor(query, sysProject, roles));
     }
 
+
+    /**
+     * 获取默认项目
+     *
+     * @return 项目列表
+     */
+    @Operation(summary = "获取默认项目")
+    @GetMapping("/default")
+    @Permission(value = "sys:project:default", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<SysProject> getDefaultByType(String typeName) {
+        return ReturnResult.ok(sysProjectService.getDefaultByType(typeName));
+    }
+
     /**
      * 删除项目
      *

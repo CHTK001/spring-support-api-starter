@@ -1,5 +1,6 @@
 package com.chua.starter.system.pojo.email;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Map;
@@ -7,28 +8,27 @@ import java.util.Map;
 /**
  * 邮件请求
  * @author CH
- * @since 2024/9/4
+ * @since 2024/9/6
  */
 @Data
+@Schema(description = "邮件请求")
 public class EmailRequest {
+
     /**
-     * 邮件内容
+     * 接收人
      */
-    private String content;
+    @Schema(description = "接收人")
+    private String[] target;
+
     /**
-     * 邮件标题
+     * 模板ID
      */
-    private String title;
+    @Schema(description = "模板ID")
+    private String sysEmailTemplateId;
+
     /**
-     * 邮件接收人
+     * 邮件参数
      */
-    private String to;
-    /**
-     * 邮件模板名称
-     */
-    private String templateName;
-    /**
-     * 邮件模板参数
-     */
-    private Map<String, Object> maps;
+    @Schema(description = "邮件参数")
+    private Map<String, Object> params;
 }
