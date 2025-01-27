@@ -12,6 +12,7 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.SysProjectService;
 import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -84,6 +85,24 @@ public class SysProjectController {
         }
 
         return sysProjectService.update(roles, sysProject);
+    }
+    /**
+     * 更新项目默认
+     *
+     * @return 更新项目
+     */
+    @Operation(summary = "更新项目默认")
+    @PutMapping("/updateDefault")
+    @Permission(value = "sys:project:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<SysProject> updateDefault(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Validated(UpdateGroup.class) @RequestBody ProjectDefaultFunctionV1Request request,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
+        return sysProjectService.updateDefault(request);
     }
 
     /**

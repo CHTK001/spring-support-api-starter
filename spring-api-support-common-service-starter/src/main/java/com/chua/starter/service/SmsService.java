@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.config.PushSetting;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.lang.message.result.TemplateResult;
+import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 
 import java.util.List;
@@ -20,10 +21,11 @@ public interface SmsService {
      * 发送短信
      *
      * @param sysTemplateCode 短信模板
+     * @param sysProject      项目
      * @param request         请求
      * @return 发送结果
      */
-    ReturnResult<List<PushResult>> send(String sysTemplateCode, SmsRequest request);
+    ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SmsRequest request);
 
     /**
      * 同步短信模板

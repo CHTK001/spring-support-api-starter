@@ -24,4 +24,12 @@ public interface SysProjectMapper extends BaseMapper<SysProject> {
     IPage<SysProject> selectPageFor(
             @Param("page") Page<SysProject> page,
             @Param("request") SysProject sysProject);
+
+    /**
+     * 获取默认项目
+     *
+     * @param typeName 类型
+     * @return 项目
+     */
+    IPage<SysProject> getDefaultByType( @Param("page") Page<SysProject> page, @Param("typeName")String typeName);
 }
