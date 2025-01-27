@@ -14,11 +14,13 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.SmsService;
 import com.chua.starter.service.setting.SmsSetting;
+import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 短信服务实现
@@ -29,19 +31,29 @@ import java.util.List;
 public class SmsServiceImpl implements SmsService {
 
     @Override
-    public ReturnResult<List<PushResult>> send(String sysTemplateCode, SmsRequest request) {
-        SmsSetting smsSetting = GlobalSettingFactory.getInstance().get("sms", SmsSetting.class);
-        if(!smsSetting.isValid()) {
-            return ReturnResult.fail("短信设置 - 未设置");
-        }
-
-        MessagePush messagePush = smsSetting.getMessagePush();
+    public ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SmsRequest request) {
+        String sysProjectDictItemCode = sysProject.getSysProjectDictItemCode();
+        MessagePush messagePush = ServiceProvider.of(MessagePush.class).getNewExtension(sysProjectDictItemCode,
+                PushSetting.builder()
+                        .accessKeyId(sysProject.getSysProjectAppId())
+                        .accessKeySecret(sysProject.getSysProjectAppSecret())
+                        .endpoint(sysProject.getSysProjectEndpoint())
+                        .build());
         TemplateSetting setting = TemplateSetting.builder()
                 .templateId(sysTemplateCode)
                 .templateParam(JsonObject.create(request.getParams()))
-                .signCode(smsSetting.getAppSign())
+                .signCode(sysProject.getSysProjectSign())
                 .build();
         List<PushResult> publish = messagePush.publish(request.getTarget(), setting);
+        List<PushResult> list = publish.stream().filter(item -> !item.isSuccess()).toList();
+        if(CollectionUtils.isNotEmpty(list)) {
+            if(list.size() == publish.size()) {
+                return ReturnResult.error("发送失败" + list.get(0).getMessage());
+            }
+            return ReturnResult.illegal("部分发送失败" + list.stream()
+                    .map(PushResult::getTarget).collect(Collectors.joining(","))
+            );
+        }
         return ReturnResult.of(publish);
     }
 

@@ -3,10 +3,16 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Set;
+
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  * 系统项目服务
@@ -25,14 +31,20 @@ public interface SysProjectService extends IService<SysProject> {
      */
     IPage<SysProject> pageFor(Query<SysProject> query, SysProject sysProject, Set<String> roles);
 
-
+    /**
+     * 根据项目ID获取系统项目信息
+     *
+     * @param sysProjectId 项目ID
+     * @return 返回根据项目ID获取的系统项目信息
+     */
+    SysProject getOne(Integer sysProjectId);
     /**
      * 获取默认的系统项目
      *
      * @param typeName 项目类型名称
      * @return 返回默认的系统项目信息
      */
-    SysProject getDefault(String typeName);
+    SysProject getDefaultByType(String typeName);
     /**
      * 删除系统项目
      *
@@ -49,7 +61,13 @@ public interface SysProjectService extends IService<SysProject> {
      * @return 返回更新操作的结果，包括是否更新成功的标志
      */
     ReturnResult<Boolean> update(Set<String> roles, SysProject sysProject);
-
+    /**
+     * 更新系统项目信息
+     *
+     * @param request 待更新的系统项目实体对象
+     * @return 返回更新操作的结果，包括是否更新成功的标志
+     */
+    ReturnResult<SysProject> updateDefault(ProjectDefaultFunctionV1Request request);
     /**
      * 新增系统项目信息
      *
@@ -58,4 +76,6 @@ public interface SysProjectService extends IService<SysProject> {
      * @return 返回保存操作的结果，包括保存是否成功的标志以及保存的系统部门信息
      */
     ReturnResult<SysProject> save(SysProject sysProject, Set<String> roles);
+
+
 }

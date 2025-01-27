@@ -1,9 +1,14 @@
 package com.chua.starter.system.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.system.entity.SysSecret;
+import com.chua.starter.system.entity.SysSmsTemplate;
+import com.chua.starter.system.pojo.sms.SmsPageV1Request;
 import com.chua.starter.system.pojo.sms.SmsRequest;
+import com.chua.starter.system.pojo.sms.SmsSyncV1Request;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
@@ -22,8 +27,36 @@ public interface SysSmsService {
 
     /**
      * 同步短信模板
-     * @param sysSecret 短信配置
+     * @param request 短信配置
      * @return result
      */
-    ReturnResult<Boolean> syncTemplate(SysSecret sysSecret);
+    ReturnResult<Boolean> syncTemplate(SmsSyncV1Request request);
+
+    /**
+     * 分页
+     * @param request 请求
+     * @return result
+     */
+    IPage<SysSmsTemplate> pageFor(SmsPageV1Request request);
+
+    /**
+     * 删除
+     * @param sysSmsTemplate 短信模板
+     * @return result
+     */
+    ReturnResult<Boolean> delete(SysSmsTemplate sysSmsTemplate);
+
+    /**
+     * 更新
+     * @param sysSmsTemplate 短信模板
+     * @return result
+     */
+    ReturnResult<Boolean> update(SysSmsTemplate sysSmsTemplate);
+
+    /**
+     * 新增
+     * @param sysSmsTemplate 短信模板
+     * @return result
+     */
+    ReturnResult<SysSmsTemplate> save(SysSmsTemplate sysSmsTemplate);
 }

@@ -1,29 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.service.mapper.SysProjectMapper">
+    <select id="selectPageFor" resultType="com.chua.starter.system.entity.SysProject">
+        SELECT T.*, IF(sysProjectFunctionDefaultLabel is not null, 1, 0) sysProjectFunctionDefault FROM (
+        SELECT sp.*,
+                sdi.sys_dict_item_name sysProjectDictItemLabel,
+                sdi.sys_dict_item_code sysProjectDictItemCode,
+               (SELECT group_concat(sdi.sys_dict_item_name)
+                FROM sys_project_default spd
+                         INNER JOIN sys_dict_item sdi ON spd.sys_project_default_type = sdi.sys_dict_item_id
+                WHERE spd.sys_project_id = sp.sys_project_id) sysProjectFunctionDefaultLabel,
+               (SELECT group_concat(sdi.sys_dict_item_id)
+                FROM sys_project_default spd
+                         INNER JOIN sys_dict_item sdi ON spd.sys_project_default_type = sdi.sys_dict_item_id
+                WHERE spd.sys_project_id = sp.sys_project_id) sysProjectFunctionDefaultIds
+        FROM sys_project sp
+        INNER JOIN sys_dict_item sdi ON sdi.sys_dict_item_id = sp.sys_project_vender
+        <trim>
+            <where>
+                <if test="request.sysProjectId != null">
+                    AND sys_project_id = #{request.sysProjectId}
+                </if>
+                <if test="request.sysProjectGroup != null">
+                    AND sys_project_group = #{request.sysProjectGroup}
+                </if>
 
-  <select id="selectPageFor" resultType="com.chua.starter.system.entity.SysProject">
-    SELECT T.*, IFNULL(sysProjectFunctionDefaultLabel, 0) sysProjectFunctionDefault FROM (
-      SELECT sp.*,
-      (SELECT group_concat(sdi.sys_dict_item_name) FROM sys_project_default spd
-      INNER JOIN sys_dict_item sdi ON spd.sys_project_default_type = sdi.sys_dict_item_id
-      WHERE spd.sys_project_id = sp.sys_project_id) sysProjectFunctionDefaultLabel
-      FROM sys_project sp
-      <trim>
-          <where>
-              <if test="request.sysProjectGroup != null">
-                  AND sys_project_group = #{request.sysProjectGroup}
-          </if>
+                <if test="request.sysProjectVender != null">
+                    AND sys_project_vender = #{request.sysProjectVender}
+                </if>
 
-              <if test="request.sysProjectDictItemId != null">
-            AND sys_project_dict_item_id = #{request.sysProjectDictItemId}
-          </if>
+                <if test="request.sysProjectFunction != null">
+                    AND FIND_IN_SET(#{request.sysProjectFunction}, sys_project_function)
+                </if>
+            </where>
+        </trim>
+        ) T
+        ORDER BY sysProjectFunctionDefaultLabel DESC
+    </select>
 
-          <if test="request.sysProjectFunction != null">
-            AND FIND_IN_SET(#{request.sysProjectFunction}, sys_project_function)
-          </if>
-        </where>
-      </trim>
-    ) T ORDER BY sysProjectFunctionDefaultLabel DESC
-  </select>
+    <select id="getDefaultByType" resultType="com.chua.starter.system.entity.SysProject">
+        SELECT sp.*
+               FROM sys_project_default spd
+        INNER JOIN sys_project sp ON sp.sys_project_id = spd.sys_project_id
+        INNER JOIN sys_dict_item sdi ON sp.sys_project_function = sdi.sys_dict_item_id
+        WHERE sdi.sys_dict_item_code = #{typeName}
+    </select>
 </mapper>

@@ -132,17 +132,25 @@ public class SysProject extends SysBase {
     /**
      * 字典项ID(字典1)
      */
-    @TableField(value = "sys_project_dict_item_id")
+    @TableField(value = "sys_project_vender")
     @ApiModelProperty(value = "厂家(字典1)")
     @Schema(description = "厂家(字典1)")
-    private Integer sysProjectDictItemId;
+    private Integer sysProjectVender;
 
     /**
      * 厂家(字典1)
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "厂家(字典1)")
-    @Schema(description = "厂家(字典1)")
+    @ApiModelProperty(value = "厂家编码(字典1)")
+    @Schema(description = "厂家编码(字典1)")
+    private String sysProjectDictItemCode;
+
+    /**
+     * 厂家(字典1)
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "厂家名称(字典1)")
+    @Schema(description = "厂家名称(字典1)")
     private String sysProjectDictItemLabel;
 
     /**
@@ -169,12 +177,19 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value = "默认功能")
     @Schema(description = "默认功能")
     private String sysProjectFunctionDefaultLabel;
+    /**
+     * 默认功能
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "默认功能")
+    @Schema(description = "默认功能")
+    private String sysProjectFunctionDefaultIds;
 
     /**
      * 是否默认
      */
-    @TableField(value = "sys_project_function_default")
+    @TableField(exist = false)
     @ApiModelProperty(value = "是否默认")
     @Schema(description = "是否默认")
-    private Boolean sysProjectFunctionDefault;
+    private Integer sysProjectFunctionDefault;
 }
