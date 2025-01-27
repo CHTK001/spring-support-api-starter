@@ -1,10 +1,12 @@
 package com.chua.starter.system.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,10 +18,10 @@ import lombok.EqualsAndHashCode;
 /**
  * 项目管理
  */
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(description = "项目管理")
-@Schema(description = "项目管理")
+@ApiModel(description="项目管理")
+@Schema(description="项目管理")
 @Data
+@EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_project")
 public class SysProject extends SysBase {
     @TableId(value = "sys_project_id", type = IdType.AUTO)
@@ -27,7 +29,6 @@ public class SysProject extends SysBase {
     @Schema(description = "")
     @NotNull(message = "id不能为空", groups = {UpdateGroup.class})
     private Integer sysProjectId;
-
 
     /**
      * 项目名称
@@ -38,103 +39,100 @@ public class SysProject extends SysBase {
     @NotBlank(message = "名称不能为空", groups = {AddGroup.class})
     private String sysProjectName;
 
-
     /**
      * 图标
      */
     @TableField(value = "sys_project_icon")
-    @ApiModelProperty(value = "图标")
-    @Schema(description = "图标")
+    @ApiModelProperty(value="图标")
+    @Schema(description="图标")
     private String sysProjectIcon;
+
     /**
      * 分组
      */
     @TableField(value = "sys_project_group")
-    @ApiModelProperty(value = "分组")
-    @Schema(description = "分组")
+    @ApiModelProperty(value="分组")
+    @Schema(description="分组")
     private String sysProjectGroup;
 
     /**
      * 编码, 可自行作为唯一标识
      */
     @TableField(value = "sys_project_code")
-    @ApiModelProperty(value = "编码, 可自行作为唯一标识")
-    @Schema(description = "编码, 可自行作为唯一标识")
-    @NotBlank(message = "编码不能为空", groups = {AddGroup.class})
+    @ApiModelProperty(value="编码, 可自行作为唯一标识")
+    @Schema(description="编码, 可自行作为唯一标识")
     private String sysProjectCode;
 
     /**
      * appid
      */
     @TableField(value = "sys_project_app_id")
-    @ApiModelProperty(value = "appid")
-    @Schema(description = "appid")
+    @ApiModelProperty(value="appid")
+    @Schema(description="appid")
     private String sysProjectAppId;
 
     /**
      * appsecret
      */
     @TableField(value = "sys_project_app_secret")
-    @ApiModelProperty(value = "appsecret")
-    @Schema(description = "appsecret")
+    @ApiModelProperty(value="appsecret")
+    @Schema(description="appsecret")
     private String sysProjectAppSecret;
 
     /**
      * 签名
      */
     @TableField(value = "sys_project_sign")
-    @ApiModelProperty(value = "签名")
-    @Schema(description = "签名")
+    @ApiModelProperty(value="签名")
+    @Schema(description="签名")
     private String sysProjectSign;
 
     /**
      * 是否删除0:未删除
      */
     @TableField(value = "sys_project_delete")
-    @ApiModelProperty(value = "是否删除0:未删除")
-    @Schema(description = "是否删除0:未删除")
-    @JsonIgnore
-    @TableLogic(value = "0", delval = "1")
+    @ApiModelProperty(value="是否删除0:未删除")
+    @Schema(description="是否删除0:未删除")
     private Integer sysProjectDelete;
 
     /**
      * 是否启用0:未启用
      */
     @TableField(value = "sys_project_status")
-    @ApiModelProperty(value = "是否启用0:未启用")
-    @Schema(description = "是否启用0:未启用")
+    @ApiModelProperty(value="是否启用0:未启用")
+    @Schema(description="是否启用0:未启用")
     private Integer sysProjectStatus;
 
     /**
      * cdn
      */
     @TableField(value = "sys_project_cdn")
-    @ApiModelProperty(value = "cdn")
-    @Schema(description = "cdn")
+    @ApiModelProperty(value="cdn")
+    @Schema(description="cdn")
     private String sysProjectCdn;
 
     /**
      * 端点
      */
     @TableField(value = "sys_project_endpoint")
-    @ApiModelProperty(value = "端点")
-    @Schema(description = "端点")
+    @ApiModelProperty(value="端点")
+    @Schema(description="端点")
     private String sysProjectEndpoint;
 
     /**
      * api地址
      */
     @TableField(value = "sys_project_api_address")
-    @ApiModelProperty(value = "api地址")
-    @Schema(description = "api地址")
+    @ApiModelProperty(value="api地址")
+    @Schema(description="api地址")
     private String sysProjectApiAddress;
 
     /**
-     * 字典项ID(字典1)
+     * 厂家(字典1)
      */
     @TableField(value = "sys_project_vender")
-    @ApiModelProperty(value = "厂家(字典1)")
-    @Schema(description = "厂家(字典1)")
+    @ApiModelProperty(value="厂家(字典1)")
+    @Schema(description="厂家(字典1)")
     private Integer sysProjectVender;
 
     /**
@@ -157,18 +155,49 @@ public class SysProject extends SysBase {
      * 描述
      */
     @TableField(value = "sys_project_remark")
-    @ApiModelProperty(value = "描述")
-    @Schema(description = "描述")
+    @ApiModelProperty(value="描述")
+    @Schema(description="描述")
     private String sysProjectRemark;
 
     /**
-     * 功能
+     * 功能; 字典表6
      */
     @TableField(value = "sys_project_function")
-    @ApiModelProperty(value = "功能; 字典表6")
-    @Schema(description = "功能; 字典表6")
+    @ApiModelProperty(value="功能; 字典表6")
+    @Schema(description="功能; 字典表6")
     private String sysProjectFunction;
 
+    /**
+     * smtp主机
+     */
+    @TableField(value = "sys_project_smtp_host")
+    @ApiModelProperty(value="smtp主机")
+    @Schema(description="smtp主机")
+    private String sysProjectSmtpHost;
+
+    /**
+     * smtp端口
+     */
+    @TableField(value = "sys_project_smtp_port")
+    @ApiModelProperty(value="smtp端口")
+    @Schema(description="smtp端口")
+    private Integer sysProjectSmtpPort;
+
+    /**
+     * smtp密码
+     */
+    @TableField(value = "sys_project_smtp_password")
+    @ApiModelProperty(value="smtp密码")
+    @Schema(description="smtp密码")
+    private String sysProjectSmtpPassword;
+
+    /**
+     * smtp主题账号
+     */
+    @TableField(value = "sys_project_smtp_from")
+    @ApiModelProperty(value="smtp主题账号")
+    @Schema(description="smtp主题账号")
+    private String sysProjectSmtpFrom;
 
     /**
      * 默认功能
