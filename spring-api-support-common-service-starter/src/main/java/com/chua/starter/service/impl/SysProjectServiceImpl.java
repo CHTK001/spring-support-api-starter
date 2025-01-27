@@ -15,6 +15,8 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysProjectDefaultService;
 import com.chua.starter.service.SysProjectService;
 import com.chua.starter.service.mapper.SysProjectMapper;
+import com.chua.starter.service.system.service.SysDictItemService;
+import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.entity.SysProjectDefault;
 import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
@@ -41,6 +43,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
 
     final TransactionTemplate transactionTemplate;
     final SysProjectDefaultService sysProjectDefaultService;
+    final SysDictItemService sysDictItemService;
     @Override
     public IPage<SysProject> pageFor(Query<SysProject> query, SysProject sysProject, Set<String> roles) {
         return baseMapper.selectPageFor(query.createPage(), sysProject);
@@ -90,18 +93,34 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
 
     @Override
     public ReturnResult<SysProject> updateDefault(ProjectDefaultFunctionV1Request request) {
+        ProjectDefaultFunctionV1Request newRequest = handleRefreshRequest(request);
+        if(null == request.getSysProjectDefaultType()) {
+            return ReturnResult.illegal("类型不能为空");
+        }
         return transactionTemplate.execute(it -> {
-            sysProjectDefaultService.remove(Wrappers.<SysProjectDefault>lambdaQuery().eq(SysProjectDefault::getSysProjectDefaultType, request.getSysProjectDefaultType()));
-            Integer sysSetDefault = request.getSysSetDefault();
+            sysProjectDefaultService.remove(Wrappers.<SysProjectDefault>lambdaQuery().eq(SysProjectDefault::getSysProjectDefaultType, newRequest.getSysProjectDefaultType()));
+            Integer sysSetDefault = newRequest.getSysSetDefault();
             if(null == sysSetDefault || sysSetDefault == 0) {
-                return ReturnResult.ok(getDefault(request.getSysProjectId()));
+                return ReturnResult.ok(getDefault(newRequest.getSysProjectId()));
             }
             SysProjectDefault sysProjectDefault = new SysProjectDefault();
-            sysProjectDefault.setSysProjectDefaultType(request.getSysProjectDefaultType() + "");
-            sysProjectDefault.setSysProjectId(request.getSysProjectId());
+            sysProjectDefault.setSysProjectDefaultType(newRequest.getSysProjectDefaultType() + "");
+            sysProjectDefault.setSysProjectId(newRequest.getSysProjectId());
             sysProjectDefaultService.save(sysProjectDefault);
-            return ReturnResult.guess(getDefault(request.getSysProjectId()));
+            return ReturnResult.guess(getDefault(newRequest.getSysProjectId()));
         });
+    }
+
+    private ProjectDefaultFunctionV1Request handleRefreshRequest(ProjectDefaultFunctionV1Request request) {
+        if(null != request.getSysProjectDefaultType()) {
+            return request;
+        }
+        SysDictItem sysDictItem = sysDictItemService.getTypeIdByName(request.getSysProjectDefaultTypeName(), 6);
+        if(null != sysDictItem) {
+            request.setSysProjectDefaultType(sysDictItem.getSysDictItemId());
+        }
+
+        return request;
     }
 
     /**

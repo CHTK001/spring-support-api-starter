@@ -7,11 +7,6 @@ import com.chua.starter.system.entity.SysProject;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/**
- * 项目
- *
- * @author CH
- */
 @Mapper
 public interface SysProjectMapper extends BaseMapper<SysProject> {
     /**
@@ -31,5 +26,5 @@ public interface SysProjectMapper extends BaseMapper<SysProject> {
      * @param typeName 类型
      * @return 项目
      */
-    IPage<SysProject> getDefaultByType( @Param("page") Page<SysProject> page, @Param("typeName")String typeName);
+    IPage<SysProject> getDefaultByType(@Param("page") Page<SysProject> page, @Param("typeName") String typeName);
 }

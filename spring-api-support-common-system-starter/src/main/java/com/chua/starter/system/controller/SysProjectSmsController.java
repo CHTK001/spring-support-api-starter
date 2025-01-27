@@ -9,11 +9,11 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.service.system.service.SysSmsService;
 import com.chua.starter.system.entity.SysSmsTemplate;
 import com.chua.starter.system.pojo.sms.SmsPageV1Request;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import com.chua.starter.system.pojo.sms.SmsSyncV1Request;
-import com.chua.starter.system.service.SysSmsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,7 +125,7 @@ public class SysProjectSmsController {
      */
     @Operation(summary = "新增模板")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    @PutMapping("/save")
+    @PostMapping("/save")
     @ApiOperation("新增模板")
     public ReturnResult<SysSmsTemplate> save(@Validated(AddGroup.class) @ParameterObject @RequestBody SysSmsTemplate sysSmsTemplate,
                                         BindingResult bindingResult) {

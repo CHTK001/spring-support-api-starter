@@ -2,6 +2,12 @@ package com.chua.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.mail.Email;
+import com.chua.common.support.lang.message.result.PushResult;
+import com.chua.starter.system.entity.SysEmailTemplate;
+import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.pojo.email.EmailRequest;
+
+import java.util.List;
 
 /**
  * 邮件服务
@@ -17,4 +23,15 @@ public interface EmailService {
      * @return 是否成功
      */
     ReturnResult<Boolean> send(Email email);
+
+    /**
+     * 发送邮件
+     *
+     * @param sysTemplateCode 模板编码
+     * @param sysProject      项目
+     * @param emailTemplate
+     * @param request         请求
+     * @return 是否成功
+     */
+    ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SysEmailTemplate emailTemplate, EmailRequest request);
 }

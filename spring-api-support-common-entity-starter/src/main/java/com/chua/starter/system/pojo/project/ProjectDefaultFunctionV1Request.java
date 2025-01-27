@@ -25,8 +25,12 @@ public class ProjectDefaultFunctionV1Request {
      * 类型； 字典表6;
      */
     @Schema(description = "类型； 字典表6;")
-    @NotNull(message = "类型不能为空", groups = UpdateGroup.class)
     private Integer sysProjectDefaultType;
+    /**
+     * 类型； 字典表6;
+     */
+    @Schema(description = "类型； 字典表6;")
+    private String sysProjectDefaultTypeName;
 
     /**
      * 设置默认值; 0: false
