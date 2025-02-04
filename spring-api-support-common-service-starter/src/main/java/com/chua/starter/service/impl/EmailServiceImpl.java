@@ -73,6 +73,7 @@ public class EmailServiceImpl implements EmailService {
                         .contentType("text/html")
                         .content(emailTemplate.getSysEmailTemplateContent())
                         .templateName(emailTemplate.getSysEmailTemplateName())
+                        .title(emailTemplate.getSysEmailTemplateName())
                         .maps(request.getParams())
                         .to(s)
                         .build());
