@@ -74,6 +74,15 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     @Schema(description="名称")
     private String sysEmailTemplateName;
 
+
+    /**
+     * 回调地址
+     */
+    @TableField(value = "sys_email_template_callback_url")
+    @ApiModelProperty(value="回调地址")
+    @Schema(description="回调地址")
+    private String sysEmailTemplateCallbackUrl;
+
     /**
      * 唯一编码
      */
