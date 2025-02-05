@@ -29,9 +29,10 @@ public interface EmailService {
      *
      * @param sysTemplateCode 模板编码
      * @param sysProject      项目
-     * @param emailTemplate
+     * @param emailTemplate  配置
      * @param request         请求
+     * @param traceId 链路ID
      * @return 是否成功
      */
-    ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SysEmailTemplate emailTemplate, EmailRequest request);
+    ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SysEmailTemplate emailTemplate, EmailRequest request, Integer traceId);
 }

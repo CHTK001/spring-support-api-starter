@@ -36,7 +36,13 @@ public class SysSmsLog extends SysBase implements Serializable {
     @Schema(description = "")
     @NotNull(message = "不能为null")
     private Integer sysSmsLogId;
-
+    /**
+     * 项目ID
+     */
+    @TableField(value = "sys_project_id")
+    @ApiModelProperty(value = "项目ID")
+    @Schema(description = "项目ID")
+    private Integer sysProjectId;
     /**
      * 接收人
      */
@@ -54,6 +60,14 @@ public class SysSmsLog extends SysBase implements Serializable {
     @Schema(description = "模板ID")
     @Size(max = 255, message = "模板ID最大长度要小于 255")
     private String sysSmsLogTemplateId;
+
+    /**
+     * 短信内容
+     */
+    @TableField(value = "sys_sms_log_content")
+    @ApiModelProperty(value = "短信内容")
+    @Schema(description = "短信内容")
+    private String sysSmsLogContent;
 
     /**
      * 参数

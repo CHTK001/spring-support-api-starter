@@ -10,6 +10,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.system.service.SysEmailService;
+import com.chua.starter.system.entity.SysEmailLog;
 import com.chua.starter.system.entity.SysEmailTemplate;
 import com.chua.starter.system.pojo.email.EmailPageV1Request;
 import com.chua.starter.system.pojo.email.EmailRequest;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +45,31 @@ public class SysProjectEmailController {
 
     final SysEmailService sysEmailService;
 
+
     /**
-     * 校验码
+     * 邮件日志分页
+     *
+     * @param request 请求
+     */
+    @ApiOperation("邮件日志分页")
+    @Operation(summary = "邮件日志分页")
+    @GetMapping("/log/page")
+    public ReturnPageResult<SysEmailLog> pageForLog(@ParameterObject EmailPageV1Request request) {
+        return ReturnPageResultUtils.ok(sysEmailService.pageForLog(request));
+    }
+
+    /**
+     * 邮件阅读回调
+     */
+    @ApiOperation("邮件阅读回调")
+    @GetMapping("/callback")
+    public ResponseEntity<byte[]> callback(@RequestParam("target") String target,
+                                           @RequestParam("traceId") String traceId) {
+
+        return sysEmailService.callback(target, traceId);
+    }
+    /**
+     * 发送邮件
      *
      * @param request 请求
      */
@@ -57,26 +82,26 @@ public class SysProjectEmailController {
     }
 
     /**
-     * 分页
+     * 邮件分页
      *
      * @param request 请求
      */
-    @ApiOperation("分页")
-    @Operation(summary = "分页")
+    @ApiOperation("邮件分页")
+    @Operation(summary = "邮件分页")
     @GetMapping("/page")
     public ReturnPageResult<SysEmailTemplate> page(@ParameterObject EmailPageV1Request request) {
         return ReturnPageResultUtils.ok(sysEmailService.pageFor(request));
     }
 
     /**
-     * 同步模板
+     * 同步邮件模板
      *
      * @param request 密钥
      */
-    @Operation(summary = "同步模板")
+    @Operation(summary = "同步邮件模板")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @PutMapping("/syncTemplate")
-    @ApiOperation("同步模板")
+    @ApiOperation("同步邮件模板")
     public ReturnResult<Boolean> syncTemplate(@Validated(SelectGroup.class) @ParameterObject @RequestBody EmailSyncV1Request request,
                                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -86,14 +111,14 @@ public class SysProjectEmailController {
     }
 
     /**
-     * 删除模板
+     * 删除邮件模板
      *
      * @param sysEmailTemplate 密钥
      */
-    @Operation(summary = "删除模板")
+    @Operation(summary = "删除邮件模板")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @PutMapping("/delete")
-    @ApiOperation("删除模板")
+    @ApiOperation("删除邮件模板")
     public ReturnResult<Boolean> delete(@Validated(SelectGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -103,14 +128,14 @@ public class SysProjectEmailController {
     }
 
     /**
-     * 更新模板
+     * 更新邮件模板
      *
      * @param sysEmailTemplate 密钥
      */
-    @Operation(summary = "更新模板")
+    @Operation(summary = "更新邮件模板")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @PutMapping("/update")
-    @ApiOperation("更新模板")
+    @ApiOperation("更新邮件模板")
     public ReturnResult<Boolean> update(@Validated(UpdateGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -119,14 +144,14 @@ public class SysProjectEmailController {
         return sysEmailService.update(sysEmailTemplate);
     }
     /**
-     * 新增模板
+     * 新增邮件模板
      *
      * @param sysEmailTemplate 密钥
      */
-    @Operation(summary = "新增模板")
+    @Operation(summary = "新增邮件模板")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @PostMapping("/save")
-    @ApiOperation("新增模板")
+    @ApiOperation("新增邮件模板")
     public ReturnResult<SysEmailTemplate> save(@Validated(AddGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
