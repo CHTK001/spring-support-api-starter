@@ -9,6 +9,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.service.system.entity.SysSmsLog;
 import com.chua.starter.service.system.service.SysSmsService;
 import com.chua.starter.system.entity.SysSmsTemplate;
 import com.chua.starter.system.pojo.sms.SmsPageV1Request;
@@ -43,6 +44,17 @@ public class SysProjectSmsController {
 
     final SysSmsService sysSmsService;
 
+    /**
+     * 短信日志分页
+     *
+     * @param request 请求
+     */
+    @ApiOperation("短信日志分页")
+    @Operation(summary = "短信日志分页")
+    @GetMapping("/log/page")
+    public ReturnPageResult<SysSmsLog> pageForLog(@ParameterObject SmsPageV1Request request) {
+        return ReturnPageResultUtils.ok(sysSmsService.pageForLog(request));
+    }
     /**
      * 校验码
      *

@@ -3,10 +3,12 @@ package com.chua.starter.service.system.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
+import com.chua.starter.system.entity.SysEmailLog;
 import com.chua.starter.system.entity.SysEmailTemplate;
 import com.chua.starter.system.pojo.email.EmailPageV1Request;
 import com.chua.starter.system.pojo.email.EmailRequest;
 import com.chua.starter.system.pojo.email.EmailSyncV1Request;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -57,4 +59,21 @@ public interface SysEmailService {
      * @return result
      */
     ReturnResult<SysEmailTemplate> save(SysEmailTemplate sysEmailTemplate);
+
+    /**
+     * 邮件阅读回调
+     *
+     * @param target  目标
+     * @param traceId 轨迹
+     * @return result
+     */
+    ResponseEntity<byte[]> callback(String target, String traceId);
+
+    /**
+     * 邮件日志分页
+     *
+     * @param request 请求
+     * @return result
+     */
+    IPage<SysEmailLog> pageForLog(EmailPageV1Request request);
 }

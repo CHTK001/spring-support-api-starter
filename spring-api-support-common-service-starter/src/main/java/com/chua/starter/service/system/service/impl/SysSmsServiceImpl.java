@@ -51,16 +51,16 @@ public class SysSmsServiceImpl implements SysSmsService {
     final SysSmsTemplateService sysSmsTemplateService;
     @Override
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
-        SysSmsTemplate sysTemplateServiceById = sysSmsTemplateService.getById(request.getSysSmsTemplateId());
-        if(null == sysTemplateServiceById) {
+        SysSmsTemplate smsTemplate = sysSmsTemplateService.getById(request.getSysSmsTemplateId());
+        if (null == smsTemplate) {
             return ReturnResult.error("模板不存在");
         }
 
         if(ArrayUtils.isEmpty(request.getTarget())) {
             return ReturnResult.error("接收人不能为空");
         }
-        SysProject sysProject = sysProjectService.getOne(sysTemplateServiceById.getSysProjectId());
-        String sysTemplateCode = sysTemplateServiceById.getSysSmsTemplateCode();
+        SysProject sysProject = sysProjectService.getOne(smsTemplate.getSysProjectId());
+        String sysTemplateCode = smsTemplate.getSysSmsTemplateCode();
         ReturnResult<List<PushResult>> send = smsService.send(sysTemplateCode, sysProject, request);
         List<PushResult> data = send.getData();
         if(null == data) {
@@ -71,7 +71,8 @@ public class SysSmsServiceImpl implements SysSmsService {
             SysSmsLog sysSmsLog = new SysSmsLog();
             sysSmsLog.setSysSmsAppSign(sysProject.getSysProjectSign());
             sysSmsLog.setSysSmsAppId(sysProject.getSysProjectAppId());
-
+            sysSmsLog.setSysProjectId(sysProject.getSysProjectId());
+            sysSmsLog.setSysSmsLogContent(smsTemplate.getSysSmsTemplateContent());
             sysSmsLog.setSysSmsCode(item.getCode().name());
             sysSmsLog.setSysSmsMessage(item.getMessage());
             sysSmsLog.setSysSmsLogParam(Json.toPrettyFormat(request.getParams()));
@@ -179,5 +180,20 @@ public class SysSmsServiceImpl implements SysSmsService {
     public ReturnResult<SysSmsTemplate> save(SysSmsTemplate sysSmsTemplate) {
         sysSmsTemplateMapper.insert(sysSmsTemplate);
         return ReturnResult.of(sysSmsTemplate);
+    }
+
+    @Override
+    public IPage<SysSmsLog> pageForLog(SmsPageV1Request request) {
+        Integer sysProjectId = request.getSysProjectId();
+        if (null == sysProjectId) {
+            return new Page<>();
+        }
+
+        return sysSmsLogService.page(
+                new Page<>(request.getPage(), request.getPageSize()),
+                new LambdaQueryWrapper<SysSmsLog>()
+                        .eq(SysSmsLog::getSysProjectId, sysProjectId)
+                        .orderByDesc(SysSmsLog::getCreateTime)
+        );
     }
 }
