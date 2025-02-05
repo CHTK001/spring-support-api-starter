@@ -1,24 +1,31 @@
 package com.chua.starter.service.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.starter.service.EmailService;
 import com.chua.starter.service.SysEmailTemplateService;
 import com.chua.starter.service.SysProjectService;
+import com.chua.starter.service.mapper.SysEmailLogMapper;
 import com.chua.starter.service.mapper.SysEmailTemplateMapper;
 import com.chua.starter.service.system.service.SysDictItemService;
 import com.chua.starter.service.system.service.SysEmailService;
+import com.chua.starter.system.entity.SysEmailLog;
 import com.chua.starter.system.entity.SysEmailTemplate;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.email.EmailPageV1Request;
 import com.chua.starter.system.pojo.email.EmailRequest;
 import com.chua.starter.system.pojo.email.EmailSyncV1Request;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -35,6 +42,8 @@ public class SysEmailServiceImpl implements SysEmailService {
     final SysProjectService sysProjectService;
     final SysEmailTemplateMapper sysEmailTemplateMapper;
     final SysEmailTemplateService sysEmailTemplateService;
+    final SysEmailLogMapper sysEmailLogMapper;
+
     @Override
     public ReturnResult<List<PushResult>> send(EmailRequest request) {
         SysEmailTemplate emailTemplate = sysEmailTemplateService.getById(request.getSysEmailTemplateId());
@@ -45,24 +54,49 @@ public class SysEmailServiceImpl implements SysEmailService {
         if(ArrayUtils.isEmpty(request.getTarget())) {
             return ReturnResult.error("接收人不能为空");
         }
+        long startTime = System.currentTimeMillis();
         SysProject sysProject = sysProjectService.getOne(emailTemplate.getSysProjectId());
         String sysTemplateCode = emailTemplate.getSysEmailTemplateCode();
-        ReturnResult<List<PushResult>> send = emailService.send(sysTemplateCode, sysProject, emailTemplate,  request);
-        if(!send.isOk()) {
-            return send;
-        }
-        List<PushResult> data = send.getData();
-        if(null == data) {
-            return send;
-        }
-        List<PushResult> list = data.stream().filter(it -> !it.isSuccess()).toList();
-        if(!list.isEmpty()) {
-            if(list.size() == data.size()) {
-                return ReturnResult.error("发送失败");
+        SysEmailLog sysEmailLog = new SysEmailLog();
+        sysEmailLog.setSysEmailLogTarget(request.getTarget()[0]);
+        sysEmailLog.setSysEmailRead(0);
+        sysEmailLog.setSysEmailLogTemplateId(String.valueOf(emailTemplate.getSysEmailTemplateId()));
+        sysEmailLog.setSysEmailLogParam(null == request.getParams() ? null : Json.toJSONString(request.getParams()));
+        sysEmailLog.setSysEmailLogContent(emailTemplate.getSysEmailTemplateContent());
+        sysEmailLog.setSysEmailAppId(sysProject.getSysProjectAppId());
+        sysEmailLog.setSysEmailAppType(sysProject.getSysProjectDictItemCode());
+        sysEmailLog.setSysEmailAppSign(sysProject.getSysProjectSign());
+        sysEmailLog.setSysEmailCost(BigDecimal.ZERO);
+        sysEmailLog.setSysProjectId(sysProject.getSysProjectId());
+        sysEmailLog.setCreateTime(LocalDateTime.now());
+        sysEmailLogMapper.insert(sysEmailLog);
+
+        ReturnResult<List<PushResult>> send = emailService.send(sysTemplateCode, sysProject, emailTemplate, request, sysEmailLog.getSysEmailLogId());
+        sysEmailLog.setSysEmailCost(BigDecimal.valueOf(System.currentTimeMillis() - startTime));
+        sysEmailLog.setSysEmailCode("SUCCESS");
+        try {
+            if (!send.isOk()) {
+                sysEmailLog.setSysEmailCode("FAILURE");
+                return send;
             }
-            return ReturnResult.illegal("部分发送失败" + list.stream()
-                    .map(PushResult::getTarget).collect(java.util.stream.Collectors.joining(","))
-            );
+            List<PushResult> data = send.getData();
+            if (null == data) {
+                sysEmailLog.setSysEmailCode("FAILURE");
+                return send;
+            }
+            List<PushResult> list = data.stream().filter(it -> !it.isSuccess()).toList();
+            if (!list.isEmpty()) {
+                if (list.size() == data.size()) {
+                    sysEmailLog.setSysEmailCode("FAILURE");
+                    return ReturnResult.error("发送失败");
+                }
+                sysEmailLog.setSysEmailCode("FAILURE");
+                return ReturnResult.illegal("部分发送失败" + list.stream()
+                        .map(PushResult::getTarget).collect(java.util.stream.Collectors.joining(","))
+                );
+            }
+        } finally {
+            sysEmailLogMapper.updateById(sysEmailLog);
         }
         return send;
     }
@@ -99,5 +133,38 @@ public class SysEmailServiceImpl implements SysEmailService {
         sysEmailTemplate.setSysEmailTemplateDelete(0);
         sysEmailTemplateMapper.insert(sysEmailTemplate);
         return ReturnResult.of(sysEmailTemplate);
+    }
+
+    @Override
+    public ResponseEntity<byte[]> callback(String target, String traceId) {
+        if (null == target || null == traceId) {
+            return null;
+        }
+        SysEmailLog sysEmailLog = sysEmailLogMapper.selectOne(new LambdaQueryWrapper<SysEmailLog>()
+                .eq(SysEmailLog::getSysEmailLogId, traceId)
+        );
+        if (null == sysEmailLog) {
+            return ResponseEntity.ok(new byte[0]);
+        }
+        sysEmailLog.setUpdateTime(LocalDateTime.now());
+        sysEmailLog.setSysEmailRead(1);
+        sysEmailLogMapper.updateById(sysEmailLog);
+
+        return ResponseEntity.ok(new byte[0]);
+    }
+
+    @Override
+    public IPage<SysEmailLog> pageForLog(EmailPageV1Request request) {
+        Integer sysProjectId = request.getSysProjectId();
+        if (null == sysProjectId) {
+            return new Page<>();
+        }
+
+        return sysEmailLogMapper.selectPage(
+                new Page<>(request.getPage(), request.getPageSize()),
+                new LambdaQueryWrapper<SysEmailLog>()
+                        .eq(SysEmailLog::getSysProjectId, sysProjectId)
+                        .orderByDesc(SysEmailLog::getCreateTime)
+        );
     }
 }

@@ -59,7 +59,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SysEmailTemplate emailTemplate, EmailRequest request) {
+    public ReturnResult<List<PushResult>> send(String sysTemplateCode,
+                                               SysProject sysProject,
+                                               SysEmailTemplate emailTemplate,
+                                               EmailRequest request,
+                                               Integer traceId) {
         MailConfiguration mailConfiguration = new MailConfiguration();
         mailConfiguration.setSmtpHost(sysProject.getSysProjectSmtpHost());
         mailConfiguration.setPassword(sysProject.getSysProjectSmtpPassword());
@@ -71,8 +75,10 @@ public class EmailServiceImpl implements EmailService {
             try {
                 mailSender.send(sysProject.getSysProjectSmtpFrom(), Email.builder()
                         .contentType("text/html")
+                        .htmlMailCallbackUrl(emailTemplate.getSysEmailTemplateCallbackUrl())
                         .content(emailTemplate.getSysEmailTemplateContent())
-                        .templateName(emailTemplate.getSysEmailTemplateName())
+                        .templateId(emailTemplate.getSysEmailTemplateId() + "")
+                        .traceId(traceId + "")
                         .title(emailTemplate.getSysEmailTemplateName())
                         .maps(request.getParams())
                         .to(s)

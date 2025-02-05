@@ -3,6 +3,7 @@ package com.chua.starter.service.system.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
+import com.chua.starter.service.system.entity.SysSmsLog;
 import com.chua.starter.system.entity.SysSmsTemplate;
 import com.chua.starter.system.pojo.sms.SmsPageV1Request;
 import com.chua.starter.system.pojo.sms.SmsRequest;
@@ -57,4 +58,12 @@ public interface SysSmsService {
      * @return result
      */
     ReturnResult<SysSmsTemplate> save(SysSmsTemplate sysSmsTemplate);
+
+    /**
+     * 短信日志分页
+     *
+     * @param request 请求
+     * @return result
+     */
+    IPage<SysSmsLog> pageForLog(SmsPageV1Request request);
 }
