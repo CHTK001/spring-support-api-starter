@@ -151,7 +151,7 @@ public class SysDictItemController {
             @Validated(UpdateGroup.class) @RequestBody SysDictItem sysDictItem,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictItemService.update(roles, sysDictItem);
@@ -170,7 +170,7 @@ public class SysDictItemController {
                 @Validated(AddGroup.class) @RequestBody SysDictItem sysDictItem,
                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictItemService.save(sysDictItem, roles);

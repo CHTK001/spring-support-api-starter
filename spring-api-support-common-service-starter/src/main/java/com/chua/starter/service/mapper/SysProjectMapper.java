@@ -27,4 +27,20 @@ public interface SysProjectMapper extends BaseMapper<SysProject> {
      * @return 项目
      */
     IPage<SysProject> getDefaultByType(@Param("page") Page<SysProject> page, @Param("typeName") String typeName);
+
+    /**
+     * 获取项目
+     *
+     * @param sysProjectId 项目ID
+     * @return 项目
+     */
+    default SysProject getOne(Integer sysProjectId) {
+        SysProject sysProject = new SysProject();
+        sysProject.setSysProjectId(sysProjectId);
+        IPage<SysProject> sysProjectIPage = selectPageFor(new Page<>(1, 1), sysProject);
+        if (sysProjectIPage.getTotal() > 0) {
+            return sysProjectIPage.getRecords().get(0);
+        }
+        return null;
+    }
 }

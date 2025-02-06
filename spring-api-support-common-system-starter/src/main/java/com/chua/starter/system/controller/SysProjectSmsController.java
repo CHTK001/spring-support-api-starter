@@ -92,7 +92,7 @@ public class SysProjectSmsController {
     public ReturnResult<Boolean> syncTemplate(@Validated(SelectGroup.class) @ParameterObject @RequestBody SmsSyncV1Request request,
                                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSmsService.syncTemplate(request);
     }
@@ -109,7 +109,7 @@ public class SysProjectSmsController {
     public ReturnResult<Boolean> delete(@Validated(SelectGroup.class) @ParameterObject @RequestBody SysSmsTemplate sysSmsTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSmsService.delete(sysSmsTemplate);
     }
@@ -126,7 +126,7 @@ public class SysProjectSmsController {
     public ReturnResult<Boolean> update(@Validated(UpdateGroup.class) @ParameterObject @RequestBody SysSmsTemplate sysSmsTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSmsService.update(sysSmsTemplate);
     }
@@ -142,7 +142,7 @@ public class SysProjectSmsController {
     public ReturnResult<SysSmsTemplate> save(@Validated(AddGroup.class) @ParameterObject @RequestBody SysSmsTemplate sysSmsTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSmsService.save(sysSmsTemplate);
     }

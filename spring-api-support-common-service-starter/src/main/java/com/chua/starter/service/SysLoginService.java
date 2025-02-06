@@ -23,12 +23,13 @@ public interface SysLoginService {
     /**
      * 用户登录方法，根据登录数据进行用户身份验证
      *
-     * @param loginData 登录数据对象，包含用户名、密码等信息
-     * @param request HTTP请求对象，用于获取请求相关的数据
-     * @param response HTTP响应对象，用于设置响应数据
+     * @param loginData   登录数据对象，包含用户名、密码等信息
+     * @param request     HTTP请求对象，用于获取请求相关的数据
+     * @param response    HTTP响应对象，用于设置响应数据
+     * @param fingerprint
      * @return 结果对象，包含登录结果和可能的附加信息
      */
-    Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response);
+    Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
 
     /**
      * 获取当前登录用户的信息

@@ -49,7 +49,7 @@ public class SysTaskSsoController {
                                                 BindingResult bindingResult
                                           ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         if(null == file) {
@@ -71,7 +71,7 @@ public class SysTaskSsoController {
                                                               BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysTaskSsoService.createTask(request);
     }
@@ -88,7 +88,7 @@ public class SysTaskSsoController {
                                                                   BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         if(null == multipartFile) {
             return Result.illegal("文件不能为空");

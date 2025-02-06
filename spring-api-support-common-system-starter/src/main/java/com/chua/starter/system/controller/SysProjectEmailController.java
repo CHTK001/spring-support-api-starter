@@ -105,7 +105,7 @@ public class SysProjectEmailController {
     public ReturnResult<Boolean> syncTemplate(@Validated(SelectGroup.class) @ParameterObject @RequestBody EmailSyncV1Request request,
                                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysEmailService.syncTemplate(request);
     }
@@ -122,7 +122,7 @@ public class SysProjectEmailController {
     public ReturnResult<Boolean> delete(@Validated(SelectGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysEmailService.delete(sysEmailTemplate);
     }
@@ -139,7 +139,7 @@ public class SysProjectEmailController {
     public ReturnResult<Boolean> update(@Validated(UpdateGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysEmailService.update(sysEmailTemplate);
     }
@@ -155,7 +155,7 @@ public class SysProjectEmailController {
     public ReturnResult<SysEmailTemplate> save(@Validated(AddGroup.class) @ParameterObject @RequestBody SysEmailTemplate sysEmailTemplate,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysEmailService.save(sysEmailTemplate);
     }

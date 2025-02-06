@@ -4,10 +4,7 @@ import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.otp.TotpGenerator;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
@@ -20,12 +17,8 @@ import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.system.result.LoginResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-
-import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_ERROR;
@@ -49,7 +42,7 @@ public class DefaultLoginHandler implements LoginHandler {
     SimpleSysUserService simpleSysUserService;
 
     @Override
-    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
+    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if(null != check) {
             return check;
@@ -58,7 +51,10 @@ public class DefaultLoginHandler implements LoginHandler {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         long startTime = System.currentTimeMillis();
         LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
-                ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
+                ImmutableBuilder.<String, Object>builderOfMap()
+                        .put("address", address)
+                        .put("fingerprint", fingerprint)
+                        .build()
         );
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
