@@ -83,9 +83,17 @@ public class SysProject extends SysBase {
      * 签名
      */
     @TableField(value = "sys_project_sign")
-    @ApiModelProperty(value="签名")
-    @Schema(description="签名")
+    @ApiModelProperty(value = "签名/项目标识")
+    @Schema(description = "签名/项目标识")
     private String sysProjectSign;
+
+    /**
+     * 签名密钥
+     */
+    @TableField(value = "sys_project_sign_code")
+    @ApiModelProperty(value = "签名编码/项目标识编码")
+    @Schema(description = "签名编码/项目标识编码")
+    private String sysProjectSignCode;
 
     /**
      * 是否删除0:未删除

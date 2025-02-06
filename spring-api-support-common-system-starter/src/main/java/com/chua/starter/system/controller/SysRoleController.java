@@ -102,7 +102,7 @@ public class SysRoleController {
             @Validated(UpdateGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.updateMenu(roles, roleMenuUpdate);
@@ -116,7 +116,7 @@ public class SysRoleController {
             @Validated(SelectGroup.class)  RoleMenuUpdate roleMenuUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.getMenu(roleMenuUpdate);
@@ -135,7 +135,7 @@ public class SysRoleController {
             @Validated(UpdateGroup.class) @RequestBody SysRole sysRole,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.updateRole(roles, sysRole);
@@ -152,7 +152,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.saveRole(sysRole);

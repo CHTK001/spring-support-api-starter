@@ -78,7 +78,7 @@ public class SysSecretController {
             @Validated(UpdateGroup.class) @RequestBody SysSecret sysSecret,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSecretService.update(roles, sysSecret);
@@ -97,7 +97,7 @@ public class SysSecretController {
             @Validated(AddGroup.class) @RequestBody SysSecret sysSecret,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSecretService.save(sysSecret, roles);
     }

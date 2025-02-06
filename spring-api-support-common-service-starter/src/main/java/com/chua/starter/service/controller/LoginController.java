@@ -1,7 +1,6 @@
 package com.chua.starter.service.controller;
 
 import com.chua.common.support.constant.Action;
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.OperateLog;
 import com.chua.starter.common.support.annotations.UserLogger;
@@ -12,11 +11,9 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
-import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.SysLoginService;
 import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
 import io.swagger.annotations.Api;
@@ -24,15 +21,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-import java.util.List;
-
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
+import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 
 /**
  * 登录
@@ -69,12 +65,13 @@ public class LoginController {
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
+                                     @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                      BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysLoginService.login(loginData, request, response);
+        return sysLoginService.login(loginData, request, response, fingerprint);
     }
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
@@ -84,7 +81,7 @@ public class LoginController {
                                             HttpServletResponse response,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);

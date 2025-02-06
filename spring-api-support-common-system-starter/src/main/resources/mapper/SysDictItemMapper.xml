@@ -22,7 +22,7 @@
     <select id="selectListByCode" resultType="com.chua.starter.system.entity.SysDictItem">
         SELECT sdi.*
         FROM sys_dict_item sdi
-        WHERE sdi.sys_dict_id IN (SELECT sd.sys_dict_id
+        WHERE sdi.sys_dict_item_delete = 0 AND  sdi.sys_dict_id IN (SELECT sd.sys_dict_id
                                   FROM sys_dict sd
                                   WHERE sd.sys_dict_status = 1
                                     AND sd.sys_dict_code = #{sysDictCode})
@@ -31,7 +31,7 @@
     <select id="selectPageForQuery" resultType="com.chua.starter.system.entity.SysDictItem">
         SELECT sdi.*
         FROM sys_dict_item sdi
-        WHERE sdi.sys_dict_id IN (SELECT sd.sys_dict_id
+        WHERE sdi.sys_dict_item_delete = 0 AND  sdi.sys_dict_id IN (SELECT sd.sys_dict_id
                                   FROM sys_dict sd
                                   WHERE sd.sys_dict_status = 1
                                       AND sd.sys_dict_pid = #{sysDictId}

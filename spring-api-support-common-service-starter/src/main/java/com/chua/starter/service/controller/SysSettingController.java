@@ -129,7 +129,7 @@ public class SysSettingController {
             @Validated(UpdateGroup.class) @RequestBody List<SysSetting> sysSetting,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.updateBatch(roles, sysSetting);
@@ -148,7 +148,7 @@ public class SysSettingController {
             @Validated(UpdateGroup.class) @RequestBody SysSetting sysSetting,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.update(roles, sysSetting);
@@ -164,7 +164,7 @@ public class SysSettingController {
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.saveForEntity(sysSetting, roles);

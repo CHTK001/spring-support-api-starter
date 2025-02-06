@@ -44,14 +44,16 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @Override
     public ReturnResult<Boolean> delete(Long dictItemId) {
         SysDictItem sysDictItem = baseMapper.selectById(dictItemId);
-        SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
-        sysDictItem.setSysDictCode(sysDict.getSysDictCode());
-        boolean b = baseMapper.deleteById(dictItemId) > 0;
+        if (null != sysDictItem) {
+            SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
+            sysDictItem.setSysDictCode(sysDict.getSysDictCode());
+            baseMapper.deleteById(dictItemId);
+        }
         sysDictItemService.deleteCacheId(sysDictItem);
         sysDictItemService.deleteCacheCode(sysDictItem);
         sysDictItemService.deleteCachePid(sysDictItem);
         sysDictItemService.deleteCachePcode(sysDictItem);
-        return ReturnResult.guess(b);
+        return ReturnResult.guess(true);
     }
 
     @Override

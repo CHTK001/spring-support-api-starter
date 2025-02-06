@@ -62,6 +62,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogSystem(userLoggerInfo.getSystem());
         sysUserLog.setSysLogLoginType(userLoggerInfo.getLoginType());
         sysUserLog.setSysLogUa(userLoggerInfo.getUa());
+        sysUserLog.setSysLogFingerprint(userLoggerInfo.getFingerprint());
         try {
             sysUserLog.setCreateBy(Integer.valueOf(userLoggerInfo.getCreateBy()));
         } catch (NumberFormatException ignored) {

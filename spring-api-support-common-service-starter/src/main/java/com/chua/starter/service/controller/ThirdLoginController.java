@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
@@ -54,7 +54,7 @@ public class ThirdLoginController {
                                                HttpServletResponse response,
                                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.thirdLoginCode(loginData, request, response);
@@ -75,7 +75,7 @@ public class ThirdLoginController {
                                               HttpServletResponse response,
                                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.thirdBindCode(loginData, request, response);

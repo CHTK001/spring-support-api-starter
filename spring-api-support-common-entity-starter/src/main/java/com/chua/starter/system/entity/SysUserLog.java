@@ -63,6 +63,14 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUa;
 
     /**
+     * 浏览器指纹
+     */
+    @TableField(value = "sys_log_fingerprint")
+    @ApiModelProperty(value = "浏览器指纹")
+    @Schema(description = "浏览器指纹")
+    private String sysLogFingerprint;
+
+    /**
      * 浏览器
      */
     @TableField(value = "sys_log_browser")
