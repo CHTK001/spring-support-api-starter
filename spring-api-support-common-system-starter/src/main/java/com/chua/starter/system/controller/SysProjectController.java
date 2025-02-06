@@ -94,7 +94,7 @@ public class SysProjectController {
             @Validated(UpdateGroup.class) @RequestBody SysProject sysProject,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysProjectService.update(roles, sysProject);
@@ -112,7 +112,7 @@ public class SysProjectController {
             @Validated(UpdateGroup.class) @RequestBody ProjectDefaultFunctionV1Request request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysProjectService.updateDefault(request);
@@ -131,7 +131,7 @@ public class SysProjectController {
             @Validated(AddGroup.class) @RequestBody SysProject sysProject,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysProjectService.save(sysProject, roles);
     }

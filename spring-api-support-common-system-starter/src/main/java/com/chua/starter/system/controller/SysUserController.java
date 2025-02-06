@@ -164,7 +164,7 @@ public class SysUserController {
             @Validated(UpdateGroup.class) @RequestBody SysUserPasswordUpdate sysUserPasswordUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
@@ -183,7 +183,7 @@ public class SysUserController {
             @Validated(UpdateGroup.class) @RequestBody SysUserUpdate sysUser,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.updateUser(roles, userId, sysUser);
@@ -200,7 +200,7 @@ public class SysUserController {
     @Permission(value = "sys:user:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.saveUser(sysUserUpdate, request);

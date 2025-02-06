@@ -81,7 +81,7 @@ public class SysDeptController {
             @Validated(UpdateGroup.class) @RequestBody SysDept SysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDeptService.update(roles, SysDept);
@@ -100,7 +100,7 @@ public class SysDeptController {
             @Validated(AddGroup.class) @RequestBody SysDept SysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysDeptService.save(SysDept, roles);
     }

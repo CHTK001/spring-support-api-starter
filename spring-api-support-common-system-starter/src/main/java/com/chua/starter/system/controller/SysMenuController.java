@@ -109,7 +109,7 @@ public class SysMenuController {
             @Validated(UpdateGroup.class) @RequestBody SysMenu sysMenu,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysMenuService.update(roles, sysMenu);
@@ -129,7 +129,7 @@ public class SysMenuController {
             @Validated(AddGroup.class) @RequestBody SysMenu sysMenu,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysMenuService.save(sysMenu, roles);

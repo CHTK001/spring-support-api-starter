@@ -11,9 +11,7 @@ import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.lang.message.result.TemplateResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.SmsService;
-import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.sms.SmsRequest;
 import org.springframework.stereotype.Service;
@@ -48,7 +46,7 @@ public class SmsServiceImpl implements SmsService {
         List<PushResult> list = publish.stream().filter(item -> !item.isSuccess()).toList();
         if(CollectionUtils.isNotEmpty(list)) {
             if(list.size() == publish.size()) {
-                return ReturnResult.error("发送失败" + list.get(0).getMessage());
+                return ReturnResult.error("发送失败" + list.getFirst().getMessage());
             }
             return ReturnResult.illegal("部分发送失败" + list.stream()
                     .map(PushResult::getTarget).collect(Collectors.joining(","))
@@ -66,9 +64,8 @@ public class SmsServiceImpl implements SmsService {
         }
 
         TemplateFactory templateFactory = messagePush.getTemplateFactory();
-        List<TemplateInfo> data = new LinkedList<>();
         TemplateResult template = templateFactory.getTemplate(1, 50);
-        data.addAll(template.getData());
+        List<TemplateInfo> data = new LinkedList<>(template.getData());
         if(template.getTotal() >= 50) {
             int page = 2;
             while (template.getTotal() >= 50) {

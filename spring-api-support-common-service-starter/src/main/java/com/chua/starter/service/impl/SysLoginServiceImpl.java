@@ -65,9 +65,9 @@ public class SysLoginServiceImpl implements SysLoginService {
 
 
     @Override
-    public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response) {
+    public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         return ServiceProvider.of(LoginHandler.class).getNewExtension(loginData.getLoginType())
-                .login(this, loginData, request, response);
+                .login(this, loginData, request, response, fingerprint);
     }
 
     @SuppressWarnings("ALL")

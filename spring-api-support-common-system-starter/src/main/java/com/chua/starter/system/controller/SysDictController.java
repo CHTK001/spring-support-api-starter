@@ -81,7 +81,7 @@ public class SysDictController {
             @Validated(UpdateGroup.class) @RequestBody SysDict sysDict,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictService.update(roles, sysDict);
@@ -100,7 +100,7 @@ public class SysDictController {
                 @Validated(AddGroup.class) @RequestBody SysDict sysDict,
                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictService.save(sysDict, roles);
