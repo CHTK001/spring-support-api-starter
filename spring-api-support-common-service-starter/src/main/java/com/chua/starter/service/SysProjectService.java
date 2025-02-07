@@ -3,16 +3,11 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Set;
-
-import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  * 系统项目服务
@@ -51,7 +46,7 @@ public interface SysProjectService extends IService<SysProject> {
      * @param sysProjectId 系统项目的唯一标识
      * @return 返回删除操作的结果，包括是否删除成功的标志
      */
-    ReturnResult<Boolean> delete(Long sysProjectId);
+    ReturnResult<Boolean> delete(Integer sysProjectId);
 
     /**
      * 更新系统项目信息
