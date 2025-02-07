@@ -10,10 +10,13 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
+import com.chua.starter.common.support.configuration.SpringBeanUtils;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysProjectDefaultService;
 import com.chua.starter.service.SysProjectService;
+import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
 import com.chua.starter.service.mapper.SysProjectMapper;
 import com.chua.starter.service.system.service.SysDictItemService;
 import com.chua.starter.system.entity.SysDictItem;
@@ -21,6 +24,7 @@ import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.entity.SysProjectDefault;
 import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -60,21 +64,32 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
+    @ApiCacheKey("'sys:project:' + #typeName")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public SysProject getDefaultByType(String typeName) {
         IPage<SysProject> defaultByType = baseMapper.getDefaultByType(new Page<>(1, 1), typeName);
         return CollectionUtils.findFirst(defaultByType.getRecords());
     }
 
+
+    private void clearDefaultCache(String typeName) {
+        StringBuilder keyPref = SpringBeanUtils.getBean(CustomTenantedKeyGenerator.class).getKeyPref();
+        SpringBeanUtils.getBean(CacheConstant.REDIS_CACHE_ALWAYS, CacheManager.class)
+                .getCache(CacheConstant.REDIS_CACHE_ALWAYS)
+                .evict(keyPref.toString() + "sys:project:" + typeName);
+    }
+
     @Override
     @ApiCacheKey("'sys:project:' + #sysProjectId")
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<Boolean> delete(Long sysProjectId) {
-        SysProject sysProject = getById(sysProjectId);
+    public ReturnResult<Boolean> delete(Integer sysProjectId) {
+        SysProject sysProject = getOne(sysProjectId);
         if (null == sysProject) {
             return Result.illegal("项目信息不存在");
         }
         return transactionTemplate.execute(it -> {
             saveOrUpdateDefault(sysProject);
+            clearDefaultCache(sysProject.getSysProjectDictItemLabel());
             return ReturnResult.guess(baseMapper.deleteById(sysProjectId) > 0);
         });
     }
@@ -83,10 +98,15 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     @ApiCacheKey("'sys:project:' + #sysProject.sysProjectId")
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysProject sysProject) {
+        SysProject sysProject1 = getOne(sysProject.getSysProjectId());
+        if (null == sysProject1) {
+            return Result.illegal("项目信息不存在");
+        }
         sysProject.setSysProjectCode(null);
         sysProject.setSysProjectDelete(null);
         return transactionTemplate.execute(it -> {
             saveOrUpdateDefault(sysProject);
+            clearDefaultCache(sysProject1.getSysProjectDictItemLabel());
             return ReturnResult.guess(baseMapper.updateById(sysProject) > 0);
         });
     }
@@ -100,6 +120,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         return transactionTemplate.execute(it -> {
             sysProjectDefaultService.remove(Wrappers.<SysProjectDefault>lambdaQuery().eq(SysProjectDefault::getSysProjectDefaultType, newRequest.getSysProjectDefaultType()));
             Integer sysSetDefault = newRequest.getSysSetDefault();
+            clearDefaultCache(newRequest.getSysProjectDefaultTypeName());
             if(null == sysSetDefault || sysSetDefault == 0) {
                 return ReturnResult.ok(getDefault(newRequest.getSysProjectId()));
             }
@@ -118,6 +139,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         SysDictItem sysDictItem = sysDictItemService.getTypeIdByName(request.getSysProjectDefaultTypeName(), 6);
         if(null != sysDictItem) {
             request.setSysProjectDefaultType(sysDictItem.getSysDictItemId());
+            request.setSysProjectDefaultTypeName(sysDictItem.getSysDictItemCode());
         }
 
         return request;

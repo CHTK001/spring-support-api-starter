@@ -41,12 +41,7 @@ public class HiYunYaoClient extends HikvisionClient implements InitializingAware
     private String token;
 
     {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                SCHEDULED_EXECUTOR_SERVICE.shutdownNow();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(SCHEDULED_EXECUTOR_SERVICE::shutdownNow));
 
         SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(this::afterPropertiesSet, 0, 20, TimeUnit.MINUTES);
     }
