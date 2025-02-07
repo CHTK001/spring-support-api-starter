@@ -72,7 +72,7 @@ public class SysProjectController {
     @DeleteMapping("/delete")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:secret:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long sysProjectId) {
+    public ReturnResult<Boolean> delete(Integer sysProjectId) {
         if (null == sysProjectId) {
             return Result.illegal("项目信息不存在");
         }
