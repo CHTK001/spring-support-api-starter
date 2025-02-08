@@ -2,6 +2,7 @@ package com.chua.starter.service.controller;
 
 import com.chua.common.support.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.BigModelService;
 import com.chua.starter.system.pojo.bigmodel.BigModelRequest;
@@ -12,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +29,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 @Api(tags = "大语言模型接口")
 @Tag(name = "大语言模型接口")
-@RequestMapping("/v2/bigmodel")
+@RequestMapping("/v2/api/language")
 @RequiredArgsConstructor
 public class BigModelController {
 
@@ -41,7 +44,11 @@ public class BigModelController {
      */
     @Operation(summary = "大语言模型")
     @GetMapping("call")
-    public ReturnResult<BigModelResponse> call(@ParameterObject Query<?> query, @ParameterObject BigModelRequest request) {
+    public ReturnResult<BigModelResponse> call(@ParameterObject Query<?> query, @Validated(SelectGroup.class) @ParameterObject BigModelRequest request,
+                                               BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new RuntimeException(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
         return bigModelService.call(query, request);
     }
     
@@ -64,7 +71,13 @@ public class BigModelController {
      */
     @Operation(summary = "大语言模型")
     @GetMapping(value = "stream", produces = "text/event-stream")
-    public SseEmitter callStream(@ParameterObject Query<?> query, @ParameterObject BigModelRequest request, HttpServletResponse response) {
+    public SseEmitter callStream(@ParameterObject Query<?> query,
+                                 @Validated(SelectGroup.class) @ParameterObject BigModelRequest request,
+                                 HttpServletResponse response,
+                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new RuntimeException(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
         return bigModelService.callStream(query, request, response);
     }
 

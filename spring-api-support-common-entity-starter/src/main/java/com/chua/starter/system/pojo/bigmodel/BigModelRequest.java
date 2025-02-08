@@ -1,6 +1,8 @@
 package com.chua.starter.system.pojo.bigmodel;
 
+import com.chua.common.support.validator.group.SelectGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -32,4 +34,22 @@ public class BigModelRequest {
      * 模型
      */
     private String model;
+    /**
+     * 最大tokens
+     */
+    @Builder.Default
+    @NotNull(message = "最大tokens不能为空", groups = SelectGroup.class)
+    private Integer tokens = 2048;
+    /**
+     * topK
+     */
+    @Builder.Default
+    @NotNull(message = "topK不能为空", groups = SelectGroup.class)
+    private Integer topK = 4;
+    /**
+     * 温度
+     */
+    @Builder.Default
+    @NotNull(message = "温度不能为空", groups = SelectGroup.class)
+    private Double temperature = 0.3;
 }
