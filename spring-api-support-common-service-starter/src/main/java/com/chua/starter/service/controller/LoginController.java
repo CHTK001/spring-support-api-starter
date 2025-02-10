@@ -7,6 +7,7 @@ import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.debounce.Debounce;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
+import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -76,6 +77,7 @@ public class LoginController {
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
     @OperateLog
+    @AuthIgnore
     public Result<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                             HttpServletRequest request,
                                             HttpServletResponse response,

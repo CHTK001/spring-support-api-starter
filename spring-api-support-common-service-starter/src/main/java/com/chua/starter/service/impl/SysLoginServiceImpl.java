@@ -109,10 +109,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(UpgradeType.REFRESH);
+        com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
                 .tokenType("Bearer")
+                .refreshToken(upgrade.getRefreshToken())
                 .accessToken(upgrade.getToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);

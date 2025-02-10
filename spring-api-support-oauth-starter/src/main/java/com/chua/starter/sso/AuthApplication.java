@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * sso
+ * 单点登录
  *
  * @author CH
  * @since 2022/7/25 10:59

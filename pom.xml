@@ -262,6 +262,24 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-deepseek-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-ollama-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-kimi-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>spring-support-sse-starter</artifactId>
                <version>${module.version}</version>
             </dependency>
