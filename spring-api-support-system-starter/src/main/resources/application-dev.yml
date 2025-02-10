@@ -25,3 +25,4 @@ plugin:
     enable: true
   oauth:
     address: http://172.16.0.40:19180/oauth
+    protocol: http-lite

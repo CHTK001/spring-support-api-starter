@@ -70,6 +70,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
+                .refreshToken(accessToken.getRefreshToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
         return Result.success(loginResult);
