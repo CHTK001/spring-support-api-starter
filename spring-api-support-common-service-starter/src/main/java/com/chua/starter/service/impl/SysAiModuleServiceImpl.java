@@ -97,7 +97,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     }
 
     @Override
-    @ApiCacheKey("'sys:ai:module:' + #model + ':'+#sysProjectId")
+    @ApiCacheKey("sys:ai:module:#{#model}:#{#sysProjectId}")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public SysAiModule getOneByCode(Integer sysProjectId, String model) {
         return baseMapper.selectOne(

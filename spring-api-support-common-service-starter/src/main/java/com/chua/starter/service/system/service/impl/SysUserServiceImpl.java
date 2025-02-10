@@ -174,7 +174,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 return sysUser1;
             }));
         } finally {
-            AuthClientExecute.getInstance().upgrade(UpgradeType.TIMESTAMP);
+            AuthClientExecute.getInstance().upgrade(null, UpgradeType.TIMESTAMP);
         }
     }
 
