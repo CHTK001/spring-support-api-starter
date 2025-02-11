@@ -40,8 +40,8 @@ import java.util.List;
  */
 @RestController
 @Slf4j
-@Api(tags = "设备接口")
-@Tag(name = "设备接口")
+@Api(tags = "项目设备接口")
+@Tag(name = "项目设备接口")
 @RequestMapping("/v2/project/template/device")
 @RequiredArgsConstructor
 public class SysProjectDeviceController {

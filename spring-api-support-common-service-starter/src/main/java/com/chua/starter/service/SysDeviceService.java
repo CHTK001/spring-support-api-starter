@@ -9,6 +9,7 @@ import com.chua.starter.system.entity.SysDevice;
 import com.chua.starter.system.entity.SysDeviceCameraRecord;
 import com.chua.starter.system.entity.SysDeviceOrg;
 import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
+import com.chua.starter.system.pojo.device.DevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
 import com.chua.starter.system.pojo.project.SyncV1Request;
@@ -111,5 +112,13 @@ public interface SysDeviceService extends IService<SysDevice> {
      * @return 返回同步操作的结果，包括是否成功
      */
     ReturnResult<String> previewUrl(DevicePreviewUrlV1Request request);
+
+    /**
+     * 分页查询设备
+     *
+     * @param request 分页查询请求对象，包含查询参数和分页信息
+     * @return 返回封装了SysDeviceCameraRecord实体的分页对象
+     */
+    IPage<SysDevice> pageFor(DevicePageV1Request request);
 }
 
