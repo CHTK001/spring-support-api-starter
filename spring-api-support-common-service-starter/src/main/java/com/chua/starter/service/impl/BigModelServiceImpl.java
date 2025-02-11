@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * 大模型服务
+ *
  * @author CH
  * @since 2024/9/10
  */
@@ -49,7 +50,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
         BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
         BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
-        return ReturnResult.of(bigModelClient.call(com.chua.common.support.bigmodel.BigModelRequest .builder()
+        return ReturnResult.of(bigModelClient.call(com.chua.common.support.bigmodel.BigModelRequest.builder()
                 .prompt(request.getUser())
                 .system(request.getSystem())
                 .model(request.getModel())
@@ -59,15 +60,15 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
 
     @Override
     public SseEmitter callStream(Query<?> query, BigModelRequest request, HttpServletResponse response) {
-        if(StringUtils.isBlank(request.getRequestId())) {
+        if (StringUtils.isBlank(request.getRequestId())) {
             throw new RuntimeException("requestId不能为空");
         }
 
-        if(StringUtils.isBlank(request.getModel())) {
+        if (StringUtils.isBlank(request.getModel())) {
             throw new RuntimeException("模型不能为空");
         }
 
-        if(StringUtils.isBlank(request.getUser())) {
+        if (StringUtils.isBlank(request.getUser())) {
             throw new RuntimeException("问题不能为空");
         }
 
@@ -135,7 +136,12 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                                 public void accept(BigModelResponse bigModelResponse) {
                                     try {
                                         sseEmitter.send(Json.toJson(bigModelResponse), MediaType.TEXT_PLAIN);
-                                    } catch (IOException ignored) {
+                                    } catch (IllegalStateException e) {
+                                        try {
+                                            IoUtils.closeQuietly(response.getOutputStream());
+                                        } catch (IOException ignored) {
+                                        }
+                                    } catch (Throwable ignored) {
                                     }
                                 }
                             }

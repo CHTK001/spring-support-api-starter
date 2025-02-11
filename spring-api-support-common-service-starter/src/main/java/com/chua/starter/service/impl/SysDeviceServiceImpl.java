@@ -23,6 +23,7 @@ import com.chua.starter.system.entity.SysDeviceCameraRecord;
 import com.chua.starter.system.entity.SysDeviceOrg;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
+import com.chua.starter.system.pojo.device.DevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
 import com.chua.starter.system.pojo.project.SyncV1Request;
@@ -74,6 +75,19 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         );
     }
 
+    @Override
+    public IPage<SysDevice> pageFor(DevicePageV1Request request) {
+        return baseMapper.selectPage(new Page<>(request.getPage(), request.getPageSize()),
+                MPJWrappers.<SysDevice>lambdaJoin()
+                        .selectAll(SysDevice.class)
+                        .selectAs(SysDeviceOrg::getSysDeviceOrgName, SysDevice::getSysDeviceOrgName)
+                        .leftJoin(SysDeviceOrg.class, SysDeviceOrg::getSysDeviceOrgId, SysDevice::getSysDeviceOrgCode)
+                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateName()), SysDevice::getSysDeviceName, request.getSysCameraTemplateName())
+                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysCameraTemplateSerialNumber())
+                        .eq(null != request.getSysCameraTemplateStatus(), SysDevice::getSysDeviceStatus, request.getSysCameraTemplateStatus())
+                        .orderByDesc(SysDevice::getCreateTime)
+        );
+    }
     @Override
     public ReturnResult<Boolean> syncTemplate(SyncV1Request request) {
         CameraService cameraService = reload(request.getSysProjectId());
@@ -201,6 +215,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         }
         return ReturnResult.ok(cameraService.previewUrl(sysDevice.getSysProjectId(), sysDevice.getSysDeviceSerialNumber(), sysDevice.getSysDeviceResourceType(), request));
     }
+
 
     /**
      * 同步组织

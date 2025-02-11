@@ -11,11 +11,56 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 06/02/2025 17:19:55
+ Date: 10/02/2025 16:22:29
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for sys_ai_module
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_ai_module`;
+CREATE TABLE `sys_ai_module`
+(
+    `sys_ai_module_id`             int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_module_name`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称',
+    `sys_ai_module_code`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型编码',
+    `sys_project_id`               int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
+    `sys_ai_module_remark`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '说明',
+    `sys_ai_module_status`         int(11)                                                       NULL DEFAULT NULL COMMENT '是否禁用;0:禁用, 1:可用',
+    `sys_ai_module_sort`           int(11)                                                       NULL DEFAULT NULL COMMENT '优先级',
+    `sys_api_module_manufacturers` int(11)                                                       NULL DEFAULT NULL COMMENT '厂商(字典表1)',
+    `sys_ai_module_role_setting`   int(11)                                                       NULL DEFAULT NULL COMMENT '是否存在角色设置;0:不存在',
+    `sys_ai_module_version`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型版本',
+    `create_name`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                    int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                  datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                  datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                    int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_ai_module_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 5
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = 'ai模型分类表'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_ai_module
+-- ----------------------------
+INSERT INTO `sys_ai_module`
+VALUES (1, 'Spark Lite', 'Spark Lite', 6, NULL, 1, NULL, 10, 0, 'lite', 'sa', 1, '2025-02-07 16:38:03',
+        '2025-02-08 11:31:17', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (2, 'deepseek-chat', 'deepseek-chat', 7, NULL, 1, 0, 21, 0, NULL, 'sa', 1, '2025-02-08 15:20:14', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_module`
+VALUES (3, 'moonshot-v1-8k', 'moonshot-v1-8k', 8, NULL, 1, 0, 22, 0, NULL, 'sa', 1, '2025-02-08 16:40:10', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_module`
+VALUES (4, 'deepseek-r1:1.5b', 'deepseek-r1:1.5b', 9, NULL, 1, 0, 23, 1, NULL, 'sa', 1, '2025-02-10 10:17:12',
+        '2025-02-10 11:17:10', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_bank_bins
@@ -8723,7 +8768,7 @@ CREATE TABLE `sys_dict_item`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 20
+  AUTO_INCREMENT = 24
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项'
   ROW_FORMAT = DYNAMIC;
@@ -8781,6 +8826,15 @@ VALUES (18, 1, 'bi:pc-display-horizontal', '内部系统', '', 1, 1, '', 'NEI_BU
 INSERT INTO `sys_dict_item`
 VALUES (19, 1, NULL, '海康安防', '海康安防', 1, 1, '', 'HAI_KANG_AN_FANG', 0, 'sa', 1, '2025-02-05 14:43:32',
         '2025-02-05 14:43:40', 'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (20, 6, 'ri:robot-2-line', '大语言', '', 1, 1, '', 'DA_YU_YAN', 0, 'sa', 1, '2025-02-07 14:47:07', NULL, NULL,
+        NULL);
+INSERT INTO `sys_dict_item`
+VALUES (21, 1, NULL, 'deepseek', '', 1, 1, '', 'deepseek', 0, 'sa', 1, '2025-02-08 14:28:56', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item`
+VALUES (22, 1, NULL, 'kimi', '', 1, 1, '', 'kimi', 0, 'sa', 1, '2025-02-08 16:33:03', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item`
+VALUES (23, 1, NULL, 'ollama', '', 1, 1, '', 'ollama', 0, 'sa', 1, '2025-02-10 10:16:25', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_email_log
@@ -8944,7 +8998,7 @@ CREATE TABLE `sys_menu`  (
   `sys_menu_engine` int(11) NULL DEFAULT NULL COMMENT '是否engine布局主页；0: 否',
   PRIMARY KEY (`sys_menu_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 29
+  AUTO_INCREMENT = 31
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单'
   ROW_FORMAT = DYNAMIC;
@@ -8985,6 +9039,14 @@ INSERT INTO `sys_menu`
 VALUES (28, 'device-template', '/manage/device/camera', '', '模板管理-设备', '', 1, '0,1,28',
         '/manage/template/device/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
         '2025-02-05 10:52:22', '2025-02-05 10:53:31', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (29, 'llm-template', '/manage/template/llm', '', '模板管理-大语言', '', 1, '0,1', '/manage/template/llm/index',
+        '', NULL, 0, 1, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2025-02-07 15:14:04', NULL, NULL, NULL, '', NULL,
+        NULL);
+INSERT INTO `sys_menu`
+VALUES (30, 'device', '/manage/device', '', '设备管理', '', 1, '0,1', '/manage/device/index',
+        'pixelarticons:device-tv-smart', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2025-02-10 15:39:45',
+        NULL, NULL, NULL, '', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_project
@@ -8993,25 +9055,26 @@ DROP TABLE IF EXISTS `sys_project`;
 CREATE TABLE `sys_project`  (
   `sys_project_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目名称',
-  `sys_project_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标',
+  `sys_project_icon`      text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci         NULL COMMENT '图标',
   `sys_project_group` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分组',
   `sys_project_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '编码, 可自行作为唯一标识',
   `sys_project_app_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appid',
   `sys_project_app_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appsecret',
+  `sys_project_app_key`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appkey',
   `sys_project_sign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '签名',
   `sys_project_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除0:未删除',
   `sys_project_status` int(11) NULL DEFAULT NULL COMMENT '是否启用0:未启用',
-  `sys_project_sign_code`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目标识编码',
+  `sys_project_sign_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目标识编码',
   `sys_project_cdn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'cdn',
   `sys_project_endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '端点',
   `sys_project_api_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'api地址',
-  `sys_project_vender`        int(11)                                                       NULL DEFAULT NULL COMMENT '厂家(字典1)',
+  `sys_project_vender`    int(11)                                                       NULL DEFAULT NULL COMMENT '厂家(字典1)',
   `sys_project_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `sys_project_function` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '功能; 字典表6',
-  `sys_project_smtp_host`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主机',
-  `sys_project_smtp_port`     int(255)                                                      NULL DEFAULT NULL COMMENT 'smtp端口',
+  `sys_project_smtp_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主机',
+  `sys_project_smtp_port` int(255)                                                      NULL DEFAULT NULL COMMENT 'smtp端口',
   `sys_project_smtp_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp密码',
-  `sys_project_smtp_from`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主题账号',
+  `sys_project_smtp_from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主题账号',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -9020,7 +9083,7 @@ CREATE TABLE `sys_project`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_project_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 6
+  AUTO_INCREMENT = 10
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目管理'
   ROW_FORMAT = DYNAMIC;
@@ -9030,21 +9093,42 @@ CREATE TABLE `sys_project`  (
 -- ----------------------------
 INSERT INTO `sys_project`
 VALUES (1, '阿里', 'https://img1.baidu.com/it/u=2383102008,2259360939&fm=253&fmt=auto?w=800&h=800', '阿里系', 'ALI',
-        'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '犀鸟校园', 0, 1, NULL, NULL, NULL, NULL, 2, NULL,
-        '13,15', NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
+        'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', NULL, '犀鸟校园', 0, 1, NULL, NULL, NULL, NULL, 2,
+        NULL, '13,15', NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
 INSERT INTO `sys_project`
-VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, 18,
-        NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', 'sa', 1, '2025-01-27 13:50:49',
-        '2025-01-27 13:56:48', 'sa', 1);
+VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL,
+        18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', 'sa', 1,
+        '2025-01-27 13:50:49', '2025-01-27 13:56:48', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (4, '海康安防', 'https://open.hikvision.com/fileserver/opsimgs/综合安防.png', NULL, '01jk9zrhcnzsxrm71ybxh85abj',
-        '23031179', 'yKeMbw5czqVuwRnxYHlJ', '', 0, 1, NULL, NULL, '112.124.44.21:443', NULL, 19, NULL, '17', NULL, NULL,
-        NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
+        '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, NULL, '112.124.44.21:443', NULL, 19, NULL, '17', NULL,
+        NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (5, '海康云曜', 'https://static.hikyun.com/portal/vportalimages/brand-logo.png', NULL,
-        '01jkczk8ns06derb1m0t6aptb5', '16643603898674415', 'VQYaHTWVmatXVdCbrKZJ', '651515588253424', 0, 1,
+        '01jkczk8ns06derb1m0t6aptb5', '16643603898674415', 'VQYaHTWVmatXVdCbrKZJ', NULL, '651515588253424', 0, 1,
         '1664360485020781', NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-06 14:36:44',
         '2025-02-06 14:37:46', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (6, '讯飞', 'https://www.xfyun.cn/static/img/layout/header/logo.svg', NULL, '01jkfjbnn8tvqj03938qkvb2ga',
+        '7d9dec86', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', '4f810aad8b96224fc2aae62d8d440123', '', 0, 1, NULL, NULL,
+        'http://spark-api.xf-yun.com/v1.1/chat', NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-07 14:43:07', '2025-02-07 14:47:17', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (7, 'deepseek',
+        'https://gimg3.baidu.com/search/src=http%3A%2F%2Fgips0.baidu.com%2Fit%2Fu%3D501085362%2C3268784142%26fm%3D3030%26app%3D3030%26f%3DJPEG%3Fw%3D338%26h%3D225%26s%3D46F088725076FF8208BF9FDD020080AC&refer=http%3A%2F%2Fwww.baidu.com&app=2021&size=f242,150&n=0&g=0n&q=100&fmt=auto?sec=1739120400&t=07d69eb6c8aa160d9c89849bb067310c',
+        NULL, '01jkj3yxzmzppaj8c3afphentc', NULL, NULL,
+        'EWSNmypiPVPCzRVlcIdKsyNLGJNuw8CTSR+8IcKrheTl1rqvC2QFB8YUaJ8MaP7v', NULL, 0, 1, NULL, NULL,
+        'https://api.deepseek.com/chat/completions', NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-08 14:29:12', '2025-02-08 15:02:56', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (8, 'kimi', 'https://platform.moonshot.cn/logo.png', NULL, '01jkjb2jc4grwqtv0vn9tjjayw', NULL, NULL,
+        'sk-2KiwJ1D0DLOpdb6cozbY5R0H8ydum7YYcDIONGetw4bu6jsy', NULL, 0, 1, NULL, NULL,
+        'https://api.moonshot.cn/v1/chat/completions', NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (9, 'ollama', 'https://ollama.com/public/ollama.png', NULL, '01jkpta36f0yds272z1g81qs5r', NULL, NULL, NULL, NULL,
+        0, 1, NULL, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, 23, NULL, '20', NULL, NULL, NULL, NULL,
+        'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_project_default
@@ -9057,7 +9141,7 @@ CREATE TABLE `sys_project_default`
     `sys_project_id`           int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
     PRIMARY KEY (`sys_project_default_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 38
+  AUTO_INCREMENT = 43
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置'
   ROW_FORMAT = Dynamic;
@@ -9223,14 +9307,24 @@ CREATE TABLE `sys_setting`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 39
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置'
+  ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 2, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 9, NULL, NULL, NULL, '2024-12-08 13:47:54', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (2, 1, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 9, NULL, NULL, NULL, '2024-12-08 13:47:54', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (3, 3, 'SlidingBlockOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 9, NULL, NULL, NULL, '2024-12-08 13:47:54', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (1, 2, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 10, NULL, NULL,
+        NULL, '2025-02-10 15:46:46', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (2, 1, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 10, NULL, NULL,
+        NULL, '2025-02-10 15:46:46', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (3, 3, 'SlidingBlockOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 10, NULL, NULL,
+        NULL, '2025-02-10 15:46:46', 'sa', 1);
 INSERT INTO `sys_setting`
 VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '调试模式崩溃当前页', NULL, NULL, 20, 'sa',
         NULL, '2024-08-18 11:22:26', '2025-01-26 10:50:18', 'sa', 1);
@@ -9244,8 +9338,8 @@ INSERT INTO `sys_setting`
 VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '循环debugger', NULL, NULL, 20, 'sa', NULL,
         '2024-08-18 10:52:15', '2025-01-26 10:50:18', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'ed1a9b4e-1ded-4ace-968a-568fd220475c', NULL,
-        97, NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'da32cc89-aeac-4697-9dd2-53a0758a6bbf', NULL,
+        102, NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
 INSERT INTO `sys_setting`
 VALUES (9, 7, 'SocketUrl', 'http://172.16.2.226:29181', 1, 'Array', 'config', 0, 1, 0, 'socket.io服务器地址', NULL, 1,
         20, NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
@@ -9287,10 +9381,15 @@ INSERT INTO `sys_setting` VALUES (30, 1, 'AppKey', 'YfuzeuBcnvSluLjHkviR:WFjoVbq
 INSERT INTO `sys_setting` VALUES (31, 2, 'AppType', 'XUN_FEI', 1, 'Dict', 'llm', 1, 1, 0, '语言模型厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (32, 3, 'AppId', '7d9dec86', 1, 'String', 'llm', 1, 1, 0, '模型AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (33, 4, 'AppSecret', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', 1, 'AppSecret', 'llm', 1, 1, 0, '模型AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (34, 5, 'CheckTotpCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '开启totp', NULL, NULL, NULL, 'sa', 1, '2024-12-08 11:56:39', '2024-12-08 13:47:54', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (34, 5, 'CheckTotpCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '开启totp', NULL, NULL, NULL, 'sa',
+        1, '2024-12-08 11:56:39', '2025-02-10 15:46:46', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (35, 1, 'WebrtcOpen', 'true', 1, 'Boolean', 'webrtc', NULL, NULL, NULL, '是否开启', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (36, 2, 'WebrtcUrl', 'http://172.16.2.226:29182', 1, 'String', 'webrtc', NULL, NULL, NULL, 'webrtc服务器地址', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (37, 3, 'WebrtcContext', '/webrtc', 1, 'String', 'webrtc', NULL, NULL, NULL, '路径', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (38, 999, 'OssAddress', '', 1, 'String', 'default', NULL, 0, NULL, '资源地址', NULL, NULL, NULL, 'sa', 1,
+        '2025-02-10 16:10:37', '2025-02-10 16:13:37', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_sfc
@@ -9367,7 +9466,7 @@ CREATE TABLE `sys_sms_log`  (
   `sys_sms_log_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '发送的模板内容',
   `sys_sms_cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '耗时时间',
   `sys_sms_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误码',
-  `sys_sms_message`     text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci     NULL COMMENT '错误信息',
+  `sys_sms_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '错误信息',
   `sys_sms_app_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信厂家',
   `sys_sms_app_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信密钥',
   `sys_sms_app_sign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '签名',
@@ -9377,7 +9476,7 @@ CREATE TABLE `sys_sms_log`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
-  `sys_project_id`      int(11)                                                   NULL DEFAULT NULL COMMENT '项目ID',
+  `sys_project_id`  int(11)                                               NULL DEFAULT NULL COMMENT '项目ID',
   PRIMARY KEY (`sys_sms_log_id`) USING BTREE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 6
@@ -9593,7 +9692,7 @@ INSERT INTO `sys_user`
 VALUES (1, 'sa', '超级管理员', '53006d111477a9b5b16c4b38ac8fad69', '123456', 0, 1, '12345678901', 'test@qq.com', NULL,
         NULL, 1,
         'data:image/jpeg;base64,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',
-        NULL, NULL, NULL, NULL, '192.168.110.79', NULL, 11, NULL,
+        NULL, NULL, NULL, NULL, '192.168.110.79', NULL, 8, NULL,
         'b2fe2a1217dd70078efbaaf4f969ed3d37a5ea2eb1577006922e541f9e00ee6ab8d2d590ea5b4dcddccfa04ad65985e1a9f565dd9f017170d6911e5991dba0f4',
         NULL, NULL, NULL, '2024-08-28 10:09:26', 'sa', 1);
 INSERT INTO `sys_user` VALUES (2, 'test', '测试', '2cc08c3aa427d1753bd23df1e4136527', 'fqweet9i62w9se', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL, 1, '', NULL, '172.16.2.226', '172.16.2.226', NULL, NULL, NULL, 'sa', NULL, '2024-08-20 17:06:18', '2024-08-21 08:41:20', 'sa', NULL);
@@ -9642,7 +9741,8 @@ CREATE TABLE `sys_user_layout`  (
 -- ----------------------------
 -- Records of sys_user_layout
 -- ----------------------------
-INSERT INTO `sys_user_layout` VALUES (1, '[{\"x\":0,\"y\":0,\"w\":9,\"h\":4,\"id\":4}]', '[]', '[{\"x\":0,\"y\":0,\"w\":9,\"h\":4,\"id\":4}]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', 1);
+INSERT INTO `sys_user_layout`
+VALUES (1, '[]', '[]', '[]', 1, 'sa', NULL, '2024-08-29 17:20:12', '2024-08-29 17:20:50', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_user_log
@@ -9673,7 +9773,7 @@ CREATE TABLE `sys_user_log`  (
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 80
+  AUTO_INCREMENT = 158
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表'
   ROW_FORMAT = DYNAMIC;
@@ -10134,6 +10234,435 @@ VALUES (79, 'sa', '', '192.168.110.79', '', 'Windows 10',
         'CHROME13', '/system/api/v2/user/login',
         '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"848285\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
         81, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-06 13:15:15', '2025-02-06 13:15:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (80, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 20, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 09:20:03',
+        '2025-02-10 09:20:03', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (81, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"268291\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        258, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 09:20:23', '2025-02-10 09:20:23', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (82, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 23, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 13:33:15',
+        '2025-02-10 13:33:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (83, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"797049\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        73, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-02-10 13:34:19', '2025-02-10 13:34:19', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (84, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"085854\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        4, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-02-10 13:34:40', '2025-02-10 13:34:40', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (85, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"974657\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        9836, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:36:06', '2025-02-10 13:36:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (86, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 65241, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:38:33',
+        '2025-02-10 13:38:33', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (87, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"589349\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        4949, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:39:49', '2025-02-10 13:39:49', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (88, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2804, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:44:06',
+        '2025-02-10 13:44:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (89, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"107103\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        6, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:44:12', '2025-02-10 13:44:12', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (90, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"107103\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        2480, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:44:30', '2025-02-10 13:44:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (91, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 26540, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:45:28',
+        '2025-02-10 13:45:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (92, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"317473\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        301, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:45:43', '2025-02-10 13:45:43', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (93, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:00:42',
+        '2025-02-10 14:00:42', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (94, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"091015\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        357, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:00:56', '2025-02-10 14:00:56', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (95, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:03:27',
+        '2025-02-10 14:03:27', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (96, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"390235\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        446, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:03:31', '2025-02-10 14:03:31', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (97, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:04:19',
+        '2025-02-10 14:04:19', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (98, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"871639\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        1130, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:04:32', '2025-02-10 14:04:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (99, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 3105, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:08:44',
+        '2025-02-10 14:08:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (100, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"329605\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        1299, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:09:23', '2025-02-10 14:09:23', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (101, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1452, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:13:06',
+        '2025-02-10 14:13:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (102, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"726552\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        314, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:13:15', '2025-02-10 14:13:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (103, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"016140\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        338, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:15:04', '2025-02-10 14:15:04', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (104, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 27097, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:15:24',
+        '2025-02-10 14:15:24', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (105, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:16:01',
+        '2025-02-10 14:16:01', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (106, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"839508\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        294, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:16:06', '2025-02-10 14:16:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (107, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 38846, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:17:37',
+        '2025-02-10 14:17:37', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (108, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"628251\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        804, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:17:53', '2025-02-10 14:17:53', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (109, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 14932, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:23:11',
+        '2025-02-10 14:23:11', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (110, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"480288\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        1278, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:23:30', '2025-02-10 14:23:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (111, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:24:44',
+        '2025-02-10 14:24:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (112, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"973877\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        328, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:24:52', '2025-02-10 14:24:52', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (113, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:25:44',
+        '2025-02-10 14:25:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (114, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"700700\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        326, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:25:49', '2025-02-10 14:25:49', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (115, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:26:07',
+        '2025-02-10 14:26:07', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (116, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"351754\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        300, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:26:12', '2025-02-10 14:26:12', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (117, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:29:02',
+        '2025-02-10 14:29:02', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (118, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"136728\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        371, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:29:33', '2025-02-10 14:29:33', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (119, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 3, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
+        '2025-02-10 14:31:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (120, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
+        '2025-02-10 14:31:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (121, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
+        '2025-02-10 14:31:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (122, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"309125\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        346, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:32:28', '2025-02-10 14:32:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (123, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
+        '2025-02-10 14:48:24', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (124, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
+        '2025-02-10 14:48:24', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (125, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
+        '2025-02-10 14:48:24', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (126, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"567794\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        508, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:48:32', '2025-02-10 14:48:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (127, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 19, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 15:03:09',
+        '2025-02-10 15:03:09', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (128, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"751598\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        2330, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:03:22', '2025-02-10 15:03:22', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (129, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"751598\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        288, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:03:32', '2025-02-10 15:03:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (130, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:30',
+        '2025-02-10 15:04:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (131, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:41',
+        '2025-02-10 15:04:41', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (132, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 3, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:41',
+        '2025-02-10 15:04:41', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (133, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"387894\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        335, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:04:53', '2025-02-10 15:04:53', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (134, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"216092\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        298, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:06:22', '2025-02-10 15:06:22', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (135, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 60437, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:06:24',
+        '2025-02-10 15:06:24', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (136, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"003174\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        1208, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:42:30', '2025-02-10 15:42:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (137, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2576, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:42:33',
+        '2025-02-10 15:42:33', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (138, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"003174\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        89, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:43:53', '2025-02-10 15:43:53', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (139, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 4226, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:43:57',
+        '2025-02-10 15:43:57', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (140, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"603230\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        78, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:44:22', '2025-02-10 15:44:22', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (141, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 6389, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:44:29',
+        '2025-02-10 15:44:29', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (142, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"603230\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        81, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:44:36', '2025-02-10 15:44:36', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (143, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 5420, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:46:53',
+        '2025-02-10 15:46:53', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (144, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        129, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:47:51', '2025-02-10 15:47:51', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (145, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 5112, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:47:56',
+        '2025-02-10 15:47:56', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (146, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        100, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:05', '2025-02-10 15:48:05', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (147, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 5670, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:48:11',
+        '2025-02-10 15:48:11', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (148, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        134, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:49', '2025-02-10 15:48:49', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (149, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 6332, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:48:55',
+        '2025-02-10 15:48:55', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (150, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        77, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:57', '2025-02-10 15:48:57', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (151, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 5963, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:49:03',
+        '2025-02-10 15:49:03', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (152, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        100, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:49:41', '2025-02-10 15:49:41', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (153, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 5739, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:50:17',
+        '2025-02-10 15:50:17', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (154, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        8934, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:51:50', '2025-02-10 15:51:50', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (155, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 60531, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:52:56',
+        '2025-02-10 15:52:56', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (156, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        2413, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:57:05', '2025-02-10 15:57:05', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (157, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        91, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:57:55', '2025-02-10 15:57:55', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
