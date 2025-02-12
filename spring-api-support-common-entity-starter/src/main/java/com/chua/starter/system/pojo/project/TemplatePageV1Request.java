@@ -27,19 +27,25 @@ public class TemplatePageV1Request extends Query<SysSmsTemplate> {
      * 设备名称
      */
     @Schema(description = "设备名称(支持模糊查询)")
-    private String sysCameraTemplateName;
+    private String sysDeviceName;
 
     /**
      * 设备序列号
      */
     @Schema(description = "设备序列号(支持模糊查询)")
-    private String sysCameraTemplateSerialNumber;
+    private String sysDeviceSerialNumber;
 
     /**
      * 设备状态
      */
-    @Schema(description = "设备状态;0:离线")
+    @Schema(description = "设备是否禁用;0:启用")
     private Integer sysCameraTemplateStatus;
 
+
+    /**
+     * 设备是否在线;0:离线
+     */
+    @Schema(description = "设备是否在线;0:离线")
+    private Integer sysCameraTemplateOnline;
 
 }

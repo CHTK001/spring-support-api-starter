@@ -42,16 +42,14 @@ public class DevicePreviewUrlV1Request {
      */
     @Schema(description = "通道号")
     @NotNull(message = "通道号不能为空", groups = SelectGroup.class)
-    private Integer channelNo = 1;
+    private String channelNo = "101";
+
 
     /**
-     * 码流类型
+     * 子码流类型
      */
-    @Schema(description = "码流类型;0:主码流\n" +
-            "1:子码流\n" +
-            "2:三码流")
-    private Integer streamType = 0;
-
+    @Schema(description = "子码流类型;0:主码流")
+    private Integer subtype;
 
     /**
      * 开始时间

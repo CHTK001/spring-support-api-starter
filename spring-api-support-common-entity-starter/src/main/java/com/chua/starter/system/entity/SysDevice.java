@@ -88,6 +88,29 @@ public class SysDevice extends SysBase {
     private Integer sysDeviceChannelCount;
 
     /**
+     * 管道信息, 多个以逗号分隔
+     */
+    @TableField(value = "sys_device_channels")
+    @ApiModelProperty(value = "管道信息, 多个以逗号分隔")
+    @Schema(description = "管道信息, 多个以逗号分隔")
+    private String sysDeviceChannels;
+
+    /**
+     * 主码流编码
+     */
+    @TableField(value = "sys_device_main_subtype")
+    @ApiModelProperty(value = "主码流编码")
+    @Schema(description = "主码流编码")
+    private String sysDeviceMainSubtype;
+
+    /**
+     * 子码流编码
+     */
+    @TableField(value = "sys_device_sub_subtype")
+    @ApiModelProperty(value = "子码流编码")
+    @Schema(description = "子码流编码")
+    private String sysDeviceSubSubtype;
+    /**
      * 是否在线; 0: 离线； 1:在线
      */
     @TableField(value = "sys_device_status")
@@ -146,6 +169,37 @@ public class SysDevice extends SysBase {
     @ApiModelProperty(value = "设备类型")
     @Schema(description = "设备类型")
     private String sysDeviceType;
+
+    /**
+     * 账号
+     */
+    @TableField(value = "sys_device_account")
+    @ApiModelProperty(value = "账号")
+    @Schema(description = "账号")
+    private String sysDeviceAccount;
+
+    /**
+     * 密码
+     */
+    @TableField(value = "sys_device_password")
+    @ApiModelProperty(value = "密码")
+    @Schema(description = "密码")
+    private String sysDevicePassword;
+
+    /**
+     * 推流地址; 存在则使用该地址播放视像头
+     */
+    @TableField(value = "sys_device_rtsp")
+    @ApiModelProperty(value = "推流地址; 存在则使用该地址播放视像头")
+    @Schema(description = "推流地址; 存在则使用该地址播放视像头")
+    private String sysDeviceRtsp;
+    /**
+     * 网络地址
+     */
+    @TableField(value = "sys_device_rtsp_webrtc")
+    @ApiModelProperty(value = "rtsp推理webrtc地址; 采用webrtc解析rtsp")
+    @Schema(description = "rtsp推理webrtc地址; 采用webrtc解析rtsp")
+    private String sysDeviceRtspWebrtc;
 
     /**
      * 网络地址

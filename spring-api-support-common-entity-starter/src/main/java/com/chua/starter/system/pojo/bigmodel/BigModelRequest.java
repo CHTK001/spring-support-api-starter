@@ -52,4 +52,9 @@ public class BigModelRequest {
     @Builder.Default
     @NotNull(message = "温度不能为空", groups = SelectGroup.class)
     private Double temperature = 0.3;
+
+    /**
+     * 文件base64
+     */
+    private String[] files;
 }

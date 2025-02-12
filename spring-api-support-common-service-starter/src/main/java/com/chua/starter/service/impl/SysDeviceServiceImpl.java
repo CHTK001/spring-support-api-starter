@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.spi.ServiceProvider;
@@ -68,9 +69,10 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                         .selectAs(SysDeviceOrg::getSysDeviceOrgName, SysDevice::getSysDeviceOrgName)
                         .leftJoin(SysDeviceOrg.class, SysDeviceOrg::getSysDeviceOrgId, SysDevice::getSysDeviceOrgCode)
                         .eq(SysDevice::getSysProjectId, request.getSysProjectId())
-                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateName()), SysDevice::getSysDeviceName, request.getSysCameraTemplateName())
-                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysCameraTemplateSerialNumber())
+                        .likeRight(StringUtils.isNotBlank(request.getSysDeviceName()), SysDevice::getSysDeviceName, request.getSysDeviceName())
+                        .likeRight(StringUtils.isNotBlank(request.getSysDeviceSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysDeviceSerialNumber())
                         .eq(null != request.getSysCameraTemplateStatus(), SysDevice::getSysDeviceStatus, request.getSysCameraTemplateStatus())
+                        .eq(null != request.getSysCameraTemplateOnline(), SysDevice::getSysDeviceOnline, request.getSysCameraTemplateOnline())
                         .orderByDesc(SysDevice::getCreateTime)
         );
     }
@@ -212,6 +214,16 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         CameraService cameraService = reload(sysDevice.getSysProjectId());
         if (null == cameraService) {
             return ReturnResult.illegal("当前系统不支持该设备厂家, 请联系管理员!");
+        }
+
+        String sysDeviceRtsp = sysDevice.getSysDeviceRtsp();
+        if (StringUtils.isNotBlank(sysDeviceRtsp)) {
+            return ReturnResult.ok(
+                    com.chua.common.support.utils.StringUtils.format(
+                            sysDeviceRtsp,
+                            JsonObject.create(sysDevice)
+                    )
+            );
         }
         return ReturnResult.ok(cameraService.previewUrl(sysDevice.getSysProjectId(), sysDevice.getSysDeviceSerialNumber(), sysDevice.getSysDeviceResourceType(), request));
     }
