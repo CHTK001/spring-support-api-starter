@@ -102,53 +102,50 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                 .entity(response)
                 .build();
         SseEmitter sseEmitter = sseTemplate.createSseEmitter(emitter);
-        executorService.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    bigModelClient.callStream(com.chua.common.support.bigmodel.BigModelRequest.builder()
-                                    .prompt(request.getUser())
-                                    .system(request.getSystem())
-                                    .model(request.getModel())
-                                    .temperature(request.getTemperature())
-                                    .tokens(request.getTokens())
-                                    .version(sysAiModule.getSysAiModuleVersion())
-                                    .topK(request.getTopK())
-                                    .build(), new BigModelCallback() {
-                                @Override
-                                public void exception(Throwable throwable) {
-                                    try {
-                                        IoUtils.closeQuietly(response.getOutputStream());
-                                    } catch (IOException ignored) {
-                                    }
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                    try {
-                                        IoUtils.closeQuietly(response.getOutputStream());
-                                    } catch (IOException ignored) {
-                                    }
-                                }
-
-                                @Override
-                                public void accept(BigModelResponse bigModelResponse) {
-                                    try {
-                                        sseEmitter.send(Json.toJson(bigModelResponse), MediaType.TEXT_PLAIN);
-                                    } catch (IllegalStateException e) {
-                                        try {
-                                            IoUtils.closeQuietly(response.getOutputStream());
-                                        } catch (IOException ignored) {
-                                        }
-                                    } catch (Throwable ignored) {
-                                    }
+        executorService.execute(() -> {
+            try {
+                bigModelClient.callStream(com.chua.common.support.bigmodel.BigModelRequest.builder()
+                                .prompt(request.getUser())
+                                .files(request.getFiles())
+                                .system(request.getSystem())
+                                .model(request.getModel())
+                                .temperature(request.getTemperature())
+                                .tokens(request.getTokens())
+                                .version(sysAiModule.getSysAiModuleVersion())
+                                .topK(request.getTopK())
+                                .build(), new BigModelCallback() {
+                            @Override
+                            public void exception(Throwable throwable) {
+                                try {
+                                    IoUtils.closeQuietly(response.getOutputStream());
+                                } catch (IOException ignored) {
                                 }
                             }
-                    );
-                } catch (Exception e) {
-                    throw e;
-                }
+
+                            @Override
+                            public void onComplete() {
+                                try {
+                                    IoUtils.closeQuietly(response.getOutputStream());
+                                } catch (IOException ignored) {
+                                }
+                            }
+
+                            @Override
+                            public void accept(BigModelResponse bigModelResponse) {
+                                try {
+                                    sseEmitter.send(Json.toJson(bigModelResponse), MediaType.TEXT_PLAIN);
+                                } catch (IllegalStateException e) {
+                                    try {
+                                        IoUtils.closeQuietly(response.getOutputStream());
+                                    } catch (IOException ignored) {
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                );
+            } catch (Exception e) {
+                throw e;
             }
         });
         return sseEmitter;

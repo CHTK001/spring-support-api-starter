@@ -164,16 +164,20 @@ public class Hikvision implements CameraService {
 
         return hikvisionClientMap.computeIfAbsent(sysProjectId, schoolId1 -> {
             String hikPlatform = sysProject.getSysProjectDictItemCode();
+            String sysProjectEndpoint = sysProject.getSysProjectEndpoint();
+            if (null != sysProjectEndpoint && sysProjectEndpoint.contains("://")) {
+                sysProjectEndpoint = sysProjectEndpoint.split("://")[1];
+            }
             if ("HAI_KANG_AN_FANG".equals(hikPlatform)) {
                 return new HikvisionClient(new String[]{"https"},
-                        sysProject.getSysProjectEndpoint(),
+                        sysProjectEndpoint,
                         sysProject.getSysProjectAppId(),
                         sysProject.getSysProjectAppSecret()
                 );
             }
             if ("HAI_KANG_YUN_YAO".equals(hikPlatform)) {
                 return new HiYunYaoClient(new String[]{"https"},
-                        sysProject.getSysProjectEndpoint(),
+                        sysProjectEndpoint,
                         sysProject.getSysProjectAppId(),
                         sysProject.getSysProjectAppSecret(),
                         sysProject
@@ -181,7 +185,7 @@ public class Hikvision implements CameraService {
             }
 
             return new HiYunMouClient(new String[]{"https"},
-                    sysProject.getSysProjectEndpoint(),
+                    sysProjectEndpoint,
                     sysProject.getSysProjectAppId(),
                     sysProject.getSysProjectAppSecret(),
                     sysProject
