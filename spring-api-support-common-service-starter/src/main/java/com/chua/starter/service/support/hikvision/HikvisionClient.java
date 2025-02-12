@@ -167,7 +167,7 @@ public class HikvisionClient implements Client {
         JSONObject json = new JSONObject();
         json.put("cameraIndexCode", sysDeviceSerialNumber);
         json.put("protocol", protocol);
-        json.put("streamType", request.getStreamType());
+        json.put("streamType", request.getSubtype());
         json.put("transmode", request.getTransMode());
         PreviewUrlResult previewUrlResult = this.executePost(CAMERAS_PREVIEW_URLS, json, PreviewUrlResult.class);
         if (null == previewUrlResult) {
