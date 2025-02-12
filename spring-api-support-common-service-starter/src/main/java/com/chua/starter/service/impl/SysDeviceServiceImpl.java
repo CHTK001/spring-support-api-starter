@@ -71,8 +71,8 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                         .eq(SysDevice::getSysProjectId, request.getSysProjectId())
                         .likeRight(StringUtils.isNotBlank(request.getSysDeviceName()), SysDevice::getSysDeviceName, request.getSysDeviceName())
                         .likeRight(StringUtils.isNotBlank(request.getSysDeviceSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysDeviceSerialNumber())
-                        .eq(null != request.getSysCameraTemplateStatus(), SysDevice::getSysDeviceStatus, request.getSysCameraTemplateStatus())
-                        .eq(null != request.getSysCameraTemplateOnline(), SysDevice::getSysDeviceOnline, request.getSysCameraTemplateOnline())
+                        .eq(null != request.getSysDeviceStatus(), SysDevice::getSysDeviceStatus, request.getSysDeviceStatus())
+                        .eq(null != request.getSysDeviceOnline(), SysDevice::getSysDeviceOnline, request.getSysDeviceOnline())
                         .orderByDesc(SysDevice::getCreateTime)
         );
     }
@@ -84,9 +84,10 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                         .selectAll(SysDevice.class)
                         .selectAs(SysDeviceOrg::getSysDeviceOrgName, SysDevice::getSysDeviceOrgName)
                         .leftJoin(SysDeviceOrg.class, SysDeviceOrg::getSysDeviceOrgId, SysDevice::getSysDeviceOrgCode)
-                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateName()), SysDevice::getSysDeviceName, request.getSysCameraTemplateName())
-                        .likeRight(StringUtils.isNotBlank(request.getSysCameraTemplateSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysCameraTemplateSerialNumber())
-                        .eq(null != request.getSysCameraTemplateStatus(), SysDevice::getSysDeviceStatus, request.getSysCameraTemplateStatus())
+                        .likeRight(StringUtils.isNotBlank(request.getSysDeviceName()), SysDevice::getSysDeviceName, request.getSysDeviceName())
+                        .likeRight(StringUtils.isNotBlank(request.getSysDeviceSerialNumber()), SysDevice::getSysDeviceSerialNumber, request.getSysDeviceSerialNumber())
+                        .eq(null != request.getSysDeviceStatus(), SysDevice::getSysDeviceStatus, request.getSysDeviceStatus())
+                        .eq(null != request.getSysDeviceOnline(), SysDevice::getSysDeviceOnline, request.getSysDeviceOnline())
                         .orderByDesc(SysDevice::getCreateTime)
         );
     }
