@@ -7,7 +7,6 @@ import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.TreeUtils;
 import com.chua.starter.service.system.mapper.SysDeptMapper;
@@ -31,8 +30,9 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     public List<SysDeptVO> list(SysDept sysDept, Set<String> roles) {
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
-                        .like(ObjectUtils.isNotEmpty(sysDept.getSysDeptName()), SysDept::getSysDeptName, sysDept.getSysDeptName())
+                        .likeRight(StringUtils.isNotEmpty(sysDept.getSysDeptName()), SysDept::getSysDeptName, sysDept.getSysDeptName())
                         .orderByAsc(SysDept::getSysDeptSort)
+                        .orderByDesc(SysDept::getCreateTime)
         );
 
         return TreeUtils.toTree(sysDepts, sysDept1 -> {
@@ -58,45 +58,43 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
-        String menuTreeId = "";
-        if(null == sysDept.getSysDeptPid()) {
-            sysDept.setSysDeptPid(0);
-            menuTreeId = Joiner.on(",").join( 0, sysDept.getSysDeptId());
-        } else {
+        if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != 0) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
                 return ReturnResult.illegal("上级部门不存在");
             }
-            if(StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(parentSysDept.getSysDeptId()))) {
-                return ReturnResult.error("不能选择自己作为父级菜单");
+            if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {
+                return ReturnResult.error("不能选择自己/子级作为父级菜单");
             }
 
-            menuTreeId = Joiner.on(",").join( parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
+            String menuTreeId = Joiner.on(",").join(parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
+            sysDept.setSysDeptTreeId(menuTreeId);
         }
-        sysDept.setSysDeptTreeId(menuTreeId);
         return ReturnResult.guess(baseMapper.updateById(sysDept) > 0);
     }
 
     @Override
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
         String menuTreeId = "";
-        if(null == sysDept.getSysDeptPid()) {
+        String parentTreeId = "";
+        if (null == sysDept.getSysDeptPid() || sysDept.getSysDeptPid() == 0) {
             sysDept.setSysDeptPid(0);
-            menuTreeId = Joiner.on(",").join( 0, sysDept.getSysDeptId());
+            parentTreeId = "0";
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
                 return ReturnResult.illegal("上级部门不存在");
             }
 
-            if(StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(parentSysDept.getSysDeptId()))) {
-                return ReturnResult.error("不能选择自己作为父级菜单");
+            if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {
+                return ReturnResult.error("不能选择自己/子级作为父级菜单");
             }
 
-            menuTreeId = Joiner.on(",").join( parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
+            parentTreeId = parentSysDept.getSysDeptTreeId();
         }
-        sysDept.setSysDeptTreeId(menuTreeId);
         baseMapper.insert(sysDept);
+        sysDept.setSysDeptTreeId(Joiner.on(",").join(parentTreeId, sysDept.getSysDeptId()));
+        baseMapper.updateById(sysDept);
         return ReturnResult.guess(sysDept);
     }
 }
