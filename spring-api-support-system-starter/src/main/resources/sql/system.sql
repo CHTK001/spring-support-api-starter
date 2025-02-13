@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 12/02/2025 13:23:27
+ Date: 13/02/2025 10:37:03
 */
 
 SET NAMES utf8mb4;
@@ -7002,6 +7002,8 @@ CREATE TABLE `sys_dept`  (
   `sys_dept_principal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门负责人',
   `sys_dept_contact` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '负责人联系方式',
   `sys_dept_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
+  `sys_dept_status` int(11)                                                       NULL DEFAULT NULL COMMENT '状态; 是否禁用; 0:启用',
+  `sys_dept_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -7009,11 +7011,21 @@ CREATE TABLE `sys_dept`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 4
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构'
+  ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
+INSERT INTO `sys_dept`
+VALUES (1, '一级机构', 0, '0,1', 'ROOT', NULL, NULL, 1, 0, NULL, 'sa', 1, '2025-02-12 17:23:37', '2025-02-12 17:26:09',
+        'sa', 1);
+INSERT INTO `sys_dept`
+VALUES (2, '二级机构', 1, '0,1,2', 'l2', NULL, NULL, 1, 0, NULL, 'sa', 1, '2025-02-12 17:30:03', '2025-02-13 10:29:52',
+        'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_device
@@ -7037,6 +7049,7 @@ CREATE TABLE `sys_device`
     `sys_device_account`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
     `sys_device_password`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
     `sys_device_rtsp`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '推流地址;存在则使用该地址播放视像头',
+    `sys_device_rtsp_webrtc`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'rtsp推理webrtc地址; 采用webrtc解析rtsp',
     `sys_device_channels`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '管道',
     `sys_device_owner`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属者唯一编码',
     `sys_device_description`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
@@ -7066,1656 +7079,1656 @@ CREATE TABLE `sys_device`
 -- ----------------------------
 INSERT INTO `sys_device`
 VALUES (1, 4, '电梯107.62', '1ffc05b9fcbe42bd913e50da9ac63aca', '320a84af4f0d4cf88eb2306968ccf980', '9楼', 'analog',
-        NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-21 09:06:56', '2023-11-21 09:07:28', 'sa', 1);
+        NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, 'sa', 1, '2023-11-21 09:06:56', '2023-11-21 09:07:28', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (2, 4, '行政楼107.1', '20570c6865a24b1c9db4cb55b1f37dca', '67c815b1878043edaf2920cab7662e8e', '1楼', 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (3, 4, '网络机房107.2', 'dcdda67eec8d483282b1bb97a1f0d40f', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:10:54', '2023-11-25 13:15:09', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:10:54', '2023-11-25 13:15:09', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (4, 4, '行政楼107.3', '528bfe14b8944374b0c9e42adb95c439', '67c815b1878043edaf2920cab7662e8e', '1楼', 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (5, 4, '行政楼107.4', '2b099b056c844973b6772700e4f0cb96', '67c815b1878043edaf2920cab7662e8e', '1楼', 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-15 09:14:27', '2023-11-15 09:20:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (6, 4, '教室1 107.71', '59ce5359a7174eaea69e7774ae7b1fbc', 'e431804a28e949329e367e37a77be93a',
         '行政楼专业教室10间', 'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:52', 'sa', 1);
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (7, 4, '2教学楼104.14', '8ac035f4732f456897b8939b11ff949c', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:45', '2023-11-25 13:15:46', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:45', '2023-11-25 13:15:46', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (8, 4, '教室·2 107.72', 'ea59401a17ce40a1aa02aec01c6329c0', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:53', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:53', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (9, 4, '教室3 107.73', '818e4e36db9e4ad48446532815cceba0', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:53', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:02', '2023-11-25 13:14:53', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (10, 4, '教室4 107.74', '1d6fa8c374ed4a07a4e476851f84ad97', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:01', '2023-11-25 13:14:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:01', '2023-11-25 13:14:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (11, 4, '教室5 107.75', '320975d2e36744218790b07bb1c22e89', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:01', '2023-11-25 13:14:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:01', '2023-11-25 13:14:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (12, 4, '教室6 107.76', '2bb18bd9430044f0a93f7ddda786091d', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (13, 4, '教室7 107.77', 'd8fc8d02823d4132b57d98016af7115e', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (14, 4, '教室8 107.78', '373b0839c7a34fd0b11aa2fe1796d747', 'e431804a28e949329e367e37a77be93a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:56', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:19:00', '2023-11-25 13:14:56', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (15, 4, '教室9 107.79', '27e8f19d115148d1921d67ebee397a2d', 'e431804a28e949329e367e37a77be93a',
         '行政楼专业教室10间', 'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:23:48', '2023-11-12 17:26:24', 'sa', 1);
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:23:48', '2023-11-12 17:26:24', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (16, 4, '教室10 107.80', '3d2d399b4fd4424ea6517fb1c1186e84', 'e431804a28e949329e367e37a77be93a',
         '行政楼专业教室10间', 'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:23:48', '2023-11-12 17:26:35', 'sa', 1);
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-12 17:23:48', '2023-11-12 17:26:35', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (17, 4, '教学楼103.43', '4e9f6d89c9c04c3d86e1b32fe5d4cd24', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 15:11:59', '2023-11-06 15:12:18', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 15:11:59', '2023-11-06 15:12:18', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (18, 4, '操场西北角108.91', '68f5c0dfdd8d49119c2f82827c005990', '4002633ca7cc466988a91560bbb6a9cc', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-22 15:39:14', '2023-11-25 13:15:04', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-22 15:39:14', '2023-11-25 13:15:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (19, 4, '北门108.92', '707a1055ce6749ada39379d2792258e0', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-22 15:39:14', '2023-11-25 13:15:04', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-22 15:39:14', '2023-11-25 13:15:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (20, 4, '行政楼107.43', '10b8bc2acc1c42a2b663fe621bad57cd', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:03', '2023-11-25 13:15:18', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:03', '2023-11-25 13:15:18', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (21, 4, '行政楼107.45', '76ac677331184ea196e7a4644fe4e51f', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:03', '2023-11-25 13:15:19', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:03', '2023-11-25 13:15:19', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (22, 4, '行政楼107.44', '3c4f50e69ba74ad6abc2f84aef1707de', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:21:30', '2023-11-15 09:22:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:21:30', '2023-11-15 09:22:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (23, 4, '行政楼107.46', '23e5cc0d8ec14a3c87d4a4b5246ecda7', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:23:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:23:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (24, 4, '行政楼107.47', 'f28d235f3f794300b08dadfbae1d3be0', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:23:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:23:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (25, 4, '行政楼107.48', '804aefa4e8a743e9aa78a0f8a87fd194', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:22:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 13:49:19', '2023-11-15 09:22:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (26, 4, '行政楼107.49', '82c573f21f02431290de21fb21dd9364', '8ea259ac17ac4d31b4bfe35608d88427', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 13:49:18', '2023-11-15 09:22:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 13:49:18', '2023-11-15 09:22:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (27, 4, 'IPdome', '367521b6f091456680dc24d675663a08', '25b773e5f16848549b77f4b8cba6d85a', NULL, 'analog', NULL,
         NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 07:10:13', '2023-11-06 07:10:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 07:10:13', '2023-11-06 07:10:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (28, 4, 'IPdome', '8baa1e95422c4f6994ee50a1b8c653df', '25b773e5f16848549b77f4b8cba6d85a', NULL, 'analog', NULL,
         NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 07:10:13', '2023-11-06 07:10:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 07:10:13', '2023-11-06 07:10:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (29, 4, '1-2庭院106.100', '279f12afb8764ea6a6114da0e684d39c', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-10-29 15:35:16', '2023-10-31 07:42:03', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-10-29 15:35:16', '2023-10-31 07:42:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (30, 4, '1-2庭院106.103', '92a5d74e6c704e31b903e9febd847d0d', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-10-30 08:06:56', '2023-10-31 07:42:40', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-10-30 08:06:56', '2023-10-31 07:42:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (31, 4, '1号顶朝北106.101', 'da882b7026ca414c919017d4cda84784', 'd374331f1bca426587ae9c51ae922af1', NULL,
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-10-29 15:35:16', '2023-10-31 07:42:40', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-10-29 15:35:16', '2023-10-31 07:42:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (32, 4, '2-3庭院106.102', '1817ac898dd8412b884b42fa25ad404b', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-10-30 08:06:53', '2023-10-31 07:42:40', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-10-30 08:06:53', '2023-10-31 07:42:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (33, 4, '2-3庭院106.104', 'd82d4aff57c54536b82023aefe58c6d3', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-10-30 11:08:08', '2023-10-31 07:42:03', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-10-30 11:08:08', '2023-10-31 07:42:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (34, 4, '3-4庭院106.105', '311b79058176482ba354c25875c986f5', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-10-31 07:38:20', '2023-10-31 07:42:03', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-10-31 07:38:20', '2023-10-31 07:42:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (35, 4, '3-4庭院106.106', '677d5b223a444aefbf56b28bc67a6868', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-30 15:16:23', '2023-10-30 15:25:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-30 15:16:23', '2023-10-30 15:25:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (36, 4, '4号东球106.107', 'dcf12b4a73c04018a743cd3e0e1afecb', 'd374331f1bca426587ae9c51ae922af1', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-30 15:15:50', '2023-10-30 15:25:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-30 15:15:50', '2023-10-30 15:25:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (37, 4, '一（1）班107.18', '3981a66b7295400eabf939f77ab29864', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 07:19:02', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 07:19:02', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (38, 4, '一（2）班107.20', '780077f114604503aea76c13c411f562', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 08:05:06', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 08:05:06', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (39, 4, '一（3）班107.27', '7b8ce287d1c546ae9125418cc711299e', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 08:20:42', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 08:20:42', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (40, 4, '一（4）班107.26', '8b72eae645d2444f80516dac85cdbb69', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 08:36:18', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 08:36:18', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (41, 4, '一（5）班107.25', 'a2df94aee3a14be2a1e1683f13141a7f', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 09:10:09', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 09:10:09', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (42, 4, '一（6）班107.19', '229e21dc21694801a2df4aca988d7ad2', '2b511f35e33e4d788dcdcb06260599c7', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 09:43:53', '2023-10-06 09:44:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 09:43:53', '2023-10-06 09:44:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (43, 4, '行政楼107.60', '04461ee9214148059463f15a48cb5069', '320a84af4f0d4cf88eb2306968ccf980', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 10:07:34', '2023-10-01 10:08:45', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 10:07:34', '2023-10-01 10:08:45', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (44, 4, '行政楼107.56', '25a864b1bfc14b1fa954d34d34f31fd8', '4d7c6257a1c7475b85a38eccfd6feea4', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (45, 4, '行政楼107.57', 'a981aa2e1a0d45c197d9596afed99b5b', '4d7c6257a1c7475b85a38eccfd6feea4', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:51:47', '2023-10-01 09:52:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:51:47', '2023-10-01 09:52:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (46, 4, '行政楼107.53', '79653eeeffb94b1e99c06b74a0e94fdc', 'ef8bc1ff16ed4d77b58b4511fa00b2db', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (47, 4, '行政楼107.54', 'faa786a9091b4e05adb840003865c538', 'ef8bc1ff16ed4d77b58b4511fa00b2db', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:46:16', '2023-10-01 09:46:37', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:46:16', '2023-10-01 09:46:37', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (48, 4, '行政楼107.50', 'b263a5e27d4748368783e699f4fc530b', '42e80bef18e8476a875dbd03fba35e71', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:02', '2023-11-25 13:15:20', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:02', '2023-11-25 13:15:20', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (49, 4, '行政楼107.51', '99dd7db317354fdba1316da0f496f8ce', '42e80bef18e8476a875dbd03fba35e71', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:21:53', '2023-10-01 09:46:46', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:21:53', '2023-10-01 09:46:46', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (50, 4, '行政楼107.40', '6f2434dbf3bf447cb914c26a0859d969', 'a20a05f4b4d544f9aee4ae1d0a745c24', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:18', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:18', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (51, 4, '行政楼107.41', '520d6bfa91ac4495b40e3cf13eebf275', 'a20a05f4b4d544f9aee4ae1d0a745c24', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:20:43', '2023-10-01 09:47:04', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:20:43', '2023-10-01 09:47:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (52, 4, '行政楼107.37', 'dc6a72ca12464041aef9465d5566b5b0', '25b773e5f16848549b77f4b8cba6d85a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 09:20:14', '2023-10-01 09:47:14', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 09:20:14', '2023-10-01 09:47:14', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (53, 4, '地下室109.1', '8bf48d2ba2394cf994f9dc918b081288', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (54, 4, '地下室109.2', '4117c9f5a3fb47748a1ee5bc0492ca21', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (55, 4, '地下室109.3', 'bf6fd58d4e2c486b9fbfcc86c87d8008', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 14:08:15', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 14:08:15', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (56, 4, '地下室109.4', 'e0dbceae4c9d495ebd1995cd5127b5d1', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (57, 4, '地下室109.5', 'd346b713d07c45c28b74b453b5fe9c29', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (58, 4, '地下室109.6', '0a9798c7c61742bfa389df9b8a5a9a6d', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (59, 4, '地下室109.7', '3edf675198f047698d096b58d72e2654', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:12', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (60, 4, '地下室109.8', '578d90a8046b4f8c9a7cca3059b7468d', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (61, 4, '地下室109.9', 'd5aac4668a114b688d564efad93b80ff', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (62, 4, '地下室109.10', '2beb2acc3b5d4ca6aaef40ab3bc559b6', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (63, 4, '地下室109.11', '004c9550d95b446999dd02bebbb667c8', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (64, 4, '地下室109.12', 'fa4555a7bc664f929916adc6025f5f1a', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (65, 4, '地下室109.13', '632921199bc749a08dd59e9eebe35670', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 16:31:04', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 16:31:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (66, 4, '地下室109.14', '0549c6070d7e498cb840c45e7db3c4f2', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (67, 4, '地下室109.15', '2d7668d7c99e47739f41237d866df049', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:50:09', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:50:09', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (68, 4, '地下室109.16', '16c909b831af45a299a5732b25ec4572', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (69, 4, '地下室109.17', '43f84312e4fa4a839e3a7b0e94aea439', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (70, 4, '地下室109.18', '6aa735a7d22442e98a8ec66e984ce67c', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-05 18:18:11', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (71, 4, '地下室109.19', '7f4dd323d1504570a88afcdf83fdd1e2', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-05 18:18:13', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-05 18:18:13', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (72, 4, '地下室109.20', '6a159502e9eb45d0a4c01ef2fc861abf', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-05 18:18:13', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-05 18:18:13', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (73, 4, '地下室109.21', '4f6732d981ff4cf2a7bc2a68f86ecc4f', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:04', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:04', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (74, 4, '地下室109.22', 'f87b452c574f41bcaf8f6404df79ef4e', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 08:10:04', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 08:10:04', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (75, 4, '地下室109.23', 'c670bc00f4264d849133edc1162a687f', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (76, 4, '地下室109.24', '35c6e209cf9b4aa987d63270b4abfcf4', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (77, 4, '地下室109.25', 'c5129a7740104073a1d74d5ef80f62e0', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (78, 4, '地下室109.26', 'b7416767869446e1984211c6657a2840', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (79, 4, '地下室109.27', 'ab8722e98ac745fcb2eb9001182e2c1a', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (80, 4, '地下室109.28', '1cc3bc10946545a183db3a5f555c06bc', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:32:26', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (81, 4, '地下室109.29', 'de1eb2544b49411fbead160b7613536d', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (82, 4, '地下室109.30', 'f52aaac46e464751b43e4e694ecc739c', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 15:26:47', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 15:26:47', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (83, 4, '地下室109.31', '80c7b0a56bf9492b88b52775c269ffb7', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (84, 4, '地下室109.32', 'fe1ec843b3e14ab4b57b2e8000311a48', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (85, 4, '地下室 109.33', '1a3a0aa26ad74376b0c1a8876f09b860', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (86, 4, '地下室109.34', '6a17bb9048e6430f90a6c5ce700b8b9b', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (87, 4, '地下室 109.35', 'f15b02a4c24240b28030daee4727082c', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (88, 4, '地下室 109.36', 'cd345d14952542bfa8b1041d4742ae8f', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (89, 4, '地下室 109.37', '812e30dd701f4ac2b7cc3757472b7efd', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (90, 4, '地下室 109.38', '0d9e2aeab4994babb8a3621379f4cb12', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (91, 4, '地下室 109.39', 'f73270a098a64a7494bf9aa8eedd2ddb', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (92, 4, '地下室 109.40', '3d08406aac964bdaa41e230770043fcc', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:56', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (93, 4, '地下室109.41', 'a9fd611d4f3e4e4f9630c04562dde8cc', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 14:37:16', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 14:37:16', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (94, 4, '家长等候区109.42', '5379dcd6d2714f348f4d44957d3ec225', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:25:35', '2023-11-15 09:23:55', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:25:35', '2023-11-15 09:23:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (95, 4, '地下室 109.43', 'b1aade0fc68e48a1aa0d291c7b89996b', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (96, 4, '家长等候区109.44', '941252de590742a389d913f85855308f', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:44:28', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:44:28', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (97, 4, '地下闸机109.45', 'a9f3b4dd02bc4e688d72a6a76a1fa283', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-19 09:08:14', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-19 09:08:14', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (98, 4, '地下室109.46', '536361a003ea4294b27d7106b24c0507', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 14:54:33', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 14:54:33', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (99, 4, '地下室下客区109.47', 'f6538cc4f78f4f9da83b655ed31f941c', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-18 08:09:52', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-18 08:09:52', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (100, 4, '地下室人脸入口109.48', 'd9a503ce7dce4c1aa098fee6a89c735c', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-18 08:11:34', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-18 08:11:34', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (101, 4, '地下室 109.49', '35276fa5e8c1422d8d51dbadc0b0ace4', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (102, 4, '东地下入口109.50', 'fb5d986cbc8b4c6b9313c777b81662d8', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:16:40', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:16:40', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (103, 4, '地下室 109.51', 'f5fc6c923c584d50832d5054a1452376', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:39:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:39:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (104, 4, '接送处往地上109.52', 'b2f41968cc814897858ef90b2efb8aa2', 'bdd001adfdf4418689c30f49c41fc03b', NULL,
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:49:51', '2023-09-23 15:39:12', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-19 09:49:51', '2023-09-23 15:39:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (105, 4, '地下室 109.53', '828738e934ba4db89f6e3b67ca894abe', 'bdd001adfdf4418689c30f49c41fc03b', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 13:52:48', '2023-09-23 15:38:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (106, 4, '室外108.93', '95968500c5354e92bab0da6b7bf545f1', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-22 15:43:46', '2023-11-06 14:11:50', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-22 15:43:46', '2023-11-06 14:11:50', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (107, 4, '北门108.94', '028260f35fa84268a1c3ef845c787e66', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-22 15:39:13', '2023-11-25 13:15:05', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-22 15:39:13', '2023-11-25 13:15:05', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (108, 4, '操场108.95', 'c992927ce8464539a881b56cecdc4a69', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 10:50:25', '2023-11-25 13:15:03', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 10:50:25', '2023-11-25 13:15:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (109, 4, '操场108.96', '7d0ab34440724587954f4d0455b757e5', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 10:53:58', '2023-11-06 14:11:50', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 10:53:58', '2023-11-06 14:11:50', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (110, 4, '室外108.97', 'eadc358889f3496c950d74c5a93f59a1', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 14:03:35', '2023-11-25 13:14:57', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 14:03:35', '2023-11-25 13:14:57', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (111, 4, '室外108.98', '04d66eddf80e4fe992105b869c1eb41d', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-06 14:03:35', '2023-11-25 13:14:58', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-06 14:03:35', '2023-11-25 13:14:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (112, 4, '室外108.1', '9efa936cfb48405fa54c1589dea2b3ff', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-04 08:33:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-04 08:33:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (113, 4, '室外108.2', '2c21b52f5e9d46eea0c7c82c59e6e688', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-04 08:33:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-04 08:33:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (114, 4, '室外108.3', 'cb39561170bd49f8a7e93ff2923d73c5', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (115, 4, '室外108.4', '6d17d704904646369d4a0dfcd654e22a', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (116, 4, '室外108.5', 'a2fd95372c6b4623a2e0317618ce0e06', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (117, 4, '室外108.6', 'f19b7aa3086f4e51a49de1a1e4835f75', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (118, 4, '室外108.7', '7da9668bec4041f4b4432eb9ca71ea5a', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 09:48:43', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 09:48:43', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (119, 4, '室外108.8', '431ab53e5a834f4abed5c8611d10fabc', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (120, 4, '室外108.9', 'b2259b157be643ee90ba2ec3db1fee19', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (121, 4, '室外108.10', 'c6ce9f9f32a84b7bb4fcc9891c6d0188', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (122, 4, '室外108.11', '048e37190f784d3995e73a524db4a9f3', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 09:48:43', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 09:48:43', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (123, 4, '室外108.12', '7ec232192da346049624221b6e57edd7', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (124, 4, '室外108.13', 'fd8f13880e964f50b4b0270183799612', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (125, 4, '室外108.14', '8fbcf4e633e14259ad97f4ae4319afb2', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:04', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (126, 4, '室外108.15', 'bb98e11ba35e434eb306a04d32e3e3b0', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 09:48:41', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 09:48:41', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (127, 4, '室外108.16', 'c1cacfe1aeda42f09342d69cd7aa3dd7', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (128, 4, '室外108.17', '46fbed7ce0144007ae776ecee9c5ce5c', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (129, 4, '室外108.18', 'b9bf5b8b537c491e9effb35832fc1aa2', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (130, 4, '室外108.19', 'b5694e7ee6484ea888e1cd8566a7ed00', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (131, 4, '室外108.20', '48cebf4611db48428117b66bb1e098d8', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 09:48:41', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 09:48:41', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (132, 4, '室外108.21', 'e3e1741f61f9480198731a21a9d282ec', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (133, 4, '室外108.22', '8ee7828304e94b8182c9d14e5a02c6cf', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:51:57', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (134, 4, '室外108.23', '1651bf9f49cc4d17b3b4be0ce0da2ad0', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:06', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:06', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (135, 4, '室外108.24', '44f7482aa42c4e8daa171f2a52bc65c2', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:06', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:06', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (136, 4, '室外108.25', '95c62dcde7f14245958fc1383bfdb6a5', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:03', '2023-11-25 13:15:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (137, 4, '室外108.26', '2e62b826cfbd453c9f4caeb3f1a6d50d', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 10:07:59', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 10:07:59', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (138, 4, '室外108.27', '639d54fcc4914f1ea64c4d5484772743', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:02', '2023-11-25 13:15:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:02', '2023-11-25 13:15:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (139, 4, '室外108.28', '5119fefa7f584182aa6f00a6a7a76018', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:02', '2023-11-25 13:15:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:02', '2023-11-25 13:15:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (140, 4, '室外108.29', 'e518feb0964744a3a94531b972178416', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:00:01', '2023-11-25 13:15:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:00:01', '2023-11-25 13:15:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (141, 4, '室外108.30', '52b4fa09c199433286ec670bf59bd792', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 10:35:33', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 10:35:33', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (142, 4, '室外108.31', '6538003f661c4337b075d2f8b5b727ae', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-23 10:22:24', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-23 10:22:24', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (143, 4, '室外108.32', '2c424402f14c43c3b57d1d39d6a6e3b3', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 10:35:33', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 10:35:33', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (144, 4, '室外108.33', 'e3c854bffb8749e8be451e94143b3fac', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (145, 4, '室外108.35', '166a8f66f7be4ddc9f41446a18c6bb84', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (146, 4, '室外108.34', 'f11336b3cb5944f49098a821d8e0d50f', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-04 08:34:01', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-04 08:34:01', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (147, 4, '室外108.36', 'a3704b7788aa437da22ee6eff221fe3e', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (148, 4, '室外108.37', '583a8f93c57c48ce8d7e2e11cd36ce44', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (149, 4, '室外108.38', '8d655e6445734b3ba0a5b3b7ffebaa7c', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-04 08:34:01', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-04 08:34:01', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (150, 4, '室外108.39', 'c9b74139dc314bb4989b4e03ff0040d1', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (151, 4, '室外108.40', '88a22ae5dbb8450784052d491953f709', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (152, 4, '室外108.41', '7809689e403749ce89f71c3808dae2b2', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (153, 4, '室外108.42', 'ca0566d697a843a49a6679cf8383152e', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-17 17:52:00', '2023-11-06 14:11:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (154, 4, '厨房102.59', '220da77161134218943b07490d33a3f3', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (155, 4, '教学楼102.1', '90fc5264b3574ad09ace90802398e3ea', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (156, 4, '教学楼102.10', 'bc805ac3ec6a4216a911ecf205784f49', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:43', '2023-11-25 13:16:03', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:43', '2023-11-25 13:16:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (157, 4, '教学楼102.11', 'fd391518a2e4474a86f60c59db87cfad', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:03', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (158, 4, '教学楼102.12', 'a9db66b56905490a9d8d823b14ea9a34', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:04', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (159, 4, '教学楼102.13', '7d6e246a7f0b499da9d1ab6adfef7a07', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:04', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:42', '2023-11-25 13:16:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (160, 4, '教学楼102.14', '988a719511d6461cacc6c4e1607d6d70', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-02 10:07:43', '2023-11-25 13:15:00', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-02 10:07:43', '2023-11-25 13:15:00', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (161, 4, '教学楼102.15', '4571b1b60e0d47fe9e5cb39727924cb2', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (162, 4, '教学楼102.16', '33c93ae99cfa4334b164b5f08522b96e', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-02 14:38:32', '2023-11-25 13:14:59', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-02 14:38:32', '2023-11-25 13:14:59', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (163, 4, '教学楼102.17', '7c6ed5f11b324eab9346bb38e8a186a3', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-02 11:21:44', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-02 11:21:44', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (164, 4, '教学楼102.18', '752a50b212344dd78490c1241980e8a5', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (165, 4, '教学楼102.19', '7107420e4a5540e6b29b995d0cd3dfa6', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (166, 4, '教学楼102.2', '9a73bc6497d64ca88bce25e5f5c69178', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-03 14:12:10', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-03 14:12:10', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (167, 4, '教学楼102.20', '22199d7d18e84c9bad3a747beb846b0c', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:36', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (168, 4, '教学楼102.21', 'b37233bcb35843f89578ac2da4f05f73', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:10:44', '2023-11-25 13:14:57', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:10:44', '2023-11-25 13:14:57', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (169, 4, '校门108.43', '652ac0ee3db144809704331a527d9f16', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:57', '2023-11-25 13:15:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:57', '2023-11-25 13:15:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (170, 4, '校门108.44', '4baf8f2af06049e0a306b801c2c001e6', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:57', '2023-11-25 13:15:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:57', '2023-11-25 13:15:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (171, 4, '行政楼107.5', '09558446eb1e47b39e0015e313f54cb9', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:14', '2023-11-25 13:15:09', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:14', '2023-11-25 13:15:09', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (172, 4, '室外108.46', 'b56d4b0fe88f4d18be59691afdba1d30', '4002633ca7cc466988a91560bbb6a9cc', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 10:49:01', '2023-11-25 13:15:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 10:49:01', '2023-11-25 13:15:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (173, 4, '行政楼107.6', '59cdce2b8db546b3950a04733d02b5e1', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:14', '2023-11-25 13:15:09', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:14', '2023-11-25 13:15:09', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (174, 4, 'IPdome', '12ff674334f044bf93a5a125ca2b5727', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog', NULL,
         NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-11 17:26:03', '2023-11-15 09:21:15', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-11 17:26:03', '2023-11-15 09:21:15', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (175, 4, '行政楼107.8', 'f808d2d22a094e1296d5037ea866593e', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 09:34:07', '2023-11-15 09:21:14', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 09:34:07', '2023-11-15 09:21:14', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (176, 4, '行政楼107.52', '901a6b58fa77403f87cd5ee6c7646960', '42e80bef18e8476a875dbd03fba35e71', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:20', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:20', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (177, 4, '行政楼107.38', '6f63f8cbf8d64be99445b003d877ece0', '25b773e5f16848549b77f4b8cba6d85a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (178, 4, '行政楼107.9', '1944cfd1df3a4b05a3b73d5ebde04bf3', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:10', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:10', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (179, 4, '行政楼107.39', '90fdca024d8a4aa094c1c1eb49b7d016', '25b773e5f16848549b77f4b8cba6d85a', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:17', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:17', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (180, 4, '行政楼107.10', '1ebc6ddd1f7a4cfcb74671fe52fe8841', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (181, 4, '行政楼107.11', 'a8fcf874acee4bdbae6a9675a44d750a', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:13', '2023-11-25 13:15:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (182, 4, '行政楼107.55', '6ab47a50d9734b27a768d8ee8481ae0b', 'ef8bc1ff16ed4d77b58b4511fa00b2db', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:01', '2023-11-25 13:15:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (183, 4, '行政楼107.12', '1e7a040d68b74636b6d1410097dd1ba3', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:12', '2023-11-25 13:15:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:12', '2023-11-25 13:15:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (184, 4, '监控室107.13', '69e4a53507aa4f549584ce861abbfa67', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:12', '2023-11-25 13:15:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:12', '2023-11-25 13:15:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (185, 4, '消控室107.70', '5b188d07f4c4443aa09e5b49df2f01b6', '67c815b1878043edaf2920cab7662e8e', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:56:50', '2023-11-25 13:15:05', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:56:50', '2023-11-25 13:15:05', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (186, 4, '行政楼107.59', '894b607fd7b841d58b659fb8c0d24687', '320a84af4f0d4cf88eb2306968ccf980', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (187, 4, '行政楼107.61', '334278b6f6174bd197963d9f0177f7fd', '320a84af4f0d4cf88eb2306968ccf980', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:59', '2023-11-25 13:15:23', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:59', '2023-11-25 13:15:23', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (188, 4, '行政楼107.21', 'c1faf3fe18e54a71841cb3c4378f154d', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:10', '2023-11-25 13:15:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:10', '2023-11-25 13:15:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (189, 4, '教学楼103.1', '6761d762796841e881adc3117a73cc64', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:01', '2023-11-25 13:15:50', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:01', '2023-11-25 13:15:50', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (190, 4, '行政楼107.22', '83cce300a1c343d48aea8d4351379776', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:10', '2023-11-25 13:15:13', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:10', '2023-11-25 13:15:13', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (191, 4, '教学楼103.2', 'f84cd4a5fba54fa9a3e5da221491ec9e', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:00', '2023-11-25 13:15:51', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:00', '2023-11-25 13:15:51', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (192, 4, '教学楼103.3', '3a060f011c6f409a8a4611cd9ea3225d', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:00', '2023-11-25 13:15:51', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:00', '2023-11-25 13:15:51', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (193, 4, '教学楼103.4', 'b95ec4e43c3b4bfb805297cda200b10c', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:59', '2023-11-25 13:15:51', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:59', '2023-11-25 13:15:51', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (194, 4, '教学楼103.5', 'a0e38acb1b16431a9304ffc738e5341a', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:59', '2023-11-25 13:15:52', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:59', '2023-11-25 13:15:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (195, 4, '教学楼103.6', '31634d6ae2cb4ae687c970dad73116bb', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:58', '2023-11-25 13:15:52', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:58', '2023-11-25 13:15:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (196, 4, '教学楼103.7', '9131d467ed564d7e93b5169a0b50821f', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 15:02:36', '2023-11-01 18:44:30', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 15:02:36', '2023-11-01 18:44:30', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (197, 4, '行政楼107.42', 'c6428d60f6684785bf5a1cdd16680257', 'a20a05f4b4d544f9aee4ae1d0a745c24', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:18', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:04', '2023-11-25 13:15:18', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (198, 4, '4教学楼105.1', '32ab19a105684657af67d341b71c5961', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:33', '2023-11-25 13:15:32', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:33', '2023-11-25 13:15:32', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (199, 4, '教学楼103.9', '05877eb7997c4963912d513a97579b30', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:58', '2023-11-25 13:15:52', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:58', '2023-11-25 13:15:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (200, 4, '4教学楼105.2', 'e7b80e16835745588e093cea09101ff1', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:33', '2023-11-25 13:15:33', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:33', '2023-11-25 13:15:33', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (201, 4, '4教学楼104.1', '2653ac41fcf6419b93902436d717a799', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:50', '2023-11-25 13:15:41', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:50', '2023-11-25 13:15:41', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (202, 4, '教学楼103.10', '257087b16bc3415486b490b71060458e', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:57', '2023-11-25 13:15:52', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:57', '2023-11-25 13:15:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (203, 4, '教学楼103.11', '7dab5e829e414267895c743891197f99', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 17:16:01', '2023-11-01 18:44:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 17:16:01', '2023-11-01 18:44:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (204, 4, '行政楼107.58', 'b95d1ae35f7746e1abc8836e78674c7d', '4d7c6257a1c7475b85a38eccfd6feea4', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:00', '2023-11-25 13:15:22', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (205, 4, '4教学楼105.3', '201e7ee17fa0476bba6309722bda2985', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:33', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:33', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (206, 4, '4教学楼105.4', '6b950b7d2b03478abafb2828fd64e32b', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:33', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:33', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (207, 4, '4教学楼104.2', 'e445cfbbb9524c8b95c2188c14d943bc', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:50', '2023-11-25 13:15:41', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:50', '2023-11-25 13:15:41', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (208, 4, '教学楼103.12', 'ba2e46052cd14f1e9b45e63f9c56a3bb', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:56', '2023-11-25 13:15:53', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:56', '2023-11-25 13:15:53', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (209, 4, '4教学楼105.5', '6a477b896d0a4bd894cef1e700465495', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:34', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:32', '2023-11-25 13:15:34', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (210, 4, '4教学楼104.3', 'cdfe51ea9dc84f09b5e48fdababa53d9', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:42', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:42', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (211, 4, '3教学楼105.6', 'b5b579df17f84e558e7835a3c0372c17', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:31', '2023-11-25 13:15:34', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:31', '2023-11-25 13:15:34', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (212, 4, '3教学楼105.7', '23f9c8d616ad4fa5b8882b32674d86f0', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:34', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:34', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (213, 4, '4教学楼104.4', '81f69f36ea894bc5867421cbe1ca20e9', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (214, 4, '3教学楼105.8', '8cb2892012c6409180f58f1c4bbfa240', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:34', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:34', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (215, 4, '4教学楼104.5', '647ff018ce3a4e8581a909945f501599', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:49', '2023-11-25 13:15:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (216, 4, '3教学楼105.9', 'bb308f88d94c4b5699b6f141068aa32f', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:35', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:35', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (217, 4, '3教学楼104.6', '719c81ce927643ef9f7e5a0eebac7e65', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:48', '2023-11-25 13:15:43', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:48', '2023-11-25 13:15:43', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (218, 4, '3教学楼105.10', 'b9e601acf11d415a92a7ba49502c020f', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:35', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:30', '2023-11-25 13:15:35', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (219, 4, '3教学楼104.7', '27b307571c61433d94d0e5e44663df36', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:48', '2023-11-25 13:15:44', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:48', '2023-11-25 13:15:44', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (220, 4, '3教学楼105.11', '64b5a07c251247808000809c401b5e51', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:36', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:36', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (221, 4, '3教学楼104.8', '107026a9e146450bbda1198786216204', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:47', '2023-11-25 13:15:44', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:47', '2023-11-25 13:15:44', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (222, 4, '3教学楼104.9', '2b31873506dc4694bbe3ec2776a0289b', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 07:52:18', '2023-11-01 13:09:59', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 07:52:18', '2023-11-01 13:09:59', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (223, 4, '3教学楼105.12', 'a39087583356435eb1bca96326eea054', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:36', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:36', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (224, 4, '3教学楼104.10', '2fcc4fd5424c4b1f88fcb94ec1f3f656', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:47', '2023-11-25 13:15:45', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:47', '2023-11-25 13:15:45', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (225, 4, '教学楼103.13', '7a3405b3fc9f49bdbb8e71af8edba57b', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:56', '2023-11-25 13:15:53', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:56', '2023-11-25 13:15:53', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (226, 4, '教学楼103.15', '2e19b9d391734e858cf2b3ea1a36cf5c', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 17:20:56', '2023-11-01 18:31:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 17:20:56', '2023-11-01 18:31:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (227, 4, '3教学楼104.11', '880be59dfdc3412596645cd7c1f2e19d', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:46', '2023-11-25 13:15:45', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:46', '2023-11-25 13:15:45', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (228, 4, '教学楼103.16', '6ae6892aa6aa48d39a3909e1ae720586', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:55', '2023-11-25 13:15:53', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:55', '2023-11-25 13:15:53', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (229, 4, '教学楼103.17', 'f22bb5c914954cdd977bbddda442b3a8', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (230, 4, '教学楼103.18', '23f95d172c8f4baeb7d8a29a28a6190e', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (231, 4, '教学楼103.19', 'a7074e8b38e14a7fb041205776e198c8', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:54', '2023-11-25 13:15:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (232, 4, '教学楼103.21', 'de1876cd71724a199929d02dd97e5f56', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:53', '2023-11-25 13:15:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:53', '2023-11-25 13:15:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (233, 4, '教学楼103.22', 'b7bf1d0202a74e8b9e9dd7f292cdf816', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:53', '2023-11-25 13:15:55', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:53', '2023-11-25 13:15:55', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (234, 4, '教学楼103.24', 'aa28701c68524b3ca6813162ab0efcdb', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:52', '2023-11-25 13:15:56', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:52', '2023-11-25 13:15:56', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (235, 4, '教学楼103.25', 'd9bfc1458db64ada92a73f7395a77e1c', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 17:30:04', '2023-11-01 18:31:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 17:30:04', '2023-11-01 18:31:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (236, 4, '4教学楼106.1', 'ddb9ab0bc57d435fa732dce350755106', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:23', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:23', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (237, 4, '2教学楼105.13', 'b66fae3282c941a8953b37d65c8297ee', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:28', '2023-11-25 13:15:36', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:28', '2023-11-25 13:15:36', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (238, 4, '教学楼103.27', '1c695ee984034348b58ec5c1f7c1492c', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 17:16:02', '2023-11-01 18:31:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 17:16:02', '2023-11-01 18:31:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (239, 4, '4教学楼106.2', 'c4cd9f211b7d4e93bd994e717ea7648d', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:23', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:23', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (240, 4, '2教学楼105.14', '144fe7d100fa47afae51ee144b6647ba', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:37', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:29', '2023-11-25 13:15:37', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (241, 4, '4教学楼106.3', 'ce0d941e1b5c45a7b41484afd6b7cf0e', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:24', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:05', '2023-11-25 13:15:24', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (242, 4, '2教学楼105.15', 'b4a349ded5414ff188022abdce51332d', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:28', '2023-11-25 13:15:37', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:28', '2023-11-25 13:15:37', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (243, 4, '教学楼103.26', '8748588b76514bc7886e137209924ade', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:51', '2023-11-25 13:15:56', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:51', '2023-11-25 13:15:56', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (244, 4, '4教学楼106.4', 'b523c8391e9f48bf9093ff76ecbce343', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:24', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:24', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (245, 4, '2教学楼105.16', '9982ddf17d184a54915ef38feaa08697', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:37', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:37', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (246, 4, '教学楼103.28', 'a027007d99124eec9bd6a6a2a14dc001', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:51', '2023-11-25 13:15:56', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:51', '2023-11-25 13:15:56', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (247, 4, '4教学楼106.5', 'b154baf53741449d84d6d33848a53f90', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:24', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:24', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (248, 4, '2教学楼105.17', '865c9a18e6b34ffa8ec7e52c6dabf3f8', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (249, 4, '教学楼103.29', 'f6eb847eb943458191c2b48edda3dbf9', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:50', '2023-11-25 13:15:57', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:50', '2023-11-25 13:15:57', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (250, 4, '4教学楼106.6', 'b352a53d0fa1468eb8e3e6dc91d90db1', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:25', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:04', '2023-11-25 13:15:25', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (251, 4, '2教学楼105.18', '97ca4f75a59c40cd98b2787ede81ecf6', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:27', '2023-11-25 13:15:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (252, 4, '4教学楼106.7', '67d3a63e1e014e008fc8f397d49c2622', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:03', '2023-11-25 13:15:25', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:03', '2023-11-25 13:15:25', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (253, 4, '2教学楼105.19', '623c0355d4f142f386710bce63c211c7', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (254, 4, '4教学楼106.8', 'e3ca98cf38e64507824510a034a38f8b', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:03', '2023-11-25 13:15:26', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:03', '2023-11-25 13:15:26', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (255, 4, '1教学楼105.20', '6712f56408d94429adf7a98dc357f8fb', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:39', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:39', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (256, 4, '3教学楼106.9', 'f5fcd2c786f940d0a0fea07821e34955', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-30 15:36:57', '2023-10-31 08:20:37', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-30 15:36:57', '2023-10-31 08:20:37', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (257, 4, '1教学楼105.21', '0445a286e2a74d99942f87a6a5a16666', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:39', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:26', '2023-11-25 13:15:39', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (258, 4, '3教学楼106.10', 'cb4cca9c1eac440e9031e627d864726c', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:26', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:26', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (259, 4, '1教学楼105.22', '12d2a9a4f4424a3ead20a9144e9060f7', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:39', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:39', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (260, 4, '教学楼103.30', 'a5b5a8b702a74213b8ae3662aec99d6a', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:50', '2023-11-25 13:15:57', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:50', '2023-11-25 13:15:57', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (261, 4, '1教学楼105.23', 'abe786712a82482ab22fa4413b1673f0', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (262, 4, '1教学楼105.24', '958ccee872ec46cfa09f4d0def7d1e5f', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (263, 4, '1教学楼105.25', '11e3eb65155548d5ba099fcee11f94b9', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (264, 4, '教学楼103.31', '69a0aedcfcf84afa90346c9c6703ac19', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:57', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:57', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (265, 4, '1教学楼105.26', '442b897c670d4f9a9c75be13313309f0', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (266, 4, '教学楼103.32', '3b2cbc2ef45142618b58730ab6fbf15a', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:58', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (267, 4, '1教学楼105.27', '331f6bd50b1b4306b8af4f6c5a098f9c', '77c95c4ec1784fcda1d0a41f68e94f97', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:41', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:25', '2023-11-25 13:15:41', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (268, 4, '教学楼103.33', 'ea799dff4d6a4e85990ac9b6893cf447', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:58', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:55:49', '2023-11-25 13:15:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (269, 4, '教学楼102.22', 'd3ddd6ea495c442f95184a3ddaee88b5', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:39', '2023-11-25 13:16:05', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:39', '2023-11-25 13:16:05', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (270, 4, '教学楼103.34', 'bc3408666619497787398808e9d43aa5', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:58', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (271, 4, '教学楼103.36', '50234c24e64946dcbbb99d809f2d5369', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:59', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:59', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (272, 4, '3教学楼106.11', '6c3d427af22d4a4ea541539d5d4acbbf', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (273, 4, '教学楼103.35', '6cb4e12b52d34cfaa56335247f70b488', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 17:34:39', '2023-11-01 18:31:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 17:34:39', '2023-11-01 18:31:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (274, 4, '3教学楼106.12', 'ddd0363c903c4b8c9cce6caef5f9e7e4', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:27', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:27', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (275, 4, '教学楼103.37', '51b6553d35b74424ad7c0b309664b79f', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:59', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:15:59', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (276, 4, '3教学楼106.13', '234f8e43fb964adbb9614ecddcc54a14', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:28', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:02', '2023-11-25 13:15:28', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (277, 4, '3教学楼104.12', 'cdf7048c0314447783edbdef0c800e55', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:46', '2023-11-25 13:15:45', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:46', '2023-11-25 13:15:45', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (278, 4, '2教学楼104.13', 'ce5ad452ca274352b4f586cf54bd2f66', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 07:59:01', '2023-11-01 13:10:21', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 07:59:01', '2023-11-01 13:10:21', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (279, 4, '3教学楼106.31', '88c3c7326cdd413a9d07a22e51b139ac', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-29 17:19:23', '2023-11-25 13:15:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-29 17:19:23', '2023-11-25 13:15:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (280, 4, '教学楼103.38', 'a3cfddcaeb774713a4c04003f1dd4bcd', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:26:08', '2023-11-25 13:15:59', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:26:08', '2023-11-25 13:15:59', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (281, 4, '教学楼103.39', '61ae7aaefe354e51815eb01be712e9ff', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 09:56:27', '2023-11-01 18:31:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 09:56:27', '2023-11-01 18:31:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (282, 4, '3教学楼106.14', '06a59a1f20a747a2b0b1534e2da9819e', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:01', '2023-11-25 13:15:28', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:01', '2023-11-25 13:15:28', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (283, 4, '3教学楼106.15', 'af97c8b668e946f3b921e6f4171b9afc', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:01', '2023-11-25 13:15:29', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:01', '2023-11-25 13:15:29', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (284, 4, '2教学楼106.16', 'adbbbc31dac14433b2bec341417c703a', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-30 15:36:57', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-30 15:36:57', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (285, 4, '教学楼103.40', 'c99bafc7a2fe4a12ad7458940f2e247c', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:00', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:00', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (286, 4, '教学楼103.41', '5039cb18649644a9beef1bafa679d904', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:16:00', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:26:07', '2023-11-25 13:16:00', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (287, 4, '教学楼103.42', '90c7a933eac44bbe8cea5b96f29d9a92', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:00', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:00', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (288, 4, '教学楼102.23', 'd8ca2ff5fe654ba4a4e7c72337ddec63', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:39', '2023-11-25 13:16:05', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:39', '2023-11-25 13:16:05', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (289, 4, '教学楼102.24', '0a84ef7acb9f4f8ab14b90336284c626', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:38', '2023-11-25 13:16:06', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:38', '2023-11-25 13:16:06', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (290, 4, '教学楼102.25', '299c8431e1b24b89ad25f74256e97c44', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:50:47', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:50:47', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (291, 4, '2教学楼104.15', '5a570321012141a1830a5501ffe7f4d6', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:45', '2023-11-25 13:15:46', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:45', '2023-11-25 13:15:46', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (292, 4, '2教学楼104.16', 'cd913a7798d042ebac4cffd17eadad89', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 08:41:50', '2023-11-01 13:10:58', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 08:41:50', '2023-11-01 13:10:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (293, 4, '教学楼102.26', 'f87ab359273f44cabaad462b60ab95cf', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-22 14:48:01', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-22 14:48:01', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (294, 4, '2教学楼104.17', 'f2cbeaf675f84c1e9d40518deccff18a', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:46', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:46', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (295, 4, '教学楼103.44', '5c85523135964a34839dd0568dda5145', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (296, 4, '教学楼103.45', '6f81d90541744c98a180a1fbff7eaa09', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:01', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:07', '2023-11-25 13:16:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (297, 4, '教学楼103.46', '94d4b76beee44d1e807e085ad08cc807', '8510c034c21c463aaf79aca4f65dc9a8', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 10:03:14', '2023-11-01 18:31:04', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 10:03:14', '2023-11-01 18:31:04', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (298, 4, '2F食堂入口103.100', '9ba228eb95aa4daab7d45b58eb52212e', '8510c034c21c463aaf79aca4f65dc9a8', NULL,
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-11-01 08:52:01', '2023-11-25 13:15:01', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-01 08:52:01', '2023-11-25 13:15:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (299, 4, '教学楼102.28', '56b182860afd456497a6e17b9bc8e44b', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-12 17:11:09', '2023-11-25 13:14:56', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-12 17:11:09', '2023-11-25 13:14:56', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (300, 4, '教学楼102.29', '54d97fcbc1ab4325a40842106cf0c29e', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 12:38:19', '2023-11-25 13:15:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 12:38:19', '2023-11-25 13:15:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (301, 4, '教学楼102.3', 'ef8d4aab4f864c2483be110480c30a37', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (302, 4, '教学楼102.30', '748275eb3ee64f3faa162d63d8bdc495', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:06', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:06', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (303, 4, '教学楼102.31', '88885cce79aa41a7a522c8f257c2f742', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:06', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:06', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (304, 4, '教学楼102.32', 'bba7b67df8cc456cb5aa2006223485c5', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:36', '2023-11-25 13:16:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (305, 4, '教学楼102.33', '166f42ee158d41c1b79061050acb959b', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:35', '2023-11-25 13:16:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:35', '2023-11-25 13:16:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (306, 4, '教学楼102.34', 'c5a9e626515a42b1b8b52c92521dfde5', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:35', '2023-11-25 13:16:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:35', '2023-11-25 13:16:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (307, 4, '教学楼102.35', 'e6b3483d47ba4e4a82cd762b2b13eecd', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 09:54:06', '2023-11-25 13:15:03', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 09:54:06', '2023-11-25 13:15:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (308, 4, '2教学楼104.18', '9376e2b0eadf493393fadd05e6424d71', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:47', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:47', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (309, 4, '2教学楼104.19', '58a861d7fa15442b93e8a7c0c03ea9a1', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:47', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:44', '2023-11-25 13:15:47', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (310, 4, '教学楼102.36', '66c912a0b2ff410283648a4f462555f1', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:34', '2023-11-25 13:16:07', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:34', '2023-11-25 13:16:07', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (311, 4, '1教学楼104.20', '9256e80af72f455da652295013285253', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:47', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:47', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (312, 4, '教学楼102.37', '417e004071d546359c38b5eda7046316', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:34', '2023-11-25 13:16:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:34', '2023-11-25 13:16:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (313, 4, '1教学楼104.21', '7c62e7c1a1134640b297e17d05916a5d', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:48', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:48', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (314, 4, '1教学楼104.22', 'cec72cca0db847fb94d95d8aaab92e2a', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:48', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:43', '2023-11-25 13:15:48', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (315, 4, '1教学楼104.23', '6021a63795254ccca1be46cad9fc5364', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:48', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:48', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (316, 4, '1教学楼104.24', '2ec5f527b55f444bac8534983ed49fd0', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (317, 4, '1教学楼104.25', 'aa0a0c0d43fa426abb9603a949290b49', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-01 09:52:09', '2023-11-01 13:11:36', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-01 09:52:09', '2023-11-01 13:11:36', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (318, 4, '教学楼102.38', 'c42a8cbb80204af3815570a4f74860e2', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-04 07:11:34', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-04 07:11:34', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (319, 4, '1教学楼104.26', 'f4e7b2ef6c574371afce266c02ac269b', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (320, 4, '1教学楼104.27', 'c3e45c27f04146c9855de56c8e90a0a8', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:49', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (321, 4, '1教学楼104.28', '29a33fd8c5fc41e5b06b0b5e9b7d99cd', '2cb644fddd3345fe8e73057da0c49c53', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:50', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:56:42', '2023-11-25 13:15:50', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (322, 4, '教学楼102.39', 'e095da28b0e14955b1297d029fe1e707', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:33', '2023-11-25 13:16:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:33', '2023-11-25 13:16:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (323, 4, '教学楼102.4', 'a498f4d3e00b49e4bfb15224460ca22a', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:45', '2023-11-25 13:16:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (324, 4, '教学楼打菜区102.40', 'fc256141261e453690b005e99787d220', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-09-22 14:48:07', '2024-02-27 11:06:25', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-09-22 14:48:07', '2024-02-27 11:06:25', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (325, 4, '教学楼102.41', '649d9e2e30db41399cd8d7f05f6904f6', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:08', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:08', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (326, 4, '食堂打菜区102.42', 'f9c628bfe9c74bc4866ad03b123f0e4b', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-08-23 16:54:32', '2024-02-27 11:06:58', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-08-23 16:54:32', '2024-02-27 11:06:58', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (327, 4, '教学楼102.43', '7a98999456ba4e819478700d6bdb6965', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:09', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:09', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (328, 4, '教学楼102.44', 'bc22a7bc436f4e679b44c7ebd703aa0f', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:09', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:32', '2023-11-25 13:16:09', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (329, 4, '教学楼102.45', '7db88ce524fc4951b73482ca22e61755', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-02 15:33:51', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-02 15:33:51', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (330, 4, '教学楼102.46', '4debf27e9cb94d9abfd696c942045df7', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-04 07:11:34', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-04 07:11:34', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (331, 4, '教学楼102.47', 'fff561ec15374911927c9d58f0a33540', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:31', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:31', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (332, 4, '教学楼102.48', '2752c8b7c1e04877a9038bf6eaba503a', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:31', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:31', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (333, 4, '教学楼102.49', '7c3b712206d941a8870401c622cb96c3', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-02 11:03:27', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-02 11:03:27', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (334, 4, '教学楼102.5', '67927235c8ee4e468fd5d03dbeaba234', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-03 14:12:10', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-03 14:12:10', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (335, 4, '行政楼107.28', 'af70a56dbf8b481aa30f494d11b90a29', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:08', '2023-11-25 13:15:14', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:08', '2023-11-25 13:15:14', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (336, 4, '行政楼107.29', 'e556bd93db9c441baf9ccd113ab5c72a', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 07:14:58', '2023-10-06 07:46:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 07:14:58', '2023-10-06 07:46:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (337, 4, '行政楼107.30', '7cff3108b9f742c4901ae176996f08fa', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:07', '2023-11-25 13:15:14', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:07', '2023-11-25 13:15:14', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (338, 4, '行政楼107.31', '0a4cba48728845a4a094ccf19bb4c778', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:15', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:15', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (339, 4, '行政楼107.32', 'e08034d47c3e42919b36e9cc3bcf64c8', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-01 10:55:23', '2023-10-06 07:46:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-01 10:55:23', '2023-10-06 07:46:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (340, 4, '行政楼107.33', '3b7b6054b12146c0987bf1f006d284ec', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:15', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:15', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (341, 4, '行政楼107.34', '9851d2ce502b43268986a7b4b20b7615', '34fa131b393949ca99e2245f69cc3114', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:16', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:59:06', '2023-11-25 13:15:16', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (342, 4, '2教学楼106.17', 'a79ea8afdf224de78933c109e3190da1', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (343, 4, '2教学楼106.18', '6fbab09d62b640f8b8fc7d1d45fff64e', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (344, 4, '2教学楼106.19', '37109a47f504475bbe47ba1a11286e2e', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:58:00', '2023-11-25 13:15:29', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:58:00', '2023-11-25 13:15:29', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (345, 4, '2教学楼106.20', 'e358b11c3788408bbfc4ad647f307c86', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:54', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (346, 4, '2教学楼106.21', '55567e2e28c64aee85cc97da4448a77c', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (347, 4, '2教学楼106.32', '163632feda484cf8a1c9f30dbefbfe30', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-31 08:15:06', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-31 08:15:06', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (348, 4, '2教学楼106.22', 'a93f5e4c744e4cebb8616a9989a3b5e4', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (349, 4, '1教学楼106.23', 'bdc15d9fed374f9285e3ea3c34e4062b', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-18 07:51:51', '2023-10-31 08:20:38', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (350, 4, '1教学楼106.24', 'ef507790836e4e9c9fa81553ce432838', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:30', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:30', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (351, 4, '1教学楼106.25', '6ebc8a7459f14a169e415b5b636dacc2', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:30', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:30', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (352, 4, '1教学楼106.26', 'd3094b22f04043af88dd4baba1bbc317', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:58', '2023-11-25 13:15:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (353, 4, '1教学楼106.27', '77d0d67498894413a3c8e0dae38c8f55', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (354, 4, '1教学楼106.28', '1ff1994b29c64b0eb3bb6668e5f63493', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (355, 4, '1教学楼106.29', 'c8f7f6d827394b1db9c013e5f03fd1b7', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:31', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (356, 4, '1教学楼106.30', '35171d69a2db48e885104beaa7201f4f', '05ba6ff7073d4881b9c4929b6f5602fd', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:32', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:57:57', '2023-11-25 13:15:32', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (357, 4, '教学楼102.6', '79d4028d267141899acb86c576162be7', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-10-06 13:25:33', '2023-11-25 13:15:02', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-10-06 13:25:33', '2023-11-25 13:15:02', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (358, 4, '教学楼102.7', '98ea92b708b044c9998f6eda6c6cfc4d', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 16:54:44', '2023-11-25 13:16:03', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 16:54:44', '2023-11-25 13:16:03', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (359, 4, '教学楼102.9', 'de7a841717df45e691495da2e9c0cf4f', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-11-02 10:09:58', '2023-11-25 13:15:00', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-11-02 10:09:58', '2023-11-25 13:15:00', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (360, 4, '食堂102.50', 'ce697fc9fd374dd48fbf6df4d2fe9abf', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (361, 4, '食堂102.51', '5acbcb858c044ae3aaebb891da9e548c', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (362, 4, '食堂102.52', '1d7eee89b9004258b459d03a0e88c308', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (363, 4, '食堂102.53', '41e2d9c2b39148df8d0a0f8ccb4c4f20', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (364, 4, '食堂102.54', '79c9df295ea84bb88addb465e854c878', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:13', '2023-11-25 13:16:10', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (365, 4, '食堂备菜间102.55', '0fdfc405d99149549cc30bc38bead8f2', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:05:05', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:05:05', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (366, 4, '食堂打菜区102.56', '18586803a6324030a15a38bfd8775636', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:06:01', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:06:01', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (367, 4, '食堂102.57', 'da7d4b20b2614374898c250a990ff5e1', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (368, 4, '食堂102.58', '799b962577fb46cc912c4bf3c222e291', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:11', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (369, 4, '食堂102.60', '8ab73d67d93e408184c2b69c2738ad71', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (370, 4, '食堂打菜区102.61', '235e47f83cb94cebb640a7ccaa3c7fdc', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL,
         'analog', NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:05:40', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2024-02-27 11:05:40', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (371, 4, '食堂102.62', '65b1747c30e542b08b58186d66e3536a', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (372, 4, '食堂102.63', 'baf712433c644d139e6d8d2248ea1ef7', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (373, 4, '食堂102.64', '40c82c22c77a4326a818f83e3719e365', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (374, 4, '食堂102.65', '4e1b61a5214b4c5b89ee953ab32a07e1', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (375, 4, '食堂102.66', 'a2cc6db61e264cb48c8e2e4e8e7e384f', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-09-04 07:11:20', '2023-11-15 15:32:54', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (376, 4, '食堂102.67', '6ee71e7419de4e8ca1ad5ef187548eb2', 'ecfe75a1e24346148c5d5a3cfaaa256f', NULL, 'analog',
         NULL, NULL, 0, '', NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
+        NULL, NULL, 'sa', 1, '2023-08-23 17:32:14', '2023-11-25 13:16:12', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (377, 4, '食堂二次更衣室', 'c37c88b996a8453ca15c7b891da77f5b', 'ecfe75a1e24346148c5d5a3cfaaa256f', '1楼',
         'analog', NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2023-11-14 09:29:48', '2023-11-25 13:14:52', 'sa', 1);
+        NULL, NULL, NULL, NULL, 'sa', 1, '2023-11-14 09:29:48', '2023-11-25 13:14:52', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (378, 4, '食堂洗碗间', 'd51835c49bef4d05b23f961860b7d776', 'ecfe75a1e24346148c5d5a3cfaaa256f', '1楼', 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-11-14 09:30:07', '2023-11-25 13:14:51', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-11-14 09:30:07', '2023-11-25 13:14:51', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (379, 4, '食堂消毒间', 'be15d70c649f49e190ad701c004dff09', 'ecfe75a1e24346148c5d5a3cfaaa256f', '1楼', 'analog',
         NULL, NULL, 0, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2023-11-14 09:30:07', '2023-11-25 13:14:51', 'sa', 1);
+        NULL, NULL, NULL, 'sa', 1, '2023-11-14 09:30:07', '2023-11-25 13:14:51', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (380, 5, '实验小学摄像机(20231013)', 'AF7891684', '652202783020784', NULL, NULL, NULL, 4, 1, NULL,
-        'V4.75.000 build 230620', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-7604N-E1-V3', NULL, NULL,
-        '183.246.161.60', 'PTNn1vdK', NULL, NULL, 'sa', 1, '2023-10-13 11:28:27', '2025-02-06 16:17:48', 'sa', 1);
+        'V4.75.000 build 230620', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-7604N-E1-V3', NULL, NULL,
+        '183.246.161.60', 'PTNn1vdK', NULL, NULL, 'sa', 1, '2023-10-13 11:28:27', '2023-10-13 15:14:05', 'sa', 1);
 INSERT INTO `sys_device`
-VALUES (381, 5, '白云中学1号摄像头', 'K00958645', '652202783020784', NULL, NULL, NULL, 1, 0, NULL,
-        'V5.3.0 build 220419', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, 0, 'CS-H6c-V101-1G2WF', NULL, NULL,
-        '122.226.158.135', 'GJXOSS', NULL, NULL, 'sa', 1, '2023-03-22 15:03:49', '2025-02-06 16:17:46', 'sa', 1);
+VALUES (381, 5, '白云中学1号摄像头', 'K00958645', '652202783020784', NULL, NULL, NULL, 1, 1, NULL,
+        'V5.3.0 build 220419', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'CS-H6c-V101-1G2WF', NULL, NULL,
+        '122.226.158.135', 'GJXOSS', NULL, NULL, 'sa', 1, '2023-03-22 15:03:49', '2023-03-22 15:03:50', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (382, 5, '白云中学2号摄像头', 'K00958958', '652202783020784', NULL, NULL, NULL, 1, 1, NULL,
-        'V5.3.0 build 220419', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, 0, 'CS-H6c-V101-1G2WF', NULL, NULL,
+        'V5.3.0 build 220419', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'CS-H6c-V101-1G2WF', NULL, NULL,
         '122.226.158.135', 'LCOFUK', NULL, NULL, 'sa', 1, '2023-03-22 15:01:29', '2023-03-22 15:01:29', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (383, 5, '实验小学1号摄像头', 'F60068965', '652202783020784', NULL, NULL, NULL, 1, 1, NULL,
-        'V5.3.5 build 211028', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, 0, 'CS-C3HC-3G2WFL1', NULL, NULL,
+        'V5.3.5 build 211028', 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'CS-C3HC-3G2WFL1', NULL, NULL,
         '183.246.161.60', 'LAQKFU', NULL, NULL, 'sa', 1, '2022-10-25 14:01:24', '2022-10-25 14:01:24', 'sa', 1);
 INSERT INTO `sys_device`
 VALUES (384, 10, '新谊村老年活动室1-枪', 'cd64cf32c0b04453bacaa0b581abb50f', 'root00000000', NULL, 'digital', '53', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
+        NULL, 'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (385, 10, '新谊村老年活动室2-枪', '6fc35e4ff6344b468f45f57dc86aa5df', 'root00000000', NULL, 'digital', '54', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
+        NULL, 'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (386, 10, '新谊村老年活动室3-枪', '4cdb122713c544d3899ea82da6b7139d', 'root00000000', NULL, 'digital', '55', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
+        NULL, 'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (387, 10, '新谊村老年活动室4-枪', 'c5b2cb6759e1467eb1898d779ad9ee35', 'root00000000', NULL, 'digital', '56', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
+        NULL, 'sa', 1, '2024-10-28 18:05:59', '2024-11-01 10:59:18', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (388, 10, '老年活动室路口—球', 'ab095bdb30184f708e57845c462f370d', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-29 17:55:22', '2024-10-29 17:55:44', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL,
+        NULL, 'sa', 1, '2024-10-29 17:55:22', '2024-10-29 17:55:44', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (389, 10, '金园路与建浦路交叉口-球', '861d4d44623c4f10b5805016bc15e9f8', 'root00000000', NULL, 'analog', '1', 1,
-        1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-30 15:59:05', '2024-10-30 16:03:06', NULL, NULL);
+        1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL,
+        NULL, 'sa', 1, '2024-10-30 15:59:05', '2024-10-30 16:03:06', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (390, 10, '建浦路和东三路岔口1-枪', '76d222b1e1d64f1a90c92431aeab1e25', 'root00000000', NULL, 'analog', '1', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-30 16:11:09', '2024-10-30 16:24:16', NULL, NULL);
+        NULL, 'sa', 1, '2024-10-30 16:11:09', '2024-10-30 16:24:16', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (391, 10, '颖雨棋牌转弯处2-枪', 'fa7604020a8a4a8fa34a8fe10fd7aa58', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-10-30 16:24:27', '2024-10-30 17:10:02', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 16:24:27', '2024-10-30 17:10:02', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (392, 10, '厂区朱家厕所旁-枪', 'b9d82aedb4ea47ac876792128eb1a567', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-10-30 17:09:34', '2024-10-30 17:10:01', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:09:34', '2024-10-30 17:10:01', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (393, 10, '水库监控-球', 'cd94e92e737746da8ccd2636a1934276', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.23, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 17:09:35', '2024-10-30 17:10:01', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.23, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:09:35', '2024-10-30 17:10:01', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (394, 10, '土地庙往西岔路口-球', '3b66bf237a614f88936e68e4f8b73c99', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.23, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-30 17:17:54', '2024-10-31 11:14:59', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.23, NULL, NULL, NULL,
+        NULL, 'sa', 1, '2024-10-30 17:17:54', '2024-10-31 11:14:59', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (395, 10, '茗渎坞东思线岔口2-枪', '695103fd7f1d4a5d8ecaf6320f2fdc83', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-10-30 17:24:31', '2024-10-31 11:14:58', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:24:31', '2024-10-31 11:14:58', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (396, 10, '茗渎坞东思线岔口-枪', '4155f7cea5e14ccb994fad43daab4504', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-10-30 17:27:01', '2024-10-31 11:14:57', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:27:01', '2024-10-31 11:14:57', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (397, 10, '包洪线岔口2-球', 'd92322970f08476288e6c0bbf6e7516f', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 17:36:46', '2024-11-01 09:31:46', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:36:46', '2024-11-01 09:31:46', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (398, 10, '包洪线岔口1-球', '32021bb8e6bb4e8098fb589f67b95cfa', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 17:39:04', '2024-10-31 11:14:55', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:39:04', '2024-10-31 11:14:55', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (399, 10, '金园路包洪线交叉口-球', 'cab773b32c764b3ba58f26eda4b8e69b', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-10-30 17:52:08', '2024-10-31 11:14:54', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL,
+        NULL, 'sa', 1, '2024-10-30 17:52:08', '2024-10-31 11:14:54', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (400, 10, '萧山区三岔口-球', 'b84f4d8b9ed5443581bcde2b8916145b', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 17:58:13', '2024-10-31 11:14:53', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 17:58:13', '2024-10-31 11:14:53', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (401, 10, '公园湖边3-球', '19863f95e5cc42fd85d8c79e118b7749', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 18:03:29', '2024-10-31 11:14:52', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 18:03:29', '2024-10-31 11:14:52', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (402, 10, '公园湖边2-枪', 'aae3cfd31a1b444b9dff7d422313357b', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 18:07:40', '2024-10-31 11:14:51', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2024-10-30 18:07:40', '2024-10-31 11:14:51', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (403, 10, '村委门口-枪', '6b54a6ec89fc4b24b449ec497d9ce174', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 18:22:47', '2024-10-31 11:14:50', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2024-10-30 18:22:47', '2024-10-31 11:14:50', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (404, 10, '村委门口-球', '9cc3643c4a4b443caf26f37e79e5478e', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-10-30 18:25:05', '2024-10-31 11:14:49', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29.98, 120.24, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-10-30 18:25:05', '2024-10-31 11:14:49', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (405, 10, '颖雨棋牌转弯处1-枪', '9ca6054f0cf8466b9f4432e34412b234', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-11-01 09:23:26', '2024-11-01 09:28:32', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-11-01 09:23:26', '2024-11-01 09:28:32', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (406, 10, '停车场2-枪', '233fc1c5e5614046a69162f615a9c9af', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-11-01 09:23:27', '2024-11-01 09:28:31', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2024-11-01 09:23:27', '2024-11-01 09:28:31', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (407, 10, '茗坞村岔口-枪', '4c2b93e68ff24a4288efda39a9cd8c50', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-11-01 09:24:03', '2024-11-01 09:28:30', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2024-11-01 09:24:03', '2024-11-01 09:28:30', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (408, 10, '停车场1-枪', '394325fb38954dafa55e3ed784613bc2', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-11-01 09:24:35', '2024-11-01 09:28:29', NULL, NULL);
+        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2024-11-01 09:24:35', '2024-11-01 09:28:29', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (409, 10, '东思线-枪', '59efa08bc032424194d2b9c032871fab', 'root00000000', NULL, 'analog', '1', 1, 1, NULL, NULL,
-        'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2024-11-01 09:24:35', '2024-11-01 09:28:28', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (410, 10, '建浦路和东三路岔口2-枪', '47f64dc6cb8a4070883e3d10d862fbfc', 'root00000000', NULL, 'analog', '1', 1,
         1, NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'sa', 1, '2024-11-01 10:07:49', '2024-11-01 10:09:41', NULL, NULL);
+        NULL, 'sa', 1, '2024-11-01 10:07:49', '2024-11-01 10:09:41', NULL, NULL);
 INSERT INTO `sys_device`
 VALUES (411, 10, '金园路转弯路口-枪', '3809ba8a52fd4074b54c2f8ce8a4882a', 'root00000000', NULL, 'analog', '1', 1, 1,
-        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2024-11-01 10:18:47', '2024-11-01 10:19:24', NULL, NULL);
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-11-01 10:18:47', '2024-11-01 10:19:24', NULL, NULL);
 INSERT INTO `sys_device`
-VALUES (412, 10, '公园湖边1-枪', '4ff002f19e2c468d9652103856ad1c56', 'root00000000', NULL, 'analog', '1', 1, 1, NULL,
-        NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2024-11-01 10:31:38', '2024-11-01 10:34:25', NULL, NULL);
+VALUES (412, 10, '公园湖边1-枪', '4ff002f19e2c468d9652103856ad1c56', 'root00000000', '根节点', 'analog', '1', 1, 1,
+        NULL, NULL, 'CAMERA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2024-11-01 10:31:38', '2024-11-01 10:34:25', 'sa', 1);
 INSERT INTO `sys_device`
-VALUES (413, 5, '设备1', '11', NULL, NULL, NULL, '1', 6, NULL, NULL, NULL, 'CAMERA', 'admin', 'Wlxc258369',
-        'rtsp://${sysDeviceAccount}:${sysDevicePassword}@${sysDeviceNetAddress}/cam/realmonitor?channel=${channelNo}&subtype=${streamType}',
-        '7,1,2,3,4,5', NULL, NULL, 1, NULL, NULL, NULL, '115.231.119.62:554', NULL, NULL, NULL, 'sa', 1,
+VALUES (413, 5, '设备1', '11', NULL, NULL, NULL, '1', 1, 0, NULL, NULL, 'CAMERA', 'admin', 'Wlxc258369',
+        'rtsp://${sysDeviceAccount}:${sysDevicePassword}@${sysDeviceNetAddress}/cam/realmonitor?channel=${channelNo}&subtype=${subtype}',
+        'http://127.0.0.1:8000', '7', NULL, NULL, 1, NULL, NULL, NULL, '115.231.119.62:554', NULL, '0', '1', 'sa', 1,
         '2025-02-11 16:11:30', '2025-02-11 16:54:24', 'sa', 1);
 
 -- ----------------------------
@@ -9156,17 +9169,23 @@ INSERT INTO `sys_menu` VALUES (11, 'dept', '/manage/dept', '', '机构管理', '
 INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard', NULL, 0, 996, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa', NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard',
+        NULL, 0, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa',
+        1, '', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '', NULL, NULL);
 INSERT INTO `sys_menu`
 VALUES (20, 'sms-template', '/manage/sms/template', '', '模板管理-短信', '', 1, '0,1,20', '/manage/template/sms/index',
         '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05',
         'sa', 1, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (24, 'sfc', '/manage/sfc', '', '组件管理', NULL, 1, '0,1,24', '/manage/sfc/index', 'ri:compasses-2-fill', NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-10-24 16:34:53', '2024-10-24 16:35:51', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (24, 'sfc', '/manage/sfc', '', '组件管理', NULL, 1, '0,1,24', '/manage/sfc/index', 'ri:compasses-2-fill', NULL,
+        0, 996, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-10-24 16:34:53',
+        '2024-10-24 16:35:51', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
 VALUES (26, 'project', '/manage/project', '', '项目管理', NULL, 1, '0,1,26', '/manage/project/index',
-        'simple-icons:saltproject', NULL, 0, 998, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        'simple-icons:saltproject', NULL, 0, 997, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2025-01-24 14:33:09', '2025-01-24 14:33:44', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
 VALUES (27, 'email-template', '/manage/email/template', '', '模板管理-邮件', '', 1, '0,1,27',
@@ -9177,13 +9196,13 @@ VALUES (28, 'device-template', '/manage/device/camera', '', '模板管理-设备
         '/manage/template/device/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
         '2025-02-05 10:52:22', '2025-02-05 10:53:31', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (29, 'llm-template', '/manage/template/llm', '', '模板管理-大语言', '', 1, '0,1', '/manage/template/llm/index',
-        '', NULL, 0, 1, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2025-02-07 15:14:04', NULL, NULL, NULL, '', NULL,
-        NULL);
+VALUES (29, 'llm-template', '/manage/template/llm', '', '模板管理-大语言', '', 1, '0,1,29',
+        '/manage/template/llm/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
+        '2025-02-07 15:14:04', '2025-02-13 10:33:47', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (30, 'device', '/manage/device', '', '设备管理', '', 1, '0,1', '/manage/device/index',
-        'pixelarticons:device-tv-smart', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2025-02-10 15:39:45',
-        NULL, NULL, NULL, '', NULL, NULL);
+VALUES (30, 'device', '/manage/device', '', '设备管理', '', 1, '0,1,30', '/manage/device/index',
+        'pixelarticons:device-tv-smart', NULL, 0, 995, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
+        '2025-02-10 15:39:45', '2025-02-13 10:36:09', 'sa', 1, '', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_project
@@ -9630,23 +9649,6 @@ CREATE TABLE `sys_sms_log`  (
 -- ----------------------------
 -- Records of sys_sms_log
 -- ----------------------------
-INSERT INTO `sys_sms_log`
-VALUES (1, '15888663846', '30', '{}', NULL, 2039.00, 'FAILURE',
-        'code: 400, Specified signature does not match our calculation. server StringToSign is [ACS3-HMAC-SHA256\n71c1e3d900d7b98bbac278cd78ceebb758cde0d804b8ff41ce3885a6dda831a0], server CanonicalRequest is [POST\n/\nPhoneNumbers=15888663846&SignName=%E7%8A%80%E9%B8%9F%E6%A0%A1%E5%9B%AD&TemplateCode=SMS_249080566&TemplateParam=%7B%22sysDictId%22%3A%222%22%2C%22sysDictItemId3%22%3A%22%22%2C%22sysDictItemId1%22%3A%22%22%2C%22sysDictItemId2%22%3A%22%22%2C%22sysProjectId%22%3A%221%22%2C%22pageSize%22%3A%2210%22%2C%22page%22%3A%221%22%2C%22sysTemplateName%22%3A%22%22%7D\nhost:dysmsapi.aliyuncs.com\nx-acs-action:SendSms\nx-acs-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nx-acs-date:2025-01-27T04:01:38Z\nx-acs-signature-nonce:46f208be-df23-4863-a375-910d54d8e47b1737950498242240\nx-acs-version:2017-05-25\n\nhost;x-acs-action;x-acs-content-sha256;x-acs-date;x-acs-signature-nonce;x-acs-version\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855] request id: 26D32318-20FA-553E-9952-A2500048D36A',
-        'ALIYUN', 'LTAI5tKQQnvCS3yEjGxjHmCd', '犀鸟校园', 'sa', 1, '2025-01-27 12:01:55', NULL, NULL, NULL, 1);
-INSERT INTO `sys_sms_log`
-VALUES (2, '15888663846', '30', '{}', NULL, 978.00, 'FAILURE',
-        'code: 400, Specified signature does not match our calculation. server StringToSign is [ACS3-HMAC-SHA256\n9601dcd45a3d7e29e507949a2b3de3c0a654644aa9b08f8e7f49cef6b97e0609], server CanonicalRequest is [POST\n/\nPhoneNumbers=15888663846&SignName=%E7%8A%80%E9%B8%9F%E6%A0%A1%E5%9B%AD&TemplateCode=SMS_249080566&TemplateParam=%7B%22sysDictId%22%3A%222%22%2C%22sysDictItemId3%22%3A%22%22%2C%22sysDictItemId1%22%3A%22%22%2C%22sysDictItemId2%22%3A%22%22%2C%22sysProjectId%22%3A%221%22%2C%22pageSize%22%3A%2210%22%2C%22page%22%3A%221%22%2C%22sysTemplateName%22%3A%22%22%7D\nhost:dysmsapi.aliyuncs.com\nx-acs-action:SendSms\nx-acs-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nx-acs-date:2025-01-27T04:03:59Z\nx-acs-signature-nonce:0ecdb99b-5f77-4b5f-a9ea-3f34a0b585ac1737950639869240\nx-acs-version:2017-05-25\n\nhost;x-acs-action;x-acs-content-sha256;x-acs-date;x-acs-signature-nonce;x-acs-version\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855] request id: D6B44E4D-646B-5529-85F9-94B747242A6F',
-        NULL, 'LTAI5tKQQnvCS3yEjGxjHmCd', '犀鸟校园', 'sa', 1, '2025-01-27 12:04:01', NULL, NULL, NULL, 1);
-INSERT INTO `sys_sms_log`
-VALUES (3, '15888663846', '30', '{}', NULL, 4460.00, 'SUCCESS', NULL, NULL, 'LTAI5tKQQnvCS3yEjGxjHmCd', '犀鸟校园',
-        'sa', 1, '2025-01-27 12:11:42', NULL, NULL, NULL, 1);
-INSERT INTO `sys_sms_log`
-VALUES (4, '15888663846', '30', '{}', NULL, 251.00, 'SUCCESS', NULL, NULL, 'LTAI5tKQQnvCS3yEjGxjHmCd', '犀鸟校园', 'sa',
-        1, '2025-01-27 12:11:50', NULL, NULL, NULL, 1);
-INSERT INTO `sys_sms_log`
-VALUES (5, '15888663846', '36', '{\n  \"code\": \"1234\"\n}', NULL, 119.00, 'SUCCESS', NULL, NULL,
-        'LTAI5tKQQnvCS3yEjGxjHmCd', '犀鸟校园', 'sa', 1, '2025-01-27 13:24:31', NULL, NULL, NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_sms_template
@@ -9924,894 +9926,6 @@ CREATE TABLE `sys_user_log`  (
 -- ----------------------------
 -- Records of sys_user_log
 -- ----------------------------
-INSERT INTO `sys_user_log`
-VALUES (1, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        251, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-12 14:59:28', '2024-09-12 14:59:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (2, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        353, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-13 16:37:39', '2024-09-13 16:37:39', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (3, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        110, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-13 16:38:30', '2024-09-13 16:38:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (4, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        102, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-13 16:41:11', '2024-09-13 16:41:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (5, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        98, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-13 16:43:10', '2024-09-13 16:43:10', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (6, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        637, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-09-26 15:10:34', '2024-09-26 15:10:34', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (7, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        521, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-10-24 15:03:58', '2024-10-24 15:03:58', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (8, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-        'CHROME12', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        159, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-10-24 16:54:17', '2024-10-24 16:54:17', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (9, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1457, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-10-28 08:44:11', '2024-10-28 08:44:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (10, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        171, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-26 09:01:01', '2024-11-26 09:01:01', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (11, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        51, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-26 13:29:28', '2024-11-26 13:29:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (12, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        219, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-28 15:30:32', '2024-11-28 15:30:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (13, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        66, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-28 15:30:58', '2024-11-28 15:30:58', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (14, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        46, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-28 15:41:11', '2024-11-28 15:41:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (15, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        189, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-29 09:29:42', '2024-11-29 09:29:42', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (16, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        70, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-29 09:30:33', '2024-11-29 09:30:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (17, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"48TWVM\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        69, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-11-29 09:31:22', '2024-11-29 09:31:22', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (18, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"TTcEEP\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        263, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 11:05:54', '2024-12-08 11:05:54', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (19, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"kp6vrd\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        247, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 12:44:18', '2024-12-08 12:44:18', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (20, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 345, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 12:44:46',
-        '2024-12-08 12:44:46', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (21, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        82, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 12:45:28', '2024-12-08 12:45:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (22, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 122, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 12:45:32',
-        '2024-12-08 12:45:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (23, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        74, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 12:46:09', '2024-12-08 12:46:09', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (24, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        84, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 12:47:09', '2024-12-08 12:47:09', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (25, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 144, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 12:47:16',
-        '2024-12-08 12:47:16', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (26, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        52, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 12:47:18', '2024-12-08 12:47:18', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (27, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 125, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 12:47:21',
-        '2024-12-08 12:47:21', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (28, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        9541, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:39:19', '2024-12-08 13:39:19', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (29, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        71, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:39:35', '2024-12-08 13:39:35', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (30, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 108, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 13:39:57',
-        '2024-12-08 13:39:57', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (31, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        92, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:40:01', '2024-12-08 13:40:01', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (32, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 103, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 13:40:04',
-        '2024-12-08 13:40:04', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (33, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        4853, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:40:16', '2024-12-08 13:40:16', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (34, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 180, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 13:47:57',
-        '2024-12-08 13:47:57', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (35, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        15, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:48:01', '2024-12-08 13:48:01', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (36, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1903, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:48:59', '2024-12-08 13:48:59', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (37, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:49:56', '2024-12-08 13:49:56', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (38, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:50:52', '2024-12-08 13:50:52', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (39, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        4269, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:56:21', '2024-12-08 13:56:21', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (40, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        3207, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:56:44', '2024-12-08 13:56:44', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (41, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        0, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:58:33', '2024-12-08 13:58:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (42, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        0, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:59:04', '2024-12-08 13:59:04', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (43, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        19, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 13:59:32', '2024-12-08 13:59:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (44, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 13:59:32',
-        '2024-12-08 13:59:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (45, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"222222\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        42515, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 14:00:24', '2024-12-08 14:00:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (46, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        4195, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2024-12-08 14:04:25', '2024-12-08 14:04:25', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (47, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"222222\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        2, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2024-12-08 14:04:30', '2024-12-08 14:04:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (48, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"290800\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2024-12-08 14:04:45', '2024-12-08 14:04:45', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (49, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"290800\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2024-12-08 14:05:00', '2024-12-08 14:05:00', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (50, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"198888\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        174, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 14:05:05', '2024-12-08 14:05:05', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (51, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 117, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 14:06:04',
-        '2024-12-08 14:06:04', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (52, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"882493\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 14:07:28', '2024-12-08 14:07:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (53, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"2a5e0dbbf1c2c94c16c008f59cffb129\",\n    \"verifyCodeKey\": \"405495\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        59, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2024-12-08 14:07:41', '2024-12-08 14:07:41', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (54, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 141, 'LOGIN', 1, NULL, '', NULL, 1, '2024-12-08 14:08:15',
-        '2024-12-08 14:08:15', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (55, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 4001, 'LOGIN', 1, NULL, '', NULL, 1, '2025-01-24 09:20:06',
-        '2025-01-24 09:20:06', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (56, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"e6e061838856bf47e1de730719fb2609\",\n    \"verifyCodeKey\": \"233982\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        2560, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-24 09:53:02', '2025-01-24 09:53:02', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (57, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"798255\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        55, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-24 10:07:34', '2025-01-24 10:07:34', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (58, NULL, '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"280905\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        60411, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-01-24 10:10:10', '2025-01-24 10:10:10', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (59, NULL, '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"199256\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1018, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-01-24 10:11:22', '2025-01-24 10:11:22', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (60, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"883560\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        55908, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-24 10:11:25', '2025-01-24 10:11:25', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (61, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"199256\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        330, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-24 10:11:31', '2025-01-24 10:11:31', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (62, 'sa', '局域网', '192.168.0.107', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"392035\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1307, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-24 20:08:01', '2025-01-24 20:08:01', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (63, 'sa', NULL, '192.168.0.107', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"588765\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        693, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-01-28 12:37:40', '2025-01-28 12:37:40', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (64, NULL, NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 27, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-05 08:47:13',
-        '2025-02-05 08:47:13', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (65, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 27, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-05 08:47:13',
-        '2025-02-05 08:47:13', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (66, NULL, NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 27, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-05 08:47:13',
-        '2025-02-05 08:47:13', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (67, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"015493\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        262, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-05 08:47:27', '2025-02-05 08:47:27', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (68, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2177, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-05 17:16:33',
-        '2025-02-05 17:16:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (69, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"268012\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        5867, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-05 17:19:14', '2025-02-05 17:19:14', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (70, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 370, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-05 17:19:18',
-        '2025-02-05 17:19:18', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (71, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-05 17:19:19',
-        '2025-02-05 17:19:19', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (72, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-05 17:19:24',
-        '2025-02-05 17:19:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (73, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"293216\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\",\n    \"fingerprint\": \"01f6f7175036708753973787db71b965\"\n  }\n]',
-        8098, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-05 17:19:44', '2025-02-05 17:19:44', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (74, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1075, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-05 17:19:54',
-        '2025-02-05 17:19:54', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (75, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"293216\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\",\n    \"fingerprint\": \"01f6f7175036708753973787db71b965\"\n  }\n]',
-        81, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-05 17:19:57', '2025-02-05 17:19:57', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (76, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5178, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-06 13:11:30',
-        '2025-02-06 13:11:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (77, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"576469\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        634, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-06 13:13:29', '2025-02-06 13:13:29', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (78, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1025, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-06 13:15:11',
-        '2025-02-06 13:15:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (79, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"848285\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        81, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-06 13:15:15', '2025-02-06 13:15:15', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (80, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 20, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 09:20:03',
-        '2025-02-10 09:20:03', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (81, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"268291\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        258, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 09:20:23', '2025-02-10 09:20:23', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (82, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 23, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 13:33:15',
-        '2025-02-10 13:33:15', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (83, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"797049\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        73, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-02-10 13:34:19', '2025-02-10 13:34:19', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (84, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"085854\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        4, 'LOGIN', 1, NULL, 'WEB', NULL, NULL, '2025-02-10 13:34:40', '2025-02-10 13:34:40', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (85, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"974657\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        9836, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:36:06', '2025-02-10 13:36:06', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (86, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 65241, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:38:33',
-        '2025-02-10 13:38:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (87, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"589349\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        4949, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:39:49', '2025-02-10 13:39:49', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (88, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2804, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:44:06',
-        '2025-02-10 13:44:06', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (89, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"107103\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        6, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:44:12', '2025-02-10 13:44:12', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (90, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"107103\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        2480, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:44:30', '2025-02-10 13:44:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (91, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 26540, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 13:45:28',
-        '2025-02-10 13:45:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (92, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"317473\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        301, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 13:45:43', '2025-02-10 13:45:43', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (93, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:00:42',
-        '2025-02-10 14:00:42', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (94, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"091015\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        357, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:00:56', '2025-02-10 14:00:56', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (95, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:03:27',
-        '2025-02-10 14:03:27', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (96, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"390235\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        446, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:03:31', '2025-02-10 14:03:31', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (97, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:04:19',
-        '2025-02-10 14:04:19', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (98, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"871639\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1130, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:04:32', '2025-02-10 14:04:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (99, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 3105, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:08:44',
-        '2025-02-10 14:08:44', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (100, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"329605\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1299, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:09:23', '2025-02-10 14:09:23', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (101, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1452, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:13:06',
-        '2025-02-10 14:13:06', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (102, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"726552\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        314, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:13:15', '2025-02-10 14:13:15', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (103, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"016140\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        338, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:15:04', '2025-02-10 14:15:04', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (104, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 27097, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:15:24',
-        '2025-02-10 14:15:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (105, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:16:01',
-        '2025-02-10 14:16:01', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (106, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"839508\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        294, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:16:06', '2025-02-10 14:16:06', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (107, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 38846, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:17:37',
-        '2025-02-10 14:17:37', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (108, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"628251\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        804, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:17:53', '2025-02-10 14:17:53', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (109, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 14932, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:23:11',
-        '2025-02-10 14:23:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (110, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"480288\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1278, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:23:30', '2025-02-10 14:23:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (111, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:24:44',
-        '2025-02-10 14:24:44', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (112, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"973877\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        328, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:24:52', '2025-02-10 14:24:52', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (113, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:25:44',
-        '2025-02-10 14:25:44', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (114, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"700700\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        326, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:25:49', '2025-02-10 14:25:49', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (115, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:26:07',
-        '2025-02-10 14:26:07', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (116, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"351754\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        300, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:26:12', '2025-02-10 14:26:12', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (117, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:29:02',
-        '2025-02-10 14:29:02', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (118, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"136728\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        371, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:29:33', '2025-02-10 14:29:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (119, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 3, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
-        '2025-02-10 14:31:59', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (120, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
-        '2025-02-10 14:31:59', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (121, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:31:59',
-        '2025-02-10 14:31:59', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (122, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"309125\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        346, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:32:28', '2025-02-10 14:32:28', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (123, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
-        '2025-02-10 14:48:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (124, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
-        '2025-02-10 14:48:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (125, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 11, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 14:48:24',
-        '2025-02-10 14:48:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (126, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"567794\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        508, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 14:48:32', '2025-02-10 14:48:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (127, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 19, 'LOGIN', 1, NULL, '', NULL, NULL, '2025-02-10 15:03:09',
-        '2025-02-10 15:03:09', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (128, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"751598\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        2330, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:03:22', '2025-02-10 15:03:22', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (129, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"751598\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        288, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:03:32', '2025-02-10 15:03:32', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (130, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 1, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:30',
-        '2025-02-10 15:04:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (131, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:41',
-        '2025-02-10 15:04:41', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (132, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 3, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:04:41',
-        '2025-02-10 15:04:41', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (133, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"387894\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        335, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:04:53', '2025-02-10 15:04:53', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (134, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"216092\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        298, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:06:22', '2025-02-10 15:06:22', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (135, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 60437, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:06:24',
-        '2025-02-10 15:06:24', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (136, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"003174\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        1208, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:42:30', '2025-02-10 15:42:30', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (137, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 2576, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:42:33',
-        '2025-02-10 15:42:33', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (138, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"003174\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        89, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:43:53', '2025-02-10 15:43:53', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (139, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 4226, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:43:57',
-        '2025-02-10 15:43:57', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (140, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"603230\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        78, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:44:22', '2025-02-10 15:44:22', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (141, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 6389, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:44:29',
-        '2025-02-10 15:44:29', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (142, 'sa', '', '192.168.110.79', '', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"603230\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        81, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:44:36', '2025-02-10 15:44:36', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (143, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5420, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:46:53',
-        '2025-02-10 15:46:53', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (144, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        129, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:47:51', '2025-02-10 15:47:51', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (145, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5112, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:47:56',
-        '2025-02-10 15:47:56', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (146, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"111111\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        100, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:05', '2025-02-10 15:48:05', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (147, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5670, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:48:11',
-        '2025-02-10 15:48:11', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (148, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        134, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:49', '2025-02-10 15:48:49', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (149, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 6332, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:48:55',
-        '2025-02-10 15:48:55', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (150, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        77, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:48:57', '2025-02-10 15:48:57', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (151, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5963, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:49:03',
-        '2025-02-10 15:49:03', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (152, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        100, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:49:41', '2025-02-10 15:49:41', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (153, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 5739, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:50:17',
-        '2025-02-10 15:50:17', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (154, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        8934, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:51:50', '2025-02-10 15:51:50', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (155, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/logout', '[]', 60531, 'LOGIN', 1, NULL, '', NULL, 1, '2025-02-10 15:52:56',
-        '2025-02-10 15:52:56', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (156, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        2413, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:57:05', '2025-02-10 15:57:05', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (157, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        91, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-10 15:57:55', '2025-02-10 15:57:55', NULL, NULL);
-INSERT INTO `sys_user_log`
-VALUES (158, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'CHROME13', '/system/api/v2/user/login',
-        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
-        450, 'LOGIN', 1, NULL, 'WEB', NULL, 1, '2025-02-11 10:39:25', '2025-02-11 10:39:25', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role

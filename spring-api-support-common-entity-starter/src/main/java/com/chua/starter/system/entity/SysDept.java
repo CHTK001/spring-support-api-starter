@@ -98,4 +98,19 @@ public class SysDept extends SysBase implements Serializable {
     @Schema(description = "机构链路")
     @Size(max = 255, message = "机构链路最大长度要小于 255")
     private String sysDeptTreeId;
+
+    /**
+     * 状态; 是否禁用; 0:启用
+     */
+    @TableField(value = "sys_dept_status")
+    @ApiModelProperty(value = "状态; 是否禁用; 0:启用")
+    @Schema(description = "状态; 是否禁用; 0:启用")
+    private Integer sysDeptStatus;
+    /**
+     * 备注
+     */
+    @TableField(value = "sys_dept_remark")
+    @ApiModelProperty(value = "备注")
+    @Schema(description = "备注")
+    private String sysDeptRemark;
 }
