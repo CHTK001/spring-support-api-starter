@@ -151,11 +151,11 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuExtraIcon;
 
     /**
-     * 菜单 0 按钮 1
+     * 菜单:0 iframe:1 外链:2 按钮:3
      */
     @TableField(value = "sys_menu_type")
-    @ApiModelProperty(value = "菜单 0 按钮 1")
-    @Schema(description = "菜单 0 按钮 1")
+    @ApiModelProperty(value = "菜单:0 iframe:1 外链:2 按钮:3")
+    @Schema(description = "菜单:0 iframe:1 外链:2 按钮:3")
     private Integer sysMenuType;
 
     /**

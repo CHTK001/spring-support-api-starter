@@ -2,6 +2,7 @@ package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.starter.common.support.annotations.DataScope;
 import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.system.entity.SysUser;
 import org.apache.ibatis.annotations.Mapper;
@@ -37,6 +38,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param sysUserQuery 查询条件对象，用于指定更详细的查询条件
      * @return 返回分页查询结果，包含查询到的用户记录和分页信息
      */
+    @DataScope
     Page<SysUser> selectPageUser(
             @Param("page") Page<SysUser> page,
             @Param("isAdmin") boolean isAdmin,
