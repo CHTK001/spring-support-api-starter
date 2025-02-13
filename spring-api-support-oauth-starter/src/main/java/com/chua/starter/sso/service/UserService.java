@@ -6,6 +6,7 @@ import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.NumberUtils;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
@@ -13,6 +14,8 @@ import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
 import com.chua.starter.service.mapper.SysUserMapper;
+import com.chua.starter.service.system.mapper.SysDeptMapper;
+import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
@@ -26,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_ERROR;
 
 /**
@@ -43,6 +47,9 @@ public class UserService implements UserInfoService, Constant {
 
     @Autowired
     private SysUserMapper sysUserMapper;
+
+    @Autowired
+    private SysDeptMapper sysDeptMapper;
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
@@ -117,12 +124,29 @@ public class UserService implements UserInfoService, Constant {
         List<SysRole> role = getRole(user);
 
         LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<UserResult.RoleInfo> roleInfo =
+                role.stream().map(it -> {
+                    UserResult.RoleInfo item = new UserResult.RoleInfo();
+                    item.setRoleCode(it.getSysRoleCode());
+                    item.setRoleName(it.getSysRoleName());
+                    item.setReadable(it.getSysRoleReadable() == null || it.getSysRoleReadable() == 1);
+                    item.setWriteable(it.getSysRoleWriteable() == null || it.getSysRoleWriteable() == 1);
+                    item.setExecutable(it.getSysRoleExecutable() == null || it.getSysRoleExecutable() == 1);
+                    return item;
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
 
+        Integer sysDeptId = user.getSysDeptId();
         String userDashboardGrid = "";
-        DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
+        DataFilterTypeEnum dataPermission = ALL;
         String dataPermissionRule = "";
         String userDashboard = "";
-
+        if (null != sysDeptId) {
+            SysDept sysDept = sysDeptMapper.selectOne(Wrappers.<SysDept>lambdaQuery().eq(SysDept::getSysDeptId, sysDeptId), false);
+            if (null != sysDept) {
+                dataPermission = ObjectUtils.defaultIfNull(DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()), ALL);
+                dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
+            }
+        }
         return new UserResult()
                 .setId(user.getSysUserId() + "")
                 .setUserId(user.getSysUserId() + "")
@@ -130,6 +154,7 @@ public class UserService implements UserInfoService, Constant {
                 .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
                 .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
                 .setRoles(collect)
+                .setRolesByRole(roleInfo)
                 .setDeptId(user.getSysDeptId() + "")
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)

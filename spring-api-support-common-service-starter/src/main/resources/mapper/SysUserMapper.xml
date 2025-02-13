@@ -10,8 +10,9 @@
         LEFT JOIN sys_role sr ON sr.sys_role_id = srm.sys_role_id
         LEFT JOIN sys_user_role sur ON sur.sys_role_id = sr.sys_role_id
     WHERE
-      sm.sys_menu_type = 'BUTTON'
+      sm.sys_menu_type = 3
       AND sur.sys_user_id = #{userId}
+      AND sm.sys_menu_perm IS NOT NULL
   </select>
 
   <select id="selectCustomOne" resultType="com.chua.starter.system.entity.SysUser">

@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 13/02/2025 10:37:03
+ Date: 13/02/2025 11:21:40
 */
 
 SET NAMES utf8mb4;
@@ -7002,8 +7002,10 @@ CREATE TABLE `sys_dept`  (
   `sys_dept_principal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门负责人',
   `sys_dept_contact` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '负责人联系方式',
   `sys_dept_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
-  `sys_dept_status` int(11)                                                       NULL DEFAULT NULL COMMENT '状态; 是否禁用; 0:启用',
+  `sys_dept_status`                  int(11)                                                       NULL DEFAULT NULL COMMENT '状态; 是否禁用; 0:启用',
   `sys_dept_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `sys_dept_data_permission`         int(11)                                                       NULL DEFAULT NULL COMMENT '数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见',
+  `sys_dept_data_permission_dept_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据权限可见的部门ID列表',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -7021,11 +7023,11 @@ CREATE TABLE `sys_dept`  (
 -- Records of sys_dept
 -- ----------------------------
 INSERT INTO `sys_dept`
-VALUES (1, '一级机构', 0, '0,1', 'ROOT', NULL, NULL, 1, 0, NULL, 'sa', 1, '2025-02-12 17:23:37', '2025-02-12 17:26:09',
-        'sa', 1);
+VALUES (1, '一级机构', 0, '0,1', 'ROOT', NULL, NULL, 1, 0, NULL, NULL, NULL, 'sa', 1, '2025-02-12 17:23:37',
+        '2025-02-12 17:26:09', 'sa', 1);
 INSERT INTO `sys_dept`
-VALUES (2, '二级机构', 1, '0,1,2', 'l2', NULL, NULL, 1, 0, NULL, 'sa', 1, '2025-02-12 17:30:03', '2025-02-13 10:29:52',
-        'sa', 1);
+VALUES (2, '二级机构', 1, '0,1,2', 'l2', NULL, NULL, 1, 0, NULL, NULL, NULL, 'sa', 1, '2025-02-12 17:30:03',
+        '2025-02-13 10:29:52', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_device
@@ -9333,6 +9335,10 @@ CREATE TABLE `sys_role`  (
   `sys_role_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `sys_role_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `sys_role_hidden` int(11) NULL DEFAULT 0 COMMENT '是否显示; 0:显示',
+  `sys_role_readable`   int(11) NULL DEFAULT NULL COMMENT '角色可读',
+  `sys_role_writeable`  int(11) NULL DEFAULT NULL COMMENT '角色可写',
+  `sys_role_executable` int(11) NULL DEFAULT NULL COMMENT '角色可执行',
+  `sys_role_board_card` int(11) NULL DEFAULT NULL COMMENT '角色可看板类型',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -9345,9 +9351,14 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '超级管理员', 'SUPER_ADMIN', 1, 1, 1, '超级管理员', 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_role` VALUES (2, '管理员', 'ADMIN', 1, 1, 1, '超级管理员', 0, NULL, NULL, NULL, '2024-08-21 13:49:40', 'sa', NULL);
-INSERT INTO `sys_role` VALUES (3, '运维', 'OPS', 1, 1, 1, '运维', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_role`
+VALUES (1, '超级管理员', 'SUPER_ADMIN', 1, 1, 1, '超级管理员', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL);
+INSERT INTO `sys_role`
+VALUES (2, '管理员', 'ADMIN', 1, 1, 1, '超级管理员', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-21 13:49:40',
+        'sa', NULL);
+INSERT INTO `sys_role`
+VALUES (3, '运维', 'OPS', 1, 1, 1, '运维', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_role_menu

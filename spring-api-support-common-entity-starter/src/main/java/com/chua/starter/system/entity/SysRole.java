@@ -91,6 +91,34 @@ public class SysRole extends SysBase implements Serializable {
     @Size(max = 255, message = "备注最大长度要小于 255")
     private String sysRoleRemark;
 
+    /**
+     * 角色是否可读
+     */
+    @TableField(value = "sys_role_readable")
+    @ApiModelProperty(value = "角色是否可读")
+    @Schema(description = "角色是否可读")
+    private Integer sysRoleReadable = 0x0000_0001;
+    /**
+     * 角色是否可写
+     */
+    @TableField(value = "sys_role_writeable")
+    @ApiModelProperty(value = "角色是否可写")
+    @Schema(description = "角色是否可写")
+    private Integer sysRoleWriteable;
+    /**
+     * 角色是否可执行
+     */
+    @TableField(value = "sys_role_executable")
+    @ApiModelProperty(value = "角色是否可执行")
+    @Schema(description = "角色是否可执行")
+    private Integer sysRoleExecutable;
+    /**
+     * 角色可看板类型
+     */
+    @TableField(value = "sys_role_board_card")
+    @ApiModelProperty(value = "角色可看板类型")
+    @Schema(description = "角色可看板类型")
+    private Integer sysRoleBoardCard;
 
     /**
      * 用户ID
