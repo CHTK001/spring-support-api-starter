@@ -31,6 +31,13 @@ public class SysDevice extends SysBase {
     @ApiModelProperty(value = "项目id")
     @Schema(description = "项目id")
     private Integer sysProjectId;
+    /**
+     * 部门id
+     */
+    @TableField(value = "sys_dept_id")
+    @ApiModelProperty(value = "部门id")
+    @Schema(description = "部门id")
+    private Integer sysDeptId;
 
     /**
      * 名称

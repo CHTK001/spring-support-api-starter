@@ -113,4 +113,22 @@ public class SysDept extends SysBase implements Serializable {
     @ApiModelProperty(value = "备注")
     @Schema(description = "备注")
     private String sysDeptRemark;
+
+
+    /**
+     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见
+     */
+    @TableField(value = "sys_dept_data_permission")
+    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
+    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
+    private Integer sysDeptDataPermission;
+
+    /**
+     * 数据权限可见的部门ID列表
+     */
+    @TableField(value = "sys_dept_data_permission_dept_id")
+    @ApiModelProperty(value = "数据权限可见的部门ID列表")
+    @Schema(description = "数据权限可见的部门ID列表")
+    private String sysDeptDataPermissionDeptId;
+
 }
