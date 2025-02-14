@@ -46,6 +46,7 @@ public class SysProjectController {
      */
     @Operation(summary = "角色项目列表")
     @GetMapping("/page")
+    @Permission(value = "sys:project:page", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnPageResult<SysProject> page(@ParameterObject Query<SysProject> query, @ParameterObject SysProject sysProject, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysProjectService.pageFor(query, sysProject, roles));
     }
