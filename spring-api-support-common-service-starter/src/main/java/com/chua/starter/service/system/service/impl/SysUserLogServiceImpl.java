@@ -14,8 +14,10 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.IptablesService;
 import com.chua.starter.service.system.mapper.SysUserLogMapper;
 import com.chua.starter.service.system.service.SysUserLogService;
+import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.entity.SysUserLog;
 import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
+import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogLoginType(userLoggerInfo.getLoginType());
         sysUserLog.setSysLogUa(userLoggerInfo.getUa());
         sysUserLog.setSysLogFingerprint(userLoggerInfo.getFingerprint());
+        sysUserLog.setSysDeptId(1);
         try {
             sysUserLog.setCreateBy(Integer.valueOf(userLoggerInfo.getCreateBy()));
         } catch (NumberFormatException ignored) {
@@ -84,7 +87,10 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
 
     @Override
     public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
+        return baseMapper.selectPage(query.createPage(), MPJWrappers.<SysUserLog>lambdaJoin()
+                .selectAll(SysUserLog.class)
+                .selectAs(SysDept::getSysDeptName, SysUserLog::getSysDeptName)
+                .leftJoin(SysDept.class, SysDept::getSysDeptId, SysUserLog::getSysDeptId)
                 .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGOUT")
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
