@@ -44,6 +44,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             registerField(metaObject, "createTime", CREATE);
         }
 
+
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
             if(null != metaObject.getGetterType("createBy")) {
@@ -51,6 +52,14 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             }
             if(null != metaObject.getGetterType("createName")) {
                 registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+            }
+
+            if (null != metaObject.getGetterType("sysDeptId")) {
+                registerField(metaObject, "sysDeptId", userLoginInfo.getExtValue("sysDeptId"), CREATE);
+            }
+
+            if (null != metaObject.getGetterType("tenantId")) {
+                registerField(metaObject, "tenantId", userLoginInfo.getExtValue("tenantId"), CREATE);
             }
         }
 

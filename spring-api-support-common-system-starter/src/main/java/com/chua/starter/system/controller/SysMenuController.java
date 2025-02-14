@@ -10,7 +10,6 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.system.service.SysMenuService;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
@@ -26,6 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
+
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
  * 菜单接口
@@ -85,7 +87,7 @@ public class SysMenuController {
     @DeleteMapping("/delete")
     @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:menu:delete", role = {AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {
             return Result.illegal("菜单信息不存在");
@@ -103,7 +105,7 @@ public class SysMenuController {
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
     @ApiPlatform("system")
-    @Permission(value = "sys:menu:update", role = {AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:menu:update", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysMenu sysMenu,
@@ -123,7 +125,7 @@ public class SysMenuController {
     @Operation(summary = "新增菜单")
     @PostMapping("/save")
     @ApiPlatform("system")
-    @Permission(value = "sys:menu:add", role = {AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:menu:add", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<SysMenu> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(AddGroup.class) @RequestBody SysMenu sysMenu,
