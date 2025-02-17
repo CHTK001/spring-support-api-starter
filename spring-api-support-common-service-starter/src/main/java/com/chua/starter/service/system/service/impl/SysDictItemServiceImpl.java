@@ -5,21 +5,30 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.service.system.mapper.SysDictItemMapper;
+import com.chua.starter.service.system.mapper.SysDictItemPropertyMapper;
 import com.chua.starter.service.system.mapper.SysDictMapper;
 import com.chua.starter.service.system.service.SysDictItemService;
 import com.chua.starter.system.entity.SysDict;
 import com.chua.starter.system.entity.SysDictItem;
+import com.chua.starter.system.entity.SysDictItemProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -33,12 +42,31 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @Autowired
     private SysDictItemService sysDictItemService;
 
+
+    final SysDictItemPropertyMapper sysDictItemPropertyMapper;
     final SysDictMapper sysDictMapper;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
 
     @Override
     public IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
-        return baseMapper.selectPageForQuery(query.createPage(), sysDictId);
+        IPage<SysDictItem> sysDictItemIPage = baseMapper.selectPageForQuery(query.createPage(), sysDictId);
+        return ReturnPageResultUtils.preconditioning(sysDictItemIPage)
+                .mapping(SysDictItem::getSysDictItemId, (ids, it) -> {
+                    Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
+                                    Wrappers.<SysDictItemProperty>lambdaQuery()
+                                            .in(SysDictItemProperty::getSysDictItemId, ids)
+                            ).stream()
+                            .collect(Collectors.groupingBy(SysDictItemProperty::getSysDictItemId));
+                    for (Map.Entry<Integer, List<SysDictItemProperty>> entry : collect.entrySet()) {
+                        SysDictItem sysDictItem = it.get(entry.getKey());
+                        if (null == sysDictItem) {
+                            continue;
+                        }
+                        sysDictItem.setProperty(entry.getValue());
+                    }
+                }).returnPage();
     }
 
     @Override
@@ -47,12 +75,17 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         if (null != sysDictItem) {
             SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
             sysDictItem.setSysDictCode(sysDict.getSysDictCode());
-            baseMapper.deleteById(dictItemId);
+            transactionTemplate.execute(status -> {
+                baseMapper.deleteById(dictItemId);
+                sysDictItemPropertyMapper.delete(Wrappers.<SysDictItemProperty>lambdaQuery()
+                        .eq(SysDictItemProperty::getSysDictItemId, sysDictItem.getSysDictItemId()));
+                sysDictItemService.deleteCacheId(sysDictItem);
+                sysDictItemService.deleteCacheCode(sysDictItem);
+                sysDictItemService.deleteCachePid(sysDictItem);
+                sysDictItemService.deleteCachePcode(sysDictItem);
+                return ReturnResult.guess(true);
+            });
         }
-        sysDictItemService.deleteCacheId(sysDictItem);
-        sysDictItemService.deleteCacheCode(sysDictItem);
-        sysDictItemService.deleteCachePid(sysDictItem);
-        sysDictItemService.deleteCachePcode(sysDictItem);
         return ReturnResult.guess(true);
     }
 
@@ -75,7 +108,9 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         sysDictItemService.deleteCacheCode(sysDictItem);
         sysDictItemService.deleteCachePid(sysDictItem);
         sysDictItemService.deleteCachePcode(sysDictItem);
-        return ReturnResult.of(baseMapper.updateById(sysDictItem) > 0);
+        return transactionTemplate.execute(status -> {
+            return ReturnResult.of(baseMapper.updateById(sysDictItem) > 0);
+        });
     }
 
     @Override
@@ -93,12 +128,14 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         SysDict sysDict = sysDictMapper.selectById(sysDictItem.getSysDictId());
         sysDictItem.setSysDictCode(sysDict.getSysDictCode());
         sysDictItem.setSysDictItemDelete(0);
-        baseMapper.insert(sysDictItem);
-        sysDictItemService.deleteCacheId(sysDictItem);
-        sysDictItemService.deleteCacheCode(sysDictItem);
-        sysDictItemService.deleteCachePid(sysDictItem);
-        sysDictItemService.deleteCachePcode(sysDictItem);
-        return ReturnResult.of( sysDictItem);
+        return transactionTemplate.execute(status -> {
+            baseMapper.insert(sysDictItem);
+            sysDictItemService.deleteCacheId(sysDictItem);
+            sysDictItemService.deleteCacheCode(sysDictItem);
+            sysDictItemService.deleteCachePid(sysDictItem);
+            sysDictItemService.deleteCachePcode(sysDictItem);
+            return ReturnResult.of(sysDictItem);
+        });
     }
     @Override
     @ApiCacheKey("'sys:dict:id:' + #sysDictItem.sysDictId")
@@ -129,7 +166,25 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Override
     public List<SysDictItem> listForItemId(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
-        return baseMapper.selectListById(sysDictId, false);
+        List<SysDictItem> sysDictItems = baseMapper.selectListById(sysDictId, false);
+        if (CollectionUtils.isEmpty(sysDictItems)) {
+            return Collections.emptyList();
+        }
+
+        Map<Integer, SysDictItem> it = sysDictItems.stream().collect(Collectors.toMap(SysDictItem::getSysDictItemId, Function.identity()));
+        Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
+                        Wrappers.<SysDictItemProperty>lambdaQuery()
+                                .in(SysDictItemProperty::getSysDictItemId, it.keySet())
+                ).stream()
+                .collect(Collectors.groupingBy(SysDictItemProperty::getSysDictItemId));
+        for (Map.Entry<Integer, List<SysDictItemProperty>> entry : collect.entrySet()) {
+            SysDictItem sysDictItem = it.get(entry.getKey());
+            if (null == sysDictItem) {
+                continue;
+            }
+            sysDictItem.setProperty(entry.getValue());
+        }
+        return sysDictItems;
     }
 
     @Override
