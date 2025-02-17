@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -122,4 +123,12 @@ public class SysDictItem extends SysBase implements Serializable {
     @ApiModelProperty(value = "优先级")
     @Schema(description = "优先级")
     private Integer sysDictItemSort;
+
+    /**
+     * 可配置项
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "可配置项")
+    @Schema(description = "可配置项")
+    private List<SysDictItemProperty> property;
 }
