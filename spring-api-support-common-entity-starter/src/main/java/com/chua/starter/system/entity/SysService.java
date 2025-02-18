@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 系统服务
@@ -46,6 +47,13 @@ public class SysService extends SysBase {
     @Schema(description = "服务唯一编码")
     @NotBlank(message = "服务唯一编码不能为空", groups = {AddGroup.class})
     private String sysServiceCode;
+    /**
+     * 服务图片
+     */
+    @TableField(value = "sys_service_image")
+    @ApiModelProperty(value = "服务图片")
+    @Schema(description = "服务图片")
+    private String sysServiceImage;
 
     /**
      * 是否删除; 0:正常
@@ -121,5 +129,21 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "服务描述")
     @Schema(description = "服务描述")
     private String sysServiceRemark;
+    /**
+     * 图片上传类型
+     */
+    @TableField(value = "sys_service_image_upload_type")
+    @ApiModelProperty(value = "图片上传类型")
+    @Schema(description = "图片上传类型")
+    private String sysServiceImageUploadType;
+
+
+    /**
+     * 选中的模块
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "选中的模块")
+    @Schema(description = "选中的模块")
+    private List<Integer> sysServiceTags;
 
 }

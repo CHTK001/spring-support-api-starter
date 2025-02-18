@@ -6,6 +6,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysServiceModule;
 
+import java.util.List;
+
 /**
  * 服务子项服务接口
  * <p>
@@ -55,4 +57,13 @@ public interface SysServiceModuleService extends IService<SysServiceModule> {
      */
     ReturnResult<Boolean> deleteFor(Long sysServiceItemId);
 
+    /**
+     * 查询服务子项列表
+     * <p>
+     * 根据查询对象中的条件，返回符合条件的服务子项列表
+     *
+     * @param sysServiceItem 服务子项对象，用于查询条件
+     * @return 返回符合条件的服务子项列表
+     */
+    ReturnResult<List<SysServiceModule>> listFor(SysServiceModule sysServiceItem);
 }

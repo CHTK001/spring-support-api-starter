@@ -1,6 +1,5 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.annotations.Ignore;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -8,6 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.service.SysServiceService;
 import com.chua.starter.system.entity.SysService;
 import com.chua.starter.system.pojo.service.SysServiceBindV1Request;
@@ -33,7 +33,6 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @Slf4j
 @Api(tags = "服务接口")
 @Tag(name = "服务接口")
-@Ignore
 @RequestMapping("/v2/service")
 @RequiredArgsConstructor
 @SuppressWarnings("ALL")
@@ -52,7 +51,7 @@ public class SysServiceController {
     @Operation(summary = "分页查询服务")
     @Permission("sys:service:page")
     public ReturnPageResult<SysService> page(@ParameterObject Query<SysService> query, @ParameterObject SysService sysService) {
-        return ReturnPageResult.ok(sysServiceService.pageFor(query, sysService));
+        return ReturnPageResultUtils.ok(sysServiceService.pageFor(query, sysService));
     }
 
 

@@ -11,6 +11,8 @@ import com.chua.starter.service.mapper.SysServiceModuleMapper;
 import com.chua.starter.system.entity.SysServiceModule;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 服务模块
  *
@@ -54,5 +56,14 @@ public class SysServiceModuleServiceImpl extends ServiceImpl<SysServiceModuleMap
     @Override
     public ReturnResult<Boolean> deleteFor(Long SysServiceModuleId) {
         return ReturnResult.preconditioning(removeById(SysServiceModuleId)).toResult();
+    }
+
+    @Override
+    public ReturnResult<List<SysServiceModule>> listFor(SysServiceModule sysServiceModule) {
+        return ReturnResult.ok(baseMapper.selectList(Wrappers.<SysServiceModule>lambdaQuery()
+                .likeRight(StringUtils.isNotBlank(sysServiceModule.getSysServiceModuleName()), SysServiceModule::getSysServiceModuleName, sysServiceModule.getSysServiceModuleName())
+                .likeRight(StringUtils.isNotBlank(sysServiceModule.getSysServiceModuleCode()), SysServiceModule::getSysServiceModuleCode, sysServiceModule.getSysServiceModuleCode())
+                .orderByAsc(SysServiceModule::getSysServiceModuleSort)
+        ));
     }
 }

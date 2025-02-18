@@ -3,6 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
@@ -16,6 +17,10 @@ import com.chua.starter.system.pojo.service.SysServiceBindV1Request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 服务
@@ -31,12 +36,23 @@ public class SysServiceServiceImpl extends ServiceImpl<SysServiceMapper, SysServ
 
     @Override
     public IPage<SysService> pageFor(Query<SysService> query, SysService sysService) {
-        return baseMapper.selectPage(query.createPage(),
+        Page<SysService> sysServicePage = baseMapper.selectPage(query.createPage(),
                 Wrappers.<SysService>lambdaQuery()
                         .likeRight(StringUtils.isNotBlank(sysService.getSysServiceName()), SysService::getSysServiceName, sysService.getSysServiceName())
                         .likeRight(StringUtils.isNotBlank(sysService.getSysServiceCode()), SysService::getSysServiceCode, sysService.getSysServiceCode())
                         .orderByAsc(SysService::getSysServiceSort)
         );
+
+        List<SysService> records = sysServicePage.getRecords();
+        if (CollectionUtils.isNotEmpty(records)) {
+            List<SysServiceModuleItem> list = sysServiceItemService.list(Wrappers.<SysServiceModuleItem>lambdaQuery()
+                    .in(SysServiceModuleItem::getSysServiceId, records.stream().map(SysService::getSysServiceId).toList()));
+            Map<Integer, List<SysServiceModuleItem>> collect = list.stream().collect(Collectors.groupingBy(SysServiceModuleItem::getSysServiceId));
+            for (SysService record : records) {
+                record.setSysServiceTags(collect.getOrDefault(record.getSysServiceId(), List.of()).stream().map(SysServiceModuleItem::getSysServiceModuleId).toList());
+            }
+        }
+        return sysServicePage;
     }
 
     @Override
