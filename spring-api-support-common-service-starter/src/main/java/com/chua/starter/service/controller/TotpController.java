@@ -1,6 +1,5 @@
 package com.chua.starter.service.controller;
 
-import com.chua.common.support.lang.code.ReturnBodyResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.service.SimpleSysUserService;

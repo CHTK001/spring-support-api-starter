@@ -23,6 +23,7 @@
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-pay-starter</module>
+        <module>spring-api-support-scheduler-starter</module>
     </modules>
     <version>4.0.0</version>
     
@@ -31,8 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <module.version>4.0.0.30</module.version>
-        <utils.version>4.0.0.21</utils.version>
+        <module.version>4.0.0.31</module.version>
+        <utils.version>4.0.0.23</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
