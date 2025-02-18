@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.service.system.mapper.SysDictItemPropertyMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysDictItemProperty">
+    <!--@mbg.generated-->
+    <!--@Table sys_dict_property-->
+    <id column="sys_dict_property_id" jdbcType="INTEGER" property="sysDictPropertyId" />
+    <result column="sys_dict_property_item_id" jdbcType="INTEGER" property="sysDictItemId" />
+    <result column="sys_dict_property_name" jdbcType="VARCHAR" property="sysDictPropertyName" />
+    <result column="sys_dict_property_value" jdbcType="VARCHAR" property="sysDictPropertyValue" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    sys_dict_property_id, sys_dict_property_item_id, sys_dict_property_name, sys_dict_property_value, 
+    create_name, create_by, create_time, update_time, update_name, update_by
+  </sql>
+</mapper>
