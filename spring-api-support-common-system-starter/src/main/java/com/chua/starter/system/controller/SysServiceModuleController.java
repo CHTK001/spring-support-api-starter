@@ -1,6 +1,5 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.annotations.Ignore;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -8,6 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.service.SysServiceModuleService;
 import com.chua.starter.system.entity.SysServiceModule;
 import io.swagger.annotations.Api;
@@ -19,6 +19,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
@@ -32,7 +34,6 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @Slf4j
 @Api(tags = "服务模块接口")
 @Tag(name = "服务模块接口")
-@Ignore
 @RequestMapping("/v2/service/module")
 @RequiredArgsConstructor
 @SuppressWarnings("ALL")
@@ -47,11 +48,23 @@ public class SysServiceModuleController {
      * @param query
      * @return
      */
+    @GetMapping("list")
+    @Operation(summary = "查询服务模块列表")
+    public ReturnResult<List<SysServiceModule>> list(@ParameterObject SysServiceModule sysServiceItem) {
+        return sysServiceModuleService.listFor(sysServiceItem);
+    }
+
+    /**
+     * 分页
+     *
+     * @param query
+     * @return
+     */
     @GetMapping("page")
     @Operation(summary = "分页查询服务模块")
     @Permission("sys:service:module:page")
     public ReturnPageResult<SysServiceModule> page(@ParameterObject Query<SysServiceModule> query, @ParameterObject SysServiceModule sysServiceItem) {
-        return ReturnPageResult.ok(sysServiceModuleService.pageFor(query, sysServiceItem));
+        return ReturnPageResultUtils.ok(sysServiceModuleService.pageFor(query, sysServiceItem));
     }
 
 

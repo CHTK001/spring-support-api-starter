@@ -159,15 +159,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
-    public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSetting) {
+    public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSettings) {
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
         version.setSysSettingConfig(UUID.randomUUID().toString());
-        sysSetting.add(version);
-        sysSettingService.updateBatchById(sysSetting);
-        for (SysSetting setting : sysSetting) {
+        sysSettings.add(version);
+        sysSettingService.updateBatchById(sysSettings);
+        for (SysSetting setting : sysSettings) {
             sysSettingService.clearCache(setting);
         }
-        register(GlobalSettingFactory.getInstance(), sysSetting);
+        register(GlobalSettingFactory.getInstance(), sysSettings);
         return ReturnResult.of(true);
     }
 

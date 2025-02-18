@@ -69,6 +69,14 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "优先级")
     @Schema(description = "优先级")
     private Integer sysServiceModuleSort;
+    /**
+     * 版本
+     */
+    @TableField(value = "sys_service_module_version")
+    @ApiModelProperty(value = "版本")
+    @Schema(description = "版本")
+    private String sysServiceModuleVersion;
+
 
     /**
      * 类型; API, SERVICE
@@ -78,5 +86,13 @@ public class SysServiceModule extends SysBase {
     @Schema(description = "类型; API, SERVICE")
     @NotBlank(message = "类型不能为空", groups = {AddGroup.class})
     private String sysServiceModuleType;
+
+    /**
+     * 菜单标签
+     */
+    @TableField(value = "sys_service_module_menu_tags")
+    @ApiModelProperty(value = "模块菜单标签")
+    @Schema(description = "模块菜单标签")
+    private String sysServiceModuleMenuTags;
 
 }
