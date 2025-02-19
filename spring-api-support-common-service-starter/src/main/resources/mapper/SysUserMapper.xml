@@ -68,4 +68,12 @@
     </where>
 
   </select>
+
+  <select id="selectOne" resultType="com.chua.starter.system.entity.SysUser">
+    SELECT * FROM sys_user
+      WHERE (sys_user_username = #{username} OR sys_user_phone = #{username})
+      <if test="tenantId != null and tenantId != ''">
+        AND sys_tenant_id = #{tenantId}
+      </if>
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.chua.starter.service.impl.login;
 
+import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -33,6 +34,7 @@ import static com.chua.starter.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_F
  */
 @SpiDefault
 @Slf4j
+@Spi("WEB")
 public class DefaultLoginHandler implements LoginHandler {
 
     @AutoInject
@@ -84,7 +86,7 @@ public class DefaultLoginHandler implements LoginHandler {
      * @param request         request
      * @return Result
      */
-    private Result<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
+    protected Result<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {
