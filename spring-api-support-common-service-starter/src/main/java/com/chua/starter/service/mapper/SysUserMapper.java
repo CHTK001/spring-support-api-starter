@@ -43,4 +43,13 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
             @Param("page") Page<SysUser> page,
             @Param("isAdmin") boolean isAdmin,
             @Param("query") SysUserQuery sysUserQuery);
+
+    /**
+     * 根据用户名查询用户信息
+     *
+     * @param username 用户名
+     * @param tenantId 租户ID
+     * @return 用户信息
+     */
+    SysUser selectOne(@Param("username") String username, @Param("tenantId") String tenantId);
 }

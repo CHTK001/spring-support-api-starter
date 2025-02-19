@@ -4,7 +4,7 @@ import com.chua.common.support.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.BigModelService;
+import com.chua.starter.service.system.service.BigModelService;
 import com.chua.starter.system.pojo.bigmodel.BigModelRequest;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;

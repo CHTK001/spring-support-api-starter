@@ -1,6 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.common.support.function.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
@@ -66,7 +67,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        return ServiceProvider.of(LoginHandler.class).getNewExtension(loginData.getLoginType())
+        return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }
 

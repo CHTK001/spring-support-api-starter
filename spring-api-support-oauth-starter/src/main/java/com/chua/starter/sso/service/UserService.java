@@ -38,7 +38,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  * @author CH
  */
 @Service
-@LoginType("SYSTEM")
+@LoginType("WEB")
 public class UserService implements UserInfoService, Constant {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;

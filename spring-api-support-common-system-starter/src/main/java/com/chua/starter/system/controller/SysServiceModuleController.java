@@ -8,7 +8,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.service.SysServiceModuleService;
+import com.chua.starter.service.system.service.SysServiceModuleService;
 import com.chua.starter.system.entity.SysServiceModule;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
