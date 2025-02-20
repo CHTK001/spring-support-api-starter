@@ -23,6 +23,11 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-tenant-starter</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

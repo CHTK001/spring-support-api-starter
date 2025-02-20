@@ -1,21 +1,24 @@
 package com.chua.starter.system.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 租户表
  */
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "租户表")
 @Schema(description = "租户表")
 @Data
 @TableName(value = "sys_tenant")
-public class SysTenant {
+public class SysTenant extends SysBase {
     @TableId(value = "sys_tenant_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
@@ -67,7 +70,8 @@ public class SysTenant {
     @TableField(value = "sys_tenant_delete")
     @ApiModelProperty(value = "是否删除; 0:正常")
     @Schema(description = "是否删除; 0:正常")
-    private @TableLogic(value = "0", delval = "1") Integer sysTenantDelete;
+    @TableLogic(value = "0", delval = "1")
+    private Integer sysTenantDelete;
 
     /**
      * 是否禁用; 0:正常
@@ -126,50 +130,34 @@ public class SysTenant {
     private String sysTenantGid;
 
     /**
-     * 创建人姓名
+     * 租户访问地址
      */
-    @TableField(value = "create_name")
-    @ApiModelProperty(value = "创建人姓名")
-    @Schema(description = "创建人姓名")
-    private String createName;
+    @TableField(value = "sys_tenant_home_url")
+    @ApiModelProperty(value = "租户访问地址")
+    @Schema(description = "租户访问地址")
+    private String sysTenantHomeUrl;
+    /**
+     * 备注
+     */
+    @TableField(value = "sys_tenant_remark")
+    @ApiModelProperty(value = "备注")
+    @Schema(description = "备注")
+    private String sysTenantRemark;
+
 
     /**
-     * 创建人
+     * 租户 - 服务
      */
-    @TableField(value = "create_by")
-    @ApiModelProperty(value = "创建人")
-    @Schema(description = "创建人")
-    private Integer createBy;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "租户 - 服务")
+    @Schema(description = "租户 - 服务")
+    private List<Integer> serviceIds;
 
     /**
-     * 创建时间
+     * 租户 - 服务
      */
-    @TableField(value = "create_time")
-    @ApiModelProperty(value = "创建时间")
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(value = "update_time")
-    @ApiModelProperty(value = "更新时间")
-    @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
-
-    /**
-     * 更新人姓名
-     */
-    @TableField(value = "update_name")
-    @ApiModelProperty(value = "更新人姓名")
-    @Schema(description = "更新人姓名")
-    private String updateName;
-
-    /**
-     * 更新人
-     */
-    @TableField(value = "update_by")
-    @ApiModelProperty(value = "更新人")
-    @Schema(description = "更新人")
-    private Integer updateBy;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "租户 - 服务")
+    @Schema(description = "租户 - 服务")
+    private List<SysTenantService> sysTenantService;
 }

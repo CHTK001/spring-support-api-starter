@@ -46,7 +46,6 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RestController
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
-@ApiPlatform("system")
 public class SysSettingController {
 
     private final SysSettingService sysSettingService;
@@ -60,6 +59,7 @@ public class SysSettingController {
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/page")
+    @ApiPlatform("system")
     @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnPageResult<SysSetting> pageForSetting(@ParameterObject  Query<SysSetting> query, @ParameterObject  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
@@ -104,6 +104,7 @@ public class SysSettingController {
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
+    @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSettingId) {
@@ -121,6 +122,7 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/updateBatch")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> updateBatch(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -140,6 +142,7 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/update")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -159,6 +162,7 @@ public class SysSettingController {
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")
+    @ApiPlatform("system")
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

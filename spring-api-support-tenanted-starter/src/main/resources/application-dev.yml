@@ -20,8 +20,11 @@ logging:
 
 
 plugin:
+  mybatis-plus:
+    tenant:
+      enable: true
   table:
     packages: com.chua.starter.admin.entity
     enable: true
   oauth:
-    address: http://172.16.0.40:19180/oauth
+    address: http://127.2.0.1:19180/oauth
