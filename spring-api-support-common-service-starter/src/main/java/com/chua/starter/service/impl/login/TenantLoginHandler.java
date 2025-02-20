@@ -4,6 +4,7 @@ import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.objects.annotation.AutoInject;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
@@ -41,7 +42,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
 
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        if (null == loginData.getTenantId()) {
+        if (StringUtils.isEmpty(loginData.getTenantId())) {
             return Result.failed(REQUEST_PARAM_ERROR, "租户编码不能为空");
         }
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
@@ -57,7 +58,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                 ImmutableBuilder.<String, Object>builderOfMap()
                         .put("address", address)
                         .put("fingerprint", fingerprint)
-                        .put("tenant", loginData.getTenantId())
+                        .put("tenantId", loginData.getTenantId())
                         .build()
         );
 

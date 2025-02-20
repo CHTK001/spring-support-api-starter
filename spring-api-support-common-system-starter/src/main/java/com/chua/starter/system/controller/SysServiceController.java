@@ -8,9 +8,9 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.service.system.service.SysServiceService;
 import com.chua.starter.system.entity.SysService;
 import com.chua.starter.system.pojo.service.SysServiceBindV1Request;
+import com.chua.starter.system.service.SysServiceService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +20,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
@@ -40,6 +42,18 @@ public class SysServiceController {
 
 
     final SysServiceService sysServiceService;
+
+    /**
+     * 分页
+     *
+     * @param query
+     * @return
+     */
+    @GetMapping("list")
+    @Operation(summary = "查询服务")
+    public ReturnResult<List<SysService>> list(@ParameterObject SysService sysService) {
+        return sysServiceService.listFor(sysService);
+    }
 
     /**
      * 分页

@@ -14,7 +14,7 @@ import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
 import com.chua.starter.service.mapper.SysUserMapper;
-import com.chua.starter.service.system.mapper.SysDeptMapper;
+import com.chua.starter.sso.mapper.SysDeptMapper;
 import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
