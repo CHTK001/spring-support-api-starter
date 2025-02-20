@@ -2,9 +2,9 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.service.system.service.SysDeviceService;
 import com.chua.starter.system.entity.SysDevice;
 import com.chua.starter.system.pojo.device.DevicePageV1Request;
+import com.chua.starter.system.service.SysDeviceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;

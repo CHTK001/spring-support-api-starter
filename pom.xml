@@ -24,6 +24,7 @@
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-pay-starter</module>
         <module>spring-api-support-scheduler-starter</module>
+        <module>spring-api-support-common-tenant-starter</module>
     </modules>
     <version>4.0.0</version>
     
@@ -59,6 +60,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-service-starter</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-common-tenant-starter</artifactId>
                 <version>4.0.0</version>
             </dependency>
 
@@ -283,6 +290,12 @@
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-sse-starter</artifactId>
                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-doubao-starter</artifactId>
+                <version>${utils.version}</version>
             </dependency>
 
             <dependency>

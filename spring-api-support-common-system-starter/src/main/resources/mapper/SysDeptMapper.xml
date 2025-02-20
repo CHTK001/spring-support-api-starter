@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.service.system.mapper.SysDeptMapper">
+<mapper namespace="com.chua.starter.system.mapper.SysDeptMapper">
   <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysDept">
     <!--@mbg.generated-->
     <!--@Table sys_dept-->
