@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -146,7 +147,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         return transactionTemplate.execute(status -> {
             Integer sysTenantId = request.getSysTenantId();
             SysTenant sysTenant = baseMapper.selectById(sysTenantId);
-            List<SysMenu> list = sysTenantServiceService.getMenuIds(sysTenantId);
+            List<SysMenu> list = sysTenant.getSysTenantStatus() == 0 ? sysTenantServiceService.getMenuIds(sysTenantId) : Collections.emptyList();
 
             tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
             tenantMessagePublisher.publish("service", new SyncTenantServiceData(
