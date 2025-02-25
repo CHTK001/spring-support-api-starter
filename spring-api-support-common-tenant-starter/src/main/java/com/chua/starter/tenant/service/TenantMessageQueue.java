@@ -5,14 +5,15 @@ package com.chua.starter.tenant.service;
  *
  * @author CH
  */
-public interface MessagePublisher {
+public interface TenantMessageQueue {
 
 
     /**
-     * 发布消息
+     * 发布队列消息
      *
      * @param channel 频道
      * @param message 消息
      */
-    void publish(String channel, String message);
+    void publish(String channel, Object message);
+
 }

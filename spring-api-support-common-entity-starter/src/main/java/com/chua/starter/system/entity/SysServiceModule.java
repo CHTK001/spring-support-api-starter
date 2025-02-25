@@ -94,5 +94,12 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "模块菜单标签")
     @Schema(description = "模块菜单标签")
     private String sysServiceModuleMenuTags;
+    /**
+     * 菜单标签
+     */
+    @TableField(value = "sys_service_module_menu_tags2")
+    @ApiModelProperty(value = "模块菜单标签(包含父标签)")
+    @Schema(description = "模块菜单标签(包含父标签)")
+    private String sysServiceModuleMenuTags2;
 
 }

@@ -5,4 +5,16 @@
   <insert id="saveUserRole">
     INSERT INTO sys_user_role(sys_user_id, sys_role_id) VALUES(#{sysUserId}, (SELECT sys_role_id FROM sys_role WHERE sys_role_code = #{roleCode}))
   </insert>
+
+  <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysUserRole">
+    SELECT * FROM sys_user_role
+    WHERE sys_user_id = #{sysUserId}
+        AND sys_role_id = #{sysRoleId}
+        AND sys_tenant_id = #{sysTenantId}
+    </select>
+
+  <insert id="insertWithTenant">
+    INSERT INTO sys_user_role(sys_user_id, sys_role_id, sys_tenant_id)
+    VALUES(#{sysUserRole.sysUserId}, #{sysUserRole.sysRoleId}, #{sysTenantId})
+  </insert>
 </mapper>

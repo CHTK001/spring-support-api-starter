@@ -5,14 +5,24 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysTenant;
+import com.chua.starter.system.mapper.SysMenuMapper;
+import com.chua.starter.system.mapper.SysServiceItemMapper;
 import com.chua.starter.system.mapper.SysTenantMapper;
+import com.chua.starter.system.pojo.tenant.SyncTenantData;
+import com.chua.starter.system.pojo.tenant.SyncTenantServiceData;
 import com.chua.starter.system.pojo.tenant.SysTenantServiceBindV1Request;
+import com.chua.starter.system.pojo.tenant.SysTenantSyncV1Request;
+import com.chua.starter.system.service.SysServiceModuleService;
+import com.chua.starter.system.service.SysServiceService;
 import com.chua.starter.system.service.SysTenantService;
 import com.chua.starter.system.service.SysTenantServiceService;
+import com.chua.starter.tenant.service.TenantMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -27,12 +37,15 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
     final TransactionTemplate transactionTemplate;
     final SysTenantServiceService sysTenantServiceService;
-
-    final
+    final SysServiceService sysServiceService;
+    final SysServiceModuleService sysServiceModuleService;
+    final SysServiceItemMapper sysServiceItemMapper;
+    final SysMenuMapper sysMenuMapper;
+    final TenantMessagePublisher tenantMessagePublisher;
 
     @Override
     public IPage<SysTenant> pageFor(Query<SysTenant> query, SysTenant sysTenant) {
-        Page<SysTenant> sysServicePage = baseMapper.selectPage(query.createPage(),
+        Page<SysTenant> sysServicePage = page(query.createPage(),
                 Wrappers.<SysTenant>lambdaQuery()
                         .likeRight(StringUtils.isNotBlank(sysTenant.getSysTenantName()), SysTenant::getSysTenantName, sysTenant.getSysTenantName())
                         .likeRight(StringUtils.isNotBlank(sysTenant.getSysTenantCode()), SysTenant::getSysTenantCode, sysTenant.getSysTenantCode())
@@ -63,7 +76,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         sysTenant.setSysTenantStatus(0);
         return transactionTemplate.execute(it -> {
             bind(new SysTenantServiceBindV1Request(sysTenant.getSysTenantId(), sysTenant.getSysTenantService()));
-            save(sysTenant);
+            boolean save = save(sysTenant);
+            if (save) {
+                tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.CREATE, sysTenant));
+            }
             return ReturnResult.preconditioning(sysTenant).toResult();
         });
     }
@@ -77,29 +93,67 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         sysTenant.setSysTenantDelete(null);
         return transactionTemplate.execute(it -> {
             bind(new SysTenantServiceBindV1Request(sysTenant.getSysTenantId(), sysTenant.getSysTenantService()));
-            return ReturnResult.preconditioning(updateById(sysTenant)).toResult();
+            boolean b = updateById(sysTenant);
+            if (b) {
+                tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+            }
+            return ReturnResult.preconditioning(b).toResult();
         });
     }
 
     @Override
     public ReturnResult<Boolean> deleteFor(Long sysServiceId) {
-        return ReturnResult.preconditioning(removeById(sysServiceId)).toResult();
+        SysTenant sysTenant = getById(sysServiceId);
+        if (null == sysTenant) {
+            return ReturnResult.illegal("数据不存在");
+        }
+        boolean b = removeById(sysServiceId);
+        if (b) {
+            tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.DELETE, sysTenant));
+        }
+        return ReturnResult.preconditioning(b).toResult();
     }
 
     @Override
     public ReturnResult<Boolean> bind(SysTenantServiceBindV1Request request) {
         return transactionTemplate.execute(status -> {
             if (CollectionUtils.isNotEmpty(request.getSysServiceIds())) {
+                SysTenant sysTenant = baseMapper.selectById(request.getSysTenantId());
                 sysTenantServiceService.remove(Wrappers.<com.chua.starter.system.entity.SysTenantService>lambdaQuery()
                         .eq(com.chua.starter.system.entity.SysTenantService::getSysTenantId, request.getSysTenantId()));
-                sysTenantServiceService.saveBatch(request.getSysServiceIds().stream().map(sysServiceModuleId -> {
+                List<com.chua.starter.system.entity.SysTenantService> list = request.getSysServiceIds().stream().map(sysServiceModuleId -> {
                     com.chua.starter.system.entity.SysTenantService sysTenantService = new com.chua.starter.system.entity.SysTenantService();
                     sysTenantService.setSysTenantId(request.getSysTenantId());
                     sysTenantService.setSysServiceId(sysServiceModuleId.getSysServiceId());
                     sysTenantService.setSysTenantServiceValidTime(sysServiceModuleId.getSysTenantServiceValidTime());
                     return sysTenantService;
-                }).toList());
+                }).toList();
+                sysTenantServiceService.saveBatch(list);
+                List<SysMenu> menus = sysTenantServiceService.getMenuIds(request.getSysTenantId());
+                tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+                tenantMessagePublisher.publish("service", new SyncTenantServiceData(
+                        Action.UPDATE,
+                        request.getSysTenantId(),
+                        menus
+                ));
             }
+            return ReturnResult.ok();
+        });
+    }
+
+    @Override
+    public ReturnResult<Boolean> sync(SysTenantSyncV1Request request) {
+        return transactionTemplate.execute(status -> {
+            Integer sysTenantId = request.getSysTenantId();
+            SysTenant sysTenant = baseMapper.selectById(sysTenantId);
+            List<SysMenu> list = sysTenantServiceService.getMenuIds(sysTenantId);
+
+            tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+            tenantMessagePublisher.publish("service", new SyncTenantServiceData(
+                    Action.UPDATE,
+                    request.getSysTenantId(),
+                    list
+            ));
             return ReturnResult.ok();
         });
     }

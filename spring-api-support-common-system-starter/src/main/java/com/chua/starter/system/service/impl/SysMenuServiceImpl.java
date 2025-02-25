@@ -60,7 +60,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         List<SysMenu> sysMenus = sysMenuService.listAll();
 
         List<SysMenu> filterMenus = Collections.emptyList();
-        if(AuthConstant.isSuperAdmin(roles)) {
+        if (AuthConstant.isSuperAdmin(roles) || AuthConstant.isAdmin(roles)) {
             filterMenus = sysMenus;
         } else {
             filterMenus = sysMenus.stream()
@@ -202,6 +202,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @ApiCacheKey("'sys:menu:list:all'")
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
+        if (null == sysMenu) {
+            return ReturnResult.error("菜单不存在");
+        }
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
             sysMenu.setSysMenuPid(0);

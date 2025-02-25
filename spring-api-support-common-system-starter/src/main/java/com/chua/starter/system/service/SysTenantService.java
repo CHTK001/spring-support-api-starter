@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysTenant;
 import com.chua.starter.system.pojo.tenant.SysTenantServiceBindV1Request;
+import com.chua.starter.system.pojo.tenant.SysTenantSyncV1Request;
 
 /**
  * SysTenantService接口定义了系统租户相关的服务操作
@@ -53,4 +54,12 @@ public interface SysTenantService extends IService<SysTenant> {
      * @return 返回绑定结果
      */
     ReturnResult<Boolean> bind(SysTenantServiceBindV1Request request);
+
+    /**
+     * 同步SysTenant和SysTenantService之间的关系
+     *
+     * @param request 同步请求对象，包含需要同步的信息
+     * @return 返回同步结果
+     */
+    ReturnResult<Boolean> sync(SysTenantSyncV1Request request);
 }

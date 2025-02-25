@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysMenuMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysMenu">
-    <!--@mbg.generated-->
-    <!--@Table sys_menu-->
-    <id column="sys_menu_id" jdbcType="INTEGER" property="sysMenuId" />
-    <result column="sys_menu_name" jdbcType="VARCHAR" property="sysMenuName" />
-    <result column="sys_menu_pid" jdbcType="INTEGER" property="sysMenuPid" />
-    <result column="sys_menu_tree_id" jdbcType="VARCHAR" property="sysMenuTreeId" />
-    <result column="sys_menu_component" jdbcType="VARCHAR" property="sysMenuComponent" />
-    <result column="sys_menu_icon" jdbcType="VARCHAR" property="sysMenuIcon" />
-    <result column="sys_menu_type" jdbcType="INTEGER" property="sysMenuType" />
-    <result column="sys_menu_sort" jdbcType="INTEGER" property="sysMenuSort" />
-    <result column="sys_menu_hidden" jdbcType="INTEGER" property="sysMenuHidden" />
-    <result column="create_name" jdbcType="VARCHAR" property="createName" />
-    <result column="create_by" jdbcType="INTEGER" property="createBy" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
-    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    sys_menu_id, sys_menu_name, sys_menu_pid, sys_menu_tree_id, sys_menu_component, sys_menu_icon, 
-    sys_menu_type, sys_menu_sort, sys_menu_hidden, create_name, create_by, create_time, 
-    update_time, update_name, update_by
-  </sql>
+  <delete id="removeByTenantId">
+    DELETE
+    FROM sys_menu
+    WHERE sys_tenant_id = #{sysTenantId}
+    <if test="menuIds != null and menuIds.size() != 0">
+      AND sys_menu_id NOT IN
+      <foreach collection="menuIds" item="menuId" open="(" separator="," close=")">
+        #{menuId}
+      </foreach>
+    </if>
+    </delete>
+
+  <insert id="saveForTenant">
+    INSERT INTO sys_menu
+    (sys_menu_id,
+    sys_menu_name, sys_menu_path, sys_menu_i18n, sys_menu_title,
+    sys_menu_perm, sys_menu_pid,   sys_menu_tree_id, sys_menu_component,
+    sys_menu_icon, sys_menu_extra_icon, sys_menu_type, sys_menu_sort,
+     sys_menu_hidden, sys_menu_show_parent, sys_menu_hidden_tag, sys_menu_fixed_tag,
+    sys_menu_redirect,    sys_menu_enter_transition, sys_menu_leave_transition, sys_menu_active_path,
+    sys_menu_frame_src,     sys_menu_keep_alive ,sys_menu_role, sys_menu_home,
+    sys_menu_engine, sys_tenant_id)
+    VALUES (#{sysMenu.sysMenuId},
+    #{sysMenu.sysMenuName}, #{sysMenu.sysMenuPath}, #{sysMenu.sysMenuI18n}, #{sysMenu.sysMenuTitle},
+    #{sysMenu.sysMenuPerm}, #{sysMenu.sysMenuPid}, #{sysMenu.sysMenuTreeId}, #{sysMenu.sysMenuComponent},
+    #{sysMenu.sysMenuIcon}, #{sysMenu.sysMenuExtraIcon}, #{sysMenu.sysMenuType}, #{sysMenu.sysMenuSort},
+    #{sysMenu.sysMenuHidden}, #{sysMenu.sysMenuShowParent}, #{sysMenu.sysMenuHiddenTag}, #{sysMenu.sysMenuFixedTag},
+    #{sysMenu.sysMenuRedirect}, #{sysMenu.sysMenuEnterTransition}, #{sysMenu.sysMenuLeaveTransition}, #{sysMenu.sysMenuActivePath},
+    #{sysMenu.sysMenuFrameSrc}, #{sysMenu.sysMenuKeepAlive} ,#{sysMenu.sysMenuRole}, #{sysMenu.sysMenuHome},
+    #{sysMenu.sysMenuEngine}, #{sysTenantId}
+    );
+  </insert>
 </mapper>
