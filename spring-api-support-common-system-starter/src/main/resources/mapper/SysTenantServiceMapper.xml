@@ -12,5 +12,6 @@
         and ssm.sys_service_module_status = 0 and ssm.sys_service_module_delete = 0
         INNER JOIN sys_menu sm on FIND_IN_SET(sm.sys_menu_id, ssm.sys_service_module_menu_tags2)
         WHERE st.sys_tenant_id = #{sysTenantId}
+        AND sts.sys_tenant_service_valid_time <![CDATA[>=]]> NOW()
     </select>
 </mapper>
