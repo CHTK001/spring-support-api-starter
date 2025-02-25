@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysTenant;
@@ -147,7 +148,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         return transactionTemplate.execute(status -> {
             Integer sysTenantId = request.getSysTenantId();
             SysTenant sysTenant = baseMapper.selectById(sysTenantId);
-            List<SysMenu> list = sysTenant.getSysTenantStatus() == 0 ? sysTenantServiceService.getMenuIds(sysTenantId) : Collections.emptyList();
+            List<SysMenu> list = ObjectUtils.equal(sysTenant.getSysTenantStatus(), 0) ? sysTenantServiceService.getMenuIds(sysTenantId) : Collections.emptyList();
 
             tenantMessagePublisher.publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
             tenantMessagePublisher.publish("service", new SyncTenantServiceData(
