@@ -1,4 +1,4 @@
-package com.chua.starter.scheduler.tenant;
+package com.chua.starter.scheduler;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
