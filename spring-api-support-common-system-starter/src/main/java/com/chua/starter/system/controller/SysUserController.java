@@ -33,6 +33,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
+
 /**
  * 用户接口
  * @author CH
@@ -54,7 +56,7 @@ public class SysUserController {
      */
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
-    @Permission("sys:user:page")
+    @Permission(role = {ADMIN})
     public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles));
     }
@@ -140,7 +142,7 @@ public class SysUserController {
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
     @OperateLog
-    @Permission(value = "sys:user:reset", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:user:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
@@ -197,7 +199,7 @@ public class SysUserController {
     @Operation(summary = "新增用户")
     @PostMapping("/save")
     @OperateLog
-    @Permission(value = "sys:user:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:user:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());

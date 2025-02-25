@@ -1,5 +1,6 @@
 package com.chua.starter.tenant.service;
 
+import com.chua.common.support.json.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -8,11 +9,11 @@ import org.springframework.data.redis.core.RedisTemplate;
  *
  * @author CH
  */
-public class RedisMessagePublisher implements MessagePublisher {
+public class RedisTenantMessagePublisher implements TenantMessagePublisher {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    public void publish(String channel, String message) {
-        redisTemplate.convertAndSend(channel, message);
+    public void publish(String channel, Object message) {
+        redisTemplate.convertAndSend(channel, Json.toJson(message));
     }
 }

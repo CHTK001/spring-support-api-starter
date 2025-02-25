@@ -10,4 +10,31 @@
         #{userId}
      </foreach>
   </select>
+
+  <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysRole">
+      SELECT sr.* FROM sys_role sr
+      WHERE sr.sys_role_code = #{sysRoleCode}
+      AND sr.sys_tenant_id = #{sysTenantId}
+    </select>
+
+  <insert id="insertWithTenant" useGeneratedKeys="true" keyProperty="sysRole.sysRoleId">
+      INSERT INTO sys_role (
+          sys_role_name,
+          sys_role_code,
+          sys_role_remark,
+          sys_role_status,
+          sys_role_in_system,
+          sys_role_sort,
+          sys_tenant_id
+      )  VALUES (
+          #{sysRole.sysRoleName},
+          #{sysRole.sysRoleCode},
+          #{sysRole.sysRoleRemark},
+          #{sysRole.sysRoleStatus},
+          1,
+          1,
+          #{sysTenantId}
+      )
+
+    </insert>
 </mapper>

@@ -21,4 +21,21 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
      * @return 角色
      */
     List<SysRole> listByUserId(@Param("userIds") Set<Integer> userIds);
+
+    /**
+     * 根据租户id查询管理员角色
+     *
+     * @param sysTenantId 租户id
+     * @param sysRoleCode 角色编码
+     * @return 角色
+     */
+    SysRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId, @Param("sysRoleCode") String sysRoleCode);
+
+    /**
+     * 根据租户id查询管理员角色
+     *
+     * @param sysTenantId 租户id
+     * @param sysTenantId 租户ID
+     */
+    void insertWithTenant(@Param("sysRole") SysRole sysRole, @Param("sysTenantId") Integer sysTenantId);
 }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysTenantServiceMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysTenantService">
-    <!--@mbg.generated-->
-    <!--@Table sys_tenant_service-->
-    <id column="sys_tenant_service_id" jdbcType="INTEGER" property="sysTenantServiceId" />
-    <result column="sys_tenant_id" jdbcType="INTEGER" property="sysTenantId" />
-    <result column="sys_service_id" jdbcType="INTEGER" property="sysServiceId" />
-    <result column="sys_tenant_service_valid_time" jdbcType="TIMESTAMP" property="sysTenantServiceValidTime" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    sys_tenant_service_id, sys_tenant_id, sys_service_id, sys_tenant_service_valid_time
-  </sql>
+  <select id="getMenuByTenantId" resultType="com.chua.starter.system.entity.SysMenu">
+    SELECT
+      distinct sm.*
+    FROM
+      sys_tenant st
+        INNER JOIN sys_tenant_service sts on sts.sys_tenant_id = st.sys_tenant_id
+        INNER JOIN sys_service_module_item ssmi on ssmi.sys_service_id = sts.sys_service_id
+        INNER JOIN sys_service_module ssm on ssm.sys_service_module_id = ssmi.sys_service_module_id
+        and ssm.sys_service_module_status = 0 and ssm.sys_service_module_delete = 0
+        INNER JOIN sys_menu sm on FIND_IN_SET(sm.sys_menu_id, ssm.sys_service_module_menu_tags2)
+        WHERE st.sys_tenant_id = #{sysTenantId}
+    </select>
 </mapper>

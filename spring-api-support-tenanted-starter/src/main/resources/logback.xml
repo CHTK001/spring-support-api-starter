@@ -17,7 +17,7 @@
 
     <conversionRule conversionWord="traceId" converterClass="com.chua.starter.log.support.logback.TraceMessageConverter"/>
 
-    <property name="log_file_location" value="./logs/system"/>
+    <property name="log_file_location" value="./logs/tenant"/>
 
     <!-- 彩色日志格式 -->
     <property name="console_log_pattern_color"
@@ -33,7 +33,8 @@
 
     </appender>
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
-    <logger name="org.burningwave.core.assembler.*" level="DEBUG" additivity="false"/>
+    <logger name="io.zbus.*" level="OFF" additivity="false"/>
+    <logger name="org.burningwave.core" level="OFF" additivity="false"/>
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
