@@ -110,7 +110,7 @@ public class SysRoleController {
 
     @Operation(summary = "获取角色菜单")
     @GetMapping("/get_menu")
-    @Permission(value = "sys:role:menu:get", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(SelectGroup.class)  RoleMenuUpdate roleMenuUpdate,
