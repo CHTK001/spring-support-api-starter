@@ -46,20 +46,20 @@ public class SysProjectController {
      */
     @Operation(summary = "角色项目列表")
     @GetMapping("/page")
-    @Permission(value = "sys:project:page", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnPageResult<SysProject> page(@ParameterObject Query<SysProject> query, @ParameterObject SysProject sysProject, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysProjectService.pageFor(query, sysProject, roles));
     }
 
 
     /**
-     * 获取默认项目
+     //     * 获取默认项目
      *
      * @return 项目列表
      */
     @Operation(summary = "获取默认项目")
     @GetMapping("/default")
-    @Permission(value = "sys:project:default", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysProject> getDefaultByType(String typeName) {
         return ReturnResult.ok(sysProjectService.getDefaultByType(typeName));
     }

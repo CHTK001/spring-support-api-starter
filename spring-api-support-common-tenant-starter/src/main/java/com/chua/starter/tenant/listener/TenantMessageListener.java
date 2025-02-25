@@ -5,12 +5,12 @@ package com.chua.starter.tenant.listener;
  *
  * @author CH
  */
-public interface MessageListener {
+public interface TenantMessageListener {
 
     /**
      * 监听数据
      *
      * @param message 数据
      */
-    void listener(String message);
+    void listen(String message);
 }

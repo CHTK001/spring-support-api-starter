@@ -10,6 +10,7 @@ import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
+import com.chua.starter.datasource.support.DataSourceContextSupport;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.server.support.service.UserInfoService;
@@ -21,10 +22,13 @@ import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ConcurrentReferenceHashMap;
 
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,11 +48,14 @@ public class TenantUserService implements UserInfoService, Constant {
     private final int timeout = 5;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    private static final Map<String, String> _ENGINE_CACHE = new ConcurrentReferenceHashMap<>(1024);
     @Autowired
     private SysUserMapper sysUserMapper;
 
     @Autowired
     private SysDeptMapper sysDeptMapper;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public UserResult checkLogin(String username, String password, String address, Object ext) {
@@ -63,27 +70,60 @@ public class TenantUserService implements UserInfoService, Constant {
             }
         }
 
-        SysUser user = sysUserMapper.selectOne(username, tenantId);
-        if (null == user) {
-            check(newAccessKey, boos);
-            return new UserResult().setMessage("账号/密码不正确");
+        String dataSourceName = findDataSource(username, tenantId);
+        DataSourceContextSupport.setDbType(dataSourceName);
+        try {
+            SysUser user = sysUserMapper.selectOne(username, tenantId);
+            if (null == user || null == user.getSysTenantId()) {
+                check(newAccessKey, boos);
+                return new UserResult().setMessage("账号/密码不正确");
+            }
+
+            if (1 != user.getSysUserStatus()) {
+                return new UserResult().setMessage("账号已被禁用");
+            }
+
+            String salt = user.getSysUserSalt();
+            String md5String = DigestUtils.md5Hex(password + salt);
+            if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
+                return check(newAccessKey, boos);
+            }
+
+            user.setSysUserLastIp(address);
+            sysUserMapper.updateById(user);
+            stringRedisTemplate.delete(newAccessKey);
+
+            return loginInfo(username, user, address);
+        } finally {
+            DataSourceContextSupport.clearDbType();
+            DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
         }
+    }
 
-        if (1 != user.getSysUserStatus()) {
-            return new UserResult().setMessage("账号已被禁用");
-        }
-
-        String salt = user.getSysUserSalt();
-        String md5String = DigestUtils.md5Hex(password + salt);
-        if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
-            return check(newAccessKey, boos);
-        }
-
-        user.setSysUserLastIp(address);
-        sysUserMapper.updateById(user);
-        stringRedisTemplate.delete(newAccessKey);
-
-        return loginInfo(username, user, address);
+    private String findDataSource(String username, String tenantId) {
+        return _ENGINE_CACHE.computeIfAbsent(username, (key) -> {
+            Map<String, DataSource> beansOfType = applicationContext.getBeansOfType(DataSource.class);
+            Map<String, DataSource> filter = new HashMap<>(beansOfType.size());
+            for (Map.Entry<String, DataSource> entry : beansOfType.entrySet()) {
+                if (entry.getKey().contains("tenant")) {
+                    filter.put(entry.getKey(), entry.getValue());
+                }
+            }
+            for (Map.Entry<String, DataSource> entry : filter.entrySet()) {
+                // 切换数据源
+                DataSourceContextSupport.setDbType(entry.getKey());
+                try {
+                    SysUser user = sysUserMapper.selectOne(username, tenantId);
+                    if (null != user) {
+                        return entry.getKey();
+                    }
+                } finally {
+                    DataSourceContextSupport.clearDbType();
+                    DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
+                }
+            }
+            return null;
+        });
     }
 
     @Override
@@ -152,6 +192,7 @@ public class TenantUserService implements UserInfoService, Constant {
                 .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
                 .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
                 .setRoles(collect)
+                .setTenantId(String.valueOf(user.getSysTenantId()))
                 .setRolesByRole(roleInfo)
                 .setDeptId(user.getSysDeptId() + "")
                 .setDataPermission(dataPermission)

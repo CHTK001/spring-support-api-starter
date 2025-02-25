@@ -9,6 +9,14 @@ spring:
       host: 172.16.0.40
       port: 16379
       database: 15
+  tenant:
+    enable: true
+    properties:
+      - name: tenant1
+        driverClassName: com.p6spy.engine.spy.P6SpyDriver
+        url: jdbc:p6spy:mysql://172.16.0.40:3306/tenant?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: root@
 logging:
   level:
     com.chua.starter.sso.mapper: debug

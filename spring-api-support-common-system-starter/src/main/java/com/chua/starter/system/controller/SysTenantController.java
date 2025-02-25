@@ -10,6 +10,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.system.entity.SysTenant;
 import com.chua.starter.system.pojo.tenant.SysTenantServiceBindV1Request;
+import com.chua.starter.system.pojo.tenant.SysTenantSyncV1Request;
 import com.chua.starter.system.service.SysTenantService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,6 +114,19 @@ public class SysTenantController {
     @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> bind(@ParameterObject @RequestBody SysTenantServiceBindV1Request request) {
         return sysTenantService.bind(request);
+    }
+
+    /**
+     * 同步服务模块
+     *
+     * @param sysServiceId
+     * @return
+     */
+    @PutMapping("sync")
+    @Operation(summary = "同步服务模块")
+    @Permission(role = {ADMIN, SUPER_ADMIN})
+    public ReturnResult<Boolean> sync(@ParameterObject @RequestBody SysTenantSyncV1Request request) {
+        return sysTenantService.sync(request);
     }
 
 }

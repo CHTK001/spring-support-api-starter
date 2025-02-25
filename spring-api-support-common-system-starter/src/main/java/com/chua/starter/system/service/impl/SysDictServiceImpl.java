@@ -1,6 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,6 +45,9 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
 
         List<SysDict> records = sysDictPage.getRecords();
         List<Integer> ids = records.stream().map(SysDict::getSysDictId).toList();
+        if (CollectionUtils.isEmpty(ids)) {
+            return sysDictPage;
+        }
         List<SysDict> sysDicts = baseMapper.selectList(Wrappers.<SysDict>lambdaQuery().in(SysDict::getSysDictPid, ids));
         Map<Integer, List<SysDict>> sysDictMap = sysDicts.stream().collect(Collectors.groupingBy(SysDict::getSysDictPid));
         for (SysDict record : records) {

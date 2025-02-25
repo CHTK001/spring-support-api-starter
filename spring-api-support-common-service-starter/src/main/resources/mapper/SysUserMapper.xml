@@ -76,4 +76,30 @@
         AND sys_tenant_id = #{tenantId}
       </if>
     </select>
+
+  <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysUser">
+    SELECT * FROM sys_user
+      WHERE (sys_user_username = #{tenant.sysTenantUsername} )
+      AND sys_tenant_id = #{tenant.sysTenantId}
+    </select>
+
+  <insert id="insertTenant">
+    INSERT INTO
+    sys_user (
+        sys_user_username,
+        sys_user_salt,
+        sys_user_password,
+        sys_user_in_system,
+        sys_user_status,
+        sys_user_phone,
+        sys_tenant_id)
+    VALUES (
+        #{sysUser.sysUserUsername},
+        #{sysUser.sysUserSalt},
+        #{sysUser.sysUserPassword},
+        #{sysUser.sysUserInSystem},
+        #{sysUser.sysUserStatus},
+        #{sysUser.sysUserPhone},
+        #{tenant.sysTenantId})
+  </insert>
 </mapper>

@@ -4,12 +4,18 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 租户 - 服务
@@ -46,5 +52,16 @@ public class SysTenantService {
     @TableField(value = "sys_tenant_service_valid_time")
     @ApiModelProperty(value = "到期时间")
     @Schema(description = "到期时间")
-    private LocalDateTime sysTenantServiceValidTime;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate sysTenantServiceValidTime;
+
+    /**
+     * 菜单
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "菜单")
+    @Schema(description = "菜单")
+    private List<SysMenu> sysMenu;
 }
