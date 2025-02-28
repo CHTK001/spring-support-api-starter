@@ -52,6 +52,21 @@ public class SysAiModule extends SysBase {
     @Schema(description = "模型编码")
     @NotBlank(message = "模型编码不能为空", groups = {AddGroup.class})
     private String sysAiModuleCode;
+    /**
+     * 模型类型
+     */
+    @TableField(value = "sys_ai_module_type")
+    @ApiModelProperty(value = "模型类型")
+    @Schema(description = "模型类型")
+    @NotBlank(message = "模型类型不能为空", groups = {AddGroup.class})
+    private String sysAiModuleType;
+    /**
+     * 模型地址
+     */
+    @TableField(value = "sys_ai_module_url")
+    @ApiModelProperty(value = "模型地址")
+    @Schema(description = "模型地址")
+    private String sysAiModuleUrl;
 
     /**
      * 项目ID
@@ -61,16 +76,23 @@ public class SysAiModule extends SysBase {
     @Schema(description = "项目ID")
     @NotNull(message = "项目ID不能为空", groups = {AddGroup.class})
     private Integer sysProjectId;
+    /**
+     * 项目名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "项目名称")
+    @Schema(description = "项目名称")
+    private String sysProjectName;
 
 
     /**
      * 厂商(字典表1)
      */
-    @TableField(value = "sys_api_module_manufacturers")
+    @TableField(value = "sys_ai_module_manufacturers")
     @ApiModelProperty(value = "厂商(字典表1)")
     @Schema(description = "厂商(字典表1)")
     @NotNull(message = "厂商不能为空", groups = {AddGroup.class})
-    private Integer sysApiModuleManufacturers;
+    private Integer sysAiModuleManufacturers;
     /**
      * 厂商(字典表1)
      */
@@ -108,4 +130,12 @@ public class SysAiModule extends SysBase {
     @Schema(description = "说明")
     private String sysAiModuleRemark;
 
+
+    /**
+     * 文生图模型配置
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "文生图模型配置")
+    @Schema(description = "文生图模型配置")
+    private SysAiVincentSetting vincentSetting;
 }

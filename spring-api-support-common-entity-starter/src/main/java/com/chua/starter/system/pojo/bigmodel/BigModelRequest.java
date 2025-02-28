@@ -56,5 +56,5 @@ public class BigModelRequest {
     /**
      * 文件base64
      */
-    private String[] files;
+    private com.chua.common.support.bigmodel.BigModelRequest.FileInfo[] files;
 }
