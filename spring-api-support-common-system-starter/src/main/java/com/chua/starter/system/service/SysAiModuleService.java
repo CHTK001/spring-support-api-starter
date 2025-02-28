@@ -19,18 +19,20 @@ public interface SysAiModuleService extends IService<SysAiModule> {
     /**
      * 模型列表
      *
-     * @param sysProjectId 项目ID
+     * @param sysProjectId   项目ID
+     * @param sysAiModuleType 模型类型
      * @return List
      */
-    List<SysAiModule> list(Integer sysProjectId);
+    List<SysAiModule> list(Integer sysProjectId, String sysAiModuleType);
 
     /**
      * 分页模型
      *
-     * @param sysProjectId 项目ID
+     * @param sysProjectId    项目ID
+     * @param sysAiModuleType
      * @return List
      */
-    IPage<SysAiModule> pageFor(Query<?> query, Integer sysProjectId);
+    IPage<SysAiModule> pageFor(Query<?> query, Integer sysProjectId, String sysAiModuleType);
 
     /**
      * 更新模型

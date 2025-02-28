@@ -34,6 +34,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-siliconflow-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
         </dependency>
 
