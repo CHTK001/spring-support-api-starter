@@ -2,15 +2,18 @@ package com.chua.starter.service.configuration;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.RequestUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.*;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -37,16 +40,54 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
 
     final ControlProperties controlProperties;
 
+    final ApplicationContext applicationContext;
     @Value("${spring.application.name:}")
     private String applicationName;
 
+    /**
+     * 删除
+     *
+     * @param redisCacheAlways
+     * @param redisCacheAlways1
+     * @param sysTenantId
+     * @param key
+     */
+    public void evict(String redisCacheAlways, String redisCacheAlways1, String sysTenantId, String key) {
+        try {
+            applicationContext.getBean(CacheConstant.REDIS_CACHE_ALWAYS, CacheManager.class)
+                    .getCache(CacheConstant.REDIS_CACHE_ALWAYS)
+                    .evict(getKeyPref(String.valueOf(sysTenantId)).toString() + key);
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+    }
 
-    public StringBuilder getKeyPref() {
+    /**
+     * 删除
+     *
+     * @param redisCacheAlways
+     * @param redisCacheAlways1
+     * @param key
+     */
+    public void evict(String redisCacheAlways, String redisCacheAlways1, String key) {
+        evict(redisCacheAlways, redisCacheAlways1, RequestUtils.getTenantId(), key);
+    }
+
+    public StringBuilder getKeyPref(String tenantId) {
         StringBuilder key = new StringBuilder(PREFIX);
         key.append(applicationName).append(":");
         key.append(controlProperties.getPlatform().getName()).append(":");
-        key.append(RequestUtils.getTenantId()).append(":");
+        key.append(tenantId).append(":");
         return key;
+    }
+
+    /**
+     * 获取key
+     *
+     * @return
+     */
+    public StringBuilder getKeyPref() {
+        return getKeyPref(RequestUtils.getTenantId());
     }
 
     @Override
@@ -163,4 +204,6 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
         CacheableOperation cacheableOperation = new CacheableOperation(builder);
         return new MethodBasedEvaluationContext(cacheableOperation, method, params, paramNameDiscoverer);
     }
+
+
 }

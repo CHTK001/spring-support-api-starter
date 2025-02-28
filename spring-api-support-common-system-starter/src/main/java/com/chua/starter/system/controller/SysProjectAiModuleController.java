@@ -44,13 +44,15 @@ public class SysProjectAiModuleController {
      * 模型列表
      *
      * @param sysProjectId 项目ID
+     * @param sysAiModuleType 项目类型
      * @return {@link ReturnResult}<{@link List}<{@link SysAiModule}>>
      */
     @Operation(summary = "模型列表")
     @GetMapping("list")
-    public ReturnResult<List<SysAiModule>> list(Integer sysProjectId) {
-        return ReturnResult.success(sysAiModuleService.list(sysProjectId));
+    public ReturnResult<List<SysAiModule>> list(Integer sysProjectId, String sysAiModuleType) {
+        return ReturnResult.success(sysAiModuleService.list(sysProjectId, sysAiModuleType));
     }
+
 
     /**
      * 模型分页列表
@@ -60,8 +62,8 @@ public class SysProjectAiModuleController {
      */
     @Operation(summary = "模型分页列表")
     @GetMapping("page")
-    public ReturnPageResult<SysAiModule> page(@ParameterObject Query<?> query, Integer sysProjectId) {
-        return ReturnPageResultUtils.ok(sysAiModuleService.pageFor(query, sysProjectId));
+    public ReturnPageResult<SysAiModule> page(@ParameterObject Query<?> query, Integer sysProjectId, String sysAiModuleType) {
+        return ReturnPageResultUtils.ok(sysAiModuleService.pageFor(query, sysProjectId, sysAiModuleType));
     }
 
     /**

@@ -85,7 +85,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         BigModelClient bigModelClient = ServiceProvider.of(BigModelClient.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         com.chua.common.support.bigmodel.BigModelSetting.builder()
-                                .host(sysProject.getSysProjectEndpoint())
+                                .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
                                 .appSecret(sysProject.getSysProjectAppSecret())
                                 .appKey(sysProject.getSysProjectAppKey())

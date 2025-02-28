@@ -1,6 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,52 +11,82 @@ import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
 import com.chua.starter.system.entity.SysAiModule;
+import com.chua.starter.system.entity.SysAiVincentSetting;
 import com.chua.starter.system.entity.SysDictItem;
+import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.mapper.SysAiModuleMapper;
+import com.chua.starter.system.mapper.SysAiVincentSettingMapper;
 import com.chua.starter.system.service.SysAiModuleService;
 import com.github.yulichang.toolkit.MPJWrappers;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
+/**
+ * 模型
+ *
+ * @author ch
+ * @date 2022/8/1
+ */
 @Service
+@RequiredArgsConstructor
 public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAiModule> implements SysAiModuleService {
 
+
+    final SysAiVincentSettingMapper sysAiVincentSettingMapper;
+
     @Override
-    public List<SysAiModule> list(Integer sysProjectId) {
-        if (null == sysProjectId) {
-            return Collections.emptyList();
-        }
-        return baseMapper.selectList(
-                Wrappers.<SysAiModule>lambdaQuery()
-                        .eq(SysAiModule::getSysProjectId, sysProjectId)
+    public List<SysAiModule> list(Integer sysProjectId, String sysAiModuleType) {
+        List<SysAiModule> sysAiModules = baseMapper.selectList(
+                MPJWrappers.<SysAiModule>lambdaJoin()
+                        .selectAll(SysAiModule.class)
+                        .selectAs(SysProject::getSysProjectName, SysAiModule::getSysProjectName)
+                        .innerJoin(SysProject.class, SysProject::getSysProjectId, SysAiModule::getSysProjectId)
+                        .eq(ObjectUtils.isNotEmpty(sysProjectId), SysAiModule::getSysProjectId, sysProjectId)
+                        .eq(ObjectUtils.isNotEmpty(sysAiModuleType), SysAiModule::getSysAiModuleType, sysAiModuleType)
                         .eq(SysAiModule::getSysAiModuleStatus, 1)
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
                         .orderByDesc(SysAiModule::getCreateTime)
         );
+
+        List<SysAiModule> list = sysAiModules.stream().filter(sysAiModule -> "VINCENT".equalsIgnoreCase(sysAiModule.getSysAiModuleType())).toList();
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<SysAiVincentSetting> sysAiVincentSettings = sysAiVincentSettingMapper.selectList(
+                    Wrappers.<SysAiVincentSetting>lambdaQuery().in(SysAiVincentSetting::getSysAiModuleId, list.stream().map(SysAiModule::getSysAiModuleId).toList()));
+
+            Map<Integer, SysAiVincentSetting> collect = sysAiVincentSettings.stream().collect(Collectors.toMap(SysAiVincentSetting::getSysAiModuleId, Function.identity()));
+            for (SysAiModule sysAiModule : list) {
+                SysAiVincentSetting sysAiVincentSetting = collect.get(sysAiModule.getSysAiModuleId());
+                if (null == sysAiVincentSetting) {
+                    continue;
+                }
+                sysAiModule.setVincentSetting(sysAiVincentSetting);
+            }
+        }
+
+        return sysAiModules;
     }
 
     @Override
-    public IPage<SysAiModule> pageFor(Query<?> query, Integer sysProjectId) {
-        if (null == sysProjectId) {
-            return ReturnPageResultUtils.empty(SysAiModule.class);
-        }
+    public IPage<SysAiModule> pageFor(Query<?> query, Integer sysProjectId, String sysAiModuleType) {
         return baseMapper.selectPage(
                 new Page<>(query.getPage(), query.getPageSize()),
                 MPJWrappers.<SysAiModule>lambdaJoin()
                         .selectAll(SysAiModule.class)
                         .selectAs(SysDictItem::getSysDictItemName, SysAiModule::getSysApiModuleManufacturersLabel)
-                        .leftJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysAiModule::getSysApiModuleManufacturers)
-                        .eq(SysAiModule::getSysProjectId, sysProjectId)
-                        .eq(SysAiModule::getSysAiModuleStatus, 1)
+                        .leftJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysAiModule::getSysAiModuleManufacturers)
+                        .eq(SysAiModule::getSysAiModuleType, sysAiModuleType)
+                        .eq(ObjectUtils.isNotEmpty(sysProjectId), SysAiModule::getSysProjectId, sysProjectId)
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
                         .orderByDesc(SysAiModule::getCreateTime)
         );
