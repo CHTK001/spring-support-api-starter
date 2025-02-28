@@ -33,7 +33,7 @@ import java.util.List;
 @Slf4j
 @Api(tags = "文生图接口")
 @Tag(name = "文生图接口")
-@RequestMapping("/v2/ai/vincent")
+@RequestMapping("/v2/ai/video/generations")
 @RequiredArgsConstructor
 public class VideoGenerationsController {
 
