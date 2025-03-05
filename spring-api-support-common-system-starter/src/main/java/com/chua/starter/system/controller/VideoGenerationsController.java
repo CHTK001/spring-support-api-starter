@@ -3,16 +3,12 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.bigmodel.generations.video.VideoGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
-import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.system.entity.SysAiModule;
-import com.chua.starter.system.entity.SysAiVincentTask;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
 import com.chua.starter.system.service.VincentDiagramService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +16,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 文生图接口
@@ -72,14 +66,4 @@ public class VideoGenerationsController {
     }
 
 
-    /**
-     * 历史任务
-     *
-     * @return {@link ReturnResult}<{@link List}<{@link SysAiModule}>>
-     */
-    @Operation(summary = "历史任务")
-    @GetMapping("history")
-    public ReturnResult<List<SysAiVincentTask>> history(@Parameter(hidden = true) @UserValue("userId") Integer userId) {
-        return ReturnResult.ok(vincentDiagramService.history(userId));
-    }
 }

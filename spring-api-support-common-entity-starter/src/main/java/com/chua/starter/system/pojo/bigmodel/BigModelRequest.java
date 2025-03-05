@@ -54,6 +54,12 @@ public class BigModelRequest {
     private Double temperature = 0.3;
 
     /**
+     * 随机种子
+     */
+    @Builder.Default
+    private Long seed = -1L;
+
+    /**
      * 文件base64
      */
     private com.chua.common.support.bigmodel.BigModelRequest.FileInfo[] files;

@@ -4,6 +4,7 @@ import com.chua.common.support.bigmodel.BigModelCallback;
 import com.chua.common.support.bigmodel.BigModelClient;
 import com.chua.common.support.bigmodel.BigModelResponse;
 import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
@@ -111,6 +112,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                                 .model(request.getModel())
                                 .temperature(request.getTemperature())
                                 .tokens(request.getTokens())
+                        .seed(request.getSeed())
                                 .version(sysAiModule.getSysAiModuleVersion())
                                 .topK(request.getTopK())
                                 .build(), new BigModelCallback() {
@@ -125,6 +127,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                             @Override
                             public void onComplete() {
                                 try {
+                                    ThreadUtils.sleep(1000);
                                     IoUtils.closeQuietly(response.getOutputStream());
                                 } catch (IOException ignored) {
                                 }
@@ -145,6 +148,32 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                         }
                 );
             } catch (Exception e) {
+                try {
+                    sseEmitter.send(Json.toJson(BigModelResponse.builder()
+                            .output("系统繁忙, 请稍后重试!")
+                            .code(ReturnCode.OK.getCode())
+                            .state(BigModelResponse.State.PADDING)
+                            .build()
+                    ), MediaType.TEXT_PLAIN);
+
+                    sseEmitter.send(Json.toJson(BigModelResponse.builder()
+                            .code(ReturnCode.OK.getCode())
+                            .state(BigModelResponse.State.DONE)
+                            .done(true)
+                            .build()
+                    ), MediaType.TEXT_PLAIN);
+
+                } catch (IllegalStateException e1) {
+                    try {
+                        IoUtils.closeQuietly(response.getOutputStream());
+                    } catch (IOException ignored) {
+                    }
+                } catch (Throwable ignored) {
+                }
+                try {
+                    IoUtils.closeQuietly(response.getOutputStream());
+                } catch (IOException ignored) {
+                }
                 throw e;
             }
         });

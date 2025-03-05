@@ -9,6 +9,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysServiceModule;
 import com.chua.starter.system.mapper.SysServiceModuleMapper;
 import com.chua.starter.system.service.SysServiceModuleService;
+import com.github.yulichang.toolkit.MPJWrappers;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +61,8 @@ public class SysServiceModuleServiceImpl extends ServiceImpl<SysServiceModuleMap
 
     @Override
     public ReturnResult<List<SysServiceModule>> listFor(SysServiceModule sysServiceModule) {
-        return ReturnResult.ok(baseMapper.selectList(Wrappers.<SysServiceModule>lambdaQuery()
+        return ReturnResult.ok(baseMapper.selectList(MPJWrappers.<SysServiceModule>lambdaJoin()
+                .selectAll(SysServiceModule.class)
                 .likeRight(StringUtils.isNotBlank(sysServiceModule.getSysServiceModuleName()), SysServiceModule::getSysServiceModuleName, sysServiceModule.getSysServiceModuleName())
                 .likeRight(StringUtils.isNotBlank(sysServiceModule.getSysServiceModuleCode()), SysServiceModule::getSysServiceModuleCode, sysServiceModule.getSysServiceModuleCode())
                 .orderByAsc(SysServiceModule::getSysServiceModuleSort)

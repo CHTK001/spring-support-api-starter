@@ -51,15 +51,18 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
                 MPJWrappers.<SysAiModule>lambdaJoin()
                         .selectAll(SysAiModule.class)
                         .selectAs(SysProject::getSysProjectName, SysAiModule::getSysProjectName)
+                        .selectAs(SysProject::getSysProjectIcon, SysAiModule::getSysProjectIcon)
                         .innerJoin(SysProject.class, SysProject::getSysProjectId, SysAiModule::getSysProjectId)
                         .eq(ObjectUtils.isNotEmpty(sysProjectId), SysAiModule::getSysProjectId, sysProjectId)
                         .eq(ObjectUtils.isNotEmpty(sysAiModuleType), SysAiModule::getSysAiModuleType, sysAiModuleType)
                         .eq(SysAiModule::getSysAiModuleStatus, 1)
+                        .orderByAsc(SysAiModule::getSysProjectId)
+                        .orderByAsc(SysAiModule::getSysAiModuleName)
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
                         .orderByDesc(SysAiModule::getCreateTime)
         );
 
-        List<SysAiModule> list = sysAiModules.stream().filter(sysAiModule -> "VINCENT".equalsIgnoreCase(sysAiModule.getSysAiModuleType())).toList();
+        List<SysAiModule> list = sysAiModules.stream().toList();
         if (CollectionUtils.isNotEmpty(list)) {
             List<SysAiVincentSetting> sysAiVincentSettings = sysAiVincentSettingMapper.selectList(
                     Wrappers.<SysAiVincentSetting>lambdaQuery().in(SysAiVincentSetting::getSysAiModuleId, list.stream().map(SysAiModule::getSysAiModuleId).toList()));
