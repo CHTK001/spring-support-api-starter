@@ -7,7 +7,10 @@ import com.chua.common.support.bigmodel.generations.video.*;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.UrlUtils;
 import com.chua.starter.system.entity.SysAiModule;
 import com.chua.starter.system.entity.SysAiVincentTask;
 import com.chua.starter.system.entity.SysProject;
@@ -22,10 +25,15 @@ import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+
+import static com.chua.common.support.constant.CommonConstant.EMPTY;
+
 
 /**
  * 文生图服务
@@ -41,6 +49,7 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
     final SysProjectService sysProjectService;
     final SysAiVincentTaskMapper sysAiVincentTaskMapper;
 
+    static final String LOCATION_PATH = "./ai/location";
     @Override
     public ReturnResult<VincentDiagramV1AddTaskResponse> addTask(VincentDiagramV1AddTaskRequest request) {
         if (StringUtils.isBlank(request.getModel())) {
@@ -93,19 +102,81 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
         task.setSysAiVincentTaskCondition(Json.toJson(taskV1Request));
         task.setSysAiVincentTaskUid(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
         task.setSysAiVincentTaskStatus(0);
-        task.setSysAiVincentTaskUrl(Joiner.on(",").skipNulls().join(vincentDiagramAddTaskV1Response.getOutput().getImages()));
+        ImageGenerationsAddTaskV1Response.OutputDTO output = vincentDiagramAddTaskV1Response.getOutput();
+        if (null != output && null != output.getImages()) {
+            task.setSysAiVincentTaskUrl(Joiner.on(",").skipNulls().join(vincentDiagramAddTaskV1Response.getOutput().getImages()));
+            task.setSysAiVincentTaskLocalUrl(createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), vincentDiagramAddTaskV1Response.getOutput().getImages()));
+            if (task.getSysAiVincentTaskUrl().length() > 255) {
+                task.setSysAiVincentTaskUrl(null);
+            }
+        }
         if (StringUtils.isNotBlank(task.getSysAiVincentTaskUrl())) {
             task.setSysAiVincentTaskStatus(1);
         }
-
+        task.setSysAiVincentTaskType("IMAGE");
         sysAiVincentTaskMapper.insert(task);
         VincentDiagramV1AddTaskResponse response = new VincentDiagramV1AddTaskResponse();
         response.setRequestId(vincentDiagramAddTaskV1Response.getRequestId());
         response.setOutput(new VincentDiagramV1AddTaskResponse.OutputDTO());
-        response.getOutput().setTaskStatus(vincentDiagramAddTaskV1Response.getOutput().getTaskStatus());
-        response.getOutput().setTaskId(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
-        response.getOutput().setImages(vincentDiagramAddTaskV1Response.getOutput().getImages());
+        if (null != output) {
+            response.getOutput().setTaskStatus(null != output.getTaskStatus() ? output.getTaskStatus() : "FAILURE");
+            response.getOutput().setTaskId(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
+            response.getOutput().setImages(vincentDiagramAddTaskV1Response.getOutput().getImages());
+        }
         return ReturnResult.success(response);
+    }
+
+    private String createTaskLocalUrl(String sysProjectLocationTempPath, List<String> images) {
+        FileUtils.createDirectory(new File(sysProjectLocationTempPath));
+        List<String> rs = new LinkedList<>();
+        for (String image : images) {
+            rs.add(createLocationUrl(sysProjectLocationTempPath, image));
+        }
+        return Joiner.on(",").join(rs);
+    }
+
+    private String createLocationUrl(String sysProjectLocationTempPath, String image) {
+        try {
+            if (image.startsWith("http")) {
+                return createHttpFile(sysProjectLocationTempPath, image);
+            }
+            if (image.contains(";base64,")) {
+                return createBase64File(sysProjectLocationTempPath, image);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return EMPTY;
+    }
+
+    private String createBase64File(String sysProjectLocationTempPath, String image) {
+        //data:image/png;base64,
+        String substring = image.substring(0, image.indexOf(";base64,")).replace("data:", EMPTY);
+        String base64Url = image.substring(image.indexOf(";base64,") + 8);
+        String suffix = EMPTY;
+        if (substring.startsWith("image") || substring.startsWith("video") || substring.startsWith("audio")) {
+            suffix = substring.substring(substring.indexOf("/") + 1);
+        }
+        File file = new File(sysProjectLocationTempPath, UUID.randomUUID() + "." + suffix);
+        FileUtils.writeTo(Base64.getDecoder().decode(base64Url), file);
+        return FileUtils.normalize(sysProjectLocationTempPath, file.getName());
+    }
+
+    private String createHttpFile(String sysProjectLocationTempPath, String image) {
+        URL url = null;
+        try {
+            url = new URI(image).toURL();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try (InputStream inputStream = url.openStream()) {
+            String fileName = UrlUtils.getFileName(image);
+            File file = new File(sysProjectLocationTempPath, fileName);
+            FileUtils.writeTo(inputStream, file);
+            return FileUtils.normalize(sysProjectLocationTempPath, file.getName());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -144,24 +215,23 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
         //FAILED：任务执行失败
         //UNKNOWN：任务不存在或状态未知
         String taskStatus = output.getTaskStatus();
+        List<String> imageList = Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
+                .stream().map(ImageGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).toList();
+        String images = String.join(",", imageList);
+        String taskLocalUrl = createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), imageList);
         sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()
                 .set(SysAiVincentTask::getSysAiVincentTaskStatus, getStatus(taskStatus))
                 .set(SysAiVincentTask::getSysAiVincentTaskRequestId, vincentDiagramSearchTaskV1Response.getRequestId())
-                .set(SysAiVincentTask::getSysAiVincentTaskUrl, Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
-                        .stream().map(ImageGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).collect(Collectors.joining(","))
-                )
+                .set(SysAiVincentTask::getSysAiVincentTaskUrl, images)
+                .set(SysAiVincentTask::getSysAiVincentTaskLocalUrl, taskLocalUrl)
                 .eq(SysAiVincentTask::getSysAiVincentTaskUid, request.getTaskId())
         );
         return ReturnResult.ok(vincentDiagramSearchTaskV1Response);
     }
 
     @Override
-    public List<SysAiVincentTask> history(Integer userId) {
-        return sysAiVincentTaskMapper.selectPage(new Page<>(1, 10),
-                Wrappers.<SysAiVincentTask>lambdaQuery()
-                        .eq(SysAiVincentTask::getCreateBy, userId)
-                        .orderByDesc(SysAiVincentTask::getCreateTime)
-        ).getRecords();
+    public List<SysAiVincentTask> history(Integer userId, String sysAiVincentTaskType) {
+        return sysAiVincentTaskMapper.history(new Page<>(1, 10), userId, sysAiVincentTaskType).getRecords();
     }
 
     @Override
@@ -205,6 +275,9 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
                         .number(request.getParameters().getNumber())
                         .refStrength(request.getParameters().getRefStrength())
                         .size(request.getParameters().getSize())
+                        .withAudio(ObjectUtils.equals(request.getParameters().getWithAudio(), 1))
+                        .quality(request.getParameters().getQuality())
+                        .fps(request.getParameters().getFps())
                         .seed(request.getParameters().getSeed())
                         .style(request.getParameters().getStyle()).build()
                 )
@@ -215,12 +288,40 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
         task.setSysAiModuleId(sysAiModule.getSysAiModuleId());
         task.setSysAiVincentTaskCondition(Json.toJson(taskV1Request));
         task.setSysAiVincentTaskUid(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
-        task.setSysAiVincentTaskStatus(0);
-        task.setSysAiVincentTaskUrl(Joiner.on(",").skipNulls().join(vincentDiagramAddTaskV1Response.getOutput().getImages()));
-        if (StringUtils.isNotBlank(task.getSysAiVincentTaskUrl())) {
-            task.setSysAiVincentTaskStatus(1);
+        VideoGenerationsAddTaskV1Response.OutputDTO output = vincentDiagramAddTaskV1Response.getOutput();
+        if ("FAILURE".equals(output.getTaskStatus())) {
+            task.setSysAiVincentTaskStatus(2);
+        } else {
+            task.setSysAiVincentTaskStatus(0);
+            if (null != output.getImages()) {
+                task.setSysAiVincentTaskUrl(Joiner.on(",").skipNulls().join(output.getImages()));
+                if (StringUtils.isNotBlank(task.getSysAiVincentTaskUrl())) {
+                    task.setSysAiVincentTaskStatus(1);
+                }
+            }
         }
-
+        if (task.getSysAiVincentTaskCondition().length() > 1000) {
+            task.setSysAiVincentTaskCondition(Json.toJson(VideoGenerationsAddTaskV1Request.builder()
+                    .sysProjectId(sysProjectId)
+                    .model(request.getModel())
+                    .input(VideoGenerationsAddTaskV1Request.Input.builder()
+                            .prompt(request.getInput().getPrompt())
+                            .negativePrompt(request.getInput().getNegativePrompt())
+                            .build()
+                    )
+                    .parameters(VideoGenerationsAddTaskV1Request.Parameters.builder()
+                            .number(request.getParameters().getNumber())
+                            .refStrength(request.getParameters().getRefStrength())
+                            .size(request.getParameters().getSize())
+                            .withAudio(ObjectUtils.equals(request.getParameters().getWithAudio(), 1))
+                            .quality(request.getParameters().getQuality())
+                            .fps(request.getParameters().getFps())
+                            .seed(request.getParameters().getSeed())
+                            .style(request.getParameters().getStyle()).build()
+                    )
+                    .build()));
+        }
+        task.setSysAiVincentTaskType("VIDEO");
         sysAiVincentTaskMapper.insert(task);
         VincentDiagramV1AddTaskResponse response = new VincentDiagramV1AddTaskResponse();
         response.setRequestId(vincentDiagramAddTaskV1Response.getRequestId());
@@ -267,12 +368,15 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
         //FAILED：任务执行失败
         //UNKNOWN：任务不存在或状态未知
         String taskStatus = output.getTaskStatus();
+        List<String> imageList = Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
+                .stream().map(VideoGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).toList();
+        String images = String.join(",", imageList);
+        String taskLocalUrl = createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), imageList);
         sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()
                 .set(SysAiVincentTask::getSysAiVincentTaskStatus, getStatus(taskStatus))
                 .set(SysAiVincentTask::getSysAiVincentTaskRequestId, videoGenerationsSearchTaskV1Response.getRequestId())
-                .set(SysAiVincentTask::getSysAiVincentTaskUrl, Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
-                        .stream().map(VideoGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).collect(Collectors.joining(","))
-                )
+                .set(SysAiVincentTask::getSysAiVincentTaskUrl, images)
+                .set(SysAiVincentTask::getSysAiVincentTaskLocalUrl, taskLocalUrl)
                 .eq(SysAiVincentTask::getSysAiVincentTaskUid, request.getTaskId())
         );
         return ReturnResult.ok(videoGenerationsSearchTaskV1Response);

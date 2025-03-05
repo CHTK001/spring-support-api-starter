@@ -65,12 +65,26 @@ public class SysAiVincentTask extends SysBase {
     @Schema(description = "参数")
     private String sysAiVincentTaskCondition;
     /**
+     * 类型
+     */
+    @TableField(value = "sys_ai_vincent_task_type")
+    @ApiModelProperty(value = "类型")
+    @Schema(description = "类型")
+    private String sysAiVincentTaskType;
+    /**
      * 链接
      */
     @TableField(value = "sys_ai_vincent_task_url")
     @ApiModelProperty(value = "链接")
     @Schema(description = "链接")
     private String sysAiVincentTaskUrl;
+    /**
+     * 本地链接
+     */
+    @TableField(value = "sys_ai_vincent_task_local_url")
+    @ApiModelProperty(value = "本地链接")
+    @Schema(description = "本地链接")
+    private String sysAiVincentTaskLocalUrl;
     /**
      * 请求ID
      */

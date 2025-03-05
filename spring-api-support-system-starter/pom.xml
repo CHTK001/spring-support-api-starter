@@ -41,21 +41,16 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-deepseek-starter</artifactId>
+            <artifactId>utils-support-openai-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-kimi-starter</artifactId>
+            <artifactId>utils-support-zhipu-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-ollama-starter</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-doubao-starter</artifactId>

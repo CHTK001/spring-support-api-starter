@@ -15,9 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
@@ -70,13 +68,13 @@ public class BigModelController {
      * @return 返回操作结果，如果操作成功，返回true；否则返回false，并附带错误信息。
      */
     @Operation(summary = "大语言模型")
-    @GetMapping(value = "stream", produces = "text/event-stream")
+    @PostMapping(value = "stream", produces = "text/event-stream")
     public SseEmitter callStream(@ParameterObject Query<?> query,
-                                 @Validated(SelectGroup.class) @ParameterObject BigModelRequest request,
+                                 @Validated(SelectGroup.class) @RequestBody @ParameterObject BigModelRequest request,
                                  HttpServletResponse response,
                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new RuntimeException(bindingResult.getAllErrors().get(0).getDefaultMessage());
+            throw new RuntimeException(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return bigModelService.callStream(query, request, response);
     }

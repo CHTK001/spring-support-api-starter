@@ -39,26 +39,26 @@ public class SysAiVincentSetting extends SysBase {
     /**
      * 支持的尺寸
      */
-    @TableField(value = "sys_ai_vincent_support_size")
+    @TableField(value = "sys_ai_vincent_supported_size")
     @ApiModelProperty(value = "支持的尺寸")
     @Schema(description = "支持的尺寸")
-    private String sysAiVincentSupportSize;
+    private String sysAiVincentSupportedSize;
 
     /**
      * 支持的风格
      */
-    @TableField(value = "sys_ai_vincent_support_style")
+    @TableField(value = "sys_ai_vincent_supported_style")
     @ApiModelProperty(value = "支持的风格")
     @Schema(description = "支持的风格")
-    private String sysAiVincentSupportStyle;
+    private String sysAiVincentSupportedStyle;
 
     /**
      * 支持输出张数
      */
-    @TableField(value = "sys_ai_vincent_support_number")
+    @TableField(value = "sys_ai_vincent_supported_number")
     @ApiModelProperty(value = "支持输出张数")
     @Schema(description = "支持输出张数")
-    private Integer se;
+    private Integer sysAiVincentSupportedNumber;
     /**
      * 是否支持异步任务;0:不支持
      */
@@ -66,4 +66,33 @@ public class SysAiVincentSetting extends SysBase {
     @ApiModelProperty(value = "是否支持异步任务;0:不支持")
     @Schema(description = "是否支持异步任务;0:不支持")
     private Integer sysAiVincentSupportAsync;
+    /**
+     * 是否支持音频;0:不支持
+     */
+    @TableField(value = "sys_ai_vincent_support_audio")
+    @ApiModelProperty(value = "是否支持AI音效;0:不支持")
+    @Schema(description = "是否支持AI音效;0:不支持")
+    private Integer sysAiVincentSupportAudio;
+
+    /**
+     * 支持的清晰度
+     */
+    @TableField(value = "sys_ai_vincent_supported_quality")
+    @ApiModelProperty(value = "支持的清晰度")
+    @Schema(description = "支持的清晰度")
+    private String sysAiVincentSupportedQuality;
+    /**
+     * 支持的fps
+     */
+    @TableField(value = "sys_ai_vincent_supported_fps")
+    @ApiModelProperty(value = "支持的fps")
+    @Schema(description = "支持的fps")
+    private String sysAiVincentSupportedFps;
+    /**
+     * 是否支持参考图片;0:不支持
+     */
+    @TableField(value = "sys_ai_vincent_support_ref_image")
+    @ApiModelProperty(value = "是否支持参考图片;0:不支持")
+    @Schema(description = "是否支持参考图片;0:不支持")
+    private Integer sysAiVincentSupportRefImage;
 }

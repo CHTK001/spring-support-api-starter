@@ -26,3 +26,10 @@ plugin:
   oauth:
     address: http://172.16.0.40:19180/oauth
     protocol: http-lite
+  file:
+    storage:
+      enabled: true
+      properties:
+        - port: 11245,11246
+          endpoint: ..
+          bucket: ai
