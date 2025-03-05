@@ -57,10 +57,25 @@ public class VincentDiagramV1AddTaskRequest {
         @Schema(description = "输出图像尺寸")
         private String size;
         /**
+         * 输出图像质量
+         */
+        @Schema(description = "输出图像质量")
+        private String quality;
+        /**
          * 随机种子
          */
         @Schema(description = "随机种子")
         private Integer seed;
+        /**
+         * 输出图像帧率
+         */
+        @Schema(description = "输出图像帧率")
+        private Integer fps;
+        /**
+         * 是否支持音效
+         */
+        @Schema(description = "是否支持音效")
+        private Integer withAudio;
         /**
          * 输出图像数量
          */

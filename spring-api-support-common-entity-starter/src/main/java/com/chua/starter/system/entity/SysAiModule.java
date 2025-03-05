@@ -77,12 +77,26 @@ public class SysAiModule extends SysBase {
     @NotNull(message = "项目ID不能为空", groups = {AddGroup.class})
     private Integer sysProjectId;
     /**
+     * 模型版本
+     */
+    @TableField(value = "sys_ai_module_vlm")
+    @ApiModelProperty(value = "是否是vlm模型;0:否")
+    @Schema(description = "是否是vlm模型;0:否")
+    private Integer sysAiModuleVlm;
+    /**
      * 项目名称
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "项目名称")
     @Schema(description = "项目名称")
     private String sysProjectName;
+    /**
+     * 项目图标
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "项目图标")
+    @Schema(description = "项目图标")
+    private String sysProjectIcon;
 
 
     /**

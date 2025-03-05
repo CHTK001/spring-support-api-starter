@@ -141,6 +141,20 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value="api地址")
     @Schema(description="api地址")
     private String sysProjectApiAddress;
+    /**
+     * 临时文件路径
+     */
+    @TableField(value = "sys_project_location_temp_path")
+    @ApiModelProperty(value = "临时文件路径")
+    @Schema(description = "临时文件路径")
+    private String sysProjectLocationTempPath;
+    /**
+     * oss地址
+     */
+    @TableField(value = "sys_project_location_oss_address")
+    @ApiModelProperty(value = "oss地址")
+    @Schema(description = "oss地址")
+    private String sysProjectLocationOssAddress;
 
     /**
      * 厂家(字典1)

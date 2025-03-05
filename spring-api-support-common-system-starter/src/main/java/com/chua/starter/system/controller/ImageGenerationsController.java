@@ -79,7 +79,7 @@ public class ImageGenerationsController {
      */
     @Operation(summary = "历史任务")
     @GetMapping("history")
-    public ReturnResult<List<SysAiVincentTask>> history(@Parameter(hidden = true) @UserValue("userId") Integer userId) {
-        return ReturnResult.ok(vincentDiagramService.history(userId));
+    public ReturnResult<List<SysAiVincentTask>> history(@Parameter(hidden = true) @UserValue("userId") Integer userId, String sysAiVincentTaskType) {
+        return ReturnResult.ok(vincentDiagramService.history(userId, sysAiVincentTaskType));
     }
 }

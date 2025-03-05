@@ -34,7 +34,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <module.version>4.0.0.31</module.version>
-        <utils.version>4.0.0.24</utils.version>
+        <utils.version>4.0.0.25</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
@@ -276,6 +276,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-zhipu-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-deepseek-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
@@ -289,6 +295,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-kimi-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-openai-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 

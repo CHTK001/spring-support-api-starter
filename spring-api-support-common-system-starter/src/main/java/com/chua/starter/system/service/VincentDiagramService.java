@@ -38,9 +38,10 @@ public interface VincentDiagramService {
      * 历史
      *
      * @param userId 用户ID
+     * @param sysAiVincentTaskType 类型
      * @return 结果
      */
-    List<SysAiVincentTask> history(Integer userId);
+    List<SysAiVincentTask> history(Integer userId, String sysAiVincentTaskType);
 
     /**
      * 提交任务
