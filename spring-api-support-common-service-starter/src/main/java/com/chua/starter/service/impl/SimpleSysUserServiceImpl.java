@@ -15,17 +15,13 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysUser;
-import com.google.zxing.qrcode.encoder.QRCode;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
