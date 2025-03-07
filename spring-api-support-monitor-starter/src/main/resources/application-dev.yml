@@ -6,7 +6,7 @@ spring:
     password: root@
   data:
     redis:
-      database: 6
+      database: 0
       host: 172.16.0.40
       port: 16379
   sql:
