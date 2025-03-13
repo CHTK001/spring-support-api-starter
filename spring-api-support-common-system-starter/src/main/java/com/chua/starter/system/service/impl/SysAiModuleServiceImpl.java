@@ -56,9 +56,8 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
                         .eq(ObjectUtils.isNotEmpty(sysProjectId), SysAiModule::getSysProjectId, sysProjectId)
                         .eq(ObjectUtils.isNotEmpty(sysAiModuleType), SysAiModule::getSysAiModuleType, sysAiModuleType)
                         .eq(SysAiModule::getSysAiModuleStatus, 1)
-                        .orderByAsc(SysAiModule::getSysProjectId)
-                        .orderByAsc(SysAiModule::getSysAiModuleName)
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
+                        .orderByAsc(SysAiModule::getSysProjectId)
                         .orderByDesc(SysAiModule::getCreateTime)
         );
 

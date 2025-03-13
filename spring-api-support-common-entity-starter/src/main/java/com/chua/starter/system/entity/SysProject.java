@@ -163,6 +163,13 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value="厂家(字典1)")
     @Schema(description="厂家(字典1)")
     private Integer sysProjectVender;
+    /**
+     * 排序
+     */
+    @TableField(value = "sys_project_sort")
+    @ApiModelProperty(value = "排序")
+    @Schema(description = "排序")
+    private Integer sysProjectSort;
 
     /**
      * 厂家(字典1)
