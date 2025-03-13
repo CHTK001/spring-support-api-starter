@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 文生图模型参数
  */
@@ -95,4 +97,13 @@ public class SysAiVincentSetting extends SysBase {
     @ApiModelProperty(value = "是否支持参考图片;0:不支持")
     @Schema(description = "是否支持参考图片;0:不支持")
     private Integer sysAiVincentSupportRefImage;
+
+
+    /**
+     * 支持的风格
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "支持的风格")
+    @Schema(description = "支持的风格")
+    private List<SysAiVincentStyle> styles;
 }
