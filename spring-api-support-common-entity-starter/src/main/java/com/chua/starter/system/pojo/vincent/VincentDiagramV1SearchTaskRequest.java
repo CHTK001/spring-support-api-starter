@@ -27,4 +27,13 @@ public class VincentDiagramV1SearchTaskRequest {
     @Schema(description = "任务ID")
     @NotBlank(message = "任务ID不能为空", groups = {SelectGroup.class})
     private String taskId;
+
+    /**
+     * 模型
+     */
+    private String model;
+    /**
+     * 地域
+     */
+    private String region;
 }

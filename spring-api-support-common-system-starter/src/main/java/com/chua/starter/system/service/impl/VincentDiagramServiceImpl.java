@@ -205,6 +205,8 @@ public class VincentDiagramServiceImpl implements VincentDiagramService {
         ImageGenerationsSearchTaskV1Response vincentDiagramSearchTaskV1Response = vincentDiagramClient.searchTask(
                 ImageGenerationsSearchTaskV1Request.builder()
                         .taskId(request.getTaskId())
+                        .model(request.getModel())
+                        .region(request.getRegion())
                         .build()
         );
         ImageGenerationsSearchTaskV1Response.OutputDTO output = vincentDiagramSearchTaskV1Response.getOutput();
