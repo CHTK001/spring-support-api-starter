@@ -1,7 +1,7 @@
 spring:
   datasource:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
-    url: jdbc:p6spy:mysql://172.16.0.40:3306/tenant?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:p6spy:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root@
   data:
@@ -23,9 +23,3 @@ plugin:
   control:
     platform:
       name: scheduler
-  table:
-    packages: com.chua.starter.admin.entity
-    enable: true
-  oauth:
-    address: http://172.16.0.40:19180/oauth
-    protocol: http-lite
