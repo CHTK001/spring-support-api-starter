@@ -14,7 +14,7 @@ import static com.chua.starter.system.service.support.hikvision.HikvisionEnum.*;
  */
 public class QyxxFactory {
 
-    private final HikvisionClient hikvisionClient;
+    protected final HikvisionClient hikvisionClient;
 
     public QyxxFactory(HikvisionClient hikvisionClient) {
         this.hikvisionClient = hikvisionClient;

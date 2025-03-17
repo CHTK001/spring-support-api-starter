@@ -21,6 +21,11 @@ public class DevicePageV1Request extends Query<SysDevice> {
     private String sysDeviceName;
 
     /**
+     * 项目ID
+     */
+    @Schema(description = "项目ID")
+    private Integer sysProjectId;
+    /**
      * 设备序列号
      */
     @Schema(description = "设备序列号(支持模糊查询)")

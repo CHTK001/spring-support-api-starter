@@ -20,6 +20,7 @@ package com.chua.starter.system.service.support.hikvision.sdk.util;
 
 import com.chua.starter.system.service.support.hikvision.sdk.Response;
 import com.chua.starter.system.service.support.hikvision.sdk.constant.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -64,6 +65,7 @@ import java.util.*;
 /**
  * Http工具类
  */
+@Slf4j
 public class HttpUtil {
     /**
      * HTTP GET
@@ -95,6 +97,7 @@ public class HttpUtil {
                 get.addHeader(e.getKey(), MessageDigestUtil.utf8ToIso88591(e.getValue()));
             }
             HttpResponse rp = httpClient.execute(get);
+            log.info("{}:{}", path, rp.getStatusLine().getStatusCode());
             r = convert(rp);
 
         } catch (ClientProtocolException e) {
