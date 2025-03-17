@@ -1,6 +1,6 @@
 spring:
   application:
-    name: tenant
+    name: scheduler
   profiles:
     active: dev
     include: mybatis,swagger,socket,control,codec,ip,discovery,tenant
@@ -10,8 +10,8 @@ plugin:
   cors:
     enable: true
 server:
-  port: 18171
+  port: -1
   servlet:
-    context-path: /tenant/api
+    context-path: /scheduler/api
   http2:
     enabled: true

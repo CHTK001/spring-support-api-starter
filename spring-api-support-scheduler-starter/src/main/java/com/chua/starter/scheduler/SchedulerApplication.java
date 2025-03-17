@@ -14,7 +14,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @MapperScan({"com.chua.starter.**.mapper"})
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.tenant", "com.chua.starter.service.**"})
+@SpringBootApplication(scanBasePackages = {
+        "com.chua.starter.system",
+        "com.chua.starter.tenant",
+        "com.chua.starter.scheduler",
+        "com.chua.starter.service.impl",
+        "com.chua.starter.service.task",
+        "com.chua.starter.service.configuration"
+})
 public class SchedulerApplication {
 
     public static void main(String[] args) {
