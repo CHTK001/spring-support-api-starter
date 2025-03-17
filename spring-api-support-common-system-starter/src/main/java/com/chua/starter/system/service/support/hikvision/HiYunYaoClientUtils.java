@@ -10,6 +10,7 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
@@ -144,6 +145,41 @@ public class HiYunYaoClientUtils {
 
             log.info("开始执行请求：" + reqURL);
             response = httpClient.execute(httpPost, HttpClientContext.create());
+            result = new HiYunMouHttpClientResult(response);
+        } catch (Exception var14) {
+            log.error("请求通信[" + reqURL + "]时异常,堆栈轨迹如下", var14);
+        } finally {
+            closeHttpRequest(response);
+        }
+
+        return result;
+    }
+
+    public static HiYunMouHttpClientResult sendGetResponse(String reqURL, Map<String, String> headers, String urlParam) {
+        if (connManager != null && connManager.getTotalStats() != null) {
+            log.info("sendPostResponseWithTokent pool " + connManager.getTotalStats().toString());
+        }
+
+        HiYunMouHttpClientResult result = null;
+        CloseableHttpResponse response = null;
+
+        try {
+            if (ObjectUtils.isNotEmpty(urlParam)) {
+                reqURL = reqURL + "?" + urlParam;
+            }
+
+            HttpGet httpGet = new HttpGet(reqURL);
+            if (ObjectUtils.isNotEmpty(headers)) {
+                Iterator var10 = headers.entrySet().iterator();
+
+                while (var10.hasNext()) {
+                    Map.Entry<String, String> entry = (Map.Entry) var10.next();
+                    httpGet.setHeader(entry.getKey(), entry.getValue());
+                }
+            }
+
+            log.info("开始执行请求：" + reqURL);
+            response = httpClient.execute(httpGet, HttpClientContext.create());
             result = new HiYunMouHttpClientResult(response);
         } catch (Exception var14) {
             log.error("请求通信[" + reqURL + "]时异常,堆栈轨迹如下", var14);

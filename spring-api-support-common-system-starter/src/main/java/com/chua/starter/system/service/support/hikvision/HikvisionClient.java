@@ -3,7 +3,11 @@ package com.chua.starter.system.service.support.hikvision;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.lang.date.DateTime;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.adaptor.CarFactory;
 import com.chua.starter.system.service.support.hikvision.adaptor.FaceFactory;
@@ -20,12 +24,18 @@ import com.chua.starter.system.service.support.hikvision.sdk.config.ArtemisConfi
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.chua.starter.system.service.support.hikvision.HikvisionEnum.*;
 
@@ -66,6 +76,25 @@ public class HikvisionClient implements Client {
         this(new String[]{"https"}, host, appKey, secretAccessKey);
     }
 
+
+    /**
+     * 获取token
+     *
+     * @return token
+     */
+    public String getToken() {
+        return null;
+    }
+
+
+    /**
+     * 刷新token
+     *
+     * @return token
+     */
+    public String refreshToken() {
+        return null;
+    }
     /**
      * 车
      *
@@ -185,6 +214,66 @@ public class HikvisionClient implements Client {
         return "";
     }
 
+    @Override
+    public IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request) {
+        String url = "/api/v1/open/accessControl/accessEvents/actions/list" + "?pageNo=" + request.getPage() +
+                "&pageSize=" + request.getPageSize() +
+                "&deviceSerial=" + request.getSysDeviceSerialNumber() +
+                "&major=5" +
+                "&major=75" +
+                "&startTime=" + URLEncoder.encode(DateTime.of(ObjectUtils.defaultIfNull(
+                request.getStartTime(),
+                LocalDateTime.now().minusDays(7)
+        )).toStandard(), StandardCharsets.UTF_8) +
+                "&endTime=" + URLEncoder.encode(DateTime.of(ObjectUtils.defaultIfNull(
+                request.getStartTime(),
+                LocalDateTime.now()
+        )).toStandard(), StandardCharsets.UTF_8);
+
+        String s = this.executeGet(url, Collections.emptyMap(), String.class);
+        return null;
+    }
+
+    @Override
+    public boolean syncEventMessage(CardDevicePageV1Request request) {
+        return false;
+    }
+
+    /**
+     * 调用海康接口
+     *
+     * @param url  调用地址
+     * @param type 返回类型
+     * @return 结果
+     */
+    public <T> T executeGet(final String url, Map<String, String> headers, Class<T> type) {
+        String artemis = ArtemisHttpUtil.doGetArtemis(analysisPath(url),
+                null,
+                null,
+                null,
+                headers,
+                artemisConfig);
+        return executeResponse(artemis, type);
+    }
+
+    /**
+     * 调用海康接口
+     *
+     * @param url  调用地址
+     * @param type 返回类型
+     * @return 结果
+     */
+    public <T> T executeGet(final String url, JSONObject query, Map<String, String> headers, Class<T> type) {
+        String artemis = ArtemisHttpUtil.doGetArtemis(analysisPath(url),
+                query.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, it -> it.getValue().toString()))
+                ,
+                null,
+                null,
+                headers,
+                artemisConfig);
+        return executeResponse(artemis, type);
+    }
     /**
      * 调用海康接口
      *
@@ -203,6 +292,43 @@ public class HikvisionClient implements Client {
         return executeResponse(artemis, type);
     }
 
+    /**
+     * 调用海康接口
+     *
+     * @param url  调用地址
+     * @param json 参数
+     * @param type 返回类型
+     * @return 结果
+     */
+    public <T> T executePostForm(final String url, JSONObject json, Map<String, String> headers, Class<T> type) {
+        String artemis = ArtemisHttpUtil.doPostStringArtemis(analysisPath(url),
+                json.toJSONString(),
+                null,
+                null,
+                "application/x-www-form-urlencoded",
+                headers,
+                artemisConfig);
+        return executeResponse(artemis, type);
+    }
+
+    /**
+     * 调用海康接口
+     *
+     * @param url  调用地址
+     * @param json 参数
+     * @param type 返回类型
+     * @return 结果
+     */
+    public <T> T executePost(final String url, JSONObject json, Map<String, String> headers, Class<T> type) {
+        String artemis = ArtemisHttpUtil.doPostStringArtemis(analysisPath(url),
+                json.toJSONString(),
+                null,
+                null,
+                "application/json",
+                headers,
+                artemisConfig);
+        return executeResponse(artemis, type);
+    }
     /**
      * 调用海康接口
      *
@@ -263,7 +389,7 @@ public class HikvisionClient implements Client {
      * @return T
      */
     private <T> T executeResponse(String artemis, Class<T> type) {
-        if (null == artemis) {
+        if (StringUtils.isBlank(artemis)) {
             return null;
         }
         JSONObject artemisObject = JSONObject.parseObject(artemis);
@@ -294,7 +420,11 @@ public class HikvisionClient implements Client {
             }
             return (T) JSON.toJSONString(o);
         }
-        return JSON.parseObject(artemisObject.getString(DATA), type);
+        String string = artemisObject.getString(DATA);
+        if (string.startsWith("[")) {
+            return (T) JSON.parseArray(string, type);
+        }
+        return JSON.parseObject(string, type);
     }
 
     /**
@@ -304,7 +434,7 @@ public class HikvisionClient implements Client {
      * @return 结果
      */
     private boolean isFailure(JSONObject artemisObject) {
-        return !"0".equals(artemisObject.getString(CODE));
+        return !"0".equals(artemisObject.getString(CODE)) && !"200".equals(artemisObject.getString(CODE));
     }
 
 }

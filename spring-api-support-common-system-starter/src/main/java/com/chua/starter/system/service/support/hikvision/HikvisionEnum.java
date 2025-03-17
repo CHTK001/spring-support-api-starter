@@ -159,6 +159,21 @@ public enum HikvisionEnum {
      * 根据资源类型分页获取资源列表，主要用于资源信息的全量同步。
      */
     DEVICE_RESOURCE_RESOURCES("/api/irds/v2/deviceResource/resources"),
+
+    /**
+     * 获取组织树
+     * <p>
+     * 获取组织树接口可用来全量同步组织信息，返回结果分页展示。
+     * </p>
+     */
+    YOU_MOU_DEVICE_RESOURCE_RESOURCES("/api/v1/open/basic/devices/list"),
+    /**
+     * 获取组织树
+     * <p>
+     * 获取组织树接口可用来全量同步组织信息，返回结果分页展示。
+     * </p>
+     */
+    YUN_MOU_GROUPS_LIST_ALL("/api/v1/open/basic/groups/actions/listAll"),
     /**
      * a)一次性添加一张人脸，返回结果为添加成功的人脸。
      * b)添加的人脸图片，目前支持URL方式和二进制数据方式。URL方式时，人脸监控应用服务会通过HTTP协议的GET方式下载图片，校验图片，最后重新上传图片；二进制数据是指图片的字节流经过Base64编码后得到的字符串。

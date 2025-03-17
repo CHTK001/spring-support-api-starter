@@ -78,6 +78,13 @@ public class ArtemisHttpUtil {
         String responseStr = null;
         try {
             Map<String, String> headers = new HashMap<String, String>();
+            if (null != header) {
+                for (Map.Entry<String, String> entry : header.entrySet()) {
+                    String k = entry.getKey();
+                    String v = entry.getValue();
+                    headers.put(k, v);
+                }
+            }
             //（必填）根据期望的Response内容类型设置
             if (StringUtils.isNotBlank(accept)) {
                 headers.put(HttpHeader.HTTP_HEADER_ACCEPT, accept);
@@ -90,9 +97,7 @@ public class ArtemisHttpUtil {
             } else {
                 headers.put(HttpHeader.HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT);
             }
-            if (header != null) {
-                headers.putAll(header);
-            }
+
             logger.info(path.get(httpSchema));
             Request request = new Request(Method.GET, httpSchema + artemisConfig.host,
                     path.get(httpSchema), artemisConfig.appKey, artemisConfig.appSecret, Constants.DEFAULT_TIMEOUT);
@@ -144,6 +149,7 @@ public class ArtemisHttpUtil {
             } else {
                 headers.put(HttpHeader.HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT);
             }
+
             logger.info(path.get(httpSchema));
             Request request = new Request(Method.GET, httpSchema + artemisConfig.host,
                     path.get(httpSchema), artemisConfig.appKey, artemisConfig.appSecret, Constants.DEFAULT_TIMEOUT);

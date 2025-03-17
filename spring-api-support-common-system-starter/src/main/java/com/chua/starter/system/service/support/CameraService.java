@@ -1,5 +1,8 @@
 package com.chua.starter.system.service.support;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.query.SysDeviceCameraOnOffline;
 import com.chua.starter.system.service.support.hikvision.result.DeviceResourceResourcesResult;
@@ -71,4 +74,21 @@ public interface CameraService {
      * @return 返回摄像头的预览地址
      */
     String previewUrl(Integer sysProjectId, String sysDeviceSerialNumber, String sysDeviceResourceType, DevicePreviewUrlV1Request request);
+
+    /**
+     * 分页查询门禁历史记录
+     *
+     * @param request 分页请求参数
+     * @return 返回分页查询结果
+     */
+    IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request);
+
+
+    /**
+     * 同步门禁事件消息
+     *
+     * @param request 分页请求参数
+     * @return 返回同步结果
+     */
+    boolean syncEventMessage(CardDevicePageV1Request request);
 }

@@ -22,7 +22,7 @@ import static com.chua.starter.system.service.support.hikvision.HikvisionEnum.*;
 @Slf4j
 public class RyjzpFactory {
 
-    private final HikvisionClient hikvisionClient;
+    protected final HikvisionClient hikvisionClient;
 
     public RyjzpFactory(HikvisionClient hikvisionClient) {
         this.hikvisionClient = hikvisionClient;
