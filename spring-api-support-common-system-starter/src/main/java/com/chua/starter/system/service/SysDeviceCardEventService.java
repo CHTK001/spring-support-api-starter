@@ -1,0 +1,9 @@
+package com.chua.starter.system.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+
+public interface SysDeviceCardEventService extends IService<SysDeviceCardEvent> {
+
+
+}

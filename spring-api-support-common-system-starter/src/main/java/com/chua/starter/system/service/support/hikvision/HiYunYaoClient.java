@@ -3,11 +3,15 @@ package com.chua.starter.system.service.support.hikvision;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.function.InitializingAware;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.utils.ThreadUtils;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.adaptor.CarFactory;
 import com.chua.starter.system.service.support.hikvision.adaptor.FaceFactory;
@@ -162,6 +166,16 @@ public class HiYunYaoClient extends HikvisionClient implements InitializingAware
     }
 
     @Override
+    public IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request) {
+        return new Page<>();
+    }
+
+    @Override
+    public boolean syncEventMessage(CardDevicePageV1Request request) {
+        return false;
+    }
+
+    @Override
     public String previewUrl(String sysDeviceSerialNumber, String sysDeviceResourceType, DevicePreviewUrlV1Request request) {
         Map<String, Object> params = new HashMap<>(12);
         params.put("projectId", factory.getSysProjectSign());
@@ -227,5 +241,17 @@ public class HiYunYaoClient extends HikvisionClient implements InitializingAware
         }
 
 
+    }
+
+
+    @Override
+    public String getToken() {
+        return token;
+    }
+
+    @Override
+    public String refreshToken() {
+        afterPropertiesSet();
+        return getToken();
     }
 }

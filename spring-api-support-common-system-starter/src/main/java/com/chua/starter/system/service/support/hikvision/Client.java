@@ -1,5 +1,8 @@
 package com.chua.starter.system.service.support.hikvision;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.adaptor.CarFactory;
 import com.chua.starter.system.service.support.hikvision.adaptor.FaceFactory;
@@ -90,4 +93,20 @@ public interface Client {
      * @return 结果
      */
     String recordUrl(String sysDeviceSerialNumber, String sysDeviceResourceType, DevicePreviewUrlV1Request request);
+
+    /**
+     * 获取门禁历史数据
+     *
+     * @param request 请求
+     * @return 获取组织机构接口
+     */
+    IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request);
+
+    /**
+     * 同步门禁历史数据
+     *
+     * @param request 请求
+     * @return 获取组织机构接口
+     */
+    boolean syncEventMessage(CardDevicePageV1Request request);
 }

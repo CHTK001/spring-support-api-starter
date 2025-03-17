@@ -3,6 +3,8 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.system.entity.SysDevice;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePageV1Request;
 import com.chua.starter.system.service.SysDeviceService;
 import io.swagger.annotations.Api;
@@ -33,6 +35,17 @@ public class SysDeviceController {
     final SysDeviceService sysDeviceService;
 
 
+    /**
+     * 门禁设备历史记录
+     *
+     * @param request 请求
+     */
+    @ApiOperation("门禁设备历史记录")
+    @Operation(summary = "门禁设备历史记录")
+    @GetMapping("card/history/page")
+    public ReturnPageResult<SysDeviceCardEvent> cardHistoryPage(@ParameterObject CardDevicePageV1Request request) {
+        return ReturnPageResultUtils.ok(sysDeviceService.cardHistoryPage(request));
+    }
     /**
      * 分页
      *

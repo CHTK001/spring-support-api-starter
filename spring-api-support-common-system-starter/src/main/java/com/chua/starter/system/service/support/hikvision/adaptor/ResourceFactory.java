@@ -1,6 +1,9 @@
 package com.chua.starter.system.service.support.hikvision.adaptor;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.HikvisionClient;
 import com.chua.starter.system.service.support.hikvision.adaptor.sub.QyxxFactory;
@@ -91,6 +94,26 @@ public class ResourceFactory {
                 sysDeviceResourceType,
                 request
         );
+    }
+
+    /**
+     * 获取门禁历史数据
+     *
+     * @param request 请求
+     * @return 获取组织机构接口
+     */
+    public IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request) {
+        return hikvisionClient.cardHistoryPage(request);
+    }
+
+    /**
+     * 获取门禁历史数据
+     *
+     * @param request 请求
+     * @return 获取组织机构接口
+     */
+    public boolean syncEventMessage(CardDevicePageV1Request request) {
+        return hikvisionClient.syncEventMessage(request);
     }
 
 //    /**

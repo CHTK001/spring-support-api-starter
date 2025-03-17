@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.SysProjectService;
 import com.chua.starter.system.service.support.CameraService;
@@ -13,6 +15,7 @@ import com.chua.starter.system.service.support.hikvision.result.DeviceResourceRe
 import com.chua.starter.system.service.support.hikvision.result.HikRegion;
 import com.chua.starter.system.service.support.hikvision.result.OnOffline;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -127,6 +130,24 @@ public class Hikvision implements CameraService {
         );
     }
 
+    @Override
+    public IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request) {
+        HikvisionClient hikvisionClient = getHikvisionClient(request.getSysProjectId());
+        if (null == hikvisionClient) {
+            throw new RuntimeException("未找到对应的项目");
+        }
+        return hikvisionClient.getResourceFactory().cardHistoryPage(request);
+    }
+
+    @Override
+    public boolean syncEventMessage(CardDevicePageV1Request request) {
+        HikvisionClient hikvisionClient = getHikvisionClient(request.getSysProjectId());
+        if (null == hikvisionClient) {
+            throw new RuntimeException("未找到对应的项目");
+        }
+        return hikvisionClient.getResourceFactory().syncEventMessage(request);
+    }
+
     private void syncForResources(HikvisionClient hikvisionClient, Set<String> resources, Consumer<DeviceResourceResourcesResult> consumer) {
         for (String resource : resources) {
             syncForResource(hikvisionClient, resource, 1, consumer);
@@ -185,7 +206,7 @@ public class Hikvision implements CameraService {
             }
 
             return new HiYunMouClient(new String[]{"https"},
-                    sysProjectEndpoint,
+                    StringUtils.defaultIfBlank(sysProjectEndpoint, "api2.hik-cloud.com"),
                     sysProject.getSysProjectAppId(),
                     sysProject.getSysProjectAppSecret(),
                     sysProject

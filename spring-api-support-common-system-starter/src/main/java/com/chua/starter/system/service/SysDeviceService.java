@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.entity.SysDevice;
 import com.chua.starter.system.entity.SysDeviceCameraRecord;
+import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.entity.SysDeviceOrg;
-import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
-import com.chua.starter.system.pojo.device.DevicePageV1Request;
-import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
-import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
+import com.chua.starter.system.pojo.device.*;
 import com.chua.starter.system.pojo.project.SyncV1Request;
 import com.chua.starter.system.pojo.project.TemplatePageV1Request;
 import com.chua.starter.system.service.support.hikvision.query.SysDeviceCameraOnOffline;
@@ -120,5 +118,13 @@ public interface SysDeviceService extends IService<SysDevice> {
      * @return 返回封装了SysDeviceCameraRecord实体的分页对象
      */
     IPage<SysDevice> pageFor(DevicePageV1Request request);
+
+    /**
+     * 分页查询设备
+     *
+     * @param request 分页查询请求对象，包含查询参数和分页信息
+     * @return 返回封装了SysDeviceCameraRecord实体的分页对象
+     */
+    IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request);
 }
 

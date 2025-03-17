@@ -9,18 +9,12 @@ import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.starter.system.entity.SysDevice;
-import com.chua.starter.system.entity.SysDeviceCameraRecord;
-import com.chua.starter.system.entity.SysDeviceOrg;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.system.entity.*;
 import com.chua.starter.system.mapper.SysDeviceCameraMapper;
 import com.chua.starter.system.mapper.SysDeviceCameraRecordMapper;
 import com.chua.starter.system.mapper.SysDeviceOrgMapper;
 import com.chua.starter.system.mapper.SysProjectMapper;
-import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
-import com.chua.starter.system.pojo.device.DevicePageV1Request;
-import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
-import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
+import com.chua.starter.system.pojo.device.*;
 import com.chua.starter.system.pojo.project.SyncV1Request;
 import com.chua.starter.system.pojo.project.TemplatePageV1Request;
 import com.chua.starter.system.service.SysDeviceService;
@@ -91,54 +85,37 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                         .orderByDesc(SysDevice::getCreateTime)
         );
     }
+
+    /**
+     * 重新加载
+     *
+     * @param sysProjectId 项目id
+     * @return CameraService
+     */
+    public static CameraService reload(SysProjectMapper sysProjectMapper, Integer sysProjectId) {
+        SysProject sysProject = sysProjectMapper.getOne(sysProjectId);
+        if (null == sysProject) {
+            return null;
+        }
+        CameraService cameraService = ServiceProvider.of(CameraService.class).getNewExtension(
+                sysProject.getSysProjectDictItemCode()
+        );
+
+        if (null == cameraService) {
+            return null;
+        }
+
+        cameraService.reload();
+        return cameraService;
+    }
+
     @Override
-    public ReturnResult<Boolean> syncTemplate(SyncV1Request request) {
+    public IPage<SysDeviceCardEvent> cardHistoryPage(CardDevicePageV1Request request) {
         CameraService cameraService = reload(request.getSysProjectId());
         if (null == cameraService) {
-            return ReturnResult.illegal("当前系统不支持该设备厂家, 请联系管理员!");
+            return new Page<>();
         }
-        if (cameraService.sync(request.getSysProjectId(), Set.of("camera"), it -> {
-            List<DeviceResourceResourcesResult.ListDTO> list = it.getList();
-            for (DeviceResourceResourcesResult.ListDTO listDTO : list) {
-                SysDevice sysDevice = baseMapper.selectOne(
-                        Wrappers.<SysDevice>lambdaQuery()
-                                .eq(SysDevice::getSysDeviceSerialNumber, listDTO.getIndexCode()), false
-                );
-                if (null == sysDevice) {
-                    sysDevice = new SysDevice();
-                }
-                sysDevice.setSysDeviceChannelName(listDTO.getChannelType());
-                sysDevice.setSysDeviceChannelNumber(listDTO.getChannelNo());
-                sysDevice.setSysDeviceChannelCount(listDTO.getChannelCount());
-                sysDevice.setSysDeviceName(listDTO.getName());
-                sysDevice.setSysDeviceOrgCode(listDTO.getRegionIndexCode());
-                sysDevice.setSysDeviceStatus(listDTO.getStatus());
-                sysDevice.setSysDeviceOnline(listDTO.getOnline());
-                sysDevice.setUpdateTime(DateTime.of(listDTO.getUpdateTime()).toLocalDateTime());
-                sysDevice.setCreateTime(DateTime.of(listDTO.getCreateTime()).toLocalDateTime());
-                sysDevice.setSysProjectId(request.getSysProjectId());
-                sysDevice.setSysDeviceSerialNumber(listDTO.getIndexCode());
-                sysDevice.setSysDevicePosition(listDTO.getInstallLocation());
-                sysDevice.setSysDeviceResourceType(StringUtils.defaultIfBlank(listDTO.getResourceType(), EMPTY).toUpperCase());
-                sysDevice.setSysDeviceVersion(listDTO.getVersion());
-                sysDevice.setSysDeviceValidateCode(listDTO.getValidateCode());
-                sysDevice.setSysDeviceType(listDTO.getDeviceType());
-                sysDevice.setSysDeviceLongitude(Converter.convertIfNecessary(listDTO.getLongitude(), BigDecimal.class));
-                sysDevice.setSysDeviceLatitude(Converter.convertIfNecessary(listDTO.getLatitude(), BigDecimal.class));
-                sysDevice.setSysDeviceNetAddress(listDTO.getNetAddress());
-
-                sysDevice.setSysDeviceDescription(listDTO.getDescription());
-                if (null == sysDevice.getSysDeviceId()) {
-                    baseMapper.insert(sysDevice);
-                    continue;
-                }
-                baseMapper.updateById(sysDevice);
-            }
-        })) {
-            syncOrg(cameraService, request.getSysProjectId());
-            return ReturnResult.ok();
-        }
-        return ReturnResult.illegal("同步失败");
+        return cameraService.cardHistoryPage(request);
     }
 
     @Override
@@ -175,34 +152,53 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
     }
 
     @Override
-    public ReturnResult<List<OnOffline>> check(CheckDeviceOnlineV1Request request) {
-        List<SysDevice> sysDevices = baseMapper.selectList(
-                Wrappers.<SysDevice>lambdaQuery()
-                        .in(SysDevice::getSysDeviceId, request.getSysDeviceCameraIds())
-        );
-        if (CollectionUtils.isEmpty(sysDevices)) {
-            return ReturnResult.illegal("设备不存在");
-        }
-
-        Integer sysProjectId = sysDevices.getFirst().getSysProjectId();
-        CameraService cameraService = reload(sysProjectId);
+    public ReturnResult<Boolean> syncTemplate(SyncV1Request request) {
+        CameraService cameraService = reload(request.getSysProjectId());
         if (null == cameraService) {
             return ReturnResult.illegal("当前系统不支持该设备厂家, 请联系管理员!");
         }
-        List<OnOffline> onlineResults = cameraService.checkOnline(sysProjectId, sysDevices.stream().map(SysDevice::getSysDeviceSerialNumber).toArray(String[]::new));
-        Map<String, List<OnOffline>> collect = onlineResults.stream().collect(Collectors.groupingBy(OnOffline::getSysCameraTemplateSerialNumber));
-        for (SysDevice sysDevice : sysDevices) {
-            List<OnOffline> onOfflines = collect.get(sysDevice.getSysDeviceSerialNumber());
-            if (CollectionUtils.isEmpty(onOfflines)) {
-                continue;
-            }
-            OnOffline onOffline = onOfflines.getFirst();
-            sysDevice.setSysDeviceStatus(onOffline.getOnline());
-            sysDevice.setUpdateTime(LocalDateTime.now());
-        }
+        if (cameraService.sync(request.getSysProjectId(), Set.of("camera"), it -> {
+            List<DeviceResourceResourcesResult.ListDTO> list = it.getList();
+            for (DeviceResourceResourcesResult.ListDTO listDTO : list) {
+                SysDevice sysDevice = baseMapper.selectOne(
+                        Wrappers.<SysDevice>lambdaQuery()
+                                .eq(SysDevice::getSysDeviceSerialNumber, listDTO.getIndexCode()), false
+                );
+                if (null == sysDevice) {
+                    sysDevice = new SysDevice();
+                }
+                sysDevice.setSysDeviceChannelName(listDTO.getChannelType());
+                sysDevice.setSysDeviceChannelNumber(listDTO.getChannelNo());
+                sysDevice.setSysDeviceChannelCount(listDTO.getChannelCount());
+                sysDevice.setSysDeviceName(listDTO.getName());
+                sysDevice.setSysDeviceOrgCode(listDTO.getRegionIndexCode());
+                sysDevice.setSysDeviceStatus(listDTO.getStatus());
+                sysDevice.setSysDeviceOnline(listDTO.getOnline());
+                sysDevice.setUpdateTime(null == listDTO.getUpdateTime() ? null : DateTime.of(listDTO.getUpdateTime()).toLocalDateTime());
+                sysDevice.setCreateTime(null == listDTO.getCreateTime() ? null : DateTime.of(listDTO.getCreateTime()).toLocalDateTime());
+                sysDevice.setSysProjectId(request.getSysProjectId());
+                sysDevice.setSysDeviceSerialNumber(listDTO.getIndexCode());
+                sysDevice.setSysDevicePosition(listDTO.getInstallLocation());
+                sysDevice.setSysDeviceResourceType(StringUtils.defaultIfBlank(listDTO.getResourceType(), EMPTY).toUpperCase());
+                sysDevice.setSysDeviceVersion(listDTO.getVersion());
+                sysDevice.setSysDeviceValidateCode(listDTO.getValidateCode());
+                sysDevice.setSysDeviceType(listDTO.getDeviceType());
+                sysDevice.setSysDeviceLongitude(Converter.convertIfNecessary(listDTO.getLongitude(), BigDecimal.class));
+                sysDevice.setSysDeviceLatitude(Converter.convertIfNecessary(listDTO.getLatitude(), BigDecimal.class));
+                sysDevice.setSysDeviceNetAddress(listDTO.getNetAddress());
 
-        updateBatchById(sysDevices);
-        return ReturnResult.ok(onlineResults);
+                sysDevice.setSysDeviceDescription(listDTO.getDescription());
+                if (null == sysDevice.getSysDeviceId()) {
+                    baseMapper.insert(sysDevice);
+                    continue;
+                }
+                baseMapper.updateById(sysDevice);
+            }
+        })) {
+            syncOrg(cameraService, request.getSysProjectId());
+            return ReturnResult.ok();
+        }
+        return ReturnResult.illegal("同步失败");
     }
 
     @Override
@@ -288,6 +284,37 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         }
     }
 
+    @Override
+    public ReturnResult<List<OnOffline>> check(CheckDeviceOnlineV1Request request) {
+        List<SysDevice> sysDevices = baseMapper.selectList(
+                Wrappers.<SysDevice>lambdaQuery()
+                        .in(SysDevice::getSysDeviceId, request.getSysDeviceCameraIds())
+        );
+        if (CollectionUtils.isEmpty(sysDevices)) {
+            return ReturnResult.illegal("设备不存在");
+        }
+
+        Integer sysProjectId = sysDevices.getFirst().getSysProjectId();
+        CameraService cameraService = reload(sysProjectId);
+        if (null == cameraService) {
+            return ReturnResult.illegal("当前系统不支持该设备厂家, 请联系管理员!");
+        }
+        List<OnOffline> onlineResults = cameraService.checkOnline(sysProjectId, sysDevices.stream().map(SysDevice::getSysDeviceSerialNumber).toArray(String[]::new));
+        Map<String, List<OnOffline>> collect = onlineResults.stream().collect(Collectors.groupingBy(OnOffline::getSysCameraTemplateSerialNumber));
+        for (SysDevice sysDevice : sysDevices) {
+            List<OnOffline> onOfflines = collect.get(sysDevice.getSysDeviceSerialNumber());
+            if (CollectionUtils.isEmpty(onOfflines)) {
+                continue;
+            }
+            OnOffline onOffline = onOfflines.getFirst();
+            sysDevice.setSysDeviceOnline(onOffline.getOnline());
+            sysDevice.setUpdateTime(LocalDateTime.now());
+        }
+
+        updateBatchById(sysDevices);
+        return ReturnResult.ok(onlineResults);
+    }
+
     /**
      * 重新加载
      *
@@ -295,20 +322,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
      * @return CameraService
      */
     private CameraService reload(Integer sysProjectId) {
-        SysProject sysProject = sysProjectMapper.getOne(sysProjectId);
-        if (null == sysProject) {
-            return null;
-        }
-        CameraService cameraService = ServiceProvider.of(CameraService.class).getNewExtension(
-                sysProject.getSysProjectDictItemCode()
-        );
-
-        if (null == cameraService) {
-            return null;
-        }
-
-        cameraService.reload();
-        return cameraService;
+        return reload(sysProjectMapper, sysProjectId);
     }
 
     @Override
