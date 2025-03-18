@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.lang.date.DateUtils;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.entity.SysProject;
@@ -15,7 +16,9 @@ import com.chua.starter.system.service.support.hikvision.adaptor.ResourceFactory
 import com.chua.starter.system.service.support.hikvision.adaptor.sub.QyxxFactory;
 import com.chua.starter.system.service.support.hikvision.adaptor.sub.YyxxFactory;
 import com.chua.starter.system.service.support.hikvision.adaptor.sub.ZyxxFactory;
+import com.chua.starter.system.service.support.hikvision.yunmou.consumer.MessageHandler;
 import com.chua.starter.system.service.support.hikvision.yunmou.pojo.CardHistory;
+import com.chua.starter.system.service.support.hikvision.yunmou.pojo.YunMouCardEventMessage;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.net.URLEncoder;
@@ -24,6 +27,7 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -109,7 +113,7 @@ public class YunMouResourceFactory extends ResourceFactory {
     public boolean syncEventMessage(CardDevicePageV1Request request) {
         Map<String, String> headers = new HashMap<>(1);
         headers.put("Authorization", "Bearer " + client.getToken());
-        String s = client.executePost("/api/v1/mq/consumer/group1", new JSONObject(), headers, String.class);
+        String s = client.executePost("/api/v1/mq/consumer/group3", new JSONObject(), headers, String.class);
         JSONObject jsonObject = JSON.parseObject(s, JSONObject.class);
         String consumerId = jsonObject.getString("consumerId");
         if (ObjectUtils.isEmpty(consumerId)) {
@@ -120,12 +124,28 @@ public class YunMouResourceFactory extends ResourceFactory {
         String message = client.executePostForm("/api/v1/mq/consumer/messages?autoCommit=true&consumerId=%s".formatted(consumerId), new JSONObject(), headers, String.class);
         while (true) {
             message = client.executePostForm("/api/v1/mq/consumer/messages?autoCommit=true&consumerId=%s".formatted(consumerId), new JSONObject(), headers, String.class);
-            System.out.println(consumerId + " -> " + message);
+            List<YunMouCardEventMessage> yunMouCardEventMessages = JSON.parseArray(message, YunMouCardEventMessage.class);
+            registerMessage(yunMouCardEventMessages, client);
             if (System.currentTimeMillis() - startTimeMillis >= maxMillis) {
                 break;
             }
             ThreadUtils.sleepSecondsQuietly(10);
         }
         return true;
+    }
+
+    private void registerMessage(List<YunMouCardEventMessage> yunMouCardEventMessages, HikvisionClient client) {
+        Thread.ofVirtual().start(() -> {
+            for (YunMouCardEventMessage yunMouCardEventMessage : yunMouCardEventMessages) {
+                MessageHandler messageHandler = ServiceProvider.of(MessageHandler.class).getNewExtension(yunMouCardEventMessage.getMsgType());
+                if (null == messageHandler) {
+                    continue;
+                }
+                try {
+                    messageHandler.handle(yunMouCardEventMessage, client);
+                } catch (Exception ignored) {
+                }
+            }
+        });
     }
 }

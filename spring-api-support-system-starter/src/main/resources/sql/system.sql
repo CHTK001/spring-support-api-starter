@@ -11,7 +11,7 @@
  Target Server Version : 80016 (8.0.16)
  File Encoding         : 65001
 
- Date: 17/02/2025 16:13:26
+ Date: 18/03/2025 14:43:44
 */
 
 SET NAMES utf8mb4;
@@ -23,25 +23,28 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `sys_ai_module`;
 CREATE TABLE `sys_ai_module`
 (
-    `sys_ai_module_id`             int(11)                                                       NOT NULL AUTO_INCREMENT,
-    `sys_ai_module_name`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称',
-    `sys_ai_module_code`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型编码',
-    `sys_project_id`               int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
-    `sys_ai_module_remark`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '说明',
-    `sys_ai_module_status`         int(11)                                                       NULL DEFAULT NULL COMMENT '是否禁用;0:禁用, 1:可用',
-    `sys_ai_module_sort`           int(11)                                                       NULL DEFAULT NULL COMMENT '优先级',
-    `sys_api_module_manufacturers` int(11)                                                       NULL DEFAULT NULL COMMENT '厂商(字典表1)',
-    `sys_ai_module_role_setting`   int(11)                                                       NULL DEFAULT NULL COMMENT '是否存在角色设置;0:不存在',
-    `sys_ai_module_version`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型版本',
-    `create_name`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by`                    int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
-    `create_time`                  datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time`                  datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by`                    int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    `sys_ai_module_id`            int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_module_name`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称',
+    `sys_ai_module_code`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型编码',
+    `sys_project_id`              int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
+    `sys_ai_module_remark`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '说明',
+    `sys_ai_module_status`        int(11)                                                       NULL DEFAULT NULL COMMENT '是否禁用;0:禁用, 1:可用',
+    `sys_ai_module_sort`          int(11)                                                       NULL DEFAULT NULL COMMENT '优先级',
+    `sys_ai_module_manufacturers` int(11)                                                       NULL DEFAULT NULL COMMENT '厂商(字典表1)',
+    `sys_ai_module_role_setting`  int(11)                                                       NULL DEFAULT NULL COMMENT '是否存在角色设置;0:不存在',
+    `sys_ai_module_type`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型类型',
+    `sys_ai_module_url`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型单独地址',
+    `sys_ai_module_version`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型版本',
+    `sys_ai_module_vlm`           int(11)                                                       NULL DEFAULT NULL COMMENT '是否是vlm模型;0:否',
+    `create_name`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                   int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                 datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                 datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                   int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`sys_ai_module_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 6
+  AUTO_INCREMENT = 35
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = 'ai模型分类表'
   ROW_FORMAT = Dynamic;
@@ -50,19 +53,1383 @@ CREATE TABLE `sys_ai_module`
 -- Records of sys_ai_module
 -- ----------------------------
 INSERT INTO `sys_ai_module`
-VALUES (1, 'Spark Lite', 'Spark Lite', 6, NULL, 1, NULL, 10, 0, 'lite', 'sa', 1, '2025-02-07 16:38:03',
+VALUES (1, 'Spark Lite', 'Spark Lite', 6, NULL, 1, NULL, 10, 0, 'LLM', NULL, 'lite', 0, 'sa', 1, '2025-02-07 16:38:03',
         '2025-02-08 11:31:17', 'sa', 1);
 INSERT INTO `sys_ai_module`
-VALUES (2, 'deepseek-chat', 'deepseek-chat', 7, NULL, 1, 0, 21, 0, NULL, 'sa', 1, '2025-02-08 15:20:14', NULL, NULL,
+VALUES (2, 'deepseek-chat', 'deepseek-chat', 7, NULL, 1, 0, 21, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-08 15:20:14',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (3, 'moonshot-v1-8k', 'moonshot-v1-8k', 8, NULL, 1, 0, 22, 0, 'LLM', NULL, NULL, 0, 'sa', 1,
+        '2025-02-08 16:40:10', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (4, 'deepseek-r1:1.5b', 'deepseek-r1:1.5b', 9, NULL, 1, 0, 23, 1, 'LLM', NULL, NULL, 0, 'sa', 1,
+        '2025-02-10 10:17:12', '2025-02-10 11:17:10', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (5, 'gpt-4o-mini', 'gpt-4o-mini', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-17 09:35:14',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (6, 'bot-20250220142651-gh6tp', 'bot-20250220142651-gh6tp', 12, NULL, 1, 0, 26, 0, 'LLM', NULL, NULL, 0, 'sa', 1,
+        '2025-02-20 14:43:43', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (7, 'wanx-v1', 'wanx-v1', 13, NULL, 1, 0, 2, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1, '2025-02-26 11:07:15', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (8, 'black-forest-labs/FLUX.1-schnell', 'black-forest-labs/FLUX.1-schnell', 14,
+        'FLUX.1 [schnell] 是一个 120 亿参数的 Rectified Flow Transformer 模型，能够根据文本描述生成图像。该模型采用潜在对抗扩散蒸馏技术训练，可以在1到4步内生成高质量图像。它具有最先进的输出质量和具有竞争力的提示跟随能力，匹配封闭源替代方案的性能。该模型在 Apache 2.0 许可下发布，可用于个人、科学和商业目的',
+        1, 0, 28, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-27 16:54:44', '2025-02-28 08:39:31', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (9, 'stabilityai/stable-diffusion-xl-base-1.0', 'stabilityai/stable-diffusion-xl-base-1.0', 14,
+        'Stable Diffusion XL（SDXL）是一个基于潜在扩散的文本到图像生成模型，使用了两个固定的预训练文本编码器（OpenCLIP-ViT/G 和 CLIP-ViT/L）。SDXL 由基础模型和精炼模型组成，可以单独使用基础模型或结合两者以获得更好的效果。该模型在生成艺术作品、设计和创意工具应用等方面表现出色，但仅限于研究目的使用',
+        1, 0, 28, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 10:10:11', '2025-02-28 10:11:41', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (10, 'stabilityai/stable-diffusion-3-5-large', 'stabilityai/stable-diffusion-3-5-large', 14,
+        'Stable Diffusion 3.5 Large 是 Stable Diffusion 系列中最强大的基础模型，拥有 80 亿参数。该模型具有卓越的图像质量和更好的提示遵循能力，特别适合在 1 兆像素分辨率下进行专业用途',
+        1, 2, 28, 0, 'VINCENT', NULL, 'v3.5', 0, 'sa', 1, '2025-02-28 10:44:14', '2025-02-28 10:45:09', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (11, 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 15,
+        'DeepSeek-R1-Distill-Qwen-7B 是基于 Qwen2.5-Math-7B 通过知识蒸馏得到的模型。该模型使用 DeepSeek-R1 生成的 80 万个精选样本进行微调，展现出优秀的推理能力。在多个基准测试中表现出色，其中在 MATH-500 上达到了 92.8% 的准确率，在 AIME 2024 上达到了 55.5% 的通过率，在 CodeForces 上获得了 1189 的评分，作为 7B 规模的模型展示了较强的数学和编程能力\n',
+        1, 1, 28, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 11:30:14', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (12, 'Qwen/Qwen2.5-Coder-7B-Instruct', 'Qwen/Qwen2.5-Coder-7B-Instruct', 15,
+        'Qwen2.5-Coder-7B-Instruct 是阿里云发布的代码特定大语言模型系列的最新版本。该模型在 Qwen2.5 的基础上，通过 5.5 万亿个 tokens 的训练，显著提升了代码生成、推理和修复能力。它不仅增强了编码能力，还保持了数学和通用能力的优势。模型为代码智能体等实际应用提供了更全面的基础',
+        1, 1, 28, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 13:43:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (13, 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 14,
+        'DeepSeek-R1-Distill-Qwen-7B 是基于 Qwen2.5-Math-7B 通过知识蒸馏得到的模型。该模型使用 DeepSeek-R1 生成的 80 万个精选样本进行微调，展现出优秀的推理能力。在多个基准测试中表现出色，其中在 MATH-500 上达到了 92.8% 的准确率，在 AIME 2024 上达到了 55.5% 的通过率，在 CodeForces 上获得了 1189 的评分，作为 7B 规模的模型展示了较强的数学和编程能力',
+        1, 1, 28, 0, 'LLM', 'https://api.siliconflow.cn/v1/chat/completions', 'v1.0', 0, 'sa', 1, '2025-02-28 15:21:14',
+        '2025-02-28 15:21:58', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (14, 'cogview-3-flash', 'cogview-3-flash', 17,
+        'CogView-3-Flash是智谱AI推出的免费图像生成模型，能够根据用户指令生成符合要求且美学评分更高的图像。CogView-3-Flash主要应用于艺术创作、设计参考、游戏开发、虚拟现实等领域，帮助用户快速实现从文本到图像的转换需求。',
+        1, 1, 30, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 15:31:07', '2025-02-28 15:44:18', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (15, 'glm-4-flash', 'glm-4-flash', 17, NULL, 1, 1, 30, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 15:53:45',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (16, 'Kwai-Kolors/Kolors', 'Kwai-Kolors/Kolors', 14,
+        'Kolors 是由快手 Kolors 团队开发的基于潜在扩散的大规模文本到图像生成模型。该模型通过数十亿文本-图像对的训练，在视觉质量、复杂语义准确性以及中英文字符渲染方面展现出显著优势。它不仅支持中英文输入，在理解和生成中文特定内容方面也表现出色',
+        1, 0, 28, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1, '2025-03-01 17:47:46', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (17, 'moonshotai/moonlight-16b-a3b-instruct:free', 'moonshotai/moonlight-16b-a3b-instruct:free', 16,
+        'Moonlight-16B-A3B-Instruct 是由 Moonshot AI 开发的一个具有 160 亿参数的混合专家（MoE）语言模型。它针对指令跟随任务进行了优化，每次推理有 30 亿激活参数。该模型在英语、编码、数学和中文基准测试中，在每 FLOP 的性能方面推进了帕累托前沿。它在性能上优于类似的模型，如 Llama3-3B 和 Deepseek-v2-Lite，同时通过与 Hugging Face 集成以及与流行的推理引擎（如 vLLM12）兼容，保持了高效的部署能力。',
+        1, 1, 29, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 19:19:15', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (18, 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free',
+        'cognitivecomputations/dolphin3.0-r1-mistral-24b:free', 16,
+        'Dolphin 3.0 R1 是 Dolphin 系列指令微调模型的下一代产品。旨在成为终极通用本地模型，支持编程、数学、智能代理、函数调用和一般用例。R1 版本经过了 3 个周期的训练，使用来自 Dolphin-R1 数据集的 80 万个推理轨迹进行推理。',
+        1, 0, 29, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 19:25:55', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (19, 'deepseek-r1', 'deepseek-r1', 18, NULL, 1, 0, 31, 0, 'LLM',
+        'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:30:36',
+        '2025-03-01 21:30:58', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (20, 'deepseek-r1-distill-qwen-32b', 'deepseek-r1-distill-qwen-32b', 18, NULL, 1, 0, 31, 0, 'LLM',
+        'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:35:34', NULL, NULL,
         NULL);
 INSERT INTO `sys_ai_module`
-VALUES (3, 'moonshot-v1-8k', 'moonshot-v1-8k', 8, NULL, 1, 0, 22, 0, NULL, 'sa', 1, '2025-02-08 16:40:10', NULL, NULL,
+VALUES (21, 'deepseek-v3', 'deepseek-v3', 18, NULL, 1, 0, 31, 0, 'LLM',
+        'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:37:42', NULL, NULL,
         NULL);
 INSERT INTO `sys_ai_module`
-VALUES (4, 'deepseek-r1:1.5b', 'deepseek-r1:1.5b', 9, NULL, 1, 0, 23, 1, NULL, 'sa', 1, '2025-02-10 10:17:12',
-        '2025-02-10 11:17:10', 'sa', 1);
+VALUES (22, '@cf/meta/llama-3.1-8b-instruct', '@cf/meta/llama-3.1-8b-instruct', 11, NULL, 1, 0, 25, 0, 'LLM', NULL,
+        NULL, 0, 'sa', 1, '2025-03-01 22:36:47', NULL, NULL, NULL);
 INSERT INTO `sys_ai_module`
-VALUES (5, 'gpt-4o-mini', 'gpt-4o-mini', 11, NULL, 1, 0, 25, 0, NULL, 'sa', 1, '2025-02-17 09:35:14', NULL, NULL, NULL);
+VALUES (23, '@cf/deepseek-ai/deepseek-math-7b-instruct', '@cf/deepseek-ai/deepseek-math-7b-instruct', 11, NULL, 1, 0,
+        25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 22:54:41', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (24, '@cf/stabilityai/stable-diffusion-xl-base-1.0', '@cf/stabilityai/stable-diffusion-xl-base-1.0', 11, NULL, 1,
+        0, 32, 0, 'VINCENT',
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0',
+        NULL, 0, 'sa', 1, '2025-03-01 23:20:09', '2025-03-02 00:37:09', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (25, '@cf/black-forest-labs/flux-1-schnell', '@cf/black-forest-labs/flux-1-schnell', 11, NULL, 1, 0, 32, 0,
+        'VINCENT',
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/black-forest-labs/flux-1-schnell',
+        NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (26, '@cf/lykon/dreamshaper-8-lcm', '@cf/lykon/dreamshaper-8-lcm', 11, NULL, 1, 0, 32, 0, 'VINCENT',
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/lykon/dreamshaper-8-lcm',
+        NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (27, '@cf/bytedance/stable-diffusion-xl-lightning', '@cf/bytedance/stable-diffusion-xl-lightning', 11, NULL, 1,
+        0, 32, 0, 'VINCENT',
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/bytedance/stable-diffusion-xl-lightning',
+        NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (28, '@cf/runwayml/stable-diffusion-v1-5-img2img', '@cf/runwayml/stable-diffusion-v1-5-img2img', 11, NULL, 1, 0,
+        32, 0, 'VINCENT',
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/runwayml/stable-diffusion-v1-5-img2img',
+        NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (29, '@cf/qwen/qwen1.5-14b-chat-awq', '@cf/qwen/qwen1.5-14b-chat-awq', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL,
+        0, 'sa', 1, '2025-03-02 03:03:52', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (30, 'glm-4v-flash', 'glm-4v-flash', 17, NULL, 1, 0, 30, 0, 'LLM', NULL, NULL, 1, 'sa', 1, '2025-03-02 12:35:46',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (31, 'cogvideox-flash', 'cogvideox-flash', 17, NULL, 1, 1, 30, 0, 'VIDEO', NULL, NULL, 0, 'sa', 1,
+        '2025-03-04 14:35:25', '2025-03-04 15:16:15', 'sa', 1);
+INSERT INTO `sys_ai_module`
+VALUES (32, 'hunyuan-lite', 'hunyuan-lite', 19, NULL, 1, 0, 34, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-07 15:57:20',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (33, 'TextToImageLite', 'TextToImageLite', 19, NULL, 1, 1, 34, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1,
+        '2025-03-07 16:30:43', NULL, NULL, NULL);
+INSERT INTO `sys_ai_module`
+VALUES (34, 'HunYuanImage', 'HunYuanImage', 19, NULL, 1, 1, 34, 0, 'VINCENT', NULL, NULL, 0, NULL, NULL, NULL, NULL,
+        NULL, NULL);
+
+-- ----------------------------
+-- Table structure for sys_ai_vincent_setting
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_ai_vincent_setting`;
+CREATE TABLE `sys_ai_vincent_setting`
+(
+    `sys_ai_vincent_id`                int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_module_id`                 int(11)                                                       NULL DEFAULT NULL COMMENT '所属模块模型ID',
+    `sys_ai_vincent_support_async`     int(11)                                                       NULL DEFAULT NULL COMMENT '是否支持异步任务;0:不支持',
+    `sys_ai_vincent_support_ref_image` int(11)                                                       NULL DEFAULT NULL COMMENT '支持模板',
+    `sys_ai_vincent_support_audio`     int(11)                                                       NULL DEFAULT NULL COMMENT '支持ai音效',
+    `sys_ai_vincent_supported_style`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的风格',
+    `sys_ai_vincent_supported_number`  int(11)                                                       NULL DEFAULT NULL COMMENT '支持输出张数',
+    `sys_ai_vincent_supported_size`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的尺寸',
+    `sys_ai_vincent_supported_fps`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的FPS',
+    `sys_ai_vincent_supported_quality` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的视频质量',
+    `create_name`                      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                        int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                      datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                      datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                        int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_ai_vincent_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 15
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图模型参数'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_ai_vincent_setting
+-- ----------------------------
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (1, 7, 1, 1, NULL,
+        '<auto>,<photography>,<portrait>,<3d cartoon>,<anime>,<oil painting>,<watercolor>,<sketch>,<chinese painting>,<flat illustration>',
+        2, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, 'sa', 1, '2025-02-26 11:07:15', '2025-02-26 13:17:00',
+        'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (2, 8, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, 'sa', 1,
+        '2025-02-28 08:41:43', '2025-02-28 08:49:03', 'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (3, 9, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, 'sa', 1,
+        '2025-02-28 10:21:17', '2025-02-28 10:27:56', 'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (4, 10, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL,
+        NULL, 'sa', 1, '2025-02-28 10:45:02', '2025-02-28 10:48:08', 'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (5, 14, 0, 0, NULL, '', 1, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL, NULL, 'sa',
+        1, '2025-02-28 15:31:27', '2025-03-18 14:22:12', 'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (6, 16, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL,
+        NULL, 'sa', 1, '2025-03-01 17:48:04', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (7, 24, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152', NULL, NULL, 'sa', 1, '2025-03-01 23:20:20',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (8, 25, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280', NULL, NULL, 'sa', 1, '2025-03-02 02:04:06',
+        '2025-03-02 02:08:14', 'sa', 1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (9, 27, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280', NULL, NULL, 'sa', 1, '2025-03-02 02:51:20', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (10, 26, 0, NULL, NULL, '<auto>', NULL, '1024*1024', NULL, NULL, 'sa', 1, '2025-03-02 02:52:04', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (11, 28, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152', NULL, NULL, 'sa', 1,
+        '2025-03-02 02:58:13', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (12, 31, 1, 1, 1, '<auto>', 1, '1024*1024', '', '', 'sa', 1, '2025-03-04 15:14:35', '2025-03-04 15:15:21', 'sa',
+        1);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (13, 33, 1, 0, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152', NULL, NULL, 'sa', 1, '2025-03-07 16:36:31',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_setting`
+VALUES (14, 34, 1, 0, NULL, NULL, 1, '1024*1024', NULL, NULL, 'sa', 1, '2025-03-07 20:21:12', NULL, NULL, NULL);
+
+-- ----------------------------
+-- Table structure for sys_ai_vincent_style
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_ai_vincent_style`;
+CREATE TABLE `sys_ai_vincent_style`
+(
+    `sys_ai_vincent_style_id`    int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_module_id`           int(11)                                                       NULL DEFAULT NULL COMMENT '所属模型',
+    `sys_ai_vincent_style_name`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格名称',
+    `sys_ai_vincent_style_code`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格编码',
+    `sys_ai_vincent_style_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格地址',
+    PRIMARY KEY (`sys_ai_vincent_style_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 55
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图风格'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_ai_vincent_style
+-- ----------------------------
+INSERT INTO `sys_ai_vincent_style`
+VALUES (1, 34, '日漫动画', 'riman',
+        'https://qcloudimg.tencent-cloud.cn/image/document/1899ad3c41b71cbf67564e5e9a3de27d.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (2, 34, '水墨画', 'shuimo',
+        'https://qcloudimg.tencent-cloud.cn/image/document/567818d24ede579ebb47a90dd8749f39.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (3, 34, '莫奈', 'minai',
+        'https://qcloudimg.tencent-cloud.cn/image/document/60f02a8510ed6d55475608f25d6bdc83.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (4, 34, '扁平插画', 'bianping',
+        'https://qcloudimg.tencent-cloud.cn/image/document/57dc6b150d8695479203f4887783f1d6.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (5, 34, '像素插画', 'xiangsu',
+        'https://qcloudimg.tencent-cloud.cn/image/document/74be9d474c6ba9e8f37468d76f40a4ce.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (6, 34, '儿童绘本', 'ertonghuiben',
+        'https://qcloudimg.tencent-cloud.cn/image/document/28dc717b5f32e810bf53dc10f02948d7.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (7, 34, '3D 渲染', '3dxuanran',
+        'https://qcloudimg.tencent-cloud.cn/image/document/19fa3321dacd17cf7689fd47f8629005.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (8, 34, '漫画', 'manhua',
+        'https://qcloudimg.tencent-cloud.cn/image/document/869e471bf04942eb8e0d36da0a4556bf.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (9, 34, '黑白漫画', 'heibaimanhua',
+        'https://qcloudimg.tencent-cloud.cn/image/document/120f20965200a8bd2f838d1a7fe26d9a.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (10, 34, '写实', 'xieshi',
+        'https://qcloudimg.tencent-cloud.cn/image/document/19c066e3ee8f25069b8834a93f337df3.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (11, 34, '动漫', 'dongman',
+        'https://qcloudimg.tencent-cloud.cn/image/document/20271b79b5a5aa8ff49ec07bb488edc9.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (12, 34, '毕加索', 'bijiasuo',
+        'https://qcloudimg.tencent-cloud.cn/image/document/dc45004da5225aebb89af48fadc8731c.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (13, 34, '赛博朋克', 'saibopengke',
+        'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (14, 34, '油画', 'youhua',
+        'https://qcloudimg.tencent-cloud.cn/image/document/ee58c19eb93298d4175c1d0f88490a94.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (15, 34, '马赛克', 'masaike',
+        'https://qcloudimg.tencent-cloud.cn/image/document/112378e0f4ee1d78c9f306daa8fbff85.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (16, 34, '青花瓷', 'qinghuaci',
+        'https://qcloudimg.tencent-cloud.cn/image/document/d82963705b50cb90ee66bd060177c71b.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (17, 34, '新年剪纸画', 'xinnianjianzhi',
+        'https://qcloudimg.tencent-cloud.cn/image/document/324589129d651b05d23ca336be075cd7.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (18, 34, '新年花艺', 'xinnianhuayi',
+        'https://qcloudimg.tencent-cloud.cn/image/document/92e1acb426ef3268a6b17255d1d6d12b.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (19, 7, '默认', '<auto>',
+        'https://img.alicdn.com/imgextra/i4/O1CN01RzKicz1W0YWzYkWcK_!!6000000002726-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (20, 7, '水彩', '<watercolor>',
+        'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (21, 7, '摄影', '<photography>',
+        'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (22, 7, '人像写真', '<portrait>',
+        'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (23, 7, '油画', '<oil painting>',
+        'https://img.alicdn.com/imgextra/i4/O1CN01wuUOm31wLmtuwafhG_!!6000000006292-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (24, 7, '中国画', '<chinese painting>',
+        'https://img.alicdn.com/imgextra/i3/O1CN01tN84xj1oI6nEhfmL1_!!6000000005201-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (25, 7, '扁平插画', '<flat illustration>',
+        'https://img.alicdn.com/imgextra/i2/O1CN01XMadUe29wy3eouOgg_!!6000000008133-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (26, 7, '二次元', '<anime>',
+        'https://img.alicdn.com/imgextra/i4/O1CN01RIdXyT1Qoa62pyko6_!!6000000002023-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (27, 7, '素描', '<sketch>',
+        'https://img.alicdn.com/imgextra/i1/O1CN017OBYOc1YWjaZbcRpu_!!6000000003067-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (28, 7, '3D卡通', '<3d cartoon>',
+        'https://img.alicdn.com/imgextra/i1/O1CN01W1aZZv1vqBZYXLLrn_!!6000000006223-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (29, 33, '默认', '000',
+        'https://img.alicdn.com/imgextra/i4/O1CN01RzKicz1W0YWzYkWcK_!!6000000002726-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (30, 33, '水墨画', '101',
+        'https://img.alicdn.com/imgextra/i4/O1CN01wuUOm31wLmtuwafhG_!!6000000006292-2-tps-132-104.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (31, 33, '概念艺术', '102', 'https://n.sinaimg.cn/sinacn11/720/w1920h1200/20180821/fe95-hhzsnea0733811.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (32, 33, '油画1', '103',
+        'https://qcloudimg.tencent-cloud.cn/image/document/ee58c19eb93298d4175c1d0f88490a94.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (33, 33, '油画2（梵高）', '118',
+        'https://5b0988e595225.cdn.sohucs.com/images/20180806/db2a2d66d4bc4924b28b8b8541f5bdf3.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (34, 33, '水彩画', '104',
+        'https://img.lucydraw.com/data/upload/d/file/qita/shuicaihua/2015-09-11/1441930227892565.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (35, 33, '像素画', '105',
+        'https://img.zcool.cn/community/01958b5c9b0fa9a801214168ab22f7.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_1280,limit_1/sharpen,100');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (36, 33, '厚涂风格', '106',
+        'https://tse1-mm.cn.bing.net/th/id/OIP-C.wXRGpsVC77SQlqwDAS7W0AHaMr?rs=1&pid=ImgDetMain');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (37, 33, '插图', '107', 'https://img.zcool.cn/community/031crpgdb64vh4s9c28me0s3839.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (38, 33, '剪纸风格', '108',
+        'https://tse4-mm.cn.bing.net/th/id/OIP-C.1AAnOtU3pli62YtDhrkSlQHaJ1?rs=1&pid=ImgDetMain');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (39, 33, '印象派1（莫奈）', '109', 'https://n.sinaimg.cn/sinacn11/75/w2048h1227/20180402/18be-fyssmme6384393.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (40, 33, '印象派2', '119',
+        'https://tse2-mm.cn.bing.net/th/id/OIP-C.kj_tF2vSCBW074ywVVkLbQHaF6?rs=1&pid=ImgDetMain');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (41, 33, '2.5D', '110', NULL);
+INSERT INTO `sys_ai_vincent_style`
+VALUES (42, 33, '古典肖像画', '111',
+        'https://tse1-mm.cn.bing.net/th/id/OIP-C.xIpdK_hc45tsFmKOPD5WZAHaKa?rs=1&pid=ImgDetMain');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (43, 33, '黑白素描画', '112', 'https://c-ssl.duitang.com/uploads/item/201705/28/20170528024853_rz5te.jpeg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (44, 33, '赛博朋克', '113',
+        'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (45, 33, '科幻风格', '114',
+        'https://img.cgmol.com/excellentwork/20190514/164066_20190514110224xsedrgxjpo9tpq5.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (46, 33, '暗黑风格', '115', 'https://img.3dmgame.com/UploadFiles/201108/20110802091135913.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (47, 33, '3D', '116', 'https://qcloudimg.tencent-cloud.cn/image/document/19fa3321dacd17cf7689fd47f8629005.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (48, 33, '蒸汽波', '117', 'https://pic2.zhimg.com/v2-21e09b4d3f1d2fb50f3d1d63bbef6bbc_720w.jpg?source=172ae18b');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (49, 33, '日系动漫', '201',
+        'https://qcloudimg.tencent-cloud.cn/image/document/1899ad3c41b71cbf67564e5e9a3de27d.png');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (50, 33, '怪兽风格', '202', 'https://img.redocn.com/sheji/20230908/shouhuifenggeguaiwuchatu_13096310.jpg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (51, 33, '唯美古风', '203',
+        'https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1287230597,3924216573&fm=173&app=25&f=JPEG?w=640&h=1139&s=71B432D19110E3C610BDACD8030090B3');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (52, 33, '复古动漫', '204', 'https://c-ssl.duitang.com/uploads/item/202002/04/20200204083412_A5dKK.jpeg');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (53, 33, '游戏卡通手绘', '301', 'https://img.tukuppt.com/png_preview/00/24/81/BfoO7Ynm9x.jpg!/fw/780');
+INSERT INTO `sys_ai_vincent_style`
+VALUES (54, 33, '通用写实风格', '401',
+        'https://qcloudimg.tencent-cloud.cn/image/document/19c066e3ee8f25069b8834a93f337df3.jpg');
+
+-- ----------------------------
+-- Table structure for sys_ai_vincent_task
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_ai_vincent_task`;
+CREATE TABLE `sys_ai_vincent_task`
+(
+    `sys_ai_vincent_task_id`         int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_vincent_task_uid`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求ID',
+    `sys_ai_vincent_task_status`     int(11)                                                       NULL DEFAULT NULL COMMENT '状态;0:未完成; 1: 完成; 2:失败',
+    `sys_project_id`                 int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
+    `sys_ai_module_id`               int(11)                                                       NULL DEFAULT NULL COMMENT '模型id',
+    `sys_ai_vincent_task_condition`  longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci     NULL COMMENT '参数',
+    `sys_ai_vincent_task_url`        text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci         NULL COMMENT '图片地址',
+    `sys_ai_vincent_task_local_url`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片本地地址',
+    `sys_ai_vincent_task_type`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型',
+    `sys_ai_vincent_task_request_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求ID',
+    `create_name`                    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                      int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                    datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                    datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                      int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_ai_vincent_task_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 191
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图任务'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_ai_vincent_task
+-- ----------------------------
+INSERT INTO `sys_ai_vincent_task`
+VALUES (1, '52c8c817-518d-914a-b57d-6f6e21fe71df', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:14:07', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (2, '0c406fda-2bbe-9f15-a125-751409a61765', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:15:02', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (3, 'e9020352-3546-9755-b244-d813028ed054', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:17:08', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (4, 'e151ff2f-f298-97c5-8330-a1f6858ac7cc', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:17:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (5, 'a0538900-6215-9f57-bb34-9716b2147207', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:18:20', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (6, 'ed8a3108-8153-9537-854c-4b7a5e2dd585', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:21:43', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (7, '986b7970-1eb8-9d5f-8b9d-d57573d859ef', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 14:23:35', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (8, 'c5651850-031e-4b53-b33c-07c220825f6d', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/6f/20250226/9d34e27a/c3fae9bf-caa1-4cb3-8bea-f546b209dcc1-1.png?Expires=1740637765&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=WIgGU9Mt%2Bmkaikb58uQmT8B40s8%3D',
+        NULL, 'IMAGE', '27d6b360-be8d-9ff0-be76-527e80a9ade4', 'sa', 1, '2025-02-26 14:28:59', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (9, 'e74c278a-525d-49da-9fdc-785ef1a5147d', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/f7/20250226/59320e4c/b3c9356a-a0f7-48a4-aa53-1a7b5b18d2ad-1.png?Expires=1740637853&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=r5xGjYxk%2B%2FcV%2FuPfrYrmhq4DyiE%3D',
+        NULL, 'IMAGE', 'b506e96f-b4c6-9f71-9650-682c68551ebf', 'sa', 1, '2025-02-26 14:30:25', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (10, '2a652953-7040-468c-a557-00b8bd247334', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/2b/20250226/9d34e27a/77a42663-cbc2-4320-9fa9-48a3cbd30bdf-1.png?Expires=1740640622&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=W%2BDT8aw3AwOK8pVEiJwbYPejgnw%3D',
+        NULL, 'IMAGE', '14bf0918-17ba-9e13-8eb8-250d675cead3', 'sa', 1, '2025-02-26 15:16:35', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (11, '98bdb6aa-eb06-4a45-9b2a-3cd0772cbd17', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/47/20250226/59320e4c/a479545b-ae6b-4af2-94f6-117a5f361ce5-1.png?Expires=1740641015&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=EOdSb4X8VCxMlnQr2l4VEaQ8xgc%3D',
+        NULL, 'IMAGE', 'ef229135-8d70-9a28-ac48-21c8b14ddadd', 'sa', 1, '2025-02-26 15:23:10', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (12, 'ca72d64e-c2b9-4289-ab2a-4ddc045a15ce', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/c1/20250226/59320e4c/76bc0909-1a33-4698-adb6-96140c3bf75e-1.png?Expires=1740641327&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=ttMDvxnD8yYkK8XoRwQgFnHrIWc%3D',
+        NULL, 'IMAGE', 'e6294613-cb6d-92c3-a832-161c3c5b7ad9', 'sa', 1, '2025-02-26 15:28:21', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (13, '2fdb07b1-1f56-4a1b-8d8c-ac62d609ba77', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/98/20250226/59320e4c/32f19289-7b8a-49d2-990d-132d6a303565-1.png?Expires=1740641500&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=M%2Fe7t8UOrxGT8k11EpHu1g5PPsU%3D',
+        NULL, 'IMAGE', '9a74c6ed-914f-9417-a909-08ccb39a1808', 'sa', 1, '2025-02-26 15:31:14', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (14, 'd5a99c90-efd1-4960-b300-222dd3ac299b', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/20/20250226/9d34e27a/58e43a84-5ce4-4444-8884-1a6a5c71d101-1.png?Expires=1740641649&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=BSVws7ywJ%2BZc86dCH1PxtnlUJys%3D',
+        NULL, 'IMAGE', '63e09c31-d69a-9e2f-b173-4cd5d79b68b8', 'sa', 1, '2025-02-26 15:33:43', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (15, '4a497709-e926-48fc-9c4f-88898d95ea79', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<photography>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/ac/20250226/59320e4c/21d6d47c-53a2-4a8a-9b6a-74616c49a4f6-1.png?Expires=1740641850&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=2EFgYGsh%2FRCnWZo6w%2Fb%2FH5CsYjk%3D',
+        NULL, 'IMAGE', 'c10e9d23-be6e-9787-88b3-cbf5498d0cb9', 'sa', 1, '2025-02-26 15:37:01', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (16, '068a652c-e26a-48dc-b9a5-92b448633a86', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<3d cartoon>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/9a/20250226/9d34e27a/111df248-965c-4789-8c8c-57238d7e78c0-1.png?Expires=1740642038&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=AoqGjJxMIQyGZFawsULP0z4UEBo%3D',
+        NULL, 'IMAGE', 'b73f347c-e4a7-908a-874b-11dd5ecb8867', 'sa', 1, '2025-02-26 15:40:11', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (17, '5398d8c9-afc9-4170-aa16-778bcb7af36e', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<portrait>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/c3/20250226/59320e4c/2ac7c853-436a-45cb-8c8b-83d140897c25-1.png?Expires=1740642126&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=l6B9ZQcpNNOk4pn0spC7GSZ5uB4%3D',
+        NULL, 'IMAGE', '426f6a57-02f5-9b9e-acea-9f51048fe49c', 'sa', 1, '2025-02-26 15:41:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (18, '57a8355e-0fe5-4c08-b9f5-2b2da94f36de', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<photography>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/63/20250226/59320e4c/51aab945-ac57-43c9-a90b-c28346847f1f-1.png?Expires=1740642215&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=QxMv0Bts1vie7iU%2FSljIZ6ZrF8E%3D',
+        NULL, 'IMAGE', '482a881c-ba13-9451-a04a-6acf508a4cbc', 'sa', 1, '2025-02-26 15:43:09', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (19, '256c0208-c6e8-4d02-ac7f-f398c82786a6', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<photography>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:44:06', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (20, 'fa3514a4-f377-46e2-9f33-1da4c9aa18c0', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<portrait>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:44:17', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (21, '2e39677d-e6e6-40a0-95f3-dde32712562c', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<oil painting>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:45:49', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (22, '518b8377-b188-40df-9402-0d93333bcf0c', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<oil painting>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/04/20250226/59320e4c/0bf124d6-d81c-4dc7-93e8-31bfbda9e684-1.png?Expires=1740642403&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=H0L1KvVpMCLtuFkPCWjf9J8lT%2Fg%3D',
+        NULL, 'IMAGE', '3a0417fb-1750-9ced-a8ca-ec9defcaeeaa', 'sa', 1, '2025-02-26 15:46:16', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (23, '906110d1-2996-45b1-a696-3c14553197cf', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<watercolor>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:47:00', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (24, 'a4d0011a-d703-4827-a726-7f6558f95f95', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的人，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<watercolor>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:48:05', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (25, '57ff21b9-d370-403b-83de-fab04de4d303', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的人，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<watercolor>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:48:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (26, '53a096ec-3bc4-4eab-9144-da1670b8a610', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的人，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<watercolor>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:49:52', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (27, 'b55f5c17-c5a5-40e5-b24f-7bdcd7eecce7', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的人，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<watercolor>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-26 15:50:52', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (28, 'f1159346-bace-4fba-a036-564061a71806', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/75/20250226/59320e4c/6dcd1634-099e-470b-9dfd-01d98a2f2829-1.png?Expires=1740642754&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=QmBypkeAA8G23KoTztoa8K5k%2FqU%3D',
+        NULL, 'IMAGE', 'b4cc1f09-8d11-9a19-96ea-3a578e056ca5', 'sa', 1, '2025-02-26 15:52:06', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (29, 'b78136f4-9b1c-42f1-879e-84807fea41dd', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的人，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/65/20250226/9d34e27a/e1b06c01-c358-4c95-9ef5-817cfedbca46-1.png?Expires=1740642803&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=7j9g9YblGnEWY%2B9Gy2ieE7P6C4Y%3D',
+        NULL, 'IMAGE', '1c3b7499-e44d-937d-9703-01a82f96dbf1', 'sa', 1, '2025-02-26 15:52:57', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (30, 'cb182f7f-d2d4-43b3-bf48-94b23dfd1c52', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"写实摄影风格，一家温馨浪漫的花店外观。\\\"精致的窗户\\\"装饰着蕾丝窗帘和鲜花点缀，正对镜头展示。漂亮的木质门呈深棕色，带有复古铜制把手，门前铺着淡色石板路。花店招牌悬挂上方，整体呈现欧式乡村风情，暖色调光影渲染，高清细节丰富。近景正面构图。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/87/20250226/9d34e27a/4c044368-d660-473e-941e-a284d7908705-1.png?Expires=1740643756&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=kPy%2B9Hibx1AGEfIS6Z9F0OZiuBo%3D',
+        NULL, 'IMAGE', 'fb1c0e13-475e-917f-b722-fc63a29f2e19', 'sa', 1, '2025-02-26 16:08:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (31, '6127140c-ba24-4bad-9a32-64c3a4faa3e2', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<sketch>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/72/20250227/59320e4c/b08eb12f-b83f-4ce9-9b6b-6b1369127401-1.png?Expires=1740705971&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=cjS4ZIBNl0BX8gIcEZFZcV1ubKQ%3D',
+        NULL, 'IMAGE', '992fd967-5850-9a4a-9ac3-1061d31ba975', 'sa', 1, '2025-02-27 09:25:44', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (32, 'c3255d13-27d9-4b6b-bf67-4dcef4eeaaed', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"沉浸在全页灰度涂色的迷人世界中，有一只老虎在曼陀罗宁静的森林中，画面采用线条、笔画\"},\"parameters\":{\"style\":\"<sketch>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/27/20250227/59320e4c/63f5dbba-8bb3-4a19-ac53-0db44535a903-1.png?Expires=1740706010&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=WSaxjdbGt78UF0ldkWzcMziUXsA%3D',
+        NULL, 'IMAGE', '7bfb8bb4-6229-9209-8456-645d9559ce6e', 'sa', 1, '2025-02-27 09:26:24', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (33, '0d729c86-fbac-46d3-896f-49561ae36e90', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"写实摄影风格，一家温馨浪漫的花店外观。\\\"精致的窗户\\\"装饰着蕾丝窗帘和鲜花点缀，正对镜头展示。漂亮的木质门呈深棕色，带有复古铜制把手，门前铺着淡色石板路。花店招牌悬挂上方，整体呈现欧式乡村风情，暖色调光影渲染，高清细节丰富。近景正面构图。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/ad/20250227/59320e4c/3144ae37-a22c-4653-9952-364b48e8e636-1.png?Expires=1740711539&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=p9AItPId0QLeCcQ2srVsM%2FBAMoM%3D',
+        NULL, 'IMAGE', '08ee05ec-8cd2-9877-907e-e7597557983c', 'sa', 1, '2025-02-27 10:58:33', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (34, 'c9d0638a-feeb-4a8d-a48e-18b289b538b9', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/bb/20250227/9d34e27a/d28f7fb6-9a78-4264-ab71-a684ea51c5ce-1.png?Expires=1740725364&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=eMLffftf3JnMBL1DZU4yObMAxoI%3D',
+        NULL, 'IMAGE', 'a3c8572e-cfa0-97a8-8578-89dcbde7f65e', 'sa', 1, '2025-02-27 14:49:01', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (35, '3770413e-edef-4fc4-b5a7-3c16b8c3247d', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"雪景，森林，微距，松鼠，细节清晰，高质量，8K\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":2}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/85/20250227/9d34e27a/40966476-81a6-478f-a060-88830e61e1a4-1.png?Expires=1740725676&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=3MIxQd6UMDQhs2iU%2BQA%2F8RXdTuw%3D,https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/85/20250227/59320e4c/93c5bad1-8091-4847-98b4-7e2aa7a75343-1.png?Expires=1740725676&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=q0ik5%2BXz4NPudLk4HFE862JDM8I%3D',
+        NULL, 'IMAGE', '8be19b1c-42c8-9844-bdc6-5207454b2957', 'sa', 1, '2025-02-27 14:54:08', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (36, '65ea5a80-0064-4a1b-aad3-ccfab28a44f9', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"生成艺术二维码，二维码内容是百度首页\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/d3/20250227/9d34e27a/2f7e3fa6-7230-498f-8342-530fb5d861bf-1.png?Expires=1740726820&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=D%2BUkEpimfV85z8DatTX%2FtoEwDG0%3D',
+        NULL, 'IMAGE', '620a998c-921d-94d6-a331-7c0600de07b0', 'sa', 1, '2025-02-27 15:13:13', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (37, NULL, 0, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/8d604464-23e1-41fb-9406-5dfda7b9d86b_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740710441&Signature=VxqtqM1S8GfUJpXYnYpLEqdeWng%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:40:57', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (38, NULL, 0, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/7fc4eb55-6256-4090-b9a5-30f63bedfb93_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740710500&Signature=HCM2OlCNQsDiXY519R7uz92DvtE%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:41:40', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (39, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"单独的小房子，别墅，风景，阳光，粘土动画风格，8k，高清质感\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/48af4145-e88d-4a7a-9caa-3505ad5dc0c3_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711194&Signature=EUp3qaeUa35jXgFHoy78nHPUWhw%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:53:15', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (40, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"单独的小房子，别墅，风景，阳光，粘土动画风格，8k，高清质感\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/ece42934-1d89-4128-a8f5-2441f702584d_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711268&Signature=nQroiwI1a27Z%2BEpuq9snmz%2FwngE%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:54:29', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (41, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"中国画风格的花鸟矢量插图，圆形，白色背景\",\"refImg\":\"https://wanx.alicdn.com/model/tubiaoyinhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/1670ea80-d243-4821-976b-c46285168367_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711386&Signature=Ta%2FLCVk8YoeEyHb%2Fc%2Fo9RdPhhpM%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:56:27', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (42, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"艺术摄影，中心是一个心形装置设计，浪花，粉红色的氛围，3d，C4D，Octane\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/a97eef96-153c-4bd7-b451-b75d7bb584c1_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711469&Signature=L2j2JwXQ7hdpOtAjUChxoGAw1kw%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:57:50', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (43, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"亚洲女模特，白色棒球夹克，看镜头，真实，白色背景，棚拍\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/fa8e32e8-be39-42d6-931e-78f6144dbeb1_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711512&Signature=zPv0f7QM95oi80GdF4%2BgOBhF0WM%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:58:34', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (44, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/b74bb177-9ad4-4505-9ce0-b8bb869242be_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711564&Signature=s0RIQ62vtMzJHa8RzQ4e7K6JwEc%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 09:59:25', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (45, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"艺术摄影，特写，亚洲男性，半身照，浅色西装，白色背心，棚拍\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/a0984c51-c562-4f57-85d9-188dacc56c33_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740711698&Signature=a5d0Zph3YHEGtUqv9%2ByIv6yAqyg%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:01:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (46, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/1e846321-75bf-4c86-98ca-13f220340f79_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740713285&Signature=tIT1IdkvhZf1RzL8yzne0C7fJWo%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:28:06', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (47, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"写实摄影风格，一家温馨浪漫的花店外观。\\\"精致的窗户\\\"装饰着蕾丝窗帘和鲜花点缀，正对镜头展示。漂亮的木质门呈深棕色，带有复古铜制把手，门前铺着淡色石板路。花店招牌悬挂上方，整体呈现欧式乡村风情，暖色调光影渲染，高清细节丰富。近景正面构图。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/a73a0d9a-0c60-452c-9162-ff553e601378_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740713349&Signature=5a6aEvtQWrcsIC%2FJM1uWfpnDBZ0%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:29:10', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (48, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"写实摄影风格下，呈现一家温馨浪漫的花店外观。其“精致的窗户”处装饰着蕾丝窗帘，并有鲜花加以点缀，正对着镜头予以展示。漂亮的木质门呈现为深棕色，带有复古的铜制把手。门前铺设着淡色石板路。花店招牌悬挂于上方。整体展现出欧式乡村风情，以暖色调光影进行渲染，具有丰富的高清细节。采用近景正面构图。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/686140ef-13bf-450a-8e2c-3ca9543d0877_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740714059&Signature=VM55wU3ujszeT5XK84OWFdqK6jY%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:41:00', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (49, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"写实摄影风格下，呈现一家温馨浪漫的花店外观。其“精致的窗户”处装饰着蕾丝窗帘，并有鲜花加以点缀，正对着镜头予以展示。漂亮的木质门呈现为深棕色，带有复古的铜制把手。门前铺设着淡色石板路。花店招牌悬挂于上方。整体展现出欧式乡村风情，以暖色调光影进行渲染，具有丰富的高清细节。采用近景正面构图。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/c4d93d6f-d2c3-4f19-a0d9-880bf6689750_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740714069&Signature=oiD9JdtAK5KDlBn1In1WTT4u4aY%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:41:09', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (50, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"艺术摄影，特写，亚洲男性，半身照，浅色西装，白色背心，棚拍\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/28983be9-d89a-4e29-90b1-642d84c55ee5_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740714684&Signature=OvwjI%2FWRxJYHpLjGJ9rFowvlC8c%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:51:25', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (51, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"艺术摄影，特写，亚洲男性，半身照，浅色西装，白色背心，棚拍\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/81c510dc-dc6b-441b-865d-fc3cef9e9867_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740714746&Signature=%2Fvm1nsABY3t3IZNNYDgQ0PChp34%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 10:52:27', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (52, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/6b9e1ae3-90b4-48fc-a079-8ea1c5c6021d_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740716147&Signature=rozZG%2FlfjiBRpZmS%2FiHWVclaTjg%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 11:15:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (53, NULL, 1, 14, 10,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-3-5-large\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/c1fc90a3-ddd1-41af-918d-b28ae9e3c181_0.jpeg?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740716354&Signature=n0D1GN93CzjShoVgHUmuKBZVSUo%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 11:19:14', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (54, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/ff94d3c2-cbe2-4041-a6fa-da665c448ed9_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740716357&Signature=XmH57Vv%2FdZpToOHjVlLbF4jFm%2Bc%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 11:19:18', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (55, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/dedb99e6-9d6b-4c9b-8670-0eb23ece4bd1_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740731164&Signature=fbQIiD1N4L0Ta8un1fZS5wSgPcU%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-02-28 15:26:05', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (56, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250228154425cf38eb8bf65748e2_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-02-28 15:44:32', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (57, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250228154623957ecd6657bc45fb_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-02-28 15:46:31', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (58, '395c617d-3db6-41b8-8f11-6f8bb791136f', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/ae/20250228/59320e4c/426f3e80-b9ab-4d73-8fe9-041e724c259e-1.png?Expires=1740815364&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=AAoi%2BTaPnAqkhs016%2ByFUd3BT%2BE%3D',
+        NULL, 'IMAGE', '560b90d5-6550-9222-88fb-dc787fea57b5', 'sa', 1, '2025-02-28 15:48:58', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (59, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/5bdc4d79-cb2a-405a-b176-06e2d31a9d39_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740797785&Signature=7%2Fo5xkSYieTo3IrRGOXNbxt2HqM%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 09:56:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (60, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011403519494f91df99b42f6_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 14:03:59', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (61, '4dbb91a9-8b4e-4900-8eca-f97afc0aeb72', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/15/20250301/59320e4c/5186cd12-5a55-4ec2-9033-7e5f80c72ab0-1.png?Expires=1740895506&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=OwyRPbLYaaPxokthAD%2FUpGByw3E%3D',
+        NULL, 'IMAGE', 'ee1b217f-ad46-9224-b7ef-762ff6866c65', 'sa', 1, '2025-03-01 14:04:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (62, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011406289256890f09ef4f91_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 14:06:36', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (63, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250301172531ccb7f6bf76e04748_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 17:25:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (64, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011725582ae797721bc84a65_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 17:26:05', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (65, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011728270586d366d0524c31_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 17:28:41', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (66, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011729543a73116fb97641cf_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 17:30:01', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (67, '40940a4c-6f93-4b5d-8f0a-13aca5a59bc5', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/dianyingfenjing.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/ce/20250301/9d34e27a/6bdaae11-5757-41e3-817b-afb4087f4449-1.png?Expires=1740907849&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=fLeoMnfPKuu6CotDI1XPI%2FdZXLY%3D',
+        NULL, 'IMAGE', '25d2cd49-c7f3-9fae-9125-323be3d98988', 'sa', 1, '2025-03-01 17:30:23', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (68, '37420297-3340-4d2b-bc43-354eb161401d', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/82/20250301/9d34e27a/d06363ec-ac1b-4c31-a897-066fea97c69a-1.png?Expires=1740908061&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=SXZQUXY%2FphAAZ8MO9ACHNjK%2FeXQ%3D',
+        NULL, 'IMAGE', '30753c20-a0ad-9ca8-9212-2c8ae7df37ea', 'sa', 1, '2025-03-01 17:33:54', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (69, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/d2d8f2bb-6875-4fe1-8649-82eef03ed527_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740825918&Signature=uWjeXyc%2BpF0JONhgzkPD0FRUDGA%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 17:45:19', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (70, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/4d8d05f2-c424-46f4-b7de-ffdb90300559_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740825932&Signature=71m9nOzoTg1cgA%2BiQRIT5wAYdpo%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 17:45:33', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (71, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"鱼眼镜头下，一只黑白绿色熊猫戴着墨镜、围巾和毛绒耳罩，在雪地中微笑自拍，爪子连接着屏幕，背景是连绵的雪山，背包一角露出黄鸭玩偶，充满趣味性。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503011745379e49b9ddaea044dc_0.png', NULL, 'IMAGE', NULL, 'sa', 1,
+        '2025-03-01 17:45:46', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (72, NULL, 1, 14, 16,
+        '{\"sysProjectId\":14,\"model\":\"Kwai-Kolors/Kolors\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/351c6f82-8e04-4208-be11-3b71780fb069_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740826094&Signature=U2ujFgfDFLMn97c4N7Pay1aMDFA%3D',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 17:48:15', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (73, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 23:20:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (74, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 23:21:04', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (75, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 23:22:01', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (76, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 23:30:49', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (77, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-01 23:31:13', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (78, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 01:31:21', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (79, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 01:42:37', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (80, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 01:48:11', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (81, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。风格是四格漫画\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 01:48:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (82, NULL, 0, 11, 24,
+        '{\"sysProjectId\":11,\"model\":\"@cf/stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:03:14', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (83, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/lykon/dreamshaper-8-lcm\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:08:31', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (84, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/lykon/dreamshaper-8-lcm\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"720*1280\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:18:41', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (85, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"720*1280\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:47:34', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (86, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"720*1280\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:49:50', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (87, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"720*1280\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:50:41', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (88, NULL, 0, 11, 27,
+        '{\"sysProjectId\":11,\"model\":\"@cf/bytedance/stable-diffusion-xl-lightning\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:51:35', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (89, NULL, 0, 11, 26,
+        '{\"sysProjectId\":11,\"model\":\"@cf/lykon/dreamshaper-8-lcm\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:52:23', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (90, NULL, 1, 11, 28,
+        '{\"sysProjectId\":11,\"model\":\"@cf/runwayml/stable-diffusion-v1-5-img2img\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'data:image/png;base64,eyJlcnJvcnMiOlt7Im1lc3NhZ2UiOiJBaUVycm9yOiBBaUVycm9yOiBNb2RlbCBpbnB1dCBpcyBub3QgdmFsaWQ6IG1pc3NpbmcgcmVxdWlyZWQgaW5wdXQgaW1hZ2UiLCJjb2RlIjozMDMwfV0sInN1Y2Nlc3MiOmZhbHNlLCJyZXN1bHQiOnt9LCJtZXNzYWdlcyI6W119',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:58:22', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (91, NULL, 1, 11, 28,
+        '{\"sysProjectId\":11,\"model\":\"@cf/runwayml/stable-diffusion-v1-5-img2img\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'data:image/png;base64,eyJlcnJvcnMiOlt7Im1lc3NhZ2UiOiJBaUVycm9yOiBBaUVycm9yOiBNb2RlbCBpbnB1dCBpcyBub3QgdmFsaWQ6IG1pc3NpbmcgcmVxdWlyZWQgaW5wdXQgaW1hZ2UiLCJjb2RlIjozMDMwfV0sInN1Y2Nlc3MiOmZhbHNlLCJyZXN1bHQiOnt9LCJtZXNzYWdlcyI6W119',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 02:59:31', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (92, NULL, 1, 11, 28,
+        '{\"sysProjectId\":11,\"model\":\"@cf/runwayml/stable-diffusion-v1-5-img2img\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'data:image/png;base64,eyJlcnJvcnMiOlt7Im1lc3NhZ2UiOiJBaUVycm9yOiBBaUVycm9yOiBNb2RlbCBpbnB1dCBpcyBub3QgdmFsaWQ6IG1pc3NpbmcgcmVxdWlyZWQgaW5wdXQgaW1hZ2UiLCJjb2RlIjozMDMwfV0sInN1Y2Nlc3MiOmZhbHNlLCJyZXN1bHQiOnt9LCJtZXNzYWdlcyI6W119',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 03:00:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (93, NULL, 1, 11, 28,
+        '{\"sysProjectId\":11,\"model\":\"@cf/runwayml/stable-diffusion-v1-5-img2img\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'data:image/png;base64,eyJlcnJvcnMiOlt7Im1lc3NhZ2UiOiJBaUVycm9yOiBBaUVycm9yOiBNb2RlbCBpbnB1dCBpcyBub3QgdmFsaWQ6IG1pc3NpbmcgcmVxdWlyZWQgaW5wdXQgaW1hZ2UiLCJjb2RlIjozMDMwfV0sInN1Y2Nlc3MiOmZhbHNlLCJyZXN1bHQiOnt9LCJtZXNzYWdlcyI6W119',
+        NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 03:01:42', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (94, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 03:01:56', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (95, NULL, 0, 11, 26,
+        '{\"sysProjectId\":11,\"model\":\"@cf/lykon/dreamshaper-8-lcm\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-02 03:02:25', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (96, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:25:17', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (97, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:26:10', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (98, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:27:30', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (99, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:28:22', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (100, NULL, 0, 11, 25,
+        '{\"sysProjectId\":11,\"model\":\"@cf/black-forest-labs/flux-1-schnell\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:28:45', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (101, NULL, 0, 11, 26,
+        '{\"sysProjectId\":11,\"model\":\"@cf/lykon/dreamshaper-8-lcm\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/912890b0-b710-45bf-ba71-0ed051399762.png', 'IMAGE', NULL, 'sa', 1, '2025-03-02 13:29:10',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (102, 'b0ee81f7-5d78-4713-947c-2454aa76059e', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/04/20250302/59320e4c/fc3ae9f6-afe7-412a-ba4a-1b54284255a0-1.png?Expires=1740982607&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=MlFxviOT%2B01ZgV7C2bL3qEKVSAs%3D',
+        NULL, 'IMAGE', '21b32ed2-6e89-9ff7-be01-64bfe0c57ffd', 'sa', 1, '2025-03-02 14:16:18', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (103, 'a70b46b5-0b23-448a-a9c5-d2476548d27e', 0, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/qinglvtouxiang.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', 'd3fb8c88-a66e-9957-9f85-ca06aebeb7a8', 'sa', 1, '2025-03-02 14:19:33', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (104, '5fda7666-e9b8-48ba-afd4-85a83b0726f5', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/qinglvtouxiang.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/b8/20250302/9d34e27a/057fabc6-5bf0-45fe-8dbd-ff75cb660ae0-1.png?Expires=1740982832&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=ILPEHoBdn2rIkcyaNna%2FgINr4l4%3D',
+        '', 'IMAGE', '58652835-d8ca-9133-91fe-05d38818361b', 'sa', 1, '2025-03-02 14:20:01', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (105, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/f5ac5947-a6a9-4037-a33d-dc34780ef7db_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740900131&Signature=ZR5ADMzAd82p1wLEgoDzFOP3Seo%3D',
+        '', 'IMAGE', NULL, 'sa', 1, '2025-03-02 14:22:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (106, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/09ba1388-3b3f-48e2-8e30-364219075de9_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1740900353&Signature=mc9beQxA0JUupIqhtUP%2FEPdOhOg%3D',
+        'ai/location/09ba1388-3b3f-48e2-8e30-364219075de9_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-02 14:26:09', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (107, 'd24cc18b-f177-45ac-ac44-a5b799964207', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一个站在墙壁前的小学生，带着眼镜，黑色头发，橘黄色外套\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/37/20250302/9d34e27a/8906f67c-44a2-437a-9d54-2a81a89a24ad-1.png?Expires=1740983635&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=gEIDfxrlNXekOd8IFA3XxhpnFPo%3D',
+        'ai/location/8906f67c-44a2-437a-9d54-2a81a89a24ad-1.png', 'IMAGE', '3d989f92-2abe-974a-ad2c-db2b2df38be8', 'sa',
+        1, '2025-03-02 14:33:29', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (108, '2925dbcb-73ea-4c4b-a906-8476f2a251e8', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"换一个柯南\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/0f/20250302/9d34e27a/ea866560-3dee-4d8b-9696-ea9f33fc8b13-1.png?Expires=1740985654&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=c3jfLJ8iXIAaqoFgncvBl%2BDOPL0%3D',
+        'ai/location/ea866560-3dee-4d8b-9696-ea9f33fc8b13-1.png', 'IMAGE', 'b32820b1-82bc-9cf1-9c8c-92d04651087e', 'sa',
+        1, '2025-03-02 15:07:06', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (109, 'd6e6e826-b432-47c9-b078-3e3dba4cb71f', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\",\"refImg\":\"https://wanx.alicdn.com/model/qinglvtouxiang.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/85/20250303/9d34e27a/0f0fa76b-d99f-447b-9881-5e8c4678c911-1.png?Expires=1741068634&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=VWUPGFrDdkLoCyugJfOSYbsgq8c%3D',
+        'ai/location/0f0fa76b-d99f-447b-9881-5e8c4678c911-1.png', 'IMAGE', 'e95ea25d-d303-9536-9816-803463efe079', 'sa',
+        1, '2025-03-03 14:10:07', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (110, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250304131939ff2b440f6e0e4e06_0.png',
+        'ai/location/20250304131939ff2b440f6e0e4e06_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-04 13:19:46', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (111, '217f178f-f9ad-4a0e-9a41-3a3c4f76378d', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一个美女\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/9a/20250304/59320e4c/a8ff5601-6c91-42f7-9b28-d51930888c2b-1.png?Expires=1741154620&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=fm6CSj7ZLfaaWZi97QNAPWno4vs%3D',
+        'ai/location/a8ff5601-6c91-42f7-9b28-d51930888c2b-1.png', 'IMAGE', '90d045ad-53f3-993f-925b-92117a6ff167', 'sa',
+        1, '2025-03-04 14:03:13', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (112, '42e0e852-759c-4c6c-b951-dcb9fd7eda77', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只奔跑的灰色老鼠\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/c4/20250304/9d34e27a/6c3e77be-ab22-46a8-9898-666571ae4a2d-1.png?Expires=1741154679&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=6%2BKNRL7vBCQD2EquGvi7UcnRl7E%3D',
+        'ai/location/6c3e77be-ab22-46a8-9898-666571ae4a2d-1.png', 'IMAGE', 'cd0f8aa5-2459-9b91-b4c7-eba830edb4bb', 'sa',
+        1, '2025-03-04 14:04:12', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (113, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 19:54:29', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (114, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 19:56:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (115, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 19:56:56', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (116, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 19:58:07', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (117, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 20:03:02', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (118, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 20:03:41', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (119, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-04 20:05:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (120, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250304200926d7f3ac9f23f1429f_0.png',
+        'ai/location/20250304200926d7f3ac9f23f1429f_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-04 20:09:33', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (121, NULL, 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:13:00', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (122, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/2025030420132579d1c8d3c4284bd9_0.png',
+        'ai/location/2025030420132579d1c8d3c4284bd9_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-04 20:14:12', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (123, NULL, 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:14:19', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (124, NULL, 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:14:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (125, NULL, 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:14:48', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (126, NULL, 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:22:27', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (127, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:34:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (128, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:35:02', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (129, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:36:08', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (130, NULL, 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:37:45', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (131, '81851725815244431-8929811021003224152', 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:38:35', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (132, '81851725815244431-8929803702376855426', 2, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        '', NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:40:09', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (133, '81851725815244431-8929800472560482081', 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:41:18', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (134, '81851725815244431-8929801331554252783', 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:41:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (135, '81851725815244431-8929800919237269197', 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        NULL, NULL, 'VIDEO', NULL, 'sa', 1, '2025-03-04 20:42:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (136, '81851725815244431-8929811021003223867', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        '', NULL, 'VIDEO', '81851725815244431-8929811021003223867', 'sa', 1, '2025-03-04 20:44:56', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (137, '81851725815244431-8929804389571802831', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        '', NULL, 'VIDEO', '81851725815244431-8929804389571802831', 'sa', 1, '2025-03-04 20:45:38', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (138, '81851725815244431-8929808581461259062', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        '', NULL, 'VIDEO', '81851725815244431-8929808581461259062', 'sa', 1, '2025-03-04 20:45:49', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (139, '81851725815244431-8929805901400831178', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/cf6baca0-f8f6-11ef-bb62-7a299338eb99_0.mp4', NULL, 'VIDEO', NULL,
+        'sa', 1, '2025-03-04 20:47:19', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (140, '81851725815244431-8929803255700115532', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/920047dc-f8fa-11ef-bb62-7a299338eb99_0.mp4',
+        'ai/location/920047dc-f8fa-11ef-bb62-7a299338eb99_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-04 21:14:14', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (141, '81851725815244431-8929809096857529064', 1, 17, 31, NULL,
+        'https://aigc-files.bigmodel.cn/api/cogvideo/01789d7e-f96b-11ef-80d5-2256b763c272_0.mp4',
+        'ai/location/01789d7e-f96b-11ef-80d5-2256b763c272_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-05 10:39:05', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (142, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305105345e195a9ad214240df_0.png',
+        'ai/location/20250305105345e195a9ad214240df_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:53:54', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (143, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503051054014e06406b698641e3_0.png',
+        'ai/location/202503051054014e06406b698641e3_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:54:08', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (144, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/2025030510551420db8a7751a84923_0.png',
+        'ai/location/2025030510551420db8a7751a84923_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:55:22', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (145, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/202503051056299332b53948314d0b_0.png',
+        'ai/location/202503051056299332b53948314d0b_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:56:36', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (146, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305105652d14595443b734001_0.png',
+        'ai/location/20250305105652d14595443b734001_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:57:00', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (147, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305105827cf075e99b909499f_0.png',
+        'ai/location/20250305105827cf075e99b909499f_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:58:35', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (148, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"Amigurumi风格的编织物质感定格动画的一幕，\\n皮克斯风格的中国小朋友在厨房里擀面包饺子。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305105907a64fb46a3ad2441f_0.png',
+        'ai/location/20250305105907a64fb46a3ad2441f_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 10:59:16', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (149, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/2025030511105695159eebc8b94142_0.png',
+        'ai/location/2025030511105695159eebc8b94142_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 11:11:07', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (150, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305112239e1ea0f90437344bd_0.png',
+        'ai/location/20250305112239e1ea0f90437344bd_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 11:22:47', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (151, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"雪景，森林，微距，松鼠，细节清晰，高质量，8K\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305112253d16d6c675d2e4e6f_0.png',
+        'ai/location/20250305112253d16d6c675d2e4e6f_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 11:23:01', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (152, '81851725815244431-8929801297194525240', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"让图片动起来\",\"refImg\":\"https://aigc-files.bigmodel.cn/api/cogview/20250305112253d16d6c675d2e4e6f_0.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/52d02844-f971-11ef-98af-06a2c03d154e_0.mp4',
+        'ai/location/52d02844-f971-11ef-98af-06a2c03d154e_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-05 11:24:19', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (153, '81851725815244431-8929799716646015931', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"生成视频请你明确一下具体主题以及希望发布的平台，这样我才能根据这些信息为你创作一篇符合要求的文章 ，为你精准阐述观点、吸引读者。\\n\\n\\n# 示例标题\\n在当今信息爆炸的时代，[主题相关内容]愈发受到人们的关注。无论是[具体事例1]，还是[具体事例2]，都在不断地提醒着我们[主题的重要性或影响]。\\n\\n[此处展开论述，从不同角度深入分析主题，结合数据、案例等增强说服力]\\n\\n综上所述，[总结主题要点及核心观点]。希望大家能对[主题]有更深入的理解与思考。\\n\\n\\n你可以详细说说主题内容，比如是科技、文化、生活类等，以及期望发布在哪个平台，我好进一步完善文章。 \"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/d5f995bc-f97f-11ef-bccf-5adb421282ad_0.mp4',
+        'ai/location/d5f995bc-f97f-11ef-bccf-5adb421282ad_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-05 13:08:12', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (154, '95d0aa4f-e218-45f0-aa53-17c1a6a383de', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一个扎丸子头的青春少女，戴眼镜，文学系，正在和产品经理对线\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<anime>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/0f/20250305/9d34e27a/00cd4359-15d6-43fb-beaf-1d8d4b1f8fd9-1.png?Expires=1741238468&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=IRx6noeOZyx%2FGiLjZL5VH0Ga%2FaM%3D',
+        'ai/location/00cd4359-15d6-43fb-beaf-1d8d4b1f8fd9-1.png', 'IMAGE', '23c2e3f4-597d-9637-9253-8b0b9b559bfc', 'sa',
+        1, '2025-03-05 13:20:40', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (155, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一个扎丸子头的青春少女，戴眼镜，文学系，正在和产品经理对线\",\"refImg\":\"https://wanx.alicdn.com/model/sigemanhua.png\"},\"parameters\":{\"style\":\"<anime>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305132150d15013134ce74dff_0.png',
+        'ai/location/20250305132150d15013134ce74dff_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 13:21:59', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (156, 'c35a6a06-114d-4068-8829-35d38e06b155', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"生成一个毛大海\",\"refImg\":\"https://wanx.alicdn.com/model/dianyingfenjing.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/1d/26/20250305/9d34e27a/ec83330f-80a2-4874-b5bb-2db50a7d301f-1.png?Expires=1741238645&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=SN93PqN2Ls0vnVdrBvKxv2YJkjw%3D',
+        'ai/location/ec83330f-80a2-4874-b5bb-2db50a7d301f-1.png', 'IMAGE', 'b42f796e-d93e-9c42-a428-a0813da94004', 'sa',
+        1, '2025-03-05 13:23:37', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (157, NULL, 1, 14, 8,
+        '{\"sysProjectId\":14,\"model\":\"black-forest-labs/FLUX.1-schnell\",\"input\":{\"prompt\":\"生成一个毛大海\",\"refImg\":\"https://wanx.alicdn.com/model/dianyingfenjing.png\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/8b4386c2-771f-45a3-805a-eabb40cb650b_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1741155900&Signature=R7tW31iU54cX3lyrDl04XrFxo8Q%3D',
+        'ai/location/8b4386c2-771f-45a3-805a-eabb40cb650b_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 13:25:01', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (158, '81851725815244431-8929797758140329177', 0, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"生成视频\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        '', '', 'VIDEO', '81851725815244431-8929797758140329177', 'sa', 1, '2025-03-05 13:31:57', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (159, '81851725815244431-8929808821979556770', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/651b5e94-f983-11ef-bb62-7a299338eb99_0.mp4',
+        'ai/location/651b5e94-f983-11ef-bb62-7a299338eb99_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-05 13:33:40', NULL,
+        NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (160, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"生成一个毛大海\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305134439d373f3307d16403a_0.png',
+        'ai/location/20250305134439d373f3307d16403a_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 13:44:50', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (161, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"生成一个毛大海\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":3}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250305134600ed457651c41d4795_0.png',
+        'ai/location/20250305134600ed457651c41d4795_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-05 13:46:08', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (162, '94b76b89-71a2-4483-8e7f-73eb45316224', 1, 13, 7,
+        '{\"sysProjectId\":13,\"model\":\"wanx-v1\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"<auto>\",\"size\":\"1024*1024\",\"number\":2}}',
+        'https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/14/20250305/59320e4c/6bbdaf5d-3fc1-4a52-b1ca-728ecd47efbe-1.png?Expires=1741241099&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=lUAy2sX%2BQoFFIHEDutI%2FFNrPCMw%3D,https://dashscope-result-bj.oss-cn-beijing.aliyuncs.com/1d/f9/20250305/59320e4c/ae16dadb-bec7-44b7-82fa-07b534b0b171-1.png?Expires=1741241099&OSSAccessKeyId=LTAI5tQZd8AEcZX6KZV4G8qL&Signature=KhIMsBar7p4j3kBY7N4fJIbYLkI%3D',
+        'ai/location/6bbdaf5d-3fc1-4a52-b1ca-728ecd47efbe-1.png,ai/location/ae16dadb-bec7-44b7-82fa-07b534b0b171-1.png',
+        'IMAGE', '6b6f30ca-862a-9d7f-9b5b-5e2dd05fbb64', 'sa', 1, '2025-03-05 14:04:32', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (163, '6c196a68-8757-4b74-8569-428b51b44966', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:18:52', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (164, '4a5f75ba-8999-4a1b-ada7-58433f50621d', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:19:30', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (165, 'baeb267f-238b-467f-b455-f4efa4b6e4f1', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:21:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (166, '7d54616a-dc14-460f-92ea-163b22a596b2', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:21:57', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (167, '5d515ec2-c58f-48d2-a3cd-1799cd1bed18', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:24:18', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (168, '4fe3967c-5505-458b-9bb6-1f2c608aacf9', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:28:33', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (169, '9975f2d8-e13c-4be2-99c8-d8cb462be774', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"103\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/6e26476f-36a9-47b7-a738-18027f5a85fc.png', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:34:03',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (170, 'f996eb0c-caf8-4ad7-b011-cbc8b72071d1', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"113\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/dec2203d-49ad-45a3-a087-2e0c8045cc5a.png', 'IMAGE', NULL, 'sa', 1, '2025-03-07 19:34:27',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (171, 'be355f5b-92e7-4387-be94-160266d95e27', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"105\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/09eecc51-6615-4991-b6fd-92f24999c454.png', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:13:12',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (172, 'b89c0708-da03-4acc-a6e5-385441f29b0a', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"203\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/e85290e2-5fc8-455e-822e-20451af5a74d.png', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:13:38',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (173, '1e903be3-e2c4-41fd-b3a7-d24a12ee8795', 0, 19, 33,
+        '{\"sysProjectId\":19,\"model\":\"TextToImageLite\",\"input\":{\"prompt\":\"3d，毛茸茸的知更鸟，湖蓝色羽毛，个性图案的肚皮，全身特写十分可爱,对异性充满吸引力的面容，个性的眉毛，长长的模糊毛皮，皮克斯渲染，unreal电影级别的渲染如电影般流畅，复杂的细节\"},\"parameters\":{\"style\":\"401\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, 'ai/location/92da852a-6dbd-41f7-aaac-66162b84fd76.png', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:17:08',
+        NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (174, '730ccb5f-ce58-4165-a968-ad17419f0e5a', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:21:21', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (175, 'c04236c2-158e-4c18-840f-150625f13fee', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:21:39', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (176, 'b77674ab-067b-4efc-b4ad-b8edba204843', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:22:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (177, 'daffd876-fb34-47c1-9033-b4b52436a73c', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:25:55', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (178, '3e6d2201-a33b-423a-96c0-780c4c7a3133', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:26:26', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (179, '0ceb6dba-fcef-45ef-84a2-b17ce16bcc85', 0, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        NULL, NULL, 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:27:17', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (180, '1300309818-1741350498-a69ee250-fb4f-11ef-9c6b-525400b4f423-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:28:19', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (181, '1300309818-1741350527-b7b8e763-fb4f-11ef-9c6b-525400b4f423-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        '', '', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:28:47', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (182, '1300309818-1741350659-0699e5b7-fb50-11ef-9c6b-525400b4f423-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"riman\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aiart-1258344699.cos.ap-guangzhou.myqcloud.com/text_to_img_pro/1300309818/1300309818-1741350659-0699e5b7-fb50-11ef-9c6b-525400b4f423-0/0?q-sign-algorithm=sha1&q-ak=AKIDpRovliU1IJ5ctufBSVIq8AwTlnZ5MN8d&q-sign-time=1741350671%3B1741354271&q-key-time=1741350671%3B1741354271&q-header-list=host&q-url-param-list=&q-signature=edeba68490f727d8f82e6c06d632f997db2d12f4',
+        'ai/location/0', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:31:00', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (183, '1300309818-1741350715-27e5bad5-fb50-11ef-a971-52540008fd15-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"xieshi\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aiart-1258344699.cos.ap-guangzhou.myqcloud.com/text_to_img_pro/1300309818/1300309818-1741350715-27e5bad5-fb50-11ef-a971-52540008fd15-0/0?q-sign-algorithm=sha1&q-ak=AKIDpRovliU1IJ5ctufBSVIq8AwTlnZ5MN8d&q-sign-time=1741350729%3B1741354329&q-key-time=1741350729%3B1741354329&q-header-list=host&q-url-param-list=&q-signature=e9c69b3230f9874ed41a33e7cf417fb789b1e307',
+        'ai/location/0', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:31:56', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (184, '1300309818-1741350792-559695a8-fb50-11ef-a971-52540008fd15-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"xinnianjianzhi\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aiart-1258344699.cos.ap-guangzhou.myqcloud.com/text_to_img_pro/1300309818/1300309818-1741350792-559695a8-fb50-11ef-a971-52540008fd15-0/0?q-sign-algorithm=sha1&q-ak=AKIDpRovliU1IJ5ctufBSVIq8AwTlnZ5MN8d&q-sign-time=1741350805%3B1741354405&q-key-time=1741350805%3B1741354405&q-header-list=host&q-url-param-list=&q-signature=391bda22494ae621b1955f131dce4e957e4d9470',
+        'ai/location/0', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:33:12', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (185, '1300309818-1741350832-6d6d10e9-fb50-11ef-9c6b-525400b4f423-0', 1, 19, 34,
+        '{\"sysProjectId\":19,\"model\":\"HunYuanImage\",\"input\":{\"prompt\":\"亚洲女模特，白色棒球夹克，看镜头，真实，白色背景，棚拍\"},\"parameters\":{\"style\":\"xieshi\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aiart-1258344699.cos.ap-guangzhou.myqcloud.com/text_to_img_pro/1300309818/1300309818-1741350832-6d6d10e9-fb50-11ef-9c6b-525400b4f423-0/0?q-sign-algorithm=sha1&q-ak=AKIDpRovliU1IJ5ctufBSVIq8AwTlnZ5MN8d&q-sign-time=1741350845%3B1741354445&q-key-time=1741350845%3B1741354445&q-header-list=host&q-url-param-list=&q-signature=57d587bcdd4c2ba712a0514296894468abe80ef6',
+        'ai/location/0', 'IMAGE', NULL, 'sa', 1, '2025-03-07 20:33:52', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (186, NULL, 1, 17, 14,
+        '{\"sysProjectId\":17,\"model\":\"cogview-3-flash\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogview/20250318142333d90666b3348442fc_0.png',
+        'ai/location/20250318142333d90666b3348442fc_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-18 14:23:41', NULL, NULL,
+        NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (187, NULL, 1, 14, 9,
+        '{\"sysProjectId\":14,\"model\":\"stabilityai/stable-diffusion-xl-base-1.0\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/nj068e1gij6j_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1742282679&Signature=HQmJ3SVp2HpUGty0WFhMOybFelw%3D',
+        'ai/location/nj068e1gij6j_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-18 14:24:40', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (188, NULL, 1, 14, 16,
+        '{\"sysProjectId\":14,\"model\":\"Kwai-Kolors/Kolors\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/apfk1223ce43_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1742282696&Signature=OzGkQEsTBfsuwHqyBoF5z5FuC5c%3D',
+        'ai/location/apfk1223ce43_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-18 14:24:58', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (189, NULL, 1, 14, 16,
+        '{\"sysProjectId\":14,\"model\":\"Kwai-Kolors/Kolors\",\"input\":{\"prompt\":\"一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确。\"},\"parameters\":{\"style\":\"\",\"size\":\"1024*1024\",\"number\":1}}',
+        'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/h72ryz04awx4_0.png?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1742282958&Signature=ygZHKNL1mV%2FehK0meA1aaVNyIOE%3D',
+        'ai/location/h72ryz04awx4_0.png', 'IMAGE', NULL, 'sa', 1, '2025-03-18 14:29:19', NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_task`
+VALUES (190, '81851725815244431-8891215036107946818', 1, 17, 31,
+        '{\"sysProjectId\":17,\"model\":\"cogvideox-flash\",\"input\":{\"prompt\":\"生成视频\",\"refImg\":\"https://tencentpicdeco.ys7.com:8089/file/open/down?url=aHR0cHM6Ly9pc2FwaS1vcGVuLW9ubGluZS0xMzAwMjU0MjgzLmNvcy5hcC1uYW5qaW5nLm15cWNsb3VkLmNvbS9JU0FQSV9GSUxFUy9GTjI0NzY5ODNfMl82NTU2NTQvMjAyNTAzMTgwNjMzMTMwMTItRk4yNDc2OTgzLTI/c2lnbj1xLXNpZ24tYWxnb3JpdGhtJTNEc2hhMSUyNnEtYWslM0RBS0lEOUZCdFQ1alpHck9wN0dGMmQyS1RQQWxGYWtKRU5ZZmslMjZxLXNpZ24tdGltZSUzRDE3NDIyNzk3MTAlM0IxNzQyMjgxNTEwJTI2cS1rZXktdGltZSUzRDE3NDIyNzk3MTAlM0IxNzQyMjgxNTEwJTI2cS1oZWFkZXItbGlzdCUzRGhvc3QlMjZxLXVybC1wYXJhbS1saXN0JTNEJTI2cS1zaWduYXR1cmUlM0QyMTI0M2ZhMWE3ZWU2YmFhNWI3YzJkYzQ2YTZiMTM1Y2Y3NWQ3MmQ5&crypt=2&time=2025-03-17T22:33:12&key=3ac2053e8392b1f15ecff8936aa36741\"},\"parameters\":{\"style\":\"\",\"size\":\"1024*1024\",\"withAudio\":false,\"number\":1}}',
+        'https://aigc-files.bigmodel.cn/api/cogvideo/2a133390-03c3-11f0-bccf-5adb421282ad_0.mp4',
+        'ai/location/2a133390-03c3-11f0-bccf-5adb421282ad_0.mp4', 'VIDEO', NULL, 'sa', 1, '2025-03-18 14:35:21', NULL,
+        NULL, NULL);
+
+-- ----------------------------
+-- Table structure for sys_ai_vincent_template
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_ai_vincent_template`;
+CREATE TABLE `sys_ai_vincent_template`
+(
+    `sys_ai_vincent_template_id`               int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_ai_module_id`                         int(11)                                                       NULL DEFAULT NULL,
+    `sys_ai_vincent_template_name`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
+    `sys_ai_vincent_template_type`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型',
+    `sys_ai_vincent_template_address`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '地址',
+    `sys_ai_vincent_template_remark`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
+    `sys_ai_vincent_template_sort`             int(11)                                                       NULL DEFAULT NULL COMMENT '优先级',
+    `sys_ai_vincent_template_model_id`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型ID',
+    `sys_ai_vincent_template_model_name`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称',
+    `sys_ai_vincent_template_category`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类',
+    `sys_ai_vincent_template_train_model`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '训练模型',
+    `sys_ai_vincent_template_recommend_prompt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '正向关键词',
+    `sys_ai_vincent_template_resolutions`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分辨率',
+    `sys_ai_vincent_template_word`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关键词',
+    `create_name`                              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                                int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                              datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                              datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                                int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_ai_vincent_template_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 10
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图模板'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_ai_vincent_template
+-- ----------------------------
+INSERT INTO `sys_ai_vincent_template`
+VALUES (1, 7, '四格漫画', 'sigemanhua', 'https://wanx.alicdn.com/model/sigemanhua.png', '擅长卡通风格小漫画', 1,
+        '301-2.1-t2i-plus', 'sigemanhua', 'combining_images', 'wanx2.1-t2i-plus',
+        '小男孩在树林里玩耍, 两只北极熊在冰川上温馨地交谈, 猫咪试图偷吃鱼，却被主人及时抓住, 机器人好奇地涂上睫毛膏，结果短路烧焦。, 小狗追逐蝴蝶，结果一头撞上大树',
+        '1024*1024', '描述你希望展现的漫画剧情与风格', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_template`
+VALUES (2, 7, '情侣头像', 'qinglvtouxiang', 'https://wanx.alicdn.com/model/qinglvtouxiang.png',
+        '擅长清新可爱的情侣头像', 2, '303-2.1-t2i-plus', 'qinglvtouxiang', 'combining_images', 'wanx2.1-t2i-plus',
+        '针织娃娃相对而望，甜蜜的情侣头像, 一对白色毛毡小鸟站在树枝上，轻声细语, 一对情侣戴动物帽子相互微笑，黄色卡通背景, 两只毛毡小狗在绿草地上欢快地追逐嬉戏, 一对白兔子耳朵缠绕在一起，构成情侣头像',
+        '1440*720', '描述你想要的头像内容与风格', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_template`
+VALUES (3, 7, '图标印花', 'tubiaoyinhua', 'https://wanx.alicdn.com/model/tubiaoyinhua.png', '擅长设计和展示印花效果', 3,
+        '302-2.1-t2i-plus', 'tubiaoyinhua', 'combining_images', 'wanx2.1-t2i-plus',
+        '面包店的菱形logo应用在招牌上, 健身房的logo设计应用于健身T恤, 花店的logo展示在漂亮的橱窗中, 茶馆的logo应用在精美的茶杯上, 服装店的logo别致地印在衣物标签上',
+        '1248*832', '描述你希望设计的Logo印花样式与贴图效果', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_template`
+VALUES (4, 7, '电影分镜', 'dianyingfenjing', 'https://wanx.alicdn.com/model/dianyingfenjing.png', '擅长电影质感画面', 4,
+        '300-2.1-t2i-plus', 'dianyingfenjing', 'combining_images', 'wanx2.1-t2i-plus',
+        '两个人在雪地里一起堆雪人，欢乐无比。, 蒙古草原上的骏马飞驰，场景壮丽。, 圣诞老人点燃烟花，场面充满欢乐。, 火箭从发射升空，壮观地进入太空。, 两人在篝火旁载歌载舞，气氛热烈。',
+        '1072*1424', '描述你希望展现的电影故事主题与画面内容', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_template`
+VALUES (5, 7, '新年请神', 'qingshen', 'https://wanx.alicdn.com/model/qingshen.png', '擅长人像', 5, '304-2.1-t2i-plus',
+        'qingshen', 'style', 'wanx2.1-t2i-plus',
+        '一个女人，双手托着笔记本电脑, 一个女孩捧着鲜花, 一个女孩拿着一杯珍珠奶茶, 一个女孩拿着红包, 一个女孩捧着榴莲，背景里飘着榴莲',
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_ai_vincent_template`
+VALUES (9, 7, '四格漫画2', 'sigemanhua', 'https://wanx.alicdn.com/model/sigemanhua.png', '擅长卡通风格小漫画', 1,
+        '301-2.1-t2i-plus', 'sigemanhua', 'combining_images', 'wanx2.1-t2i-plus',
+        '小男孩在树林里玩耍, 两只北极熊在冰川上温馨地交谈, 猫咪试图偷吃鱼，却被主人及时抓住, 机器人好奇地涂上睫毛膏，结果短路烧焦。, 小狗追逐蝴蝶，结果一头撞上大树',
+        '1024*1024', '描述你希望展现的漫画剧情与风格', 'sa', 1, '2025-03-04 11:08:14', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_bank_bins
@@ -7004,7 +8371,7 @@ CREATE TABLE `sys_dept`  (
   `sys_dept_principal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门负责人',
   `sys_dept_contact` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '负责人联系方式',
   `sys_dept_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
-  `sys_dept_status`          int(11) NULL DEFAULT NULL COMMENT '状态; 是否禁用; 0:启用',
+  `sys_dept_status` int(11) NULL DEFAULT NULL COMMENT '状态; 是否禁用; 0:启用',
   `sys_dept_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `sys_dept_data_permission` int(11) NULL DEFAULT NULL COMMENT '数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见',
   `sys_dept_data_permission_dept_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '数据权限可见的部门ID列表',
@@ -7080,7 +8447,7 @@ CREATE TABLE `sys_device`
     `update_by`                 int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`sys_device_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 414
+  AUTO_INCREMENT = 421
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '摄像头设备管理'
   ROW_FORMAT = Dynamic;
@@ -8744,6 +10111,171 @@ VALUES (413, 5, '设备1', '11', NULL, NULL, NULL, '1', 1, 0, NULL, NULL, 'CAMER
         'rtsp://${sysDeviceAccount}:${sysDevicePassword}@${sysDeviceNetAddress}/cam/realmonitor?channel=${channelNo}&subtype=${subtype}',
         'http://127.0.0.1:8000', '7', NULL, NULL, 1, NULL, NULL, NULL, '115.231.119.62:554', NULL, '0', '1', NULL, 'sa',
         1, '2025-02-11 16:11:30', '2025-02-11 16:54:24', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (414, 20, 'DS-K(FN2476983)', 'FN2476983', '122a4c58ca0b46c99bd11c1292530a7b', '331022-S000050', NULL, NULL, 2, 1,
+        NULL, 'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TM', NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 14:10:48', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (415, 20, 'DS-K(FN2494125)', 'FN2494125', '122a4c58ca0b46c99bd11c1292530a7b', NULL, NULL, NULL, 2, 1, NULL,
+        'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TM', NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 13:08:52', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (416, 20, '通道七', 'FR0202058', '122a4c58ca0b46c99bd11c1292530a7b', '331022-S000050', NULL, NULL, 4, 1, NULL,
+        'V3.0.0 build 240723', 'MEN_JIN', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TMSW', NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 13:08:53', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (417, 20, 'DS-K(FN2494123)', 'FN2494123', '122a4c58ca0b46c99bd11c1292530a7b', NULL, NULL, NULL, 2, 1, NULL,
+        'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TM', NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 14:10:06', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (418, 20, 'DS-K(FN2494126)', 'FN2494126', '122a4c58ca0b46c99bd11c1292530a7b', NULL, NULL, NULL, 2, 1, NULL,
+        'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TM', NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 13:08:53', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (419, 20, 'DS-K(FN2494124)', 'FN2494124', '122a4c58ca0b46c99bd11c1292530a7b', NULL, NULL, NULL, 2, 1, NULL,
+        'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TM', NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 13:08:53', 'sa', 1);
+INSERT INTO `sys_device`
+VALUES (420, 20, 'DS-K(FN3104779)', 'FN3104779', '122a4c58ca0b46c99bd11c1292530a7b', NULL, NULL, NULL, 4, 1, NULL,
+        'V3.0.0 build 240723', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'DS-K3M220-B221TMSW', NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 10:31:09', '2025-03-18 13:08:54', 'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_device_card_event
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_device_card_event`;
+CREATE TABLE `sys_device_card_event`
+(
+    `sys_device_card_event_id`                   int(11)                                                       NOT NULL,
+    `sys_device_card_event_time`                 datetime                                                      NULL DEFAULT NULL COMMENT '时间',
+    `sys_device_serial_number`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '序列号',
+    `sys_device_card_event_person_involved`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '涉事人ID',
+    `sys_device_card_event_person_involved_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '涉事人姓名',
+    `sys_device_card_event_major_name`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '主事件类型',
+    `sys_device_card_event_minor_name`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '次事件类型',
+    `sys_device_card_event_message_id`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '消息ID',
+    `create_name`                                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                                  int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                                datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                                datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                                  int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_device_card_event_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '门禁事件'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_device_card_event
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sys_device_channel
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_device_channel`;
+CREATE TABLE `sys_device_channel`
+(
+    `sys_device_channel_id`     int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_device_channel_name`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道名称',
+    `sys_device_channel_no`     int(11)                                                       NULL DEFAULT NULL COMMENT '通道号',
+    `sys_device_serial_number`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号',
+    `sys_device_channel_type`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道类型，10300:视频通道，10302：报警输入',
+    `sys_device_channel_status` int(11)                                                       NULL DEFAULT NULL COMMENT '通道状态，0：离线，1：在线，-1：设备未上报',
+    `sys_device_channel_use`    int(11)                                                       NULL DEFAULT NULL COMMENT '通道启用状态：0-禁用；1-启用',
+    `create_name`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                 int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`               datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`               datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                 int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_device_channel_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 20
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '设备管道'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_device_channel
+-- ----------------------------
+INSERT INTO `sys_device_channel`
+VALUES (1, 'DS-K(FN2476983)', 0, 'FN2476983', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:48', '2025-03-18 10:21:30',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (2, 'DS-K(FN2494125)', 0, 'FN2494125', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:50', '2025-03-18 10:21:30',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (6, 'DS-K(FN2494123)', 0, 'FN2494123', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:50', '2025-03-18 10:21:31',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (7, 'DS-K(FN2494126)', 0, 'FN2494126', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:51', '2025-03-18 10:21:31',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (8, 'DS-K(FN2494124)', 0, 'FN2494124', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:51', '2025-03-18 10:21:32',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (9, '视频1@DS-K(FN3104779)', 1, 'FN3104779', '10300', 1, 0, 'sa', 1, '2025-03-18 09:24:51',
+        '2025-03-18 10:21:32', 'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (10, '视频2@DS-K(FN3104779)', 2, 'FN3104779', '10300', 1, 0, 'sa', 1, '2025-03-18 09:24:51',
+        '2025-03-18 10:21:32', 'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (11, 'DS-K(FN3104779)', 0, 'FN3104779', '30201', 1, 1, 'sa', 1, '2025-03-18 09:24:51', '2025-03-18 10:21:32',
+        'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (16, '视频1@DS-K(FR0202058)', 1, 'FR0202058', '10300', 1, 0, 'sa', 1, '2025-03-18 13:08:22',
+        '2025-03-18 13:08:53', 'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (17, '视频2@DS-K(FR0202058)', 2, 'FR0202058', '10300', 1, 0, 'sa', 1, '2025-03-18 13:08:22',
+        '2025-03-18 13:08:53', 'sa', 1);
+INSERT INTO `sys_device_channel`
+VALUES (18, 'DS-K(FR0202058)', 0, 'FR0202058', '30201', 1, 1, 'sa', 1, '2025-03-18 13:08:22', '2025-03-18 13:08:53',
+        'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_device_message_event
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_device_message_event`;
+CREATE TABLE `sys_device_message_event`
+(
+    `sys_device_message_event_id`                int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_device_message_event_type`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件类型',
+    `sys_device_message_event_event_id`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件ID',
+    `sys_device_message_event_data_time`         datetime                                                      NULL DEFAULT NULL COMMENT '事件时间',
+    `sys_device_message_event_employee_no`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '人员ID',
+    `sys_device_message_event_employee_name`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '姓名',
+    `sys_device_message_event_card_no`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡号',
+    `sys_device_serial_number`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号',
+    `sys_device_name`                            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备名称',
+    `sys_device_message_event_channel_no`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发报警的设备通道号',
+    `sys_device_message_event_channel_name`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发报警的设备通道名称',
+    `sys_device_message_event_location`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发设备通道位置',
+    `sys_device_message_event_card_reader_kind`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '读卡器类型：1-IC读卡器，2-身份证读卡器，3-二维码读卡器	',
+    `sys_device_message_event_card_reader_no`    int(11)                                                       NULL DEFAULT NULL COMMENT '读卡器编号',
+    `sys_device_message_event_door_no`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '门编号',
+    `sys_device_message_event_event_type`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件消息类型',
+    `sys_device_message_event_event_type_name`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件消息类型名称',
+    `sys_device_message_event_event_code`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件码',
+    `sys_device_message_event_event_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件描述',
+    `sys_device_message_event_event_source`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件来源(目前暂未使用)',
+    `sys_device_message_event_event_picture_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片URL',
+    `create_name`                                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                                  int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                                datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                                datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                                  int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_device_message_event_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '事件'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_device_message_event
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_device_org
@@ -8774,6 +10306,9 @@ CREATE TABLE `sys_device_org`
 INSERT INTO `sys_device_org`
 VALUES ('05ba6ff7073d4881b9c4929b6f5602fd', '5楼', '8c015c920d034d22a7f057fa105b580f', NULL, 4, 'sa', 1,
         '2025-02-05 15:48:31', '2025-02-05 15:48:31', NULL, NULL);
+INSERT INTO `sys_device_org`
+VALUES ('122a4c58ca0b46c99bd11c1292530a7b', '331022-S000050', NULL, '331022S000050', 20, 'sa', 1, '2025-03-18 13:08:54',
+        '2025-03-18 13:08:54', 'sa', 1);
 INSERT INTO `sys_device_org`
 VALUES ('25b773e5f16848549b77f4b8cba6d85a', '3楼', 'd110d790a96443148bdca48f48cd753d', NULL, 4, 'sa', 1,
         '2025-02-05 15:48:30', '2025-02-05 15:48:30', NULL, NULL);
@@ -8930,7 +10465,7 @@ CREATE TABLE `sys_dict_item`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 26
+  AUTO_INCREMENT = 37
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项'
   ROW_FORMAT = DYNAMIC;
@@ -9012,6 +10547,37 @@ VALUES (24, 7, 'mingcute:computer-camera-fill', '摄像头', '', 1, 1, '', 'CAME
 INSERT INTO `sys_dict_item`
 VALUES (25, 1, NULL, 'OpenAi', '', 1, 1, '', 'openai', 0, NULL, 'sa', 1, '2025-02-17 09:34:25', '2025-02-17 10:06:38',
         'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (26, 1, NULL, '豆包', '', 1, 1, '', 'DOUBAO', 0, NULL, 'sa', 1, '2025-02-20 14:39:27', '2025-02-20 14:39:56',
+        'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (27, 6, 'ri:inbox-unarchive-line', '文生图', '', 1, 1, '', 'WEN_SHENG_TU', 0, NULL, 'sa', 1,
+        '2025-02-26 10:36:37', '2025-02-28 11:24:54', 'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (28, 1, NULL, '硅基流动', '', 1, 1, '', 'SILICONFLOW', 0, NULL, 'sa', 1, '2025-02-27 16:20:06',
+        '2025-02-27 16:20:44', 'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (29, 1, NULL, 'OpenRouter', '', 1, 1, '', 'OPEN_ROUTER', 0, NULL, 'sa', 1, '2025-02-28 13:57:56', NULL, NULL,
+        NULL);
+INSERT INTO `sys_dict_item`
+VALUES (30, 1, NULL, '智谱清言', '', 1, 1, '', 'ZHIPU', 0, NULL, 'sa', 1, '2025-02-28 15:28:05', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item`
+VALUES (31, 1, NULL, '无问芯穹', '', 1, 1, '', 'WU_WEN_XIN_QIONG', 0, NULL, 'sa', 1, '2025-03-01 21:28:23', NULL, NULL,
+        NULL);
+INSERT INTO `sys_dict_item`
+VALUES (32, 1, NULL, 'Cloudflare', '', 1, 1, '', 'Cloudflare', 0, NULL, 'sa', 1, '2025-03-01 22:34:45', NULL, NULL,
+        NULL);
+INSERT INTO `sys_dict_item`
+VALUES (33, 6, 'ep:video-camera', '文生视频', '', 1, 1, '', 'WEN_SHENG_SHI_PIN', 0, NULL, 'sa', 1,
+        '2025-03-04 14:32:30', '2025-03-04 14:34:29', 'sa', 1);
+INSERT INTO `sys_dict_item`
+VALUES (34, 1, NULL, '腾讯', '', 1, 1, '', 'TENCENT', 0, NULL, 'sa', 1, '2025-03-07 15:38:26', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item`
+VALUES (35, 1, 'ep:camera-filled', '海康云眸', '', 1, 1, '', 'HAI_KANG_YUN_MOU', 0, NULL, 'sa', 1,
+        '2025-03-17 08:45:39', NULL, NULL, NULL);
+INSERT INTO `sys_dict_item`
+VALUES (36, 7, 'ep:credit-card', '门禁', '', 1, 1, '', 'MEN_JIN', 0, NULL, 'sa', 1, '2025-03-17 10:51:36',
+        '2025-03-17 10:51:48', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_dict_item_property
@@ -9021,7 +10587,7 @@ CREATE TABLE `sys_dict_item_property`
 (
     `sys_dict_item_property_id`            int(11)                                                       NOT NULL AUTO_INCREMENT,
     `sys_dict_item_id`                     int(11)                                                       NULL DEFAULT NULL COMMENT '字典子项ID',
-    `sys_dict_item_property_group`         varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '配置项分组',
+    `sys_dict_item_property_group`         varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '配置项分组',
     `sys_dict_item_property_name`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置项',
     `sys_dict_item_property_value`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值',
     `sys_dict_item_property_selected_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '选中类型',
@@ -9033,7 +10599,7 @@ CREATE TABLE `sys_dict_item_property`
     `update_by`                            int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`sys_dict_item_property_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 20
+  AUTO_INCREMENT = 33
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典配置项'
   ROW_FORMAT = Dynamic;
@@ -9045,6 +10611,26 @@ INSERT INTO `sys_dict_item_property`
 VALUES (14, 20, 'DA_YU_YAN', 'sysProjectAppKey', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `sys_dict_item_property`
 VALUES (19, 20, 'DA_YU_YAN', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (21, 10, 'DA_YU_YAN', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (22, 10, 'DA_YU_YAN', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (23, 23, 'DA_YU_YAN', 'sysProjectAppKey', 'false', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (25, 19, 'DEVICE', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (26, 19, 'DEVICE', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (27, 19, 'DEVICE', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (29, 27, 'WEN_SHENG_TU', 'sysProjectAppKey', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (30, 27, 'WEN_SHENG_TU', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (31, 34, 'DA_YU_YAN', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_dict_item_property`
+VALUES (32, 34, 'DA_YU_YAN', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_email_log
@@ -9206,9 +10792,9 @@ CREATE TABLE `sys_menu`  (
   `sys_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属权限',
   `sys_menu_home` int(11) NULL DEFAULT NULL COMMENT '是否只显示在主页； 0: 否',
   `sys_menu_engine` int(11) NULL DEFAULT NULL COMMENT '是否engine布局主页；0: 否',
-  PRIMARY KEY (`sys_menu_id`) USING BTREE
+  PRIMARY KEY (`sys_menu_id` DESC) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 32
+  AUTO_INCREMENT = 40
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单'
   ROW_FORMAT = DYNAMIC;
@@ -9216,59 +10802,121 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 'system', '/manage', NULL, '系统管理', NULL, 0, '0,1', NULL, 'ep:setting', NULL, 0, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (2, 'menu', '/manage/menu', NULL, '菜单管理', NULL, 1, '0,1,2', '/manage/menu/index', 'ep:menu', NULL, 0, 1, 0,
-        1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1,
-        'SUPER_ADMIN,ADMIN', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (3, 'setting', '/manage/setting', '', '系统配置', '', 1, '0,1,3', '@repo/pages/setting/index.vue', 'ep:setting', NULL, 0, 999, 0, 1, 0, 0, '', '', '', '', '', 0, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (4, 'role', '/manage/role', NULL, '角色管理', NULL, 1, '0,1,4', '/manage/role/index', 'ep:user', NULL, 0, 2, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', 1, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (8, 'user', '/manage/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', 1, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock', NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa', NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (11, 'dept', '/manage/dept', '', '机构管理', '', 1, '0,1,11', '/manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', 1, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '', NULL, NULL);
+VALUES (39, 'aiVideo', '/ai/video', NULL, '文生视频', NULL, 37, '0,37', '/ai/video/index', 'ri:folder-video-line', NULL,
+        0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 16:24:52', NULL, NULL,
+        NULL, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard',
-        NULL, 0, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa',
-        1, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '', NULL, NULL);
+VALUES (38, 'aiVincent', '/ai/vincent', NULL, '文生图', NULL, 37, '0,37,38', '/ai/vincent/index',
+        'ri:picture-in-picture-exit-line', NULL, 0, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2025-02-26 10:46:55', '2025-02-26 10:47:06', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (20, 'sms-template', '/manage/sms/template', '', '模板管理-短信', '', 1, '0,1,20', '/manage/template/sms/index',
-        '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05',
-        'sa', 1, '', NULL, NULL);
+VALUES (37, 'ai', '/ai', NULL, 'AI 管理', NULL, 0, '0,37', '/ai', 'ri:robot-2-line', NULL, 0, 1, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-26 10:23:48', '2025-02-26 10:24:22', 'sa', 1, '', NULL,
+        NULL);
 INSERT INTO `sys_menu`
-VALUES (24, 'sfc', '/manage/sfc', '', '组件管理', NULL, 1, '0,1,24', '/manage/sfc/index', 'ri:compasses-2-fill', NULL,
-        0, 996, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-10-24 16:34:53',
-        '2024-10-24 16:35:51', 'sa', 1, '', NULL, NULL);
+VALUES (36, 'aiLlm', '/ai/llm', NULL, 'AI 对话', NULL, 37, '0,37,36', '/ai/llm/index', 'ri:robot-2-line', NULL, 0, 1,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-25 17:19:27',
+        '2025-02-25 17:20:27', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (26, 'project', '/manage/project', '', '项目管理', NULL, 1, '0,1,26', '/manage/project/index',
-        'simple-icons:saltproject', NULL, 0, 997, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2025-01-24 14:33:09', '2025-01-24 14:33:44', 'sa', 1, '', NULL, NULL);
+VALUES (35, 'serviceTenant', '/service/tenant', NULL, '租户管理', NULL, 32, '0,32', '/service/tenant/index',
+        'bi:people', NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-19 15:44:30', NULL, NULL, NULL, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (27, 'email-template', '/manage/email/template', '', '模板管理-邮件', '', 1, '0,1,27',
-        '/manage/template/email/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
-        '2025-01-27 19:17:19', '2025-01-27 19:17:44', 'sa', 1, '', NULL, NULL);
+VALUES (34, 'serviceService', '/service/service', NULL, '服务管理', NULL, 32, '0,32', '/service/service/index',
+        'ri:customer-service-line', NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-18 10:44:13', NULL, NULL, NULL, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (28, 'device-template', '/manage/device/camera', '', '模板管理-设备', '', 1, '0,1,28',
-        '/manage/template/device/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
-        '2025-02-05 10:52:22', '2025-02-05 10:53:31', 'sa', 1, '', NULL, NULL);
+VALUES (33, 'serviceModule', '/service/module', NULL, '模块管理', NULL, 32, '0,32,33', '/service/module/index',
+        'ri:sound-module-line', NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-18 10:43:26', '2025-02-18 10:44:30', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (29, 'llm-template', '/manage/template/llm', '', '模板管理-大语言', '', 1, '0,1,29',
-        '/manage/template/llm/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
-        '2025-02-07 15:14:04', '2025-02-13 10:33:47', 'sa', 1, '', NULL, NULL);
+VALUES (32, 'service', '/service', NULL, '服务管理', NULL, 0, '0,32', '/service', 'mingcute:service-fill', NULL, 0, 1,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-18 10:41:32',
+        '2025-02-18 10:41:54', 'sa', 1, 'ADMIN,SUPER_ADMIN', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (31, NULL, NULL, NULL, '查询', 'sys:user:page', 8, '0,1,8', NULL, NULL, NULL, 3, 1, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-13 15:48:07', NULL, NULL, NULL, '', NULL, NULL);
 INSERT INTO `sys_menu`
 VALUES (30, 'device', '/manage/device', '', '设备管理', '', 1, '0,1,30', '/manage/device/index',
         'pixelarticons:device-tv-smart', NULL, 0, 995, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
         '2025-02-10 15:39:45', '2025-02-13 10:36:09', 'sa', 1, '', NULL, NULL);
 INSERT INTO `sys_menu`
-VALUES (31, NULL, NULL, NULL, '查询', 'sys:user:page', 8, '0,1,8', NULL, NULL, NULL, 3, 1, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-13 15:48:07', NULL, NULL, NULL, '', NULL, NULL);
+VALUES (29, 'llm-template', '/ai/llm', '', '模板管理-大语言', '', 37, '0,37,29', '/ai/llm/index', '', NULL, 0, 997, 1,
+        1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2025-02-07 15:14:04', '2025-02-13 10:33:47', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (28, 'device-template', '/manage/device/camera', '', '模板管理-设备', '', 1, '0,1,28',
+        '/manage/template/device/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
+        '2025-02-05 10:52:22', '2025-02-05 10:53:31', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (27, 'email-template', '/manage/email/template', '', '模板管理-邮件', '', 1, '0,1,27',
+        '/manage/template/email/index', '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1,
+        '2025-01-27 19:17:19', '2025-01-27 19:17:44', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (26, 'project', '/manage/project', '', '项目管理', NULL, 1, '0,1,26', '/manage/project/index',
+        'simple-icons:saltproject', NULL, 0, 997, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-01-24 14:33:09', '2025-01-24 14:33:44', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (24, 'sfc', '/manage/sfc', '', '组件管理', NULL, 1, '0,1,24', '/manage/sfc/index', 'ri:compasses-2-fill', NULL,
+        0, 996, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-10-24 16:34:53',
+        '2024-10-24 16:35:51', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (20, 'sms-template', '/manage/sms/template', '', '模板管理-短信', '', 1, '0,1,20', '/manage/template/sms/index',
+        '', NULL, 0, 997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05',
+        'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框组件', '', 18, '0,18,17', '/demo/index', 'ep:alarm-clock', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 09:54:43', '2024-09-02 15:09:18', 'sa', NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (16, 'secret', '/manage/secret', '', '密钥管理', '', 1, '0,1,16', '/manage/secret/index', 'ep:lock', NULL, 0,
+        997, 1, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-30 11:26:23', '2024-08-30 11:26:57', 'sa', NULL,
+        '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard',
+        NULL, 0, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-27 08:41:06', '2024-09-02 16:00:14', 'sa',
+        1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (14, '', '', '', '新增', 'sys:user:add', 8, '0,1,8,14', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0,
+        'sa', NULL, '2024-08-23 13:30:07', '2024-08-23 13:30:39', 'sa', NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (13, '', '', '', '编辑', 'sys:user:update', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0,
+        'sa', NULL, '2024-08-23 13:29:56', NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (12, '', '', '', '删除', 'sys:user:delete', 8, '0,1,8', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0,
+        'sa', NULL, '2024-08-23 13:29:45', NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (11, 'dept', '/manage/dept', '', '机构管理', '', 1, '0,1,11', '/manage/dept/index', 'ep:star', NULL, 0, 5, 0, 1,
+        0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 16:25:12', '2024-08-21 16:25:29', 'sa', 1, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (9, 'userLog', '/manage/log/user', '', '登录日志', '', 1, '0,1,9', '/manage/log/user/index', 'ep:alarm-clock',
+        NULL, 0, 998, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-21 15:46:26', '2024-08-21 16:12:12', 'sa',
+        NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (8, 'user', '/manage/user', '', '用户管理', '', 1, '0,1,8', '/manage/user/index', 'ep:user-filled', NULL, 0, 3,
+        0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-08-20 15:51:07', '2024-08-20 16:29:51', 'sa', 1, '', NULL,
+        NULL);
+INSERT INTO `sys_menu`
+VALUES (7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0,
+        'sa', NULL, '2024-08-19 16:15:41', NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (6, NULL, '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0,
+        'sa', NULL, '2024-08-19 16:15:03', NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa',
+        NULL, '2024-08-19 15:58:58', NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (4, 'role', '/manage/role', NULL, '角色管理', NULL, 1, '0,1,4', '/manage/role/index', 'ep:user', NULL, 0, 2, 0,
+        1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:36:18', 'sa', 1, '', NULL,
+        NULL);
+INSERT INTO `sys_menu`
+VALUES (3, 'setting', '/manage/setting', '', '系统配置', '', 1, '0,1,3', '@repo/pages/setting/index.vue', 'ep:setting',
+        NULL, 0, 999, 0, 1, 0, 0, '', '', '', '', '', 0, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1,
+        'SUPER_ADMIN,ADMIN', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (2, 'menu', '/manage/menu', NULL, '菜单管理', NULL, 1, '0,1,2', '/manage/menu/index', 'ep:menu', NULL, 0, 1, 0,
+        1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1,
+        'SUPER_ADMIN,ADMIN', NULL, NULL);
+INSERT INTO `sys_menu`
+VALUES (1, 'system', '/manage', NULL, '系统管理', NULL, 0, '0,1', '/manage', 'ep:setting', NULL, 0, 2, 0, 1, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-19 11:23:52', 'sa', 1, '', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_project
@@ -9277,26 +10925,29 @@ DROP TABLE IF EXISTS `sys_project`;
 CREATE TABLE `sys_project`  (
   `sys_project_id` int(11) NOT NULL AUTO_INCREMENT,
   `sys_project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目名称',
-  `sys_project_icon`      text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci         NULL COMMENT '图标',
+  `sys_project_icon`                 text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci         NULL COMMENT '图标',
   `sys_project_group` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分组',
   `sys_project_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '编码, 可自行作为唯一标识',
   `sys_project_app_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appid',
   `sys_project_app_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appsecret',
-  `sys_project_app_key`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appkey',
+  `sys_project_app_key`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'appkey',
   `sys_project_sign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '签名',
   `sys_project_delete` int(11) NULL DEFAULT NULL COMMENT '是否删除0:未删除',
   `sys_project_status` int(11) NULL DEFAULT NULL COMMENT '是否启用0:未启用',
   `sys_project_sign_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目标识编码',
+  `sys_project_sort`                 int(11)                                                       NULL DEFAULT NULL COMMENT '优先级',
   `sys_project_cdn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'cdn',
   `sys_project_endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '端点',
   `sys_project_api_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'api地址',
-  `sys_project_vender`    int(11)                                                       NULL DEFAULT NULL COMMENT '厂家(字典1)',
+  `sys_project_vender`               int(11)                                                       NULL DEFAULT NULL COMMENT '厂家(字典1)',
   `sys_project_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
   `sys_project_function` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '功能; 字典表6',
   `sys_project_smtp_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主机',
-  `sys_project_smtp_port` int(255)                                                      NULL DEFAULT NULL COMMENT 'smtp端口',
+  `sys_project_smtp_port`            int(255)                                                      NULL DEFAULT NULL COMMENT 'smtp端口',
   `sys_project_smtp_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp密码',
   `sys_project_smtp_from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'smtp主题账号',
+  `sys_project_location_temp_path`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '临时文件路径',
+  `sys_project_location_oss_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'oss地址',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -9305,7 +10956,7 @@ CREATE TABLE `sys_project`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_project_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 12
+  AUTO_INCREMENT = 21
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目管理'
   ROW_FORMAT = DYNAMIC;
@@ -9315,51 +10966,91 @@ CREATE TABLE `sys_project`  (
 -- ----------------------------
 INSERT INTO `sys_project`
 VALUES (1, '阿里', 'https://img1.baidu.com/it/u=2383102008,2259360939&fm=253&fmt=auto?w=800&h=800', '阿里系', 'ALI',
-        'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', NULL, '犀鸟校园', 0, 1, NULL, NULL, NULL, NULL, 2,
-        NULL, '13,15', NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
+        'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '', '犀鸟校园', 0, 1, NULL, 2, NULL, NULL, NULL,
+        2, NULL, '13,15', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12',
+        'sa', 1);
 INSERT INTO `sys_project`
-VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL,
-        18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', 'sa', 1,
+VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, NULL, 0, 1, NULL, 3, NULL, NULL,
+        NULL, 18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', NULL, NULL, 'sa', 1,
         '2025-01-27 13:50:49', '2025-01-27 13:56:48', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (4, '海康安防', 'https://open.hikvision.com/fileserver/opsimgs/综合安防.png', NULL, '01jk9zrhcnzsxrm71ybxh85abj',
-        '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, NULL, '112.124.44.21:443', NULL, 19, NULL, '17', NULL,
-        NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
+        '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, 3, NULL, '112.124.44.21:443', NULL, 19, NULL, '17',
+        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (5, '海康云曜', 'https://static.hikyun.com/portal/vportalimages/brand-logo.png', NULL,
         '01jkczk8ns06derb1m0t6aptb5', '16643603898674415', 'VQYaHTWVmatXVdCbrKZJ', NULL, '651515588253424', 0, 1,
-        '1664360485020781', NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-06 14:36:44',
-        '2025-02-06 14:37:46', 'sa', 1);
+        '1664360485020781', 3, NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-06 14:36:44', '2025-02-06 14:37:46', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (6, '讯飞', 'https://www.xfyun.cn/static/img/layout/header/logo.svg', NULL, '01jkfjbnn8tvqj03938qkvb2ga',
-        '7d9dec86', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', '4f810aad8b96224fc2aae62d8d440123', '', 0, 1, NULL, NULL,
-        'http://spark-api.xf-yun.com/v1.1/chat', NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
+        '7d9dec86', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', '4f810aad8b96224fc2aae62d8d440123', '', 0, 1, NULL, 3, NULL,
+        'http://spark-api.xf-yun.com/v1.1/chat', NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2025-02-07 14:43:07', '2025-02-07 14:47:17', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (7, 'deepseek',
         'https://gimg3.baidu.com/search/src=http%3A%2F%2Fgips0.baidu.com%2Fit%2Fu%3D501085362%2C3268784142%26fm%3D3030%26app%3D3030%26f%3DJPEG%3Fw%3D338%26h%3D225%26s%3D46F088725076FF8208BF9FDD020080AC&refer=http%3A%2F%2Fwww.baidu.com&app=2021&size=f242,150&n=0&g=0n&q=100&fmt=auto?sec=1739120400&t=07d69eb6c8aa160d9c89849bb067310c',
         NULL, '01jkj3yxzmzppaj8c3afphentc', NULL, NULL,
-        'EWSNmypiPVPCzRVlcIdKsyNLGJNuw8CTSR+8IcKrheTl1rqvC2QFB8YUaJ8MaP7v', NULL, 0, 1, NULL, NULL,
-        'https://api.deepseek.com/chat/completions', NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
+        'EWSNmypiPVPCzRVlcIdKsyNLGJNuw8CTSR+8IcKrheTl1rqvC2QFB8YUaJ8MaP7v', NULL, 0, 1, NULL, 3, NULL,
+        'https://api.deepseek.com/chat/completions', NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2025-02-08 14:29:12', '2025-02-08 15:02:56', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (8, 'kimi', 'https://platform.moonshot.cn/logo.png', NULL, '01jkjb2jc4grwqtv0vn9tjjayw', NULL, NULL,
-        'sk-2KiwJ1D0DLOpdb6cozbY5R0H8ydum7YYcDIONGetw4bu6jsy', NULL, 0, 1, NULL, NULL,
-        'https://api.moonshot.cn/v1/chat/completions', NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, 'sa', 1,
-        '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
+        'sk-2KiwJ1D0DLOpdb6cozbY5R0H8ydum7YYcDIONGetw4bu6jsy', NULL, 0, 1, NULL, 3, NULL,
+        'https://api.moonshot.cn/v1/chat/completions', NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (9, 'ollama', 'https://ollama.com/public/ollama.png', NULL, '01jkpta36f0yds272z1g81qs5r', NULL, NULL, NULL, NULL,
-        0, 1, NULL, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, 23, NULL, '20', NULL, NULL, NULL, NULL,
-        'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
+        0, 1, NULL, 3, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, 23, NULL, '20', NULL, NULL, NULL, NULL,
+        NULL, NULL, 'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (10, '测试', NULL, NULL, '01jkszw2aj1ht2pyr971fv2bz0', '28282971', 'q4S7VR7AXTcSpLuKsMlF', '', NULL, 0, 1, NULL,
-        NULL, '39.170.78.27:1443', NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-11 15:51:40',
-        '2025-02-11 15:52:37', 'sa', 1);
+        3, NULL, '39.170.78.27:1443', NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '2025-02-11 15:51:40', '2025-02-11 15:52:37', 'sa', 1);
 INSERT INTO `sys_project`
-VALUES (11, 'openai', NULL, NULL, '01jm8rp81pxz21ys3a7jtjw17w', NULL, NULL,
-        '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',
-        NULL, 0, 1, NULL, NULL, 'https://api.openai.com/v1/chat/completions', NULL, 25, NULL, '20', NULL, NULL, NULL,
-        NULL, 'sa', 1, '2025-02-17 09:34:45', '2025-02-17 09:36:25', 'sa', 1);
+VALUES (11, 'Cloudflare', 'https://developers.cloudflare.com/_astro/logo.p_ySeMR1.svg', NULL,
+        '01jm8rp81pxz21ys3a7jtjw17w', NULL, NULL, 'ac4ctLVeplrjya5eT5ax024mgnT8hz1U-G-JF5ZR', NULL, 0, 1, NULL, 3, NULL,
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/v1', NULL, 32, NULL, '20,27',
+        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-17 09:34:45', '2025-02-17 09:36:25', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (12, '豆包', 'https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/samantha/logo-icon-white-bg.png', NULL,
+        '01jmh1ctzzqxk5pgxc5mv50h81', NULL, NULL, 'd3eec490-7aaf-468c-9e08-71021807460e1', NULL, 0, 1, NULL, 3, NULL,
+        NULL, NULL, 26, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-20 14:40:50',
+        '2025-02-20 14:41:05', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (13, '阿里百炼', 'https://gw.alicdn.com/imgextra/i1/O1CN01gAwVtW296IdlNcfkW_!!6000000008018-2-tps-264-104.png',
+        NULL, '01jn01sjfvgm9a9v2qjbm5ywtn', NULL, NULL, 'sk-8e1cd4c8176b494b97c361b5a1d78ea3', NULL, 0, 1, NULL, 3,
+        NULL, NULL, NULL, 2, NULL, '27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-26 10:36:23',
+        '2025-02-26 10:39:46', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (14, '硅基流动', 'https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg', NULL,
+        '01jn3803z7e41x7fjzvj539j20', NULL, NULL, 'sk-fqfxjiyhpadgvdlkousbnztmuttiegwmgaymubnaxofwoxhx', NULL, 0, 1,
+        NULL, 3, NULL, 'https://api.siliconflow.cn/v1/images/generations', NULL, 28, NULL, '27,20', NULL, NULL, NULL,
+        NULL, NULL, NULL, 'sa', 1, '2025-02-27 16:22:33', '2025-02-27 16:23:53', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (16, 'openrouter', ' https://openrouter.ai/favicon.ico', NULL, '01jn5j39e1h4yqnw4qs801jzqn', NULL, NULL,
+        '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', NULL, 0, 1, NULL, 3, NULL,
+        'https://openrouter.ai/api/v1/chat/completions', NULL, 29, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2025-02-28 13:57:31', '2025-02-28 13:58:37', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (17, '智谱清言', 'https://bigmodel.cn/img/icons/android-chrome-192x192.png', NULL, '01jn5qbe49btdqzc2fe17rjysf',
+        NULL, NULL, '29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, 30,
+        NULL, '27,20,33', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 15:29:21', '2025-02-28 15:29:36',
+        'sa', 1);
+INSERT INTO `sys_project`
+VALUES (18, '无问芯穹', 'https://content.cloud.infini-ai.com/platform-web-prod/assets/svg/logo_new.ceae5ff6.svg', NULL,
+        '01jn8yb4ak2amap9qsc3amj4js', NULL, NULL, 'sk-daulbrd77wpadaw6', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, 31,
+        NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-01 21:29:14', NULL, NULL, NULL);
+INSERT INTO `sys_project`
+VALUES (19, '腾讯', 'https://pic.rmb.bdstatic.com/bjh/news/87715fa6e1758590fc4b076538d704ad.png', NULL,
+        '01jnqrnw0z28t5bhkf6a2qkc2d', 'AKIDOgokSxEI8pIYaP1RedPxKTSEn8GAtPp1', '1rUt9E7mETWMyQhlbEetwpV0KXXKtEMJ',
+        'sk-RBopn00LV7WB5KMQHdDAaV256zyjjQGuVA9DftZrUWTFsM0w', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, 34, NULL, '20,27',
+        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-07 15:38:51', '2025-03-07 15:42:17', 'sa', 1);
+INSERT INTO `sys_project`
+VALUES (20, '海康云眸', ' https://pic.hik-cloud.com/favicon.ico', NULL, '01jpgs1jm6tbvdp6tq9zfw59ss',
+        'e431e02c369b4adbad8f72c1eafbe8f7', '492c2864b59d459ebdb64795119e062b', NULL, NULL, 0, 1, NULL, NULL, NULL,
+        NULL, NULL, 35, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 08:46:16',
+        '2025-03-17 08:51:09', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_project_default
@@ -9372,7 +11063,7 @@ CREATE TABLE `sys_project_default`
     `sys_project_id`           int(11)                                                       NULL DEFAULT NULL COMMENT '项目ID',
     PRIMARY KEY (`sys_project_default_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 45
+  AUTO_INCREMENT = 47
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置'
   ROW_FORMAT = Dynamic;
@@ -9385,11 +11076,11 @@ VALUES (30, '6', 3);
 INSERT INTO `sys_project_default`
 VALUES (33, '16', 2);
 INSERT INTO `sys_project_default`
-VALUES (34, '13', 1);
-INSERT INTO `sys_project_default`
 VALUES (37, '14', 4);
 INSERT INTO `sys_project_default`
 VALUES (43, '20', 6);
+INSERT INTO `sys_project_default`
+VALUES (46, '13', 1);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -9404,7 +11095,7 @@ CREATE TABLE `sys_role`  (
   `sys_role_sort` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `sys_role_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `sys_role_hidden` int(11) NULL DEFAULT 0 COMMENT '是否显示; 0:显示',
-  `sys_role_readable`  int(11) NULL DEFAULT NULL COMMENT '角色可读',
+  `sys_role_readable` int(11) NULL DEFAULT NULL COMMENT '角色可读',
   `sys_role_writeable` int(11) NULL DEFAULT NULL COMMENT '角色可写',
   `sys_role_executable` int(11) NULL DEFAULT NULL COMMENT '角色可执行',
   `sys_role_board_card` int(11) NULL DEFAULT NULL COMMENT '角色可看板类型',
@@ -9577,6 +11268,113 @@ CREATE TABLE `sys_secret`  (
 INSERT INTO `sys_secret` VALUES (1, '阿里系', 'ALI', 'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '犀鸟校园', 0, 1, NULL, NULL, NULL, 2, NULL, 'SMS', 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
 
 -- ----------------------------
+-- Table structure for sys_service
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_service`;
+CREATE TABLE `sys_service`
+(
+    `sys_service_id`                int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_service_image`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务图片地址',
+    `sys_service_name`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务名称',
+    `sys_service_code`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务唯一编码',
+    `sys_service_delete`            int(1) UNSIGNED ZEROFILL                                      NULL DEFAULT NULL COMMENT '是否删除; 0:正常',
+    `sys_service_status`            int(1) UNSIGNED ZEROFILL                                      NULL DEFAULT NULL COMMENT '是否禁用; 0:正常',
+    `sys_service_sort`              int(10) UNSIGNED ZEROFILL                                     NULL DEFAULT NULL COMMENT '优先级',
+    `sys_service_valid_time`        datetime                                                      NULL DEFAULT NULL COMMENT '到期时间',
+    `sys_service_version`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本号',
+    `sys_service_profile`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '适用环境',
+    `sys_service_role`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务角色权限',
+    `sys_service_category`          int(11)                                                       NULL DEFAULT NULL COMMENT '服务类型; 字段表8',
+    `sys_service_remark`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务描述',
+    `sys_service_image_upload_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片上传类型',
+    `create_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                     int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                     int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_service_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 3
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统服务'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_service
+-- ----------------------------
+INSERT INTO `sys_service`
+VALUES (1, 'https://picsum.photos/300/200', '基础服务', 'base', 0, 0, 0000000001, '2025-02-19 16:00:00', NULL, NULL,
+        NULL, 1, NULL, 'ONLINE', 'sa', 1, '2025-02-18 15:29:35', '2025-02-20 08:52:01', 'sa', 1);
+INSERT INTO `sys_service`
+VALUES (2, 'https://picsum.photos/id/1036/300/200', '设备管理', 'DEVICE', 0, 0, 0000000001, '2025-02-12 16:00:00', NULL,
+        NULL, NULL, 1, NULL, 'ONLINE', 'sa', 1, '2025-02-20 08:56:41', '2025-02-20 09:48:50', 'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_service_module
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_service_module`;
+CREATE TABLE `sys_service_module`
+(
+    `sys_service_module_id`         int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_service_module_name`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块名称',
+    `sys_service_module_code`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块编码',
+    `sys_service_module_delete`     int(1) UNSIGNED ZEROFILL                                      NULL DEFAULT NULL COMMENT '是否删除; 0:正常',
+    `sys_service_module_status`     int(1) UNSIGNED ZEROFILL                                      NULL DEFAULT NULL COMMENT '是否禁用; 0:正常',
+    `sys_service_module_sort`       int(11) UNSIGNED ZEROFILL                                     NULL DEFAULT NULL COMMENT '优先级',
+    `sys_service_module_type`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型; API, SERVICE',
+    `sys_service_module_version`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本',
+    `sys_service_module_menu_tags`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块菜单标签',
+    `sys_service_module_menu_tags2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块菜单标签(包含父标签)',
+    `create_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                     int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                     int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_service_module_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 3
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '模块'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_service_module
+-- ----------------------------
+INSERT INTO `sys_service_module`
+VALUES (1, '基础模块', 'BASE', 0, 0, 00000000001, 'SERVICE', 'v1.0.0.0',
+        '2,5,6,7,12,13,14,31,11,15,16,20,26,27,28,29,9,3', '2,4,5,6,7,8,12,13,14,31,11,15,16,20,26,27,28,29,9,3,1',
+        'sa', 1, '2025-02-18 13:19:16', '2025-02-18 13:27:10', 'sa', 1);
+INSERT INTO `sys_service_module`
+VALUES (2, '设备管理', 'DEVICE', 0, 0, 00000000001, 'SERVICE', 'v1.0.0.0', '30', NULL, 'sa', 1, '2025-02-20 08:51:05',
+        '2025-02-20 08:51:12', 'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_service_module_item
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_service_module_item`;
+CREATE TABLE `sys_service_module_item`
+(
+    `sys_service_item_id`   int(11)  NOT NULL AUTO_INCREMENT,
+    `sys_service_id`        int(255) NULL DEFAULT NULL COMMENT '服务子ID',
+    `sys_service_module_id` int(255) NULL DEFAULT NULL COMMENT '模块ID',
+    PRIMARY KEY (`sys_service_item_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 32
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '服务子项'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_service_module_item
+-- ----------------------------
+INSERT INTO `sys_service_module_item`
+VALUES (26, 2, 2);
+INSERT INTO `sys_service_module_item`
+VALUES (31, 1, 1);
+
+-- ----------------------------
 -- Table structure for sys_setting
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_setting`;
@@ -9603,7 +11401,7 @@ CREATE TABLE `sys_setting`  (
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_setting_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 40
+  AUTO_INCREMENT = 43
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置'
   ROW_FORMAT = DYNAMIC;
@@ -9612,53 +11410,53 @@ CREATE TABLE `sys_setting`  (
 -- Records of sys_setting
 -- ----------------------------
 INSERT INTO `sys_setting`
-VALUES (1, 2, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 10, NULL, NULL,
-        NULL, '2025-02-10 15:46:46', 'sa', 1);
+VALUES (1, 4, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 15, NULL, NULL,
+        NULL, '2025-02-19 14:19:05', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (2, 1, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 10, NULL, NULL,
-        NULL, '2025-02-10 15:46:46', 'sa', 1);
+VALUES (2, 0, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 15, NULL, NULL,
+        NULL, '2025-02-19 14:19:05', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (3, 3, 'SlidingBlockOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 10, NULL, NULL,
-        NULL, '2025-02-10 15:46:46', 'sa', 1);
+VALUES (3, 5, 'SlidingBlockOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 15, NULL, NULL,
+        NULL, '2025-02-19 14:19:05', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (4, 1, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '调试模式崩溃当前页', NULL, NULL, 20, 'sa',
-        NULL, '2024-08-18 11:22:26', '2025-01-26 10:50:18', 'sa', 1);
+VALUES (4, 9, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '调试模式崩溃当前页', NULL, NULL, 26, 'sa',
+        NULL, '2024-08-18 11:22:26', '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (5, 2, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 20, 'sa', NULL,
-        '2024-08-18 11:31:57', '2025-01-26 10:50:18', 'sa', 1);
+VALUES (5, 10, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 26, 'sa', NULL,
+        '2024-08-18 11:31:57', '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (6, 7, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '水印', NULL, NULL, 20, 'sa', NULL,
-        '2024-08-19 19:53:55', '2025-01-26 10:50:18', 'sa', 1);
+VALUES (6, 5, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '水印', NULL, NULL, 26, 'sa', NULL,
+        '2024-08-19 19:53:55', '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (7, 4, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '循环debugger', NULL, NULL, 20, 'sa', NULL,
-        '2024-08-18 10:52:15', '2025-01-26 10:50:18', 'sa', 1);
+VALUES (7, 11, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '循环debugger', NULL, NULL, 26, 'sa', NULL,
+        '2024-08-18 10:52:15', '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (8, 5, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'da32cc89-aeac-4697-9dd2-53a0758a6bbf', NULL,
-        102, NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (8, 4, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'fe7db08a-1001-4e7b-95ab-776a569a85c0', NULL,
+        123, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (9, 7, 'SocketUrl', 'http://172.16.2.226:29181', 1, 'Array', 'config', 0, 1, 0, 'socket.io服务器地址', NULL, 1,
-        20, NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (9, 2, 'SocketUrl', 'http://172.16.2.226:29181', 1, 'Array', 'config', 0, 1, 0, 'socket.io服务器地址', NULL, 1,
+        26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (10, 6, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket.io是否开启', NULL, 1, 20, NULL, NULL,
-        NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (10, 12, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket.io是否开启', NULL, 1, 26, NULL, NULL,
+        NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (11, 8, 'SocketPath', '/socket.io', 1, 'String', 'config', 0, 1, 0, 'socket.io路径', NULL, NULL, NULL, NULL,
-        NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (11, 13, 'SocketPath', '/socket.io', 1, 'String', 'config', 0, 1, 0, 'socket.io路径', NULL, NULL, NULL, NULL,
+        NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (12, 8, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 20, NULL, NULL, NULL,
-        '2025-01-26 10:50:18', 'sa', 1);
+VALUES (12, 6, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 26, NULL, NULL, NULL,
+        '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (13, 9, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 20, NULL, NULL, NULL,
-        '2025-01-26 10:50:18', 'sa', 1);
+VALUES (13, 8, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 26, NULL, NULL, NULL,
+        '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (14, 10, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 20, NULL, NULL, NULL,
-        '2025-01-26 10:50:18', 'sa', 1);
+VALUES (14, 7, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 26, NULL, NULL, NULL,
+        '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (15, 11, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 20, NULL, NULL,
-        NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (15, 14, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 26, NULL, NULL,
+        NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (16, 11, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 20,
-        NULL, NULL, NULL, '2025-01-26 10:50:18', 'sa', 1);
+VALUES (16, 3, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 26,
+        NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (17, 2, 'Host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (18, 3, 'Port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (19, 4, 'Password', 'CVIRRMZQPYLQIQMW_C', 1, 'Password', 'smtp', 1, 1, 0, '授权码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
@@ -9667,7 +11465,9 @@ INSERT INTO `sys_setting` VALUES (21, 1, 'AppId', 'wx8cd1bb691119e3f7', 1, 'Stri
 INSERT INTO `sys_setting` VALUES (22, 2, 'AppSecret', 'abff9e5a7541a5db21a819b087ecbf10', 1, 'String', 'weixin', 1, 1, 0, '微信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:32:37', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (23, 1, 'AppId', 'f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (24, 2, 'AppSecret', '158ced91fe30cfa06798c638d2b477d54e57b623a7e869c42d34d3125e88f1b7', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (25, 3, 'Gitee', 'true', 1, 'Boolean', 'sso', 1, 1, 0, 'Gitee登录', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-08 13:40:57', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (25, 3, 'Gitee', 'true', 1, 'Boolean', 'sso', 1, 1, 0, 'Gitee登录', NULL, NULL, NULL, NULL, NULL, NULL,
+        '2025-02-18 16:11:53', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (26, 1, 'AppId', 'LTAI5tKQQnvCS3yEjGxjHmCd', 1, 'String', 'sms', 1, 1, 0, '短信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (27, 2, 'AppSecret', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAhh', 1, 'String', 'sms', 1, 1, 0, '短信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (28, 3, 'AppSign', '犀鸟校园', 1, 'String', 'sms', 1, 1, 0, '短信签名', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
@@ -9677,17 +11477,26 @@ INSERT INTO `sys_setting` VALUES (31, 2, 'AppType', 'XUN_FEI', 1, 'Dict', 'llm',
 INSERT INTO `sys_setting` VALUES (32, 3, 'AppId', '7d9dec86', 1, 'String', 'llm', 1, 1, 0, '模型AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (33, 4, 'AppSecret', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', 1, 'AppSecret', 'llm', 1, 1, 0, '模型AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (34, 5, 'CheckTotpCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '开启totp', NULL, NULL, NULL, 'sa',
-        1, '2024-12-08 11:56:39', '2025-02-10 15:46:46', 'sa', 1);
+VALUES (34, 6, 'CheckTotpCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '开启totp', NULL, NULL, NULL, 'sa',
+        1, '2024-12-08 11:56:39', '2025-02-19 14:19:05', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (35, 1, 'WebrtcOpen', 'true', 1, 'Boolean', 'webrtc', NULL, NULL, NULL, '是否开启', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (36, 2, 'WebrtcUrl', 'http://172.16.2.226:29182', 1, 'String', 'webrtc', NULL, NULL, NULL, 'webrtc服务器地址', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
 INSERT INTO `sys_setting` VALUES (37, 3, 'WebrtcContext', '/webrtc', 1, 'String', 'webrtc', NULL, NULL, NULL, '路径', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (38, 999, 'OssAddress', '', 1, 'String', 'default', NULL, 0, NULL, '资源地址', NULL, NULL, NULL, 'sa', 1,
-        '2025-02-10 16:10:37', '2025-02-10 16:13:37', 'sa', 1);
+VALUES (38, 1, 'OssAddress', 'http://127.0.0.01:19180', 1, 'String', 'config', NULL, 0, NULL, '资源地址', NULL, NULL,
+        NULL, 'sa', 1, '2025-02-10 16:10:37', '2025-02-19 11:10:48', 'sa', 1);
 INSERT INTO `sys_setting`
-VALUES (39, NULL, 'apiAddress', NULL, 1, 'String', 'default', NULL, 0, NULL, '接口地址', NULL, NULL, NULL, 'sa', 1,
-        '2025-02-17 08:48:56', NULL, NULL, NULL);
+VALUES (39, 0, 'ApiAddress', NULL, 1, 'String', 'config', NULL, 0, NULL, '接口地址', NULL, NULL, NULL, 'sa', 1,
+        '2025-02-17 08:48:56', '2025-02-19 11:10:48', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (40, 2, 'OpenTenantLogin', 'true', 1, 'Boolean', 'default', NULL, 0, NULL, '租户登录', NULL, NULL, NULL, 'sa', 1,
+        '2025-02-19 11:14:15', '2025-02-19 14:19:05', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (41, 3, 'OpenTenantLoginRequire', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '填写租户', NULL, NULL, NULL,
+        'sa', 1, '2025-02-19 14:18:26', '2025-02-19 14:19:05', 'sa', 1);
+INSERT INTO `sys_setting`
+VALUES (42, 1, 'OpenBaseLogin', 'true', 1, 'Boolean', 'default', NULL, 0, NULL, '基础登录', NULL, NULL, NULL, 'sa', 1,
+        '2025-02-19 14:18:52', '2025-02-19 14:19:05', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_sfc
@@ -9750,7 +11559,6 @@ CREATE TABLE `sys_sfc_install`  (
 INSERT INTO `sys_sfc_install` VALUES (1, 1, 2, 'sa', 1, '2024-10-25 09:33:10', NULL, NULL, NULL);
 INSERT INTO `sys_sfc_install` VALUES (2, 1, 3, 'sa', 1, '2024-10-29 10:46:53', NULL, NULL, NULL);
 INSERT INTO `sys_sfc_install` VALUES (3, 1, 4, 'sa', 1, '2024-11-24 10:16:03', NULL, NULL, NULL);
-INSERT INTO `sys_sfc_install` VALUES (4, 1, 5, 'sa', 1, '2024-11-24 12:55:07', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_sms_log
@@ -9931,6 +11739,71 @@ CREATE TABLE `sys_task_sso_item`  (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for sys_tenant
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tenant`;
+CREATE TABLE `sys_tenant`
+(
+    `sys_tenant_id`          int(11)                                                       NOT NULL AUTO_INCREMENT,
+    `sys_tenant_name`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
+    `sys_tenant_username`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
+    `sys_tenant_password`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
+    `sys_tenant_sign`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '签名',
+    `sys_tenant_corporation` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '公司',
+    `sys_tenant_delete`      int(1)                                                        NULL DEFAULT NULL COMMENT '是否删除; 0:正常',
+    `sys_tenant_status`      int(1)                                                        NULL DEFAULT NULL COMMENT '是否禁用; 0:正常',
+    `sys_tenant_contact`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系人',
+    `sys_tenant_phone`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '手机号',
+    `sys_tenant_address`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '地址',
+    `sys_tenant_email`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮件',
+    `sys_tenant_code`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '唯一编码',
+    `sys_tenant_gid`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '租户对于配置唯一ID',
+    `sys_tenant_home_url`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '租户访问地址',
+    `sys_tenant_remark`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+    `create_name`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`              int(11)                                                       NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`            datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`            datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`              int(11)                                                       NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_tenant_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 2
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '租户表'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_tenant
+-- ----------------------------
+INSERT INTO `sys_tenant`
+VALUES (1, '测试', 'test', '123456', NULL, '测试', 0, 0, NULL, '1', '测试地点1', NULL, 'test', NULL, NULL, NULL, 'sa',
+        1, '2025-02-19 16:19:41', '2025-02-19 16:20:48', 'sa', 1);
+
+-- ----------------------------
+-- Table structure for sys_tenant_service
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tenant_service`;
+CREATE TABLE `sys_tenant_service`
+(
+    `sys_tenant_service_id`         int(11)  NOT NULL AUTO_INCREMENT,
+    `sys_tenant_id`                 int(11)  NULL DEFAULT NULL COMMENT '租户ID',
+    `sys_service_id`                int(11)  NULL DEFAULT NULL COMMENT '服务ID',
+    `sys_tenant_service_valid_time` datetime NULL DEFAULT NULL COMMENT '到期时间',
+    PRIMARY KEY (`sys_tenant_service_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 48
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '租户 - 服务'
+  ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_tenant_service
+-- ----------------------------
+INSERT INTO `sys_tenant_service`
+VALUES (47, 1, 1, '2025-02-28 00:00:00');
+
+-- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
@@ -9964,22 +11837,24 @@ CREATE TABLE `sys_user`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`sys_user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 4
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表'
+  ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
 INSERT INTO `sys_user`
 VALUES (1, 'sa', '超级管理员', '53006d111477a9b5b16c4b38ac8fad69', '123456', 0, 1, '12345678901', 'test@qq.com', NULL,
-        NULL, 1,
-        'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAA+AGADAREAAhEBAxEB/8QAHgAAAgICAwEBAAAAAAAAAAAABgcEBQIIAAMJAQr/xAA7EAABAwIFAgQDBgQFBQAAAAABAgMEBREABhIhMQdBEyJRYQgUcQkVIzKBkUKhseEWJDND0SVSwfDx/8QAHQEAAgIDAQEBAAAAAAAAAAAABQYDBAECBwAICf/EADoRAAEDAgQEBQEHAwQCAwAAAAECAxEEIQAFEjEGQVFhBxMicYGRFDKhscHR8CNCUhUzYvEI4RYkU//aAAwDAQACEQMRAD8A/e+oLHCbjv8A+3tifUJib4DqS4IITIP5/XGBUu1rcX3t7/tiRIQRMjuJt/OZvvjGp0WiPfp2k/z4xwLcTc/1T/bG0I6j6/8AvGqluHfl2/gxiVqNz35ttzjOhPT8TjULMcj3/wCrYxBcUrdO/a1tvT6884wQgb2588ZSpSjAE3gwNvn/AL/THeQbWI3I3Hb/AJ/a9j9MRSkkwZA5/r/N+2JiXEkCLfE/zpv8Tj6lG99O1xv7fr+vHa2IyuCR9D/O+J0pUQCfxjr2xmotI/MQP1P/AIxga1XEn+dNv2xIdAsYH86i+MglC0FSPMN/W3f3/e9rcY8SsGFW6yBsfj8se8pKkhSZVfse9rftBxxMcK3Vt7WI/t9ceStSe/v/AD85xt5CSJ536ST0P899sfA22hVyQbdj239zvtax25xhSlKk3jnvG/PlOMhKUERBAO8bXuB/IvhL5h+ILpdl+ZUKXNzJGYqkBC/EjKCSUuJCiEklfJKfTjgHBqm4bzmqQ081SKUw4RpUJ9QMX+6eRn8MDn89yynK23KhKHEAym0g/WN9/nDRq2aaJSKY/VJlRgIjR0a3FrmMNoCbHfWpekbep+hwJDD2rSW1pM7lCgB9QMWKusp6OlcqXlo0ITqPrG155ncdsDtO6jZaqtNbqsKdFkRXQShbEth5BsArZaFFKjYjYX5Hrtv9kekgIUe6Ukg/It+ONMvrKbMqVNWytsIWCoBSkTYTeSDz6YjwM8UytyS3ClMR0x16XQ8+2jXbY6dXhg/mHGra/tjVLLqdeppwkQRDaoHuYMDczP7Yqt19LUPLZSoJLaylRKhBiOsWnv1M4I5+Z8v0xsuTKrTGEJT5i7OiNAbeq3Rb63xKxTVdRAap3Vk7BLLiiepsPy+MTvOUTA/qOsgC93UAfiexnAZJ6x9PoTqGpGZKC0pxQQjxK3TkalHsnW+L34Ftz6YtP5TmDIQpymqEhZASCw6mSdrEXJuLYiRX5ekEpfYtefOb7bGYP854vV9RMpfIqqBrtG+WbSkl01WD4diCQSvxtG4va5HN/pCrLK1CglVNUBShIHkO7GL/AHe/KcSprKNweYmopykWJ89uPayrG0Hp2vjV3P8A8c3S/IMp+NKZkVQMGxfpr/zTKgCQVJcjx30FItckKItv9eicPeE+d8RNIcpqhhkrE6HtKFAG+y3UHnaRvaxgYVc443y/KNWtC3Up5tSsR7pSoG29zH4Y11rH2tXw/wBPkJjyIVRLmopP+YIKSNiFf5E6SLcGxvh7Z/8AHHjDSCKqlg7elJEG82qL9j398IFR448NNOFtxp7UDG6rkTy8s+2Bt77ZT4eIb5hN0usvOpF7MvOOXt3sinKPbf8Afk4rVv8A47cWUyS65V0mkW/s35D/AHzH7DECfHvhwufZ2makq3sVm3SzW07X/PA1Xvto+g8iBMh0uk15FRWytuOoKfUUPG2klKaaDe3a4t353zQeAHEXmIcqKmkLSVArkoAKADMHzj+V+/Keq8bMnU1oZZqA4tOlBSFGFGejc9T+UzjSHqd9rvVBlup03L0qtQMwSHFOQZrzE1LTbZDukKJaaF/O2f8AUSNjbY46VlHgdRJrWHqtth6iQmHWkLaKlKBAOxXvCuRMkdScKOZ+K1f9geapnX2qtRlpa0OAJSdW86eo/uHtEY8hs7/FF1mzXXZ2Yf8AFAcl1Nep1el0qVcm9x81fuf6k847VTcGcN0VKhhui8ttpJ0glOwj/gOUcj9bY5nXcTZ5XJStFYDUrPrUZMk9gvt1527Mj4qftks7w+j2Y6E0h2FMlUxsMSW5KEPghonWhYd1Aqve4tc4454i+FOR8PZbV1SKpAeKPNQ3BB9XqgekRA2i4/NpyPxBzzi95rJlUzrTNQQ0t5Kh6Qn0kkgk7227zscKX4KvtpM8J6W0LKM5hypzYTKnXJMmS29IcHy7KfOpTwUTdone25PfC74a+HuTcTUDOuqbFQpBUpMHVGmeSTYx++GTirOsy4CytLDSnn0NrKQtSz6tkx6o7f8Au4xtNG+2Qz1OnONwKEEKjOlLhadZSFEbefS7Y3JA39PpbpNB4KZHUGraVUoCkEpkIOqZTedM2n3645s34wZsWnXTSFtSQVJMga4IufVvuTcx3jAV1U+0x6l9QqXIhl6oUUvg/ixpnhqTdNti26SOb82225Fm3h3wgyTI6hDiks1QTfQ43IPPmO0fphcrvFPPc5ZUgpfp0KJGtKwIO3IkzG9oERyxoX1S+Ibqlmd2gymeouZ6f92y2pKgxVpCBJDbpXoc0KNwb234G174tcW8GZdVLoE02WU6Qh5JV5bIEjXPTpaTtznGWeNK8UjiXK99K0Nqv5igSqLTzuPm4w35vx6dVHOm03JLWYK540llhtNSFRX8wjwmloKkueJqBUVXO25HbjE9V4c5Uttqr+x04W20gBvygNR0De1z6fxthbofE/OWGn6AVD7iXHV/1i6dSfUrmTOxm4FgL4m9Pfjeznl7KqKNWKa7mF8w5Edc+ouIkPKL0fwg6Vur1XQTrFwSFe+ANFwClOYqqWqlymRqSoMtkpSNJnSEgQJ2ty7Ya2vFKrRQ/ZXaUVJKVoLjmlaiVpCZkkGRP59L6lZo6k1etVWoVJVQlMGXLekBlLyglnxFlWhIBsAknTtsAD7W61AZYZaSdehtKCo7qIAEmRf3A5EjqOY1zj9ZUOVCSpJcWpwIBgJJMxbkJj88AOVevCcs55cjyJ33jIQ0QY0hwuH8yhcpWQB6bk++wwgZxm6a2uVkgXocSdXpMK3AAsexvfl1syZZlFVS0Kc4U0pwWGlWxgSYM73t7YMKN1xlws1t1KTEQuFInoecS5oLTbWkJOxNgLpv9TuBbBSoylJy4BVSptQZ9JBIKjqJt3PWOvScWsrz5Sq5INMlWh0SlQBG0Qb3A6fMY3vztnLpbnPo3Us5tVmlQ65FQww1T2EaFrJjPazcJsPMylPI3INtsIOU12Z5dmzdCEO1NMtRUp5ZlIhQj3EK6xFrY6nmblDmOVLqFpapnwlIDaQAY0G9p7H3MT18tal1/fyzPWqIwioNNuAoSopUkhKgdgoi/G/B+vI6DX1n2pkNJHlrAhWkQb9YtO0deffltI/5Na4CoqQmCJNuoEW6f9740V67dasndXcqVCVl1Mi8CImK543PiNo8JWn8NBI1JP6cnHzB4q+L3DfFdN9my5S/NLCW061AiUoifuJtItfbft9LeHvhpnXDlQH8xLUeaXEAQDpUoqGyjfSZMdicVPwfyolDS1PnEIQuIpO6gCfwVXG/F7i23txgN4O8fZLwk+Hc5WfL8ko9KkpOrSocwq1/zxH4tcPZvniFMMAKYLoKUlJMEqF7K7XIA588b35Qd++8sdRcy5Yeaady7FeluqccSFFSXord0gKbUd3Ra19j73Ha6Xxd4Zcps4qKJ8NvlKlUxU6gSrWgCx0k2nbvyBjl6/CjOUO5UhbaPs75T5ydJukhZ/ygbC5E2MjpC6O5lzBn/IrlbqdTjuPplLas4+hK9KdYtpW7q/h2sONvQ4JcH+LVDV5Z5ubVAXVBcA+akQm8C5JBFudzPcYo8UeHj+V5qKWiYKaQIkhKCfVYH7sC4PKbYzoNVldQMwS8vUiZGS/Q3gmaHXmwhQACzoJWkHynaxPubYo1Hi7Q5hmaaWhqdAZfSFlSxGnUCRNhFwd95G84q1XhtU5bQKq8wpypuraUWAhBlJIgah6ryCYgW98BXWTN8nIGbKblWPJQmbMiIdSW1hTeoNsqUboJBuXL/m59d8WuLfF2ly55igZrE+c8w2oFLoUgEtoJ1aTE+oWJ2k8sDeEfC419M/Wv0xLSH3LKRCtJWvTY9Y6R84usndXolTacoTkr/q8Rh1b61uAINm1EaSTzdCv4ibkdsW+G/E7J8zQaZVSn7e02pbq1OoSkgJJ3MSYB5nlvjbPuBHcoWipLCvsbrqG0BDfqBKkpJMAxOocuW07qHNPXWDl+vx6NOfWXp76kMlKjp7q5sQQQPUW4wLzDxayqizJmiU/Jec0WcBTYKjUQCOXM78sMtF4cO11AqupmNKGmwtUovftaT1+s7nCnlVJc7qU/Vob7Talt7OuLSBYLKrXJT6jvhFzLi+iHGDtcw8m6YCvMT/kroZ3PxPQYLOZXUt8Ooow2vy0q+5oVN0gEXHPfmbiOuDGrZ7rDMVxr59lSWkFKgl0KsASSAAs7c8cX4w3O8foVTKL9UhQS2S3DiZHMDc9SdrD3wDy3gtIq6dbdMsKdcGs6CLmdjA6DmZNzith9XanS8lzlypRXTEvXeZbUpTilEO8IClXsNVrp5IAt3gy7xBySky93Mq50KDS7w4nVurlBv6RfoOmGXPuB82frmsty5ASp1oKSShWkGECZBA/umd+oFzgTrmZVzaCzWaepSG3W1vAKuF2SNRuLg3+vfjjE2ccd5cvK05lldShKnW1rALqCRFxYEEEj3/dUy7guqazVVFmDKlOocQhxQQoJ9RvBgzzO+3viCOgdRjxZ8Jhh5pmU64pQQiyTqUpQJGnjc+vrf1/IGt8Ui24wdE+hM3F/SJP3gZm/KelsfdxyaqVUNhSnEpIkA2ATaPiLfpibR+mFbytDSxFckp8NJB8MWBTpsRun0B7WA/bEJ8Squtc/pqcbSSD6VCBEmfvHbvM/nbeyYpUS5R/aUj/JIIsT1I2tfeMXuWK1m7LtPr+XIgnqazIhcWSUFIGlS2nPPdQJ3ZHY7/ynqeNsxU5TPNZo8whghTrSXIS4AD6ViDNyOY2GxwOrKNlwp/8ArpSpv7oIAKY+bEb9OvZKSaf1SyLXTBpb9dRSDqdU0wtCY5UpQPCtJ4URsMOlN4jrqqGW83VSr2DYcgzG9goST3uZwP8AsNEtX9eiaqHP81plXPnIPvGxAvuAXdFcv58l5jzBVpVZq1E3U/rWtKfmbNpNiUocvf8ALvbgi+JzxwtumedYzdQfS2pRUlwhalhO5OnfrfpjGYUlE4y229QtLbSIShSZSkHkADcdLme84Ls3Zbrua82wanKqMuU/DQWEPLOpR0BtFwdPB8MH1PB9+eHxRzR5t9dTmL77yFrQ2txyVBAUoADoAEgC3Q+2+X0OVU1GsNUtO2CZLSQYUbzaeszzuTe+KenZHrjOZXloqMqIpa0IKwbFepSk6TZBvqBsdhfV2JBxPReKubsJU4xmFS24pJ1rQ7BII5noASBHLabYqHK8qzJzy6qkY8tI1JC0EjVuIF7yBF+57XfU7oXVqjNoVVfkSY5jsoc8ZQHmu0oa76Dub+wI/lNS+K1csuuLq3al4KKg4pYK2zJmPuxHcXvveSNPQZfStLZQyyhpUApAhJG4t8W2sbjC6rvSivSGFO02tTEv7kPMqOojnktH19Nt7nbE9P4q5g5WErrHlORJlwaom/P3mfbczio7luVEFKaSnUn/ABCZH8j8rExgTy30qzd4s8T61UXEpJA8ZVwRZF/9v1J7jg772wVd8X6xYDZzF0FAgpLgk8/r2xPSZfkiCSpimQtN0iCCD23ExvtvecNvJPTpxma1Hq01T1NUu77cgEsqOoDzgI91diLE2xUrPE+veoHA3XOkT/shwQogKvH0F1c4tgjTpypyrbQWmA5BAeIOpA9Ox3HKxG4B74KK9lqmATYLM1luL4bjcdCbhF1IUkBCSk83H79+cAGPEviFRQgV1X5KSJZ8wFKUz6hH4fG4uBFUZRkjtQpaG6XzUqClOgHUoi4mJA2O/tY49C6XBjGPGXPbGkNN/MlKR+fQnX2t+YK5PptY7fIuY8TLdbe8pyXgSGfVbSCQmeZMcwN/jDF/rD739ZZGlqxMC0CN4i2n5PMHElWX8qT5Ll2yWFJOnyJ5Nz9Nrg/2F8RUfGtZSUbQdcioBhYk2EAc/kb/ALYJs8QsutBsKBXBnbmI/ePx64Gj07yzFfdlNsfihRcZuhFibe+9rX4/+XkcfNuQlx4wqy4PXeL7D4HTcAiXa3Lg4S6TqUqTtN/cxbnbEeRluiVVwx5scKWRb/TQDYWHJH02sb+1rY1e4rUFeZQOnTy9Z35zBvz29++JFs5e8jz6edQEDaxiduVxPaDigfyTFbUtilsWAulZCAnykWt5B3Fh+o2G2PJ41r6VClOOnS6DN1bRcftPzE3EZm20pCEI+9zJAkE3n/sT84Z2QOluSE052ZmJoich26LBv8pUokeYjtbgW398JldxxmH2xCWHP6Cp1yTvI25b9pscC0USWkErkT369R379dxjud6R5RqVYdfgsKKG1pebJCNlNqK08dthxvjLXiFW0jixUOwwpOgAE87fNj1j622pGWXHVJV93TKYInnF+ZsPruMd+dcsIqjEanSGklDLKY7QCRfShJAv32Fzzb3wXyzjnyw4tpw6VkqWSTefqB/L741rWwnbkLc+u3Xa/OAY3jABTcgZWpDZjzWlB1KVEjSn81gOTe+43wdZ4ybUsVLTpLyrbyBI/O5se0dMB0vkANMk+dP4foBHX6YGKdlOiKl1RMhrS0tahEslIJGlFr323IVx+vtJW5ynQiobWfNcGpVzBPqHXaImZt+NleVuICHXp1OeqJNzzHxHWYjFpA6eZVaYW5WUKTD1nWU6QqxJI7je1yfTbb1rUnF1clQbS5K5tcnt+0TbaTidikpUOpccmE78rWn68gP1wLVLpfkCqOuimpcUGbrauUXuk6k8E3Gwvf0vxg7R8T5slaitSYUIMg2BH15i9/fbBJ2my5IS4yVa1mFT/wAt9j0n/wB4d9L6p5SboM2PIag/NOCzZWshadyfKNe+3t72wiPcH16KhtQdcWjnCRB+iRYk+3zilWZrTsNBDRQ4VoSSlKpBVGxA537z74jZZzXSnng6GGXWlJGmxUU/1HqNu2AGcZBVJWpPmLbIVJ2G89Rta0fPQQUdcpTfmJaIUQbRcQI6xzgQeW2JOZM0luoU0wqMuQ0pweKlpKlJ0lK+fOCOP3+uJsn4eNUhxtb6QsjSFkiZkX2P1E8vbAtx51dUlSypA1/dPMQYHebCAeWIVZzxEgy/HNACHEpT+FpXq7E7a+5735vhwyfgss1SGnq5Kk3MKIiJH/Ec/ggYZmKtx1xNM0lQkbp67He0XBj2t0FV9XYzJdD+WlRS6CGVuJWnxVEbBBLhvc7Dbt3w71nANHXtNpp69oqau6EESkBRJkaLCN/nFOtVUsGC2twkwPSCRvHP8BymBiliZ7+blpVUJf3EhSlaYslYb8RBNw5ZWskKTY3B4UDthXzHgtmlV5dK2mttdxpOoJIAkSI2Ij4iOgOpdrd1F1Kd4I2FoN5/PphkV7qfQ8s0GnSYM+LPlPPttOpYd1LShS2kknSU7AKP0sfe6n/8Ifr6hxt1hVOhKSsFaQASJIEmb+mOfPFGmqqpFQTqWRFwNhvNo+ef0g4pa91KgzjTnI7zZkOsoUmOlZ8Ra1IsUgXJv+tvc2wSy/gcopKxavQhoEFZAgAEXNu1/wAutiszd9xxphtlxZXYqSJAMXJg3v8AyQBi/p+YqUiAJ9ZQzGf0nUxKJSsWSdyNRIIJta//ABgL/ojhUGqQl0apC2xqBvEbAbG1ue2LIJpm0rcQQ5IkmQdxael+nzcyk6l1Ip7EqpKhxW5CG1KIU0VKS2AlO5IWCLX3Nzz6DD0nht0U9KHSUFSbJULm5ItF5iAN+Q6YJO1j9Q2wQ2spa36EAnva8Db9sKis9V5FRadYhpcUCSAhs33Fxa2q9xuOe2GDKeF26d9C32QRuoqTAue0ctvmb7WG64LaJTSklMcjMj57fqOyQoHVrMcDM05iRFnCMFhIUsWQEm+9yeB37Hk98dFq+FstXQsususJcVJKEn1SZtBHO/tftixR1AUtRWyBIgIP9v1PLp8RbG1jnTnKrlYeQt2qBtuS822lCgPw0uEJCh80Bew7A78EWGOFv8VZy0zqQKU6UAnVMkkA/wD5T+OOdUSWV1zCVl0oUoaxYk2vEqjlESOu+H1lXJmWoMZtLXzxShNxrCCq4G1z8wfTm5OEGv4hzeufV532cBRBISVddv8AbE7x7csHK3NVZfUuN0qP6aQANYTO5EwNQ/HvuL1dZzPMolShxaS0yWVOhDnzaU6tPm/JpS9uSE8kbDm+2GfIQEIW48SXCJTo2kx96SnryH6YCHNa2tq2I8tA8yFSSCZCjySQTbtud5wxPuqhV+kmsVNmQKn5QfAbaMfSUk/xOtqvcD/bG19742rc5rmK/Sgo0FNrqB3ETAPtvhwZzFeX1aV6dSkp5AEbzzA59R8csJ7OsSBUkxGm2lNGmOpcZJQhOpSFagF6Dci/N79xa3JTJc8rqJ19wLKxWAoWCokgKABiRa3TDIxmLdWdb7SjFxpSj8pSO/8ABhIdQssP5ua+9pchuPLgtJjsCO4822UNoDaSoNoQNWlpJJ0kgk79y45LxB/ptSmnS2p1t5ZcXrCFHUo6jGomx1GRIvtiF5dPVVCG1IUGlAaoSjUR6RtMTcjfbA1kfp6mS4pNUnOPtNNqUlKHn3CFJQpQIDmhI3AOxxpxNxY6iBSshBUsJJWhCbagN0lRO/4/GBr1JR0z61ISuFEASEyASQJ9UT/L4a+WslUNdchz3XJinaa/+Cm90HT5QFAvWtYnYg+nvherOIcxRQuUSQyGqxseaf7hMGQQjsOY9+sSqdilHmtJJWr1JKwIBV1uY+J+YGGlnjKdNzJ40h1x9jXcaGiUJAN9rIWB3IvheyzM6jJW0pYShYTtrudxzIJwVay9nNKMPVVnDBOgW25THMnlt9MJWbkWkUGBU/kVvrXKZcDpeJNiQkXSS4s9h/2/1JeaXP6rM3aMVKEANLSBogSJURIASOtukfBfLqSkCHmClUIGgGEnpe5tP688IXLUKBArIb0vOJU6tRuEquS5fhS7W39v57POc1zwoytlKElKERI0/wBpB+6D03wOLaKSrFOykeWoydQEySOk/wCV77e2OVaVQVzqmgxJSXEtO+ZDUcC4Qo/m8YKt+nqO+0GWIzB9FM4t5qFrR6dbh5i0eWBH8jAwrWKx5ICbb+5BuIEW5SJ59sf/2Q==',
-        NULL, NULL, NULL, NULL, '172.16.2.226', NULL, 1, NULL,
+        NULL, 1, NULL, NULL, NULL, NULL, NULL, '192.168.110.79', NULL, 51, NULL,
         'b2fe2a1217dd70078efbaaf4f969ed3d37a5ea2eb1577006922e541f9e00ee6ab8d2d590ea5b4dcddccfa04ad65985e1a9f565dd9f017170d6911e5991dba0f4',
         NULL, NULL, NULL, '2024-08-28 10:09:26', 'sa', 1);
 INSERT INTO `sys_user`
-VALUES (2, 'test', '测试', 'd624e5ed60d0a477a0a3072bd3c57ad9', '05kyh5l0doci23', 0, 1, '', NULL, 2, NULL, 0, NULL, NULL,
-        1, '', NULL, '172.16.2.226', '172.16.2.226', 16, NULL, NULL, 'sa', NULL, '2024-08-20 17:06:18',
-        '2024-08-21 08:41:20', 'sa', 1);
+VALUES (2, 'test', '测试', '0a44d441a857bc12ce1e764af68bb068', 'i6iuq2o73anxs5', 0, 1, '1', NULL, 2, NULL, 1, NULL,
+        NULL, 1, '', NULL, '172.16.2.226', '172.16.2.226', 16, NULL, NULL, 'sa', NULL, '2024-08-20 17:06:18',
+        '2025-02-25 11:28:05', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_config
@@ -10058,7 +11933,7 @@ CREATE TABLE `sys_user_log`  (
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   INDEX `index_sys_log_from`(`sys_log_from` ASC) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 200
+  AUTO_INCREMENT = 305
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表'
   ROW_FORMAT = DYNAMIC;
@@ -10105,6 +11980,597 @@ VALUES (199, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网'
         'CHROME13', '/system/api/v2/user/login',
         '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
         167, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-17 15:56:44', '2025-02-17 15:56:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (200, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 8, 'LOGIN', 1, NULL, '', 1, NULL, NULL, '2025-02-18 10:35:22',
+        '2025-02-18 10:35:22', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (201, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        151, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-18 10:35:31', '2025-02-18 10:35:31', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (202, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 488, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-18 16:13:58',
+        '2025-02-18 16:13:58', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (203, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        417, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-18 16:15:09', '2025-02-18 16:15:09', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (204, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 602, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 11:15:05',
+        '2025-02-19 11:15:05', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (205, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        1311, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 11:21:29', '2025-02-19 11:21:29', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (206, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 48, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 11:21:32',
+        '2025-02-19 11:21:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (207, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        87, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 11:24:42', '2025-02-19 11:24:42', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (208, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 37, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 11:24:44',
+        '2025-02-19 11:24:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (209, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        543, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:19:35', '2025-02-19 13:19:35', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (210, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 68, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:19:38',
+        '2025-02-19 13:19:38', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (211, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        121, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:22:54', '2025-02-19 13:22:54', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (212, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 198, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:31:48',
+        '2025-02-19 13:31:48', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (213, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        132, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:33:57', '2025-02-19 13:33:57', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (214, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 31, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:34:02',
+        '2025-02-19 13:34:02', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (215, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:34:15',
+        '2025-02-19 13:34:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (216, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 0, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:34:18',
+        '2025-02-19 13:34:18', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (217, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        4205, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:34:31', '2025-02-19 13:34:31', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (218, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 123, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:35:19',
+        '2025-02-19 13:35:19', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (219, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\"\n  }\n]',
+        13008, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:36:31', '2025-02-19 13:36:31', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (220, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 30, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:37:04',
+        '2025-02-19 13:37:04', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (221, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"SYSTEM\",\n    \"accountType\": \"tenant\"\n  }\n]',
+        6937, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:37:14', '2025-02-19 13:37:14', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (222, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 37, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:37:48',
+        '2025-02-19 13:37:48', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (223, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\"\n  }\n]',
+        2945, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:37:55', '2025-02-19 13:37:55', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (224, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\"\n  }\n]',
+        7846, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:38:06', '2025-02-19 13:38:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (225, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        30, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:38:25', '2025-02-19 13:38:25', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (226, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        1122, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-19 13:39:50', '2025-02-19 13:39:50', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (227, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        6900, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-19 13:40:12', '2025-02-19 13:40:12', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (228, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        5839, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-19 13:43:30', '2025-02-19 13:43:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (229, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        2769, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-19 13:44:32', '2025-02-19 13:44:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (230, NULL, '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        3315, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-19 13:44:40', '2025-02-19 13:44:40', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (231, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"1\"\n  }\n]',
+        3280, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:50:08', '2025-02-19 13:50:08', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (232, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 103, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 13:50:14',
+        '2025-02-19 13:50:14', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (233, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        257, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 13:50:15', '2025-02-19 13:50:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (234, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        4266, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:04:49', '2025-02-19 14:04:49', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (235, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 92, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 14:04:52',
+        '2025-02-19 14:04:52', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (236, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        538, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:05:53', '2025-02-19 14:05:53', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (237, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        15444, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:06:49', '2025-02-19 14:06:49', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (238, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        18131, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:07:20', '2025-02-19 14:07:20', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (239, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"1\"\n  }\n]',
+        18688, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:07:44', '2025-02-19 14:07:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (240, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 167, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 14:19:07',
+        '2025-02-19 14:19:07', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (241, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"\"\n  }\n]',
+        8130, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:20:08', '2025-02-19 14:20:08', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (242, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2748, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 14:25:03',
+        '2025-02-19 14:25:03', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (243, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        2355, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:25:05', '2025-02-19 14:25:05', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (244, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 93, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 14:26:28',
+        '2025-02-19 14:26:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (245, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        308, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:26:30', '2025-02-19 14:26:30', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (246, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        294, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:30:14', '2025-02-19 14:30:14', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (247, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        699, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 14:44:59', '2025-02-19 14:44:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (248, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        2920, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 15:00:08', '2025-02-19 15:00:08', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (249, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        2252, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 15:17:27', '2025-02-19 15:17:27', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (250, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 315, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-19 15:34:16',
+        '2025-02-19 15:34:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (251, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        331, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-19 15:34:17', '2025-02-19 15:34:17', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (252, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        3203, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-20 15:46:18', '2025-02-20 15:46:18', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (253, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 655, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 15:48:08',
+        '2025-02-24 15:48:08', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (254, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        698, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:45:59', '2025-02-24 16:45:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (255, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 206, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 16:46:00',
+        '2025-02-24 16:46:00', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (256, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        275, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:46:06', '2025-02-24 16:46:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (257, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 134, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 16:46:06',
+        '2025-02-24 16:46:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (258, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        5357, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:46:28', '2025-02-24 16:46:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (259, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 48, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 16:46:29',
+        '2025-02-24 16:46:29', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (260, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        276, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:46:38', '2025-02-24 16:46:38', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (261, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 73, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 16:46:38',
+        '2025-02-24 16:46:38', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (262, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        274, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:47:00', '2025-02-24 16:47:00', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (263, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 56, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 16:47:09',
+        '2025-02-24 16:47:09', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (264, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        60017, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 16:48:16', '2025-02-24 16:48:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (265, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        60016, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:00:10', '2025-02-24 17:00:10', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (266, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        10383, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:00:27', '2025-02-24 17:00:27', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (267, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 50, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 17:00:27',
+        '2025-02-24 17:00:27', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (268, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        2351, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:01:09', '2025-02-24 17:01:09', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (269, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 46, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 17:01:09',
+        '2025-02-24 17:01:09', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (270, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        12081, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:01:28', '2025-02-24 17:01:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (271, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 46, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 17:01:28',
+        '2025-02-24 17:01:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (272, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        4257, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:01:44', '2025-02-24 17:01:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (273, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 47, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-24 17:01:44',
+        '2025-02-24 17:01:44', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (274, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        7829, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-24 17:10:32', '2025-02-24 17:10:32', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (275, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        516, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 10:43:15', '2025-02-25 10:43:15', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (276, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 698, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-25 10:45:41',
+        '2025-02-25 10:45:41', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (277, NULL, '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"accountType\": \"tenant\",\n    \"tenantId\": \"\"\n  }\n]',
+        2489, 'LOGIN', 1, NULL, 'WEB', 1, NULL, NULL, '2025-02-25 11:22:16', '2025-02-25 11:22:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (278, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1170, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 11:23:16', '2025-02-25 11:23:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (279, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        391, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 11:25:56', '2025-02-25 11:25:56', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (280, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        928, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 13:08:28', '2025-02-25 13:08:28', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (281, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1181, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 13:20:50', '2025-02-25 13:20:50', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (282, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 255, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-25 13:31:01',
+        '2025-02-25 13:31:01', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (283, 'test', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 172, 'LOGIN', 1, NULL, '', 1, NULL, 20, '2025-02-25 14:17:59',
+        '2025-02-25 14:17:59', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (284, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1562, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 14:18:01', '2025-02-25 14:18:01', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (285, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1142, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 14:48:21', '2025-02-25 14:48:21', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (286, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 2893, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-25 15:08:39',
+        '2025-02-25 15:08:39', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (287, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        550, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 15:08:39', '2025-02-25 15:08:39', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (288, 'sa', '局域网', '192.168.137.1', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 257, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-25 15:14:18',
+        '2025-02-25 15:14:18', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (289, 'test', NULL, '172.16.2.226', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 659, 'LOGIN', 1, NULL, '', 1, NULL, 20, '2025-02-25 16:32:23',
+        '2025-02-25 16:32:23', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (290, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1037, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 16:32:25', '2025-02-25 16:32:25', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (291, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        216, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 16:51:27', '2025-02-25 16:51:27', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (292, 'sa', '', '172.16.2.226', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 47, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-02-25 16:59:39',
+        '2025-02-25 16:59:39', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (293, 'sa', NULL, '172.16.2.226', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        86, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-25 17:01:52', '2025-02-25 17:01:52', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (294, 'sa', NULL, '192.168.137.1', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        291, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-26 17:27:06', '2025-02-26 17:27:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (295, 'sa', '', '192.168.137.1', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        523, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-02-27 09:15:56', '2025-02-27 09:15:56', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (296, 'sa', NULL, '192.168.110.79', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1279, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-04 14:00:16', '2025-03-04 14:00:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (297, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 40, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-03-04 14:00:17',
+        '2025-03-04 14:00:17', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (298, 'sa', '', '192.168.110.79', '', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        51, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-04 14:00:26', '2025-03-04 14:00:26', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (299, 'sa', NULL, '192.168.137.1', NULL, 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        1967, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-05 13:18:16', '2025-03-05 13:18:16', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (300, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 202, 'LOGIN', 1, NULL, '', 1, NULL, 1, '2025-03-07 15:36:04',
+        '2025-03-07 15:36:04', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (301, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        90, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-07 15:36:06', '2025-03-07 15:36:06', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (302, 'sa', '局域网', '172.16.2.226', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        59, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-07 15:37:46', '2025-03-07 15:37:46', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (303, NULL, '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/logout', '[]', 18, 'LOGIN', 1, NULL, '', 1, NULL, NULL, '2025-03-18 08:42:11',
+        '2025-03-18 08:42:11', NULL, NULL);
+INSERT INTO `sys_user_log`
+VALUES (304, 'sa', '局域网', '192.168.110.79', '对方和您在同一内部网', 'Windows 10',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'CHROME13', '/system/api/v2/user/login',
+        '[\n  {\n    \"username\": \"sa\",\n    \"password\": \"7be2228e651b0e93292a02f3582da66a\",\n    \"verifyCodeKey\": \"\",\n    \"verifyCodeUlid\": \"\",\n    \"loginType\": \"WEB\",\n    \"tenantId\": \"\"\n  }\n]',
+        264, 'LOGIN', 1, NULL, 'WEB', 1, NULL, 1, '2025-03-18 08:42:24', '2025-03-18 08:42:24', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role

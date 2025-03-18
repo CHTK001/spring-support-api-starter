@@ -1,14 +1,18 @@
 package com.chua.starter.system.service.support.hikvision.yunmou.adaptor;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.chua.common.support.utils.PageUtils;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.service.support.hikvision.HikvisionClient;
 import com.chua.starter.system.service.support.hikvision.HikvisionEnum;
 import com.chua.starter.system.service.support.hikvision.adaptor.sub.QyxxFactory;
+import com.chua.starter.system.service.support.hikvision.result.HikDeviceChannel;
 import com.chua.starter.system.service.support.hikvision.result.HikRegion;
 import com.chua.starter.system.service.support.hikvision.result.HikRegionCascade;
+import com.chua.starter.system.service.support.hikvision.yunmou.pojo.DeviceChannel;
 import com.chua.starter.system.service.support.hikvision.yunmou.pojo.OrgInfo;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,5 +50,36 @@ public class YunMouQyxxFactory extends QyxxFactory {
         }).collect(Collectors.toList())));
 
         return hikRegion;
+    }
+
+
+    @Override
+    public List<HikDeviceChannel> channel(String deviceSerialNumber, int page, int pageSize) {
+        Map<String, String> headers = new HashMap<>(1);
+        pageSize = Math.min(pageSize, 999);
+        headers.put("Authorization", "Bearer " + hikvisionClient.getToken());
+        try {
+            DeviceChannel deviceChannel = hikvisionClient.executeGet(
+                    "/api/v1/open/basic/channels/list?deviceSerial=%s&pageNo=%s&pageSize=%s".formatted(
+                            deviceSerialNumber, page, pageSize
+                    )
+                    , new JSONObject(), headers, DeviceChannel.class);
+            return deviceChannel.getRows().stream().map(data -> {
+                HikDeviceChannel hikDeviceChannel = new HikDeviceChannel();
+                hikDeviceChannel.setChannelNo(data.getChannelNo());
+                hikDeviceChannel.setChannelName(data.getChannelName());
+                hikDeviceChannel.setChannelType(data.getChannelType());
+                hikDeviceChannel.setChannelId(data.getChannelId());
+                hikDeviceChannel.setChannelStatus(data.getChannelStatus());
+                hikDeviceChannel.setDeviceSerial(data.getDeviceSerial());
+                hikDeviceChannel.setIsUse(data.getIsUse());
+                hikDeviceChannel.setChildDeviceModel(data.getChildDeviceModel());
+                hikDeviceChannel.setIpcSerial(data.getIpcSerial());
+                return hikDeviceChannel;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 }

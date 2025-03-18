@@ -56,7 +56,7 @@ public class DeviceResourceResourcesResult {
         private String channelType;
         @JsonProperty("channelNo")
         private String channelNo;
-        private Integer channelCount = 1;
+        private Integer channelCount;
         @JsonProperty("installLocation")
         private String installLocation;
         @JsonProperty("capabilitySet")

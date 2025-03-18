@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.system.entity.SysDevice;
 import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
@@ -12,6 +13,7 @@ import com.chua.starter.system.service.SysProjectService;
 import com.chua.starter.system.service.support.CameraService;
 import com.chua.starter.system.service.support.hikvision.query.SysDeviceCameraOnOffline;
 import com.chua.starter.system.service.support.hikvision.result.DeviceResourceResourcesResult;
+import com.chua.starter.system.service.support.hikvision.result.HikDeviceChannel;
 import com.chua.starter.system.service.support.hikvision.result.HikRegion;
 import com.chua.starter.system.service.support.hikvision.result.OnOffline;
 import org.apache.commons.collections4.CollectionUtils;
@@ -95,6 +97,25 @@ public class Hikvision implements CameraService {
     }
 
     @Override
+    public boolean syncChannel(Integer sysProjectId, SysDevice sysDevice, Consumer<HikDeviceChannel> consumer) {
+        HikvisionClient hikvisionClient = getHikvisionClient(sysProjectId);
+        if (null == hikvisionClient) {
+            return false;
+        }
+
+        List<HikDeviceChannel> channel = hikvisionClient.getResourceFactory().getRegionInfoFactory()
+                .channel(sysDevice.getSysDeviceSerialNumber(), 1, 1000);
+
+        if (CollectionUtils.isEmpty(channel)) {
+            return true;
+        }
+        for (HikDeviceChannel hikDeviceChannel : channel) {
+            consumer.accept(hikDeviceChannel);
+        }
+        return true;
+    }
+
+    @Override
     public List<SysDeviceCameraOnOffline> timeline(Integer sysProjectId, String sysCameraTemplateSerialNumber, String sysCameraTemplateResourceType) {
         HikvisionClient hikvisionClient = getHikvisionClient(sysProjectId);
         if (null == hikvisionClient) {
@@ -147,6 +168,7 @@ public class Hikvision implements CameraService {
         }
         return hikvisionClient.getResourceFactory().syncEventMessage(request);
     }
+
 
     private void syncForResources(HikvisionClient hikvisionClient, Set<String> resources, Consumer<DeviceResourceResourcesResult> consumer) {
         for (String resource : resources) {

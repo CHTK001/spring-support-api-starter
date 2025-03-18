@@ -3,7 +3,11 @@ package com.chua.starter.system.service.support.hikvision.adaptor.sub;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.chua.starter.system.service.support.hikvision.HikvisionClient;
+import com.chua.starter.system.service.support.hikvision.result.HikDeviceChannel;
 import com.chua.starter.system.service.support.hikvision.result.HikRegion;
+
+import java.util.Collections;
+import java.util.List;
 
 import static com.chua.starter.system.service.support.hikvision.HikvisionEnum.*;
 
@@ -52,6 +56,26 @@ public class QyxxFactory {
             e.printStackTrace();
             return HikRegion.empty();
         }
+    }
+
+    /**
+     * 获取组织机构
+     *
+     * @param page     页码
+     * @param pageSize 每页数量
+     * @return 组织机构
+     */
+    public List<HikDeviceChannel> channel(String deviceSerialNumber, int page, int pageSize) {
+        JSONObject json = new JSONObject();
+        json.put("pageNo", page);
+        json.put("pageSize", pageSize);
+        try {
+            hikvisionClient.executePost(REGIONS, json, HikRegion.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Collections.emptyList();
     }
 
     /**
