@@ -58,6 +58,13 @@ public class SysDeviceMessageEvent extends SysBase {
     @ApiModelProperty(value = "人员ID")
     @Schema(description = "人员ID")
     private String sysDeviceMessageEventEmployeeNo;
+    /**
+     * 姓名
+     */
+    @TableField(value = "sys_device_message_event_employee_name")
+    @ApiModelProperty(value = "姓名")
+    @Schema(description = "姓名")
+    private String sysDeviceMessageEventEmployeeName;
 
     /**
      * 卡号
@@ -90,6 +97,13 @@ public class SysDeviceMessageEvent extends SysBase {
     @ApiModelProperty(value = "触发报警的设备通道号")
     @Schema(description = "触发报警的设备通道号")
     private String sysDeviceMessageEventChannelNo;
+    /**
+     * 触发设备通道位置
+     */
+    @TableField(value = "sys_device_message_event_location")
+    @ApiModelProperty(value = "触发设备通道位置")
+    @Schema(description = "触发设备通道位置")
+    private String sysDeviceMessageEventLocation;
 
     /**
      * 触发报警的设备通道名称
@@ -127,9 +141,16 @@ public class SysDeviceMessageEvent extends SysBase {
      * 事件类型
      */
     @TableField(value = "sys_device_message_event_event_type")
-    @ApiModelProperty(value = "事件类型")
-    @Schema(description = "事件类型")
+    @ApiModelProperty(value = "事件消息类型")
+    @Schema(description = "事件消息类型")
     private String sysDeviceMessageEventEventType;
+    /**
+     * 事件类型名称
+     */
+    @TableField(value = "sys_device_message_event_event_type_name")
+    @ApiModelProperty(value = "事件类型名称")
+    @Schema(description = "事件类型名称")
+    private String sysDeviceMessageEventEventTypeName;
 
     /**
      * 事件码

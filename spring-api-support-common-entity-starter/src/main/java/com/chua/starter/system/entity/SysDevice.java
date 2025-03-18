@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 设备管理
@@ -72,27 +73,18 @@ public class SysDevice extends SysBase {
     private String sysDeviceOrgName;
 
     /**
-     * 管道名称
-     */
-    @TableField(value = "sys_device_channel_name")
-    @ApiModelProperty(value = "管道名称")
-    @Schema(description = "管道名称")
-    private String sysDeviceChannelName;
-
-    /**
-     * 管道号
-     */
-    @TableField(value = "sys_device_channel_number")
-    @ApiModelProperty(value = "管道号")
-    @Schema(description = "管道号")
-    private String sysDeviceChannelNumber;
-    /**
      * 管道数量
      */
-    @TableField(value = "sys_device_channel_count")
+    @TableField(exist = false)
     @ApiModelProperty(value = "管道数量")
     @Schema(description = "管道数量")
     private Integer sysDeviceChannelCount;
+
+    /**
+     * 管道信息
+     */
+    @TableField(exist = false)
+    private List<SysDeviceChannel> channelList;
 
     /**
      * 管道信息, 多个以逗号分隔

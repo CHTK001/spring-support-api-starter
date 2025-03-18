@@ -1,11 +1,13 @@
 package com.chua.starter.system.service.support;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.starter.system.entity.SysDevice;
 import com.chua.starter.system.entity.SysDeviceCardEvent;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.system.service.support.hikvision.query.SysDeviceCameraOnOffline;
 import com.chua.starter.system.service.support.hikvision.result.DeviceResourceResourcesResult;
+import com.chua.starter.system.service.support.hikvision.result.HikDeviceChannel;
 import com.chua.starter.system.service.support.hikvision.result.HikRegion;
 import com.chua.starter.system.service.support.hikvision.result.OnOffline;
 
@@ -91,4 +93,14 @@ public interface CameraService {
      * @return 返回同步结果
      */
     boolean syncEventMessage(CardDevicePageV1Request request);
+
+    /**
+     * 同步通道信息
+     *
+     * @param sysProjectId 系统项目ID，用于标识需要同步通道信息的项目
+     * @param sysDevice    设备信息
+     * @param consumer     通道信息消费者，用于处理同步结果
+     * @return 返回同步结果
+     */
+    boolean syncChannel(Integer sysProjectId, SysDevice sysDevice, Consumer<HikDeviceChannel> consumer);
 }

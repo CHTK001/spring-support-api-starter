@@ -9,11 +9,9 @@ import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.system.entity.*;
-import com.chua.starter.system.mapper.SysDeviceCameraMapper;
-import com.chua.starter.system.mapper.SysDeviceCameraRecordMapper;
-import com.chua.starter.system.mapper.SysDeviceOrgMapper;
-import com.chua.starter.system.mapper.SysProjectMapper;
+import com.chua.starter.system.mapper.*;
 import com.chua.starter.system.pojo.device.*;
 import com.chua.starter.system.pojo.project.SyncV1Request;
 import com.chua.starter.system.pojo.project.TemplatePageV1Request;
@@ -24,6 +22,7 @@ import com.chua.starter.system.service.support.hikvision.result.DeviceResourceRe
 import com.chua.starter.system.service.support.hikvision.result.HikRegionCascade;
 import com.chua.starter.system.service.support.hikvision.result.OnOffline;
 import com.github.yulichang.toolkit.MPJWrappers;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -45,6 +45,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
     final SysDeviceCameraRecordMapper sysDeviceCameraRecordMapper;
     final SysDeviceOrgMapper sysDeviceOrgMapper;
     final SysProjectMapper sysProjectMapper;
+    final SysDeviceChannelMapper sysDeviceChannelMapper;
 
     @Override
     public IPage<SysDeviceCameraRecord> pageForLog(TemplatePageV1Request request) {
@@ -73,7 +74,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
 
     @Override
     public IPage<SysDevice> pageFor(DevicePageV1Request request) {
-        return baseMapper.selectPage(new Page<>(request.getPage(), request.getPageSize()),
+        Page<SysDevice> sysDevicePage = baseMapper.selectPage(new Page<>(request.getPage(), request.getPageSize()),
                 MPJWrappers.<SysDevice>lambdaJoin()
                         .selectAll(SysDevice.class)
                         .selectAs(SysDeviceOrg::getSysDeviceOrgName, SysDevice::getSysDeviceOrgName)
@@ -84,6 +85,22 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                         .eq(null != request.getSysDeviceOnline(), SysDevice::getSysDeviceOnline, request.getSysDeviceOnline())
                         .orderByDesc(SysDevice::getCreateTime)
         );
+
+        List<SysDevice> records = sysDevicePage.getRecords();
+        if (CollectionUtils.isNotEmpty(records)) {
+            Set<String> deviceSerialNumberSet = records.stream().map(SysDevice::getSysDeviceSerialNumber).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+            sysDeviceChannelMapper.selectList(Wrappers.<SysDeviceChannel>lambdaQuery().in(SysDeviceChannel::getSysDeviceSerialNumber, deviceSerialNumberSet))
+                    .stream().collect(Collectors.groupingBy(SysDeviceChannel::getSysDeviceSerialNumber)).forEach((k, v) -> {
+                        for (SysDevice sysDevice : records) {
+                            if (k.equals(sysDevice.getSysDeviceSerialNumber())) {
+                                sysDevice.setSysDeviceChannelCount(v.size());
+                                sysDevice.setChannelList(v);
+                            }
+                        }
+                    });
+        }
+
+        return sysDevicePage;
     }
 
     /**
@@ -167,8 +184,6 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                 if (null == sysDevice) {
                     sysDevice = new SysDevice();
                 }
-                sysDevice.setSysDeviceChannelName(listDTO.getChannelType());
-                sysDevice.setSysDeviceChannelNumber(listDTO.getChannelNo());
                 sysDevice.setSysDeviceChannelCount(listDTO.getChannelCount());
                 sysDevice.setSysDeviceName(listDTO.getName());
                 sysDevice.setSysDeviceOrgCode(listDTO.getRegionIndexCode());
@@ -188,6 +203,10 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                 sysDevice.setSysDeviceNetAddress(listDTO.getNetAddress());
 
                 sysDevice.setSysDeviceDescription(listDTO.getDescription());
+                int syncChannelCount = syncChannel(cameraService, sysDevice, request.getSysProjectId());
+                if (null == sysDevice.getSysDeviceChannelCount()) {
+                    sysDevice.setSysDeviceChannelCount(syncChannelCount);
+                }
                 if (null == sysDevice.getSysDeviceId()) {
                     baseMapper.insert(sysDevice);
                     continue;
@@ -200,6 +219,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         }
         return ReturnResult.illegal("同步失败");
     }
+
 
     @Override
     public ReturnResult<String> previewUrl(DevicePreviewUrlV1Request request) {
@@ -225,7 +245,40 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         return ReturnResult.ok(cameraService.previewUrl(sysDevice.getSysProjectId(), sysDevice.getSysDeviceSerialNumber(), sysDevice.getSysDeviceResourceType(), request));
     }
 
+    /**
+     * 同步通道
+     *
+     * @param cameraService cameraService
+     * @param sysDevice     sysDevice
+     * @param sysProjectId  sysProjectId
+     */
+    private int syncChannel(CameraService cameraService, SysDevice sysDevice, @NotNull(message = "项目ID不能为空", groups = SelectGroup.class) Integer sysProjectId) {
+        AtomicInteger counter = new AtomicInteger(1);
+        cameraService.syncChannel(sysProjectId, sysDevice, it -> {
 
+            SysDeviceChannel sysDeviceChannel = sysDeviceChannelMapper.selectOne(Wrappers.<SysDeviceChannel>lambdaQuery()
+                            .eq(SysDeviceChannel::getSysDeviceSerialNumber, it.getDeviceSerial())
+                            .eq(SysDeviceChannel::getSysDeviceChannelNo, it.getChannelNo())
+                    , false);
+            if (null == sysDeviceChannel) {
+                sysDeviceChannel = new SysDeviceChannel();
+            }
+            sysDeviceChannel.setSysDeviceChannelName(it.getChannelName());
+            sysDeviceChannel.setSysDeviceChannelNo(it.getChannelNo());
+            sysDeviceChannel.setSysDeviceChannelStatus(it.getChannelStatus());
+            sysDeviceChannel.setSysDeviceChannelType(it.getChannelType());
+            sysDeviceChannel.setSysDeviceChannelUse(it.getIsUse());
+            sysDeviceChannel.setSysDeviceSerialNumber(it.getDeviceSerial());
+
+            counter.incrementAndGet();
+            if (null == sysDeviceChannel.getSysDeviceChannelId()) {
+                sysDeviceChannelMapper.insert(sysDeviceChannel);
+                return;
+            }
+            sysDeviceChannelMapper.updateById(sysDeviceChannel);
+        });
+        return counter.get();
+    }
     /**
      * 同步组织
      *
