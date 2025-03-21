@@ -153,6 +153,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         sysUser1.setSysUserUsername(null);
         sysUser1.setSysUserInSystem(null);
+//        sysUser1.setUpdateTime(LocalDateTime.now());
         try {
             return ReturnResult.ok(transactionTemplate.execute(status -> {
                 updateById(sysUser1);

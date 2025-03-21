@@ -81,7 +81,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
 
     @Override
     public IPage<SysAiModule> pageFor(Query<?> query, Integer sysProjectId, String sysAiModuleType) {
-        return baseMapper.selectPage(
+        Page<SysAiModule> sysAiModulePage = baseMapper.selectPage(
                 new Page<>(query.getPage(), query.getPageSize()),
                 MPJWrappers.<SysAiModule>lambdaJoin()
                         .selectAll(SysAiModule.class)
@@ -92,6 +92,22 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
                         .orderByDesc(SysAiModule::getCreateTime)
         );
+        List<SysAiModule> records = sysAiModulePage.getRecords();
+        List<SysAiModule> list = records.stream().toList();
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<SysAiVincentSetting> sysAiVincentSettings = sysAiVincentSettingMapper.selectList(
+                    Wrappers.<SysAiVincentSetting>lambdaQuery().in(SysAiVincentSetting::getSysAiModuleId, list.stream().map(SysAiModule::getSysAiModuleId).toList()));
+
+            Map<Integer, SysAiVincentSetting> collect = sysAiVincentSettings.stream().collect(Collectors.toMap(SysAiVincentSetting::getSysAiModuleId, Function.identity()));
+            for (SysAiModule sysAiModule : list) {
+                SysAiVincentSetting sysAiVincentSetting = collect.get(sysAiModule.getSysAiModuleId());
+                if (null == sysAiVincentSetting) {
+                    continue;
+                }
+                sysAiModule.setVincentSetting(sysAiVincentSetting);
+            }
+        }
+        return sysAiModulePage;
     }
 
     @Override
