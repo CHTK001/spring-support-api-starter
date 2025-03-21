@@ -111,6 +111,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     public Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
+        if (null == upgrade) {
+            return Result.failed("登录已过期");
+        }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
                 .tokenType("Bearer")
