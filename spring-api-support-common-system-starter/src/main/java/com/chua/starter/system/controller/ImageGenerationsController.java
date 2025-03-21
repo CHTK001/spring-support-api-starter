@@ -9,7 +9,7 @@ import com.chua.starter.system.entity.SysAiVincentTask;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
-import com.chua.starter.system.service.VincentDiagramService;
+import com.chua.starter.system.service.ImageGenerationService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +37,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ImageGenerationsController {
 
-    final VincentDiagramService vincentDiagramService;
+    final ImageGenerationService imageGenerationService;
 
     /**
      * 提交任务。
@@ -52,7 +52,7 @@ public class ImageGenerationsController {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return vincentDiagramService.addTask(request);
+        return imageGenerationService.addTask(request);
     }
 
     /**
@@ -68,7 +68,7 @@ public class ImageGenerationsController {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return vincentDiagramService.searchTask(request);
+        return imageGenerationService.searchTask(request);
     }
 
 
@@ -80,6 +80,6 @@ public class ImageGenerationsController {
     @Operation(summary = "历史任务")
     @GetMapping("history")
     public ReturnResult<List<SysAiVincentTask>> history(@Parameter(hidden = true) @UserValue("userId") Integer userId, String sysAiVincentTaskType) {
-        return ReturnResult.ok(vincentDiagramService.history(userId, sysAiVincentTaskType));
+        return ReturnResult.ok(imageGenerationService.history(userId, sysAiVincentTaskType));
     }
 }

@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.tenant", "com.chua.starter.service.**"})
 public class SystemApplication {
     public static void main(String[] args) {
-        System.out.println("1");
         SpringApplication.run(SystemApplication.class, args);
     }
 }
