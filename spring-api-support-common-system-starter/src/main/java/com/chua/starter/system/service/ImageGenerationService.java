@@ -1,7 +1,6 @@
 package com.chua.starter.system.service;
 
 import com.chua.common.support.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
-import com.chua.common.support.bigmodel.generations.video.VideoGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.entity.SysAiVincentTask;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
@@ -16,7 +15,7 @@ import java.util.List;
  * @author CH
  * @since 2024/9/10
  */
-public interface VincentDiagramService {
+public interface ImageGenerationService {
 
     /**
      * 提交任务
@@ -42,20 +41,4 @@ public interface VincentDiagramService {
      * @return 结果
      */
     List<SysAiVincentTask> history(Integer userId, String sysAiVincentTaskType);
-
-    /**
-     * 提交任务
-     *
-     * @param request 请求
-     * @return 结果
-     */
-    ReturnResult<VincentDiagramV1AddTaskResponse> addVideoTask(VincentDiagramV1AddTaskRequest request);
-
-    /**
-     * 查询任务
-     *
-     * @param request 请求
-     * @return 结果
-     */
-    ReturnResult<VideoGenerationsSearchTaskV1Response> searchVideoTask(VincentDiagramV1SearchTaskRequest request);
 }

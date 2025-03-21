@@ -45,6 +45,13 @@ public class SysAiVincentSetting extends SysBase {
     @ApiModelProperty(value = "支持的尺寸")
     @Schema(description = "支持的尺寸")
     private String sysAiVincentSupportedSize;
+    /**
+     * 支持的最大尺寸
+     */
+    @TableField(value = "sys_ai_vincent_supported_max_size")
+    @ApiModelProperty(value = "支持的最大尺寸")
+    @Schema(description = "支持的最大尺寸")
+    private Integer sysAiVincentSupportedMaxSize;
 
     /**
      * 支持的风格
