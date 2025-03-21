@@ -139,6 +139,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             this.strictInsertFill(metaObject, name, (Supplier) () -> Converter.convertIfNecessary(value, type), type);
             return;
         }
+        metaObject.setValue(name, null);
         this.strictUpdateFill(metaObject, name, (Supplier) () -> Converter.convertIfNecessary(value, type), type);
     }
 
