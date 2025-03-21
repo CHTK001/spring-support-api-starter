@@ -6,7 +6,7 @@ import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
-import com.chua.starter.system.service.VincentDiagramService;
+import com.chua.starter.system.service.VideoGenerationService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class VideoGenerationsController {
 
-    final VincentDiagramService vincentDiagramService;
+    final VideoGenerationService videoGenerationService;
 
     /**
      * 提交任务。
@@ -46,7 +46,7 @@ public class VideoGenerationsController {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return vincentDiagramService.addVideoTask(request);
+        return videoGenerationService.addTask(request);
     }
 
     /**
@@ -62,7 +62,7 @@ public class VideoGenerationsController {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return vincentDiagramService.searchVideoTask(request);
+        return videoGenerationService.searchTask(request);
     }
 
 
