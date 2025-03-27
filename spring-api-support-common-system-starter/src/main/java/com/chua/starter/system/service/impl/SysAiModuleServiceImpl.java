@@ -149,12 +149,12 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     @ApiCacheKey("sys:ai:module:#{#model}:#{#sysProjectId}")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public SysAiModule getOneByCode(Integer sysProjectId, String model) {
-        return baseMapper.selectOne(
+        return com.chua.common.support.utils.CollectionUtils.findFirst(baseMapper.selectList(
                 Wrappers.<SysAiModule>lambdaQuery()
                         .eq(SysAiModule::getSysProjectId, sysProjectId)
                         .eq(SysAiModule::getSysAiModuleCode, model)
                         .eq(SysAiModule::getSysAiModuleStatus, 1)
-                , true);
+        ));
     }
 
     private void clearDefaultCache(String model, Integer sysProjectId) {

@@ -198,7 +198,13 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "最后一次登录地点")
     @Size(max = 255, message = "最后一次登录地点最大长度要小于 255")
     private String sysUserLastAddress;
-
+    /**
+     * 注册地点
+     */
+    @TableField(value = "sys_user_register_address")
+    @ApiModelProperty(value = "注册地点")
+    @Schema(description = "注册地点")
+    private String sysUserRegisterAddress;
     /**
      * 最后一次登录IP
      */

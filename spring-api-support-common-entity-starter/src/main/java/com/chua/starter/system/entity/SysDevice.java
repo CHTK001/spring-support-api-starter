@@ -208,6 +208,13 @@ public class SysDevice extends SysBase {
     @Schema(description = "网络地址")
     private String sysDeviceNetAddress;
     /**
+     * 网络地址物理地址
+     */
+    @TableField(value = "sys_device_net_physical_address")
+    @ApiModelProperty(value = "网络地址物理地址")
+    @Schema(description = "网络地址物理地址")
+    private String sysDeviceNetPhysicalAddress;
+    /**
      * 纬度
      */
     @TableField(value = "sys_device_latitude")
