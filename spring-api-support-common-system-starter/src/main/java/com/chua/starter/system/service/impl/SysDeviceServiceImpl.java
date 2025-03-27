@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.starter.service.IptablesService;
 import com.chua.starter.system.entity.*;
 import com.chua.starter.system.mapper.*;
 import com.chua.starter.system.pojo.device.*;
@@ -46,6 +48,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
     final SysDeviceOrgMapper sysDeviceOrgMapper;
     final SysProjectMapper sysProjectMapper;
     final SysDeviceChannelMapper sysDeviceChannelMapper;
+    final IptablesService iptablesService;
 
     @Override
     public IPage<SysDeviceCameraRecord> pageForLog(TemplatePageV1Request request) {
@@ -201,6 +204,13 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                 sysDevice.setSysDeviceLongitude(Converter.convertIfNecessary(listDTO.getLongitude(), BigDecimal.class));
                 sysDevice.setSysDeviceLatitude(Converter.convertIfNecessary(listDTO.getLatitude(), BigDecimal.class));
                 sysDevice.setSysDeviceNetAddress(listDTO.getNetAddress());
+                if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+                    ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
+                    if (returnResult.isOk()) {
+                        GeoCity geoCity = returnResult.getData();
+                        sysDevice.setSysDeviceNetPhysicalAddress(geoCity.getProvince() + " " + geoCity.getCity());
+                    }
+                }
 
                 sysDevice.setSysDeviceDescription(listDTO.getDescription());
                 int syncChannelCount = syncChannel(cameraService, sysDevice, request.getSysProjectId());
@@ -384,6 +394,13 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         if (null == sysDevice1) {
             return ReturnResult.illegal("项目不存在");
         }
+        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
+            if (returnResult.isOk()) {
+                GeoCity geoCity = returnResult.getData();
+                sysDevice.setSysDeviceNetPhysicalAddress(geoCity.getProvince() + " " + geoCity.getCity());
+            }
+        }
         try {
             return ReturnResult.of(baseMapper.updateById(sysDevice) > 0);
         } finally {
@@ -393,6 +410,13 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
 
     @Override
     public ReturnResult<SysDevice> saveFor(SysDevice sysDevice) {
+        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
+            if (returnResult.isOk()) {
+                GeoCity geoCity = returnResult.getData();
+                sysDevice.setSysDeviceNetPhysicalAddress(geoCity.getProvince() + " " + geoCity.getCity());
+            }
+        }
         baseMapper.insert(sysDevice);
         try {
             return ReturnResult.of(sysDevice);

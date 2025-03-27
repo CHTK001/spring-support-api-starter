@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.DigestUtils;
@@ -17,6 +18,7 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.service.IptablesService;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.service.query.SysUserQuery;
@@ -57,6 +59,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final RestTemplate restTemplate;
     final RedisTemplate redisTemplate;
     final SysMenuService sysMenuService;
+    final IptablesService iptablesService;
     final SysSettingService sysSettingService;
     final SysUserLayoutMapper sysUserLayoutMapper;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
@@ -192,7 +195,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserStatus(1);
         sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
         sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress());
-        sysUserUpdate.setSysUserLastAddress(null);
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserLastIp())) {
+            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysUserUpdate.getSysUserLastIp());
+            if (returnResult.isOk()) {
+                GeoCity geoCity = returnResult.getData();
+                sysUserUpdate.setSysUserLastAddress(geoCity.getProvince() + " " + geoCity.getCity());
+            }
+        }
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserRegisterIp())) {
+            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysUserUpdate.getSysUserRegisterIp());
+            if (returnResult.isOk()) {
+                GeoCity geoCity = returnResult.getData();
+                sysUserUpdate.setSysUserRegisterAddress(geoCity.getProvince() + " " + geoCity.getCity());
+            }
+        }
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             save(sysUserUpdate);
             if (CollectionUtils.isNotEmpty(sysUserUpdate.getRoleIds())) {
