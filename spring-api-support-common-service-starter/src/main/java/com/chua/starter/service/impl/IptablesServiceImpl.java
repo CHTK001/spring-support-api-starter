@@ -8,7 +8,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.properties.IpProperties;
 import com.chua.starter.service.IptablesService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,12 +17,16 @@ import org.springframework.stereotype.Service;
  * @since 2024/01/19
  */
 @Service
-@RequiredArgsConstructor
 public class IptablesServiceImpl implements IptablesService {
 
     private final IpProperties ipProperties;
     private volatile IpPosition ipPosition;
     private volatile boolean isLoaded = false;
+
+    public IptablesServiceImpl(IpProperties ipProperties) {
+        this.ipProperties = ipProperties;
+    }
+
     /**
      * 翻译地址
      * @param address 地址
@@ -33,6 +36,10 @@ public class IptablesServiceImpl implements IptablesService {
     public ReturnResult<GeoCity> transferAddress(String address) {
         if(StringUtils.isEmpty(address)) {
             return ReturnResult.illegal("地址不能为空");
+        }
+
+        if (address.contains(":")) {
+            address = address.split(":")[0];
         }
 
         if(!isLoaded) {
