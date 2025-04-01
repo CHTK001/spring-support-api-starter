@@ -176,6 +176,11 @@
             <artifactId>utils-support-webjars-ofd-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-video-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
