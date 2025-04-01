@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @MapperScan({"com.chua.starter.**.mapper"})
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.monitor", "com.chua.starter.service.**"})
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.monitor", "com.chua.starter.video", "com.chua.starter.service.**"})
 public class MonitorServerApplication {
 
     public static void main(String[] args) {
