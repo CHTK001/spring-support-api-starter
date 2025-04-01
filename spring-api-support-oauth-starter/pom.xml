@@ -24,6 +24,17 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-server-starter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-discovery-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
