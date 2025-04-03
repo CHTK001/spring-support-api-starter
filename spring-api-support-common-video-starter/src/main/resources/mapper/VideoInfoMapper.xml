@@ -15,6 +15,10 @@
             )
         </if>
 
+        <if test="request.category != null and request.category != ''">
+            AND video_category = #{request.category}
+        </if>
+
         <if test="request.selectedType != null and request.selectedType !=''">
             AND (
                 <foreach collection="request.selectedType.split(',')" item="type" separator=" AND " open="(" close=")">
@@ -22,7 +26,43 @@
                 </foreach>
             )
         </if>
-
+        
+        <!-- 多地区筛选 -->
+        <if test="request.districts != null and request.districts != ''">
+            AND (
+                <foreach collection="request.districts.split(',')" item="district" separator=" OR " open="(" close=")">
+                    FIND_IN_SET(#{district}, video_district)
+                </foreach>
+            )
+        </if>
+        
+        <!-- 多语言筛选 -->
+        <if test="request.languages != null and request.languages != ''">
+            AND (
+                <foreach collection="request.languages.split(',')" item="language" separator=" OR " open="(" close=")">
+                    FIND_IN_SET(#{language}, video_language)
+                </foreach>
+            )
+        </if>
+        
+        <!-- 多类型筛选 -->
+        <if test="request.videoTypes != null and request.videoTypes != ''">
+            AND (
+                <foreach collection="request.videoTypes.split(',')" item="videoType" separator=" OR " open="(" close=")">
+                    FIND_IN_SET(#{videoType}, video_type)
+                </foreach>
+            )
+        </if>
+        
+        
+        <!-- 上映年份筛选，支持多个年份 -->
+        <if test="request.years != null and request.years != ''">
+            AND (
+            <foreach collection="request.years.split(',')" item="year" separator=" OR " open="(" close=")">
+                FIND_IN_SET(#{year}, video_year)
+            </foreach>
+            )
+        </if>
         <if test="request.order != null">
             <choose>
                 <when test="request.order == 'videoScore desc'">
@@ -33,7 +73,7 @@
                     ORDER BY video_score ASC
                 </when>
 
-                <when test="request.order == 'videoViews desc'">
+                <when test="request.order == 'videoViews desc' or request.order == 'recommend'">
                     ORDER BY video_views DESC
                 </when>
 
@@ -41,7 +81,7 @@
                     ORDER BY video_views ASC
                 </when>
 
-                <when test="request.order == 'videoPublishDate desc'">
+                <when test="request.order == 'videoPublishDate desc' or request.order == 'newest'">
                     ORDER BY video_publish_date DESC
                 </when>
 
