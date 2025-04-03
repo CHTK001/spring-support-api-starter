@@ -4,9 +4,11 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoInfo;
+import com.chua.starter.video.entity.VideoKeyword;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoDownloadService;
 import com.chua.starter.video.service.VideoInfoService;
+import com.chua.starter.video.service.VideoKeywordService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +18,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_HOUR;
 
 /**
  * 视频信息接口
@@ -34,6 +39,7 @@ public class VideoInfoController {
 
     private final VideoInfoService videoInfoService;
     private final VideoDownloadService videoDownloadService;
+    private final VideoKeywordService videoKeywordService;
 
     /**
      * 视频搜索与分页查询
@@ -46,7 +52,6 @@ public class VideoInfoController {
     public ReturnPageResult<VideoInfo> searchVideos(@RequestBody VideoSearchRequest request) {
         return ReturnPageResultUtils.ok(videoInfoService.searchVideos(request));
     }
-
     /**
      * 获取视频详情
      *
@@ -104,5 +109,18 @@ public class VideoInfoController {
     public ReturnResult<Boolean> deleteVideo(@PathVariable String videoId) {
         boolean result = videoInfoService.deleteVideo(videoId);
         return result ? ReturnResult.success(true) : ReturnResult.error("删除失败");
+    }
+
+    /**
+     * 获取热门搜索关键词
+     *
+     * @return 热门搜索关键词列表
+     */
+    @GetMapping("/hotKeywords")
+    @Operation(summary = "获取热门搜索关键词")
+    @Cacheable(cacheManager = REDIS_CACHE_HOUR, cacheNames = "video:keyword:hot", keyGenerator = "customTenantedKeyGenerator", unless = "#result.data == null")
+    public ReturnResult<List<VideoKeyword>> getHotKeywords() {
+        List<VideoKeyword> keywords = videoKeywordService.getHotKeywords(10);
+        return ReturnResult.success(keywords);
     }
 }

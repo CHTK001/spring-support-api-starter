@@ -38,6 +38,14 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-datasource-starter</artifactId>
         </dependency>
+
+        <!-- Jsoup HTML解析库 -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.3</version>
+        </dependency>
+
     </dependencies>
 
 </project>
