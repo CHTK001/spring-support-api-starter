@@ -89,6 +89,6 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
         if (null == videoSyncConfig) {
             return ReturnResult.error("同步配置不存在");
         }
-        return ReturnResult.preconditioning(videoSyncTaskService.syncByConfig(videoSyncConfig) > 0).toResult();
+        return ReturnResult.guess(videoSyncTaskService.syncByConfig(videoSyncConfig) > 0);
     }
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -42,11 +43,17 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
             "美国", "大陆", "日本", "剧情", "科幻", "动作", "喜剧", "爱情", "冒险", "犯罪", "悬疑", "儿童", "歌舞", "音乐", "奇幻", "动画", "恐怖", "惊悚", "丧尸", "战争", "传记", "纪录", "西部", "灾难", "古装", "武侠", "家庭", "短片", "校园", "文艺", "运动", "青春", "同性", "励志", "人性", "美食", "女性", "治愈", "历史", "真人秀", "脱口秀", "萌系", "日常", "热血", "机战", "游戏", "情色", "搞笑", "恋爱", "后宫", "百合", "基腐", "致郁", "异世界", "泡面", "战斗", "加拿大", "香港", "台湾", "韩国", "印度", "德国", "法国", "英国", "意大利", "巴西", "泰国", "澳大利亚", "荷兰", "西班牙", "墨西哥"
     };
 
+    protected String mvUrl = "https://www.gyg.la/res/mv";
+    protected String mvCoverUrl = "https://s.tutu.pm/img/mv";
+    protected String mvDownloadUrl = "https://www.gyg.la/res/downurl/mv/";
+    protected String mvDetailUrl = "https://www.gyg.la/mv/";
+    protected String mvType = "mv";
+    protected int minYear = 1960;
+
     static {
         file = new File(COVER_PATH, "guanying");
         FileUtils.mkdir(file);
     }
-
     @Override
     public String getProviderName() {
         return "guanying";
@@ -57,69 +64,77 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
         log.info("从观影获取视频列表，配置: {}", config.getVideoSyncConfigName());
 
         try {
-            AtomicInteger count = new AtomicInteger(1);
-            while (true) {
-                EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get("https://www.gyg.la/res/mv?page=" + count.getAndIncrement())
-                        .cookie(config.getVideoSyncConfigCookie())
-                        .newInvoker()
-                        .execute()
-                        .content(EmbeddedVideoInfo.class);
+            AtomicInteger year = new AtomicInteger(LocalDateTime.now().getYear());
+            while (year.get() >= minYear) {
+                AtomicInteger count = new AtomicInteger(1);
+                page:
+                while (true) {
+                    EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(mvUrl + "?year=" + year.getAndDecrement() + "&page=" + count.getAndIncrement())
+                            .cookie(config.getVideoSyncConfigCookie())
+                            .newInvoker()
+                            .execute()
+                            .content(EmbeddedVideoInfo.class);
+                    Integer pages = embeddedVideoInfo.getPage().getPages();
+                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}/{}页", mvType, config.getVideoSyncConfigName(), count.get() - 1, pages);
 
-                if (embeddedVideoInfo == null || embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
-                    break;
-                }
-                EmbeddedVideoInfo.InlistDTO inlist = embeddedVideoInfo.getInlist();
-                List<String> names = inlist.getT();
-                List<Double> readPeople = inlist.getR();
-                List<Double> score = inlist.getD();
-                List<String> image = inlist.getI();
-                List<List<String>> q = inlist.getQ();
-                List yearAndType = inlist.getA();
-                for (int i = 0; i < names.size(); i++) {
-                    List o = (List) yearAndType.get(i);
-                    VideoInfo video = new VideoInfo();
-                    video.setVideoTitle(names.get(i));
-                    video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
-                    video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
-                    Object o1 = o.get(1);
-                    if (o1 instanceof Number n) {
-                        video.setVideoDistrict(TAG[n.intValue()]);
-                    } else {
-                        String value = o1.toString();
-                        if (NumberUtils.isNumber(value)) {
-                            video.setVideoDistrict(TAG[Integer.parseInt(value)]);
-                        } else {
-                            video.setVideoDistrict(value);
-                        }
+                    if (embeddedVideoInfo == null || embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
+                        break;
                     }
-                    List<String> tags = new LinkedList<>();
-                    for (int j = 2; j < o.size(); j++) {
-                        Object s = o.get(j);
-                        if (s instanceof Number n) {
-                            tags.add(TAG[n.intValue()]);
+                    EmbeddedVideoInfo.InlistDTO inlist = embeddedVideoInfo.getInlist();
+                    List<String> names = inlist.getT();
+                    List<Double> readPeople = inlist.getR();
+                    List<Double> score = inlist.getD();
+                    List<String> image = inlist.getI();
+                    List<List<String>> q = inlist.getQ();
+                    List yearAndType = inlist.getA();
+                    for (int i = 0; i < names.size(); i++) {
+                        log.info("从观影获取视频{}列表，配置: {}, 当前第{}/{}页", mvType, config.getVideoSyncConfigName(), count.get() - 1, pages);
+
+                        List o = (List) yearAndType.get(i);
+                        VideoInfo video = new VideoInfo();
+                        video.setVideoTitle(names.get(i));
+                        video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
+                        video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
+                        Object o1 = o.get(1);
+                        if (o1 instanceof Number n) {
+                            video.setVideoDistrict(TAG[n.intValue()]);
                         } else {
-                            String value = s.toString();
+                            String value = o1.toString();
                             if (NumberUtils.isNumber(value)) {
-                                tags.add(TAG[Integer.parseInt(value)]);
+                                video.setVideoDistrict(TAG[Integer.parseInt(value)]);
                             } else {
-                                tags.add(value);
+                                video.setVideoDistrict(value);
                             }
                         }
+                        List<String> tags = new LinkedList<>();
+                        for (int j = 2; j < o.size(); j++) {
+                            Object s = o.get(j);
+                            if (s instanceof Number n) {
+                                tags.add(TAG[n.intValue()]);
+                            } else {
+                                String value = s.toString();
+                                if (NumberUtils.isNumber(value)) {
+                                    tags.add(TAG[Integer.parseInt(value)]);
+                                } else {
+                                    tags.add(value);
+                                }
+                            }
 
+                        }
+                        video.setVideoType(Joiner.on(",").join(tags));
+                        video.setVideoCategory(mvType.toUpperCase());
+                        video.setVideoPlatform(getProviderName());
+                        video.setVideoQuality(Joiner.on(",").join(q.get(i)));
+                        String dataId = image.get(i);
+                        String cover = mvCoverUrl + "/%s/220.avif".formatted(dataId);
+                        video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
+                        downloadCover(cover, "/%s/220.avif".formatted(dataId));
+                        video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(i)).orElse(-1D)));
+                        video.setVideoStatus(0);
+                        registerDetail(video, dataId, config);
+                        registerDownload(video, dataId, config);
+                        consumer.accept(video);
                     }
-                    video.setVideoType(Joiner.on(",").join(tags));
-                    video.setVideoCategory("MV");
-                    video.setVideoPlatform(getProviderName());
-                    video.setVideoQuality(Joiner.on(",").join(q.get(i)));
-                    String dataId = image.get(i);
-                    String cover = "https://s.tutu.pm/img/mv/%s/220.avif".formatted(dataId);
-                    video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
-                    downloadCover(cover, "/%s/220.avif".formatted(dataId));
-                    video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(i)).orElse(-1D)));
-                    video.setVideoStatus(0);
-                    registerDetail(video, dataId, config);
-                    registerDownload(video, dataId, config);
-                    consumer.accept(video);
                 }
             }
         } catch (Exception e) {
@@ -130,7 +145,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
 
     private void registerDownload(VideoInfo video, String dataId, VideoSyncConfig config) {
         //https://www.gyg.la/res/downurl/mv/mXr4
-        EmbeddedDownload embeddedDownload = HttpClient.get("https://www.gyg.la/res/downurl/mv/" + dataId)
+        EmbeddedDownload embeddedDownload = HttpClient.get(mvDownloadUrl + dataId)
                 .cookie(config.getVideoSyncConfigCookie())
                 .newInvoker()
                 .execute()
@@ -205,7 +220,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
     }
 
     private void registerDetail(VideoInfo video, String dataId, VideoSyncConfig config) {
-        String detailHtml = HttpClient.get("https://www.gyg.la/mv/" + dataId)
+        String detailHtml = HttpClient.get(mvDetailUrl + dataId)
                 .cookie(config.getVideoSyncConfigCookie())
                 .newInvoker()
                 .execute()
@@ -221,7 +236,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
     private void registerDetailMoreBase(VideoInfo video, String baseJson) {
         try {
             BaseDetail baseDetail = Json.fromJson(baseJson, BaseDetail.class);
-            video.setVideoName(baseDetail.getName());
+            video.setVideoName(null == baseDetail.getName() ? null : baseDetail.getName().trim());
             video.setVideoDirector(Joiner.on(",").join(baseDetail.getDaoyan()));
             video.setVideoWriter(Joiner.on(",").join(baseDetail.getBianju()));
             video.setVideoActor(Joiner.on(",").join(baseDetail.getZhuyan()));
