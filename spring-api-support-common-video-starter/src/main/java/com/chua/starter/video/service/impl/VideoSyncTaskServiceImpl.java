@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +43,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private final VideoDownloadService videoDownloadService;
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
     private final VideoMarkService videoMarkService;
+    private static final List<String> SYNC = new CopyOnWriteArrayList<>();
 
     @Override
     public int syncByConfig(VideoSyncConfig config) {
@@ -49,10 +51,14 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             return 0;
         }
 
+        if (SYNC.contains(config.getVideoSyncConfigId())) {
+            throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
+        }
+
         EXECUTOR_SERVICE.execute(() -> {
             log.info("开始同步配置[{}]的视频信息", config.getVideoSyncConfigName());
             AtomicInteger syncCount = new AtomicInteger(0);
-
+            SYNC.add(config.getVideoSyncConfigId());
             try {
                 // 根据配置获取视频列表
                 fetchVideosFromSource(config, video -> {
@@ -70,11 +76,11 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                     }
                 });
 
-
                 log.info("配置[{}]同步完成，共同步{}个视频", config.getVideoSyncConfigName(), syncCount);
             } catch (Exception e) {
                 log.error("同步配置[{}]视频信息失败: {}", config.getVideoSyncConfigName(), e.getMessage(), e);
             }
+            SYNC.remove(config.getVideoSyncConfigId());
         });
         return 1;
     }

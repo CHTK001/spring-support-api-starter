@@ -1,9 +1,6 @@
 package com.chua.starter.video.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -144,6 +141,14 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频时长(分)")
     @Schema(description = "视频时长")
     private Integer videoDuration;
+    /**
+     * 视频版本
+     */
+    @TableField(value = "video_version")
+    @ApiModelProperty(value = "视频版本")
+    @Schema(description = "视频版本")
+    @Version
+    private Integer videoVersion;
     /**
      * 豆瓣视频ID
      */
