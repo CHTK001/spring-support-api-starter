@@ -1,6 +1,9 @@
 package com.chua.starter.video.controller;
 
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoSyncConfig;
 import com.chua.starter.video.service.VideoSyncConfigService;
 import io.swagger.annotations.Api;
@@ -12,8 +15,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
@@ -23,7 +24,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  * @since 2024/6/21
  */
 @RestController
-@RequestMapping("v1/video/sync/config")
+@RequestMapping("v1/video/sync")
 @Tag(name = "视频同步配置接口")
 @Api(tags = "视频同步配置接口")
 @RequiredArgsConstructor
@@ -37,12 +38,10 @@ public class VideoSyncConfigController {
      *
      * @return 同步配置列表
      */
-    @GetMapping("/list")
+    @GetMapping("/page")
     @Operation(summary = "获取所有同步配置")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = "video:sync:config:list", unless = "#result.data == null")
-    public ReturnResult<List<VideoSyncConfig>> getAllConfigs() {
-        List<VideoSyncConfig> configs = videoSyncConfigService.getAllConfigs();
-        return ReturnResult.success(configs);
+    public ReturnPageResult<VideoSyncConfig> getAllConfigs(Query<VideoSyncConfig> query) {
+        return ReturnPageResultUtils.ok(videoSyncConfigService.getAllConfigs(query));
     }
 
     /**
@@ -68,7 +67,7 @@ public class VideoSyncConfigController {
      * @param config 同步配置
      * @return 添加结果
      */
-    @PostMapping("/add")
+    @PostMapping("/save")
     @Operation(summary = "添加同步配置")
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:sync:config:list", "video:sync:config:detail"}, allEntries = true)
     public ReturnResult<Boolean> addConfig(@RequestBody VideoSyncConfig config) {
@@ -106,5 +105,17 @@ public class VideoSyncConfigController {
     public ReturnResult<Boolean> deleteConfig(@PathVariable String id) {
         boolean result = videoSyncConfigService.deleteConfig(id);
         return result ? ReturnResult.success(true) : ReturnResult.error("删除失败");
+    }
+
+    /**
+     * 删除同步配置
+     *
+     * @param id 配置ID
+     * @return 删除结果
+     */
+    @PostMapping("/{id}/execute")
+    @Operation(summary = "同步")
+    public ReturnResult<Boolean> syncConfig(@PathVariable String id) {
+        return videoSyncConfigService.syncConfig(id);
     }
 }

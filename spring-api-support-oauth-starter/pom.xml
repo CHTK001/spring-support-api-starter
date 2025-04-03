@@ -36,11 +36,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-oauth-client-starter</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <exclusions>
@@ -54,6 +49,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>validation-api</artifactId>
+                    <groupId>javax.validation</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

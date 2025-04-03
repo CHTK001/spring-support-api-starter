@@ -1,8 +1,9 @@
 package com.chua.starter.video.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.VideoSyncConfig;
-
-import java.util.List;
 
 /**
  * 视频同步配置服务
@@ -17,7 +18,7 @@ public interface VideoSyncConfigService {
      *
      * @return 同步配置列表
      */
-    List<VideoSyncConfig> getAllConfigs();
+    IPage<VideoSyncConfig> getAllConfigs(Query<VideoSyncConfig> query);
 
     /**
      * 根据ID获取同步配置
@@ -50,4 +51,12 @@ public interface VideoSyncConfigService {
      * @return 是否成功
      */
     boolean deleteConfig(String id);
+
+    /**
+     * 同步配置
+     *
+     * @param id 配置ID
+     * @return 是否成功
+     */
+    ReturnResult<Boolean> syncConfig(String id);
 }

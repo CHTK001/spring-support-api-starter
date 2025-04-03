@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("video_sync_config")
+@TableName(value = "video_sync_config")
 @Schema(description = "视频同步配置")
 public class VideoSyncConfig extends SysBase {
 

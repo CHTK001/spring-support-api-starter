@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: video
+  profiles:
+    active: dev
+    include: mybatis,swagger,socket,control,codec,ip,discovery,options
+plugin:
+  parameter:
+    enable: true
+  cors:
+    enable: true
+server:
+  port: 19171
+  servlet:
+    context-path: /video/api
+  http2:
+    enabled: true

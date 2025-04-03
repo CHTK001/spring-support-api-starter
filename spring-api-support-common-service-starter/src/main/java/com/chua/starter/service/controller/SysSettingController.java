@@ -28,7 +28,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -105,7 +104,6 @@ public class SysSettingController {
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
     @ApiPlatform("system")
-    @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSettingId) {
         if (null == sysSettingId) {

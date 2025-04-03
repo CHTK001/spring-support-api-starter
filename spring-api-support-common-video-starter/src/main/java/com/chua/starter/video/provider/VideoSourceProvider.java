@@ -30,9 +30,8 @@ public interface VideoSourceProvider {
      *
      * @param config   同步配置
      * @param consumer 视频信息消费
-     * @return 视频列表
      */
-    List<VideoInfo> fetchVideos(VideoSyncConfig config, Consumer<VideoInfo> consumer);
+    void fetchVideos(VideoSyncConfig config, Consumer<VideoInfo> consumer);
 
     /**
      * 获取视频下载地址
