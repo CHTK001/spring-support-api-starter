@@ -4,6 +4,17 @@ spring:
     url: jdbc:p6spy:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root@
+  multi-datasource:
+    hikari:
+      data-source:
+        - name: video
+          driverClassName: com.p6spy.engine.spy.P6SpyDriver
+          url: jdbc:p6spy:mysql://172.16.0.40:3306/video?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+          username: root
+          password: root@
+          max-lifetime: 1800000
+          idle-timeout: 30000
+
   data:
     redis:
       database: 0

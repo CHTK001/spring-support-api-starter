@@ -1,6 +1,7 @@
 package com.chua.starter.video.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
@@ -25,7 +26,7 @@ public class VideoDownloadServiceImpl extends ServiceImpl<VideoDownloadMapper, V
 
     @Override
     public List<VideoDownload> getDownloadsByVideoId(String videoId) {
-        return baseMapper.findByVideoId(videoId);
+        return baseMapper.selectList(Wrappers.<VideoDownload>lambdaQuery().eq(VideoDownload::getVideoId, videoId));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class VideoDownloadServiceImpl extends ServiceImpl<VideoDownloadMapper, V
         }
 
         try {
-            return baseMapper.batchInsertOrUpdate(downloads) > 0;
+            return saveBatch(downloads);
         } catch (Exception e) {
             log.error("批量保存视频下载信息失败", e);
             return false;

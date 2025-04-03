@@ -175,12 +175,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-webjars-ofd-starter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-video-starter</artifactId>
-            <version>4.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -216,7 +210,8 @@
                     <archive>
                         <manifest>
                             <!-- 执行的主程序路径 -->
-                            <mainClass>com.chua.starter.monitor.MonitorServerApplication</mainClass>
+                            <mainClass>com.chua.starter.monitor.com.chua.starter.video.VideoServerApplication
+                            </mainClass>
                             <!--是否要把第三方jar放到manifest的classpath中-->
                             <addClasspath>true</addClasspath>
                             <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->

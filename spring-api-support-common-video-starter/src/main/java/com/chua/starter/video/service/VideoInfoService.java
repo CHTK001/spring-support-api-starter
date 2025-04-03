@@ -1,9 +1,10 @@
 package com.chua.starter.video.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
-import com.chua.starter.video.pojo.response.VideoSearchResponse;
 
 /**
  * 视频信息服务接口
@@ -18,7 +19,7 @@ public interface VideoInfoService extends IService<VideoInfo> {
      * @param request 搜索参数
      * @return 搜索结果
      */
-    VideoSearchResponse searchVideos(VideoSearchRequest request);
+    IPage<VideoInfo> searchVideos(VideoSearchRequest request);
 
     /**
      * 获取视频详情
@@ -26,7 +27,7 @@ public interface VideoInfoService extends IService<VideoInfo> {
      * @param id 视频ID
      * @return 视频详情
      */
-    VideoInfo getVideoById(String id);
+    ReturnResult<VideoInfo> getVideoById(String id);
 
     /**
      * 添加视频
