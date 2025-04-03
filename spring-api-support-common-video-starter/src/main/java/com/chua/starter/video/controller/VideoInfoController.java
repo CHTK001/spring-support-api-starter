@@ -1,11 +1,10 @@
 package com.chua.starter.video.controller;
 
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.entity.VideoDownload;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
-import com.chua.starter.video.pojo.response.VideoDetailResponse;
-import com.chua.starter.video.pojo.response.VideoSearchResponse;
 import com.chua.starter.video.service.VideoDownloadService;
 import com.chua.starter.video.service.VideoInfoService;
 import io.swagger.annotations.Api;
@@ -17,8 +16,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
@@ -28,7 +25,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  * @since 2024/6/21
  */
 @RestController
-@RequestMapping("v1/video/info")
+@RequestMapping("v1/video")
 @Tag(name = "视频信息接口")
 @Api(tags = "视频信息接口")
 @RequiredArgsConstructor
@@ -44,11 +41,10 @@ public class VideoInfoController {
      * @param request 搜索参数
      * @return 搜索结果
      */
-    @PostMapping("/search")
+    @PostMapping("/page")
     @Operation(summary = "视频搜索与分页查询")
-    public ReturnResult<VideoSearchResponse> searchVideos(@RequestBody VideoSearchRequest request) {
-        VideoSearchResponse response = videoInfoService.searchVideos(request);
-        return ReturnResult.success(response);
+    public ReturnPageResult<VideoInfo> searchVideos(@RequestBody VideoSearchRequest request) {
+        return ReturnPageResultUtils.ok(videoInfoService.searchVideos(request));
     }
 
     /**
@@ -60,19 +56,8 @@ public class VideoInfoController {
     @GetMapping("/{id}")
     @Operation(summary = "获取视频详情")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = "video:info:detail", key = "#id", unless = "#result.data == null")
-    public ReturnResult<VideoDetailResponse> getVideoById(@PathVariable String id) {
-        VideoInfo videoInfo = videoInfoService.getVideoById(id);
-        if (videoInfo == null) {
-            return ReturnResult.error("视频不存在");
-        }
-
-        // 获取视频下载信息
-        List<VideoDownload> downloads = videoDownloadService.getDownloadsByVideoId(id);
-
-        // 构建详情响应
-        VideoDetailResponse response = VideoDetailResponse.fromVideoInfo(videoInfo, downloads);
-
-        return ReturnResult.success(response);
+    public ReturnResult<VideoInfo> getVideoById(@PathVariable String id) {
+        return videoInfoService.getVideoById(id);
     }
 
     /**
@@ -81,7 +66,7 @@ public class VideoInfoController {
      * @param videoInfo 视频信息
      * @return 添加结果
      */
-    @PostMapping("/add")
+    @PostMapping("/save")
     @Operation(summary = "添加视频")
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true)
     public ReturnResult<Boolean> addVideo(@RequestBody VideoInfo videoInfo) {
@@ -97,7 +82,7 @@ public class VideoInfoController {
      */
     @PutMapping("/update")
     @Operation(summary = "修改视频")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true)
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true, key = "#videoInfo.videoId")
     public ReturnResult<Boolean> updateVideo(@RequestBody VideoInfo videoInfo) {
         if (videoInfo.getVideoId() == null) {
             return ReturnResult.error("视频ID不能为空");
@@ -115,7 +100,7 @@ public class VideoInfoController {
      */
     @DeleteMapping("/{videoId}")
     @Operation(summary = "删除视频")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true)
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true, key = "#videoId")
     public ReturnResult<Boolean> deleteVideo(@PathVariable String videoId) {
         boolean result = videoInfoService.deleteVideo(videoId);
         return result ? ReturnResult.success(true) : ReturnResult.error("删除失败");

@@ -163,6 +163,13 @@ public class VideoInfo extends SysBase {
     /**
      * 视频类型
      */
+    @TableField(value = "video_category")
+    @ApiModelProperty(value = "视频种类;MV;TV")
+    @Schema(description = "视频种类;MV;TV")
+    private String videoCategory;
+    /**
+     * 视频类型
+     */
     @TableField(value = "video_type")
     @ApiModelProperty(value = "视频类型")
     @Schema(description = "视频类型")
@@ -189,14 +196,6 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频文件大小")
     @Schema(description = "视频文件大小")
     private String videoSize;
-
-    /**
-     * 视频分辨率
-     */
-    @TableField(value = "video_resolution")
-    @ApiModelProperty(value = "视频分辨率")
-    @Schema(description = "视频分辨率")
-    private String videoResolution;
 
     /**
      * 视频作者
@@ -235,14 +234,6 @@ public class VideoInfo extends SysBase {
     @Schema(description = "视频描述内容")
     private String videoDescription;
 
-    /**
-     * 视频下载地址
-     */
-    @TableField(value = "video_download_url")
-    @ApiModelProperty(value = "视频下载地址")
-    @Schema(description = "视频下载地址")
-    private String videoDownloadUrl;
-
 
     /**
      * 视频标签
@@ -251,4 +242,12 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频标签")
     @Schema(description = "视频标签")
     private List<VideoMark> videoMarkList;
+
+    /**
+     * 视频下载地址
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "视频下载地址")
+    @Schema(description = "视频下载地址")
+    private List<VideoDownload> downloadList;
 }

@@ -8,8 +8,6 @@ import com.chua.starter.service.properties.SsoProperties;
 import com.chua.starter.system.entity.SysTaskSso;
 import com.chua.starter.system.entity.SysTaskSsoItem;
 import com.chua.starter.system.pojo.sso.SysFileUploadRequest;
-import jakarta.annotation.Resource;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +97,7 @@ public class SysSsoTaskTaskRegistration implements Runnable, DisposableBean, Ini
      * @return
      */
     private byte[] createByteArray(List<SysTaskSsoItem> list) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();){
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             for (SysTaskSsoItem sysTaskSsoItem : list) {
                 byteArrayOutputStream.writeBytes(sysTaskSsoItem.copyByteArray());
             }

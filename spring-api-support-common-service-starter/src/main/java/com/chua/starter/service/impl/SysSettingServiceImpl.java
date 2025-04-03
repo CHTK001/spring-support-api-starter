@@ -22,6 +22,7 @@ import com.chua.starter.service.setting.*;
 import com.chua.starter.system.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.entity.SysSetting;
 import com.chua.starter.system.pojo.setting.SysSettingUpdate;
+import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
@@ -44,6 +45,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  * @since 2024/8/7
  * @author CH    
  */
+@Slf4j
 @Service
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
 
@@ -243,10 +245,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         ThreadUtils.newStaticThreadPool().execute(() -> {
-            List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                    .eq(SysSetting::getSysSettingStatus, 1)
-            );
-            register(globalSettingFactory, list);
+            try {
+                List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
+                        .eq(SysSetting::getSysSettingStatus, 1)
+                );
+                register(globalSettingFactory, list);
+            } catch (Throwable e) {
+                log.warn("配置升级失败:{}", e.getMessage());
+            }
         });
     }
 

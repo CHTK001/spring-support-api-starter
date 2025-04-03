@@ -33,6 +33,11 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-datasource-starter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
