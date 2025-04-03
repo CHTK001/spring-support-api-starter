@@ -1,6 +1,7 @@
 package com.chua.starter.video.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.video.entity.VideoKeyword;
@@ -22,13 +23,9 @@ public class VideoKeywordServiceImpl extends ServiceImpl<VideoKeywordMapper, Vid
 
     @Override
     public List<VideoKeyword> getHotKeywords(int limit) {
-        // 查询所有启用的热门关键词，按热度和排序字段排序
-        LambdaQueryWrapper<VideoKeyword> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(VideoKeyword::getVideoKeywordStatus, 1)
+        return this.page(new Page<>(1, 10), Wrappers.<VideoKeyword>lambdaQuery().eq(VideoKeyword::getVideoKeywordStatus, 1)
                 .orderByDesc(VideoKeyword::getVideoKeywordHot)
-                .orderByAsc(VideoKeyword::getVideoKeywordSort)
-                .last("LIMIT " + limit); // 限制返回数量
-        return this.list(queryWrapper);
+                .orderByAsc(VideoKeyword::getVideoKeywordSort)).getRecords();
     }
 
     @Override
