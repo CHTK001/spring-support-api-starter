@@ -6,14 +6,16 @@
     <select id="searchVideos" resultType="com.chua.starter.video.entity.VideoInfo">
         SELECT *
         FROM video_info
-        WHERE video_status = 0
-        <if test="request.keyword != null and request.keyword != ''">
-            AND (
-                video_title LIKE CONCAT('%', #{request.keyword}, '%')
-                OR video_description LIKE CONCAT('%', #{request.keyword}, '%')
-                OR video_author LIKE CONCAT('%', #{request.keyword}, '%')
-            )
-        </if>
+        <trim>
+            <where>
+                video_status = 0
+                <if test="request.keyword != null and request.keyword != ''">
+                    AND (
+                        video_title LIKE CONCAT('%', #{request.keyword}, '%')
+                            OR video_description LIKE CONCAT('%', #{request.keyword}, '%')
+                            OR video_author LIKE CONCAT('%', #{request.keyword}, '%')
+                        )
+                </if>
 
         <if test="request.category != null and request.category != ''">
             AND video_category = #{request.category}
@@ -63,6 +65,7 @@
             </foreach>
             )
         </if>
+            </where>
         <if test="request.order != null">
             <choose>
                 <when test="request.order == 'videoScore desc'">
@@ -126,6 +129,7 @@
                 </otherwise>
             </choose>
         </if>
+        </trim>
     </select>
     
 </mapper>
