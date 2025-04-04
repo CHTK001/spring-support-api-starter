@@ -96,50 +96,54 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                                 i + 1,
                                 names.size() + 1);
 
-                        List o = (List) yearAndType.get(i);
-                        VideoInfo video = new VideoInfo();
-                        video.setVideoTitle(names.get(i));
-                        video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
-                        video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
-                        Object o1 = o.get(1);
-                        if (o1 instanceof Number n) {
-                            video.setVideoDistrict(TAG[n.intValue()]);
-                        } else {
-                            String value = o1.toString();
-                            if (NumberUtils.isNumber(value)) {
-                                video.setVideoDistrict(TAG[Integer.parseInt(value)]);
-                            } else {
-                                video.setVideoDistrict(value);
-                            }
-                        }
-                        List<String> tags = new LinkedList<>();
-                        for (int j = 2; j < o.size(); j++) {
-                            Object s = o.get(j);
-                            if (s instanceof Number n) {
-                                tags.add(TAG[n.intValue()]);
-                            } else {
-                                String value = s.toString();
-                                if (NumberUtils.isNumber(value)) {
-                                    tags.add(TAG[Integer.parseInt(value)]);
-                                } else {
-                                    tags.add(value);
-                                }
-                            }
+                        int finalI = i;
+                        Thread.ofVirtual()
+                                .start(() -> {
+                                    List o = (List) yearAndType.get(finalI);
+                                    VideoInfo video = new VideoInfo();
+                                    video.setVideoTitle(names.get(finalI));
+                                    video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(finalI)).orElse(-1D)));
+                                    video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
+                                    Object o1 = o.get(1);
+                                    if (o1 instanceof Number n) {
+                                        video.setVideoDistrict(TAG[n.intValue()]);
+                                    } else {
+                                        String value = o1.toString();
+                                        if (NumberUtils.isNumber(value)) {
+                                            video.setVideoDistrict(TAG[Integer.parseInt(value)]);
+                                        } else {
+                                            video.setVideoDistrict(value);
+                                        }
+                                    }
+                                    List<String> tags = new LinkedList<>();
+                                    for (int j = 2; j < o.size(); j++) {
+                                        Object s = o.get(j);
+                                        if (s instanceof Number n) {
+                                            tags.add(TAG[n.intValue()]);
+                                        } else {
+                                            String value = s.toString();
+                                            if (NumberUtils.isNumber(value)) {
+                                                tags.add(TAG[Integer.parseInt(value)]);
+                                            } else {
+                                                tags.add(value);
+                                            }
+                                        }
 
-                        }
-                        video.setVideoType(Joiner.on(",").join(tags));
-                        video.setVideoCategory(mvType.toUpperCase());
-                        video.setVideoPlatform(getProviderName());
-                        video.setVideoQuality(Joiner.on(",").join(q.get(i)));
-                        String dataId = image.get(i);
-                        String cover = mvCoverUrl + "/%s/220.avif".formatted(dataId);
-                        video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
-                        downloadCover(cover, "/%s/220.avif".formatted(dataId));
-                        video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(i)).orElse(-1D)));
-                        video.setVideoStatus(0);
-                        registerDetail(video, dataId, config);
-                        registerDownload(video, dataId, config);
-                        consumer.accept(video);
+                                    }
+                                    video.setVideoType(Joiner.on(",").join(tags));
+                                    video.setVideoCategory(mvType.toUpperCase());
+                                    video.setVideoPlatform(getProviderName());
+                                    video.setVideoQuality(Joiner.on(",").join(q.get(finalI)));
+                                    String dataId = image.get(finalI);
+                                    String cover = mvCoverUrl + "/%s/220.avif".formatted(dataId);
+                                    video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
+                                    downloadCover(cover, "/%s/220.avif".formatted(dataId));
+                                    video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(finalI)).orElse(-1D)));
+                                    video.setVideoStatus(0);
+                                    registerDetail(video, dataId, config);
+                                    registerDownload(video, dataId, config);
+                                    consumer.accept(video);
+                                });
                     }
                 }
             }
