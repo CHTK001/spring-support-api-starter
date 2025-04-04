@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 
 /**
@@ -99,10 +98,6 @@ public class VideoSearchRequest extends Query<VideoInfo> implements Serializable
      */
     public String getVideoTypes() {
         return isAll(videoTypes) ? null : videoTypes;
-    }
-
-    public String getYears() {
-        return isAll(years) ? null : years;
     }
 
     /**
