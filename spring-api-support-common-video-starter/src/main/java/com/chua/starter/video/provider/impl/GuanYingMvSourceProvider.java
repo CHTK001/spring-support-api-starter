@@ -67,7 +67,6 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
             AtomicInteger year = new AtomicInteger(LocalDateTime.now().getYear());
             while (year.get() >= minYear) {
                 AtomicInteger count = new AtomicInteger(1);
-                page:
                 while (true) {
                     EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(mvUrl + "?year=" + year.getAndDecrement() + "&page=" + count.getAndIncrement())
                             .cookie(config.getVideoSyncConfigCookie())
@@ -75,7 +74,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                             .execute()
                             .content(EmbeddedVideoInfo.class);
                     Integer pages = embeddedVideoInfo.getPage().getPages();
-                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}/{}页", mvType, config.getVideoSyncConfigName(), count.get() - 1, pages);
+                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get() - 1, count.get() - 1, pages);
 
                     if (embeddedVideoInfo == null || embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
                         break;
@@ -88,7 +87,14 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                     List<List<String>> q = inlist.getQ();
                     List yearAndType = inlist.getA();
                     for (int i = 0; i < names.size(); i++) {
-                        log.info("从观影获取视频{}列表，配置: {}, 当前第{}/{}页", mvType, config.getVideoSyncConfigName(), count.get() - 1, pages);
+                        log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页, 数据{}/{}",
+                                mvType,
+                                config.getVideoSyncConfigName(),
+                                year.get() - 1,
+                                count.get() - 1,
+                                pages,
+                                i + 1,
+                                names.size() + 1);
 
                         List o = (List) yearAndType.get(i);
                         VideoInfo video = new VideoInfo();
