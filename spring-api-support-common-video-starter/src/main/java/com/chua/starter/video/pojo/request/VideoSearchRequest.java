@@ -4,6 +4,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.VideoInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 
 import java.io.Serializable;
