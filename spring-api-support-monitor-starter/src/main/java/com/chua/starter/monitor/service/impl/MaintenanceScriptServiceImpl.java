@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.entity.MaintenanceScript;
@@ -49,7 +50,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
     private final MaintenanceHostMapper maintenanceHostMapper;
     private final SshClientManager sshClientManager;
     private final MaintenanceLogService maintenanceLogService;
-
+    private final SocketSessionTemplate socketSessionTemplate;
     @Override
     public ReturnResult<MaintenanceScriptResponse> createMaintenanceScript(MaintenanceScriptRequest request) {
         try {
@@ -170,6 +171,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         
         if (hosts.isEmpty()) {
             logger.warn("维护组 [{}] 下没有启用的主机，脚本同步操作已跳过", script.getMaintenanceGroupId());
+            socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "同步脚本失败，维护组下没有启用的主机");
             return;
         }
         
@@ -180,12 +182,15 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         List<CompletableFuture<Void>> futures = hosts.stream()
             .map(host -> CompletableFuture.runAsync(() -> {
                 try {
+                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "正在将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
                     uploadScriptToHost(host, scriptContent, scriptPath, isOverwrite);
+                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "已成功将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
                     logger.info("已成功将脚本 [{}] {} 到主机 [{}]", 
                         scriptPath, 
                         isOverwrite ? "更新" : "上传", 
                         host.getMaintenanceHostAddress());
                 } catch (Exception e) {
+                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage());
                     logger.error("将脚本 [{}] {} 到主机 [{}] 失败: {}", 
                         scriptPath, 
                         isOverwrite ? "更新" : "上传", 
@@ -251,49 +256,63 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         ChannelSftp sftp = null;
         
         try {
+            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在获取主机：" + host.getMaintenanceHostName());
             // 获取SFTP通道
             sftp = sshClientManager.createSftpChannel(host);
             
             // 创建目录（如果需要）
             try {
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在创建目录：" + scriptPath);
                 String directory = scriptPath.substring(0, scriptPath.lastIndexOf("/"));
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "创建目录：" + directory);
                 createDirectoryIfNotExists(sftp, directory);
             } catch (Exception e) {
                 logger.warn("创建脚本目录失败，可能目录已存在: {}", e.getMessage());
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "创建目录失败：" + e.getMessage());
             }
             
             // 检查文件是否存在
             boolean fileExists = false;
             try {
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在检查文件是否存在：" + scriptPath);
                 sftp.stat(scriptPath);
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在：" + scriptPath);
                 fileExists = true;
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在：" + scriptPath);
             } catch (SftpException e) {
                 if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                    logger.warn("无法检查文件是否存在: {}", e.getMessage());
                     throw e;
                 }
             }
             
             // 如果文件存在且不允许覆盖，则跳过
             if (fileExists && !isOverwrite) {
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在且不允许覆盖，已跳过上传");
                 logger.info("主机 [{}] 上的脚本 [{}] 已存在且不允许覆盖，已跳过上传", host.getMaintenanceHostAddress(), scriptPath);
                 return;
             }
             
             // 上传脚本
+            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在上传脚本：" + scriptPath);
             try (ByteArrayInputStream inputStream = new ByteArrayInputStream(scriptContent.getBytes())) {
                 sftp.put(inputStream, scriptPath);
             }
-            
+
+            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "脚本上传成功：" + scriptPath);
             // 设置执行权限
             try {
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在设置脚本执行权限：" + scriptPath);
                 sftp.chmod(0755, scriptPath);
             } catch (SftpException e) {
                 logger.warn("无法设置脚本执行权限: {}", e.getMessage());
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "设置脚本执行权限失败：" + e.getMessage());
             }
             
         } finally {
             if (sftp != null) {
                 sftp.disconnect();
+                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "SFTP通道已断开");
             }
         }
     }
