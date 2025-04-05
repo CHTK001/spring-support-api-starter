@@ -107,23 +107,6 @@ public class MaintenanceHostController {
     }
 
     /**
-     * 启用或停用维护主机
-     *
-     * @param maintenanceHostId 维护主机ID
-     * @param enabled           是否启用
-     * @return 操作结果
-     */
-    @PutMapping("/{id}/enable/{enabled}")
-    @Operation(summary = "启用或停用维护主机", description = "修改维护主机的启用状态")
-    public ReturnResult<Boolean> enableMaintenanceHost(
-            @Parameter(description = "维护主机ID", required = true) 
-            @PathVariable("id") Long maintenanceHostId,
-            @Parameter(description = "是否启用: true-启用, false-禁用", required = true) 
-            @PathVariable("enabled") Boolean enabled) {
-        return maintenanceHostService.enableMaintenanceHost(maintenanceHostId, enabled);
-    }
-
-    /**
      * 测试主机连接
      *
      * @param maintenanceHostId 维护主机ID

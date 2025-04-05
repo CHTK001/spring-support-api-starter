@@ -1,13 +1,16 @@
 package com.chua.starter.monitor.controller;
 
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceLog;
 import com.chua.starter.monitor.service.MaintenanceLogService;
+import com.chua.starter.mybatis.entity.Query;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +40,10 @@ public class MaintenanceLogController {
     @GetMapping("/group/{groupId}")
     @ApiOperation(value = "获取维护组日志", notes = "根据维护组ID获取该组所有操作日志")
     @ApiImplicitParam(name = "groupId", value = "维护组ID", required = true, dataTypeClass = Long.class, paramType = "path", example = "1")
-    public ReturnResult<List<MaintenanceLog>> getLogsByGroupId(
-            @ApiParam(value = "维护组ID", required = true, example = "1") 
-            @PathVariable Long groupId) {
-        return maintenanceLogService.getLogsByGroupId(groupId);
+    public ReturnPageResult<MaintenanceLog> getLogsByGroupId(
+            @ApiParam(value = "维护组ID", required = true, example = "1")
+            @PathVariable Long groupId, @ParameterObject Query<MaintenanceLog> query) {
+        return maintenanceLogService.getLogsByGroupId(groupId, query);
     }
     
     /**
