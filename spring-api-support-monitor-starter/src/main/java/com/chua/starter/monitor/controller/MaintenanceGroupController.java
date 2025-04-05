@@ -23,7 +23,7 @@ import java.util.List;
  * @author CH
  */
 @RestController
-@RequestMapping("/api/maintenance/group")
+@RequestMapping("/v1/maintenance/group")
 @Tag(name = "维护组管理", description = "维护组的创建、修改、删除、查询等操作")
 @RequiredArgsConstructor
 public class MaintenanceGroupController {

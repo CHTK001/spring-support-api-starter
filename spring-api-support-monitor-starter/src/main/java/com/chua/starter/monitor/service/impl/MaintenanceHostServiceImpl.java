@@ -1,8 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.alibaba.fastjson2.JSON;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
@@ -16,10 +17,7 @@ import com.jcraft.jsch.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -262,16 +260,7 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
             logRequest.setResultMessage(resultMessage);
             
             // 获取客户端IP
-            String ipAddress = "127.0.0.1";
-            try {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (attributes != null) {
-                    HttpServletRequest request = attributes.getRequest();
-                    ipAddress = getClientIp(request);
-                }
-            } catch (Exception e) {
-                // 忽略获取IP过程中的异常
-            }
+            String ipAddress = RequestUtils.getIpAddress();
             logRequest.setIpAddress(ipAddress);
             
             // 调用日志服务记录日志
@@ -281,30 +270,5 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
             System.err.println("记录操作日志失败: " + e.getMessage());
         }
     }
-    
-    /**
-     * 获取客户端IP地址
-     *
-     * @param request HTTP请求
-     * @return IP地址
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
-    }
-} 
+
+}

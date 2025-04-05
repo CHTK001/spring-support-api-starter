@@ -52,8 +52,13 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             if (metaObject.hasGetter("createBy")) {
                 registerField(metaObject, "createBy",  userLoginInfo.getExtValue("sysUserId"), CREATE);
             }
+
             if (metaObject.hasGetter("createName")) {
                 registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+            }
+
+            if (metaObject.hasGetter("operationUser")) {
+                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("sysDeptId")) {
@@ -85,6 +90,9 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             }
             if (metaObject.hasGetter("updateName")) {
                 registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
+            }
+            if (metaObject.hasGetter("operationUser")) {
+                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
         }
     }
