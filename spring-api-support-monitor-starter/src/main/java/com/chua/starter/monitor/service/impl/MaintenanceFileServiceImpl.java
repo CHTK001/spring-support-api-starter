@@ -2,9 +2,8 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.crypto.support.IdHelper;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.code.ReturnResultUtils;
+import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceFileMapper;
@@ -15,15 +14,14 @@ import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
-import com.jcraft.jsch.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,19 +43,18 @@ import java.util.concurrent.Executors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMapper, MaintenanceFile> implements MaintenanceFileService {
 
     /**
      * 维护主机数据访问对象
      */
-    @Resource
-    private MaintenanceHostMapper maintenanceHostMapper;
+    final MaintenanceHostMapper maintenanceHostMapper;
 
     /**
      * 维护文件数据访问对象
      */
-    @Resource
-    private MaintenanceFileMapper maintenanceFileMapper;
+    final MaintenanceFileMapper maintenanceFileMapper;
 
     @Value("${maintenance.file.upload.path:/data/maintenance/files}")
     private String uploadBasePath;
@@ -76,11 +72,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     @Override
     public ReturnResult<FileUploadResponse> uploadFile(MultipartFile file, FileUploadRequest request) {
         if (file == null || file.isEmpty()) {
-            return ReturnResultUtils.error("上传文件不能为空");
+            return ReturnResult.error("上传文件不能为空");
         }
         
         FileUploadResponse response = new FileUploadResponse();
-        String taskId = IdHelper.createUUID();
+        String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
         response.setStatus("processing");
         response.setTotalCount(1);
@@ -149,19 +145,19 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setFailCount(1);
             }
         }, executorService);
-        
-        return ReturnResultUtils.success(response);
+
+        return ReturnResult.success(response);
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<FileUploadResponse> uploadFiles(MultipartFile[] files, FileUploadRequest request) {
         if (files == null || files.length == 0) {
-            return ReturnResultUtils.error("上传文件不能为空");
+            return ReturnResult.error("上传文件不能为空");
         }
         
         FileUploadResponse response = new FileUploadResponse();
-        String taskId = IdHelper.createUUID();
+        String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
         response.setStatus("processing");
         response.setTotalCount(files.length);
@@ -245,34 +241,34 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setFailCount(files.length - successCount);
             }
         }, executorService);
-        
-        return ReturnResultUtils.success(response);
+
+        return ReturnResult.success(response);
     }
     
     @Override
     public ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId) {
         if (groupId == null) {
-            return ReturnResultUtils.error("维护组ID不能为空");
+            return ReturnResult.error("维护组ID不能为空");
         }
         
         LambdaQueryWrapper<MaintenanceFile> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MaintenanceFile::getMaintenanceGroupId, groupId);
         List<MaintenanceFile> files = list(queryWrapper);
-        
-        return ReturnResultUtils.success(files);
+
+        return ReturnResult.success(files);
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> deleteFile(Long fileId) {
         if (fileId == null) {
-            return ReturnResultUtils.error("文件ID不能为空");
+            return ReturnResult.error("文件ID不能为空");
         }
         
         // 查询文件信息
         MaintenanceFile file = getById(fileId);
         if (file == null) {
-            return ReturnResultUtils.error("文件不存在");
+            return ReturnResult.error("文件不存在");
         }
         
         // 构建文件的物理路径
@@ -295,21 +291,21 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         // 删除数据库记录
         boolean success = removeById(fileId);
-        
-        return ReturnResultUtils.success(success);
+
+        return ReturnResult.success(success);
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> updateFile(MaintenanceFileRequest request) {
         if (request == null || request.getMaintenanceFileId() == null) {
-            return ReturnResultUtils.error("文件ID不能为空");
+            return ReturnResult.error("文件ID不能为空");
         }
         
         // 查询文件是否存在
         MaintenanceFile existingFile = getById(request.getMaintenanceFileId());
         if (existingFile == null) {
-            return ReturnResultUtils.error("文件不存在");
+            return ReturnResult.error("文件不存在");
         }
         
         // 更新文件信息
@@ -340,34 +336,34 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         // 更新数据库记录
         boolean success = updateById(updateFile);
-        
-        return ReturnResultUtils.success(success);
+
+        return ReturnResult.success(success);
     }
     
     @Override
     public ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request) {
         if (request == null || request.getMaintenanceFileId() == null) {
-            return ReturnResultUtils.error("文件ID不能为空");
+            return ReturnResult.error("文件ID不能为空");
         }
         
         if (request.getMaintenanceGroupId() == null) {
-            return ReturnResultUtils.error("维护组ID不能为空");
+            return ReturnResult.error("维护组ID不能为空");
         }
         
         // 查询文件信息
         MaintenanceFile file = getById(request.getMaintenanceFileId());
         if (file == null) {
-            return ReturnResultUtils.error("文件不存在");
+            return ReturnResult.error("文件不存在");
         }
         
         // 查询维护组下的所有主机
         LambdaQueryWrapper<MaintenanceHost> hostQueryWrapper = new LambdaQueryWrapper<>();
         hostQueryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
-        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostStatus, 1); // 只部署到启用状态的主机
+        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, true); // 只部署到启用状态的主机
         List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(hostQueryWrapper);
         
         if (hosts.isEmpty()) {
-            return ReturnResultUtils.error("维护组下没有可用的主机");
+            return ReturnResult.error("维护组下没有可用的主机");
         }
         
         // 构建文件的物理路径
@@ -379,12 +375,12 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         // 检查源文件是否存在
         if (!Files.exists(Paths.get(sourceFilePath))) {
-            return ReturnResultUtils.error("源文件不存在: " + sourceFilePath);
+            return ReturnResult.error("源文件不存在: " + sourceFilePath);
         }
         
         // 创建部署响应对象
         FileDeployResponse response = new FileDeployResponse();
-        String taskId = IdHelper.createUUID();
+        String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
         response.setStatus("processing");
         response.setTotalCount(hosts.size());
@@ -428,8 +424,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             response.setDetails(details);
             
         }, executorService);
-        
-        return ReturnResultUtils.success(response);
+
+        return ReturnResult.success(response);
     }
     
     /**
