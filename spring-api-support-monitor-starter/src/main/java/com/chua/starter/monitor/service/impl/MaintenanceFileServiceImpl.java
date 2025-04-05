@@ -2,6 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
@@ -19,6 +20,8 @@ import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
 import com.chua.starter.monitor.service.MaintenanceLogService;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
@@ -292,16 +295,14 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     }
     
     @Override
-    public ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId) {
+    public ReturnPageResult<MaintenanceFile> getFilesByGroupId(Long groupId, Query<MaintenanceFile> query) {
         if (groupId == null) {
-            return ReturnResult.error("维护组ID不能为空");
+            return ReturnPageResult.ok();
         }
         
         LambdaQueryWrapper<MaintenanceFile> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MaintenanceFile::getMaintenanceGroupId, groupId);
-        List<MaintenanceFile> files = list(queryWrapper);
-
-        return ReturnResult.success(files);
+        return ReturnPageResultUtils.ok(this.page(query.createFullPage(), queryWrapper));
     }
     
     /**

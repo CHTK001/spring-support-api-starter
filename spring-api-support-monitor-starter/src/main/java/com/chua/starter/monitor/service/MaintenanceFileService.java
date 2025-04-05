@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service;
 
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.pojo.request.FileDeployRequest;
@@ -7,9 +8,8 @@ import com.chua.starter.monitor.pojo.request.FileUploadRequest;
 import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
+import com.chua.starter.mybatis.entity.Query;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * 维护文件服务
@@ -40,9 +40,10 @@ public interface MaintenanceFileService {
      * 获取指定维护组下的文件列表
      *
      * @param groupId 维护组ID
+     * @param query
      * @return 文件列表
      */
-    ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId);
+    ReturnPageResult<MaintenanceFile> getFilesByGroupId(Long groupId, Query<MaintenanceFile> query);
     
     /**
      * 删除文件
