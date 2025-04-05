@@ -37,7 +37,7 @@ public class MaintenanceFileController {
     /**
      * 上传文件
      *
-     * @param files              文件列表
+     * @param file              文件
      * @param maintenanceGroupId 维护组ID
      * @param maintenanceFilePath 目标路径
      * @param maintenanceFileExtract 是否解压 (1:是, 0:否)
@@ -47,7 +47,7 @@ public class MaintenanceFileController {
     @PutMapping("/upload")
     @Operation(summary = "上传文件")
     public ReturnResult<FileUploadResponse> uploadFile(
-            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("file") MultipartFile file,
             @RequestParam("maintenanceGroupId") Long maintenanceGroupId,
             @RequestParam(value = "maintenanceFilePath", defaultValue = "/") String maintenanceFilePath,
             @RequestParam(value = "maintenanceFileExtract", defaultValue = "0") Integer maintenanceFileExtract,
@@ -59,7 +59,7 @@ public class MaintenanceFileController {
         request.setExtract(maintenanceFileExtract == 1);
         request.setOverwrite(maintenanceFileOverride == 1);
 
-        return maintenanceFileService.uploadFiles(files, request);
+        return maintenanceFileService.uploadFile(file, request);
     }
     
     /**

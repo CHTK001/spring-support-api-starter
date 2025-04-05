@@ -91,6 +91,13 @@ public class MaintenanceFile {
     private Integer maintenanceFileStatus;
 
     /**
+     * 解压路径
+     */
+    @TableField("maintenance_file_extract_path")
+    @Schema(description = "解压路径")
+    private String maintenanceFileExtractPath;
+
+    /**
      * 创建时间
      */
     @TableField("maintenance_file_create_time")

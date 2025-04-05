@@ -37,6 +37,9 @@ public class MaintenanceHostController {
     @PostMapping("save")
     @Operation(summary = "创建维护主机")
     public ReturnResult<MaintenanceHostResponse> createMaintenanceHost(@RequestBody MaintenanceHostRequest request) {
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
         return maintenanceHostService.createMaintenanceHost(request);
     }
 
@@ -85,7 +88,10 @@ public class MaintenanceHostController {
     @GetMapping("/list")
     @Operation(summary = "获取维护主机列表")
     public ReturnResult<List<MaintenanceHostResponse>> listMaintenanceHosts(
-            @RequestParam(value = "groupId", required = false) Long maintenanceGroupId) {
+            @RequestParam(value = "groupId") Long maintenanceGroupId) {
+        if (maintenanceGroupId == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
         return maintenanceHostService.listMaintenanceHosts(maintenanceGroupId);
     }
 

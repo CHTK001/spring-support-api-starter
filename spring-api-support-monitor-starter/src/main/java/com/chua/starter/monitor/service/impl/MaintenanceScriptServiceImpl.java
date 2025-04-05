@@ -34,17 +34,20 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
     @Override
     public ReturnResult<MaintenanceScriptResponse> createMaintenanceScript(MaintenanceScriptRequest request) {
         try {
+            if (request.getMaintenanceGroupId() == null) {
+                return ReturnResult.error("维护组ID不能为空");
+            }
+            
             MaintenanceScript maintenanceScript = new MaintenanceScript();
             BeanUtils.copyProperties(request, maintenanceScript);
+
             maintenanceScript.setMaintenanceScriptCreateTime(LocalDateTime.now());
             maintenanceScript.setMaintenanceScriptUpdateTime(LocalDateTime.now());
-            maintenanceScript.setMaintenanceScriptStatus(1);
 
             maintenanceScriptMapper.insert(maintenanceScript);
 
             MaintenanceScriptResponse response = new MaintenanceScriptResponse();
             BeanUtils.copyProperties(maintenanceScript, response);
-
             return ReturnResult.success(response);
         } catch (Exception e) {
             return ReturnResult.error("创建维护脚本失败: " + e.getMessage());
@@ -103,10 +106,12 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
     @Override
     public ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(Long maintenanceGroupId) {
         try {
-            LambdaQueryWrapper<MaintenanceScript> queryWrapper = new LambdaQueryWrapper<>();
-            if (maintenanceGroupId != null) {
-                queryWrapper.eq(MaintenanceScript::getMaintenanceGroupId, maintenanceGroupId);
+            if (maintenanceGroupId == null) {
+                return ReturnResult.error("维护组ID不能为空");
             }
+            
+            LambdaQueryWrapper<MaintenanceScript> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(MaintenanceScript::getMaintenanceGroupId, maintenanceGroupId);
 
             List<MaintenanceScript> maintenanceScripts = maintenanceScriptMapper.selectList(queryWrapper);
 
