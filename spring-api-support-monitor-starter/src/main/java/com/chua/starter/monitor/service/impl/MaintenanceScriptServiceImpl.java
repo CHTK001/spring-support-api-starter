@@ -191,7 +191,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                         e.getMessage(), e);
                 }
             }))
-            .collect(Collectors.toList());
+                .toList();
         
         // 等待所有上传任务完成
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

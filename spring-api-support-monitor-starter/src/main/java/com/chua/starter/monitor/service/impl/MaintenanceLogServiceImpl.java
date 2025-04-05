@@ -2,11 +2,14 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceLog;
 import com.chua.starter.monitor.mapper.MaintenanceLogMapper;
 import com.chua.starter.monitor.pojo.request.MaintenanceLogRequest;
 import com.chua.starter.monitor.service.MaintenanceLogService;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -61,22 +64,19 @@ public class MaintenanceLogServiceImpl extends ServiceImpl<MaintenanceLogMapper,
     }
 
     @Override
-    public ReturnResult<List<MaintenanceLog>> getLogsByGroupId(Long groupId) {
+    public ReturnPageResult<MaintenanceLog> getLogsByGroupId(Long groupId, Query<MaintenanceLog> query) {
         try {
             if (groupId == null) {
-                return ReturnResult.error("维护组ID不能为空");
+                return ReturnPageResult.ok();
             }
             
             LambdaQueryWrapper<MaintenanceLog> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(MaintenanceLog::getMaintenanceGroupId, groupId);
             queryWrapper.orderByDesc(MaintenanceLog::getOperationTime);
-            
-            List<MaintenanceLog> logs = list(queryWrapper);
-            
-            return ReturnResult.success(logs);
+            return ReturnPageResultUtils.ok(this.page(query.createFullPage(), queryWrapper));
         } catch (Exception e) {
             log.error("获取维护组日志失败", e);
-            return ReturnResult.error("获取维护组日志失败: " + e.getMessage());
+            return ReturnPageResult.ok();
         }
     }
 
