@@ -249,23 +249,6 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
             logRequest.setOperationType(operationType);
             logRequest.setTargetType(2); // 2表示维护主机
             
-            // 获取当前用户信息
-            String operationUser = "system";
-            try {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (attributes != null) {
-                    HttpServletRequest request = attributes.getRequest();
-                    // 从请求中获取用户信息，实际项目中可能从token或session中获取
-                    String user = (String) request.getAttribute("currentUser");
-                    if (user != null && !user.isEmpty()) {
-                        operationUser = user;
-                    }
-                }
-            } catch (Exception e) {
-                // 忽略获取用户信息过程中的异常
-            }
-            logRequest.setOperationUser(operationUser);
-            
             // 构建操作详情JSON
             Map<String, Object> details = new HashMap<>();
             details.put("maintenanceHostId", host.getMaintenanceHostId());
