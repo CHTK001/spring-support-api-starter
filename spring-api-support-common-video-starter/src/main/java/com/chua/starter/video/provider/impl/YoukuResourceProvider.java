@@ -94,7 +94,7 @@ public class YoukuResourceProvider implements ResourceProvider {
                     videoInfo.setVideoAliasName(title);
                     videoInfo.setVideoDirector(uploader);
                     videoInfo.setVideoActor("");
-                    videoInfo.setVideoType("优酷视频");
+//                    videoInfo.setVideoPlatform("优酷视频");
                     videoInfo.setVideoDescription(description);
                     videoInfo.setVideoCover(coverUrl);
                     videoInfo.setCreateTime(LocalDateTime.now());
