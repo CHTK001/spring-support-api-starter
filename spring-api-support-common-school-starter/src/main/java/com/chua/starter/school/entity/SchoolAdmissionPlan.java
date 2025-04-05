@@ -23,101 +23,101 @@ public class SchoolAdmissionPlan {
      */
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID")
-    private Long id;
+    private Long schoolAdmissionPlanId;
 
     /**
      * 学校ID
      */
     @Schema(description = "学校ID")
-    private Long schoolId;
+    private Long schoolAdmissionPlanSchoolId;
 
     /**
      * 学校代码
      */
     @Schema(description = "学校代码")
-    private String schoolCode;
+    private String schoolAdmissionPlanSchoolCode;
 
     /**
      * 专业ID
      */
     @Schema(description = "专业ID")
-    private Long majorId;
+    private Long schoolAdmissionPlanMajorId;
 
     /**
      * 专业代码
      */
     @Schema(description = "专业代码")
-    private String majorCode;
+    private String schoolAdmissionPlanMajorCode;
 
     /**
      * 招生年份
      */
     @Schema(description = "招生年份")
-    private Integer year;
+    private Integer schoolAdmissionPlanYear;
 
     /**
      * 招生省份
      */
     @Schema(description = "招生省份")
-    private String province;
+    private String schoolAdmissionPlanProvince;
 
     /**
      * 科目类型（理科、文科、综合）
      */
     @Schema(description = "科目类型（理科、文科、综合）")
-    private String subjectType;
+    private String schoolAdmissionPlanSubjectType;
 
     /**
      * 计划招生人数
      */
     @Schema(description = "计划招生人数")
-    private Integer planCount;
+    private Integer schoolAdmissionPlanPlanCount;
 
     /**
      * 实际招生人数
      */
     @Schema(description = "实际招生人数")
-    private Integer actualCount;
+    private Integer schoolAdmissionPlanActualCount;
 
     /**
      * 学费（元/年）
      */
     @Schema(description = "学费（元/年）")
-    private Double tuition;
+    private Double schoolAdmissionPlanTuition;
 
     /**
      * 招生批次（提前批、一批、二批等）
      */
     @Schema(description = "招生批次（提前批、一批、二批等）")
-    private String batch;
+    private String schoolAdmissionPlanBatch;
 
     /**
      * 招生类型（普通类、国家专项等）
      */
     @Schema(description = "招生类型（普通类、国家专项等）")
-    private String admissionType;
+    private String schoolAdmissionPlanAdmissionType;
 
     /**
      * 选科要求
      */
     @Schema(description = "选科要求")
-    private String subjectRequirements;
+    private String schoolAdmissionPlanSubjectRequirements;
 
     /**
      * 备注
      */
     @Schema(description = "备注")
-    private String remark;
+    private String schoolAdmissionPlanRemark;
 
     /**
      * 创建时间
      */
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private LocalDateTime schoolAdmissionPlanCreateTime;
 
     /**
      * 更新时间
      */
     @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
+    private LocalDateTime schoolAdmissionPlanUpdateTime;
 } 
