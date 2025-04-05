@@ -103,7 +103,7 @@ public class BilibiliResourceProvider implements ResourceProvider {
                                 videoInfo.setVideoAliasName(title);
                                 videoInfo.setVideoDirector(author);
                                 videoInfo.setVideoActor(author);
-                                videoInfo.setVideoType("B站视频");
+//                                videoInfo.setVideoPlatform("B站视频");
                                 videoInfo.setVideoDescription(description);
                                 videoInfo.setVideoScore(Converter.convertIfNecessary(video.path("score").asText(), BigDecimal.class));
                                 videoInfo.setVideoCover(coverUrl);
