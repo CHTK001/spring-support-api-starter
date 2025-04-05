@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.controller;
 
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.pojo.request.FileDeployRequest;
@@ -8,13 +9,13 @@ import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
+import com.chua.starter.mybatis.entity.Query;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * 维护文件管理控制器
@@ -106,9 +107,9 @@ public class MaintenanceFileController {
      */
     @GetMapping("/list")
     @Operation(summary = "获取维护文件列表")
-    public ReturnResult<List<MaintenanceFile>> getFileList(
-            @RequestParam("groupId") Long groupId) {
-        return maintenanceFileService.getFilesByGroupId(groupId);
+    public ReturnPageResult<MaintenanceFile> getFileList(
+            @RequestParam("groupId") Long groupId, @ParameterObject Query<MaintenanceFile> query) {
+        return maintenanceFileService.getFilesByGroupId(groupId, query);
     }
     
     /**
