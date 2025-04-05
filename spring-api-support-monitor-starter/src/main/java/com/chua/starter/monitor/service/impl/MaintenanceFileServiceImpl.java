@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
+import com.alibaba.fastjson2.JSON;
+import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceFileMapper;
@@ -11,18 +13,25 @@ import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
 import com.chua.starter.monitor.pojo.request.FileDeployRequest;
 import com.chua.starter.monitor.pojo.request.FileUploadRequest;
 import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
+import com.chua.starter.monitor.pojo.request.MaintenanceLogRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
+import com.chua.starter.monitor.service.MaintenanceLogService;
 import com.jcraft.jsch.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +65,16 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
      * 维护文件数据访问对象
      */
     final MaintenanceFileMapper maintenanceFileMapper;
+    
+    /**
+     * SSH客户端管理器
+     */
+    final SshClientManager sshClientManager;
+    
+    /**
+     * 日志服务
+     */
+    final MaintenanceLogService maintenanceLogService;
 
     @Value("${maintenance.file.upload.path:/data/maintenance/files}")
     private String uploadBasePath;
@@ -84,6 +103,10 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         // 异步处理文件上传
         CompletableFuture.runAsync(() -> {
+            MaintenanceFile maintenanceFile = null;
+            boolean success = false;
+            String message = "";
+            
             try {
                 // 确保目录存在
                 String destDir = uploadBasePath + "/" + request.getMaintenanceGroupId();
@@ -106,13 +129,14 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     response.setMessage("文件已存在且不允许覆盖");
                     response.setFailCount(1);
                     response.setSuccessCount(0);
+                    message = "文件已存在且不允许覆盖";
                     return;
                 }
                 
                 file.transferTo(destFile);
                 
                 // 保存文件记录到数据库
-                MaintenanceFile maintenanceFile = new MaintenanceFile();
+                maintenanceFile = new MaintenanceFile();
                 maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
                 maintenanceFile.setMaintenanceFileName(originalFilename);
                 maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
@@ -166,6 +190,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     }
                 }
                 
+                success = true;
+                message = "文件上传成功";
                 response.setStatus("completed");
                 response.setMessage("文件上传成功");
                 response.setSuccessCount(1);
@@ -173,10 +199,16 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 
             } catch (Exception e) {
                 log.error("文件上传失败", e);
+                message = "文件上传失败: " + e.getMessage();
                 response.setStatus("failed");
-                response.setMessage("文件上传失败: " + e.getMessage());
+                response.setMessage(message);
                 response.setSuccessCount(0);
                 response.setFailCount(1);
+            }
+            
+            // 记录操作日志
+            if (maintenanceFile != null) {
+                logOperation(maintenanceFile, 7, "上传文件", success, message);
             }
         }, executorService);
 
@@ -200,6 +232,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         CompletableFuture.runAsync(() -> {
             int successCount = 0;
             int failCount = 0;
+            List<MaintenanceFile> uploadedFiles = new ArrayList<>();
             
             // 确保目录存在
             String destDir = uploadBasePath + "/" + request.getMaintenanceGroupId();
@@ -233,11 +266,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         file.transferTo(destFile);
                         
                         // 保存文件记录到数据库
-                        MaintenanceFile maintenanceFile = new MaintenanceFile();
-                        maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
+            MaintenanceFile maintenanceFile = new MaintenanceFile();
+            maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
                         maintenanceFile.setMaintenanceFileName(originalFilename);
                         maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
-                        maintenanceFile.setMaintenanceFileSize(file.getSize());
+            maintenanceFile.setMaintenanceFileSize(file.getSize());
                         maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
                         maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                         maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
@@ -248,6 +281,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         
                         // 保存到数据库
                         save(maintenanceFile);
+                        uploadedFiles.add(maintenanceFile);
                         
                         // 如果是压缩文件且需要解压，进行解压操作
                         if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
@@ -288,28 +322,32 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         }
                         
                         successCount++;
-                    } catch (Exception e) {
-                        log.error("文件上传失败: {}", file.getOriginalFilename(), e);
+                } catch (Exception e) {
+                        log.error("文件 [{}] 上传失败: {}", file.getOriginalFilename(), e.getMessage(), e);
                         failCount++;
                     }
                 }
                 
-                // 更新响应信息
-                response.setStatus(failCount == 0 ? "completed" : "partially_completed");
-                response.setMessage(String.format("上传完成，成功: %d, 失败: %d", successCount, failCount));
+                response.setStatus("completed");
+                response.setMessage(String.format("文件上传完成：成功 %d 个，失败 %d 个", successCount, failCount));
                 response.setSuccessCount(successCount);
                 response.setFailCount(failCount);
                 
+                // 记录操作日志 - 批量上传
+                for (MaintenanceFile file : uploadedFiles) {
+                    logOperation(file, 7, "批量上传文件", true, "文件上传成功");
+                }
+                
             } catch (Exception e) {
-                log.error("文件上传过程发生错误", e);
+                log.error("批量文件上传过程中发生错误", e);
                 response.setStatus("failed");
-                response.setMessage("文件上传失败: " + e.getMessage());
+                response.setMessage("批量文件上传失败: " + e.getMessage());
                 response.setSuccessCount(successCount);
                 response.setFailCount(files.length - successCount);
             }
         }, executorService);
 
-        return ReturnResult.success(response);
+            return ReturnResult.success(response);
     }
     
     @Override
@@ -409,152 +447,120 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     
     @Override
     public ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request) {
-        if (request == null || request.getMaintenanceFileId() == null) {
+        if (request.getMaintenanceFileId() == null) {
             return ReturnResult.error("文件ID不能为空");
         }
         
-        if (request.getMaintenanceGroupId() == null) {
-            return ReturnResult.error("维护组ID不能为空");
+        if (request.getMaintenanceHostId() == null) {
+            return ReturnResult.error("主机ID不能为空");
         }
         
-        // 查询文件信息
-        MaintenanceFile file = getById(request.getMaintenanceFileId());
-        if (file == null) {
-            return ReturnResult.error("文件不存在");
-        }
-        
-        // 查询维护组下的所有主机
-        LambdaQueryWrapper<MaintenanceHost> hostQueryWrapper = new LambdaQueryWrapper<>();
-        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
-        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1); // 只部署到启用状态的主机
-        List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(hostQueryWrapper);
-
-            if (hosts.isEmpty()) {
-                return ReturnResult.error("维护组下没有可用的主机");
-            }
-
-        // 构建文件的物理路径
-        String sourceFilePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
-        if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
-            sourceFilePath += "/" + file.getMaintenanceFilePath();
-        }
-        sourceFilePath += "/" + file.getMaintenanceFileName();
-        
-        // 检查源文件是否存在
-        if (!Files.exists(Paths.get(sourceFilePath))) {
-            return ReturnResult.error("源文件不存在: " + sourceFilePath);
-        }
-        
-        // 创建部署响应对象
         FileDeployResponse response = new FileDeployResponse();
         String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
         response.setStatus("processing");
-        response.setTotalCount(hosts.size());
-        response.setSuccessCount(0);
-        response.setFailCount(0);
-        response.setDetails(new HashMap<>());
         
         // 异步处理文件部署
-        String finalSourceFilePath = sourceFilePath;
         CompletableFuture.runAsync(() -> {
-            int successCount = 0;
-            int failCount = 0;
-            Map<String, String> details = new HashMap<>();
-
-            for (MaintenanceHost host : hosts) {
-                try {
-                    // 部署文件到远程主机
-                    String targetPath = request.getDeployPath() != null ? request.getDeployPath() : "/tmp";
-                    boolean overwrite = request.getOverwrite() != null ? request.getOverwrite() : false;
-                    boolean extract = request.getExtract() != null ? request.getExtract() : false;
-                    
-                    // 上传文件
-                    uploadFileToHost(
-                            new File(finalSourceFilePath),
-                            host.getMaintenanceHostAddress(),
-                            host.getMaintenanceHostPort(),
-                            host.getMaintenanceHostUsername(),
-                            host.getMaintenanceHostPassword(),
-                            targetPath,
-                            file.getMaintenanceFileName(),
-                            overwrite,
-                            extract && file.getMaintenanceFileIsCompressed()
-                    );
-                    
-                    successCount++;
-                    details.put(host.getMaintenanceHostAddress(), "部署成功");
-                    
-                    // 如果需要部署后执行，则执行命令
-                    if (request.getExecuteAfterDeploy() != null && request.getExecuteAfterDeploy()) {
-                        String remoteFilePath = targetPath.endsWith("/") 
-                                ? targetPath + file.getMaintenanceFileName() 
-                                : targetPath + "/" + file.getMaintenanceFileName();
-                        
-                        executeRemoteCommand(
-                                host.getMaintenanceHostAddress(),
-                                host.getMaintenanceHostPort(),
-                                host.getMaintenanceHostUsername(),
-                                host.getMaintenanceHostPassword(),
-                                "chmod +x " + remoteFilePath + " && " + remoteFilePath + " " + 
-                                (request.getExecuteParams() != null ? request.getExecuteParams() : "")
-                        );
-                    }
-                    
-                } catch (Exception e) {
-                    log.error("部署文件到主机失败: {}", host.getMaintenanceHostAddress(), e);
-                    failCount++;
-                    details.put(host.getMaintenanceHostAddress(), "部署失败: " + e.getMessage());
+            boolean success = false;
+            String message = "";
+            
+            try {
+                // 获取文件信息
+                MaintenanceFile file = getById(request.getMaintenanceFileId());
+                if (file == null) {
+                    response.setStatus("failed");
+                    response.setMessage("文件不存在");
+                    return;
                 }
+                
+                // 获取主机信息
+                MaintenanceHost host = maintenanceHostMapper.selectById(request.getMaintenanceHostId());
+                if (host == null) {
+                    response.setStatus("failed");
+                    response.setMessage("主机不存在");
+                    return;
+                }
+                
+                // 构建源文件路径
+                String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+                if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
+                    filePath += "/" + file.getMaintenanceFilePath();
+                }
+                filePath += "/" + file.getMaintenanceFileName();
+                
+                // 构建目标路径
+                String targetPath = request.getTargetPath();
+                if (targetPath == null || targetPath.isEmpty()) {
+                    targetPath = "/tmp";
+                }
+                if (!targetPath.endsWith("/")) {
+                    targetPath += "/";
+                }
+                targetPath += file.getMaintenanceFileName();
+                
+                // 部署文件到主机
+                deployFileToHost(host, filePath, targetPath, request.getOverwrite() != null && request.getOverwrite());
+                
+                // 如果需要解压
+                if (file.getMaintenanceFileIsCompressed() == 1 && (request.getExtract() != null && request.getExtract())) {
+                    String extractCommand = getExtractCommand(file.getMaintenanceFileName(), targetPath);
+                    if (extractCommand != null) {
+                        String extractFolder = request.getExtractPath();
+                        if (extractFolder == null || extractFolder.isEmpty()) {
+                            extractFolder = "/tmp/extracted_" + System.currentTimeMillis();
+                        }
+                        
+                        executeCommand(host, "mkdir -p " + extractFolder);
+                        executeCommand(host, "cd " + extractFolder + " && " + extractCommand);
+                    }
+                }
+                
+                success = true;
+                message = "文件部署成功";
+                response.setStatus("completed");
+                response.setMessage("文件部署成功");
+                
+            } catch (Exception e) {
+                log.error("文件部署失败", e);
+                message = "文件部署失败: " + e.getMessage();
+                response.setStatus("failed");
+                response.setMessage(message);
             }
             
-            // 更新响应信息
-            response.setStatus(failCount == 0 ? "completed" : "partially_completed");
-            response.setMessage(String.format("部署完成，成功: %d, 失败: %d", successCount, failCount));
-            response.setSuccessCount(successCount);
-            response.setFailCount(failCount);
-            response.setDetails(details);
-            
+            // 记录操作日志
+            try {
+                MaintenanceFile file = getById(request.getMaintenanceFileId());
+                if (file != null) {
+                    logOperation(file, 8, "部署文件到主机", success, message);
+                }
+            } catch (Exception e) {
+                log.error("记录文件部署日志失败", e);
+            }
         }, executorService);
-
-            return ReturnResult.success(response);
+        
+        return ReturnResult.success(response);
     }
 
     /**
      * 上传文件到指定主机
      *
      * @param file       文件
-     * @param host       主机地址
-     * @param port       端口
-     * @param username   用户名
-     * @param password   密码
+     * @param host       维护主机对象
      * @param targetPath 目标路径
      * @param fileName   文件名
      * @param overwrite  是否覆盖
      * @param extract    是否解压
      * @throws Exception 异常信息
      */
-    private void uploadFileToHost(File file, String host, Integer port, String username, String password,
+    private void uploadFileToHost(File file, MaintenanceHost host,
                                   String targetPath, String fileName, Boolean overwrite, Boolean extract)
             throws Exception {
-        JSch jsch = new JSch();
-        Session session = null;
         ChannelSftp channelSftp = null;
 
         try {
-            // 建立SSH连接
-            session = jsch.getSession(username, host, port);
-            session.setPassword(password);
-
-            java.util.Properties config = new java.util.Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-
-            session.connect(30000);
-
-            // 打开SFTP通道
-            channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect(30000);
+            // 使用SshClientManager获取SFTP通道
+            channelSftp = sshClientManager.createSftpChannel(host);
 
             // 创建目标目录（如果不存在）
             try {
@@ -593,9 +599,9 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
 
             // 上传文件
             if(targetPath.endsWith("/")) {
-                channelSftp.put(new java.io.FileInputStream(file), targetPath + fileName);
+                channelSftp.put(new FileInputStream(file), targetPath + fileName);
             } else {
-                channelSftp.put(new java.io.FileInputStream(file), targetPath + "/" + fileName);
+                channelSftp.put(new FileInputStream(file), targetPath + "/" + fileName);
             }
 
             // 如果是压缩文件且需要解压
@@ -603,7 +609,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 // 使用exec通道执行解压命令
                 ChannelExec execChannel = null;
                 try {
-                    execChannel = (ChannelExec) session.openChannel("exec");
+                    // 使用SshClientManager获取Exec通道
+                    execChannel = sshClientManager.createExecChannel(host);
                     String command;
                     String fullPath = targetPath.endsWith("/") ? targetPath + fileName : targetPath + "/" + fileName;
 
@@ -657,69 +664,46 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             if (channelSftp != null) {
                 channelSftp.disconnect();
             }
-            if (session != null) {
-                session.disconnect();
-            }
         }
     }
     
     /**
      * 在远程主机上执行命令
      *
-     * @param host     主机地址
-     * @param port     端口
-     * @param username 用户名
-     * @param password 密码
-     * @param command  要执行的命令
+     * @param host    维护主机对象
+     * @param command 要执行的命令
      * @return 命令执行结果
      * @throws Exception 异常信息
      */
-    private String executeRemoteCommand(String host, Integer port, String username, String password, String command)
-            throws Exception {
-        JSch jsch = new JSch();
-        Session session = null;
+    private String executeRemoteCommand(MaintenanceHost host, String command) throws Exception {
+        ChannelExec channel = null;
         
         try {
-            // 建立SSH连接
-            session = jsch.getSession(username, host, port);
-            session.setPassword(password);
-
-            java.util.Properties config = new java.util.Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-
-            session.connect(30000);
-
-            // 创建执行通道
-            ChannelExec channel = (ChannelExec) session.openChannel("exec");
+            // 使用SshClientManager获取Exec通道
+            channel = sshClientManager.createExecChannel(host);
             channel.setCommand(command);
             
             // 获取命令输出
-            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             channel.setOutputStream(outputStream);
+            
             channel.setErrStream(outputStream);
+            
             channel.connect(30000);
-
+            
             // 等待命令执行完成
-            while (channel.isConnected()) {
+            while (!channel.isClosed()) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {
                     // 忽略
                 }
             }
-
-            // 获取输出结果
-            String result = outputStream.toString();
             
-            if (channel.getExitStatus() != 0) {
-                throw new Exception("命令执行失败: " + result);
-            }
-            
-            return result;
+            return outputStream.toString();
         } finally {
-            if (session != null) {
-                session.disconnect();
+            if (channel != null) {
+                channel.disconnect();
             }
         }
     }
@@ -884,5 +868,98 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 fos.write(buffer, 0, len);
             }
         }
+    }
+
+    /**
+     * 记录操作日志
+     *
+     * @param file           文件对象
+     * @param operationType  操作类型
+     * @param operationDesc  操作描述
+     * @param result         操作结果
+     * @param resultMessage  结果消息
+     */
+    private void logOperation(MaintenanceFile file, Integer operationType, String operationDesc, Boolean result, String resultMessage) {
+        try {
+            MaintenanceLogRequest logRequest = new MaintenanceLogRequest();
+            logRequest.setMaintenanceGroupId(file.getMaintenanceGroupId());
+            logRequest.setMaintenanceFileId(file.getMaintenanceFileId());
+            logRequest.setOperationType(operationType);
+            logRequest.setTargetType(4); // 4表示维护文件
+            
+            // 获取当前用户信息
+            String operationUser = "system";
+            try {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                if (attributes != null) {
+                    HttpServletRequest request = attributes.getRequest();
+                    // 从请求中获取用户信息，实际项目中可能从token或session中获取
+                    String user = (String) request.getAttribute("currentUser");
+                    if (user != null && !user.isEmpty()) {
+                        operationUser = user;
+                    }
+                }
+            } catch (Exception e) {
+                // 忽略获取用户信息过程中的异常
+            }
+            logRequest.setOperationUser(operationUser);
+            
+            // 构建操作详情JSON
+            Map<String, Object> details = new HashMap<>();
+            details.put("maintenanceFileId", file.getMaintenanceFileId());
+            details.put("maintenanceFileName", file.getMaintenanceFileName());
+            details.put("maintenanceFilePath", file.getMaintenanceFilePath());
+            details.put("operationDesc", operationDesc);
+            logRequest.setOperationDetails(JSON.toJSONString(details));
+            
+            // 设置操作结果
+            logRequest.setOperationResult(result);
+            logRequest.setResultMessage(resultMessage);
+            
+            // 获取客户端IP
+            String ipAddress = "127.0.0.1";
+            try {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                if (attributes != null) {
+                    HttpServletRequest request = attributes.getRequest();
+                    ipAddress = getClientIp(request);
+                }
+            } catch (Exception e) {
+                // 忽略获取IP过程中的异常
+            }
+            logRequest.setIpAddress(ipAddress);
+            
+            // 调用日志服务记录日志
+            maintenanceLogService.logOperation(logRequest);
+        } catch (Exception e) {
+            // 记录日志失败不应影响主业务逻辑
+            log.error("记录操作日志失败: {}", e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * 获取客户端IP地址
+     *
+     * @param request HTTP请求
+     * @return IP地址
+     */
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 } 

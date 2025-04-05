@@ -23,7 +23,7 @@ public class FileUploadResponse {
      */
     @Schema(description = "上传状态")
     private String status;
-    
+
     /**
      * 成功上传文件数
      */
