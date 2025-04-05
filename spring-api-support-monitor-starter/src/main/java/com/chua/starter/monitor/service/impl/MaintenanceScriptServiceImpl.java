@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
@@ -283,12 +282,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 host.getMaintenanceHostAddress(), scriptPath);
                 
             // 获取SFTP通道
-            sftp = sshClientManager.getSftpChannel(
-                host.getMaintenanceHostAddress(),
-                host.getMaintenanceHostPort(),
-                host.getMaintenanceHostUsername(),
-                host.getMaintenanceHostPassword()
-            );
+            sftp = sshClientManager.createSftpChannel(host);
             
             // 创建目录（如果不存在）
             String directory = getParentDirectory(scriptPath);
@@ -330,12 +324,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 sftp.put(is, scriptPath);
                 
                 // 设置文件权限为可执行
-                ChannelExec exec = sshClientManager.getExecChannel(
-                    host.getMaintenanceHostAddress(),
-                    host.getMaintenanceHostPort(),
-                    host.getMaintenanceHostUsername(),
-                    host.getMaintenanceHostPassword()
-                );
+                ChannelExec exec = (ChannelExec) sshClientManager.getSession(host).openChannel("exec");
                 logger.debug("设置脚本 [{}] 在主机 [{}] 上的执行权限", 
                     scriptPath, host.getMaintenanceHostAddress());
                 exec.setCommand(chmodCommand);
@@ -374,12 +363,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 host.getMaintenanceHostAddress(), scriptPath);
                 
             // 获取SFTP通道
-            sftp = sshClientManager.getSftpChannel(
-                host.getMaintenanceHostAddress(),
-                host.getMaintenanceHostPort(),
-                host.getMaintenanceHostUsername(),
-                host.getMaintenanceHostPassword()
-            );
+            sftp = (ChannelSftp) sshClientManager.getSession(host).openChannel("sftp");
             
             // 检查文件是否存在
             boolean fileExists = false;
@@ -685,14 +669,14 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logRequest.setMaintenanceGroupId(script.getMaintenanceGroupId());
             logRequest.setMaintenanceScriptId(script.getMaintenanceScriptId());
             logRequest.setOperationType(operationType);
-            logRequest.setOperationDesc(operationDesc);
+            logRequest.setOperationDetails(operationDesc);
             logRequest.setOperationResult(result);
-            logRequest.setOperationMessage(resultMessage);
-            logRequest.setOperationIp(ipAddress);
+            logRequest.setResultMessage(resultMessage);
+            logRequest.setIpAddress(ipAddress);
             
             ReturnResult<Boolean> logResult = maintenanceLogService.logOperation(logRequest);
-            if (!logResult.getSuccess()) {
-                logger.warn("记录脚本操作日志失败: {}", logResult.getMessage());
+            if (!logResult.isOk()) {
+                logger.warn("记录脚本操作日志失败: {}", logResult.getMsg());
             } else {
                 logger.debug("脚本操作日志记录成功");
             }
@@ -761,7 +745,6 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         try {
             sftp.stat(dirPath);
             // 目录已存在，无需创建
-            return;
         } catch (SftpException e) {
             if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
                 throw e; // 其他错误，需要抛出
