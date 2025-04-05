@@ -34,7 +34,7 @@ public class MaintenanceHostController {
      * @param request 请求参数
      * @return 创建结果
      */
-    @PostMapping
+    @PostMapping("save")
     @Operation(summary = "创建维护主机")
     public ReturnResult<MaintenanceHostResponse> createMaintenanceHost(@RequestBody MaintenanceHostRequest request) {
         return maintenanceHostService.createMaintenanceHost(request);
@@ -46,7 +46,7 @@ public class MaintenanceHostController {
      * @param request 请求参数
      * @return 更新结果
      */
-    @PutMapping
+    @PutMapping("update")
     @Operation(summary = "更新维护主机")
     public ReturnResult<MaintenanceHostResponse> updateMaintenanceHost(@RequestBody MaintenanceHostRequest request) {
         return maintenanceHostService.updateMaintenanceHost(request);

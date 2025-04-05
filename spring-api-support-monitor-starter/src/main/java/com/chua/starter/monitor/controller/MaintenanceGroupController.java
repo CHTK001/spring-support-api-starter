@@ -34,7 +34,7 @@ public class MaintenanceGroupController {
      * @param request 请求参数
      * @return 创建结果
      */
-    @PostMapping
+    @PostMapping("save")
     @Operation(summary = "创建维护组")
     public ReturnResult<MaintenanceGroupResponse> createMaintenanceGroup(@RequestBody MaintenanceGroupRequest request) {
         return maintenanceGroupService.createMaintenanceGroup(request);
@@ -46,7 +46,7 @@ public class MaintenanceGroupController {
      * @param request 请求参数
      * @return 更新结果
      */
-    @PutMapping
+    @PutMapping("update")
     @Operation(summary = "更新维护组")
     public ReturnResult<MaintenanceGroupResponse> updateMaintenanceGroup(@RequestBody MaintenanceGroupRequest request) {
         return maintenanceGroupService.updateMaintenanceGroup(request);
