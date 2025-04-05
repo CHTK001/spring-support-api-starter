@@ -135,7 +135,7 @@ public class MaintenanceScriptController {
     })
     public ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(
             @Parameter(description = "维护组ID", required = true)
-            @RequestParam(value = "maintenanceGroupId") Long maintenanceGroupId) {
+            @RequestParam(value = "groupId") Long maintenanceGroupId) {
         if (maintenanceGroupId == null) {
             return ReturnResult.ok(Collections.emptyList());
         }
