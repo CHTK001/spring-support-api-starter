@@ -142,7 +142,9 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     return;
                 }
                 
+                // 将文件保存到本地
                 file.transferTo(destFile);
+                log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                 
                 // 保存文件记录到数据库
                 maintenanceFile = new MaintenanceFile();
@@ -154,58 +156,21 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                 maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
                 maintenanceFile.setMaintenanceFileIsOverride(request.getOverwrite() != null && request.getOverwrite() ? 1 : 0);
-                maintenanceFile.setMaintenanceFileStatus(1);
+                maintenanceFile.setMaintenanceFileStatus(1);  // 默认启用状态
                 maintenanceFile.setMaintenanceFileCreateTime(LocalDateTime.now());
                 maintenanceFile.setUpdateTime(LocalDateTime.now());
                 
                 // 保存到数据库
                 save(maintenanceFile);
+                log.info("文件信息已保存到数据库，文件ID: {}", maintenanceFile.getMaintenanceFileId());
 
                 // 记录操作日志
                 logOperation(maintenanceFile, 7, "上传文件", true, null);
                 
-                // 如果是压缩文件且需要解压，进行解压操作
-                if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
-                    try {
-                        // 解压缩文件
-                        Path filePath = Paths.get(destFile.getAbsolutePath());
-                        String extractToPath = destDir + "/extracted_" + System.currentTimeMillis();
-                        File extractDir = new File(extractToPath);
-                        if (!extractDir.exists()) {
-                            extractDir.mkdirs();
-                        }
-                        
-                        log.info("正在解压文件: {} 到 {}", filePath, extractToPath);
-                        
-                        if (originalFilename.toLowerCase().endsWith(".zip")) {
-                            extractZipFile(filePath.toFile(), extractDir);
-                        } else if (originalFilename.toLowerCase().endsWith(".tar")) {
-                            extractTarFile(filePath.toFile(), extractDir);
-                        } else if (originalFilename.toLowerCase().endsWith(".tar.gz") 
-                                || originalFilename.toLowerCase().endsWith(".tgz")) {
-                            extractTarGzFile(filePath.toFile(), extractDir);
-                        } else if (originalFilename.toLowerCase().endsWith(".gz")) {
-                            extractGzFile(filePath.toFile(), extractDir);
-                        } else if (originalFilename.toLowerCase().endsWith(".rar")) {
-                            log.warn("当前环境暂不支持RAR文件解压，请通过部署到远程主机后解压");
-                        } else {
-                            log.warn("不支持的压缩文件格式: {}", originalFilename);
-                        }
-                        
-                        // 记录解压目录
-                        maintenanceFile.setMaintenanceFileExtractPath(extractToPath);
-                        updateById(maintenanceFile);
-                        
-                        log.info("文件解压成功: {}", filePath);
-                    } catch (Exception e) {
-                        log.error("文件解压失败: {}", originalFilename, e);
-                    }
-                }
-                
                 success = true;
                 message = "文件上传成功";
                 response.setStatus("completed");
-                response.setMessage("文件上传成功");
+                response.setMessage("文件上传成功，保存路径：" + destFile.getAbsolutePath());
                 response.setSuccessCount(1);
                 response.setFailCount(0);
             } catch (Exception e) {
