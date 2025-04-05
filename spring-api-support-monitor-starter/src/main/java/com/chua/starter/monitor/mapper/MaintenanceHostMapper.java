@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -31,4 +32,13 @@ public interface MaintenanceHostMapper extends BaseMapper<MaintenanceHost> {
      * @return 维护主机
      */
     MaintenanceHost selectHostById(@Param("maintenanceHostId") Long maintenanceHostId);
+    
+    /**
+     * 根据维护组ID统计主机数量
+     *
+     * @param groupId 维护组ID
+     * @return 主机数量
+     */
+    @Select("SELECT COUNT(*) FROM maintenance_host WHERE maintenance_group_id = #{groupId}")
+    Integer countHostsByGroupId(@Param("groupId") Long groupId);
 }

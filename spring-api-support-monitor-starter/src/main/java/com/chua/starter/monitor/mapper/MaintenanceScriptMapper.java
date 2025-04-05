@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.monitor.entity.MaintenanceScript;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -31,4 +32,13 @@ public interface MaintenanceScriptMapper extends BaseMapper<MaintenanceScript> {
      * @return 脚本
      */
     MaintenanceScript selectScriptById(@Param("maintenanceScriptId") Long maintenanceScriptId);
+    
+    /**
+     * 根据维护组ID统计脚本数量
+     *
+     * @param groupId 维护组ID
+     * @return 脚本数量
+     */
+    @Select("SELECT COUNT(*) FROM maintenance_script WHERE maintenance_group_id = #{groupId}")
+    Integer countScriptsByGroupId(@Param("groupId") Long groupId);
 }
