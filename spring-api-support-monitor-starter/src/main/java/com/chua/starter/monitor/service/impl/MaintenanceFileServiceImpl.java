@@ -235,66 +235,31 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                             continue;
                         }
                         
+                        // 将文件保存到本地
                         file.transferTo(destFile);
+                        log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                         
                         // 保存文件记录到数据库
-            MaintenanceFile maintenanceFile = new MaintenanceFile();
-            maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
+                        MaintenanceFile maintenanceFile = new MaintenanceFile();
+                        maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
                         maintenanceFile.setMaintenanceFileName(originalFilename);
                         maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
-            maintenanceFile.setMaintenanceFileSize(file.getSize());
+                        maintenanceFile.setMaintenanceFileSize(file.getSize());
                         maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
                         maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                         maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
                         maintenanceFile.setMaintenanceFileIsOverride(request.getOverwrite() != null && request.getOverwrite() ? 1 : 0);
-                        maintenanceFile.setMaintenanceFileStatus(1);
+                        maintenanceFile.setMaintenanceFileStatus(1);  // 默认启用状态
                         maintenanceFile.setMaintenanceFileCreateTime(LocalDateTime.now());
                         maintenanceFile.setUpdateTime(LocalDateTime.now());
                         
                         // 保存到数据库
                         save(maintenanceFile);
+                        log.info("文件信息已保存到数据库，文件ID: {}", maintenanceFile.getMaintenanceFileId());
+                        
                         uploadedFiles.add(maintenanceFile);
-                        
-                        // 如果是压缩文件且需要解压，进行解压操作
-                        if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
-                            try {
-                                // 解压缩文件
-                                Path filePath = Paths.get(destFile.getAbsolutePath());
-                                String extractToPath = destDir + "/extracted_" + System.currentTimeMillis();
-                                File extractDir = new File(extractToPath);
-                                if (!extractDir.exists()) {
-                                    extractDir.mkdirs();
-                                }
-                                
-                                log.info("正在解压文件: {} 到 {}", filePath, extractToPath);
-                                
-                                if (originalFilename.toLowerCase().endsWith(".zip")) {
-                                    extractZipFile(filePath.toFile(), extractDir);
-                                } else if (originalFilename.toLowerCase().endsWith(".tar")) {
-                                    extractTarFile(filePath.toFile(), extractDir);
-                                } else if (originalFilename.toLowerCase().endsWith(".tar.gz") 
-                                        || originalFilename.toLowerCase().endsWith(".tgz")) {
-                                    extractTarGzFile(filePath.toFile(), extractDir);
-                                } else if (originalFilename.toLowerCase().endsWith(".gz")) {
-                                    extractGzFile(filePath.toFile(), extractDir);
-                                } else if (originalFilename.toLowerCase().endsWith(".rar")) {
-                                    log.warn("当前环境暂不支持RAR文件解压，请通过部署到远程主机后解压");
-                                } else {
-                                    log.warn("不支持的压缩文件格式: {}", originalFilename);
-                                }
-                                
-                                // 记录解压目录
-                                maintenanceFile.setMaintenanceFileExtractPath(extractToPath);
-                                updateById(maintenanceFile);
-                                
-                                log.info("文件解压成功: {}", filePath);
-                            } catch (Exception e) {
-                                log.error("文件解压失败: {}", originalFilename, e);
-                            }
-                        }
-                        
                         successCount++;
-                } catch (Exception e) {
+                    } catch (Exception e) {
                         log.error("文件 [{}] 上传失败: {}", file.getOriginalFilename(), e.getMessage(), e);
                         failCount++;
                     }
@@ -319,7 +284,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             }
         }, executorService);
 
-            return ReturnResult.success(response);
+        return ReturnResult.success(response);
     }
     
     @Override
@@ -476,7 +441,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 // 使用Socket会话通知前端开始部署
                 String eventKey = "event-maintenance-file-" + request.getMaintenanceGroupId();
                 log.debug("发送部署开始事件到前端，eventKey=[{}]", eventKey);
-                socketSessionTemplate.send(eventKey, "开始部署文件 [" + file.getMaintenanceFileName() + "] 到维护组下的主机");
+                socketSessionTemplate.send(eventKey, String.format("=== 部署任务(ID: %s)开始 ===", taskId));
+                socketSessionTemplate.send(eventKey, String.format("准备部署文件 [%s] 到维护组下的主机", file.getMaintenanceFileName()));
                 
                 // 获取文件的本地存储路径
                 String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
@@ -485,13 +451,18 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 }
                 filePath += "/" + file.getMaintenanceFileName();
                 
+                socketSessionTemplate.send(eventKey, String.format("找到文件的本地存储路径: %s", filePath));
+                
                 File localFile = new File(filePath);
                 if (!localFile.exists()) {
-                    String errorMsg = "文件不存在: " + filePath;
+                    String errorMsg = String.format("部署失败: 本地文件 [%s] 不存在", filePath);
                     log.error(errorMsg);
                     socketSessionTemplate.send(eventKey, errorMsg);
+                    socketSessionTemplate.send(eventKey, "=== 部署任务失败 ===");
                     return;
                 }
+                
+                socketSessionTemplate.send(eventKey, String.format("文件大小: %d KB", localFile.length() / 1024));
                 
                 // 获取维护组下所有启用的主机
                 LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
@@ -500,39 +471,57 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
                 
                 if (hosts.isEmpty()) {
-                    String errorMsg = "维护组下没有启用的主机";
+                    String errorMsg = "维护组下没有启用的主机，无法执行部署";
                     log.error(errorMsg);
                     socketSessionTemplate.send(eventKey, errorMsg);
+                    socketSessionTemplate.send(eventKey, "=== 部署任务失败 ===");
                     return;
                 }
                 
-                socketSessionTemplate.send(eventKey, "开始将文件 [" + file.getMaintenanceFileName() + "] 部署到 " + hosts.size() + " 台主机");
+                socketSessionTemplate.send(eventKey, String.format("找到 %d 台可部署的目标主机", hosts.size()));
+                socketSessionTemplate.send(eventKey, String.format("开始将文件 [%s] 部署到 %d 台主机", file.getMaintenanceFileName(), hosts.size()));
+                
+                int successCount = 0;
+                int failCount = 0;
                 
                 // 部署文件到每台主机
                 for (MaintenanceHost host : hosts) {
                     try {
                         log.info("正在将文件 [{}] 部署到主机 [{}]", file.getMaintenanceFileName(), host.getMaintenanceHostAddress());
-                        socketSessionTemplate.send(eventKey, "正在将文件 [" + file.getMaintenanceFileName() + "] 部署到主机 [" + host.getMaintenanceHostAddress() + "]");
+                        socketSessionTemplate.send(eventKey, String.format("--- 部署到主机 [%s] 开始 ---", host.getMaintenanceHostAddress()));
                         
                         // 上传文件到远程主机
                         boolean overwrite = file.getMaintenanceFileIsOverride() != null && file.getMaintenanceFileIsOverride() == 1;
                         boolean extract = file.getMaintenanceFileIsExtract() != null && file.getMaintenanceFileIsExtract() == 1;
                         
+                        socketSessionTemplate.send(eventKey, String.format("覆盖设置: %s, 解压设置: %s", 
+                            overwrite ? "覆盖" : "不覆盖", 
+                            extract ? "自动解压" : "不解压"));
+                        
                         uploadFileToHost(localFile, host, file.getMaintenanceFilePath(), file.getMaintenanceFileName(), overwrite, extract);
                         
                         log.info("文件 [{}] 已成功部署到主机 [{}]", file.getMaintenanceFileName(), host.getMaintenanceHostAddress());
-                        socketSessionTemplate.send(eventKey, "文件 [" + file.getMaintenanceFileName() + "] 已成功部署到主机 [" + host.getMaintenanceHostAddress() + "]");
+                        socketSessionTemplate.send(eventKey, String.format("--- 部署到主机 [%s] 成功 ---", host.getMaintenanceHostAddress()));
+                        successCount++;
                     } catch (Exception e) {
-                        String errorMsg = "将文件 [" + file.getMaintenanceFileName() + "] 部署到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage();
+                        String errorMsg = String.format("将文件 [%s] 部署到主机 [%s] 失败: %s", 
+                            file.getMaintenanceFileName(), host.getMaintenanceHostAddress(), e.getMessage());
                         log.error(errorMsg, e);
-                        socketSessionTemplate.send(eventKey, errorMsg);
+                        socketSessionTemplate.send(eventKey, String.format("--- 部署到主机 [%s] 失败: %s ---", 
+                            host.getMaintenanceHostAddress(), e.getMessage()));
+                        failCount++;
                     }
                 }
                 
-                socketSessionTemplate.send(eventKey, "文件 [" + file.getMaintenanceFileName() + "] 部署完成");
-                log.info("文件 [{}] 部署完成", file.getMaintenanceFileName());
+                socketSessionTemplate.send(eventKey, String.format("文件部署完成统计: 成功 %d 台，失败 %d 台", successCount, failCount));
+                socketSessionTemplate.send(eventKey, "=== 部署任务完成 ===");
+                log.info("文件 [{}] 部署完成，成功: {}，失败: {}", file.getMaintenanceFileName(), successCount, failCount);
             } catch (Exception e) {
-                log.error("部署文件失败: {}", e.getMessage(), e);
+                String eventKey = "event-maintenance-file-" + request.getMaintenanceGroupId();
+                String errorMsg = String.format("部署文件 [%s] 时发生系统错误: %s", file.getMaintenanceFileName(), e.getMessage());
+                log.error(errorMsg, e);
+                socketSessionTemplate.send(eventKey, errorMsg);
+                socketSessionTemplate.send(eventKey, "=== 部署任务失败 ===");
             }
         }, executorService);
         
@@ -569,18 +558,21 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             // 使用Socket会话通知前端开始同步
             String eventKey = "event-maintenance-file-" + maintenanceFile.getMaintenanceGroupId();
             log.debug("发送同步开始事件到前端，eventKey=[{}]", eventKey);
-            socketSessionTemplate.send(eventKey, "开始同步文件 [" + maintenanceFile.getMaintenanceFileName() + "]");
+            socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)开始 ===", taskId));
+            socketSessionTemplate.send(eventKey, String.format("准备同步文件 [%s] 到维护组下的所有主机", maintenanceFile.getMaintenanceFileName()));
             
             // 异步将文件同步到维护组下所有主机
             CompletableFuture.runAsync(() -> {
                 try {
                     log.info("正在执行异步同步文件任务...");
                     syncFileToHosts(maintenanceFile, taskId);
-                    socketSessionTemplate.send(eventKey, "文件 [" + maintenanceFile.getMaintenanceFileName() + "] 同步完成");
+                    socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)完成 ===", taskId));
                     log.info("文件 [{}] 同步完成", maintenanceFile.getMaintenanceFileName());
                 } catch (Exception e) {
                     log.error("同步文件到主机失败: {}", e.getMessage(), e);
-                    socketSessionTemplate.send(eventKey, "文件 [" + maintenanceFile.getMaintenanceFileName() + "] 同步失败: " + e.getMessage());
+                    socketSessionTemplate.send(eventKey, String.format("同步文件 [%s] 失败: %s", 
+                        maintenanceFile.getMaintenanceFileName(), e.getMessage()));
+                    socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)失败 ===", taskId));
                 }
             }, executorService);
             
@@ -608,21 +600,22 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1);
         List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
         
+        String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
+        
         if (hosts.isEmpty()) {
             log.warn("维护组 [{}] 下没有启用的主机，文件同步操作已跳过", file.getMaintenanceGroupId());
-            String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
-            socketSessionTemplate.send(eventKey, "同步文件失败，维护组下没有启用的主机");
+            socketSessionTemplate.send(eventKey, "同步文件失败: 维护组下没有启用的主机");
+            socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)失败 ===", taskId));
             return;
         }
         
         String filePath = file.getMaintenanceFilePath();
         String fileName = file.getMaintenanceFileName();
-        String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
         
         log.info("开始同步文件 [{}] 到维护组 [{}] 下的 {} 台主机", 
             fileName, file.getMaintenanceGroupId(), hosts.size());
         
-        socketSessionTemplate.send(eventKey, "开始将文件 [" + fileName + "] 同步到 " + hosts.size() + " 台主机");
+        socketSessionTemplate.send(eventKey, String.format("找到 %d 台需要同步的主机", hosts.size()));
         
         // 获取本地文件路径
         String localFilePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
@@ -631,12 +624,18 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         }
         localFilePath += "/" + fileName;
         
+        socketSessionTemplate.send(eventKey, String.format("本地文件路径: %s", localFilePath));
+        
         File localFile = new File(localFilePath);
         if (!localFile.exists()) {
             log.error("同步文件失败: 本地文件 [{}] 不存在", localFilePath);
-            socketSessionTemplate.send(eventKey, "同步文件失败: 本地文件 [" + fileName + "] 不存在");
+            socketSessionTemplate.send(eventKey, String.format("同步文件失败: 本地文件 [%s] 不存在", fileName));
+            socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)失败 ===", taskId));
             return;
         }
+        
+        socketSessionTemplate.send(eventKey, String.format("文件大小: %d KB", localFile.length() / 1024));
+        socketSessionTemplate.send(eventKey, String.format("开始将文件 [%s] 同步到 %d 台主机...", fileName, hosts.size()));
         
         // 为每个主机上传文件
         List<CompletableFuture<Void>> futures = hosts.stream()
@@ -645,19 +644,25 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     log.info("正在将文件 [{}] 上传到主机 [{}]", 
                         fileName, host.getMaintenanceHostAddress());
                     
-                    socketSessionTemplate.send(eventKey, "正在将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    socketSessionTemplate.send(eventKey, String.format("--- 同步到主机 [%s] 开始 ---", host.getMaintenanceHostAddress()));
                     
                     // 上传文件到远程主机
                     boolean overwrite = file.getMaintenanceFileOverride() != null && file.getMaintenanceFileOverride() == 1;
                     boolean extract = file.getMaintenanceFileIsExtract() != null && file.getMaintenanceFileIsExtract() == 1;
                     
+                    socketSessionTemplate.send(eventKey, String.format("覆盖设置: %s, 解压设置: %s", 
+                        overwrite ? "覆盖" : "不覆盖", 
+                        extract ? "自动解压" : "不解压"));
+                    
                     uploadFileToHost(localFile, host, filePath, fileName, overwrite, extract);
                     
-                    socketSessionTemplate.send(eventKey, "已成功将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    socketSessionTemplate.send(eventKey, String.format("--- 同步到主机 [%s] 成功 ---", host.getMaintenanceHostAddress()));
                     log.info("已成功将文件 [{}] 上传到主机 [{}]", fileName, host.getMaintenanceHostAddress());
                 } catch (Exception e) {
-                    String errorMessage = "将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage();
-                    socketSessionTemplate.send(eventKey, errorMessage);
+                    String errorMessage = String.format("将文件 [%s] 上传到主机 [%s] 失败: %s", 
+                        fileName, host.getMaintenanceHostAddress(), e.getMessage());
+                    socketSessionTemplate.send(eventKey, String.format("--- 同步到主机 [%s] 失败: %s ---", 
+                        host.getMaintenanceHostAddress(), e.getMessage()));
                     log.error(errorMessage, e);
                 }
             }, executorService))
@@ -666,7 +671,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         // 等待所有上传任务完成
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         
-        socketSessionTemplate.send(eventKey, "文件 [" + fileName + "] 同步完成");
+        socketSessionTemplate.send(eventKey, String.format("文件 [%s] 同步完成", fileName));
         log.info("文件 [{}] 同步到 {} 台主机的任务已完成", fileName, hosts.size());
     }
 
@@ -685,16 +690,25 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                                   String targetPath, String fileName, Boolean overwrite, Boolean extract)
             throws Exception {
         ChannelSftp channelSftp = null;
+        String eventKey = "event-maintenance-file-" + host.getMaintenanceGroupId();
 
         try {
+            // 记录开始上传的日志
+            log.info("开始上传文件 [{}] 到主机 [{}:{}]", fileName, host.getMaintenanceHostAddress(), host.getMaintenanceHostPort());
+            socketSessionTemplate.send(eventKey, String.format("正在连接主机 [%s:%s]...", host.getMaintenanceHostAddress(), host.getMaintenanceHostPort()));
+            
             // 使用SshClientManager获取SFTP通道
             channelSftp = sshClientManager.createSftpChannel(host);
+            socketSessionTemplate.send(eventKey, String.format("已成功连接到主机 [%s]", host.getMaintenanceHostAddress()));
 
             // 创建目标目录（如果不存在）
             try {
+                socketSessionTemplate.send(eventKey, String.format("检查目标路径 [%s] 是否存在...", targetPath));
                 channelSftp.cd(targetPath);
+                socketSessionTemplate.send(eventKey, String.format("目标路径 [%s] 已存在", targetPath));
             } catch (SftpException e) {
                 // 目录不存在，创建目录
+                socketSessionTemplate.send(eventKey, String.format("目标路径 [%s] 不存在，正在创建...", targetPath));
                 String[] folders = targetPath.split("/");
                 StringBuilder path = new StringBuilder();
                 for (String folder : folders) {
@@ -706,31 +720,40 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     try {
                         channelSftp.cd(path.toString());
                     } catch (SftpException ex) {
+                        socketSessionTemplate.send(eventKey, String.format("创建目录 [%s]", path.toString()));
                         channelSftp.mkdir(path.toString());
                         channelSftp.cd(path.toString());
                     }
                 }
+                socketSessionTemplate.send(eventKey, String.format("目标路径 [%s] 已创建完成", targetPath));
             }
 
             // 检查文件是否已存在
             try {
+                socketSessionTemplate.send(eventKey, String.format("检查文件 [%s] 是否已存在...", fileName));
                 channelSftp.lstat(targetPath + "/" + fileName);
                 // 文件存在
                 if (overwrite == null || !overwrite) {
-                        throw new Exception("文件已存在且未指定覆盖");
+                    socketSessionTemplate.send(eventKey, String.format("文件 [%s] 已存在且未指定覆盖，上传中止", fileName));
+                    throw new Exception("文件已存在且未指定覆盖");
                 }
                 // 如果需要覆盖，先删除现有文件
+                socketSessionTemplate.send(eventKey, String.format("文件 [%s] 已存在，正在删除旧文件...", fileName));
                 channelSftp.rm(targetPath + "/" + fileName);
+                socketSessionTemplate.send(eventKey, String.format("已删除旧文件 [%s]", fileName));
             } catch (SftpException e) {
                 // 文件不存在，可以继续
+                socketSessionTemplate.send(eventKey, String.format("文件 [%s] 不存在，可以继续上传", fileName));
             }
 
             // 上传文件
+            socketSessionTemplate.send(eventKey, String.format("开始上传文件 [%s]，文件大小: %d KB...", fileName, file.length() / 1024));
             if(targetPath.endsWith("/")) {
                 channelSftp.put(new FileInputStream(file), targetPath + fileName);
             } else {
                 channelSftp.put(new FileInputStream(file), targetPath + "/" + fileName);
             }
+            socketSessionTemplate.send(eventKey, String.format("文件 [%s] 上传完成", fileName));
 
             // 如果是压缩文件且需要解压
             if (extract) {
@@ -738,25 +761,33 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 ChannelExec execChannel = null;
                 try {
                     // 使用SshClientManager获取Exec通道
+                    socketSessionTemplate.send(eventKey, String.format("正在准备解压文件 [%s]...", fileName));
                     execChannel = sshClientManager.createExecChannel(host);
                     String command;
                     String fullPath = targetPath.endsWith("/") ? targetPath + fileName : targetPath + "/" + fileName;
 
                     if (fileName.toLowerCase().endsWith(".zip")) {
                         command = "cd " + targetPath + " && unzip -o " + fullPath;
+                        socketSessionTemplate.send(eventKey, String.format("使用 unzip 命令解压文件 [%s]", fileName));
                     } else if (fileName.toLowerCase().endsWith(".tar")) {
                         command = "cd " + targetPath + " && tar -xf " + fullPath;
+                        socketSessionTemplate.send(eventKey, String.format("使用 tar 命令解压文件 [%s]", fileName));
                     } else if (fileName.toLowerCase().endsWith(".tar.gz") || fileName.toLowerCase().endsWith(".tgz")) {
                         command = "cd " + targetPath + " && tar -xzf " + fullPath;
+                        socketSessionTemplate.send(eventKey, String.format("使用 tar -xzf 命令解压文件 [%s]", fileName));
                     } else if (fileName.toLowerCase().endsWith(".gz")) {
                         command = "cd " + targetPath + " && gunzip -f " + fullPath;
+                        socketSessionTemplate.send(eventKey, String.format("使用 gunzip 命令解压文件 [%s]", fileName));
                     } else if (fileName.toLowerCase().endsWith(".rar")) {
                         command = "cd " + targetPath + " && unrar x " + fullPath;
+                        socketSessionTemplate.send(eventKey, String.format("使用 unrar 命令解压文件 [%s]", fileName));
                     } else {
-                            throw new Exception("不支持的压缩文件格式");
+                        socketSessionTemplate.send(eventKey, String.format("文件 [%s] 格式不支持解压", fileName));
+                        throw new Exception("不支持的压缩文件格式");
                     }
 
                     execChannel.setCommand(command);
+                    socketSessionTemplate.send(eventKey, "正在执行解压命令...");
 
                     execChannel.setInputStream(null);
                     execChannel.setOutputStream(System.out);
@@ -766,6 +797,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
 
                     // 等待命令执行完成
                     int exitStatus = -1;
+                    socketSessionTemplate.send(eventKey, "等待解压命令执行完成...");
                     while (true) {
                         if (execChannel.isClosed()) {
                             exitStatus = execChannel.getExitStatus();
@@ -779,14 +811,25 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     }
 
                     if (exitStatus != 0) {
+                        socketSessionTemplate.send(eventKey, String.format("解压文件 [%s] 失败，退出状态码: %d", fileName, exitStatus));
                         throw new Exception("解压失败，退出状态码: " + exitStatus);
                     }
+                    
+                    socketSessionTemplate.send(eventKey, String.format("文件 [%s] 解压完成", fileName));
                 } finally {
                     if (execChannel != null) {
                         execChannel.disconnect();
                     }
                 }
             }
+            
+            socketSessionTemplate.send(eventKey, String.format("文件 [%s] 已成功上传到主机 [%s]", fileName, host.getMaintenanceHostAddress()));
+            log.info("文件 [{}] 已成功上传到主机 [{}:{}]", fileName, host.getMaintenanceHostAddress(), host.getMaintenanceHostPort());
+        } catch (Exception e) {
+            String errorMsg = String.format("上传文件 [%s] 到主机 [%s] 失败: %s", fileName, host.getMaintenanceHostAddress(), e.getMessage());
+            socketSessionTemplate.send(eventKey, errorMsg);
+            log.error(errorMsg, e);
+            throw e;
         } finally {
             // 关闭连接
             if (channelSftp != null) {
