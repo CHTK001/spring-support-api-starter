@@ -68,13 +68,13 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
             while (year.get() >= minYear) {
                 AtomicInteger count = new AtomicInteger(1);
                 while (true) {
-                    EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(mvUrl + "?year=" + year.getAndDecrement() + "&page=" + count.getAndIncrement())
+                    EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(mvUrl + "?year=" + (year.get()) + "&page=" + count.getAndIncrement())
                             .cookie(config.getVideoSyncConfigCookie())
                             .newInvoker()
                             .execute()
                             .content(EmbeddedVideoInfo.class);
                     Integer pages = embeddedVideoInfo.getPage().getPages();
-                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get() - 1, count.get() - 1, pages);
+                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get(), count.get() - 1, pages);
 
                     if (embeddedVideoInfo == null || embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
                         break;
@@ -90,7 +90,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                         log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页, 数据{}/{}",
                                 mvType,
                                 config.getVideoSyncConfigName(),
-                                year.get() - 1,
+                                year.get(),
                                 count.get() - 1,
                                 pages,
                                 i + 1,
@@ -142,6 +142,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                         consumer.accept(video);
                     }
                 }
+                year.getAndDecrement();
             }
         } catch (Exception e) {
             log.error("从观影获取视频列表失败: {}", e.getMessage(), e);
@@ -246,7 +247,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
             video.setVideoDirector(Joiner.on(",").join(baseDetail.getDaoyan()));
             video.setVideoWriter(Joiner.on(",").join(baseDetail.getBianju()));
             video.setVideoActor(Joiner.on(",").join(baseDetail.getZhuyan()));
-            video.setVideoCategory(Joiner.on(",").join(baseDetail.getLeixing()));
+            video.setVideoType(Joiner.on(",").join(baseDetail.getLeixing()));
             video.setVideoDistrict(Joiner.on(",").join(baseDetail.getDiqu()));
             video.setVideoLanguage(Joiner.on(",").join(baseDetail.getYuyan()));
             video.setVideoDuration(RegexUtils.getFirstNumber(baseDetail.getTimes()));

@@ -102,6 +102,12 @@ public class VideoSearchRequest extends Query<VideoInfo> implements Serializable
     }
 
     /**
+     * 重写getYears方法，处理"全部"的情况
+     */
+    public String getYears() {
+        return isAll(years) ? null : years;
+    }
+    /**
      * 初始化处理请求参数
      */
     @PostConstruct

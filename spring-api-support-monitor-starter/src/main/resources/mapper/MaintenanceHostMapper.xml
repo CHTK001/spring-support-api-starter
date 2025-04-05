@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MaintenanceHostMapper">
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        maintenance_host_id, maintenance_group_id, maintenance_host_address, maintenance_host_port,
+        maintenance_host_username, maintenance_host_password, maintenance_host_enabled,
+        maintenance_host_create_time, maintenance_host_update_time
+    </sql>
+
+    <!-- 获取维护主机列表 -->
+    <select id="selectHostsByGroupId" resultType="com.chua.starter.monitor.entity.MaintenanceHost">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_maintenance_host
+        <where>
+            <if test="groupId != null">
+                maintenance_group_id = #{groupId}
+            </if>
+            <if test="enabled != null">
+                AND maintenance_host_enabled = #{enabled}
+            </if>
+        </where>
+        ORDER BY maintenance_host_create_time DESC
+    </select>
+
+    <!-- 根据ID获取维护主机 -->
+    <select id="selectHostById" resultType="com.chua.starter.monitor.entity.MaintenanceHost">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_maintenance_host
+        WHERE maintenance_host_id = #{maintenanceHostId}
+    </select>
+</mapper> 
