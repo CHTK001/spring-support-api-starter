@@ -2,11 +2,15 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceGroup;
+import com.chua.starter.monitor.entity.MaintenanceHost;
+import com.chua.starter.monitor.entity.MaintenanceScript;
 import com.chua.starter.monitor.mapper.MaintenanceGroupMapper;
+import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
+import com.chua.starter.monitor.mapper.MaintenanceScriptMapper;
 import com.chua.starter.monitor.pojo.request.MaintenanceGroupRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceGroupResponse;
 import com.chua.starter.monitor.service.MaintenanceGroupService;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +25,23 @@ import java.util.stream.Collectors;
  * @author CH
  */
 @Service
+@RequiredArgsConstructor
 public class MaintenanceGroupServiceImpl implements MaintenanceGroupService {
 
     /**
      * 维护组数据访问对象
      */
-    @Resource
-    private MaintenanceGroupMapper maintenanceGroupMapper;
+    private final MaintenanceGroupMapper maintenanceGroupMapper;
+
+    /**
+     * 维护主机数据访问对象
+     */
+    private final MaintenanceHostMapper maintenanceHostMapper;
+
+    /**
+     * 维护脚本数据访问对象
+     */
+    private final MaintenanceScriptMapper maintenanceScriptMapper;
 
     /**
      * 创建维护组
@@ -115,6 +129,14 @@ public class MaintenanceGroupServiceImpl implements MaintenanceGroupService {
 
             MaintenanceGroupResponse response = new MaintenanceGroupResponse();
             BeanUtils.copyProperties(maintenanceGroup, response);
+            
+            // 获取主机数量
+            Integer hostCount = maintenanceHostMapper.countHostsByGroupId(maintenanceGroupId);
+            response.setHostCount(hostCount);
+            
+            // 获取脚本数量
+            Integer scriptCount = maintenanceScriptMapper.countScriptsByGroupId(maintenanceGroupId);
+            response.setScriptCount(scriptCount);
 
             return ReturnResult.success(response);
         } catch (Exception e) {
@@ -136,6 +158,15 @@ public class MaintenanceGroupServiceImpl implements MaintenanceGroupService {
                     .map(group -> {
                         MaintenanceGroupResponse response = new MaintenanceGroupResponse();
                         BeanUtils.copyProperties(group, response);
+                        
+                        // 获取主机数量
+                        Integer hostCount = maintenanceHostMapper.countHostsByGroupId(group.getMaintenanceGroupId());
+                        response.setHostCount(hostCount);
+                        
+                        // 获取脚本数量
+                        Integer scriptCount = maintenanceScriptMapper.countScriptsByGroupId(group.getMaintenanceGroupId());
+                        response.setScriptCount(scriptCount);
+                        
                         return response;
                     })
                     .collect(Collectors.toList());
