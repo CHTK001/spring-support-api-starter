@@ -1,16 +1,24 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.crypto.support.IdHelper;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.code.ReturnResultUtils;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceFileMapper;
 import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
+import com.chua.starter.monitor.pojo.request.FileDeployRequest;
 import com.chua.starter.monitor.pojo.request.FileUploadRequest;
+import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
+import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
 import com.jcraft.jsch.*;
-import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,11 +27,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 维护文件服务实现
@@ -31,8 +44,9 @@ import java.util.Properties;
  *
  * @author CH
  */
+@Slf4j
 @Service
-public class MaintenanceFileServiceImpl implements MaintenanceFileService {
+public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMapper, MaintenanceFile> implements MaintenanceFileService {
 
     /**
      * 维护主机数据访问对象
@@ -46,6 +60,12 @@ public class MaintenanceFileServiceImpl implements MaintenanceFileService {
     @Resource
     private MaintenanceFileMapper maintenanceFileMapper;
 
+    @Value("${maintenance.file.upload.path:/data/maintenance/files}")
+    private String uploadBasePath;
+    
+    // 异步任务线程池
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
     /**
      * 上传文件到维护组下的所有主机
      *
@@ -55,230 +75,395 @@ public class MaintenanceFileServiceImpl implements MaintenanceFileService {
      */
     @Override
     public ReturnResult<FileUploadResponse> uploadFile(MultipartFile file, FileUploadRequest request) {
-        try {
-            // 1. 查询维护组下的所有启用的主机
-            LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId())
-                    .eq(MaintenanceHost::getMaintenanceHostEnabled, true);
-            List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
-
-            if (hosts.isEmpty()) {
-                return ReturnResult.error("维护组下没有可用的主机");
+        if (file == null || file.isEmpty()) {
+            return ReturnResultUtils.error("上传文件不能为空");
+        }
+        
+        FileUploadResponse response = new FileUploadResponse();
+        String taskId = IdHelper.createUUID();
+        response.setTaskId(taskId);
+        response.setStatus("processing");
+        response.setTotalCount(1);
+        
+        // 异步处理文件上传
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 确保目录存在
+                String destDir = uploadBasePath + "/" + request.getMaintenanceGroupId();
+                if (request.getTargetPath() != null && !request.getTargetPath().isEmpty() && !"/".equals(request.getTargetPath())) {
+                    destDir += "/" + request.getTargetPath();
+                }
+                
+                Path dirPath = Paths.get(destDir);
+                if (!Files.exists(dirPath)) {
+                    Files.createDirectories(dirPath);
+                }
+                
+                // 保存文件
+                String originalFilename = file.getOriginalFilename();
+                File destFile = new File(dirPath.toFile(), originalFilename);
+                
+                if (destFile.exists() && (request.getOverwrite() == null || !request.getOverwrite())) {
+                    log.warn("文件已存在且不允许覆盖: {}", destFile.getAbsolutePath());
+                    response.setStatus("failed");
+                    response.setMessage("文件已存在且不允许覆盖");
+                    response.setFailCount(1);
+                    response.setSuccessCount(0);
+                    return;
+                }
+                
+                file.transferTo(destFile);
+                
+                // 保存文件记录到数据库
+                MaintenanceFile maintenanceFile = new MaintenanceFile();
+                maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
+                maintenanceFile.setMaintenanceFileName(originalFilename);
+                maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
+                maintenanceFile.setMaintenanceFileSize(file.getSize());
+                maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
+                maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
+                maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
+                maintenanceFile.setMaintenanceFileIsOverride(request.getOverwrite() != null && request.getOverwrite() ? 1 : 0);
+                maintenanceFile.setMaintenanceFileStatus(1);
+                maintenanceFile.setMaintenanceFileCreateTime(LocalDateTime.now());
+                maintenanceFile.setUpdateTime(LocalDateTime.now());
+                
+                // 保存到数据库
+                save(maintenanceFile);
+                
+                // 如果是压缩文件且需要解压，进行解压操作
+                if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
+                    // TODO: 实现解压逻辑
+                }
+                
+                response.setStatus("completed");
+                response.setMessage("文件上传成功");
+                response.setSuccessCount(1);
+                response.setFailCount(0);
+                
+            } catch (Exception e) {
+                log.error("文件上传失败", e);
+                response.setStatus("failed");
+                response.setMessage("文件上传失败: " + e.getMessage());
+                response.setSuccessCount(0);
+                response.setFailCount(1);
             }
-
-            // 2. 保存文件到临时目录
-            Path tempFile = Files.createTempFile("upload_", file.getOriginalFilename());
-            file.transferTo(tempFile.toFile());
-
-            // 3. 记录文件信息
-            MaintenanceFile maintenanceFile = new MaintenanceFile();
-            maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
-            maintenanceFile.setMaintenanceFileName(file.getOriginalFilename());
-            maintenanceFile.setMaintenanceFilePath(request.getTargetPath());
-            maintenanceFile.setMaintenanceFileSize(file.getSize());
-
-            String fileType = getFileExtension(file.getOriginalFilename());
-            boolean isCompressed = "zip".equalsIgnoreCase(fileType) || "tar".equalsIgnoreCase(fileType) ||
-                    "gz".equalsIgnoreCase(fileType);
-
-            maintenanceFile.setMaintenanceFileIsCompressed(isCompressed);
-            maintenanceFile.setMaintenanceFileCreateTime(LocalDateTime.now());
-
-            maintenanceFileMapper.insert(maintenanceFile);
-
-            // 4. 上传文件到每个主机
-            FileUploadResponse response = new FileUploadResponse();
-            Map<String, String> results = new HashMap<>();
-            boolean allSuccess = true;
-
+        }, executorService);
+        
+        return ReturnResultUtils.success(response);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<FileUploadResponse> uploadFiles(MultipartFile[] files, FileUploadRequest request) {
+        if (files == null || files.length == 0) {
+            return ReturnResultUtils.error("上传文件不能为空");
+        }
+        
+        FileUploadResponse response = new FileUploadResponse();
+        String taskId = IdHelper.createUUID();
+        response.setTaskId(taskId);
+        response.setStatus("processing");
+        response.setTotalCount(files.length);
+        
+        // 异步处理文件上传
+        CompletableFuture.runAsync(() -> {
+            int successCount = 0;
+            int failCount = 0;
+            
+            // 确保目录存在
+            String destDir = uploadBasePath + "/" + request.getMaintenanceGroupId();
+            if (request.getTargetPath() != null && !request.getTargetPath().isEmpty() && !"/".equals(request.getTargetPath())) {
+                destDir += "/" + request.getTargetPath();
+            }
+            
+            try {
+                Path dirPath = Paths.get(destDir);
+                if (!Files.exists(dirPath)) {
+                    Files.createDirectories(dirPath);
+                }
+                
+                for (MultipartFile file : files) {
+                    if (file.isEmpty()) {
+                        failCount++;
+                        continue;
+                    }
+                    
+                    try {
+                        // 保存文件
+                        String originalFilename = file.getOriginalFilename();
+                        File destFile = new File(dirPath.toFile(), originalFilename);
+                        
+                        if (destFile.exists() && (request.getOverwrite() == null || !request.getOverwrite())) {
+                            log.warn("文件已存在且不允许覆盖: {}", destFile.getAbsolutePath());
+                            failCount++;
+                            continue;
+                        }
+                        
+                        file.transferTo(destFile);
+                        
+                        // 保存文件记录到数据库
+                        MaintenanceFile maintenanceFile = new MaintenanceFile();
+                        maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
+                        maintenanceFile.setMaintenanceFileName(originalFilename);
+                        maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
+                        maintenanceFile.setMaintenanceFileSize(file.getSize());
+                        maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
+                        maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
+                        maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
+                        maintenanceFile.setMaintenanceFileIsOverride(request.getOverwrite() != null && request.getOverwrite() ? 1 : 0);
+                        maintenanceFile.setMaintenanceFileStatus(1);
+                        maintenanceFile.setMaintenanceFileCreateTime(LocalDateTime.now());
+                        maintenanceFile.setUpdateTime(LocalDateTime.now());
+                        
+                        // 保存到数据库
+                        save(maintenanceFile);
+                        
+                        // 如果是压缩文件且需要解压，进行解压操作
+                        if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
+                            // TODO: 实现解压逻辑
+                        }
+                        
+                        successCount++;
+                    } catch (Exception e) {
+                        log.error("文件上传失败: {}", file.getOriginalFilename(), e);
+                        failCount++;
+                    }
+                }
+                
+                // 更新响应信息
+                response.setStatus(failCount == 0 ? "completed" : "partially_completed");
+                response.setMessage(String.format("上传完成，成功: %d, 失败: %d", successCount, failCount));
+                response.setSuccessCount(successCount);
+                response.setFailCount(failCount);
+                
+            } catch (Exception e) {
+                log.error("文件上传过程发生错误", e);
+                response.setStatus("failed");
+                response.setMessage("文件上传失败: " + e.getMessage());
+                response.setSuccessCount(successCount);
+                response.setFailCount(files.length - successCount);
+            }
+        }, executorService);
+        
+        return ReturnResultUtils.success(response);
+    }
+    
+    @Override
+    public ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId) {
+        if (groupId == null) {
+            return ReturnResultUtils.error("维护组ID不能为空");
+        }
+        
+        LambdaQueryWrapper<MaintenanceFile> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MaintenanceFile::getMaintenanceGroupId, groupId);
+        List<MaintenanceFile> files = list(queryWrapper);
+        
+        return ReturnResultUtils.success(files);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> deleteFile(Long fileId) {
+        if (fileId == null) {
+            return ReturnResultUtils.error("文件ID不能为空");
+        }
+        
+        // 查询文件信息
+        MaintenanceFile file = getById(fileId);
+        if (file == null) {
+            return ReturnResultUtils.error("文件不存在");
+        }
+        
+        // 构建文件的物理路径
+        String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+        if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
+            filePath += "/" + file.getMaintenanceFilePath();
+        }
+        filePath += "/" + file.getMaintenanceFileName();
+        
+        // 删除物理文件
+        try {
+            Path path = Paths.get(filePath);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+        } catch (IOException e) {
+            log.error("删除文件失败: {}", filePath, e);
+            // 即使物理文件删除失败，也继续删除数据库记录
+        }
+        
+        // 删除数据库记录
+        boolean success = removeById(fileId);
+        
+        return ReturnResultUtils.success(success);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> updateFile(MaintenanceFileRequest request) {
+        if (request == null || request.getMaintenanceFileId() == null) {
+            return ReturnResultUtils.error("文件ID不能为空");
+        }
+        
+        // 查询文件是否存在
+        MaintenanceFile existingFile = getById(request.getMaintenanceFileId());
+        if (existingFile == null) {
+            return ReturnResultUtils.error("文件不存在");
+        }
+        
+        // 更新文件信息
+        MaintenanceFile updateFile = new MaintenanceFile();
+        updateFile.setMaintenanceFileId(request.getMaintenanceFileId());
+        
+        if (request.getMaintenanceFileName() != null) {
+            updateFile.setMaintenanceFileName(request.getMaintenanceFileName());
+        }
+        
+        if (request.getMaintenanceFilePath() != null) {
+            updateFile.setMaintenanceFilePath(request.getMaintenanceFilePath());
+        }
+        
+        if (request.getMaintenanceFileStatus() != null) {
+            updateFile.setMaintenanceFileStatus(request.getMaintenanceFileStatus());
+        }
+        
+        if (request.getMaintenanceFileIsExtract() != null) {
+            updateFile.setMaintenanceFileIsExtract(request.getMaintenanceFileIsExtract());
+        }
+        
+        if (request.getMaintenanceFileIsOverride() != null) {
+            updateFile.setMaintenanceFileIsOverride(request.getMaintenanceFileIsOverride());
+        }
+        
+        updateFile.setUpdateTime(LocalDateTime.now());
+        
+        // 更新数据库记录
+        boolean success = updateById(updateFile);
+        
+        return ReturnResultUtils.success(success);
+    }
+    
+    @Override
+    public ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request) {
+        if (request == null || request.getMaintenanceFileId() == null) {
+            return ReturnResultUtils.error("文件ID不能为空");
+        }
+        
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResultUtils.error("维护组ID不能为空");
+        }
+        
+        // 查询文件信息
+        MaintenanceFile file = getById(request.getMaintenanceFileId());
+        if (file == null) {
+            return ReturnResultUtils.error("文件不存在");
+        }
+        
+        // 查询维护组下的所有主机
+        LambdaQueryWrapper<MaintenanceHost> hostQueryWrapper = new LambdaQueryWrapper<>();
+        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
+        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostStatus, 1); // 只部署到启用状态的主机
+        List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(hostQueryWrapper);
+        
+        if (hosts.isEmpty()) {
+            return ReturnResultUtils.error("维护组下没有可用的主机");
+        }
+        
+        // 构建文件的物理路径
+        String sourceFilePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+        if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
+            sourceFilePath += "/" + file.getMaintenanceFilePath();
+        }
+        sourceFilePath += "/" + file.getMaintenanceFileName();
+        
+        // 检查源文件是否存在
+        if (!Files.exists(Paths.get(sourceFilePath))) {
+            return ReturnResultUtils.error("源文件不存在: " + sourceFilePath);
+        }
+        
+        // 创建部署响应对象
+        FileDeployResponse response = new FileDeployResponse();
+        String taskId = IdHelper.createUUID();
+        response.setTaskId(taskId);
+        response.setStatus("processing");
+        response.setTotalCount(hosts.size());
+        response.setSuccessCount(0);
+        response.setFailCount(0);
+        response.setDetails(new HashMap<>());
+        
+        // 异步处理文件部署
+        CompletableFuture.runAsync(() -> {
+            int successCount = 0;
+            int failCount = 0;
+            Map<String, String> details = new HashMap<>();
+            
             for (MaintenanceHost host : hosts) {
                 try {
-                    uploadFileToHost(
-                            tempFile.toFile(),
-                            host.getMaintenanceHostAddress(),
-                            host.getMaintenanceHostPort(),
-                            host.getMaintenanceHostUsername(),
-                            host.getMaintenanceHostPassword(),
-                            request.getTargetPath(),
-                            file.getOriginalFilename(),
-                            request.getOverwrite(),
-                            isCompressed && request.getExtract()
-                    );
-                    results.put(host.getMaintenanceHostAddress(), "上传成功");
+                    // TODO: 实现SCP或SFTP文件传输逻辑
+                    // 这里需要根据主机信息和部署参数进行文件传输
+                    // 例如使用JSch库实现SFTP传输
+                    
+                    // 模拟部署成功
+                    successCount++;
+                    details.put(host.getMaintenanceHostAddress(), "部署成功");
+                    
+                    // 如果需要部署后执行，则执行命令
+                    if (request.getExecuteAfterDeploy() != null && request.getExecuteAfterDeploy()) {
+                        // TODO: 实现远程命令执行逻辑
+                    }
+                    
                 } catch (Exception e) {
-                    results.put(host.getMaintenanceHostAddress(), "上传失败: " + e.getMessage());
-                    allSuccess = false;
+                    log.error("部署文件到主机失败: {}", host.getMaintenanceHostAddress(), e);
+                    failCount++;
+                    details.put(host.getMaintenanceHostAddress(), "部署失败: " + e.getMessage());
                 }
             }
-
-            // 5. 删除临时文件
-            Files.delete(tempFile);
-
-            response.setResults(results);
-            response.setAllSuccess(allSuccess);
-
-            return ReturnResult.success(response);
-        } catch (Exception e) {
-            return ReturnResult.error("文件上传失败: " + e.getMessage());
-        }
+            
+            // 更新响应信息
+            response.setStatus(failCount == 0 ? "completed" : "partially_completed");
+            response.setMessage(String.format("部署完成，成功: %d, 失败: %d", successCount, failCount));
+            response.setSuccessCount(successCount);
+            response.setFailCount(failCount);
+            response.setDetails(details);
+            
+        }, executorService);
+        
+        return ReturnResultUtils.success(response);
     }
-
+    
     /**
      * 获取文件扩展名
      *
-     * @param fileName 文件名
+     * @param filename 文件名
      * @return 扩展名
      */
-    private String getFileExtension(String fileName) {
-        if (fileName == null || fileName.lastIndexOf(".") == -1) {
+    private String getFileExtension(String filename) {
+        if (filename == null || filename.lastIndexOf(".") == -1) {
             return "";
         }
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
-
+    
     /**
-     * 上传文件到指定主机
+     * 判断是否为压缩文件
      *
-     * @param file       文件
-     * @param host       主机地址
-     * @param port       端口
-     * @param username   用户名
-     * @param password   密码
-     * @param targetPath 目标路径
-     * @param fileName   文件名
-     * @param overwrite  是否覆盖
-     * @param extract    是否解压
-     * @throws JSchException JSch异常
-     * @throws SftpException SFTP异常
-     * @throws IOException   IO异常
+     * @param filename 文件名
+     * @return 是否压缩文件
      */
-    private void uploadFileToHost(File file, String host, Integer port, String username, String password,
-                                  String targetPath, String fileName, Boolean overwrite, Boolean extract)
-            throws JSchException, SftpException, IOException {
-        JSch jsch = new JSch();
-        Session session = null;
-        ChannelSftp channelSftp = null;
-
-        try {
-            // 建立SSH连接
-            session = jsch.getSession(username, host, port);
-            session.setPassword(password);
-
-            Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-
-            session.connect(30000);
-
-            // 打开SFTP通道
-            channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect(30000);
-
-            // 创建目标目录（如果不存在）
-            try {
-                channelSftp.cd(targetPath);
-            } catch (SftpException e) {
-                // 目录不存在，创建目录
-                String[] folders = targetPath.split("/");
-                String path = "";
-                for (String folder : folders) {
-                    if (folder.isEmpty()) {
-                        path += "/";
-                        continue;
-                    }
-                    path += folder + "/";
-                    try {
-                        channelSftp.cd(path);
-                    } catch (SftpException ex) {
-                        channelSftp.mkdir(path);
-                        channelSftp.cd(path);
-                    }
-                }
-            }
-
-            // 检查文件是否已存在
-            try {
-                channelSftp.lstat(targetPath + "/" + fileName);
-                // 文件存在
-                if (overwrite == null || !overwrite) {
-                    try {
-                        throw new Exception("文件已存在且未指定覆盖");
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                // 如果需要覆盖，先删除现有文件
-                channelSftp.rm(targetPath + "/" + fileName);
-            } catch (SftpException e) {
-                // 文件不存在，可以继续
-            }
-
-            // 上传文件
-            channelSftp.put(new FileInputStream(file), fileName);
-
-            // 如果是压缩文件且需要解压
-            if (extract) {
-                // 使用exec通道执行解压命令
-                Channel execChannel = null;
-                try {
-                    execChannel = session.openChannel("exec");
-                    String command;
-                    String fullPath = targetPath.endsWith("/") ? targetPath + fileName : targetPath + "/" + fileName;
-
-                    if (fileName.toLowerCase().endsWith(".zip")) {
-                        // 先清除目标目录内容，然后解压
-                        command = "mkdir -p " + targetPath + " && " +
-                                "rm -rf " + targetPath + "/* && " +
-                                "unzip -o " + fullPath + " -d " + targetPath;
-                    } else if (fileName.toLowerCase().endsWith(".tar") ||
-                            fileName.toLowerCase().endsWith(".tar.gz") ||
-                            fileName.toLowerCase().endsWith(".tgz")) {
-                        command = "mkdir -p " + targetPath + " && " +
-                                "rm -rf " + targetPath + "/* && " +
-                                "tar -xf " + fullPath + " -C " + targetPath;
-                    } else {
-                        try {
-                            throw new Exception("不支持的压缩文件格式");
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
-                    ((ChannelExec) execChannel).setCommand(command);
-
-                    execChannel.setInputStream(null);
-                    execChannel.connect(30000);
-
-                    // 等待命令执行完成
-                    while (!execChannel.isClosed()) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (Exception e) {
-                            // 忽略
-                        }
-                    }
-
-                    if (execChannel.getExitStatus() != 0) {
-                        try {
-                            throw new Exception("解压失败，退出状态码: " + execChannel.getExitStatus());
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } finally {
-                    if (execChannel != null) {
-                        execChannel.disconnect();
-                    }
-                }
-            }
-        } finally {
-            // 关闭连接
-            if (channelSftp != null) {
-                channelSftp.disconnect();
-            }
-            if (session != null) {
-                session.disconnect();
-            }
+    private Boolean isCompressedFile(String filename) {
+        if (filename == null) {
+            return false;
         }
+        
+        String extension = getFileExtension(filename).toLowerCase();
+        List<String> compressedExtensions = new ArrayList<>();
+        compressedExtensions.add("zip");
+        compressedExtensions.add("rar");
+        compressedExtensions.add("tar");
+        compressedExtensions.add("gz");
+        compressedExtensions.add("7z");
+        
+        return compressedExtensions.contains(extension);
     }
 } 

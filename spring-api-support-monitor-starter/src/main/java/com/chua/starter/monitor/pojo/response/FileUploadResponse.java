@@ -3,8 +3,6 @@ package com.chua.starter.monitor.pojo.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
  * 文件上传响应对象
  *
@@ -15,14 +13,38 @@ import java.util.Map;
 public class FileUploadResponse {
 
     /**
-     * 上传结果，键为主机地址，值为上传结果
+     * 任务ID
      */
-    @Schema(description = "上传结果，键为主机地址，值为上传结果")
-    private Map<String, String> results;
-
+    @Schema(description = "任务ID")
+    private String taskId;
+    
     /**
-     * 是否全部成功
+     * 上传状态
      */
-    @Schema(description = "是否全部成功")
-    private Boolean allSuccess;
+    @Schema(description = "上传状态")
+    private String status;
+    
+    /**
+     * 成功上传文件数
+     */
+    @Schema(description = "成功上传文件数")
+    private Integer successCount;
+    
+    /**
+     * 失败上传文件数
+     */
+    @Schema(description = "失败上传文件数")
+    private Integer failCount;
+    
+    /**
+     * 总文件数
+     */
+    @Schema(description = "总文件数")
+    private Integer totalCount;
+    
+    /**
+     * 详细信息
+     */
+    @Schema(description = "详细信息")
+    private String message;
 } 
