@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @author CH
  */
 @Data
-@TableName("t_maintenance_host")
+@TableName("maintenance_host")
 @Schema(description = "维护主机")
 public class MaintenanceHost {
 
