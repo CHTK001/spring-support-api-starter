@@ -94,9 +94,14 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
      * @return 上传结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<FileUploadResponse> uploadFile(MultipartFile file, FileUploadRequest request) {
         if (file == null || file.isEmpty()) {
             return ReturnResult.error("上传文件不能为空");
+        }
+        
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
         }
         
         FileUploadResponse response = new FileUploadResponse();
@@ -158,7 +163,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 // 保存到数据库
                 save(maintenanceFile);
                 log.info("文件信息已保存到数据库，文件ID: {}", maintenanceFile.getMaintenanceFileId());
-
+                
                 // 记录操作日志
                 logOperation(maintenanceFile, 7, "上传文件", true, null);
                 
@@ -187,6 +192,10 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     public ReturnResult<FileUploadResponse> uploadFiles(MultipartFile[] files, FileUploadRequest request) {
         if (files == null || files.length == 0) {
             return ReturnResult.error("上传文件不能为空");
+        }
+        
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
         }
         
         FileUploadResponse response = new FileUploadResponse();

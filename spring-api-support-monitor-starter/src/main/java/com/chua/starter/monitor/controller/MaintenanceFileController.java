@@ -39,9 +39,9 @@ public class MaintenanceFileController {
      *
      * @param file              文件
      * @param maintenanceGroupId 维护组ID
-     * @param maintenanceFilePath 目标路径
-     * @param maintenanceFileExtract 是否解压 (1:是, 0:否)
-     * @param maintenanceFileOverride 是否覆盖 (1:是, 0:否)
+     * @param targetPath 目标路径
+     * @param extract 是否解压 (1:是, 0:否)
+     * @param overwrite 是否覆盖 (1:是, 0:否)
      * @return 上传结果
      */
     @PutMapping("/upload")
@@ -49,17 +49,53 @@ public class MaintenanceFileController {
     public ReturnResult<FileUploadResponse> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("maintenanceGroupId") Long maintenanceGroupId,
-            @RequestParam(value = "maintenanceFilePath", defaultValue = "/") String maintenanceFilePath,
-            @RequestParam(value = "maintenanceFileExtract", defaultValue = "0") Integer maintenanceFileExtract,
-            @RequestParam(value = "maintenanceFileOverride", defaultValue = "0") Integer maintenanceFileOverride) {
+            @RequestParam(value = "targetPath", defaultValue = "/") String targetPath,
+            @RequestParam(value = "extract", required = false) Boolean extract,
+            @RequestParam(value = "overwrite", required = false) Boolean overwrite) {
+
+        if (maintenanceGroupId == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
 
         FileUploadRequest request = new FileUploadRequest();
         request.setMaintenanceGroupId(maintenanceGroupId);
-        request.setTargetPath(maintenanceFilePath);
-        request.setExtract(maintenanceFileExtract == 1);
-        request.setOverwrite(maintenanceFileOverride == 1);
+        request.setTargetPath(targetPath);
+        request.setExtract(extract);
+        request.setOverwrite(overwrite);
 
         return maintenanceFileService.uploadFile(file, request);
+    }
+    
+    /**
+     * 批量上传文件
+     *
+     * @param files             文件数组
+     * @param maintenanceGroupId 维护组ID
+     * @param targetPath 目标路径
+     * @param extract 是否解压 (1:是, 0:否)
+     * @param overwrite 是否覆盖 (1:是, 0:否)
+     * @return 上传结果
+     */
+    @PutMapping("/upload/batch")
+    @Operation(summary = "批量上传文件")
+    public ReturnResult<FileUploadResponse> uploadFiles(
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("maintenanceGroupId") Long maintenanceGroupId,
+            @RequestParam(value = "targetPath", defaultValue = "/") String targetPath,
+            @RequestParam(value = "extract", required = false) Boolean extract,
+            @RequestParam(value = "overwrite", required = false) Boolean overwrite) {
+
+        if (maintenanceGroupId == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
+
+        FileUploadRequest request = new FileUploadRequest();
+        request.setMaintenanceGroupId(maintenanceGroupId);
+        request.setTargetPath(targetPath);
+        request.setExtract(extract);
+        request.setOverwrite(overwrite);
+
+        return maintenanceFileService.uploadFiles(files, request);
     }
     
     /**
