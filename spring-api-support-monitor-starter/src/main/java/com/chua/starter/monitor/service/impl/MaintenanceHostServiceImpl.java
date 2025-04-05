@@ -141,7 +141,6 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
             
             LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, maintenanceGroupId);
-            queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, true);
 
             List<MaintenanceHost> maintenanceHosts = maintenanceHostMapper.selectList(queryWrapper);
 
