@@ -23,7 +23,7 @@ import java.util.List;
  * @author CH
  */
 @RestController
-@RequestMapping("/api/maintenance/file")
+@RequestMapping("/v1/maintenance/file")
 @Tag(name = "维护文件管理")
 public class MaintenanceFileController {
 
@@ -113,5 +113,17 @@ public class MaintenanceFileController {
             @RequestBody FileDeployRequest request) {
         request.setMaintenanceFileId(id);
         return maintenanceFileService.deployFile(request);
+    }
+    
+    /**
+     * 同步文件到远程主机
+     *
+     * @param id 文件ID
+     * @return 同步任务ID
+     */
+    @PostMapping("/{id}/sync")
+    @Operation(summary = "同步文件到远程主机", description = "将指定文件同步到维护组下所有启用的主机，返回同步任务ID")
+    public ReturnResult<String> syncFile(@PathVariable("id") Long id) {
+        return maintenanceFileService.syncFile(id);
     }
 } 
