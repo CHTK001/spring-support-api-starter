@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,6 +47,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * 维护文件服务实现
@@ -77,6 +79,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
      * 日志服务
      */
     final MaintenanceLogService maintenanceLogService;
+
+    /**
+     * Socket会话模板
+     */
+    final SocketSessionTemplate socketSessionTemplate;
 
     @Value("${maintenance.file.upload.path:/data/maintenance/files}")
     private String uploadBasePath;
@@ -153,6 +160,9 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 
                 // 保存到数据库
                 save(maintenanceFile);
+
+                // 记录操作日志
+                logOperation(maintenanceFile, 7, "上传文件", true, null);
                 
                 // 如果是压缩文件且需要解压，进行解压操作
                 if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
@@ -198,22 +208,17 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setMessage("文件上传成功");
                 response.setSuccessCount(1);
                 response.setFailCount(0);
-                
             } catch (Exception e) {
-                log.error("文件上传失败", e);
+                log.error("文件上传失败: {}", e.getMessage(), e);
+                success = false;
                 message = "文件上传失败: " + e.getMessage();
                 response.setStatus("failed");
                 response.setMessage(message);
-                response.setSuccessCount(0);
                 response.setFailCount(1);
-            }
-            
-            // 记录操作日志
-            if (maintenanceFile != null) {
-                logOperation(maintenanceFile, 7, "上传文件", success, message);
+                response.setSuccessCount(0);
             }
         }, executorService);
-
+        
         return ReturnResult.success(response);
     }
     
@@ -365,91 +370,339 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         return ReturnResult.success(files);
     }
     
+    /**
+     * 删除文件
+     *
+     * @param fileId 文件ID
+     * @return 操作结果
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> deleteFile(Long fileId) {
-        if (fileId == null) {
-            return ReturnResult.error("文件ID不能为空");
-        }
-        
-        // 查询文件信息
         MaintenanceFile file = getById(fileId);
         if (file == null) {
             return ReturnResult.error("文件不存在");
         }
         
-        // 构建文件的物理路径
-        String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
-        if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
-            filePath += "/" + file.getMaintenanceFilePath();
-        }
-        filePath += "/" + file.getMaintenanceFileName();
-        
-        // 删除物理文件
         try {
-            Path path = Paths.get(filePath);
-            if (Files.exists(path)) {
-                Files.delete(path);
+            // 获取文件的本地存储路径
+            String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+            if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
+                filePath += "/" + file.getMaintenanceFilePath();
             }
-        } catch (IOException e) {
-            log.error("删除文件失败: {}", filePath, e);
-            // 即使物理文件删除失败，也继续删除数据库记录
+            filePath += "/" + file.getMaintenanceFileName();
+            
+            // 记录操作日志
+            logOperation(file, 3, "删除文件", true, null);
+            
+            // 从数据库删除
+            boolean removed = removeById(fileId);
+            if (!removed) {
+                return ReturnResult.error("删除文件记录失败");
+            }
+            
+            // 然后尝试删除物理文件
+            File physicalFile = new File(filePath);
+            if (physicalFile.exists()) {
+                boolean deleted = physicalFile.delete();
+                if (!deleted) {
+                    log.warn("无法删除物理文件: {}", filePath);
+                }
+            }
+            
+            return ReturnResult.success(true);
+        } catch (Exception e) {
+            log.error("删除文件失败: {}", e.getMessage(), e);
+            return ReturnResult.error("删除文件失败: " + e.getMessage());
         }
-        
-        // 删除数据库记录
-        boolean success = removeById(fileId);
-
-        return ReturnResult.success(success);
     }
     
+    /**
+     * 更新文件信息
+     *
+     * @param request 文件信息请求
+     * @return 操作结果
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> updateFile(MaintenanceFileRequest request) {
-        if (request == null || request.getMaintenanceFileId() == null) {
+        if (request.getMaintenanceFileId() == null) {
             return ReturnResult.error("文件ID不能为空");
         }
         
-        // 查询文件是否存在
-        MaintenanceFile existingFile = getById(request.getMaintenanceFileId());
-        if (existingFile == null) {
+        MaintenanceFile file = getById(request.getMaintenanceFileId());
+        if (file == null) {
             return ReturnResult.error("文件不存在");
         }
         
-        // 更新文件信息
-        MaintenanceFile updateFile = new MaintenanceFile();
-        updateFile.setMaintenanceFileId(request.getMaintenanceFileId());
-        
-        if (request.getMaintenanceFileName() != null) {
-            updateFile.setMaintenanceFileName(request.getMaintenanceFileName());
+        try {
+            // 更新文件信息
+            MaintenanceFile updateFile = new MaintenanceFile();
+            updateFile.setMaintenanceFileId(request.getMaintenanceFileId());
+            
+            if (request.getMaintenanceFilePath() != null) {
+                updateFile.setMaintenanceFilePath(request.getMaintenanceFilePath());
+            }
+            
+            if (request.getMaintenanceFileStatus() != null) {
+                updateFile.setMaintenanceFileStatus(request.getMaintenanceFileStatus());
+            }
+            
+            if (request.getMaintenanceFileOverride() != null) {
+                updateFile.setMaintenanceFileIsOverride(request.getMaintenanceFileOverride());
+            }
+            
+            if (request.getMaintenanceFileExtract() != null) {
+                updateFile.setMaintenanceFileIsExtract(request.getMaintenanceFileExtract());
+            }
+            
+            updateFile.setUpdateTime(LocalDateTime.now());
+            
+            boolean updated = updateById(updateFile);
+            if (!updated) {
+                return ReturnResult.error("更新文件信息失败");
+            }
+            
+            // 获取更新后的完整信息
+            MaintenanceFile updatedFile = getById(request.getMaintenanceFileId());
+            
+            // 记录操作日志
+            logOperation(updatedFile, 2, "更新文件信息", true, null);
+            
+            return ReturnResult.success(true);
+        } catch (Exception e) {
+            log.error("更新文件信息失败: {}", e.getMessage(), e);
+            return ReturnResult.error("更新文件信息失败: " + e.getMessage());
         }
-        
-        if (request.getMaintenanceFilePath() != null) {
-            updateFile.setMaintenanceFilePath(request.getMaintenanceFilePath());
-        }
-        
-        if (request.getMaintenanceFileStatus() != null) {
-            updateFile.setMaintenanceFileStatus(request.getMaintenanceFileStatus());
-        }
-        
-        if (request.getMaintenanceFileIsExtract() != null) {
-            updateFile.setMaintenanceFileIsExtract(request.getMaintenanceFileIsExtract());
-        }
-        
-        if (request.getMaintenanceFileIsOverride() != null) {
-            updateFile.setMaintenanceFileIsOverride(request.getMaintenanceFileIsOverride());
-        }
-        
-        updateFile.setUpdateTime(LocalDateTime.now());
-        
-        // 更新数据库记录
-        boolean success = updateById(updateFile);
-
-        return ReturnResult.success(success);
     }
     
+    /**
+     * 部署文件到维护组下的所有主机
+     *
+     * @param request 部署请求
+     * @return 部署结果
+     */
     @Override
     public ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request) {
-        return ReturnResult.success(new FileDeployResponse());
+        if (request.getMaintenanceFileId() == null) {
+            return ReturnResult.error("文件ID不能为空");
+        }
+        
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
+        
+        MaintenanceFile file = getById(request.getMaintenanceFileId());
+        if (file == null) {
+            return ReturnResult.error("文件不存在");
+        }
+        
+        // 生成唯一任务ID
+        String taskId = "file-deploy-" + IdUtils.createUlid();
+        FileDeployResponse response = new FileDeployResponse();
+        response.setTaskId(taskId);
+        
+        // 异步执行部署任务
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 记录操作日志
+                logOperation(file, 8, "部署文件", true, null);
+                
+                // 使用Socket会话通知前端开始部署
+                String eventKey = "event-maintenance-file-" + request.getMaintenanceGroupId();
+                log.debug("发送部署开始事件到前端，eventKey=[{}]", eventKey);
+                socketSessionTemplate.send(eventKey, "开始部署文件 [" + file.getMaintenanceFileName() + "] 到维护组下的主机");
+                
+                // 获取文件的本地存储路径
+                String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+                if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
+                    filePath += "/" + file.getMaintenanceFilePath();
+                }
+                filePath += "/" + file.getMaintenanceFileName();
+                
+                File localFile = new File(filePath);
+                if (!localFile.exists()) {
+                    String errorMsg = "文件不存在: " + filePath;
+                    log.error(errorMsg);
+                    socketSessionTemplate.send(eventKey, errorMsg);
+                    return;
+                }
+                
+                // 获取维护组下所有启用的主机
+                LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
+                queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1);
+                List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
+                
+                if (hosts.isEmpty()) {
+                    String errorMsg = "维护组下没有启用的主机";
+                    log.error(errorMsg);
+                    socketSessionTemplate.send(eventKey, errorMsg);
+                    return;
+                }
+                
+                socketSessionTemplate.send(eventKey, "开始将文件 [" + file.getMaintenanceFileName() + "] 部署到 " + hosts.size() + " 台主机");
+                
+                // 部署文件到每台主机
+                for (MaintenanceHost host : hosts) {
+                    try {
+                        log.info("正在将文件 [{}] 部署到主机 [{}]", file.getMaintenanceFileName(), host.getMaintenanceHostAddress());
+                        socketSessionTemplate.send(eventKey, "正在将文件 [" + file.getMaintenanceFileName() + "] 部署到主机 [" + host.getMaintenanceHostAddress() + "]");
+                        
+                        // 上传文件到远程主机
+                        boolean overwrite = file.getMaintenanceFileIsOverride() != null && file.getMaintenanceFileIsOverride() == 1;
+                        boolean extract = file.getMaintenanceFileIsExtract() != null && file.getMaintenanceFileIsExtract() == 1;
+                        
+                        uploadFileToHost(localFile, host, file.getMaintenanceFilePath(), file.getMaintenanceFileName(), overwrite, extract);
+                        
+                        log.info("文件 [{}] 已成功部署到主机 [{}]", file.getMaintenanceFileName(), host.getMaintenanceHostAddress());
+                        socketSessionTemplate.send(eventKey, "文件 [" + file.getMaintenanceFileName() + "] 已成功部署到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    } catch (Exception e) {
+                        String errorMsg = "将文件 [" + file.getMaintenanceFileName() + "] 部署到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage();
+                        log.error(errorMsg, e);
+                        socketSessionTemplate.send(eventKey, errorMsg);
+                    }
+                }
+                
+                socketSessionTemplate.send(eventKey, "文件 [" + file.getMaintenanceFileName() + "] 部署完成");
+                log.info("文件 [{}] 部署完成", file.getMaintenanceFileName());
+            } catch (Exception e) {
+                log.error("部署文件失败: {}", e.getMessage(), e);
+            }
+        }, executorService);
+        
+        return ReturnResult.success(response);
+    }
+
+    /**
+     * 同步文件到远程主机
+     * 将指定文件同步到维护组下的所有启用主机
+     *
+     * @param fileId 文件ID
+     * @return 同步任务ID
+     */
+    @Override
+    public ReturnResult<String> syncFile(Long fileId) {
+        try {
+            MaintenanceFile maintenanceFile = getById(fileId);
+            if (maintenanceFile == null) {
+                log.error("同步文件失败: 文件 [{}] 不存在", fileId);
+                return ReturnResult.error("维护文件不存在");
+            }
+            
+            log.info("开始同步文件 [{}]({}) 到维护组 [{}] 下的所有主机", 
+                maintenanceFile.getMaintenanceFileName(), 
+                fileId,
+                maintenanceFile.getMaintenanceGroupId());
+            
+            // 生成唯一任务ID
+            String taskId = "file-sync-" + IdUtils.createUlid();
+            
+            // 记录操作日志
+            logOperation(maintenanceFile, 4, "同步维护文件", true, null);
+            
+            // 使用Socket会话通知前端开始同步
+            String eventKey = "event-maintenance-file-" + maintenanceFile.getMaintenanceGroupId();
+            log.debug("发送同步开始事件到前端，eventKey=[{}]", eventKey);
+            socketSessionTemplate.send(eventKey, "开始同步文件 [" + maintenanceFile.getMaintenanceFileName() + "]");
+            
+            // 异步将文件同步到维护组下所有主机
+            CompletableFuture.runAsync(() -> {
+                try {
+                    log.info("正在执行异步同步文件任务...");
+                    syncFileToHosts(maintenanceFile, taskId);
+                    socketSessionTemplate.send(eventKey, "文件 [" + maintenanceFile.getMaintenanceFileName() + "] 同步完成");
+                    log.info("文件 [{}] 同步完成", maintenanceFile.getMaintenanceFileName());
+                } catch (Exception e) {
+                    log.error("同步文件到主机失败: {}", e.getMessage(), e);
+                    socketSessionTemplate.send(eventKey, "文件 [" + maintenanceFile.getMaintenanceFileName() + "] 同步失败: " + e.getMessage());
+                }
+            }, executorService);
+            
+            log.info("同步文件请求已提交，文件 [{}]({}), 任务ID: {}", 
+                maintenanceFile.getMaintenanceFileName(), 
+                fileId,
+                taskId);
+            return ReturnResult.success(taskId);
+        } catch (Exception e) {
+            log.error("同步维护文件失败: {}", e.getMessage(), e);
+            return ReturnResult.error("同步维护文件失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 同步文件到维护组下所有启用的主机
+     *
+     * @param file 文件信息
+     * @param taskId 任务ID
+     */
+    private void syncFileToHosts(MaintenanceFile file, String taskId) {
+        // 获取维护组下所有启用的主机
+        LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, file.getMaintenanceGroupId());
+        queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1);
+        List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
+        
+        if (hosts.isEmpty()) {
+            log.warn("维护组 [{}] 下没有启用的主机，文件同步操作已跳过", file.getMaintenanceGroupId());
+            String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
+            socketSessionTemplate.send(eventKey, "同步文件失败，维护组下没有启用的主机");
+            return;
+        }
+        
+        String filePath = file.getMaintenanceFilePath();
+        String fileName = file.getMaintenanceFileName();
+        String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
+        
+        log.info("开始同步文件 [{}] 到维护组 [{}] 下的 {} 台主机", 
+            fileName, file.getMaintenanceGroupId(), hosts.size());
+        
+        socketSessionTemplate.send(eventKey, "开始将文件 [" + fileName + "] 同步到 " + hosts.size() + " 台主机");
+        
+        // 获取本地文件路径
+        String localFilePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+        if (filePath != null && !filePath.isEmpty() && !"/".equals(filePath)) {
+            localFilePath += "/" + filePath;
+        }
+        localFilePath += "/" + fileName;
+        
+        File localFile = new File(localFilePath);
+        if (!localFile.exists()) {
+            log.error("同步文件失败: 本地文件 [{}] 不存在", localFilePath);
+            socketSessionTemplate.send(eventKey, "同步文件失败: 本地文件 [" + fileName + "] 不存在");
+            return;
+        }
+        
+        // 为每个主机上传文件
+        List<CompletableFuture<Void>> futures = hosts.stream()
+            .map(host -> CompletableFuture.runAsync(() -> {
+                try {
+                    log.info("正在将文件 [{}] 上传到主机 [{}]", 
+                        fileName, host.getMaintenanceHostAddress());
+                    
+                    socketSessionTemplate.send(eventKey, "正在将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    
+                    // 上传文件到远程主机
+                    boolean overwrite = file.getMaintenanceFileOverride() != null && file.getMaintenanceFileOverride() == 1;
+                    boolean extract = file.getMaintenanceFileIsExtract() != null && file.getMaintenanceFileIsExtract() == 1;
+                    
+                    uploadFileToHost(localFile, host, filePath, fileName, overwrite, extract);
+                    
+                    socketSessionTemplate.send(eventKey, "已成功将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    log.info("已成功将文件 [{}] 上传到主机 [{}]", fileName, host.getMaintenanceHostAddress());
+                } catch (Exception e) {
+                    String errorMessage = "将文件 [" + fileName + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage();
+                    socketSessionTemplate.send(eventKey, errorMessage);
+                    log.error(errorMessage, e);
+                }
+            }, executorService))
+            .collect(Collectors.toList());
+        
+        // 等待所有上传任务完成
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        
+        socketSessionTemplate.send(eventKey, "文件 [" + fileName + "] 同步完成");
+        log.info("文件 [{}] 同步到 {} 台主机的任务已完成", fileName, hosts.size());
     }
 
     /**
@@ -783,50 +1036,42 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     /**
      * 记录操作日志
      *
-     * @param file           文件对象
-     * @param operationType  操作类型
-     * @param operationDesc  操作描述
-     * @param result         操作结果
-     * @param resultMessage  结果消息
+     * @param file 文件信息
+     * @param operationType 操作类型：1-创建，2-更新，3-删除，4-同步，8-部署
+     * @param operationDesc 操作描述
+     * @param result 操作结果
+     * @param resultMessage 结果消息
      */
     private void logOperation(MaintenanceFile file, Integer operationType, String operationDesc, Boolean result, String resultMessage) {
         try {
+            log.debug("记录文件 [{}]({}) 的操作日志: [{}] [{}] [{}]", 
+                file.getMaintenanceFileName(), 
+                file.getMaintenanceFileId(),
+                operationType, 
+                operationDesc,
+                result ? "成功" : "失败");
+                
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String ipAddress = getClientIp(request);
+            
             MaintenanceLogRequest logRequest = new MaintenanceLogRequest();
             logRequest.setMaintenanceGroupId(file.getMaintenanceGroupId());
-            logRequest.setMaintenanceFileId(file.getMaintenanceFileId());
+            logRequest.setTargetType(4); // 4表示文件
+            logRequest.setTargetId(file.getMaintenanceFileId());
             logRequest.setOperationType(operationType);
-            logRequest.setTargetType(4); // 4表示维护文件
-            
-            // 构建操作详情JSON
-            Map<String, Object> details = new HashMap<>();
-            details.put("maintenanceFileId", file.getMaintenanceFileId());
-            details.put("maintenanceFileName", file.getMaintenanceFileName());
-            details.put("maintenanceFilePath", file.getMaintenanceFilePath());
-            details.put("operationDesc", operationDesc);
-            logRequest.setOperationDetails(JSON.toJSONString(details));
-            
-            // 设置操作结果
+            logRequest.setOperationDesc(operationDesc);
             logRequest.setOperationResult(result);
-            logRequest.setResultMessage(resultMessage);
+            logRequest.setOperationMessage(resultMessage);
+            logRequest.setOperationIp(ipAddress);
             
-            // 获取客户端IP
-            String ipAddress = "127.0.0.1";
-            try {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (attributes != null) {
-                    HttpServletRequest request = attributes.getRequest();
-                    ipAddress = getClientIp(request);
-                }
-            } catch (Exception e) {
-                // 忽略获取IP过程中的异常
+            ReturnResult<Boolean> logResult = maintenanceLogService.logOperation(logRequest);
+            if (!logResult.getSuccess()) {
+                log.warn("记录文件操作日志失败: {}", logResult.getMessage());
+            } else {
+                log.debug("文件操作日志记录成功");
             }
-            logRequest.setIpAddress(ipAddress);
-            
-            // 调用日志服务记录日志
-            maintenanceLogService.logOperation(logRequest);
         } catch (Exception e) {
-            // 记录日志失败不应影响主业务逻辑
-            log.error("记录操作日志失败: {}", e.getMessage(), e);
+            log.error("记录文件操作日志异常: {}", e.getMessage(), e);
         }
     }
     
