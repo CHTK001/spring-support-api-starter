@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MaintenanceScriptMapper">
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        maintenance_script_id, maintenance_group_id, maintenance_script_name, maintenance_script_content,
+        maintenance_script_path, maintenance_script_status, maintenance_script_create_time, maintenance_script_update_time
+    </sql>
+
+    <!-- 获取脚本列表 -->
+    <select id="selectScriptsByGroupId" resultType="com.chua.starter.monitor.entity.MaintenanceScript">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_maintenance_script
+        <where>
+            <if test="groupId != null">
+                maintenance_group_id = #{groupId}
+            </if>
+            <if test="status != null">
+                AND maintenance_script_status = #{status}
+            </if>
+        </where>
+        ORDER BY maintenance_script_create_time DESC
+    </select>
+
+    <!-- 根据ID获取脚本 -->
+    <select id="selectScriptById" resultType="com.chua.starter.monitor.entity.MaintenanceScript">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_maintenance_script
+        WHERE maintenance_script_id = #{maintenanceScriptId}
+    </select>
+</mapper> 

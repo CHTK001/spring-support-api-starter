@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,6 +36,7 @@ public class VideoDownload extends SysBase {
     @TableField(value = "video_id")
     @ApiModelProperty(value = "视频ID")
     @Schema(description = "视频ID")
+    @NotNull(message = "视频ID不能为空", groups = {AddGroup.class})
     private Integer videoId;
 
     /**
