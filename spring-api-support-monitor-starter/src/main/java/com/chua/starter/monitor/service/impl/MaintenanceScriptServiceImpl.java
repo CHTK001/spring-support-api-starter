@@ -114,6 +114,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         try {
             MaintenanceScript maintenanceScript = maintenanceScriptMapper.selectById(maintenanceScriptId);
             if (maintenanceScript == null) {
+                logger.error("删除脚本失败: 脚本 [{}] 不存在", maintenanceScriptId);
                 return ReturnResult.error("维护脚本不存在");
             }
             
@@ -122,29 +123,37 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             Long groupId = maintenanceScript.getMaintenanceGroupId();
             String scriptName = maintenanceScript.getMaintenanceScriptName();
             
+            logger.info("开始删除脚本 [{}]({}) 及其在维护组 [{}] 下所有主机上的副本", 
+                scriptName, maintenanceScriptId, groupId);
+            
             // 记录操作日志
             logOperation(maintenanceScript, 3, "删除维护脚本", true, null);
             
             maintenanceScriptMapper.deleteById(maintenanceScriptId);
+            logger.info("已从数据库删除脚本 [{}]({})", scriptName, maintenanceScriptId);
             
             // 使用Socket会话通知前端开始删除远程主机上的脚本
             String eventKey = "event-maintenance-script-" + groupId;
+            logger.debug("发送脚本删除事件到前端，eventKey=[{}]", eventKey);
             socketSessionTemplate.send(eventKey, "开始从远程主机删除脚本 [" + scriptName + "]");
             
             // 异步删除维护组下所有主机上的脚本
             CompletableFuture.runAsync(() -> {
                 try {
+                    logger.info("开始异步删除远程主机上的脚本 [{}]", scriptPath);
                     deleteScriptFromHosts(groupId, scriptPath);
                     socketSessionTemplate.send(eventKey, "脚本 [" + scriptName + "] 已从所有远程主机删除");
+                    logger.info("脚本 [{}] 已从所有远程主机删除完成", scriptName);
                 } catch (Exception e) {
-                    logger.error("自动删除主机上的脚本失败: {}", e.getMessage(), e);
+                    logger.error("从远程主机删除脚本 [{}] 失败: {}", scriptName, e.getMessage(), e);
                     socketSessionTemplate.send(eventKey, "从远程主机删除脚本 [" + scriptName + "] 失败: " + e.getMessage());
                 }
             });
             
+            logger.info("删除脚本 [{}]({}) 的请求已处理完成", scriptName, maintenanceScriptId);
             return ReturnResult.success(true);
         } catch (Exception e) {
-            logger.error("删除维护脚本失败", e);
+            logger.error("删除维护脚本失败: {}", e.getMessage(), e);
             return ReturnResult.error("删除维护脚本失败: " + e.getMessage());
         }
     }
@@ -164,26 +173,35 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         
         if (hosts.isEmpty()) {
             logger.warn("维护组 [{}] 下没有启用的主机，脚本同步操作已跳过", script.getMaintenanceGroupId());
-            socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "同步脚本失败，维护组下没有启用的主机");
+            String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+            socketSessionTemplate.send(eventKey, "同步脚本失败，维护组下没有启用的主机");
             return;
         }
         
         String scriptContent = script.getMaintenanceScriptContent();
         String scriptPath = script.getMaintenanceScriptPath();
+        String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+        
+        logger.info("开始同步脚本 [{}] 到维护组 [{}] 下的 {} 台主机", 
+            scriptPath, script.getMaintenanceGroupId(), hosts.size());
         
         // 为每个主机上传脚本
         List<CompletableFuture<Void>> futures = hosts.stream()
             .map(host -> CompletableFuture.runAsync(() -> {
                 try {
-                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "正在将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    logger.info("正在将脚本 [{}] {} 到主机 [{}]", 
+                        scriptPath, isOverwrite ? "更新" : "上传", host.getMaintenanceHostAddress());
+                    
+                    socketSessionTemplate.send(eventKey, "正在将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
                     uploadScriptToHost(host, scriptContent, scriptPath, isOverwrite);
-                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "已成功将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
+                    
+                    socketSessionTemplate.send(eventKey, "已成功将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "]");
                     logger.info("已成功将脚本 [{}] {} 到主机 [{}]", 
                         scriptPath, 
                         isOverwrite ? "更新" : "上传", 
                         host.getMaintenanceHostAddress());
                 } catch (Exception e) {
-                    socketSessionTemplate.send("event-maintenance-script-" + script.getMaintenanceGroupId(), "将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage());
+                    socketSessionTemplate.send(eventKey, "将脚本 [" + scriptPath + "] 上传到主机 [" + host.getMaintenanceHostAddress() + "] 失败: " + e.getMessage());
                     logger.error("将脚本 [{}] {} 到主机 [{}] 失败: {}", 
                         scriptPath, 
                         isOverwrite ? "更新" : "上传", 
@@ -196,7 +214,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         // 等待所有上传任务完成
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         
-        logger.info("脚本 [{}] 已同步到维护组 [{}] 下的所有主机", scriptPath, script.getMaintenanceGroupId());
+        logger.info("脚本 [{}] 已同步到维护组 [{}] 下的所有主机完成", scriptPath, script.getMaintenanceGroupId());
     }
     
     /**
@@ -214,18 +232,29 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         
         if (hosts.isEmpty()) {
             logger.warn("维护组 [{}] 下没有启用的主机，脚本删除操作已跳过", groupId);
+            String eventKey = "event-maintenance-script-" + groupId;
+            socketSessionTemplate.send(eventKey, "删除脚本失败，维护组下没有启用的主机");
             return;
         }
+        
+        String eventKey = "event-maintenance-script-" + groupId;
+        logger.info("开始从维护组 [{}] 下的 {} 台主机删除脚本 [{}]", groupId, hosts.size(), scriptPath);
         
         // 为每个主机删除脚本
         List<CompletableFuture<Void>> futures = hosts.stream()
             .map(host -> CompletableFuture.runAsync(() -> {
                 try {
+                    logger.info("正在从主机 [{}] 删除脚本 [{}]", host.getMaintenanceHostAddress(), scriptPath);
+                    socketSessionTemplate.send(eventKey, "正在从主机 [" + host.getMaintenanceHostAddress() + "] 删除脚本 [" + scriptPath + "]");
+                    
                     deleteScriptFromHost(host, scriptPath);
+                    
                     logger.info("已成功从主机 [{}] 删除脚本 [{}]", host.getMaintenanceHostAddress(), scriptPath);
+                    socketSessionTemplate.send(eventKey, "已成功从主机 [" + host.getMaintenanceHostAddress() + "] 删除脚本 [" + scriptPath + "]");
                 } catch (Exception e) {
                     logger.error("从主机 [{}] 删除脚本 [{}] 失败: {}", 
                         host.getMaintenanceHostAddress(), scriptPath, e.getMessage(), e);
+                    socketSessionTemplate.send(eventKey, "从主机 [" + host.getMaintenanceHostAddress() + "] 删除脚本 [" + scriptPath + "] 失败: " + e.getMessage());
                 }
             }))
             .collect(Collectors.toList());
@@ -233,7 +262,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         // 等待所有删除任务完成
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         
-        logger.info("脚本 [{}] 已从维护组 [{}] 下的所有主机删除", scriptPath, groupId);
+        logger.info("脚本 [{}] 已从维护组 [{}] 下的所有主机删除完成", scriptPath, groupId);
     }
     
     /**
@@ -243,103 +272,146 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
      * @param scriptContent 脚本内容
      * @param scriptPath 脚本路径
      * @param isOverwrite 是否覆盖
+     * @throws Exception 上传过程中可能发生的异常
      */
-    private void uploadScriptToHost(MaintenanceHost host, String scriptContent, String scriptPath, boolean isOverwrite) 
-        throws JSchException, IOException, SftpException {
+    private void uploadScriptToHost(MaintenanceHost host, String scriptContent, String scriptPath, boolean isOverwrite)
+            throws Exception {
         ChannelSftp sftp = null;
         
         try {
-            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在获取主机：" + host.getMaintenanceHostName());
+            logger.debug("开始连接主机 [{}] 上传脚本 [{}]", 
+                host.getMaintenanceHostAddress(), scriptPath);
+                
             // 获取SFTP通道
-            sftp = sshClientManager.createSftpChannel(host);
+            sftp = sshClientManager.getSftpChannel(
+                host.getMaintenanceHostAddress(),
+                host.getMaintenanceHostPort(),
+                host.getMaintenanceHostUsername(),
+                host.getMaintenanceHostPassword()
+            );
             
-            // 创建目录（如果需要）
-            try {
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在创建目录：" + scriptPath);
-                String directory = scriptPath.substring(0, scriptPath.lastIndexOf("/"));
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "创建目录：" + directory);
-                createDirectoryIfNotExists(sftp, directory);
-            } catch (Exception e) {
-                logger.warn("创建脚本目录失败，可能目录已存在: {}", e.getMessage());
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "创建目录失败：" + e.getMessage());
+            // 创建目录（如果不存在）
+            String directory = getParentDirectory(scriptPath);
+            if (directory != null && !directory.isEmpty()) {
+                createParentDirectories(sftp, directory);
+                logger.debug("已在主机 [{}] 上创建目录 [{}]", 
+                    host.getMaintenanceHostAddress(), directory);
             }
             
             // 检查文件是否存在
             boolean fileExists = false;
             try {
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在检查文件是否存在：" + scriptPath);
                 sftp.stat(scriptPath);
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在：" + scriptPath);
                 fileExists = true;
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在：" + scriptPath);
+                logger.debug("脚本 [{}] 在主机 [{}] 上已存在", 
+                    scriptPath, host.getMaintenanceHostAddress());
             } catch (SftpException e) {
                 if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                    logger.warn("无法检查文件是否存在: {}", e.getMessage());
                     throw e;
                 }
+                logger.debug("脚本 [{}] 在主机 [{}] 上不存在", 
+                    scriptPath, host.getMaintenanceHostAddress());
             }
             
-            // 如果文件存在且不允许覆盖，则跳过
+            // 如果文件存在但不允许覆盖，则抛出异常
             if (fileExists && !isOverwrite) {
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "文件已存在且不允许覆盖，已跳过上传");
-                logger.info("主机 [{}] 上的脚本 [{}] 已存在且不允许覆盖，已跳过上传", host.getMaintenanceHostAddress(), scriptPath);
-                return;
+                logger.warn("脚本 [{}] 在主机 [{}] 上已存在，但未设置覆盖选项", 
+                    scriptPath, host.getMaintenanceHostAddress());
+                throw new Exception("脚本已存在，未设置覆盖选项");
             }
             
-            // 上传脚本
-            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在上传脚本：" + scriptPath);
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(scriptContent.getBytes())) {
-                sftp.put(inputStream, scriptPath);
-            }
-
-            socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "脚本上传成功：" + scriptPath);
-            // 设置执行权限
-            try {
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "正在设置脚本执行权限：" + scriptPath);
-                sftp.chmod(0755, scriptPath);
-            } catch (SftpException e) {
-                logger.warn("无法设置脚本执行权限: {}", e.getMessage());
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "设置脚本执行权限失败：" + e.getMessage());
+            // 设置权限标志
+            String chmodCommand = "chmod 755 " + scriptPath;
+            
+            // 上传文件
+            try (InputStream is = new ByteArrayInputStream(scriptContent.getBytes())) {
+                logger.debug("开始上传脚本内容到主机 [{}] 路径 [{}]", 
+                    host.getMaintenanceHostAddress(), scriptPath);
+                sftp.put(is, scriptPath);
+                
+                // 设置文件权限为可执行
+                ChannelExec exec = sshClientManager.getExecChannel(
+                    host.getMaintenanceHostAddress(),
+                    host.getMaintenanceHostPort(),
+                    host.getMaintenanceHostUsername(),
+                    host.getMaintenanceHostPassword()
+                );
+                logger.debug("设置脚本 [{}] 在主机 [{}] 上的执行权限", 
+                    scriptPath, host.getMaintenanceHostAddress());
+                exec.setCommand(chmodCommand);
+                exec.connect();
+                Thread.sleep(100); // 等待命令执行
+                exec.disconnect();
             }
             
+            logger.info("脚本 [{}] 已成功上传到主机 [{}]", 
+                scriptPath, host.getMaintenanceHostAddress());
         } finally {
-            if (sftp != null) {
-                sftp.disconnect();
-                socketSessionTemplate.send("event-maintenance-script-" + host.getMaintenanceGroupId(), "SFTP通道已断开");
+            // 关闭SFTP通道
+            if (sftp != null && sftp.isConnected()) {
+                try {
+                    sftp.disconnect();
+                    logger.debug("已关闭与主机 [{}] 的SFTP连接", host.getMaintenanceHostAddress());
+                } catch (Exception e) {
+                    logger.error("关闭SFTP连接失败: {}", e.getMessage());
+                }
             }
         }
     }
     
     /**
-     * 从特定主机删除脚本
+     * 从特定主机上删除脚本
      *
      * @param host 维护主机
      * @param scriptPath 脚本路径
+     * @throws Exception 删除过程中可能发生的异常
      */
-    private void deleteScriptFromHost(MaintenanceHost host, String scriptPath) 
-        throws JSchException, IOException, SftpException {
+    private void deleteScriptFromHost(MaintenanceHost host, String scriptPath) throws Exception {
         ChannelSftp sftp = null;
         
         try {
+            logger.debug("开始连接主机 [{}] 删除脚本 [{}]", 
+                host.getMaintenanceHostAddress(), scriptPath);
+                
             // 获取SFTP通道
-            sftp = sshClientManager.createSftpChannel(host);
+            sftp = sshClientManager.getSftpChannel(
+                host.getMaintenanceHostAddress(),
+                host.getMaintenanceHostPort(),
+                host.getMaintenanceHostUsername(),
+                host.getMaintenanceHostPassword()
+            );
             
             // 检查文件是否存在
+            boolean fileExists = false;
             try {
                 sftp.stat(scriptPath);
-                // 删除文件
-                sftp.rm(scriptPath);
+                fileExists = true;
+                logger.debug("脚本 [{}] 在主机 [{}] 上存在，准备删除", 
+                    scriptPath, host.getMaintenanceHostAddress());
             } catch (SftpException e) {
-                if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                    logger.info("主机 [{}] 上的脚本 [{}] 不存在，无需删除", host.getMaintenanceHostAddress(), scriptPath);
-                } else {
+                if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
                     throw e;
                 }
+                logger.warn("脚本 [{}] 在主机 [{}] 上不存在，无需删除", 
+                    scriptPath, host.getMaintenanceHostAddress());
+                return; // 文件不存在，无需删除
             }
             
+            // 删除文件
+            if (fileExists) {
+                sftp.rm(scriptPath);
+                logger.info("脚本 [{}] 已从主机 [{}] 成功删除", 
+                    scriptPath, host.getMaintenanceHostAddress());
+            }
         } finally {
-            if (sftp != null) {
-                sftp.disconnect();
+            // 关闭SFTP通道
+            if (sftp != null && sftp.isConnected()) {
+                try {
+                    sftp.disconnect();
+                    logger.debug("已关闭与主机 [{}] 的SFTP连接", host.getMaintenanceHostAddress());
+                } catch (Exception e) {
+                    logger.error("关闭SFTP连接失败: {}", e.getMessage());
+                }
             }
         }
     }
@@ -548,30 +620,42 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         try {
             MaintenanceScript maintenanceScript = maintenanceScriptMapper.selectById(maintenanceScriptId);
             if (maintenanceScript == null) {
+                logger.error("同步脚本失败: 脚本 [{}] 不存在", maintenanceScriptId);
                 return ReturnResult.error("维护脚本不存在");
             }
+            
+            logger.info("开始同步脚本 [{}]({}) 到维护组 [{}] 下的所有主机", 
+                maintenanceScript.getMaintenanceScriptName(), 
+                maintenanceScriptId,
+                maintenanceScript.getMaintenanceGroupId());
             
             // 记录操作日志
             logOperation(maintenanceScript, 4, "同步维护脚本", true, null);
             
             // 使用Socket会话通知前端开始同步
             String eventKey = "event-maintenance-script-" + maintenanceScript.getMaintenanceGroupId();
+            logger.debug("发送同步开始事件到前端，eventKey=[{}]", eventKey);
             socketSessionTemplate.send(eventKey, "开始同步脚本 [" + maintenanceScript.getMaintenanceScriptName() + "]");
             
             // 异步将脚本同步到维护组下所有主机
             CompletableFuture.runAsync(() -> {
                 try {
+                    logger.info("正在执行异步同步脚本任务...");
                     syncScriptToHosts(maintenanceScript, true);
                     socketSessionTemplate.send(eventKey, "脚本 [" + maintenanceScript.getMaintenanceScriptName() + "] 同步完成");
+                    logger.info("脚本 [{}] 同步完成", maintenanceScript.getMaintenanceScriptName());
                 } catch (Exception e) {
                     logger.error("同步脚本到主机失败: {}", e.getMessage(), e);
                     socketSessionTemplate.send(eventKey, "脚本 [" + maintenanceScript.getMaintenanceScriptName() + "] 同步失败: " + e.getMessage());
                 }
             });
             
+            logger.info("同步脚本请求已提交，脚本 [{}]({})", 
+                maintenanceScript.getMaintenanceScriptName(), 
+                maintenanceScriptId);
             return ReturnResult.success(true);
         } catch (Exception e) {
-            logger.error("同步维护脚本失败", e);
+            logger.error("同步维护脚本失败: {}", e.getMessage(), e);
             return ReturnResult.error("同步维护脚本失败: " + e.getMessage());
         }
     }
@@ -579,50 +663,41 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
     /**
      * 记录操作日志
      *
-     * @param script         脚本对象
-     * @param operationType  操作类型
-     * @param operationDesc  操作描述
-     * @param result         操作结果
-     * @param resultMessage  结果消息
+     * @param script 脚本信息
+     * @param operationType 操作类型：1-创建，2-更新，3-删除，4-同步
+     * @param operationDesc 操作描述
+     * @param result 操作结果
+     * @param resultMessage 结果消息
      */
     private void logOperation(MaintenanceScript script, Integer operationType, String operationDesc, Boolean result, String resultMessage) {
         try {
+            logger.debug("记录脚本 [{}]({}) 的操作日志: [{}] [{}] [{}]", 
+                script.getMaintenanceScriptName(), 
+                script.getMaintenanceScriptId(),
+                operationType, 
+                operationDesc,
+                result ? "成功" : "失败");
+                
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String ipAddress = getClientIp(request);
+            
             MaintenanceLogRequest logRequest = new MaintenanceLogRequest();
             logRequest.setMaintenanceGroupId(script.getMaintenanceGroupId());
             logRequest.setMaintenanceScriptId(script.getMaintenanceScriptId());
             logRequest.setOperationType(operationType);
-            logRequest.setTargetType(3); // 3表示维护脚本
-            
-            // 构建操作详情JSON
-            Map<String, Object> details = new HashMap<>();
-            details.put("maintenanceScriptId", script.getMaintenanceScriptId());
-            details.put("maintenanceScriptName", script.getMaintenanceScriptName());
-            details.put("maintenanceScriptPath", script.getMaintenanceScriptPath());
-            details.put("operationDesc", operationDesc);
-            logRequest.setOperationDetails(JSON.toJSONString(details));
-            
-            // 设置操作结果
+            logRequest.setOperationDesc(operationDesc);
             logRequest.setOperationResult(result);
-            logRequest.setResultMessage(resultMessage);
+            logRequest.setOperationMessage(resultMessage);
+            logRequest.setOperationIp(ipAddress);
             
-            // 获取客户端IP
-            String ipAddress = "127.0.0.1";
-            try {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (attributes != null) {
-                    HttpServletRequest request = attributes.getRequest();
-                    ipAddress = getClientIp(request);
-                }
-            } catch (Exception e) {
-                // 忽略获取IP过程中的异常
+            ReturnResult<Boolean> logResult = maintenanceLogService.logOperation(logRequest);
+            if (!logResult.getSuccess()) {
+                logger.warn("记录脚本操作日志失败: {}", logResult.getMessage());
+            } else {
+                logger.debug("脚本操作日志记录成功");
             }
-            logRequest.setIpAddress(ipAddress);
-            
-            // 调用日志服务记录日志
-            maintenanceLogService.logOperation(logRequest);
         } catch (Exception e) {
-            // 记录日志失败不应影响主业务逻辑
-            logger.error("记录操作日志失败: {}", e.getMessage(), e);
+            logger.error("记录脚本操作日志异常: {}", e.getMessage(), e);
         }
     }
     
@@ -650,5 +725,57 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             ip = request.getRemoteAddr();
         }
         return ip;
+    }
+
+    /**
+     * 获取文件的父目录路径
+     *
+     * @param filePath 完整的文件路径
+     * @return 父目录路径，如果没有父目录则返回null
+     */
+    private String getParentDirectory(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return null;
+        }
+        
+        int lastSlashIndex = filePath.lastIndexOf('/');
+        if (lastSlashIndex <= 0) {
+            return null; // 没有父目录或在根目录
+        }
+        
+        return filePath.substring(0, lastSlashIndex);
+    }
+    
+    /**
+     * 递归创建父目录
+     *
+     * @param sftp SFTP通道
+     * @param dirPath 目录路径
+     * @throws SftpException 如果创建目录过程中出错
+     */
+    private void createParentDirectories(ChannelSftp sftp, String dirPath) throws SftpException {
+        if (dirPath == null || dirPath.isEmpty() || dirPath.equals("/")) {
+            return;
+        }
+        
+        try {
+            sftp.stat(dirPath);
+            // 目录已存在，无需创建
+            return;
+        } catch (SftpException e) {
+            if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                throw e; // 其他错误，需要抛出
+            }
+            
+            // 目录不存在，先创建父目录
+            String parentDir = getParentDirectory(dirPath);
+            if (parentDir != null && !parentDir.isEmpty()) {
+                createParentDirectories(sftp, parentDir);
+            }
+            
+            // 创建当前目录
+            logger.debug("创建目录: {}", dirPath);
+            sftp.mkdir(dirPath);
+        }
     }
 } 

@@ -6,10 +6,6 @@ import com.chua.starter.monitor.pojo.response.MaintenanceScriptResponse;
 import com.chua.starter.monitor.service.MaintenanceScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -42,12 +38,6 @@ public class MaintenanceScriptController {
      */
     @PostMapping("save")
     @Operation(summary = "创建维护脚本", description = "创建一个新的维护脚本，返回创建后的脚本信息。脚本仅在数据库中创建记录，不会自动上传到主机。")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "创建成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
-        @ApiResponse(responseCode = "400", description = "参数错误"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceScriptResponse> createMaintenanceScript(
             @Parameter(description = "维护脚本信息", required = true) 
             @RequestBody MaintenanceScriptRequest request) {
@@ -66,12 +56,6 @@ public class MaintenanceScriptController {
      */
     @PutMapping("update")
     @Operation(summary = "更新维护脚本", description = "根据ID更新维护脚本信息，返回更新后的脚本信息。脚本仅在数据库中更新记录，不会自动更新主机上的脚本。")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "更新成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
-        @ApiResponse(responseCode = "404", description = "维护脚本不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceScriptResponse> updateMaintenanceScript(
             @Parameter(description = "维护脚本信息", required = true) 
             @RequestBody MaintenanceScriptRequest request) {
@@ -87,11 +71,6 @@ public class MaintenanceScriptController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除维护脚本", description = "根据ID删除维护脚本。删除后会自动删除维护组下所有启用的主机相同位置的脚本。")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "删除成功", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> deleteMaintenanceScript(
             @Parameter(description = "维护脚本ID", required = true) 
             @PathVariable("id") Long maintenanceScriptId) {
@@ -106,12 +85,6 @@ public class MaintenanceScriptController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "获取维护脚本详情", description = "根据ID获取维护脚本详细信息")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "获取成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
-        @ApiResponse(responseCode = "404", description = "维护脚本不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceScriptResponse> getMaintenanceScript(
             @Parameter(description = "维护脚本ID", required = true) 
             @PathVariable("id") Long maintenanceScriptId) {
@@ -126,12 +99,6 @@ public class MaintenanceScriptController {
      */
     @GetMapping("/list")
     @Operation(summary = "获取维护脚本列表", description = "根据维护组ID获取该组下的所有维护脚本")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "获取成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
-        @ApiResponse(responseCode = "400", description = "参数错误"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(
             @Parameter(description = "维护组ID", required = true) 
             @RequestParam(value = "groupId") Long maintenanceGroupId) {
@@ -149,12 +116,6 @@ public class MaintenanceScriptController {
      */
     @PostMapping("/{id}/sync")
     @Operation(summary = "同步脚本到远程主机", description = "将指定脚本同步到维护组下所有启用的主机，返回同步操作的结果。")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "同步操作已开始", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "404", description = "维护脚本不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> syncScript(
             @Parameter(description = "维护脚本ID", required = true) 
             @PathVariable("id") Long maintenanceScriptId) {
@@ -170,12 +131,6 @@ public class MaintenanceScriptController {
      */
     @PutMapping("/{id}/status/{status}")
     @Operation(summary = "更新脚本状态", description = "修改维护脚本的状态（启用/禁用等）")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "更新成功", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "404", description = "维护脚本不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> updateScriptStatus(
             @Parameter(description = "维护脚本ID", required = true) 
             @PathVariable("id") Long maintenanceScriptId,
