@@ -23,7 +23,7 @@ import java.util.List;
  * @author CH
  */
 @RestController
-@RequestMapping("/api/maintenance/host")
+@RequestMapping("/v1/maintenance/host")
 @Tag(name = "维护主机管理", description = "维护主机的创建、修改、删除、查询等操作")
 @RequiredArgsConstructor
 public class MaintenanceHostController {

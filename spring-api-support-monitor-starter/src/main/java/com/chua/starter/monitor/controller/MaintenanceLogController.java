@@ -8,7 +8,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,7 +21,7 @@ import java.util.List;
  * @author CH
  */
 @RestController
-@RequestMapping("/maintenance/log")
+@RequestMapping("/v1/maintenance/log")
 @RequiredArgsConstructor
 @Api(tags = "维护日志管理接口", description = "提供维护操作日志的查询服务")
 public class MaintenanceLogController {

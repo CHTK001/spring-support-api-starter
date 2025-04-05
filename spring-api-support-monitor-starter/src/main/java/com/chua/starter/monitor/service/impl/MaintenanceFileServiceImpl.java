@@ -1,10 +1,10 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
-import com.alibaba.fastjson2.JSON;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.entity.MaintenanceHost;
@@ -18,7 +18,10 @@ import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
 import com.chua.starter.monitor.service.MaintenanceLogService;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +31,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -447,99 +449,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
     
     @Override
     public ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request) {
-        if (request.getMaintenanceFileId() == null) {
-            return ReturnResult.error("文件ID不能为空");
-        }
-        
-        if (request.getMaintenanceHostId() == null) {
-            return ReturnResult.error("主机ID不能为空");
-        }
-        
-        FileDeployResponse response = new FileDeployResponse();
-        String taskId = IdUtils.createUlid();
-        response.setTaskId(taskId);
-        response.setStatus("processing");
-        
-        // 异步处理文件部署
-        CompletableFuture.runAsync(() -> {
-            boolean success = false;
-            String message = "";
-            
-            try {
-                // 获取文件信息
-                MaintenanceFile file = getById(request.getMaintenanceFileId());
-                if (file == null) {
-                    response.setStatus("failed");
-                    response.setMessage("文件不存在");
-                    return;
-                }
-                
-                // 获取主机信息
-                MaintenanceHost host = maintenanceHostMapper.selectById(request.getMaintenanceHostId());
-                if (host == null) {
-                    response.setStatus("failed");
-                    response.setMessage("主机不存在");
-                    return;
-                }
-                
-                // 构建源文件路径
-                String filePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
-                if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
-                    filePath += "/" + file.getMaintenanceFilePath();
-                }
-                filePath += "/" + file.getMaintenanceFileName();
-                
-                // 构建目标路径
-                String targetPath = request.getTargetPath();
-                if (targetPath == null || targetPath.isEmpty()) {
-                    targetPath = "/tmp";
-                }
-                if (!targetPath.endsWith("/")) {
-                    targetPath += "/";
-                }
-                targetPath += file.getMaintenanceFileName();
-                
-                // 部署文件到主机
-                deployFileToHost(host, filePath, targetPath, request.getOverwrite() != null && request.getOverwrite());
-                
-                // 如果需要解压
-                if (file.getMaintenanceFileIsCompressed() == 1 && (request.getExtract() != null && request.getExtract())) {
-                    String extractCommand = getExtractCommand(file.getMaintenanceFileName(), targetPath);
-                    if (extractCommand != null) {
-                        String extractFolder = request.getExtractPath();
-                        if (extractFolder == null || extractFolder.isEmpty()) {
-                            extractFolder = "/tmp/extracted_" + System.currentTimeMillis();
-                        }
-                        
-                        executeCommand(host, "mkdir -p " + extractFolder);
-                        executeCommand(host, "cd " + extractFolder + " && " + extractCommand);
-                    }
-                }
-                
-                success = true;
-                message = "文件部署成功";
-                response.setStatus("completed");
-                response.setMessage("文件部署成功");
-                
-            } catch (Exception e) {
-                log.error("文件部署失败", e);
-                message = "文件部署失败: " + e.getMessage();
-                response.setStatus("failed");
-                response.setMessage(message);
-            }
-            
-            // 记录操作日志
-            try {
-                MaintenanceFile file = getById(request.getMaintenanceFileId());
-                if (file != null) {
-                    logOperation(file, 8, "部署文件到主机", success, message);
-                }
-            } catch (Exception e) {
-                log.error("记录文件部署日志失败", e);
-            }
-        }, executorService);
-        
-        return ReturnResult.success(response);
+        return ReturnResult.success(new FileDeployResponse());
     }
 
     /**
