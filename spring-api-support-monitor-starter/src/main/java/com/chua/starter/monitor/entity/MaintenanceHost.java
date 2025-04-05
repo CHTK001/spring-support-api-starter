@@ -35,6 +35,13 @@ public class MaintenanceHost {
     private Long maintenanceGroupId;
 
     /**
+     * 主机名称
+     */
+    @TableField("maintenance_host_name")
+    @Schema(description = "主机名称")
+    private String maintenanceHostName;
+
+    /**
      * 主机地址
      */
     @TableField("maintenance_host_address")

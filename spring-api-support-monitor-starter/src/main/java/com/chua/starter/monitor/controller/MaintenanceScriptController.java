@@ -25,7 +25,7 @@ import java.util.List;
  * @author CH
  */
 @RestController
-@RequestMapping("/api/maintenance/script")
+@RequestMapping("/v1/maintenance/script")
 @Tag(name = "维护脚本管理", description = "维护脚本的创建、修改、删除、查询、执行等操作，并支持脚本自动同步到维护组内所有主机")
 @RequiredArgsConstructor
 public class MaintenanceScriptController {

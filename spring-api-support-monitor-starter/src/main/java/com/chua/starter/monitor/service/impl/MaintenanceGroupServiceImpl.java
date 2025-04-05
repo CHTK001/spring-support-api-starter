@@ -1,12 +1,10 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.alibaba.fastjson2.JSON;
 import com.chua.starter.monitor.entity.MaintenanceGroup;
-import com.chua.starter.monitor.entity.MaintenanceHost;
-import com.chua.starter.monitor.entity.MaintenanceScript;
 import com.chua.starter.monitor.mapper.MaintenanceGroupMapper;
 import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
 import com.chua.starter.monitor.mapper.MaintenanceScriptMapper;
@@ -15,6 +13,7 @@ import com.chua.starter.monitor.pojo.request.MaintenanceLogRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceGroupResponse;
 import com.chua.starter.monitor.service.MaintenanceGroupService;
 import com.chua.starter.monitor.service.MaintenanceLogService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -282,7 +280,7 @@ public class MaintenanceGroupServiceImpl extends ServiceImpl<MaintenanceGroupMap
             Map<String, Object> details = new HashMap<>();
             details.put("maintenanceGroupId", group.getMaintenanceGroupId());
             details.put("maintenanceGroupName", group.getMaintenanceGroupName());
-            details.put("maintenanceGroupDesc", group.getMaintenanceGroupDesc());
+            details.put("maintenanceGroupDesc", group.getMaintenanceGroupDescription());
             details.put("operationDesc", operationDesc);
             logRequest.setOperationDetails(JSON.toJSONString(details));
             

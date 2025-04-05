@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.alibaba.fastjson2.JSON;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.entity.MaintenanceScript;
@@ -15,7 +15,11 @@ import com.chua.starter.monitor.pojo.response.MaintenanceScriptResponse;
 import com.chua.starter.monitor.pojo.response.RunScriptResponse;
 import com.chua.starter.monitor.service.MaintenanceLogService;
 import com.chua.starter.monitor.service.MaintenanceScriptService;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +28,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -525,57 +531,6 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         }
     }
 
-    @Override
-    public ReturnResult<RunScriptResponse> executeScript(RunScriptRequest request) {
-        try {
-            if (request.getMaintenanceScriptId() == null && request.getScriptContent() == null) {
-                return ReturnResult.error("脚本ID和脚本内容不能同时为空");
-            }
-            
-            if (request.getMaintenanceHostId() == null) {
-                return ReturnResult.error("主机ID不能为空");
-            }
-            
-            MaintenanceHost host = maintenanceHostMapper.selectById(request.getMaintenanceHostId());
-            if (host == null) {
-                return ReturnResult.error("主机不存在");
-            }
-            
-            MaintenanceScript script = null;
-            String scriptContent = request.getScriptContent();
-            String scriptPath = request.getScriptPath();
-            
-            // 如果指定了脚本ID，从数据库获取脚本
-            if (request.getMaintenanceScriptId() != null) {
-                script = maintenanceScriptMapper.selectById(request.getMaintenanceScriptId());
-                if (script == null) {
-                    return ReturnResult.error("脚本不存在");
-                }
-                scriptContent = script.getMaintenanceScriptContent();
-                scriptPath = script.getMaintenanceScriptPath();
-            }
-            
-            // 执行脚本
-            RunScriptResponse response = executeScriptOnHost(host, scriptContent, scriptPath, request.getParams());
-            
-            // 记录操作日志
-            if (script != null) {
-                logOperation(script, 6, "执行维护脚本", response.isSuccess(), response.getMessage());
-            } else {
-                // 对于临时脚本，创建一个临时对象记录日志
-                MaintenanceScript tempScript = new MaintenanceScript();
-                tempScript.setMaintenanceGroupId(host.getMaintenanceGroupId());
-                tempScript.setMaintenanceScriptPath(scriptPath);
-                tempScript.setMaintenanceScriptContent(scriptContent);
-                logOperation(tempScript, 6, "执行临时脚本", response.isSuccess(), response.getMessage());
-            }
-            
-            return ReturnResult.success(response);
-        } catch (Exception e) {
-            logger.error("执行脚本失败", e);
-            return ReturnResult.error("执行脚本失败: " + e.getMessage());
-        }
-    }
 
     /**
      * 记录操作日志
