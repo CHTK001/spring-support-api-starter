@@ -6,14 +6,11 @@ import com.chua.starter.monitor.pojo.response.MaintenanceHostResponse;
 import com.chua.starter.monitor.service.MaintenanceHostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,12 +38,6 @@ public class MaintenanceHostController {
      */
     @PostMapping("save")
     @Operation(summary = "创建维护主机", description = "创建一个新的维护主机，返回创建后的维护主机信息")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "创建成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceHostResponse.class))),
-        @ApiResponse(responseCode = "400", description = "参数错误"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceHostResponse> createMaintenanceHost(
             @Parameter(description = "维护主机信息", required = true) 
             @RequestBody MaintenanceHostRequest request) {
@@ -64,12 +55,6 @@ public class MaintenanceHostController {
      */
     @PutMapping("update")
     @Operation(summary = "更新维护主机", description = "根据ID更新维护主机信息，返回更新后的维护主机信息")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "更新成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceHostResponse.class))),
-        @ApiResponse(responseCode = "404", description = "维护主机不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceHostResponse> updateMaintenanceHost(
             @Parameter(description = "维护主机信息", required = true) 
             @RequestBody MaintenanceHostRequest request) {
@@ -84,11 +69,6 @@ public class MaintenanceHostController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除维护主机", description = "根据ID删除维护主机")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "删除成功", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> deleteMaintenanceHost(
             @Parameter(description = "维护主机ID", required = true) 
             @PathVariable("id") Long maintenanceHostId) {
@@ -103,12 +83,6 @@ public class MaintenanceHostController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "获取维护主机详情", description = "根据ID获取维护主机详细信息")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "获取成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceHostResponse.class))),
-        @ApiResponse(responseCode = "404", description = "维护主机不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<MaintenanceHostResponse> getMaintenanceHost(
             @Parameter(description = "维护主机ID", required = true) 
             @PathVariable("id") Long maintenanceHostId) {
@@ -123,17 +97,11 @@ public class MaintenanceHostController {
      */
     @GetMapping("/list")
     @Operation(summary = "获取维护主机列表", description = "根据维护组ID获取该组下的所有维护主机列表")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "获取成功", 
-            content = @Content(schema = @Schema(implementation = MaintenanceHostResponse.class))),
-        @ApiResponse(responseCode = "400", description = "参数错误"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<List<MaintenanceHostResponse>> listMaintenanceHosts(
-            @Parameter(description = "维护组ID", required = true) 
-            @RequestParam(value = "groupId") Long maintenanceGroupId) {
+            @Parameter(description = "维护组ID", required = true)
+            Long maintenanceGroupId) {
         if (maintenanceGroupId == null) {
-            return ReturnResult.error("维护组ID不能为空");
+            return ReturnResult.ok(Collections.emptyList());
         }
         return maintenanceHostService.listMaintenanceHosts(maintenanceGroupId);
     }
@@ -147,12 +115,6 @@ public class MaintenanceHostController {
      */
     @PutMapping("/{id}/enable/{enabled}")
     @Operation(summary = "启用或停用维护主机", description = "修改维护主机的启用状态")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "操作成功", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "404", description = "维护主机不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> enableMaintenanceHost(
             @Parameter(description = "维护主机ID", required = true) 
             @PathVariable("id") Long maintenanceHostId,
@@ -169,12 +131,6 @@ public class MaintenanceHostController {
      */
     @GetMapping("/{id}/test")
     @Operation(summary = "测试主机连接", description = "测试与指定维护主机的连接是否正常")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "测试成功", 
-            content = @Content(schema = @Schema(implementation = Boolean.class))),
-        @ApiResponse(responseCode = "404", description = "维护主机不存在"),
-        @ApiResponse(responseCode = "500", description = "服务器错误")
-    })
     public ReturnResult<Boolean> testConnection(
             @Parameter(description = "维护主机ID", required = true) 
             @PathVariable("id") Integer maintenanceHostId) {
