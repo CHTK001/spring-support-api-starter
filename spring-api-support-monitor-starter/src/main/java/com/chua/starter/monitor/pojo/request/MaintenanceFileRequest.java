@@ -4,25 +4,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 维护文件请求
+ * 维护文件更新请求对象
  *
  * @author CH
  */
 @Data
-@Schema(description = "维护文件请求")
+@Schema(description = "维护文件更新请求")
 public class MaintenanceFileRequest {
 
     /**
      * 文件ID
      */
     @Schema(description = "文件ID")
-    private Integer maintenanceFileId;
+    private Long maintenanceFileId;
 
     /**
      * 维护组ID
      */
     @Schema(description = "维护组ID")
-    private Integer maintenanceGroupId;
+    private Long maintenanceGroupId;
 
     /**
      * 文件名称
@@ -49,20 +49,20 @@ public class MaintenanceFileRequest {
     private Long maintenanceFileSize;
 
     /**
-     * 是否解压;0:否;1:是
+     * 文件状态：0-失效，1-有效
+     */
+    @Schema(description = "状态;0:停用;1:启用")
+    private Integer maintenanceFileStatus;
+
+    /**
+     * 是否解压：0-否，1-是
      */
     @Schema(description = "是否解压;0:否;1:是")
     private Integer maintenanceFileIsExtract;
 
     /**
-     * 是否覆盖;0:否;1:是
+     * 是否覆盖：0-否，1-是
      */
     @Schema(description = "是否覆盖;0:否;1:是")
     private Integer maintenanceFileIsOverride;
-
-    /**
-     * 状态;0:停用;1:启用
-     */
-    @Schema(description = "状态;0:停用;1:启用")
-    private Integer maintenanceFileStatus;
 }
