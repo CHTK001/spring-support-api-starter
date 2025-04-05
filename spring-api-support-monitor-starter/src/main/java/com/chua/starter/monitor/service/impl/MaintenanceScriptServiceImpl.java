@@ -72,14 +72,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             // 记录操作日志
             logOperation(maintenanceScript, 1, "创建维护脚本", true, null);
             
-            // 异步将脚本上传到维护组下所有主机
-            CompletableFuture.runAsync(() -> {
-                try {
-                    syncScriptToHosts(maintenanceScript, false);
-                } catch (Exception e) {
-                    logger.error("自动上传脚本到主机失败: {}", e.getMessage(), e);
-                }
-            });
+            // 不再自动上传脚本到远程主机
             
             return ReturnResult.success(response);
         } catch (Exception e) {
@@ -107,15 +100,8 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             // 记录操作日志
             logOperation(maintenanceScript, 2, "更新维护脚本", true, null);
             
-            // 异步更新维护组下所有主机上的脚本
-            CompletableFuture.runAsync(() -> {
-                try {
-                    syncScriptToHosts(maintenanceScript, true);
-                } catch (Exception e) {
-                    logger.error("自动更新主机上的脚本失败: {}", e.getMessage(), e);
-                }
-            });
-
+            // 不再自动更新远程主机上的脚本
+            
             return ReturnResult.success(response);
         } catch (Exception e) {
             logger.error("更新维护脚本失败", e);
@@ -134,18 +120,25 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             // 记录脚本信息，用于后续删除主机上的脚本
             String scriptPath = maintenanceScript.getMaintenanceScriptPath();
             Long groupId = maintenanceScript.getMaintenanceGroupId();
+            String scriptName = maintenanceScript.getMaintenanceScriptName();
             
             // 记录操作日志
             logOperation(maintenanceScript, 3, "删除维护脚本", true, null);
             
             maintenanceScriptMapper.deleteById(maintenanceScriptId);
             
+            // 使用Socket会话通知前端开始删除远程主机上的脚本
+            String eventKey = "event-maintenance-script-" + groupId;
+            socketSessionTemplate.send(eventKey, "开始从远程主机删除脚本 [" + scriptName + "]");
+            
             // 异步删除维护组下所有主机上的脚本
             CompletableFuture.runAsync(() -> {
                 try {
                     deleteScriptFromHosts(groupId, scriptPath);
+                    socketSessionTemplate.send(eventKey, "脚本 [" + scriptName + "] 已从所有远程主机删除");
                 } catch (Exception e) {
                     logger.error("自动删除主机上的脚本失败: {}", e.getMessage(), e);
+                    socketSessionTemplate.send(eventKey, "从远程主机删除脚本 [" + scriptName + "] 失败: " + e.getMessage());
                 }
             });
             
@@ -550,6 +543,38 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         }
     }
 
+    @Override
+    public ReturnResult<Boolean> syncScript(Long maintenanceScriptId) {
+        try {
+            MaintenanceScript maintenanceScript = maintenanceScriptMapper.selectById(maintenanceScriptId);
+            if (maintenanceScript == null) {
+                return ReturnResult.error("维护脚本不存在");
+            }
+            
+            // 记录操作日志
+            logOperation(maintenanceScript, 4, "同步维护脚本", true, null);
+            
+            // 使用Socket会话通知前端开始同步
+            String eventKey = "event-maintenance-script-" + maintenanceScript.getMaintenanceGroupId();
+            socketSessionTemplate.send(eventKey, "开始同步脚本 [" + maintenanceScript.getMaintenanceScriptName() + "]");
+            
+            // 异步将脚本同步到维护组下所有主机
+            CompletableFuture.runAsync(() -> {
+                try {
+                    syncScriptToHosts(maintenanceScript, true);
+                    socketSessionTemplate.send(eventKey, "脚本 [" + maintenanceScript.getMaintenanceScriptName() + "] 同步完成");
+                } catch (Exception e) {
+                    logger.error("同步脚本到主机失败: {}", e.getMessage(), e);
+                    socketSessionTemplate.send(eventKey, "脚本 [" + maintenanceScript.getMaintenanceScriptName() + "] 同步失败: " + e.getMessage());
+                }
+            });
+            
+            return ReturnResult.success(true);
+        } catch (Exception e) {
+            logger.error("同步维护脚本失败", e);
+            return ReturnResult.error("同步维护脚本失败: " + e.getMessage());
+        }
+    }
 
     /**
      * 记录操作日志

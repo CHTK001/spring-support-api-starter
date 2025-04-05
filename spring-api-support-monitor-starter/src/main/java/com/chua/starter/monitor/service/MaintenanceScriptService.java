@@ -56,6 +56,14 @@ public interface MaintenanceScriptService {
     ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(Long maintenanceGroupId);
 
     /**
+     * 同步脚本到远程主机
+     *
+     * @param maintenanceScriptId 脚本ID
+     * @return 同步结果
+     */
+    ReturnResult<Boolean> syncScript(Long maintenanceScriptId);
+
+    /**
      * 运行脚本
      *
      * @param request 请求参数
