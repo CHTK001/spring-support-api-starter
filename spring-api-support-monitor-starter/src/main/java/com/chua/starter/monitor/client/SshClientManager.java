@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.client;
 
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.jcraft.jsch.*;
 import lombok.Data;
@@ -69,7 +70,7 @@ public class SshClientManager implements DisposableBean {
             host.getMaintenanceHostAddress(),
             host.getMaintenanceHostPort(),
             host.getMaintenanceHostUsername(),
-            host.getMaintenanceHostPassword()
+                DigestUtils.aesDecrypt(host.getMaintenanceHostPassword(), "1234567890Oil#@1")
         );
         
         // 更新缓存
