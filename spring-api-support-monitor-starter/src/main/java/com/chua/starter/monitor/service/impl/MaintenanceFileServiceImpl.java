@@ -14,8 +14,17 @@ import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,7 +138,40 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 
                 // 如果是压缩文件且需要解压，进行解压操作
                 if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
-                    // TODO: 实现解压逻辑
+                    try {
+                        // 解压缩文件
+                        Path filePath = Paths.get(destFile.getAbsolutePath());
+                        String extractToPath = destDir + "/extracted_" + System.currentTimeMillis();
+                        File extractDir = new File(extractToPath);
+                        if (!extractDir.exists()) {
+                            extractDir.mkdirs();
+                        }
+                        
+                        log.info("正在解压文件: {} 到 {}", filePath, extractToPath);
+                        
+                        if (originalFilename.toLowerCase().endsWith(".zip")) {
+                            extractZipFile(filePath.toFile(), extractDir);
+                        } else if (originalFilename.toLowerCase().endsWith(".tar")) {
+                            extractTarFile(filePath.toFile(), extractDir);
+                        } else if (originalFilename.toLowerCase().endsWith(".tar.gz") 
+                                || originalFilename.toLowerCase().endsWith(".tgz")) {
+                            extractTarGzFile(filePath.toFile(), extractDir);
+                        } else if (originalFilename.toLowerCase().endsWith(".gz")) {
+                            extractGzFile(filePath.toFile(), extractDir);
+                        } else if (originalFilename.toLowerCase().endsWith(".rar")) {
+                            log.warn("当前环境暂不支持RAR文件解压，请通过部署到远程主机后解压");
+                        } else {
+                            log.warn("不支持的压缩文件格式: {}", originalFilename);
+                        }
+                        
+                        // 记录解压目录
+                        maintenanceFile.setMaintenanceFileExtractPath(extractToPath);
+                        updateById(maintenanceFile);
+                        
+                        log.info("文件解压成功: {}", filePath);
+                    } catch (Exception e) {
+                        log.error("文件解压失败: {}", originalFilename, e);
+                    }
                 }
                 
                 response.setStatus("completed");
@@ -217,7 +259,40 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         
                         // 如果是压缩文件且需要解压，进行解压操作
                         if (maintenanceFile.getMaintenanceFileIsCompressed() && maintenanceFile.getMaintenanceFileIsExtract() == 1) {
-                            // TODO: 实现解压逻辑
+                            try {
+                                // 解压缩文件
+                                Path filePath = Paths.get(destFile.getAbsolutePath());
+                                String extractToPath = destDir + "/extracted_" + System.currentTimeMillis();
+                                File extractDir = new File(extractToPath);
+                                if (!extractDir.exists()) {
+                                    extractDir.mkdirs();
+                                }
+                                
+                                log.info("正在解压文件: {} 到 {}", filePath, extractToPath);
+                                
+                                if (originalFilename.toLowerCase().endsWith(".zip")) {
+                                    extractZipFile(filePath.toFile(), extractDir);
+                                } else if (originalFilename.toLowerCase().endsWith(".tar")) {
+                                    extractTarFile(filePath.toFile(), extractDir);
+                                } else if (originalFilename.toLowerCase().endsWith(".tar.gz") 
+                                        || originalFilename.toLowerCase().endsWith(".tgz")) {
+                                    extractTarGzFile(filePath.toFile(), extractDir);
+                                } else if (originalFilename.toLowerCase().endsWith(".gz")) {
+                                    extractGzFile(filePath.toFile(), extractDir);
+                                } else if (originalFilename.toLowerCase().endsWith(".rar")) {
+                                    log.warn("当前环境暂不支持RAR文件解压，请通过部署到远程主机后解压");
+                                } else {
+                                    log.warn("不支持的压缩文件格式: {}", originalFilename);
+                                }
+                                
+                                // 记录解压目录
+                                maintenanceFile.setMaintenanceFileExtractPath(extractToPath);
+                                updateById(maintenanceFile);
+                                
+                                log.info("文件解压成功: {}", filePath);
+                            } catch (Exception e) {
+                                log.error("文件解压失败: {}", originalFilename, e);
+                            }
                         }
                         
                         successCount++;
@@ -359,13 +434,13 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         // 查询维护组下的所有主机
         LambdaQueryWrapper<MaintenanceHost> hostQueryWrapper = new LambdaQueryWrapper<>();
         hostQueryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
-        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, true); // 只部署到启用状态的主机
+        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostStatus, 1); // 只部署到启用状态的主机
         List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(hostQueryWrapper);
-        
-        if (hosts.isEmpty()) {
-            return ReturnResult.error("维护组下没有可用的主机");
-        }
-        
+
+            if (hosts.isEmpty()) {
+                return ReturnResult.error("维护组下没有可用的主机");
+            }
+
         // 构建文件的物理路径
         String sourceFilePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
         if (file.getMaintenanceFilePath() != null && !file.getMaintenanceFilePath().isEmpty() && !"/".equals(file.getMaintenanceFilePath())) {
@@ -393,20 +468,44 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             int successCount = 0;
             int failCount = 0;
             Map<String, String> details = new HashMap<>();
-            
+
             for (MaintenanceHost host : hosts) {
                 try {
-                    // TODO: 实现SCP或SFTP文件传输逻辑
-                    // 这里需要根据主机信息和部署参数进行文件传输
-                    // 例如使用JSch库实现SFTP传输
+                    // 部署文件到远程主机
+                    String targetPath = request.getDeployPath() != null ? request.getDeployPath() : "/tmp";
+                    boolean overwrite = request.getOverwrite() != null ? request.getOverwrite() : false;
+                    boolean extract = request.getExtract() != null ? request.getExtract() : false;
                     
-                    // 模拟部署成功
+                    // 上传文件
+                    uploadFileToHost(
+                            new File(sourceFilePath),
+                            host.getMaintenanceHostAddress(),
+                            host.getMaintenanceHostPort(),
+                            host.getMaintenanceHostUsername(),
+                            host.getMaintenanceHostPassword(),
+                            targetPath,
+                            file.getMaintenanceFileName(),
+                            overwrite,
+                            extract && file.getMaintenanceFileIsCompressed()
+                    );
+                    
                     successCount++;
                     details.put(host.getMaintenanceHostAddress(), "部署成功");
                     
                     // 如果需要部署后执行，则执行命令
                     if (request.getExecuteAfterDeploy() != null && request.getExecuteAfterDeploy()) {
-                        // TODO: 实现远程命令执行逻辑
+                        String remoteFilePath = targetPath.endsWith("/") 
+                                ? targetPath + file.getMaintenanceFileName() 
+                                : targetPath + "/" + file.getMaintenanceFileName();
+                        
+                        executeRemoteCommand(
+                                host.getMaintenanceHostAddress(),
+                                host.getMaintenanceHostPort(),
+                                host.getMaintenanceHostUsername(),
+                                host.getMaintenanceHostPassword(),
+                                "chmod +x " + remoteFilePath + " && " + remoteFilePath + " " + 
+                                (request.getExecuteParams() != null ? request.getExecuteParams() : "")
+                        );
                     }
                     
                 } catch (Exception e) {
@@ -425,7 +524,211 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             
         }, executorService);
 
-        return ReturnResult.success(response);
+            return ReturnResult.success(response);
+    }
+
+    /**
+     * 上传文件到指定主机
+     *
+     * @param file       文件
+     * @param host       主机地址
+     * @param port       端口
+     * @param username   用户名
+     * @param password   密码
+     * @param targetPath 目标路径
+     * @param fileName   文件名
+     * @param overwrite  是否覆盖
+     * @param extract    是否解压
+     * @throws Exception 异常信息
+     */
+    private void uploadFileToHost(File file, String host, Integer port, String username, String password,
+                                  String targetPath, String fileName, Boolean overwrite, Boolean extract)
+            throws Exception {
+        JSch jsch = new JSch();
+        Session session = null;
+        ChannelSftp channelSftp = null;
+
+        try {
+            // 建立SSH连接
+            session = jsch.getSession(username, host, port);
+            session.setPassword(password);
+
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+
+            session.connect(30000);
+
+            // 打开SFTP通道
+            channelSftp = (ChannelSftp) session.openChannel("sftp");
+            channelSftp.connect(30000);
+
+            // 创建目标目录（如果不存在）
+            try {
+                channelSftp.cd(targetPath);
+            } catch (SftpException e) {
+                // 目录不存在，创建目录
+                String[] folders = targetPath.split("/");
+                StringBuilder path = new StringBuilder();
+                for (String folder : folders) {
+                    if (folder.isEmpty()) {
+                        path.append("/");
+                        continue;
+                    }
+                    path.append(folder).append("/");
+                    try {
+                        channelSftp.cd(path.toString());
+                    } catch (SftpException ex) {
+                        channelSftp.mkdir(path.toString());
+                        channelSftp.cd(path.toString());
+                    }
+                }
+            }
+
+            // 检查文件是否已存在
+            try {
+                channelSftp.lstat(targetPath + "/" + fileName);
+                // 文件存在
+                if (overwrite == null || !overwrite) {
+                        throw new Exception("文件已存在且未指定覆盖");
+                }
+                // 如果需要覆盖，先删除现有文件
+                channelSftp.rm(targetPath + "/" + fileName);
+            } catch (SftpException e) {
+                // 文件不存在，可以继续
+            }
+
+            // 上传文件
+            if(targetPath.endsWith("/")) {
+                channelSftp.put(new java.io.FileInputStream(file), targetPath + fileName);
+            } else {
+                channelSftp.put(new java.io.FileInputStream(file), targetPath + "/" + fileName);
+            }
+
+            // 如果是压缩文件且需要解压
+            if (extract) {
+                // 使用exec通道执行解压命令
+                ChannelExec execChannel = null;
+                try {
+                    execChannel = (ChannelExec) session.openChannel("exec");
+                    String command;
+                    String fullPath = targetPath.endsWith("/") ? targetPath + fileName : targetPath + "/" + fileName;
+
+                    if (fileName.toLowerCase().endsWith(".zip")) {
+                        command = "cd " + targetPath + " && unzip -o " + fullPath;
+                    } else if (fileName.toLowerCase().endsWith(".tar")) {
+                        command = "cd " + targetPath + " && tar -xf " + fullPath;
+                    } else if (fileName.toLowerCase().endsWith(".tar.gz") || fileName.toLowerCase().endsWith(".tgz")) {
+                        command = "cd " + targetPath + " && tar -xzf " + fullPath;
+                    } else if (fileName.toLowerCase().endsWith(".gz")) {
+                        command = "cd " + targetPath + " && gunzip -f " + fullPath;
+                    } else if (fileName.toLowerCase().endsWith(".rar")) {
+                        command = "cd " + targetPath + " && unrar x " + fullPath;
+                    } else {
+                            throw new Exception("不支持的压缩文件格式");
+                    }
+
+                    ((ChannelExec) execChannel).setCommand(command);
+
+                    execChannel.setInputStream(null);
+                    execChannel.setOutputStream(System.out);
+                    ((ChannelExec) execChannel).setErrStream(System.err);
+
+                    execChannel.connect(30000);
+
+                    // 等待命令执行完成
+                    int exitStatus = -1;
+                    while (true) {
+                        if (execChannel.isClosed()) {
+                            exitStatus = execChannel.getExitStatus();
+                            break;
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                            // 忽略
+                        }
+                    }
+
+                    if (exitStatus != 0) {
+                        throw new Exception("解压失败，退出状态码: " + exitStatus);
+                    }
+                } finally {
+                    if (execChannel != null) {
+                        execChannel.disconnect();
+                    }
+                }
+            }
+        } finally {
+            // 关闭连接
+            if (channelSftp != null) {
+                channelSftp.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
+        }
+    }
+    
+    /**
+     * 在远程主机上执行命令
+     *
+     * @param host     主机地址
+     * @param port     端口
+     * @param username 用户名
+     * @param password 密码
+     * @param command  要执行的命令
+     * @return 命令执行结果
+     * @throws Exception 异常信息
+     */
+    private String executeRemoteCommand(String host, Integer port, String username, String password, String command)
+            throws Exception {
+        JSch jsch = new JSch();
+        Session session = null;
+        
+        try {
+            // 建立SSH连接
+            session = jsch.getSession(username, host, port);
+            session.setPassword(password);
+
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+
+            session.connect(30000);
+
+            // 创建执行通道
+            ChannelExec channel = (ChannelExec) session.openChannel("exec");
+            channel.setCommand(command);
+            
+            // 获取命令输出
+            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+            channel.setOutputStream(outputStream);
+            channel.setErrStream(outputStream);
+            channel.connect(30000);
+
+            // 等待命令执行完成
+            while (channel.isConnected()) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    // 忽略
+                }
+            }
+
+            // 获取输出结果
+            String result = outputStream.toString();
+            
+            if (channel.getExitStatus() != 0) {
+                throw new Exception("命令执行失败: " + result);
+            }
+            
+            return result;
+        } finally {
+            if (session != null) {
+                session.disconnect();
+            }
+        }
     }
     
     /**
@@ -461,5 +764,132 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         compressedExtensions.add("7z");
         
         return compressedExtensions.contains(extension);
+    }
+    
+    /**
+     * 解压ZIP文件
+     *
+     * @param zipFile 压缩文件
+     * @param destDir 目标目录
+     * @throws IOException IO异常
+     */
+    private void extractZipFile(File zipFile, File destDir) throws IOException {
+        java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipFile);
+        try {
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                java.util.zip.ZipEntry entry = entries.nextElement();
+                File entryDestination = new File(destDir, entry.getName());
+                
+                if (entry.isDirectory()) {
+                    entryDestination.mkdirs();
+                } else {
+                    entryDestination.getParentFile().mkdirs();
+                    try (java.io.InputStream in = zip.getInputStream(entry);
+                         java.io.OutputStream out = new java.io.FileOutputStream(entryDestination)) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, len);
+                        }
+                    }
+                }
+            }
+        } finally {
+            zip.close();
+        }
+    }
+    
+    /**
+     * 解压TAR文件
+     *
+     * @param tarFile 压缩文件
+     * @param destDir 目标目录
+     * @throws IOException IO异常
+     */
+    private void extractTarFile(File tarFile, File destDir) throws IOException {
+        try (org.apache.commons.compress.archivers.tar.TarArchiveInputStream tarIn = 
+                new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                        new java.io.BufferedInputStream(
+                                new java.io.FileInputStream(tarFile)))) {
+            
+            org.apache.commons.compress.archivers.ArchiveEntry entry;
+            while ((entry = tarIn.getNextEntry()) != null) {
+                File outputFile = new File(destDir, entry.getName());
+                if (entry.isDirectory()) {
+                    if (!outputFile.exists()) {
+                        outputFile.mkdirs();
+                    }
+                } else {
+                    outputFile.getParentFile().mkdirs();
+                    try (java.io.OutputStream outputFileStream = new java.io.FileOutputStream(outputFile)) {
+                        org.apache.commons.compress.utils.IOUtils.copy(tarIn, outputFileStream);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * 解压TAR.GZ文件
+     *
+     * @param tarGzFile 压缩文件
+     * @param destDir   目标目录
+     * @throws IOException IO异常
+     */
+    private void extractTarGzFile(File tarGzFile, File destDir) throws IOException {
+        try (org.apache.commons.compress.archivers.tar.TarArchiveInputStream tarIn = 
+                new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                        new java.util.zip.GZIPInputStream(
+                                new java.io.BufferedInputStream(
+                                        new java.io.FileInputStream(tarGzFile))))) {
+            
+            org.apache.commons.compress.archivers.ArchiveEntry entry;
+            while ((entry = tarIn.getNextEntry()) != null) {
+                File outputFile = new File(destDir, entry.getName());
+                if (entry.isDirectory()) {
+                    if (!outputFile.exists()) {
+                        outputFile.mkdirs();
+                    }
+                } else {
+                    outputFile.getParentFile().mkdirs();
+                    try (java.io.OutputStream outputFileStream = new java.io.FileOutputStream(outputFile)) {
+                        org.apache.commons.compress.utils.IOUtils.copy(tarIn, outputFileStream);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * 解压GZ文件
+     *
+     * @param gzFile  压缩文件
+     * @param destDir 目标目录
+     * @throws IOException IO异常
+     */
+    private void extractGzFile(File gzFile, File destDir) throws IOException {
+        String fileName = gzFile.getName();
+        String outputFileName;
+        
+        // 移除.gz扩展名
+        if (fileName.toLowerCase().endsWith(".gz")) {
+            outputFileName = fileName.substring(0, fileName.length() - 3);
+        } else {
+            outputFileName = fileName + ".extracted";
+        }
+        
+        File outputFile = new File(destDir, outputFileName);
+        
+        try (java.util.zip.GZIPInputStream gzipIn = new java.util.zip.GZIPInputStream(
+                new java.io.FileInputStream(gzFile));
+             java.io.FileOutputStream fos = new java.io.FileOutputStream(outputFile)) {
+            
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = gzipIn.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        }
     }
 } 

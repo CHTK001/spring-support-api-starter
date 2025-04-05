@@ -39,6 +39,9 @@ public class MaintenanceScriptController {
     @PostMapping("save")
     @Operation(summary = "创建维护脚本")
     public ReturnResult<MaintenanceScriptResponse> createMaintenanceScript(@RequestBody MaintenanceScriptRequest request) {
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
         return maintenanceScriptService.createMaintenanceScript(request);
     }
 
@@ -87,7 +90,10 @@ public class MaintenanceScriptController {
     @GetMapping("/list")
     @Operation(summary = "获取维护脚本列表")
     public ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(
-            @RequestParam(value = "groupId", required = false) Long maintenanceGroupId) {
+            @RequestParam(value = "groupId") Long maintenanceGroupId) {
+        if (maintenanceGroupId == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
         return maintenanceScriptService.listMaintenanceScripts(maintenanceGroupId);
     }
 
