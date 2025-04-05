@@ -1,9 +1,11 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MaintenanceLog;
 import com.chua.starter.monitor.pojo.request.MaintenanceLogRequest;
+import com.chua.starter.mybatis.entity.Query;
 
 import java.util.List;
 
@@ -26,9 +28,10 @@ public interface MaintenanceLogService extends IService<MaintenanceLog> {
      * 根据维护组ID获取日志列表
      *
      * @param groupId 维护组ID
+     * @param query
      * @return 日志列表
      */
-    ReturnResult<List<MaintenanceLog>> getLogsByGroupId(Long groupId);
+    ReturnPageResult<MaintenanceLog> getLogsByGroupId(Long groupId, Query<MaintenanceLog> query);
     
     /**
      * 根据维护主机ID获取日志列表

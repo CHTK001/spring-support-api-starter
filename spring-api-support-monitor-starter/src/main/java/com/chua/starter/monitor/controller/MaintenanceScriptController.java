@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -100,10 +101,10 @@ public class MaintenanceScriptController {
     @GetMapping("/list")
     @Operation(summary = "获取维护脚本列表", description = "根据维护组ID获取该组下的所有维护脚本")
     public ReturnResult<List<MaintenanceScriptResponse>> listMaintenanceScripts(
-            @Parameter(description = "维护组ID", required = true) 
+            @Parameter(description = "维护组ID", required = true)
             @RequestParam(value = "groupId") Long maintenanceGroupId) {
         if (maintenanceGroupId == null) {
-            return ReturnResult.error("维护组ID不能为空");
+            return ReturnResult.ok(Collections.emptyList());
         }
         return maintenanceScriptService.listMaintenanceScripts(maintenanceGroupId);
     }
