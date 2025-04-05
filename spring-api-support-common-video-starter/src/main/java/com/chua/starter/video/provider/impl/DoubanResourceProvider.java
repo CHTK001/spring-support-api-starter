@@ -1,9 +1,11 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.provider.ResourceProvider;
+import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,8 +19,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 豆瓣资源提供者实现
@@ -78,7 +83,21 @@ public class DoubanResourceProvider implements ResourceProvider {
                     try {
                         // 添加延迟，避免请求过快被封
                         TimeUnit.MILLISECONDS.sleep(500);
-                        detailDoc = Jsoup.connect(detailUrl)
+                        String html = HttpClient
+                                .get(detailUrl)
+                                .newInvoker()
+                                .execute()
+                                .content(String.class);
+                        String regex = "window\\.location\\.replace\\('(https?://[^']*)'\\)";
+
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher matcher = pattern.matcher(html);
+
+                        if (!matcher.find()) {
+                            return ReturnResult.ok(Collections.emptyList());
+                        }
+                        String url = matcher.group(1);
+                        detailDoc = Jsoup.connect(url)
                                 .userAgent(USER_AGENT)
                                 .timeout(TIMEOUT)
                                 .get();
@@ -87,11 +106,20 @@ public class DoubanResourceProvider implements ResourceProvider {
                     }
 
                     String director = "";
+                    String writer = "";
                     String actors = "";
                     String year = "";
                     String type = "";
+                    String area = "";
+                    String language = "";
+                    String alias = "";
 
                     if (detailDoc != null) {
+                        try {
+                            rating = detailDoc.expectFirst("#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong").text();
+
+                        } catch (Exception ignored) {
+                        }
                         Element infoElement = detailDoc.selectFirst("div#info");
                         if (infoElement != null) {
                             String infoText = infoElement.text();
@@ -103,6 +131,12 @@ public class DoubanResourceProvider implements ResourceProvider {
                                     director = director.substring(0, director.indexOf("编剧:")).trim();
                                 } else if (director.contains("主演:")) {
                                     director = director.substring(0, director.indexOf("主演:")).trim();
+                                }
+                            }
+                            if (infoText.contains("编剧:")) {
+                                writer = infoText.substring(infoText.indexOf("编剧:") + 3);
+                                if (writer.contains("主演:")) {
+                                    writer = writer.substring(0, writer.indexOf("主演:")).trim();
                                 }
                             }
 
@@ -133,6 +167,23 @@ public class DoubanResourceProvider implements ResourceProvider {
                                     type = type.substring(0, type.indexOf("制片国家/地区:")).trim();
                                 }
                             }
+                            if (infoText.contains("制片国家/地区:")) {
+                                area = infoText.substring(infoText.indexOf("制片国家/地区:") + 8);
+                                if (area.contains("语言:")) {
+                                    area = area.substring(0, area.indexOf("语言:")).trim();
+                                }
+                            }
+
+                            if (infoText.contains("语言:")) {
+                                int i = infoText.indexOf("语言:");
+                                language = infoText.substring(i + 3, infoText.indexOf("上映日期", i + 1));
+                            }
+
+                            if (infoText.contains("又名:")) {
+                                int i = infoText.indexOf("又名:");
+                                alias = infoText.substring(i + 3, infoText.indexOf("IMDb", i + 1));
+                            }
+
                         }
                     }
 
@@ -140,13 +191,23 @@ public class DoubanResourceProvider implements ResourceProvider {
                     VideoInfo videoInfo = new VideoInfo();
                     videoInfo.setVideoName(title);
                     videoInfo.setVideoAliasName(title);
-                    videoInfo.setVideoDirector(director);
-                    videoInfo.setVideoActor(actors);
+                    videoInfo.setVideoDirector(Joiner.on(",").join(director.split("/")));
+                    videoInfo.setVideoActor(Joiner.on(",").join(actors.split("/")));
                     videoInfo.setVideoType(type);
+                    videoInfo.setVideoDistrict(Joiner.on(",").join(area.split("/")));
+                    videoInfo.setVideoWriter(Joiner.on(",").join(writer.split("/")));
+                    videoInfo.setVideoLanguage(language);
+//                    videoInfo.setVideoPlatform("豆瓣");
+                    videoInfo.setVideoAliasName(alias);
                     videoInfo.setVideoDescription(description);
                     videoInfo.setVideoScore(Converter.toBigDecimal(rating));
                     videoInfo.setVideoCover(coverUrl);
-                    videoInfo.setVideoYear(Converter.convertIfNecessary(year, Integer.class));
+                    if (year.contains("-")) {
+                        videoInfo.setVideoYear(Converter.convertIfNecessary(year, LocalDateTime.class).getYear());
+                    } else {
+                        videoInfo.setVideoYear(Converter.convertIfNecessary(year, Integer.class));
+                    }
+                    videoInfo.setVideoRelease(year);
                     videoInfo.setCreateTime(LocalDateTime.now());
                     videoInfo.setUpdateTime(LocalDateTime.now());
 
