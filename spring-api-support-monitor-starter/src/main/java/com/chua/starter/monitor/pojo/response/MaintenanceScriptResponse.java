@@ -45,6 +45,12 @@ public class MaintenanceScriptResponse {
     private String maintenanceScriptPath;
 
     /**
+     * 脚本描述
+     */
+    @Schema(description = "脚本描述")
+    private String maintenanceScriptDesc;
+
+    /**
      * 脚本状态：0-停用，1-启用
      */
     @Schema(description = "脚本状态：0-停用，1-启用")
