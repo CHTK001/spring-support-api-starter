@@ -1,10 +1,18 @@
 package com.chua.starter.video.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.service.VideoDownloadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
+
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  * 视频下载地址控制器
@@ -26,7 +34,11 @@ public class VideoDownloadController {
      * @return 操作结果
      */
     @PostMapping("save")
-    public ReturnResult<Void> add(@RequestBody VideoDownload videoDownload) {
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true, key = "#videoDownload.videoId")
+    public ReturnResult<Void> add(@Validated(AddGroup.class) @RequestBody VideoDownload videoDownload, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ReturnResult.error(Objects.requireNonNull(bindingResult.getAllErrors().getFirst().getDefaultMessage()));
+        }
         videoDownloadService.save(videoDownload);
         return ReturnResult.success();
     }
@@ -38,6 +50,7 @@ public class VideoDownloadController {
      * @return 操作结果
      */
     @PutMapping("update")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = {"video:info:list", "video:info:detail"}, allEntries = true, key = "#videoDownload.videoId")
     public ReturnResult<Void> update(@RequestBody VideoDownload videoDownload) {
         videoDownloadService.updateById(videoDownload);
         return ReturnResult.success();
