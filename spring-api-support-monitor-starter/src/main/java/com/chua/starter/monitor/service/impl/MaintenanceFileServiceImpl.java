@@ -1,10 +1,11 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
+import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceFile;
 import com.chua.starter.monitor.entity.MaintenanceHost;
@@ -21,16 +22,12 @@ import com.chua.starter.monitor.service.MaintenanceLogService;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
-import com.chua.socketio.support.session.SocketSessionTemplate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,9 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -377,13 +372,13 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             if (request.getMaintenanceFileStatus() != null) {
                 updateFile.setMaintenanceFileStatus(request.getMaintenanceFileStatus());
             }
-            
-            if (request.getMaintenanceFileOverride() != null) {
-                updateFile.setMaintenanceFileIsOverride(request.getMaintenanceFileOverride());
+
+            if (request.getMaintenanceFileIsOverride() != null) {
+                updateFile.setMaintenanceFileIsOverride(request.getMaintenanceFileIsOverride());
             }
-            
-            if (request.getMaintenanceFileExtract() != null) {
-                updateFile.setMaintenanceFileIsExtract(request.getMaintenanceFileExtract());
+
+            if (request.getMaintenanceFileIsExtract() != null) {
+                updateFile.setMaintenanceFileIsExtract(request.getMaintenanceFileIsExtract());
             }
             
             updateFile.setUpdateTime(LocalDateTime.now());
@@ -647,7 +642,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     socketSessionTemplate.send(eventKey, String.format("--- 同步到主机 [%s] 开始 ---", host.getMaintenanceHostAddress()));
                     
                     // 上传文件到远程主机
-                    boolean overwrite = file.getMaintenanceFileOverride() != null && file.getMaintenanceFileOverride() == 1;
+                    boolean overwrite = file.getMaintenanceFileIsOverride() != null && file.getMaintenanceFileIsOverride() == 1;
                     boolean extract = file.getMaintenanceFileIsExtract() != null && file.getMaintenanceFileIsExtract() == 1;
                     
                     socketSessionTemplate.send(eventKey, String.format("覆盖设置: %s, 解压设置: %s", 
@@ -720,7 +715,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     try {
                         channelSftp.cd(path.toString());
                     } catch (SftpException ex) {
-                        socketSessionTemplate.send(eventKey, String.format("创建目录 [%s]", path.toString()));
+                        socketSessionTemplate.send(eventKey, String.format("创建目录 [%s]", path));
                         channelSftp.mkdir(path.toString());
                         channelSftp.cd(path.toString());
                     }
@@ -1058,23 +1053,22 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 operationType, 
                 operationDesc,
                 result ? "成功" : "失败");
-                
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            String ipAddress = getClientIp(request);
+
+            String ipAddress = RequestUtils.getIpAddress();
             
             MaintenanceLogRequest logRequest = new MaintenanceLogRequest();
             logRequest.setMaintenanceGroupId(file.getMaintenanceGroupId());
             logRequest.setTargetType(4); // 4表示文件
-            logRequest.setTargetId(file.getMaintenanceFileId());
+            logRequest.setMaintenanceFileId(file.getMaintenanceFileId());
             logRequest.setOperationType(operationType);
-            logRequest.setOperationDesc(operationDesc);
+            logRequest.setOperationDetails(operationDesc);
             logRequest.setOperationResult(result);
-            logRequest.setOperationMessage(resultMessage);
-            logRequest.setOperationIp(ipAddress);
+            logRequest.setResultMessage(resultMessage);
+            logRequest.setIpAddress(ipAddress);
             
             ReturnResult<Boolean> logResult = maintenanceLogService.logOperation(logRequest);
-            if (!logResult.getSuccess()) {
-                log.warn("记录文件操作日志失败: {}", logResult.getMessage());
+            if (!logResult.isOk()) {
+                log.warn("记录文件操作日志失败: {}", logResult.getMsg());
             } else {
                 log.debug("文件操作日志记录成功");
             }
@@ -1082,30 +1076,4 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             log.error("记录文件操作日志异常: {}", e.getMessage(), e);
         }
     }
-    
-    /**
-     * 获取客户端IP地址
-     *
-     * @param request HTTP请求
-     * @return IP地址
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
-    }
-} 
+}
