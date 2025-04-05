@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @author CH
  */
 @Data
-@TableName("t_maintenance_group")
+@TableName("maintenance_group")
 @Schema(description = "维护组")
 public class MaintenanceGroup {
 
