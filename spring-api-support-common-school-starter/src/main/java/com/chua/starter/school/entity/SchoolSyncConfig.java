@@ -23,71 +23,71 @@ public class SchoolSyncConfig {
      */
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID")
-    private Long configId;
+    private Long schoolSyncConfigId;
 
     /**
      * 配置名称
      */
     @Schema(description = "配置名称")
-    private String configName;
+    private String schoolSyncConfigName;
 
     /**
      * 同步目标（如学校信息、专业信息等）
      */
     @Schema(description = "同步目标（如学校信息、专业信息等）")
-    private String syncTarget;
+    private String schoolSyncConfigTarget;
 
     /**
      * 同步URL
      */
     @Schema(description = "同步URL")
-    private String syncUrl;
+    private String schoolSyncConfigUrl;
 
     /**
      * 同步类型
      */
     @Schema(description = "同步类型")
-    private String syncType;
+    private String schoolSyncConfigType;
 
     /**
      * 同步Cookie
      */
     @Schema(description = "同步Cookie")
-    private String syncCookie;
+    private String schoolSyncConfigCookie;
 
     /**
      * 同步周期（单位：小时）
      */
     @Schema(description = "同步周期（单位：小时）")
-    private Integer syncPeriod;
+    private Integer schoolSyncConfigPeriod;
 
     /**
      * 上次同步时间
      */
     @Schema(description = "上次同步时间")
-    private LocalDateTime lastSyncTime;
+    private LocalDateTime schoolSyncConfigLastSyncTime;
 
     /**
      * 同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）
      */
     @Schema(description = "同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）")
-    private Integer syncStatus;
+    private Integer schoolSyncConfigStatus;
 
     /**
      * 备注
      */
     @Schema(description = "备注")
-    private String syncRemark;
+    private String schoolSyncConfigRemark;
 
     /**
      * 创建时间
      */
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private LocalDateTime schoolSyncConfigCreateTime;
 
     /**
      * 更新时间
      */
     @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
+    private LocalDateTime schoolSyncConfigUpdateTime;
 } 
