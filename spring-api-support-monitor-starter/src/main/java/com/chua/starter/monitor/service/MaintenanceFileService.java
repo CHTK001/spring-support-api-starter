@@ -67,4 +67,13 @@ public interface MaintenanceFileService {
      * @return 部署结果
      */
     ReturnResult<FileDeployResponse> deployFile(FileDeployRequest request);
+    
+    /**
+     * 同步文件到远程主机
+     * 将指定文件同步到维护组下的所有启用主机
+     *
+     * @param fileId 文件ID
+     * @return 同步任务ID
+     */
+    ReturnResult<String> syncFile(Long fileId);
 } 
