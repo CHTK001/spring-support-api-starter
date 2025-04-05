@@ -27,21 +27,25 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
     @Override
     public ReturnResult<MaintenanceHostResponse> createMaintenanceHost(MaintenanceHostRequest request) {
         try {
+            if (request.getMaintenanceGroupId() == null) {
+                return ReturnResult.error("维护组ID不能为空");
+            }
+            
             MaintenanceHost maintenanceHost = new MaintenanceHost();
             BeanUtils.copyProperties(request, maintenanceHost);
+
+            // 默认启用
+            if (maintenanceHost.getMaintenanceHostEnabled() == null) {
+                maintenanceHost.setMaintenanceHostEnabled(true);
+            }
+
             maintenanceHost.setMaintenanceHostCreateTime(LocalDateTime.now());
             maintenanceHost.setMaintenanceHostUpdateTime(LocalDateTime.now());
-            maintenanceHost.setMaintenanceHostEnabled(true);
-
-            if (maintenanceHost.getMaintenanceHostPort() == null) {
-                maintenanceHost.setMaintenanceHostPort(22);
-            }
 
             maintenanceHostMapper.insert(maintenanceHost);
 
             MaintenanceHostResponse response = new MaintenanceHostResponse();
             BeanUtils.copyProperties(maintenanceHost, response);
-
             return ReturnResult.success(response);
         } catch (Exception e) {
             return ReturnResult.error("创建维护主机失败: " + e.getMessage());
@@ -100,10 +104,12 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
     @Override
     public ReturnResult<List<MaintenanceHostResponse>> listMaintenanceHosts(Long maintenanceGroupId) {
         try {
-            LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
-            if (maintenanceGroupId != null) {
-                queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, maintenanceGroupId);
+            if (maintenanceGroupId == null) {
+                return ReturnResult.error("维护组ID不能为空");
             }
+            
+            LambdaQueryWrapper<MaintenanceHost> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, maintenanceGroupId);
             queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, true);
 
             List<MaintenanceHost> maintenanceHosts = maintenanceHostMapper.selectList(queryWrapper);
