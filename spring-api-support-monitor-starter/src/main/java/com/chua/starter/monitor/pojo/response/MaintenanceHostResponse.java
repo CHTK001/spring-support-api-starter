@@ -43,6 +43,11 @@ public class MaintenanceHostResponse {
      */
     @Schema(description = "用户名")
     private String maintenanceHostUsername;
+    /**
+     * 密码
+     */
+    @Schema(description = "密码")
+    private String maintenanceHostPassword;
 
     /**
      * 是否启用

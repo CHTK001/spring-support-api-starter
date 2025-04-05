@@ -14,17 +14,9 @@ import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.monitor.service.MaintenanceFileService;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -434,7 +426,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         // 查询维护组下的所有主机
         LambdaQueryWrapper<MaintenanceHost> hostQueryWrapper = new LambdaQueryWrapper<>();
         hostQueryWrapper.eq(MaintenanceHost::getMaintenanceGroupId, request.getMaintenanceGroupId());
-        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostStatus, 1); // 只部署到启用状态的主机
+        hostQueryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1); // 只部署到启用状态的主机
         List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(hostQueryWrapper);
 
             if (hosts.isEmpty()) {
@@ -464,6 +456,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         response.setDetails(new HashMap<>());
         
         // 异步处理文件部署
+        String finalSourceFilePath = sourceFilePath;
         CompletableFuture.runAsync(() -> {
             int successCount = 0;
             int failCount = 0;
@@ -478,7 +471,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     
                     // 上传文件
                     uploadFileToHost(
-                            new File(sourceFilePath),
+                            new File(finalSourceFilePath),
                             host.getMaintenanceHostAddress(),
                             host.getMaintenanceHostPort(),
                             host.getMaintenanceHostUsername(),
@@ -628,11 +621,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                             throw new Exception("不支持的压缩文件格式");
                     }
 
-                    ((ChannelExec) execChannel).setCommand(command);
+                    execChannel.setCommand(command);
 
                     execChannel.setInputStream(null);
                     execChannel.setOutputStream(System.out);
-                    ((ChannelExec) execChannel).setErrStream(System.err);
+                    execChannel.setErrStream(System.err);
 
                     execChannel.connect(30000);
 
