@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/maintenance/script")
-@Tag(name = "维护脚本管理", description = "维护脚本的创建、修改、删除、查询、执行等操作")
+@Tag(name = "维护脚本管理", description = "维护脚本的创建、修改、删除、查询、执行等操作，并支持脚本自动同步到维护组内所有主机")
 @RequiredArgsConstructor
 public class MaintenanceScriptController {
 
@@ -37,12 +37,13 @@ public class MaintenanceScriptController {
 
     /**
      * 创建维护脚本
+     * 脚本创建后会自动上传到维护组下所有启用的主机相同位置
      *
      * @param request 请求参数
      * @return 创建结果
      */
     @PostMapping("save")
-    @Operation(summary = "创建维护脚本", description = "创建一个新的维护脚本，返回创建后的脚本信息")
+    @Operation(summary = "创建维护脚本", description = "创建一个新的维护脚本，返回创建后的脚本信息。脚本将自动上传到维护组下所有启用的主机相同位置。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "创建成功", 
             content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
@@ -60,12 +61,13 @@ public class MaintenanceScriptController {
 
     /**
      * 更新维护脚本
+     * 脚本更新后会自动覆盖到维护组下所有启用的主机相同位置的脚本
      *
      * @param request 请求参数
      * @return 更新结果
      */
     @PutMapping("update")
-    @Operation(summary = "更新维护脚本", description = "根据ID更新维护脚本信息，返回更新后的脚本信息")
+    @Operation(summary = "更新维护脚本", description = "根据ID更新维护脚本信息，返回更新后的脚本信息。更新后的脚本将自动覆盖到维护组下所有启用的主机相同位置的脚本。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "更新成功", 
             content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
@@ -80,12 +82,13 @@ public class MaintenanceScriptController {
 
     /**
      * 删除维护脚本
+     * 脚本删除后会自动删除维护组下所有启用的主机相同位置的脚本
      *
      * @param maintenanceScriptId 脚本ID
      * @return 删除结果
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除维护脚本", description = "根据ID删除维护脚本")
+    @Operation(summary = "删除维护脚本", description = "根据ID删除维护脚本。删除后会自动删除维护组下所有启用的主机相同位置的脚本。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "删除成功", 
             content = @Content(schema = @Schema(implementation = Boolean.class))),
@@ -142,12 +145,14 @@ public class MaintenanceScriptController {
 
     /**
      * 运行脚本
+     * 
+     * 注意：此接口直接执行脚本内容，不依赖于主机上已存在的脚本文件
      *
      * @param request 请求参数
      * @return 运行结果
      */
     @PostMapping("/run")
-    @Operation(summary = "运行脚本", description = "执行指定的维护脚本，并返回执行结果")
+    @Operation(summary = "运行脚本", description = "执行指定的维护脚本，并返回执行结果。此操作直接执行脚本内容，不依赖于主机上已存在的脚本文件。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "执行成功", 
             content = @Content(schema = @Schema(implementation = RunScriptResponse.class))),
