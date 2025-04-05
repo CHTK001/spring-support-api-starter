@@ -83,7 +83,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
      */
     final SocketSessionTemplate socketSessionTemplate;
 
-    @Value("${maintenance.file.upload.path:/data/maintenance/files}")
+    @Value("${maintenance.file.upload.path:./data/maintenance/files}")
     private String uploadBasePath;
     
     // 异步任务线程池
@@ -120,22 +120,29 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             String message = "";
             
             try {
+                socketSessionTemplate.send(taskId, "开始上传文件");
                 // 确保目录存在
                 String destDir = uploadBasePath + "/" + request.getMaintenanceGroupId();
+                socketSessionTemplate.send(taskId, "开始创建目录");
                 if (request.getTargetPath() != null && !request.getTargetPath().isEmpty() && !"/".equals(request.getTargetPath())) {
                     destDir += "/" + request.getTargetPath();
                 }
+                socketSessionTemplate.send(taskId, "创建目录: " + destDir);
                 
                 Path dirPath = Paths.get(destDir);
                 if (!Files.exists(dirPath)) {
+                    socketSessionTemplate.send(taskId, "创建目录: " + destDir);
                     Files.createDirectories(dirPath);
+                    socketSessionTemplate.send(taskId, "创建目录成功");
                 }
                 
                 // 保存文件
+                socketSessionTemplate.send(taskId, "开始保存文件");
                 String originalFilename = file.getOriginalFilename();
                 File destFile = new File(dirPath.toFile(), originalFilename);
-                
+                socketSessionTemplate.send(taskId, "保存文件: " + destFile.getAbsolutePath());
                 if (destFile.exists() && (request.getOverwrite() == null || !request.getOverwrite())) {
+                    socketSessionTemplate.send(taskId, "文件已存在且不允许覆盖");
                     log.warn("文件已存在且不允许覆盖: {}", destFile.getAbsolutePath());
                     response.setStatus("failed");
                     response.setMessage("文件已存在且不允许覆盖");
@@ -144,9 +151,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     message = "文件已存在且不允许覆盖";
                     return;
                 }
-                
+
+                socketSessionTemplate.send(taskId, "开始保存文件到本地");
                 // 将文件保存到本地
                 file.transferTo(destFile);
+                socketSessionTemplate.send(taskId, "保存文件到本地成功");
                 log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                 
                 // 保存文件记录到数据库
@@ -164,12 +173,15 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 maintenanceFile.setUpdateTime(LocalDateTime.now());
                 
                 // 保存到数据库
+                socketSessionTemplate.send(taskId, "开始保存文件到数据库");
                 save(maintenanceFile);
                 log.info("文件信息已保存到数据库，文件ID: {}", maintenanceFile.getMaintenanceFileId());
-                
+                socketSessionTemplate.send(taskId, "保存文件到数据库成功");
+
+                socketSessionTemplate.send(taskId, "开始上传文件到主机");
                 // 记录操作日志
                 logOperation(maintenanceFile, 7, "上传文件", true, null);
-                
+                socketSessionTemplate.send(taskId, "文件上传成功");
                 success = true;
                 message = "文件上传成功";
                 response.setStatus("completed");
@@ -177,6 +189,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setSuccessCount(1);
                 response.setFailCount(0);
             } catch (Exception e) {
+                socketSessionTemplate.send(taskId, "文件上传失败: " + e.getMessage());
                 log.error("文件上传失败: {}", e.getMessage(), e);
                 success = false;
                 message = "文件上传失败: " + e.getMessage();
