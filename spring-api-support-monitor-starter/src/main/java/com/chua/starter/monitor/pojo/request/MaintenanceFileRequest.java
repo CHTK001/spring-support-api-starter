@@ -49,6 +49,12 @@ public class MaintenanceFileRequest {
     private Long maintenanceFileSize;
 
     /**
+     * 是否是压缩文件
+     */
+    @Schema(description = "是否压缩;0:否;1:是")
+    private Boolean maintenanceFileIsCompressed;
+
+    /**
      * 文件状态：0-失效，1-有效
      */
     @Schema(description = "状态;0:停用;1:启用")
@@ -65,4 +71,10 @@ public class MaintenanceFileRequest {
      */
     @Schema(description = "是否覆盖;0:否;1:是")
     private Integer maintenanceFileIsOverride;
+
+    /**
+     * 解压路径
+     */
+    @Schema(description = "解压路径")
+    private String maintenanceFileExtractPath;
 }
