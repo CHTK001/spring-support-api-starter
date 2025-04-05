@@ -2,9 +2,7 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.request.MaintenanceScriptRequest;
-import com.chua.starter.monitor.pojo.request.RunScriptRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceScriptResponse;
-import com.chua.starter.monitor.pojo.response.RunScriptResponse;
 import com.chua.starter.monitor.service.MaintenanceScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,13 +18,13 @@ import java.util.List;
 
 /**
  * 维护脚本管理控制器
- * 提供维护脚本的增删改查、执行等接口
+ * 提供维护脚本的增删改查、同步等接口
  *
  * @author CH
  */
 @RestController
 @RequestMapping("/v1/maintenance/script")
-@Tag(name = "维护脚本管理", description = "维护脚本的创建、修改、删除、查询、执行等操作，并支持脚本自动同步到维护组内所有主机")
+@Tag(name = "维护脚本管理", description = "维护脚本的创建、修改、删除、查询、同步等操作，支持脚本手动同步到维护组内所有主机")
 @RequiredArgsConstructor
 public class MaintenanceScriptController {
 
@@ -37,13 +35,13 @@ public class MaintenanceScriptController {
 
     /**
      * 创建维护脚本
-     * 脚本创建后会自动上传到维护组下所有启用的主机相同位置
+     * 脚本仅创建记录，不自动上传到主机
      *
      * @param request 请求参数
      * @return 创建结果
      */
     @PostMapping("save")
-    @Operation(summary = "创建维护脚本", description = "创建一个新的维护脚本，返回创建后的脚本信息。脚本将自动上传到维护组下所有启用的主机相同位置。")
+    @Operation(summary = "创建维护脚本", description = "创建一个新的维护脚本，返回创建后的脚本信息。脚本仅在数据库中创建记录，不会自动上传到主机。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "创建成功", 
             content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
@@ -61,13 +59,13 @@ public class MaintenanceScriptController {
 
     /**
      * 更新维护脚本
-     * 脚本更新后会自动覆盖到维护组下所有启用的主机相同位置的脚本
+     * 脚本仅更新记录，不自动上传到主机
      *
      * @param request 请求参数
      * @return 更新结果
      */
     @PutMapping("update")
-    @Operation(summary = "更新维护脚本", description = "根据ID更新维护脚本信息，返回更新后的脚本信息。更新后的脚本将自动覆盖到维护组下所有启用的主机相同位置的脚本。")
+    @Operation(summary = "更新维护脚本", description = "根据ID更新维护脚本信息，返回更新后的脚本信息。脚本仅在数据库中更新记录，不会自动更新主机上的脚本。")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "更新成功", 
             content = @Content(schema = @Schema(implementation = MaintenanceScriptResponse.class))),
@@ -144,26 +142,23 @@ public class MaintenanceScriptController {
     }
 
     /**
-     * 运行脚本
-     * 
-     * 注意：此接口直接执行脚本内容，不依赖于主机上已存在的脚本文件
+     * 同步脚本到远程主机
      *
-     * @param request 请求参数
-     * @return 运行结果
+     * @param maintenanceScriptId 脚本ID
+     * @return 同步结果
      */
-    @PostMapping("/run")
-    @Operation(summary = "运行脚本", description = "执行指定的维护脚本，并返回执行结果。此操作直接执行脚本内容，不依赖于主机上已存在的脚本文件。")
+    @PostMapping("/{id}/sync")
+    @Operation(summary = "同步脚本到远程主机", description = "将指定脚本同步到维护组下所有启用的主机，返回同步操作的结果。")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "执行成功", 
-            content = @Content(schema = @Schema(implementation = RunScriptResponse.class))),
-        @ApiResponse(responseCode = "400", description = "参数错误"),
-        @ApiResponse(responseCode = "404", description = "脚本或主机不存在"),
+        @ApiResponse(responseCode = "200", description = "同步操作已开始", 
+            content = @Content(schema = @Schema(implementation = Boolean.class))),
+        @ApiResponse(responseCode = "404", description = "维护脚本不存在"),
         @ApiResponse(responseCode = "500", description = "服务器错误")
     })
-    public ReturnResult<RunScriptResponse> runScript(
-            @Parameter(description = "脚本执行参数", required = true) 
-            @RequestBody RunScriptRequest request) {
-        return maintenanceScriptService.runScript(request);
+    public ReturnResult<Boolean> syncScript(
+            @Parameter(description = "维护脚本ID", required = true) 
+            @PathVariable("id") Long maintenanceScriptId) {
+        return maintenanceScriptService.syncScript(maintenanceScriptId);
     }
 
     /**
