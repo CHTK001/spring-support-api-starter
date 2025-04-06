@@ -14,8 +14,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 维护文件管理控制器
@@ -162,5 +171,72 @@ public class MaintenanceFileController {
     @Operation(summary = "同步文件到远程主机", description = "将指定文件同步到维护组下所有启用的主机，返回同步任务ID")
     public ReturnResult<String> syncFile(@PathVariable("id") Long id) {
         return maintenanceFileService.syncFile(id);
+    }
+
+    /**
+     * 替换文件
+     *
+     * @param file      新文件
+     * @param fileId    被替换的文件ID
+     * @param overwrite 是否覆盖（默认为true）
+     * @return 替换结果
+     */
+    @PostMapping("/replace/{fileId}")
+    @Operation(summary = "替换文件")
+    public ReturnResult<FileUploadResponse> replaceFile(
+            @RequestParam("file") MultipartFile file,
+            @PathVariable("fileId") Long fileId,
+            @RequestParam(value = "overwrite", defaultValue = "true") Boolean overwrite) {
+
+        if (fileId == null) {
+            return ReturnResult.error("文件ID不能为空");
+        }
+
+        return maintenanceFileService.replaceFile(file, fileId, overwrite);
+    }
+    
+    /**
+     * 下载文件
+     *
+     * @param fileId 文件ID
+     * @return 文件响应
+     */
+    @GetMapping("/download/{fileId}")
+    @Operation(summary = "下载文件")
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) {
+        if (fileId == null) {
+            throw new IllegalArgumentException("文件ID不能为空");
+        }
+        
+        try {
+            // 获取文件信息
+            MaintenanceFile file = maintenanceFileService.getById(fileId);
+            if (file == null) {
+                throw new IllegalArgumentException("文件不存在");
+            }
+            
+            // 构建文件路径
+            String filePath = maintenanceFileService.getFullFilePath(fileId);
+            
+            // 创建文件资源
+            Path path = Paths.get(filePath);
+            Resource resource = new UrlResource(path.toUri());
+            
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new IllegalArgumentException("文件不可读或不存在: " + filePath);
+            }
+            
+            // 设置响应头
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode(file.getMaintenanceFileName(), StandardCharsets.UTF_8));
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(resource.contentLength()));
+            
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+        } catch (Exception e) {
+            throw new RuntimeException("文件下载失败: " + e.getMessage(), e);
+        }
     }
 } 
