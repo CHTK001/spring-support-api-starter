@@ -2,7 +2,9 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.request.MaintenanceScriptRequest;
+import com.chua.starter.monitor.pojo.request.RunScriptRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceScriptResponse;
+import com.chua.starter.monitor.pojo.response.RunScriptResponse;
 import com.chua.starter.monitor.service.MaintenanceScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -138,5 +140,26 @@ public class MaintenanceScriptController {
             @Parameter(description = "状态值: 0-禁用, 1-启用", required = true) 
             @PathVariable("status") Integer status) {
         return maintenanceScriptService.updateScriptStatus(maintenanceScriptId, status);
+    }
+
+    /**
+     * 执行脚本
+     *
+     * @param request 执行脚本请求参数
+     * @return 执行结果
+     */
+    @PostMapping("/run")
+    @Operation(summary = "执行脚本", description = "执行指定的维护脚本，支持在指定主机或全部主机上执行")
+    public ReturnResult<RunScriptResponse> runScript(
+            @Parameter(description = "执行脚本请求参数", required = true)
+            @RequestBody RunScriptRequest request) {
+        if (request.getMaintenanceScriptId() == null) {
+            return ReturnResult.error("脚本ID不能为空");
+        }
+        if (request.getMaintenanceGroupId() == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
+        
+        return maintenanceScriptService.runScript(request);
     }
 } 

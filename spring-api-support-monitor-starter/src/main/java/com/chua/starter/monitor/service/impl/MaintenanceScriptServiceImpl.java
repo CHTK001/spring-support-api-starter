@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -521,25 +523,106 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 }
             }
 
+            // 生成唯一的任务ID
+            String taskId = UUID.randomUUID().toString().replace("-", "");
+            
+            // 记录操作日志
+            logOperation(script, 5, "执行维护脚本", true, "任务ID: " + taskId);
+            
+            // 使用Socket会话通知前端开始执行脚本
+            String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+            logger.debug("发送脚本执行开始事件到前端，eventKey=[{}], taskId=[{}]", eventKey, taskId);
+            socketSessionTemplate.send(eventKey, "开始执行脚本 [" + script.getMaintenanceScriptName() + "]，任务ID: " + taskId);
+            
+            // 创建响应对象
             RunScriptResponse response = new RunScriptResponse();
-            Map<String, String> results = new HashMap<>();
-            boolean allSuccess = true;
+            response.setTaskId(taskId);
+            response.setStatus("PROCESSING");
+            response.setResults(new HashMap<>());
+            
+            // 异步执行脚本
+            CompletableFuture.runAsync(() -> {
+                Map<String, String> results = new HashMap<>();
+                boolean allSuccess = true;
+                int completedHosts = 0;
+                int totalHosts = hosts.size();
+                
+                // 发送任务开始状态
+                Map<String, Object> startStatus = new HashMap<>();
+                startStatus.put("status", "RUNNING");
+                startStatus.put("message", "开始执行脚本 [" + script.getMaintenanceScriptName() + "]");
+                startStatus.put("progress", 0);
+                startStatus.put("total", totalHosts);
+                startStatus.put("completed", 0);
+                socketSessionTemplate.send(taskId, JSON.toJSONString(startStatus));
 
-            for (MaintenanceHost host : hosts) {
-                try {
-                    String result = executeScript(host, script.getMaintenanceScriptContent());
-                    results.put(host.getMaintenanceHostAddress(), result);
-                } catch (Exception e) {
-                    results.put(host.getMaintenanceHostAddress(), "执行失败: " + e.getMessage());
-                    allSuccess = false;
+                for (MaintenanceHost host : hosts) {
+                    try {
+                        // 更新单个主机执行状态
+                        Map<String, Object> hostRunning = new HashMap<>();
+                        hostRunning.put("hostId", host.getMaintenanceHostId());
+                        hostRunning.put("hostAddress", host.getMaintenanceHostAddress());
+                        hostRunning.put("status", "RUNNING");
+                        hostRunning.put("message", "正在执行脚本...");
+                        socketSessionTemplate.send(taskId, JSON.toJSONString(hostRunning));
+                        
+                        // 执行脚本
+                        String result = executeScript(host, script.getMaintenanceScriptContent());
+                        results.put(host.getMaintenanceHostAddress(), result);
+                        
+                        // 更新成功状态
+                        Map<String, Object> hostSuccess = new HashMap<>();
+                        hostSuccess.put("hostId", host.getMaintenanceHostId());
+                        hostSuccess.put("hostAddress", host.getMaintenanceHostAddress());
+                        hostSuccess.put("status", "SUCCESS");
+                        hostSuccess.put("message", "脚本执行成功");
+                        socketSessionTemplate.send(taskId, JSON.toJSONString(hostSuccess));
+                    } catch (Exception e) {
+                        logger.error("在主机 [{}] 上执行脚本失败: {}", host.getMaintenanceHostAddress(), e.getMessage(), e);
+                        results.put(host.getMaintenanceHostAddress(), "执行失败: " + e.getMessage());
+                        allSuccess = false;
+                        
+                        // 更新失败状态
+                        Map<String, Object> hostFailed = new HashMap<>();
+                        hostFailed.put("hostId", host.getMaintenanceHostId());
+                        hostFailed.put("hostAddress", host.getMaintenanceHostAddress());
+                        hostFailed.put("status", "FAILED");
+                        hostFailed.put("message", "脚本执行失败: " + e.getMessage());
+                        socketSessionTemplate.send(taskId, JSON.toJSONString(hostFailed));
+                    }
+                    
+                    // 更新整体进度
+                    completedHosts++;
+                    int progress = (int) ((completedHosts / (double) totalHosts) * 100);
+                    Map<String, Object> progressStatus = new HashMap<>();
+                    progressStatus.put("status", "RUNNING");
+                    progressStatus.put("progress", progress);
+                    progressStatus.put("total", totalHosts);
+                    progressStatus.put("completed", completedHosts);
+                    socketSessionTemplate.send(taskId, JSON.toJSONString(progressStatus));
                 }
-            }
-
-            response.setResults(results);
-            response.setAllSuccess(allSuccess);
+                
+                // 发送任务完成状态
+                String finalStatus = allSuccess ? "SUCCESS" : "COMPLETED_WITH_ERRORS";
+                Map<String, Object> completeStatus = new HashMap<>();
+                completeStatus.put("status", finalStatus);
+                completeStatus.put("message", "脚本 [" + script.getMaintenanceScriptName() + "] 执行" + (allSuccess ? "成功" : "完成，但有错误"));
+                completeStatus.put("progress", 100);
+                completeStatus.put("total", totalHosts);
+                completeStatus.put("completed", completedHosts);
+                completeStatus.put("results", results);
+                socketSessionTemplate.send(taskId, JSON.toJSONString(completeStatus));
+                
+                // 发送事件通知
+                socketSessionTemplate.send(eventKey, "脚本 [" + script.getMaintenanceScriptName() + "] 执行" + (allSuccess ? "成功" : "完成，但有错误"));
+                
+                // 记录最终结果
+                logOperation(script, 5, "执行维护脚本", allSuccess, "任务执行" + (allSuccess ? "成功" : "完成，但有错误"));
+            });
 
             return ReturnResult.success(response);
         } catch (Exception e) {
+            logger.error("执行脚本失败: {}", e.getMessage(), e);
             return ReturnResult.error("执行脚本失败: " + e.getMessage());
         }
     }

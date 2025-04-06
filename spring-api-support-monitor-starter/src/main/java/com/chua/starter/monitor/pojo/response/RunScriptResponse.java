@@ -15,6 +15,18 @@ import java.util.Map;
 public class RunScriptResponse {
 
     /**
+     * 任务ID，用于前端查询执行进度
+     */
+    @Schema(description = "任务ID，用于前端查询执行进度")
+    private String taskId;
+    
+    /**
+     * 任务状态
+     */
+    @Schema(description = "任务状态: PROCESSING, RUNNING, SUCCESS, FAILED, COMPLETED_WITH_ERRORS")
+    private String status;
+    
+    /**
      * 执行结果，键为主机地址，值为执行结果
      */
     @Schema(description = "执行结果，键为主机地址，值为执行结果")
