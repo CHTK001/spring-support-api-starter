@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.IoUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
@@ -32,10 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 /**
  * 维护文件服务实现
@@ -155,7 +152,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
 
                 socketSessionTemplate.send(taskId, "开始保存文件到本地");
                 // 将文件保存到本地
-                file.transferTo(destFile);
+                writeFileToLocal(file, destFile);
                 socketSessionTemplate.send(taskId, "保存文件到本地成功");
                 log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                 
@@ -164,7 +161,10 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
                 maintenanceFile.setMaintenanceFileName(originalFilename);
                 maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
-                maintenanceFile.setMaintenanceFileSize(file.getSize());
+                try {
+                    maintenanceFile.setMaintenanceFileSize(file.getResource().contentLength());
+                } catch (Exception e) {
+                }
                 maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
                 maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                 maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
@@ -203,7 +203,16 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         return ReturnResult.success(response);
     }
-    
+
+    private void writeFileToLocal(MultipartFile file, File destFile) {
+        try (InputStream inputStream = file.getInputStream();
+             FileOutputStream outputStream = new FileOutputStream(destFile)) {
+            IoUtils.write(inputStream, outputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<FileUploadResponse> uploadFiles(MultipartFile[] files, FileUploadRequest request) {
@@ -257,7 +266,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         }
                         
                         // 将文件保存到本地
-                        file.transferTo(destFile);
+                        writeFileToLocal(file, destFile);
                         log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                         
                         // 保存文件记录到数据库
@@ -1179,7 +1188,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         if (originalFile == null) {
             return ReturnResult.error("文件不存在");
         }
-        
+        String eventKey = "event-maintenance-file-" + originalFile.getMaintenanceGroupId();
         FileUploadResponse response = new FileUploadResponse();
         String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
@@ -1187,16 +1196,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         response.setTotalCount(1);
         
         // 发送开始替换文件的事件消息
-        socketSessionTemplate.sendEventMessage(
-                "maintenance:file:replace:start",
-                Map.of(
-                        "taskId", taskId,
-                        "fileName", originalFile.getMaintenanceFileName(),
-                        "fileId", fileId,
-                        "groupId", originalFile.getMaintenanceGroupId(),
-                        "timestamp", System.currentTimeMillis()
-                )
-        );
+        socketSessionTemplate.send(eventKey, "开始替换文件");
         
         // 异步处理文件替换
         CompletableFuture.runAsync(() -> {
@@ -1235,9 +1235,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         log.warn("无法删除旧文件: {}", destFile.getAbsolutePath());
                     }
                 }
-                
+
+                socketSessionTemplate.send(eventKey, "正在删除旧文件...");
                 // 将新文件保存到本地
-                file.transferTo(destFile);
+                writeFileToLocal(file, destFile);
+                socketSessionTemplate.send(eventKey, "旧文件已删除，正在保存新文件...");
                 log.info("文件已替换: {}", destFile.getAbsolutePath());
                 
                 // 更新数据库记录
@@ -1248,16 +1250,21 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 
                 // 如果上传的文件名称与原文件不同，更新文件类型
                 if (!originalFilename.equals(originalFile.getMaintenanceFileName())) {
+                    socketSessionTemplate.send(eventKey, "文件名已更改，正在更新数据库记录...");
                     String fileExtension = getFileExtension(originalFilename);
                     if (!fileExtension.equals(originalFile.getMaintenanceFileType())) {
+                        socketSessionTemplate.send(eventKey, "文件类型已更改，正在更新数据库记录...");
                         originalFile.setMaintenanceFileType(fileExtension);
                         originalFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                     }
                 }
                 
                 // 更新到数据库
+                socketSessionTemplate.send(eventKey, "文件已替换，正在更新数据库记录...");
                 updateById(originalFile);
+                socketSessionTemplate.send(eventKey, "文件已替换，正在更新数据库记录...");
                 log.info("文件信息已更新，文件ID: {}", originalFile.getMaintenanceFileId());
+                socketSessionTemplate.send(eventKey, "文件替换成功，保存路径：" + destFile.getAbsolutePath());
                 
                 // 记录操作日志
                 logOperation(originalFile, 2, "替换文件", true, null);
@@ -1270,18 +1277,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setFailCount(0);
                 
                 // 发送替换成功的事件消息
-                socketSessionTemplate.sendEventMessage(
-                        "maintenance:file:replace:success",
-                        Map.of(
-                                "taskId", taskId,
-                                "fileName", originalFile.getMaintenanceFileName(),
-                                "fileId", fileId,
-                                "groupId", originalFile.getMaintenanceGroupId(),
-                                "timestamp", System.currentTimeMillis(),
-                                "message", "文件替换成功",
-                                "path", destFile.getAbsolutePath()
-                        )
-                );
+                socketSessionTemplate.send(eventKey, "文件替换成功，保存路径：" + destFile.getAbsolutePath());
             } catch (Exception e) {
                 log.error("文件替换失败: {}", e.getMessage(), e);
                 success = false;
@@ -1290,20 +1286,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 response.setMessage(message);
                 response.setFailCount(1);
                 response.setSuccessCount(0);
-                
-                // 发送替换失败的事件消息
-                socketSessionTemplate.sendEventMessage(
-                        "maintenance:file:replace:error",
-                        Map.of(
-                                "taskId", taskId,
-                                "fileName", originalFile.getMaintenanceFileName(),
-                                "fileId", fileId,
-                                "groupId", originalFile.getMaintenanceGroupId(),
-                                "timestamp", System.currentTimeMillis(),
-                                "message", message,
-                                "error", e.getMessage()
-                        )
-                );
+
+                socketSessionTemplate.send(eventKey, message);
             }
         }, executorService);
         
