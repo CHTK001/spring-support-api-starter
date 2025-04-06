@@ -5,6 +5,7 @@ import com.chua.starter.monitor.pojo.request.MaintenanceHostRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceHostResponse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 维护主机服务接口
@@ -70,4 +71,12 @@ public interface MaintenanceHostService {
      * @return 测试结果
      */
     ReturnResult<Boolean> testConnection(Integer maintenanceHostId);
+
+    /**
+     * 打开终端连接到主机
+     *
+     * @param hostId 主机ID
+     * @return 终端会话信息，包含会话ID等数据
+     */
+    ReturnResult<Map<String, Object>> openTerminal(Long hostId);
 }

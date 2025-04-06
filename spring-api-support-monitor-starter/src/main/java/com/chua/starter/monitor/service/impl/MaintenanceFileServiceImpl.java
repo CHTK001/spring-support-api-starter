@@ -270,11 +270,11 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         log.info("文件已保存到本地: {}", destFile.getAbsolutePath());
                         
                         // 保存文件记录到数据库
-                        MaintenanceFile maintenanceFile = new MaintenanceFile();
-                        maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
+            MaintenanceFile maintenanceFile = new MaintenanceFile();
+            maintenanceFile.setMaintenanceGroupId(request.getMaintenanceGroupId());
                         maintenanceFile.setMaintenanceFileName(originalFilename);
                         maintenanceFile.setMaintenanceFilePath(request.getTargetPath() == null ? "/" : request.getTargetPath());
-                        maintenanceFile.setMaintenanceFileSize(file.getSize());
+            maintenanceFile.setMaintenanceFileSize(file.getSize());
                         maintenanceFile.setMaintenanceFileType(getFileExtension(originalFilename));
                         maintenanceFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
                         maintenanceFile.setMaintenanceFileIsExtract(request.getExtract() != null && request.getExtract() ? 1 : 0);
@@ -347,7 +347,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             
             List<MaintenanceFile> files = list(wrapper);
             return ReturnResult.success(files);
-        } catch (Exception e) {
+                } catch (Exception e) {
             log.error("获取维护组文件列表失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取维护组文件列表失败: " + e.getMessage());
         }
@@ -606,8 +606,8 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 socketSessionTemplate.send(eventKey, "=== 部署任务失败 ===");
             }
         }, executorService);
-        
-        return ReturnResult.success(response);
+
+            return ReturnResult.success(response);
     }
 
     /**
@@ -668,7 +668,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             return ReturnResult.error("同步维护文件失败: " + e.getMessage());
         }
     }
-    
+
     /**
      * 同步文件到维护组下所有启用的主机
      *
@@ -817,7 +817,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 // 文件存在
                 if (overwrite == null || !overwrite) {
                     socketSessionTemplate.send(eventKey, String.format("文件 [%s] 已存在且未指定覆盖，上传中止", fileName));
-                    throw new Exception("文件已存在且未指定覆盖");
+                        throw new Exception("文件已存在且未指定覆盖");
                 }
                 // 如果需要覆盖，先删除现有文件
                 socketSessionTemplate.send(eventKey, String.format("文件 [%s] 已存在，正在删除旧文件...", fileName));
@@ -865,7 +865,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         socketSessionTemplate.send(eventKey, String.format("使用 unrar 命令解压文件 [%s]", fileName));
                     } else {
                         socketSessionTemplate.send(eventKey, String.format("文件 [%s] 格式不支持解压", fileName));
-                        throw new Exception("不支持的压缩文件格式");
+                            throw new Exception("不支持的压缩文件格式");
                     }
 
                     execChannel.setCommand(command);
@@ -1293,4 +1293,4 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         return ReturnResult.success(response);
     }
-}
+} 

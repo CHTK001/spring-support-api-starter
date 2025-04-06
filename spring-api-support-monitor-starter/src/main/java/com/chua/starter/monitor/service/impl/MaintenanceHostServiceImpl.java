@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
@@ -15,6 +15,7 @@ import com.chua.starter.monitor.service.MaintenanceLogService;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MaintenanceHostServiceImpl implements MaintenanceHostService {
@@ -210,6 +213,49 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
                 logOperation(maintenanceHost, 5, "测试主机连接", false, "连接异常: " + e.getMessage());
             }
             return ReturnResult.error("连接测试失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> openTerminal(Long hostId) {
+        try {
+            // 检查主机是否存在
+            MaintenanceHost maintenanceHost = maintenanceHostMapper.selectById(hostId);
+            if (maintenanceHost == null) {
+                return ReturnResult.error("维护主机不存在");
+            }
+            
+            // 检查主机是否启用
+            if (!maintenanceHost.getMaintenanceHostEnabled()) {
+                return ReturnResult.error("维护主机已禁用，无法建立连接");
+            }
+            
+            // 尝试建立SSH连接
+            boolean connected = testSshConnection(maintenanceHost);
+            if (!connected) {
+                logOperation(maintenanceHost, 6, "打开终端连接", false, "无法建立SSH连接");
+                return ReturnResult.error("无法建立SSH连接，请检查主机配置");
+            }
+            
+            // 生成唯一的会话ID
+            String genId = UUID.randomUUID().toString().replace("-", "");
+            
+            // 构建返回结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("genId", genId);
+            result.put("hostId", hostId);
+            result.put("connected", true);
+            
+            // 记录日志
+            logOperation(maintenanceHost, 6, "打开终端连接", true, "会话ID: " + genId);
+            
+            return ReturnResult.success(result);
+        } catch (Exception e) {
+            MaintenanceHost maintenanceHost = maintenanceHostMapper.selectById(hostId);
+            if (maintenanceHost != null) {
+                logOperation(maintenanceHost, 6, "打开终端连接", false, "异常: " + e.getMessage());
+            }
+            return ReturnResult.error("打开终端失败: " + e.getMessage());
         }
     }
 
