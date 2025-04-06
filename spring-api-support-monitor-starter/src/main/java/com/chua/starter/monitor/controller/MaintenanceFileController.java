@@ -12,9 +12,10 @@ import com.chua.starter.monitor.service.MaintenanceFileService;
 import com.chua.starter.mybatis.entity.Query;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,14 +36,14 @@ import java.nio.file.Paths;
 @RestController
 @RequestMapping("/v1/maintenance/file")
 @Tag(name = "维护文件管理")
+@RequiredArgsConstructor
 public class MaintenanceFileController {
 
 
     /**
      * 维护文件服务
      */
-    @Resource
-    private MaintenanceFileService maintenanceFileService;
+    private final MaintenanceFileService maintenanceFileService;
 
     /**
      * 上传文件
