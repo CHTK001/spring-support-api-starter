@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 维护主机管理控制器
@@ -118,5 +119,33 @@ public class MaintenanceHostController {
             @Parameter(description = "维护主机ID", required = true) 
             @PathVariable("id") Integer maintenanceHostId) {
         return maintenanceHostService.testConnection(maintenanceHostId);
+    }
+
+    /**
+     * 测试主机连接（POST方法）
+     *
+     * @param maintenanceHostId 维护主机ID
+     * @return 测试结果
+     */
+    @PostMapping("/test/{id}")
+    @Operation(summary = "测试主机连接", description = "测试与指定维护主机的连接是否正常")
+    public ReturnResult<Boolean> testConnectionPost(
+            @Parameter(description = "维护主机ID", required = true) 
+            @PathVariable("id") Integer maintenanceHostId) {
+        return maintenanceHostService.testConnection(maintenanceHostId);
+    }
+
+    /**
+     * 打开终端连接到主机
+     *
+     * @param hostId 主机ID
+     * @return 终端会话信息
+     */
+    @PostMapping("/terminal/{hostId}")
+    @Operation(summary = "打开终端连接", description = "建立与主机的终端连接，并返回会话ID")
+    public ReturnResult<Map<String, Object>> openTerminal(
+            @Parameter(description = "主机ID", required = true)
+            @PathVariable("hostId") Long hostId) {
+        return maintenanceHostService.openTerminal(hostId);
     }
 } 
