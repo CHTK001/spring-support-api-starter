@@ -46,6 +46,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * 维护文件服务实现
@@ -303,6 +304,60 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         LambdaQueryWrapper<MaintenanceFile> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MaintenanceFile::getMaintenanceGroupId, groupId);
         return ReturnPageResultUtils.ok(this.page(query.createFullPage(), queryWrapper));
+    }
+    
+    /**
+     * 获取维护组下的所有文件
+     *
+     * @param groupId 维护组ID
+     * @return 文件列表
+     */
+    @Override
+    public ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId) {
+        if (groupId == null) {
+            return ReturnResult.error("维护组ID不能为空");
+        }
+        
+        try {
+            LambdaQueryWrapper<MaintenanceFile> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(MaintenanceFile::getMaintenanceGroupId, groupId);
+            wrapper.orderByDesc(MaintenanceFile::getUpdateTime);
+            
+            List<MaintenanceFile> files = list(wrapper);
+            return ReturnResult.success(files);
+        } catch (Exception e) {
+            log.error("获取维护组文件列表失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取维护组文件列表失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 获取文件的完整路径
+     *
+     * @param fileId 文件ID
+     * @return 文件完整路径
+     */
+    @Override
+    public String getFullFilePath(Long fileId) {
+        if (fileId == null) {
+            throw new IllegalArgumentException("文件ID不能为空");
+        }
+        
+        MaintenanceFile file = getById(fileId);
+        if (file == null) {
+            throw new IllegalArgumentException("文件不存在: " + fileId);
+        }
+        
+        String basePath = uploadBasePath + "/" + file.getMaintenanceGroupId();
+        
+        // 如果指定了路径，则添加路径
+        String filePath = file.getMaintenanceFilePath();
+        if (filePath != null && !filePath.isEmpty() && !"/".equals(filePath)) {
+            basePath += "/" + filePath;
+        }
+        
+        // 拼接完整文件路径
+        return basePath + "/" + file.getMaintenanceFileName();
     }
     
     /**
@@ -1085,5 +1140,160 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         } catch (Exception e) {
             log.error("记录文件操作日志异常: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 替换文件
+     *
+     * @param file       新文件
+     * @param fileId     被替换的文件ID
+     * @param overwrite  是否覆盖
+     * @return 替换结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<FileUploadResponse> replaceFile(MultipartFile file, Long fileId, Boolean overwrite) {
+        if (file == null || file.isEmpty()) {
+            return ReturnResult.error("上传文件不能为空");
+        }
+        
+        if (fileId == null) {
+            return ReturnResult.error("文件ID不能为空");
+        }
+        
+        // 获取原文件信息
+        MaintenanceFile originalFile = getById(fileId);
+        if (originalFile == null) {
+            return ReturnResult.error("文件不存在");
+        }
+        
+        FileUploadResponse response = new FileUploadResponse();
+        String taskId = IdUtils.createUlid();
+        response.setTaskId(taskId);
+        response.setStatus("processing");
+        response.setTotalCount(1);
+        
+        // 发送开始替换文件的事件消息
+        socketSessionTemplate.sendEventMessage(
+                "maintenance:file:replace:start",
+                Map.of(
+                        "taskId", taskId,
+                        "fileName", originalFile.getMaintenanceFileName(),
+                        "fileId", fileId,
+                        "groupId", originalFile.getMaintenanceGroupId(),
+                        "timestamp", System.currentTimeMillis()
+                )
+        );
+        
+        // 异步处理文件替换
+        CompletableFuture.runAsync(() -> {
+            boolean success = false;
+            String message = "";
+            
+            try {
+                // 生成文件保存路径
+                String destDir = uploadBasePath + "/" + originalFile.getMaintenanceGroupId();
+                if (originalFile.getMaintenanceFilePath() != null && !originalFile.getMaintenanceFilePath().isEmpty() && !"/".equals(originalFile.getMaintenanceFilePath())) {
+                    destDir += "/" + originalFile.getMaintenanceFilePath();
+                }
+                
+                Path dirPath = Paths.get(destDir);
+                if (!Files.exists(dirPath)) {
+                    Files.createDirectories(dirPath);
+                }
+                
+                // 保存文件，使用原文件名称
+                String originalFilename = file.getOriginalFilename();
+                File destFile = new File(dirPath.toFile(), originalFile.getMaintenanceFileName());
+                
+                if (destFile.exists() && !overwrite) {
+                    log.warn("文件已存在且不允许覆盖: {}", destFile.getAbsolutePath());
+                    response.setStatus("failed");
+                    response.setMessage("文件已存在且不允许覆盖");
+                    response.setFailCount(1);
+                    response.setSuccessCount(0);
+                    message = "文件已存在且不允许覆盖";
+                    return;
+                }
+                
+                // 删除旧文件
+                if (destFile.exists()) {
+                    if (!destFile.delete()) {
+                        log.warn("无法删除旧文件: {}", destFile.getAbsolutePath());
+                    }
+                }
+                
+                // 将新文件保存到本地
+                file.transferTo(destFile);
+                log.info("文件已替换: {}", destFile.getAbsolutePath());
+                
+                // 更新数据库记录
+                originalFile.setMaintenanceFileSize(file.getSize());
+                // 保持原文件名不变，更新其他信息
+                originalFile.setMaintenanceFileIsOverride(overwrite ? 1 : 0);
+                originalFile.setUpdateTime(LocalDateTime.now());
+                
+                // 如果上传的文件名称与原文件不同，更新文件类型
+                if (!originalFilename.equals(originalFile.getMaintenanceFileName())) {
+                    String fileExtension = getFileExtension(originalFilename);
+                    if (!fileExtension.equals(originalFile.getMaintenanceFileType())) {
+                        originalFile.setMaintenanceFileType(fileExtension);
+                        originalFile.setMaintenanceFileIsCompressed(isCompressedFile(originalFilename));
+                    }
+                }
+                
+                // 更新到数据库
+                updateById(originalFile);
+                log.info("文件信息已更新，文件ID: {}", originalFile.getMaintenanceFileId());
+                
+                // 记录操作日志
+                logOperation(originalFile, 2, "替换文件", true, null);
+                
+                success = true;
+                message = "文件替换成功";
+                response.setStatus("completed");
+                response.setMessage("文件替换成功，保存路径：" + destFile.getAbsolutePath());
+                response.setSuccessCount(1);
+                response.setFailCount(0);
+                
+                // 发送替换成功的事件消息
+                socketSessionTemplate.sendEventMessage(
+                        "maintenance:file:replace:success",
+                        Map.of(
+                                "taskId", taskId,
+                                "fileName", originalFile.getMaintenanceFileName(),
+                                "fileId", fileId,
+                                "groupId", originalFile.getMaintenanceGroupId(),
+                                "timestamp", System.currentTimeMillis(),
+                                "message", "文件替换成功",
+                                "path", destFile.getAbsolutePath()
+                        )
+                );
+            } catch (Exception e) {
+                log.error("文件替换失败: {}", e.getMessage(), e);
+                success = false;
+                message = "文件替换失败: " + e.getMessage();
+                response.setStatus("failed");
+                response.setMessage(message);
+                response.setFailCount(1);
+                response.setSuccessCount(0);
+                
+                // 发送替换失败的事件消息
+                socketSessionTemplate.sendEventMessage(
+                        "maintenance:file:replace:error",
+                        Map.of(
+                                "taskId", taskId,
+                                "fileName", originalFile.getMaintenanceFileName(),
+                                "fileId", fileId,
+                                "groupId", originalFile.getMaintenanceGroupId(),
+                                "timestamp", System.currentTimeMillis(),
+                                "message", message,
+                                "error", e.getMessage()
+                        )
+                );
+            }
+        }, executorService);
+        
+        return ReturnResult.success(response);
     }
 }
