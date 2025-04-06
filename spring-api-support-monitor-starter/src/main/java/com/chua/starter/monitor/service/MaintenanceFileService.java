@@ -9,14 +9,17 @@ import com.chua.starter.monitor.pojo.request.MaintenanceFileRequest;
 import com.chua.starter.monitor.pojo.response.FileDeployResponse;
 import com.chua.starter.monitor.pojo.response.FileUploadResponse;
 import com.chua.starter.mybatis.entity.Query;
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 维护文件服务
  *
  * @author CH
  */
-public interface MaintenanceFileService {
+public interface MaintenanceFileService extends IService<MaintenanceFile> {
 
     /**
      * 上传单个文件到维护组下的所有主机
@@ -77,4 +80,30 @@ public interface MaintenanceFileService {
      * @return 同步任务ID
      */
     ReturnResult<String> syncFile(Long fileId);
+
+    /**
+     * 替换文件
+     *
+     * @param file       新文件
+     * @param fileId     被替换的文件ID
+     * @param overwrite  是否覆盖
+     * @return 替换结果
+     */
+    ReturnResult<FileUploadResponse> replaceFile(MultipartFile file, Long fileId, Boolean overwrite);
+
+    /**
+     * 获取维护组下的所有文件
+     *
+     * @param groupId 维护组ID
+     * @return 文件列表
+     */
+    ReturnResult<List<MaintenanceFile>> getFilesByGroupId(Long groupId);
+    
+    /**
+     * 获取文件的完整路径
+     *
+     * @param fileId 文件ID
+     * @return 文件完整路径
+     */
+    String getFullFilePath(Long fileId);
 } 
