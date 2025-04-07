@@ -69,7 +69,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logOperation(maintenanceScript, 1, "创建维护脚本", true, null);
             
             // 不再自动上传脚本到远程主机
-            
+
             return ReturnResult.success(response);
         } catch (Exception e) {
             logger.error("创建维护脚本失败", e);
@@ -97,7 +97,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logOperation(maintenanceScript, 2, "更新维护脚本", true, null);
             
             // 不再自动更新远程主机上的脚本
-            
+
             return ReturnResult.success(response);
         } catch (Exception e) {
             logger.error("更新维护脚本失败", e);
@@ -456,7 +456,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             }
             
             LambdaQueryWrapper<MaintenanceScript> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(MaintenanceScript::getMaintenanceGroupId, maintenanceGroupId);
+                queryWrapper.eq(MaintenanceScript::getMaintenanceGroupId, maintenanceGroupId);
 
             List<MaintenanceScript> maintenanceScripts = maintenanceScriptMapper.selectList(queryWrapper);
 
@@ -538,8 +538,8 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             
             // 异步执行脚本
             CompletableFuture.runAsync(() -> {
-                Map<String, String> results = new HashMap<>();
-                boolean allSuccess = true;
+            Map<String, String> results = new HashMap<>();
+            boolean allSuccess = true;
                 int completedHosts = 0;
                 int totalHosts = hosts.size();
                 
@@ -553,8 +553,8 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 socketSessionTemplate.send(eventKey, JSON.toJSONString(startStatus));
                 socketSessionTemplate.send(taskId, JSON.toJSONString(startStatus));
 
-                for (MaintenanceHost host : hosts) {
-                    try {
+            for (MaintenanceHost host : hosts) {
+                try {
                         // 更新单个主机执行状态
                         Map<String, Object> hostRunning = new HashMap<>();
                         hostRunning.put("hostId", host.getMaintenanceHostId());
@@ -566,7 +566,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
 
                         // 执行脚本
                         String result = executeScript(host, script.getMaintenanceScriptContent());
-                        results.put(host.getMaintenanceHostAddress(), result);
+                    results.put(host.getMaintenanceHostAddress(), result);
                         
                         // 更新成功状态
                         Map<String, Object> hostSuccess = new HashMap<>();
@@ -576,10 +576,10 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                         hostSuccess.put("message", "脚本执行成功");
                         socketSessionTemplate.send(eventKey, JSON.toJSONString(hostSuccess));
                         socketSessionTemplate.send(taskId, JSON.toJSONString(hostSuccess));
-                    } catch (Exception e) {
+                } catch (Exception e) {
                         logger.error("在主机 [{}] 上执行脚本失败: {}", host.getMaintenanceHostAddress(), e.getMessage(), e);
-                        results.put(host.getMaintenanceHostAddress(), "执行失败: " + e.getMessage());
-                        allSuccess = false;
+                    results.put(host.getMaintenanceHostAddress(), "执行失败: " + e.getMessage());
+                    allSuccess = false;
                         
                         // 更新失败状态
                         Map<String, Object> hostFailed = new HashMap<>();
