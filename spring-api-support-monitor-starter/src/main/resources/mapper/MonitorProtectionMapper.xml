@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.report.server.starter.mapper.MonitorProtectionMapper">
+  <resultMap id="BaseResultMap" type="com.chua.report.server.starter.entity.MonitorProtection">
+    <!--@mbg.generated-->
+    <!--@Table monitor_protection-->
+    <id column="monitor_protection_id" jdbcType="INTEGER" property="monitorProtectionId" />
+    <result column="monitor_protection_name" jdbcType="VARCHAR" property="monitorProtectionName" />
+    <result column="monitor_protection_pid" jdbcType="INTEGER" property="monitorProtectionPid" />
+    <result column="monitor_protection_status" jdbcType="INTEGER" property="monitorProtectionStatus" />
+    <result column="monitor_protection_remark" jdbcType="VARCHAR" property="monitorProtectionRemark" />
+    <result column="monitor_protection_shell" jdbcType="VARCHAR" property="monitorProtectionShell" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    monitor_protection_id, monitor_protection_name, monitor_protection_pid, monitor_protection_status, 
+    monitor_protection_remark, monitor_protection_shell
+  </sql>
+</mapper>

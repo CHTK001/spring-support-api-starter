@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.ssh.support.ssh.SshClient;
 import com.chua.starter.monitor.pojo.request.MaintenanceHostRequest;
 import com.chua.starter.monitor.pojo.response.MaintenanceHostResponse;
 
@@ -79,4 +80,12 @@ public interface MaintenanceHostService {
      * @return 终端会话信息，包含会话ID等数据
      */
     ReturnResult<Map<String, Object>> openTerminal(Long hostId);
+
+    /**
+     * 获取SSH客户端
+     *
+     * @param genId 会话ID
+     * @return SSH客户端
+     */
+    SshClient getSshClient(String genId);
 }

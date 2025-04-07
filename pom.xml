@@ -91,6 +91,14 @@
                 <version>${module.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-pay-client-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-oauth-server-starter</artifactId>
@@ -143,6 +151,12 @@
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-tencent-starter</artifactId>
                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-nginx-starter</artifactId>
+                <version>${utils.version}</version>
             </dependency>
 
             <dependency>

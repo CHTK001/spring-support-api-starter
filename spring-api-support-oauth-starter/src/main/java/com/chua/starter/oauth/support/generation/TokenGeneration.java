@@ -1,0 +1,16 @@
+package com.chua.starter.oauth.support.generation;
+
+/**
+ * 令牌生成器
+ *
+ * @author CH
+ */
+public interface TokenGeneration {
+    /**
+     * 生成令牌
+     *
+     * @param key key
+     * @return 令牌(128位)
+     */
+    String generation(String key);
+}
