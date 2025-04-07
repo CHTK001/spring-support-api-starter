@@ -25,10 +25,17 @@
             <artifactId>easyexcel</artifactId>
             <version>4.0.3</version>
         </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-pay-starter</artifactId>
+            <artifactId>spring-support-pay-client-starter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-oauth-client-starter</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>com.chua</groupId>
@@ -69,14 +76,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-oauth-client-starter</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
