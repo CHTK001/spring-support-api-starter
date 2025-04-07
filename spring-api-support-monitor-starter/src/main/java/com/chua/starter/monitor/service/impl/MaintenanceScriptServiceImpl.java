@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.entity.MaintenanceScript;
@@ -26,20 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +129,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logger.info("已从数据库删除脚本 [{}]({})", scriptName, maintenanceScriptId);
             
             // 使用Socket会话通知前端开始删除远程主机上的脚本
-            String eventKey = "event-maintenance-script-" + groupId;
+            String eventKey = "event-maintenance-" + groupId;
             logger.debug("发送脚本删除事件到前端，eventKey=[{}]", eventKey);
             socketSessionTemplate.send(eventKey, "开始从远程主机删除脚本 [" + scriptName + "]");
             
@@ -174,14 +169,14 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         
         if (hosts.isEmpty()) {
             logger.warn("维护组 [{}] 下没有启用的主机，脚本同步操作已跳过", script.getMaintenanceGroupId());
-            String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+            String eventKey = "event-maintenance-" + script.getMaintenanceGroupId();
             socketSessionTemplate.send(eventKey, "同步脚本失败，维护组下没有启用的主机");
             return;
         }
         
         String scriptContent = script.getMaintenanceScriptContent();
         String scriptPath = script.getMaintenanceScriptPath();
-        String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+        String eventKey = "event-maintenance-" + script.getMaintenanceGroupId();
         
         logger.info("开始同步脚本 [{}] 到维护组 [{}] 下的 {} 台主机", 
             scriptPath, script.getMaintenanceGroupId(), hosts.size());
@@ -233,12 +228,12 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
         
         if (hosts.isEmpty()) {
             logger.warn("维护组 [{}] 下没有启用的主机，脚本删除操作已跳过", groupId);
-            String eventKey = "event-maintenance-script-" + groupId;
+            String eventKey = "event-maintenance-" + groupId;
             socketSessionTemplate.send(eventKey, "删除脚本失败，维护组下没有启用的主机");
             return;
         }
         
-        String eventKey = "event-maintenance-script-" + groupId;
+        String eventKey = "event-maintenance-" + groupId;
         logger.info("开始从维护组 [{}] 下的 {} 台主机删除脚本 [{}]", groupId, hosts.size(), scriptPath);
         
         // 为每个主机删除脚本
@@ -530,10 +525,11 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logOperation(script, 5, "执行维护脚本", true, "任务ID: " + taskId);
             
             // 使用Socket会话通知前端开始执行脚本
-            String eventKey = "event-maintenance-script-" + script.getMaintenanceGroupId();
+            String eventKey = "event-maintenance-" + script.getMaintenanceGroupId();
             logger.debug("发送脚本执行开始事件到前端，eventKey=[{}], taskId=[{}]", eventKey, taskId);
             socketSessionTemplate.send(eventKey, "开始执行脚本 [" + script.getMaintenanceScriptName() + "]，任务ID: " + taskId);
-            
+            socketSessionTemplate.send(taskId, "开始执行脚本 [" + script.getMaintenanceScriptName() + "]，任务ID: " + taskId);
+
             // 创建响应对象
             RunScriptResponse response = new RunScriptResponse();
             response.setTaskId(taskId);
@@ -554,6 +550,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 startStatus.put("progress", 0);
                 startStatus.put("total", totalHosts);
                 startStatus.put("completed", 0);
+                socketSessionTemplate.send(eventKey, JSON.toJSONString(startStatus));
                 socketSessionTemplate.send(taskId, JSON.toJSONString(startStatus));
 
                 for (MaintenanceHost host : hosts) {
@@ -564,8 +561,9 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                         hostRunning.put("hostAddress", host.getMaintenanceHostAddress());
                         hostRunning.put("status", "RUNNING");
                         hostRunning.put("message", "正在执行脚本...");
+                        socketSessionTemplate.send(eventKey, JSON.toJSONString(hostRunning));
                         socketSessionTemplate.send(taskId, JSON.toJSONString(hostRunning));
-                        
+
                         // 执行脚本
                         String result = executeScript(host, script.getMaintenanceScriptContent());
                         results.put(host.getMaintenanceHostAddress(), result);
@@ -576,6 +574,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                         hostSuccess.put("hostAddress", host.getMaintenanceHostAddress());
                         hostSuccess.put("status", "SUCCESS");
                         hostSuccess.put("message", "脚本执行成功");
+                        socketSessionTemplate.send(eventKey, JSON.toJSONString(hostSuccess));
                         socketSessionTemplate.send(taskId, JSON.toJSONString(hostSuccess));
                     } catch (Exception e) {
                         logger.error("在主机 [{}] 上执行脚本失败: {}", host.getMaintenanceHostAddress(), e.getMessage(), e);
@@ -588,6 +587,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                         hostFailed.put("hostAddress", host.getMaintenanceHostAddress());
                         hostFailed.put("status", "FAILED");
                         hostFailed.put("message", "脚本执行失败: " + e.getMessage());
+                        socketSessionTemplate.send(eventKey, JSON.toJSONString(hostFailed));
                         socketSessionTemplate.send(taskId, JSON.toJSONString(hostFailed));
                     }
                     
@@ -599,6 +599,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                     progressStatus.put("progress", progress);
                     progressStatus.put("total", totalHosts);
                     progressStatus.put("completed", completedHosts);
+                    socketSessionTemplate.send(eventKey, JSON.toJSONString(progressStatus));
                     socketSessionTemplate.send(taskId, JSON.toJSONString(progressStatus));
                 }
                 
@@ -612,10 +613,12 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 completeStatus.put("completed", completedHosts);
                 completeStatus.put("results", results);
                 socketSessionTemplate.send(taskId, JSON.toJSONString(completeStatus));
-                
+                socketSessionTemplate.send(eventKey, JSON.toJSONString(completeStatus));
+
                 // 发送事件通知
                 socketSessionTemplate.send(eventKey, "脚本 [" + script.getMaintenanceScriptName() + "] 执行" + (allSuccess ? "成功" : "完成，但有错误"));
-                
+                socketSessionTemplate.send(taskId, "脚本 [" + script.getMaintenanceScriptName() + "] 执行" + (allSuccess ? "成功" : "完成，但有错误"));
+
                 // 记录最终结果
                 logOperation(script, 5, "执行维护脚本", allSuccess, "任务执行" + (allSuccess ? "成功" : "完成，但有错误"));
             });
@@ -700,7 +703,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
             logOperation(maintenanceScript, 4, "同步维护脚本", true, null);
             
             // 使用Socket会话通知前端开始同步
-            String eventKey = "event-maintenance-script-" + maintenanceScript.getMaintenanceGroupId();
+            String eventKey = "event-maintenance-" + maintenanceScript.getMaintenanceGroupId();
             logger.debug("发送同步开始事件到前端，eventKey=[{}]", eventKey);
             socketSessionTemplate.send(eventKey, "开始同步脚本 [" + maintenanceScript.getMaintenanceScriptName() + "]");
             
@@ -745,8 +748,7 @@ public class MaintenanceScriptServiceImpl implements MaintenanceScriptService {
                 operationDesc,
                 result ? "成功" : "失败");
                 
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            String ipAddress = getClientIp(request);
+            String ipAddress = RequestUtils.getIpAddress();
             
             MaintenanceLogRequest logRequest = new MaintenanceLogRequest();
             logRequest.setMaintenanceGroupId(script.getMaintenanceGroupId());

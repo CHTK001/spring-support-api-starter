@@ -3,7 +3,10 @@ package com.chua.starter.monitor.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.RequestUtils;
+import com.chua.common.support.protocol.ClientSetting;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.ssh.support.ssh.SshClient;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.monitor.client.SshClientManager;
 import com.chua.starter.monitor.entity.MaintenanceHost;
 import com.chua.starter.monitor.mapper.MaintenanceHostMapper;
@@ -14,6 +17,8 @@ import com.chua.starter.monitor.service.MaintenanceHostService;
 import com.chua.starter.monitor.service.MaintenanceLogService;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +41,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class MaintenanceHostServiceImpl implements MaintenanceHostService {
+    private static final Map<String, CacheClient> SERVER_MAP = new ConcurrentHashMap<>();
 
     private final MaintenanceHostMapper maintenanceHostMapper;
     private final SshClientManager sshClientManager;
@@ -259,6 +266,28 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
         }
     }
 
+    @Override
+    public SshClient getSshClient(String genId) {
+        MaintenanceHost monitorSysGen = this.maintenanceHostMapper.selectById(genId);
+        CacheClient cacheClient = SERVER_MAP.get(genId);
+        if (null == cacheClient) {
+            SshClient sshClient = createClient(monitorSysGen);
+            SERVER_MAP.put(genId, new CacheClient(sshClient));
+            return sshClient;
+        }
+        return cacheClient.getSshClient();
+    }
+    private SshClient createClient(MaintenanceHost monitorSysGen) {
+        SshClient sshClient = new SshClient(ClientSetting.builder()
+                .username(monitorSysGen.getMaintenanceHostUsername())
+                .password(DigestUtils.aesDecrypt(monitorSysGen.getMaintenanceHostPassword(), "1234567890Oil#@1"))
+                .host(monitorSysGen.getMaintenanceHostAddress())
+                .port(monitorSysGen.getMaintenanceHostPort())
+                .build()
+        );
+        sshClient.connect();
+        return sshClient;
+    }
     /**
      * 测试SSH连接
      *
@@ -317,4 +346,9 @@ public class MaintenanceHostServiceImpl implements MaintenanceHostService {
         }
     }
 
+    @Data
+    @AllArgsConstructor
+    static class CacheClient {
+        private SshClient sshClient;
+    }
 }

@@ -44,6 +44,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 /**
  * 维护文件服务实现
@@ -521,7 +522,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 logOperation(file, 8, "部署文件", true, null);
                 
                 // 使用Socket会话通知前端开始部署
-                String eventKey = "event-maintenance-file-" + request.getMaintenanceGroupId();
+                String eventKey = "event-maintenance-" + request.getMaintenanceGroupId();
                 log.debug("发送部署开始事件到前端，eventKey=[{}]", eventKey);
                 socketSessionTemplate.send(eventKey, String.format("=== 部署任务(ID: %s)开始 ===", taskId));
                 socketSessionTemplate.send(eventKey, String.format("准备部署文件 [%s] 到维护组下的主机", file.getMaintenanceFileName()));
@@ -599,7 +600,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                 socketSessionTemplate.send(eventKey, "=== 部署任务完成 ===");
                 log.info("文件 [{}] 部署完成，成功: {}，失败: {}", file.getMaintenanceFileName(), successCount, failCount);
             } catch (Exception e) {
-                String eventKey = "event-maintenance-file-" + request.getMaintenanceGroupId();
+                String eventKey = "event-maintenance-" + request.getMaintenanceGroupId();
                 String errorMsg = String.format("部署文件 [%s] 时发生系统错误: %s", file.getMaintenanceFileName(), e.getMessage());
                 log.error(errorMsg, e);
                 socketSessionTemplate.send(eventKey, errorMsg);
@@ -638,7 +639,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
             logOperation(maintenanceFile, 4, "同步维护文件", true, null);
             
             // 使用Socket会话通知前端开始同步
-            String eventKey = "event-maintenance-file-" + maintenanceFile.getMaintenanceGroupId();
+            String eventKey = "event-maintenance-" + maintenanceFile.getMaintenanceGroupId();
             log.debug("发送同步开始事件到前端，eventKey=[{}]", eventKey);
             socketSessionTemplate.send(eventKey, String.format("=== 同步任务(ID: %s)开始 ===", taskId));
             socketSessionTemplate.send(eventKey, String.format("准备同步文件 [%s] 到维护组下的所有主机", maintenanceFile.getMaintenanceFileName()));
@@ -682,7 +683,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         queryWrapper.eq(MaintenanceHost::getMaintenanceHostEnabled, 1);
         List<MaintenanceHost> hosts = maintenanceHostMapper.selectList(queryWrapper);
         
-        String eventKey = "event-maintenance-file-" + file.getMaintenanceGroupId();
+        String eventKey = "event-maintenance-" + file.getMaintenanceGroupId();
         
         if (hosts.isEmpty()) {
             log.warn("维护组 [{}] 下没有启用的主机，文件同步操作已跳过", file.getMaintenanceGroupId());
@@ -772,7 +773,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                                   String targetPath, String fileName, Boolean overwrite, Boolean extract)
             throws Exception {
         ChannelSftp channelSftp = null;
-        String eventKey = "event-maintenance-file-" + host.getMaintenanceGroupId();
+        String eventKey = "event-maintenance-" + host.getMaintenanceGroupId();
 
         try {
             // 记录开始上传的日志
@@ -845,7 +846,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                     // 使用SshClientManager获取Exec通道
                     socketSessionTemplate.send(eventKey, String.format("正在准备解压文件 [%s]...", fileName));
                     execChannel = sshClientManager.createExecChannel(host);
-                    String command;
+                    String command = null;
                     String fullPath = targetPath.endsWith("/") ? targetPath + fileName : targetPath + "/" + fileName;
 
                     if (fileName.toLowerCase().endsWith(".zip")) {
@@ -865,11 +866,12 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
                         socketSessionTemplate.send(eventKey, String.format("使用 unrar 命令解压文件 [%s]", fileName));
                     } else {
                         socketSessionTemplate.send(eventKey, String.format("文件 [%s] 格式不支持解压", fileName));
-                            throw new Exception("不支持的压缩文件格式");
                     }
 
-                    execChannel.setCommand(command);
-                    socketSessionTemplate.send(eventKey, "正在执行解压命令...");
+                    if(null != command) {
+                        execChannel.setCommand(command);
+                        socketSessionTemplate.send(eventKey, "正在执行解压命令...");
+                    }
 
                     execChannel.setInputStream(null);
                     execChannel.setOutputStream(System.out);
@@ -1111,9 +1113,9 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         File outputFile = new File(destDir, outputFileName);
         
-        try (java.util.zip.GZIPInputStream gzipIn = new java.util.zip.GZIPInputStream(
-                new java.io.FileInputStream(gzFile));
-             java.io.FileOutputStream fos = new java.io.FileOutputStream(outputFile)) {
+        try (GZIPInputStream gzipIn = new GZIPInputStream(
+                new FileInputStream(gzFile));
+             FileOutputStream fos = new FileOutputStream(outputFile)) {
             
             byte[] buffer = new byte[1024];
             int len;
@@ -1188,7 +1190,7 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         if (originalFile == null) {
             return ReturnResult.error("文件不存在");
         }
-        String eventKey = "event-maintenance-file-" + originalFile.getMaintenanceGroupId();
+        String eventKey = "event-maintenance-" + originalFile.getMaintenanceGroupId();
         FileUploadResponse response = new FileUploadResponse();
         String taskId = IdUtils.createUlid();
         response.setTaskId(taskId);
@@ -1293,4 +1295,4 @@ public class MaintenanceFileServiceImpl extends ServiceImpl<MaintenanceFileMappe
         
         return ReturnResult.success(response);
     }
-} 
+}
