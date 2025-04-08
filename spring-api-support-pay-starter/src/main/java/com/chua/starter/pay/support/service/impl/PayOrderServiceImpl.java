@@ -13,6 +13,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.pay.support.configuration.PayListenerService;
 import com.chua.starter.pay.support.constant.PayConstant;
+import com.chua.starter.pay.support.dto.PayOrderStatisticDTO;
 import com.chua.starter.pay.support.emuns.TradeType;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
@@ -24,6 +25,7 @@ import com.chua.starter.pay.support.result.PayRefundResponse;
 import com.chua.starter.pay.support.service.*;
 import com.chua.starter.pay.support.transfer.UserIdTransfer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +42,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2024/12/30
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @RpcService(interfaceClass = RpcPayService.class)
@@ -54,6 +57,7 @@ public class PayOrderServiceImpl implements PayOrderService {
     final PayMerchantOrderWaterService payMerchantOrderWaterService;
     final ApplicationContext applicationContext;
     final PayProperties payProperties;
+
     @Override
     public boolean hasNoPayOrder(PayOrderRequest request) {
         TradeType tradeType = request.getTradeType();
@@ -94,7 +98,6 @@ public class PayOrderServiceImpl implements PayOrderService {
                 ).withErrorMessage("订单不存在")
                 .asResult();
     }
-
 
     @Override
     public WechatOrderCallbackResponse notifyOrder(CallbackNotificationParser parser) {
@@ -249,7 +252,8 @@ public class PayOrderServiceImpl implements PayOrderService {
         return null;
     }
 
-
-
-
+    @Override
+    public PayOrderStatisticDTO statOrderInfo() {
+        return payMerchantOrderMapper.statOrderInfo();
+    }
 }

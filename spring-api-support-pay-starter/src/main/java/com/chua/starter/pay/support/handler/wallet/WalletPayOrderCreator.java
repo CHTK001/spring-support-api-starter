@@ -43,7 +43,7 @@ public class WalletPayOrderCreator implements PayOrderCreator {
 
         PayUserWallet payUserWallet = sysUserStudent.getData();
         if (null == payUserWallet) {
-            return ReturnResult.illegal("用户钱包不存在");
+            return ReturnResult.illegal("用户钱包余额不足");
         }
         BigDecimal sysUserWallet = Optional.ofNullable(payUserWallet.getPayUserWalletMoney()).orElse(BigDecimal.ZERO);
 

@@ -3,7 +3,6 @@ package com.chua.starter.pay.support.handler.wallet;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.pay.support.emuns.TradeType;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.handler.PayConfigDetector;
@@ -24,6 +23,6 @@ public final class WalletConfigDetector implements PayConfigDetector<PayMerchant
 
     @Override
     public ReturnResult<PayMerchant> check(PayMerchant payMerchant, TradeType tradeType) {
-        return ObjectUtils.equals(payMerchant.getPayMerchantOpenWallet(), 1) ? ReturnResult.ok(payMerchant) : ReturnResult.illegal("未开通钱包");
+        return Boolean.TRUE.equals(payMerchant.getPayMerchantOpenWallet()) ? ReturnResult.ok(payMerchant) : ReturnResult.error("当前系统不支持钱包支付");
     }
 }
