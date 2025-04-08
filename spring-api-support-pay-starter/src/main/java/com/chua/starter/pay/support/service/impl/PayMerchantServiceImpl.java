@@ -38,6 +38,8 @@ public class PayMerchantServiceImpl extends ServiceImpl<PayMerchantMapper, PayMe
 
     @Override
     public PayMerchant savePayMerchant(PayMerchant payMerchant) {
+        payMerchant.setPayMerchantDelete(0);
+        payMerchant.setPayMerchantStatus(1);
         baseMapper.insert(payMerchant);
         return payMerchant;
     }

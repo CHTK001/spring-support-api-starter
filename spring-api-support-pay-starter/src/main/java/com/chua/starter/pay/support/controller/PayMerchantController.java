@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.*;
  * @author CH
  * @since 2024/12/30
  */
-@Api(tags = "商户接口")
-@Tag(name = "商户接口")
+@Api(tags = "商户管理接口")
+@Tag(name = "商户管理接口")
 @RestController
 @RequestMapping("/v3/pay/merchant")
 @Slf4j
@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 public class PayMerchantController {
 
     private final PayMerchantService payMerchantService;
-
 
     /**
      * 分页查询商户
@@ -71,6 +70,7 @@ public class PayMerchantController {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
+        payMerchant.setPayMerchantId(null);
         return ReturnResult.ok(payMerchantService.savePayMerchant(payMerchant));
     }
 

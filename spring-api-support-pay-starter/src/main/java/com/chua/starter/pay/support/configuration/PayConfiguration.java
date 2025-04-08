@@ -1,6 +1,7 @@
 package com.chua.starter.pay.support.configuration;
 
 import com.chua.starter.pay.support.properties.PayMqttProperties;
+import com.chua.starter.pay.support.properties.PayProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "com.chua.starter.pay.support.controller",
         "com.chua.starter.pay.support.scheduler",
 })
-@EnableConfigurationProperties(PayMqttProperties.class)
+@EnableConfigurationProperties({PayMqttProperties.class, PayProperties.class})
 @EnableScheduling
 @EnableTransactionManagement
 public class PayConfiguration {

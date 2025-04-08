@@ -90,7 +90,7 @@ public class ReCreateOrder {
                 payMerchantOrderService.updateById(payMerchantOrder);
                 payMerchantOrderWaterService.createOrderWater(payMerchantOrder);
                 PayOrderResponse handleData = handle.getData();
-                handleData.setPayMerchantCode(payMerchantOrder.getPayMerchantOrderCode());
+                handleData.setPayMerchantOrderCode(payMerchantOrder.getPayMerchantOrderCode());
                 payOrderCreator.onFinish(payMerchantOrder);
                 return handle;
             }

@@ -50,4 +50,37 @@
         ORDER BY
         pmow.create_time DESC
     </select>
+
+    <select id="waterForAdmin" resultType="com.chua.starter.pay.support.entity.PayMerchantOrderWater">
+        SELECT * FROM pay_merchant_order_water WHERE pay_merchant_order_code = #{payMerchantOrderCode}
+    </select>
+
+    <select id="waterForDept" resultType="com.chua.starter.pay.support.entity.PayMerchantOrderWater">
+        SELECT * FROM
+            pay_merchant_order_water pmow
+        INNER JOIN pay_merchant_order pmo ON pmo.pay_merchant_order_code = pmow.pay_merchant_order_code
+        WHERE
+            pmo.pay_merchant_order_dept_id = #{deptId}
+            AND pmo.pay_merchant_order_code = #{payMerchantOrderCode}
+    </select>
+
+    <select id="waterForDeptOrganizer" resultType="com.chua.starter.pay.support.entity.PayMerchantOrderWater">
+        SELECT * FROM
+            pay_merchant_order_water pmow
+            INNER JOIN pay_merchant_order pmo ON pmo.pay_merchant_order_code = pmow.pay_merchant_order_code
+        WHERE
+            pmo.pay_merchant_order_dept_id = #{deptId}
+            AND pmo.pay_merchant_order_code = #{payMerchantOrderCode}
+            AND FIND_IN_SET(#{userId}, pmo.pay_merchant_dept_organizer)
+    </select>
+
+    <select id="waterForOwner" resultType="com.chua.starter.pay.support.entity.PayMerchantOrderWater">
+
+        SELECT * FROM
+            pay_merchant_order_water pmow
+            INNER JOIN pay_merchant_order pmo ON pmo.pay_merchant_order_code = pmow.pay_merchant_order_code
+        WHERE
+            pmo.pay_merchant_order_user_id = #{userId}
+            AND pmo.pay_merchant_order_code = #{payMerchantOrderCode}
+    </select>
 </mapper>

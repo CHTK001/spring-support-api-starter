@@ -1,12 +1,11 @@
 package com.chua.starter.pay.support.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
 import com.chua.starter.pay.support.pojo.PayRefundRequest;
-import com.chua.starter.pay.support.pojo.PaySignCreateRequest;
 import com.chua.starter.pay.support.pojo.WechatOrderCallbackResponse;
 import com.chua.starter.pay.support.result.PayRefundResponse;
-import com.chua.starter.pay.support.result.PaySignResponse;
 
 /**
  * 支付订单
@@ -14,7 +13,7 @@ import com.chua.starter.pay.support.result.PaySignResponse;
  * @author CH
  * @since 2024/12/30
  */
-public interface PayOrderService extends PayService {
+public interface PayOrderService extends RpcPayOrderService {
 
 
     /**
@@ -30,7 +29,6 @@ public interface PayOrderService extends PayService {
      * 退款订单微信回调
      *
      * @param wechatOrderCallbackRequest 回调请求
-     * @param s                          交易类型
      * @return 结果
      */
     WechatOrderCallbackResponse refundOrder(CallbackNotificationParser wechatOrderCallbackRequest);
@@ -45,18 +43,27 @@ public interface PayOrderService extends PayService {
 
 
     /**
-     * 创建签名
-     *
-     * @param paySignCreateRequest 订单请求
-     * @return 结果
-     */
-    ReturnResult<PaySignResponse> createSign(PaySignCreateRequest paySignCreateRequest);
-
-    /**
      * 关闭订单
      *
      * @param refundRequest 退款请求
      * @return 结果
      */
     ReturnResult<PayRefundResponse> cancel(PayRefundRequest refundRequest);
+
+    /**
+     * 根据订单获取订单记录
+     *
+     * @param payMerchantOrderCode 订单编号
+     * @param userId               用户ID
+     * @return 结果
+     */
+    PayMerchantOrder getOne(String payMerchantOrderCode, String userId);
+
+    /**
+     * 获取最新的未支付订单
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    ReturnResult<String> newestNoPayOrder(String userId);
 }

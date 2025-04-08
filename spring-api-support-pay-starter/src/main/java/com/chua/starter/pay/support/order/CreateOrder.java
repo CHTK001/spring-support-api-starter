@@ -103,7 +103,7 @@ public class CreateOrder {
                 payMerchantOrderMapper.insert(payMerchantOrder);
                 payMerchantOrderWaterService.createOrderWater(payMerchantOrder);
                 PayOrderResponse handleData = handle.getData();
-                handleData.setPayMerchantCode(payMerchantOrder.getPayMerchantOrderCode());
+                handleData.setPayMerchantOrderCode(payMerchantOrder.getPayMerchantOrderCode());
                 payOrderCreator.onFinish(payMerchantOrder);
                 return handle;
             }
