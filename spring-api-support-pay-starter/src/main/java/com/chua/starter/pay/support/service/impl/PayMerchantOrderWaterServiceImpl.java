@@ -1,22 +1,24 @@
 package com.chua.starter.pay.support.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.date.DateUtils;
 import com.chua.common.support.lang.date.constant.DateFormatConstant;
+import com.chua.common.support.rpc.RpcService;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.entity.PayMerchantOrderWater;
 import com.chua.starter.pay.support.mapper.PayMerchantOrderWaterMapper;
 import com.chua.starter.pay.support.pojo.WaterQueryV1Request;
 import com.chua.starter.pay.support.service.PayMerchantOrderWaterService;
+import com.chua.starter.pay.support.service.RpcPayOrderWaterService;
 import com.chua.starter.pay.support.transfer.WalletCurrentTransfer;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 @Service
+@RpcService(interfaceClass = RpcPayOrderWaterService.class)
 public class PayMerchantOrderWaterServiceImpl extends ServiceImpl<PayMerchantOrderWaterMapper, PayMerchantOrderWater> implements PayMerchantOrderWaterService {
 
 
@@ -65,15 +68,25 @@ public class PayMerchantOrderWaterServiceImpl extends ServiceImpl<PayMerchantOrd
     }
 
     @Override
-    public ReturnResult<List<PayMerchantOrderWater>> water(String payMerchantOrderCode) {
+    public ReturnResult<List<PayMerchantOrderWater>> water(Set<String> roles, String deptId, String userId, String payMerchantOrderCode) {
         if (StringUtils.isEmpty(payMerchantOrderCode)) {
             return ReturnResult.ok(Collections.emptyList());
         }
-        return ReturnResult.ok(baseMapper.selectList(
-                Wrappers.<PayMerchantOrderWater>lambdaQuery()
-                        .eq(PayMerchantOrderWater::getPayMerchantOrderCode, payMerchantOrderCode)
-                        .orderByDesc(PayMerchantOrderWater::getCreateTime)
-        ));
+
+        if (AuthConstant.hasAdmin(roles)) {
+            return ReturnResult.ok(baseMapper.waterForAdmin(payMerchantOrderCode));
+        }
+
+        if (AuthConstant.isDept(roles)) {
+            return ReturnResult.ok(null == deptId ? Collections.emptyList() : baseMapper.waterForDept(payMerchantOrderCode, deptId));
+        }
+
+        if (AuthConstant.isDeptOrganizer(roles)) {
+            return ReturnResult.ok(null == deptId || null == userId ? Collections.emptyList() : baseMapper.waterForDeptOrganizer(payMerchantOrderCode, deptId, userId));
+        }
+
+
+        return ReturnResult.ok(null == userId ? Collections.emptyList() : baseMapper.waterForOwner(payMerchantOrderCode, userId));
     }
 
     @Override
@@ -109,4 +122,19 @@ public class PayMerchantOrderWaterServiceImpl extends ServiceImpl<PayMerchantOrd
     public ReturnResult<Boolean> createNewTable() {
         return null;
     }
+
+    @Override
+    public ReturnResult<List<PayMerchantOrderWater>> water(String payMerchantOrderCode) {
+        return ReturnResult.ok(baseMapper.waterForAdmin(payMerchantOrderCode));
+    }
+
+    @Override
+    public ReturnPageResult<PayMerchantOrderWater> water(WaterQueryV1Request request) {
+        Long startTime = request.getStartTime();
+        Long endTime = request.getEndTime();
+        return ReturnPageResultUtils.ok(baseMapper.water(request.createPage(), request, request.getUserIds(),
+                null != startTime ? DateUtils.toLocalDate(startTime) : null,
+                null != endTime ? DateUtils.toLocalDate(endTime) : null));
+    }
+
 }
