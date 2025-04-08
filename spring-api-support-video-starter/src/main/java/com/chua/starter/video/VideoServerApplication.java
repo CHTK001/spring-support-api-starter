@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 配置中心服务
+ * 视频服务
  *
  * @author CH
  */

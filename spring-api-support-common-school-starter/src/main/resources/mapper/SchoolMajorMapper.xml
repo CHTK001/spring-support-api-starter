@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolMajorMapper">
+
+    <!-- 专业的基本结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.school.entity.SchoolMajor">
+        <id column="school_major_id" property="schoolMajorId"/>
+        <result column="school_major_school_id" property="schoolMajorSchoolId"/>
+        <result column="school_major_school_code" property="schoolMajorSchoolCode"/>
+        <result column="school_major_code" property="schoolMajorCode"/>
+        <result column="school_major_name" property="schoolMajorName"/>
+        <result column="school_major_category" property="schoolMajorCategory"/>
+        <result column="school_major_subject" property="schoolMajorSubject"/>
+        <result column="school_major_education_level" property="schoolMajorEducationLevel"/>
+        <result column="school_major_degree" property="schoolMajorDegree"/>
+        <result column="school_major_study_duration" property="schoolMajorStudyDuration"/>
+        <result column="school_major_establish_year" property="schoolMajorEstablishYear"/>
+        <result column="school_major_ranking" property="schoolMajorRanking"/>
+        <result column="school_major_is_featured" property="schoolMajorIsFeatured"/>
+        <result column="school_major_is_key_major" property="schoolMajorIsKeyMajor"/>
+        <result column="school_major_training_objective" property="schoolMajorTrainingObjective"/>
+        <result column="school_major_core_courses" property="schoolMajorCoreCourses"/>
+        <result column="school_major_career_prospects" property="schoolMajorCareerProspects"/>
+        <result column="school_major_detail_url" property="schoolMajorDetailUrl"/>
+        <result column="school_major_deleted" property="schoolMajorDeleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 专业VO的结果映射 -->
+    <resultMap id="MajorVOMap" type="com.chua.starter.school.vo.SchoolMajorVO" extends="BaseResultMap">
+        <result column="school_name" property="schoolName"/>
+        <collection property="historicalScores" ofType="com.chua.starter.school.vo.SchoolHistoricalScoreVO" 
+                    column="school_major_id" select="com.chua.starter.school.mapper.SchoolHistoricalScoreMapper.getScoresByMajorId"/>
+        <collection property="admissionPlans" ofType="com.chua.starter.school.vo.SchoolAdmissionPlanVO" 
+                    column="school_major_id" select="com.chua.starter.school.mapper.SchoolAdmissionPlanMapper.getAdmissionPlansByMajorId"/>
+    </resultMap>
+    
+    <!-- 根据学校ID获取专业列表 -->
+    <select id="getMajorsBySchoolId" resultMap="MajorVOMap">
+        SELECT 
+            m.*,
+            s.school_name
+        FROM 
+            school_major m
+        LEFT JOIN 
+            school_info s ON m.school_major_school_id = s.school_id
+        WHERE 
+            m.school_major_school_id = #{schoolId}
+            AND m.school_major_deleted = 0
+        ORDER BY 
+            m.school_major_ranking ASC, m.school_major_id ASC
+    </select>
+    
+    <!-- 分页获取学校专业列表 -->
+    <select id="getMajorPageBySchoolId" resultMap="MajorVOMap">
+        SELECT 
+            m.*,
+            s.school_name
+        FROM 
+            school_major m
+        LEFT JOIN 
+            school_info s ON m.school_major_school_id = s.school_id
+        WHERE 
+            m.school_major_school_id = #{schoolId}
+            AND m.school_major_deleted = 0
+        ORDER BY 
+            m.school_major_ranking ASC, m.school_major_id ASC
+    </select>
+    
+    <!-- 获取专业详情 -->
+    <select id="getMajorDetailById" resultMap="MajorVOMap">
+        SELECT 
+            m.*,
+            s.school_name
+        FROM 
+            school_major m
+        LEFT JOIN 
+            school_info s ON m.school_major_school_id = s.school_id
+        WHERE 
+            m.school_major_id = #{id}
+            AND m.school_major_deleted = 0
+    </select>
+    
+    <!-- 根据学校代码和专业代码获取专业详情 -->
+    <select id="getMajorDetailByCode" resultMap="MajorVOMap">
+        SELECT 
+            m.*,
+            s.school_name
+        FROM 
+            school_major m
+        LEFT JOIN 
+            school_info s ON m.school_major_school_id = s.school_id
+        WHERE 
+            m.school_major_school_code = #{schoolCode}
+            AND m.school_major_code = #{majorCode}
+            AND m.school_major_deleted = 0
+    </select>
+</mapper> 

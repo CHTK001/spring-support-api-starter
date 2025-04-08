@@ -1,7 +1,8 @@
 package com.chua.starter.school.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.vo.SchoolInfoVO;
@@ -19,7 +20,7 @@ public interface SchoolInfoService extends IService<SchoolInfo> {
      * @param query 查询条件
      * @return 学校信息分页列表
      */
-    IPage<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query);
+    ReturnPageResult<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query);
 
     /**
      * 获取学校详情
@@ -27,13 +28,29 @@ public interface SchoolInfoService extends IService<SchoolInfo> {
      * @param id 学校ID
      * @return 学校详情
      */
-    SchoolInfoVO getSchoolDetail(Long id);
+    ReturnResult<SchoolInfoVO> getSchoolDetail(Long id);
 
     /**
-     * 根据学校代码获取学校详情
+     * 保存学校信息
      *
-     * @param schoolCode 学校代码
-     * @return 学校详情
+     * @param schoolInfo 学校信息
+     * @return 是否保存成功
      */
-    SchoolInfoVO getSchoolDetailByCode(String schoolCode);
-} 
+    ReturnResult<Boolean> saveSchSchoolInfo(SchoolInfo schoolInfo);
+
+    /**
+     * 更新学校信息
+     *
+     * @param schoolInfo 学校信息
+     * @return 是否更新成功
+     */
+    ReturnResult<Boolean> updateSchoolInfo(SchoolInfo schoolInfo);
+
+    /**
+     * 删除学校信息
+     *
+     * @param schoolId 学校ID
+     * @return 是否删除成功
+     */
+    ReturnResult<Boolean> deleteSchool(Long schoolId);
+}

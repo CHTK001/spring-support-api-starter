@@ -1,16 +1,20 @@
 package com.chua.starter.school.dto;
 
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.school.entity.SchoolInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 学校查询DTO
  *
  * @author CH
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "学校查询DTO")
-public class SchoolQueryDTO {
+public class SchoolQueryDTO extends Query<SchoolInfo> {
 
     /**
      * 学校名称（模糊查询）
@@ -25,68 +29,44 @@ public class SchoolQueryDTO {
     private String schoolCode;
 
     /**
-     * 省份
-     */
-    @Schema(description = "省份")
-    private String province;
-
-    /**
-     * 城市
-     */
-    @Schema(description = "城市")
-    private String city;
-
-    /**
      * 学校类型（综合、理工、农林、医药、师范、语言、财经、政法、体育、艺术等）
      */
     @Schema(description = "学校类型（综合、理工、农林、医药、师范、语言、财经、政法、体育、艺术等）")
     private String schoolType;
 
     /**
+     * 省份
+     */
+    @Schema(description = "省份")
+    private String schoolProvince;
+
+    /**
+     * 城市
+     */
+    @Schema(description = "城市")
+    private String schoolCity;
+
+    /**
      * 办学层次（本科、专科）
      */
     @Schema(description = "办学层次（本科、专科）")
-    private String educationLevel;
+    private String schoolEducationLevel;
 
     /**
      * 是否是985（0-否，1-是）
      */
     @Schema(description = "是否是985（0-否，1-是）")
-    private Integer is985;
+    private Integer schoolIs985;
 
     /**
      * 是否是211（0-否，1-是）
      */
     @Schema(description = "是否是211（0-否，1-是）")
-    private Integer is211;
+    private Integer schoolIs211;
 
     /**
      * 是否是双一流（0-否，1-是）
      */
     @Schema(description = "是否是双一流（0-否，1-是）")
-    private Integer isDoubleFirst;
-
-    /**
-     * 排序字段
-     */
-    @Schema(description = "排序字段")
-    private String sortField;
-
-    /**
-     * 排序方式（asc/desc）
-     */
-    @Schema(description = "排序方式（asc/desc）")
-    private String sortOrder;
-
-    /**
-     * 页码
-     */
-    @Schema(description = "页码")
-    private Integer pageNum = 1;
-
-    /**
-     * 每页大小
-     */
-    @Schema(description = "每页大小")
-    private Integer pageSize = 10;
-} 
+    private Integer schoolIsDoubleFirst;
+}
