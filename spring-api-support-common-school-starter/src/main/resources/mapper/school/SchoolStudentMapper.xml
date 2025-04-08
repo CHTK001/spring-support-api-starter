@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolStudentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.school.entity.SchoolStudent">
+        <id column="school_student_id" property="schoolStudentId"/>
+        <result column="school_student_school_id" property="schoolStudentSchoolId"/>
+        <result column="school_student_school_code" property="schoolStudentSchoolCode"/>
+        <result column="school_student_number" property="schoolStudentNumber"/>
+        <result column="school_student_name" property="schoolStudentName"/>
+        <result column="school_student_gender" property="schoolStudentGender"/>
+        <result column="school_student_birth_date" property="schoolStudentBirthDate"/>
+        <result column="school_student_id_card" property="schoolStudentIdCard"/>
+        <result column="school_student_phone" property="schoolStudentPhone"/>
+        <result column="school_student_email" property="schoolStudentEmail"/>
+        <result column="school_student_address" property="schoolStudentAddress"/>
+        <result column="school_student_grade_id" property="schoolStudentGradeId"/>
+        <result column="school_student_grade_name" property="schoolStudentGradeName"/>
+        <result column="school_student_class_id" property="schoolStudentClassId"/>
+        <result column="school_student_class_name" property="schoolStudentClassName"/>
+        <result column="school_student_enroll_date" property="schoolStudentEnrollDate"/>
+        <result column="school_student_graduate_date" property="schoolStudentGraduateDate"/>
+        <result column="school_student_status" property="schoolStudentStatus"/>
+        <result column="school_student_photo_url" property="schoolStudentPhotoUrl"/>
+        <result column="school_student_parent_name" property="schoolStudentParentName"/>
+        <result column="school_student_parent_phone" property="schoolStudentParentPhone"/>
+        <result column="school_student_remark" property="schoolStudentRemark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        school_student_id, school_student_school_id, school_student_school_code, school_student_number, 
+        school_student_name, school_student_gender, school_student_birth_date, school_student_id_card, 
+        school_student_phone, school_student_email, school_student_address, school_student_grade_id, 
+        school_student_grade_name, school_student_class_id, school_student_class_name, 
+        school_student_enroll_date, school_student_graduate_date, school_student_status, 
+        school_student_photo_url, school_student_parent_name, school_student_parent_phone, 
+        school_student_remark, create_time, update_time, create_by, update_by, deleted
+    </sql>
+
+    <!-- 分页查询学生列表 -->
+    <select id="pageSchoolStudent" resultType="com.chua.starter.school.vo.SchoolStudentVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM school_student
+        <where>
+            deleted = 0
+            <if test="query.schoolStudentSchoolId != null">
+                AND school_student_school_id = #{query.schoolStudentSchoolId}
+            </if>
+            <if test="query.schoolStudentNumber != null and query.schoolStudentNumber != ''">
+                AND school_student_number LIKE CONCAT('%', #{query.schoolStudentNumber}, '%')
+            </if>
+            <if test="query.schoolStudentName != null and query.schoolStudentName != ''">
+                AND school_student_name LIKE CONCAT('%', #{query.schoolStudentName}, '%')
+            </if>
+            <if test="query.schoolStudentGender != null">
+                AND school_student_gender = #{query.schoolStudentGender}
+            </if>
+            <if test="query.schoolStudentGradeId != null">
+                AND school_student_grade_id = #{query.schoolStudentGradeId}
+            </if>
+            <if test="query.schoolStudentClassId != null">
+                AND school_student_class_id = #{query.schoolStudentClassId}
+            </if>
+            <if test="query.schoolStudentEnrollDateStart != null">
+                AND school_student_enroll_date >= #{query.schoolStudentEnrollDateStart}
+            </if>
+            <if test="query.schoolStudentEnrollDateEnd != null">
+                AND school_student_enroll_date &lt;= #{query.schoolStudentEnrollDateEnd}
+            </if>
+            <if test="query.schoolStudentStatus != null">
+                AND school_student_status = #{query.schoolStudentStatus}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 获取学生详情 -->
+    <select id="getStudentDetailById" resultType="com.chua.starter.school.vo.SchoolStudentVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM school_student
+        WHERE school_student_id = #{id} AND deleted = 0
+    </select>
+
+    <!-- 根据学号获取学生详情 -->
+    <select id="getStudentDetailByNumber" resultType="com.chua.starter.school.vo.SchoolStudentVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM school_student
+        WHERE school_student_number = #{studentNumber} AND deleted = 0
+    </select>
+
+</mapper> 

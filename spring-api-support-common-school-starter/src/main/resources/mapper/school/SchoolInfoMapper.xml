@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolInfoMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        school_id, school_code, school_name, school_english_name, school_type, school_province,
+        school_city, school_district, school_address, school_education_level, school_subordinate_to,
+        school_is_985, school_is_211, school_is_double_first, school_website_url, school_phone,
+        school_founding_year, school_introduction, school_features, school_logo_url, school_badge_url,
+        school_admission_url, school_employment_rate, school_gaokao_url, school_create_time, school_update_time
+    </sql>
+
+    <!-- 分页查询学校信息 -->
+    <select id="selectSchoolInfoPage" resultType="com.chua.starter.school.vo.SchoolInfoVO">
+        SELECT
+            t.*,
+            (SELECT COUNT(1) FROM school_student s WHERE s.school_id = t.school_id AND s.deleted = 0) as school_info_student_count,
+            (SELECT COUNT(1) FROM school_teacher t2 WHERE t2.school_id = t.school_id AND t2.deleted = 0) as school_info_teacher_count
+        FROM (
+            SELECT <include refid="Base_Column_List"/>
+            FROM school_info
+            <where>
+                <if test="query.schoolName != null and query.schoolName != ''">
+                    AND school_name LIKE CONCAT('%', #{query.schoolName}, '%')
+                </if>
+                <if test="query.schoolCode != null and query.schoolCode != ''">
+                    AND school_code = #{query.schoolCode}
+                </if>
+                <if test="query.schoolType != null and query.schoolType != ''">
+                    AND school_type = #{query.schoolType}
+                </if>
+                <if test="query.schoolProvince != null and query.schoolProvince != ''">
+                    AND school_province = #{query.schoolProvince}
+                </if>
+                <if test="query.schoolCity != null and query.schoolCity != ''">
+                    AND school_city = #{query.schoolCity}
+                </if>
+                <if test="query.schoolEducationLevel != null and query.schoolEducationLevel != ''">
+                    AND school_education_level = #{query.schoolEducationLevel}
+                </if>
+                <if test="query.schoolIs985 != null">
+                    AND school_is_985 = #{query.schoolIs985}
+                </if>
+                <if test="query.schoolIs211 != null">
+                    AND school_is_211 = #{query.schoolIs211}
+                </if>
+                <if test="query.schoolIsDoubleFirst != null">
+                    AND school_is_double_first = #{query.schoolIsDoubleFirst}
+                </if>
+            </where>
+        ) t
+        ORDER BY t.school_create_time DESC
+    </select>
+
+    <!-- 获取学校详情 -->
+    <select id="getSchoolDetailById" resultType="com.chua.starter.school.vo.SchoolInfoVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM school_info
+        WHERE school_id = #{id}
+    </select>
+
+    <!-- 根据学校代码获取学校详情 -->
+    <select id="getSchoolDetailByCode" resultType="com.chua.starter.school.vo.SchoolInfoVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM school_info
+        WHERE school_code = #{schoolCode}
+    </select>
+
+</mapper> 

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolHistoricalScoreMapper">
+
+    <!-- 历年分数的基本结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.school.entity.SchoolHistoricalScore">
+        <id column="school_historical_score_id" property="schoolHistoricalScoreId"/>
+        <result column="school_historical_score_school_id" property="schoolHistoricalScoreSchoolId"/>
+        <result column="school_historical_score_school_code" property="schoolHistoricalScoreSchoolCode"/>
+        <result column="school_historical_score_major_id" property="schoolHistoricalScoreMajorId"/>
+        <result column="school_historical_score_major_code" property="schoolHistoricalScoreMajorCode"/>
+        <result column="school_historical_score_year" property="schoolHistoricalScoreYear"/>
+        <result column="school_historical_score_province" property="schoolHistoricalScoreProvince"/>
+        <result column="school_historical_score_subject_type" property="schoolHistoricalScoreSubjectType"/>
+        <result column="school_historical_score_batch" property="schoolHistoricalScoreBatch"/>
+        <result column="school_historical_score_admission_type" property="schoolHistoricalScoreAdmissionType"/>
+        <result column="school_historical_score_max_score" property="schoolHistoricalScoreMaxScore"/>
+        <result column="school_historical_score_min_score" property="schoolHistoricalScoreMinScore"/>
+        <result column="school_historical_score_avg_score" property="schoolHistoricalScoreAvgScore"/>
+        <result column="school_historical_score_admission_count" property="schoolHistoricalScoreAdmissionCount"/>
+        <result column="school_historical_score_provincial_line" property="schoolHistoricalScoreProvincialLine"/>
+        <result column="school_historical_score_lowest_rank" property="schoolHistoricalScoreLowestRank"/>
+        <result column="school_historical_score_admission_rate" property="schoolHistoricalScoreAdmissionRate"/>
+        <result column="school_historical_score_remark" property="schoolHistoricalScoreRemark"/>
+        <result column="school_historical_score_deleted" property="schoolHistoricalScoreDeleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 历年分数VO的结果映射 -->
+    <resultMap id="HistoricalScoreVOMap" type="com.chua.starter.school.vo.SchoolHistoricalScoreVO" extends="BaseResultMap">
+        <result column="school_name" property="schoolName"/>
+        <result column="school_major_name" property="majorName"/>
+    </resultMap>
+    
+    <!-- 获取学校的历年分数列表 -->
+    <select id="getScoresBySchoolId" resultMap="HistoricalScoreVOMap">
+        SELECT 
+            h.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_historical_score h
+        LEFT JOIN 
+            school_info s ON h.school_historical_score_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON h.school_historical_score_major_id = m.school_major_id
+        WHERE 
+            h.school_historical_score_school_id = #{schoolId}
+            AND h.school_historical_score_deleted = 0
+        <if test="province != null and province != ''">
+            AND h.school_historical_score_province = #{province}
+        </if>
+        <if test="subjectType != null and subjectType != ''">
+            AND h.school_historical_score_subject_type = #{subjectType}
+        </if>
+        ORDER BY 
+            h.school_historical_score_year DESC, h.school_historical_score_province ASC, h.school_historical_score_subject_type ASC, h.school_historical_score_batch ASC
+    </select>
+    
+    <!-- 获取专业的历年分数列表 -->
+    <select id="getScoresByMajorId" resultMap="HistoricalScoreVOMap">
+        SELECT 
+            h.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_historical_score h
+        LEFT JOIN 
+            school_info s ON h.school_historical_score_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON h.school_historical_score_major_id = m.school_major_id
+        WHERE 
+            h.school_historical_score_major_id = #{majorId}
+            AND h.school_historical_score_deleted = 0
+        <if test="province != null and province != ''">
+            AND h.school_historical_score_province = #{province}
+        </if>
+        <if test="subjectType != null and subjectType != ''">
+            AND h.school_historical_score_subject_type = #{subjectType}
+        </if>
+        ORDER BY 
+            h.school_historical_score_year DESC, h.school_historical_score_province ASC, h.school_historical_score_subject_type ASC, h.school_historical_score_batch ASC
+    </select>
+    
+    <!-- 分页获取历年分数 -->
+    <select id="getScorePage" resultMap="HistoricalScoreVOMap">
+        SELECT 
+            h.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_historical_score h
+        LEFT JOIN 
+            school_info s ON h.school_historical_score_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON h.school_historical_score_major_id = m.school_major_id
+        <where>
+            AND h.school_historical_score_deleted = 0
+            <if test="schoolId != null">
+                AND h.school_historical_score_school_id = #{schoolId}
+            </if>
+            <if test="majorId != null">
+                AND h.school_historical_score_major_id = #{majorId}
+            </if>
+            <if test="province != null and province != ''">
+                AND h.school_historical_score_province = #{province}
+            </if>
+            <if test="subjectType != null and subjectType != ''">
+                AND h.school_historical_score_subject_type = #{subjectType}
+            </if>
+            <if test="year != null">
+                AND h.school_historical_score_year = #{year}
+            </if>
+        </where>
+        ORDER BY 
+            h.school_historical_score_year DESC, h.school_historical_score_province ASC, h.school_historical_score_subject_type ASC, h.school_historical_score_batch ASC
+    </select>
+</mapper> 

@@ -1,8 +1,10 @@
 package com.chua.starter.school.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.mapper.SchoolInfoMapper;
@@ -25,9 +27,9 @@ public class SchoolInfoServiceImpl extends ServiceImpl<SchoolInfoMapper, SchoolI
      * @return 学校信息分页列表
      */
     @Override
-    public IPage<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query) {
-        Page<SchoolInfo> page = new Page<>(query.getPageNum(), query.getPageSize());
-        return baseMapper.selectSchoolInfoPage(page, query);
+    public ReturnPageResult<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query) {
+        IPage<SchoolInfoVO> schoolInfoPage = baseMapper.selectSchoolInfoPage(query.createFullPage(), query);
+        return ReturnPageResultUtils.ok(schoolInfoPage);
     }
 
     /**
@@ -37,18 +39,26 @@ public class SchoolInfoServiceImpl extends ServiceImpl<SchoolInfoMapper, SchoolI
      * @return 学校详情
      */
     @Override
-    public SchoolInfoVO getSchoolDetail(Long id) {
-        return baseMapper.getSchoolDetailById(id);
+    public ReturnResult<SchoolInfoVO> getSchoolDetail(Long id) {
+        SchoolInfoVO schoolInfoVO = baseMapper.getSchoolDetailById(id);
+        return ReturnResult.ok(schoolInfoVO);
     }
 
-    /**
-     * 根据学校代码获取学校详情
-     *
-     * @param schoolCode 学校代码
-     * @return 学校详情
-     */
     @Override
-    public SchoolInfoVO getSchoolDetailByCode(String schoolCode) {
-        return baseMapper.getSchoolDetailByCode(schoolCode);
+    public ReturnResult<Boolean> saveSchSchoolInfo(SchoolInfo schoolInfo) {
+        schoolInfo.setSchoolId(null);
+        boolean result = save(schoolInfo);
+        return result ? ReturnResult.ok(true) : ReturnResult.fail("保存学校信息失败");
+    }
+
+    @Override
+    public ReturnResult<Boolean> updateSchoolInfo(SchoolInfo schoolInfo) {
+        boolean result = updateById(schoolInfo);
+        return result ? ReturnResult.ok(true) : ReturnResult.fail("更新学校信息失败");
+    }
+
+    @Override
+    public ReturnResult<Boolean> deleteSchool(Long schoolId) {
+        return removeById(schoolId) ? ReturnResult.ok(true) : ReturnResult.fail("删除学校信息失败");
     }
 } 

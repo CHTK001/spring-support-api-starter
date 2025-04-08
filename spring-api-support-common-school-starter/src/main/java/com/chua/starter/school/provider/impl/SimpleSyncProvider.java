@@ -1,9 +1,12 @@
 package com.chua.starter.school.provider.impl;
 
+import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.entity.SchoolSyncConfig;
 import com.chua.starter.school.provider.SchoolSyncProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 简易同步提供者（示例）
@@ -55,5 +58,15 @@ public class SimpleSyncProvider implements SchoolSyncProvider {
         result = result && syncHistoricalScores(schoolId, config);
 
         return result;
+    }
+
+    @Override
+    public List<String> listSchoolIds() {
+        return List.of();
+    }
+
+    @Override
+    public List<SchoolInfo> searchSchools(String schoolName) {
+        return List.of();
     }
 } 

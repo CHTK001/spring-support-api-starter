@@ -1,93 +1,74 @@
 package com.chua.starter.school.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 学校同步配置
  *
  * @author CH
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("school_sync_config")
 @Schema(description = "学校同步配置")
-public class SchoolSyncConfig {
+public class SchoolSyncConfig extends SysBase {
 
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "school_sync_config_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     private Long schoolSyncConfigId;
-
     /**
      * 配置名称
      */
+    @TableField("school_sync_config_name")
     @Schema(description = "配置名称")
     private String schoolSyncConfigName;
 
     /**
-     * 同步目标（如学校信息、专业信息等）
+     * cookie
      */
-    @Schema(description = "同步目标（如学校信息、专业信息等）")
-    private String schoolSyncConfigTarget;
-
-    /**
-     * 同步URL
-     */
-    @Schema(description = "同步URL")
-    private String schoolSyncConfigUrl;
-
-    /**
-     * 同步类型
-     */
-    @Schema(description = "同步类型")
-    private String schoolSyncConfigType;
-
-    /**
-     * 同步Cookie
-     */
-    @Schema(description = "同步Cookie")
+    @TableField("school_sync_config_cookie")
+    @Schema(description = "cookie")
     private String schoolSyncConfigCookie;
 
     /**
-     * 同步周期（单位：小时）
+     * 同步类型（1-学校信息，2-专业信息，3-招生计划，4-历史分数）
      */
-    @Schema(description = "同步周期（单位：小时）")
-    private Integer schoolSyncConfigPeriod;
-
-    /**
-     * 上次同步时间
-     */
-    @Schema(description = "上次同步时间")
-    private LocalDateTime schoolSyncConfigLastSyncTime;
+    @TableField("school_sync_config_sync_type")
+    @Schema(description = "同步类型（1-学校信息，2-专业信息，3-招生计划，4-历史分数）")
+    private String schoolSyncConfigSyncType;
 
     /**
      * 同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）
      */
+    @TableField("school_sync_config_sync_status")
     @Schema(description = "同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）")
     private Integer schoolSyncConfigStatus;
+    /**
+     * 是否启用
+     */
+    @TableField("school_sync_config_enabled")
+    @Schema(description = "是否启用")
+    private Boolean schoolSyncConfigEnabled;
 
     /**
-     * 备注
+     * 同步时间
      */
-    @Schema(description = "备注")
-    private String schoolSyncConfigRemark;
+    @TableField("school_sync_config_sync_time")
+    @Schema(description = "同步时间")
+    private String schoolSyncConfigSyncTime;
 
     /**
-     * 创建时间
+     * 删除标志（0-存在，1-删除）
      */
-    @Schema(description = "创建时间")
-    private LocalDateTime schoolSyncConfigCreateTime;
-
-    /**
-     * 更新时间
-     */
-    @Schema(description = "更新时间")
-    private LocalDateTime schoolSyncConfigUpdateTime;
-} 
+    @TableField("school_sync_config_deleted")
+    @TableLogic
+    @Schema(description = "删除标志（0-存在，1-删除）")
+    private Integer schoolSyncConfigDeleted;
+}
