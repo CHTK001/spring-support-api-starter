@@ -32,4 +32,13 @@
       AND pay_merchant_delete = 1 AND pay_merchant_status = 1
     </if>
   </select>
+
+  <select id="statMerchantInfo" resultType="com.chua.starter.pay.support.dto.PayMerchantStatisticDTO">
+    SELECT
+        COUNT(1) AS totalCount,
+        SUM(CASE WHEN pay_merchant_status = 1 THEN 1 ELSE 0 END) AS enabledCount,
+        SUM(CASE WHEN pay_merchant_open_wallet = 1 THEN 1 ELSE 0 END) AS walletEnabledCount
+    FROM pay_merchant
+    WHERE pay_merchant_delete = 0
+  </select>
 </mapper>

@@ -570,4 +570,13 @@
             AND pay_merchant_order_product_code = #{request.productCode}
         </if>
     </select>
+
+    <select id="statOrderInfo" resultType="com.chua.starter.pay.support.dto.PayOrderStatisticDTO">
+        SELECT
+            COUNT(1) AS totalCount,
+            SUM(CASE WHEN pay_merchant_order_status IN (2000, 2005) THEN 1 ELSE 0 END) AS completedCount,
+            SUM(CASE WHEN pay_merchant_order_status = 1003 THEN 1 ELSE 0 END) AS pendingCount,
+            SUM(CASE WHEN pay_merchant_order_status IN (1004, 1005, 3000) THEN 1 ELSE 0 END) AS closedCount
+        FROM pay_merchant_order
+    </select>
 </mapper>

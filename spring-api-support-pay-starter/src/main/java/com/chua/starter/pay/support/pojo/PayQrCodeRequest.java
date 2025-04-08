@@ -38,10 +38,4 @@ public class PayQrCodeRequest {
      */
     @Schema(description = "价格")
     private BigDecimal price;
-
-    /**
-     * 钱包回调地址
-     */
-    @Schema(description = "钱包回调地址")
-    private String walletCallbackUrl;
 }

@@ -3,6 +3,7 @@ package com.chua.starter.pay.support.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.starter.pay.support.dto.PayOrderStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.pojo.PayOrderQueryRequest;
 import com.chua.starter.pay.support.pojo.PayOrderRequest;
@@ -13,6 +14,11 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Set;
 
+/**
+ * 商户订单Mapper
+ *
+ * @author CH
+ */
 @Mapper
 public interface PayMerchantOrderMapper extends BaseMapper<PayMerchantOrder> {
     /**
@@ -85,4 +91,11 @@ public interface PayMerchantOrderMapper extends BaseMapper<PayMerchantOrder> {
      * @return true/false
      */
     boolean existsNoPayOrder(@Param("request") PayOrderRequest request, @Param("newUserId") String newUserId, @Param("scope") String checkScope);
+
+    /**
+     * 统计订单数据
+     *
+     * @return 订单统计数据
+     */
+    PayOrderStatisticDTO statOrderInfo();
 }

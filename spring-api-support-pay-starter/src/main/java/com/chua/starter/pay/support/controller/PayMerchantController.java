@@ -6,6 +6,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+import com.chua.starter.pay.support.dto.PayMerchantStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.service.PayMerchantService;
 import io.swagger.annotations.Api;
@@ -88,5 +89,16 @@ public class PayMerchantController {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return payMerchantService.updatePayMerchant(payMerchant);
+    }
+
+    /**
+     * 获取商户统计数据
+     *
+     * @return 商户统计数据
+     */
+    @GetMapping("statistic")
+    @Operation(summary = "获取商户统计数据")
+    public ReturnResult<PayMerchantStatisticDTO> statistic() {
+        return ReturnResult.ok(payMerchantService.statMerchantInfo());
     }
 }

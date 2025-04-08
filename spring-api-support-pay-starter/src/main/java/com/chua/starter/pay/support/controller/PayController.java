@@ -44,13 +44,14 @@ public class PayController {
     @PutMapping("/createOrder")
     @Operation(summary = "创建订单")
     public ReturnResult<PayOrderResponse> createOrder(@Validated(AddGroup.class) @RequestBody PayOrderCreateRequest request,
+                                                      @UserValue("openId") String openId,
                                                       BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         PayOrderRequest payOrderRequest = BeanUtils.copyProperties(request, PayOrderRequest.class);
-        payOrderRequest.setUserId(StringUtils.defaultString(request.getOpenId(), null));
+        payOrderRequest.setUserId(StringUtils.defaultString(openId, null));
         return payService.createOrder(payOrderRequest);
     }
 

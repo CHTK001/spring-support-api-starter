@@ -1,6 +1,7 @@
 package com.chua.starter.pay.support.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chua.starter.pay.support.dto.PayMerchantStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -19,4 +20,11 @@ public interface PayMerchantMapper extends BaseMapper<PayMerchant> {
      * @return 商户
      */
     PayMerchant getMerchant(@Param("payMerchantCode") String payMerchantCode, @Param("force") boolean force);
+
+    /**
+     * 统计商户数据
+     *
+     * @return 商户统计数据
+     */
+    PayMerchantStatisticDTO statMerchantInfo();
 }
