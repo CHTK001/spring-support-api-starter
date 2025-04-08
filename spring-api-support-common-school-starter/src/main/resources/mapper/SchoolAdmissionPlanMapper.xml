@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolAdmissionPlanMapper">
+
+    <!-- 招生计划的基本结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.school.entity.SchoolAdmissionPlan">
+        <id column="school_admission_plan_id" property="schoolAdmissionPlanId"/>
+        <result column="school_admission_plan_school_id" property="schoolAdmissionPlanSchoolId"/>
+        <result column="school_admission_plan_school_code" property="schoolAdmissionPlanSchoolCode"/>
+        <result column="school_admission_plan_major_id" property="schoolAdmissionPlanMajorId"/>
+        <result column="school_admission_plan_major_code" property="schoolAdmissionPlanMajorCode"/>
+        <result column="school_admission_plan_year" property="schoolAdmissionPlanYear"/>
+        <result column="school_admission_plan_province" property="schoolAdmissionPlanProvince"/>
+        <result column="school_admission_plan_subject_type" property="schoolAdmissionPlanSubjectType"/>
+        <result column="school_admission_plan_plan_count" property="schoolAdmissionPlanPlanCount"/>
+        <result column="school_admission_plan_actual_count" property="schoolAdmissionPlanActualCount"/>
+        <result column="school_admission_plan_tuition" property="schoolAdmissionPlanTuition"/>
+        <result column="school_admission_plan_batch" property="schoolAdmissionPlanBatch"/>
+        <result column="school_admission_plan_admission_type" property="schoolAdmissionPlanAdmissionType"/>
+        <result column="school_admission_plan_subject_requirements" property="schoolAdmissionPlanSubjectRequirements"/>
+        <result column="school_admission_plan_remark" property="schoolAdmissionPlanRemark"/>
+        <result column="school_admission_plan_deleted" property="schoolAdmissionPlanDeleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 招生计划VO的结果映射 -->
+    <resultMap id="AdmissionPlanVOMap" type="com.chua.starter.school.vo.SchoolAdmissionPlanVO" extends="BaseResultMap">
+        <result column="school_name" property="schoolName"/>
+        <result column="school_major_name" property="majorName"/>
+    </resultMap>
+    
+    <!-- 获取学校的招生计划列表 -->
+    <select id="getAdmissionPlansBySchoolId" resultMap="AdmissionPlanVOMap">
+        SELECT 
+            a.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_admission_plan a
+        LEFT JOIN 
+            school_info s ON a.school_admission_plan_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON a.school_admission_plan_major_id = m.school_major_id
+        WHERE 
+            a.school_admission_plan_school_id = #{schoolId}
+            AND a.school_admission_plan_deleted = 0
+        <if test="year != null">
+            AND a.school_admission_plan_year = #{year}
+        </if>
+        ORDER BY 
+            a.school_admission_plan_year DESC, a.school_admission_plan_province ASC, a.school_admission_plan_batch ASC
+    </select>
+    
+    <!-- 获取专业的招生计划列表 -->
+    <select id="getAdmissionPlansByMajorId" resultMap="AdmissionPlanVOMap">
+        SELECT 
+            a.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_admission_plan a
+        LEFT JOIN 
+            school_info s ON a.school_admission_plan_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON a.school_admission_plan_major_id = m.school_major_id
+        WHERE 
+            a.school_admission_plan_major_id = #{majorId}
+            AND a.school_admission_plan_deleted = 0
+        <if test="year != null">
+            AND a.school_admission_plan_year = #{year}
+        </if>
+        ORDER BY 
+            a.school_admission_plan_year DESC, a.school_admission_plan_province ASC, a.school_admission_plan_batch ASC
+    </select>
+    
+    <!-- 分页获取招生计划 -->
+    <select id="getAdmissionPlanPage" resultMap="AdmissionPlanVOMap">
+        SELECT 
+            a.*,
+            s.school_name,
+            m.school_major_name
+        FROM 
+            school_admission_plan a
+        LEFT JOIN 
+            school_info s ON a.school_admission_plan_school_id = s.school_id
+        LEFT JOIN 
+            school_major m ON a.school_admission_plan_major_id = m.school_major_id
+        <where>
+            AND a.school_admission_plan_deleted = 0
+            <if test="schoolId != null">
+                AND a.school_admission_plan_school_id = #{schoolId}
+            </if>
+            <if test="majorId != null">
+                AND a.school_admission_plan_major_id = #{majorId}
+            </if>
+            <if test="year != null">
+                AND a.school_admission_plan_year = #{year}
+            </if>
+            <if test="province != null and province != ''">
+                AND a.school_admission_plan_province = #{province}
+            </if>
+        </where>
+        ORDER BY 
+            a.school_admission_plan_year DESC, a.school_admission_plan_province ASC, a.school_admission_plan_batch ASC
+    </select>
+</mapper> 

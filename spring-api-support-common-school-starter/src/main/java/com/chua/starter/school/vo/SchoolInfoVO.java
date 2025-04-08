@@ -176,4 +176,16 @@ public class SchoolInfoVO {
      */
     @Schema(description = "专业列表")
     private List<SchoolMajorVO> schoolInfoMajors;
+
+    /**
+     * 学生数量
+     */
+    @Schema(description = "学生数量")
+    private Integer schoolInfoStudentCount;
+
+    /**
+     * 教师数量
+     */
+    @Schema(description = "教师数量")
+    private Integer schoolInfoTeacherCount;
 } 

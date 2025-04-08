@@ -29,6 +29,7 @@
         <module>spring-api-support-video-starter</module>
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-school-starter</module>
+        <module>spring-api-support-school-starter</module>
     </modules>
     <version>4.0.0</version>
     
