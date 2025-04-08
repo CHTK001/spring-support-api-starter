@@ -2,7 +2,6 @@ package com.chua.starter.service.configuration;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
-import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.properties.ControlProperties;
 import com.chua.starter.common.support.utils.RequestUtils;
 import lombok.RequiredArgsConstructor;
@@ -47,15 +46,15 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
     /**
      * 删除
      *
-     * @param redisCacheAlways
-     * @param redisCacheAlways1
+     * @param cacheManagerName
+     * @param cacheName
      * @param sysTenantId
      * @param key
      */
-    public void evict(String redisCacheAlways, String redisCacheAlways1, String sysTenantId, String key) {
+    public void evict(String cacheManagerName, String cacheName, String sysTenantId, String key) {
         try {
-            applicationContext.getBean(CacheConstant.REDIS_CACHE_ALWAYS, CacheManager.class)
-                    .getCache(CacheConstant.REDIS_CACHE_ALWAYS)
+            applicationContext.getBean(cacheManagerName, CacheManager.class)
+                    .getCache(cacheName)
                     .evict(getKeyPref(String.valueOf(sysTenantId)).toString() + key);
         } catch (Exception ignored) {
             ignored.printStackTrace();
@@ -65,12 +64,23 @@ public class CustomTenantedKeyGenerator implements KeyGenerator {
     /**
      * 删除
      *
-     * @param redisCacheAlways
-     * @param redisCacheAlways1
+     * @param cacheManagerName
+     * @param cacheName
      * @param key
      */
-    public void evict(String redisCacheAlways, String redisCacheAlways1, String key) {
-        evict(redisCacheAlways, redisCacheAlways1, RequestUtils.getTenantId(), key);
+    public void evict(String cacheManagerName, String cacheName, String key) {
+        evict(cacheManagerName, cacheName, RequestUtils.getTenantId(), key);
+    }
+
+    /**
+     * 删除
+     *
+     * @param cacheManagerName
+     * @param cacheName
+     * @param key
+     */
+    public void evictWithPrefix(String cacheManagerName, String cacheName, String prefix, String key) {
+        evict(cacheManagerName, cacheName, RequestUtils.getTenantId(), prefix + key);
     }
 
     public StringBuilder getKeyPref(String tenantId) {

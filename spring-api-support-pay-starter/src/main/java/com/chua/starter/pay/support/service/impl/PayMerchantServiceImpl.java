@@ -7,13 +7,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.pay.support.dto.PayMerchantStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.mapper.PayMerchantMapper;
 import com.chua.starter.pay.support.service.PayMerchantService;
-import jakarta.annotation.Resource;
-import org.springframework.cache.CacheManager;
+import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
@@ -21,11 +24,13 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  * @author CH
  * @since 2024/12/30
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PayMerchantServiceImpl extends ServiceImpl<PayMerchantMapper, PayMerchant> implements PayMerchantService {
 
-    @Resource(name = REDIS_CACHE_ALWAYS)
-    private CacheManager cacheManager;
+    final CustomTenantedKeyGenerator customTenantedKeyGenerator;
+    private final TransactionTemplate transactionTemplate;
 
     @Override
     @ApiCacheKey("'sys:pay:merchant' + #merchantCode")
@@ -70,13 +75,17 @@ public class PayMerchantServiceImpl extends ServiceImpl<PayMerchantMapper, PayMe
         );
     }
 
+    @Override
+    public PayMerchantStatisticDTO statMerchantInfo() {
+        return baseMapper.statMerchantInfo();
+    }
+
     /**
      * 清除缓存
      *
      * @param payMerchant payMerchant
      */
     private void clearCache(PayMerchant payMerchant) {
-        cacheManager.getCache(REDIS_CACHE_ALWAYS).evictIfPresent("sys:pay:merchant" + payMerchant.getPayMerchantCode());
-
+        customTenantedKeyGenerator.evictWithPrefix(REDIS_CACHE_ALWAYS, REDIS_CACHE_ALWAYS, "sys:pay:merchant", payMerchant.getPayMerchantCode());
     }
 }
