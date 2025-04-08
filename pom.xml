@@ -238,6 +238,25 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-zxing-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-calcite-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-netty-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-webjars-prism-starter</artifactId>
                <version>${utils.version}</version>
             </dependency>

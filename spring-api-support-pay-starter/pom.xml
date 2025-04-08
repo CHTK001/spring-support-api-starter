@@ -33,6 +33,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-zxing-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
         </dependency>
 

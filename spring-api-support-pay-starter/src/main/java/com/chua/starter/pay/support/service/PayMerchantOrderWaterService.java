@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-public interface PayMerchantOrderWaterService extends IService<PayMerchantOrderWater> {
+public interface PayMerchantOrderWaterService extends IService<PayMerchantOrderWater>, RpcPayOrderWaterService {
 
 
     /**
@@ -26,10 +26,13 @@ public interface PayMerchantOrderWaterService extends IService<PayMerchantOrderW
     /**
      * 订单流水
      *
+     * @param roles                角色
+     * @param deptId               机构
+     * @param userId               用户id
      * @param payMerchantOrderCode 订单号
      * @return 订单流水
      */
-    ReturnResult<List<PayMerchantOrderWater>> water(String payMerchantOrderCode);
+    ReturnResult<List<PayMerchantOrderWater>> water(Set<String> roles, String deptId, String userId, String payMerchantOrderCode);
 
     /**
      * 订单流水

@@ -4,29 +4,25 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.date.DateUtils;
 import com.chua.common.support.rpc.RpcService;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.common.support.utils.JakartaValidationUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.pay.support.checker.CreateOrderChecker;
 import com.chua.starter.pay.support.configuration.PayListenerService;
 import com.chua.starter.pay.support.constant.PayConstant;
 import com.chua.starter.pay.support.emuns.TradeType;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
-import com.chua.starter.pay.support.entity.PayMerchantOrderWater;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
 import com.chua.starter.pay.support.mapper.PayMerchantOrderMapper;
 import com.chua.starter.pay.support.order.*;
 import com.chua.starter.pay.support.pojo.*;
-import com.chua.starter.pay.support.result.PayOrderResponse;
+import com.chua.starter.pay.support.properties.PayProperties;
 import com.chua.starter.pay.support.result.PayRefundResponse;
-import com.chua.starter.pay.support.result.PaySignResponse;
 import com.chua.starter.pay.support.service.*;
-import com.chua.starter.pay.support.sign.CreateSign;
+import com.chua.starter.pay.support.transfer.UserIdTransfer;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -35,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.Errors;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @RequiredArgsConstructor
-@RpcService(interfaceClass = PayService.class)
+@RpcService(interfaceClass = RpcPayService.class)
 public class PayOrderServiceImpl implements PayOrderService {
 
     final PayMerchantService payMerchantService;
@@ -58,72 +53,16 @@ public class PayOrderServiceImpl implements PayOrderService {
     final TransactionTemplate transactionTemplate;
     final PayMerchantOrderWaterService payMerchantOrderWaterService;
     final ApplicationContext applicationContext;
-
+    final PayProperties payProperties;
     @Override
-    public ReturnResult<PayOrderResponse> createOrder(PayOrderRequest request) {
-        Errors errors = JakartaValidationUtils.validate(request, AddGroup.class);
-        if (errors.hasErrors()) {
-            return ReturnResult.illegal(errors.getAllErrors().get(0).getDefaultMessage());
-        }
-
+    public boolean hasNoPayOrder(PayOrderRequest request) {
         TradeType tradeType = request.getTradeType();
         if (null == tradeType) {
-            return ReturnResult.illegal("交易类型不能为空");
+            throw new RuntimeException("交易类型不能为空");
         }
-
-        CreateOrderChecker createOrderChecker = ServiceProvider.of(CreateOrderChecker.class).getNewExtension(tradeType);
-        ReturnResult<String> returnResult = createOrderChecker.check(request);
-        if (!returnResult.isOk()) {
-            return ReturnResult.illegal(returnResult.getMsg());
-        }
-
-        String orderId = request.getOrderId();
-        if (null == orderId) {
-            try {
-                return new CreateOrder(transactionTemplate, payMerchantService, payMerchantOrderWaterService, payMerchantOrderMapper).create(request);
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        RLock rLock = redissonClient.getLock(PayConstant.ORDER_CREATE_PREFIX + tradeType.getName() + request.getProductCode() + orderId);
-        if (!rLock.tryLock()) {
-            return ReturnResult.illegal("订单已存在, 请勿重复下单");
-        }
-
-        rLock.lock(1, TimeUnit.SECONDS);
-        try {
-            return new CreateOrder(transactionTemplate, payMerchantService, payMerchantOrderWaterService, payMerchantOrderMapper).create(request);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                rLock.unlock();
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    @Override
-    public ReturnResult<PayOrderResponse> recreateOrder(PayReOrderRequest request) {
-        Errors errors = JakartaValidationUtils.validate(request, AddGroup.class);
-        if (errors.hasErrors()) {
-            return ReturnResult.illegal(errors.getAllErrors().get(0).getDefaultMessage());
-        }
-
-        RLock rLock = redissonClient.getLock(PayConstant.ORDER_RECREATE_PREFIX + request.getPayMerchantOrderCode());
-        if (!rLock.tryLock()) {
-            return ReturnResult.illegal("订单已存在, 请勿重复下单");
-        }
-
-        rLock.lock(5, TimeUnit.SECONDS);
-        try {
-            return new ReCreateOrder(transactionTemplate, payMerchantService, payMerchantOrderWaterService, payMerchantOrderService).create(request);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        } finally {
-            rLock.unlock();
-        }
+        UserIdTransfer transfer = ServiceProvider.of(UserIdTransfer.class).getNewExtension(tradeType);
+        String newUserId = transfer.transfer(request.getUserId());
+        return payMerchantOrderMapper.existsNoPayOrder(request, newUserId, payProperties.getCheckScope().name());
     }
 
     @Override
@@ -154,20 +93,6 @@ public class PayOrderServiceImpl implements PayOrderService {
                         )
                 ).withErrorMessage("订单不存在")
                 .asResult();
-    }
-
-    @Override
-    public ReturnResult<List<PayMerchantOrderWater>> water(String payMerchantOrderCode) {
-        return payMerchantOrderWaterService.water(payMerchantOrderCode);
-    }
-
-    @Override
-    public ReturnPageResult<PayMerchantOrderWater> water(WaterQueryV1Request request) {
-        Long startTime = request.getStartTime();
-        Long endTime = request.getEndTime();
-        return payMerchantOrderWaterService.water(request.createPage(), request, request.getUserIds(),
-                null != startTime ? DateUtils.toLocalDate(startTime) : null,
-                null != endTime ? DateUtils.toLocalDate(endTime) : null);
     }
 
 
@@ -206,7 +131,8 @@ public class PayOrderServiceImpl implements PayOrderService {
 
     @Override
     public ReturnResult<PayRefundResponse> cancel(PayRefundRequest refundRequest) {
-        RLock rLock = redissonClient.getLock(PayConstant.ORDER_REFUND_PREFIX);
+        String payMerchantOrderCode = refundRequest.getPayMerchantOrderCode();
+        RLock rLock = redissonClient.getLock(PayConstant.ORDER_REFUND_PREFIX + payMerchantOrderCode);
         if (!rLock.tryLock()) {
             return ReturnResult.illegal("订单正在关闭, 请勿重复操作");
         }
@@ -228,8 +154,29 @@ public class PayOrderServiceImpl implements PayOrderService {
     }
 
     @Override
+    public PayMerchantOrder getOne(String payMerchantOrderCode, String userId) {
+        return payMerchantOrderMapper.selectOne(
+                Wrappers.<PayMerchantOrder>lambdaQuery()
+                        .eq(PayMerchantOrder::getPayMerchantOrderCode, payMerchantOrderCode)
+                        .eq(PayMerchantOrder::getPayMerchantOrderUserId, userId)
+                , false);
+    }
+
+    @Override
+    public ReturnResult<String> newestNoPayOrder(String userId) {
+        PayMerchantOrder merchantOrder = CollectionUtils.findFirst(payMerchantOrderMapper.selectList(
+                Wrappers.<PayMerchantOrder>lambdaQuery()
+                        .eq(PayMerchantOrder::getPayMerchantOrderUserId, userId)
+                        .eq(PayMerchantOrder::getPayMerchantOrderTradeType, TradeType.UNCERTAIN.name())
+                        .eq(PayMerchantOrder::getPayMerchantOrderStatus, "1000")
+                        .orderByDesc(PayMerchantOrder::getCreateTime)));
+        return ReturnResult.ok(null == merchantOrder ? null : merchantOrder.getPayMerchantOrderCode());
+    }
+
+    @Override
     public ReturnResult<PayRefundResponse> refund(PayRefundRequest refundRequest) {
-        RLock rLock = redissonClient.getLock(PayConstant.ORDER_REFUND_PREFIX);
+        String payMerchantOrderCode = refundRequest.getPayMerchantOrderCode();
+        RLock rLock = redissonClient.getLock(PayConstant.ORDER_REFUND_PREFIX + payMerchantOrderCode);
         if (!rLock.tryLock()) {
             return ReturnResult.illegal("订单正在退款, 请勿重复操作");
         }
@@ -303,25 +250,6 @@ public class PayOrderServiceImpl implements PayOrderService {
     }
 
 
-    @Override
-    public ReturnResult<PaySignResponse> createSign(PaySignCreateRequest request) {
-        RLock rLock = redissonClient.getLock(PayConstant.ORDER_SIGN_PREFIX + request.getPayMerchantCode());
-        if (!rLock.tryLock()) {
-            return ReturnResult.illegal("签名正在生成, 请勿重复点击");
-        }
-        PayMerchantOrder payMerchantOrder = payMerchantOrderMapper.selectOne(Wrappers.lambdaQuery(PayMerchantOrder.class).eq(PayMerchantOrder::getPayMerchantOrderCode, request.getPayMerchantCode()));
-        if (null == payMerchantOrder) {
-            return ReturnResult.illegal("订单不存在");
-        }
-        rLock.lock(5, TimeUnit.SECONDS);
-        try {
-            return new CreateSign(transactionTemplate, payMerchantService, payMerchantOrderMapper).create(request, payMerchantOrder);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            rLock.unlock();
-        }
-    }
 
 
 }

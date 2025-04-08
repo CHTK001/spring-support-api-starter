@@ -22,10 +22,12 @@ public interface PayMerchantOrderService extends IService<PayMerchantOrder> {
      *
      * @param query   查询条件
      * @param roles   角色
+     * @param deptId
+     * @param userId
      * @param request 查询参数
      * @return 返回结果
      */
-    ReturnPageResult<PayMerchantOrder> page(Query<PayMerchantOrder> query, Set<String> roles, PayOrderQueryRequest request);
+    ReturnPageResult<PayMerchantOrder> page(Query<PayMerchantOrder> query, Set<String> roles, String deptId, String userId, PayOrderQueryRequest request);
 
     /**
      * 分页查询

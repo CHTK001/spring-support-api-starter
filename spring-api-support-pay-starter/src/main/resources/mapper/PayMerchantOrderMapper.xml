@@ -76,8 +76,8 @@
         update_name,
         update_by
     </sql>
-    <select id="pageForOrderDeptOrganizer"  resultType="com.chua.starter.pay.support.entity.PayMerchantOrder">
-    SELECT pay_merchant_order_id,
+    <select id="pageForOrderDeptOrganizer" resultType="com.chua.starter.pay.support.entity.PayMerchantOrder">
+        SELECT pay_merchant_order_id,
                pay_merchant_order_code,
                pay_merchant_order_user_id,
                pay_merchant_order_origin,
@@ -110,7 +110,7 @@
                  INNER JOIN pay_merchant pm ON pm.pay_merchant_code = pmo.pay_merchant_code
         <where>
             AND pay_merchant_order_dept_id = #{request.payMerchantDeptId}
-            AND FIND_IN_SET(#{request.payMerchantOrderDeptOrganizer}, pay_merchant_dept_organizer)
+                  AND FIND_IN_SET(#{request.payMerchantOrderDeptOrganizer}, pay_merchant_dept_organizer)
             <if test="request.payMerchantCode != null and request.payMerchantCode != ''">
                 AND pmo.pay_merchant_code = #{request.payMerchantCode}
             </if>
@@ -123,12 +123,18 @@
             </if>
 
             <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                <choose>
+                    <when test="request.payMerchantOrderStatus == '1000'">
+                        AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                            OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                            )
+                    </when>
+                    <otherwise>
+                        AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                    </otherwise>
+                </choose>
             </if>
 
-            <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
-            </if>
 
             <if test="request.payMerchantOrderCode != null and request.payMerchantOrderCode != ''">
                 AND pay_merchant_order_code LIKE concat(#{request.payMerchantOrderCode}, '%')
@@ -151,9 +157,9 @@
             </if>
         </where>
         ORDER BY pmo.create_time DESC
-</select>
+    </select>
     <select id="pageForOrderDept" resultType="com.chua.starter.pay.support.entity.PayMerchantOrder">
-    SELECT pay_merchant_order_id,
+        SELECT pay_merchant_order_id,
                pay_merchant_order_code,
                pay_merchant_order_user_id,
                pay_merchant_order_origin,
@@ -198,11 +204,16 @@
             </if>
 
             <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
-            </if>
-
-            <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                <choose>
+                    <when test="request.payMerchantOrderStatus == '1000'">
+                        AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                            OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                            )
+                    </when>
+                    <otherwise>
+                        AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                    </otherwise>
+                </choose>
             </if>
 
             <if test="request.payMerchantOrderCode != null and request.payMerchantOrderCode != ''">
@@ -280,12 +291,18 @@
             </if>
 
             <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                <choose>
+                    <when test="request.payMerchantOrderStatus == '1000'">
+                        AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                            OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                            )
+                    </when>
+                    <otherwise>
+                        AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                    </otherwise>
+                </choose>
             </if>
 
-            <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
-            </if>
 
             <if test="request.payMerchantOrderCode != null and request.payMerchantOrderCode != ''">
                 AND pay_merchant_order_code LIKE concat(#{request.payMerchantOrderCode}, '%')
@@ -370,8 +387,18 @@
 
 
                 <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
-                    AND pay_merchant_order_status = #{request.payMerchantOrderTradeType}
+                    <choose>
+                        <when test="request.payMerchantOrderStatus == '1000'">
+                            AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                                OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                                )
+                        </when>
+                        <otherwise>
+                            AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                        </otherwise>
+                    </choose>
                 </if>
+
 
                 <if test="request.startTime != null and request.endTime != null">
                     AND (pmo.create_time <![CDATA[>=]]> #{request.startTime} AND pmo.create_time <![CDATA[<=]]> #{request.endTime})
@@ -431,5 +458,116 @@
             AND (pmo.create_time <![CDATA[>=]]> #{request.startTime} AND pmo.create_time <![CDATA[<=]]> #{request.endTime})
         </if>
         ORDER BY pmo.create_time DESC
+    </select>
+
+    <select id="pageForOwner" resultType="com.chua.starter.pay.support.entity.PayMerchantOrder">
+        SELECT pay_merchant_order_id,
+               pay_merchant_order_code,
+               pay_merchant_order_user_id,
+               pay_merchant_order_origin,
+               pay_merchant_order_price,
+               pay_merchant_order_total_price,
+               pay_merchant_order_status,
+               pay_merchant_order_trade_type,
+               pmo.pay_merchant_code,
+               pm.pay_merchant_name payMerchantName,
+               pay_merchant_order_remark,
+               pay_merchant_order_product_name,
+               pay_merchant_order_product_code,
+               pay_merchant_coupon_code,
+               pay_merchant_order_wallet,
+               pay_merchant_order_browser,
+               pay_merchant_order_browser_system,
+               pay_merchant_order_fail_message,
+               pay_merchant_order_attach,
+               pay_merchant_order_transaction_id,
+               pay_merchant_order_refund_reason,
+               pay_merchant_order_refund_transaction_id,
+               pay_merchant_order_refund_code,
+               pay_merchant_order_refund_create_time,
+               pay_merchant_order_refund_success_time,
+               pay_merchant_order_refund_user_received_account,
+               pmo.create_name,
+               pmo.create_by,
+               pmo.create_time
+        FROM pay_merchant_order pmo
+                 INNER JOIN pay_merchant pm ON pm.pay_merchant_code = pmo.pay_merchant_code
+        <where>
+            AND pay_merchant_order_dept_id = #{request.payMerchantDeptId}
+                  AND FIND_IN_SET(#{request.payMerchantOrderDeptOrganizer}, pay_merchant_dept_organizer)
+            <choose>
+                <when test="param2.payMerchantOrderUserId != null">
+                    AND pmo.pay_merchant_order_user_id = #{request.payMerchantOrderUserId}
+                    <if test="request.payMerchantCode != null and request.payMerchantCode != ''">
+                        AND pmo.pay_merchant_code = #{request.payMerchantCode}
+                    </if>
+                    <if test="request.payMerchantOrderOrigin != null and request.payMerchantOrderOrigin != ''">
+                        AND pay_merchant_order_origin = #{request.payMerchantOrderOrigin}
+                    </if>
+
+                    <if test="request.payMerchantOrderTradeType != null and request.payMerchantOrderTradeType != ''">
+                        AND pay_merchant_order_trade_type = #{request.payMerchantOrderTradeType}
+                    </if>
+
+                    <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
+                        <choose>
+                            <when test="request.payMerchantOrderStatus == '1000'">
+                                AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                                    OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                                    )
+                            </when>
+                            <otherwise>
+                                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                            </otherwise>
+                        </choose>
+                    </if>
+
+                    <if test="request.payMerchantOrderStatus != null and request.payMerchantOrderStatus != ''">
+                        <choose>
+                            <when test="request.payMerchantOrderStatus == '1000'">
+                                AND (pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                                    OR pay_merchant_order_trade_type = 'UNCERTAIN'
+                                    )
+                            </when>
+                            <otherwise>
+                                AND pay_merchant_order_status = #{request.payMerchantOrderStatus}
+                            </otherwise>
+                        </choose>
+                    </if>
+
+
+                    <if test="request.payMerchantOrderCode != null and request.payMerchantOrderCode != ''">
+                        AND pay_merchant_order_code LIKE concat(#{request.payMerchantOrderCode}, '%')
+                    </if>
+
+                    <if test="request.payMerchantOrderRemark != null and request.payMerchantOrderRemark != ''">
+                        AND pay_merchant_order_remark LIKE concat(#{request.payMerchantOrderRemark}, '%')
+                    </if>
+
+                    <if test="request.startTime != null and request.endTime != null">
+                        AND (pmo.create_time <![CDATA[>=]]> #{request.startTime} AND pmo.create_time <![CDATA[<=]]> #{request.endTime})
+                    </if>
+
+                    <if test="request.keyword != null">
+                        AND (pmo.pay_merchant_order_attach LIKE concat('%', #{request.keyword}, '%'))
+                    </if>
+                </when>
+                <otherwise>
+                    AND 1 <![CDATA[<>]]> 1
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY pmo.create_time DESC
+    </select>
+
+    <select id="existsNoPayOrder" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM pay_merchant_order
+        WHERE pay_merchant_order_user_id = #{newUserId}
+          AND (pay_merchant_order_status = 1000 OR pay_merchant_order_trade_type = 'UNCERTAIN')
+          AND pay_merchant_code = #{request.merchantCode}
+        <if test="scope != null and scope == 'GOODS'">
+            AND pay_merchant_order_product_code = #{request.productCode}
+        </if>
     </select>
 </mapper>
