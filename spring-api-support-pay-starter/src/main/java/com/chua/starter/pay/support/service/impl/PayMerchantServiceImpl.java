@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.pay.support.dto.PayMerchantStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.mapper.PayMerchantMapper;
 import com.chua.starter.pay.support.service.PayMerchantService;
@@ -75,10 +74,6 @@ public class PayMerchantServiceImpl extends ServiceImpl<PayMerchantMapper, PayMe
         );
     }
 
-    @Override
-    public PayMerchantStatisticDTO statMerchantInfo() {
-        return baseMapper.statMerchantInfo();
-    }
 
     /**
      * 清除缓存

@@ -1,7 +1,6 @@
 package com.chua.starter.pay.support.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.pay.support.dto.PayOrderStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
 import com.chua.starter.pay.support.pojo.PayRefundRequest;
@@ -76,10 +75,4 @@ public interface PayOrderService extends RpcPayOrderService {
      */
     ReturnResult<PayMerchantOrder> detail(String payMerchantOrderCode);
 
-    /**
-     * 统计订单数据
-     *
-     * @return 订单统计数据
-     */
-    PayOrderStatisticDTO statOrderInfo();
 }
