@@ -182,7 +182,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             // 清除旧数据
             schoolHistoricalScoreMapper.delete(
                     Wrappers.<SchoolHistoricalScore>lambdaQuery()
-                            .eq(SchoolHistoricalScore::getSchoolCode, schoolInfo.getSchoolCode())
+                            .eq(SchoolHistoricalScore::getSchoolHistoricalScoreSchoolCode, schoolInfo.getSchoolCode())
             );
             
             // 遍历省份和年份
@@ -196,26 +196,47 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                                 "&signsafe=" + IdUtils.createUlid();
                         
                         // 调用API获取分数线数据并保存
-                        // 这里需要根据实际API返回结构实现
-                        // 示例代码，实际实现需要根据API返回结构调整
-                        /*
                         GaokaoScore gaokaoScore = HttpClient
                                 .get(url)
                                 .newInvoker()
                                 .execute()
                                 .content(GaokaoScore.class);
                                 
-                        if (gaokaoScore != null && gaokaoScore.getData() != null) {
+                        if (gaokaoScore != null && gaokaoScore.getData() != null && gaokaoScore.getData().getItem() != null) {
                             for (GaokaoScore.DataDTO.ItemDTO item : gaokaoScore.getData().getItem()) {
                                 SchoolHistoricalScore score = new SchoolHistoricalScore();
-                                score.setSchoolCode(schoolInfo.getSchoolCode());
-                                score.setSchoolHistoricalScoreYear(year);
+                                score.setSchoolHistoricalScoreSchoolId(schoolInfo.getSchoolId());
+                                score.setSchoolHistoricalScoreSchoolCode(schoolInfo.getSchoolCode());
+                                score.setSchoolHistoricalScoreYear(Converter.createInteger(item.getYear()));
                                 score.setSchoolHistoricalScoreProvince(province + Strings.repeat("0", 12 - String.valueOf(province).length()));
-                                // 设置其他字段
+                                score.setSchoolHistoricalScoreSubjectType(item.getLocalTypeName());
+                                score.setSchoolHistoricalScoreBatch(item.getLocalBatchName());
+                                score.setSchoolHistoricalScoreAdmissionType(item.getZslxName());
+                                score.setSchoolHistoricalScoreMaxScore(Converter.createInteger(item.getMax()));
+                                score.setSchoolHistoricalScoreMinScore(Converter.createInteger(item.getMin()));
+                                score.setSchoolHistoricalScoreAvgScore(Converter.createInteger(item.getAverage()));
+                                score.setSchoolHistoricalScoreAdmissionCount(Converter.createInteger(item.getCount()));
+                                score.setSchoolHistoricalScoreProvincialLine(Converter.createInteger(item.getProvinceScore()));
+                                score.setSchoolHistoricalScoreLowestRank(Converter.createInteger(item.getMinSection()));
+                                
+                                // 如果有专业信息，设置专业相关字段
+                                if (!Strings.isNullOrEmpty(item.getLevel3Name())) {
+                                    // 查找对应的专业
+                                    SchoolMajor major = schoolMajorMapper.selectOne(
+                                            Wrappers.<SchoolMajor>lambdaQuery()
+                                                    .eq(SchoolMajor::getSchoolCode, schoolInfo.getSchoolCode())
+                                                    .eq(SchoolMajor::getSchoolMajorName, item.getLevel3Name())
+                                    );
+                                    
+                                    if (major != null) {
+                                        score.setSchoolHistoricalScoreMajorId(major.getSchoolMajorId());
+                                        score.setSchoolHistoricalScoreMajorCode(major.getSchoolMajorCode());
+                                    }
+                                }
+                                
                                 schoolHistoricalScoreMapper.insert(score);
                             }
                         }
-                        */
                     } catch (Exception e) {
                         log.error("同步学校历年分数异常: {}, 省份: {}, 年份: {}, {}", 
                                 schoolInfo.getSchoolCode(), province, year, e.getMessage());
