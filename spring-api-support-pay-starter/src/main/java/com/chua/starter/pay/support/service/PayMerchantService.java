@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.pay.support.dto.PayMerchantStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import jakarta.validation.constraints.NotBlank;
 
@@ -56,10 +55,4 @@ public interface PayMerchantService extends IService<PayMerchant> {
      */
     IPage<PayMerchant> pageForMerchant(Query<PayMerchant> query, PayMerchant payMerchant);
 
-    /**
-     * 统计商户数据
-     *
-     * @return 商户统计数据
-     */
-    PayMerchantStatisticDTO statMerchantInfo();
 }
