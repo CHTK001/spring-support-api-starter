@@ -2,7 +2,7 @@ package com.chua.starter.service.controller;
 
 import com.chua.common.support.constant.Action;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.debounce.Debounce;
 import com.chua.starter.common.support.result.Result;
@@ -56,7 +56,7 @@ public class LoginController {
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
-    @OperateLog
+    @SysLog
     @UserLogger(module = "LOGIN",
             name = "用户登录",
             action = Action.LOGIN,
@@ -76,7 +76,7 @@ public class LoginController {
     }
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
-    @OperateLog
+    @SysLog
     @AuthIgnore
     public Result<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                             HttpServletRequest request,
@@ -92,7 +92,7 @@ public class LoginController {
     @Operation(summary = "注销")
     @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
-    @OperateLog
+    @SysLog
     public Result logout(@UserValue("token") String uid,String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
             return Result.success("注销成功");

@@ -24,6 +24,12 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableId(value = "school_admission_plan_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     private Long schoolAdmissionPlanId;
+    /**
+     * 招生计划名称
+     */
+    @TableField("school_admission_plan_name")
+    @Schema(description = "招生计划名称")
+    private String schoolAdmissionPlanName;
 
     /**
      * 学校ID
@@ -38,6 +44,12 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_school_code")
     @Schema(description = "学校代码")
     private String schoolAdmissionPlanSchoolCode;
+    /**
+     * 招生计划数量
+     */
+    @TableField("school_admission_plan_number")
+    @Schema(description = "招生计划数量")
+    private String schoolAdmissionPlanNumber;
 
     /**
      * 专业ID
@@ -52,6 +64,12 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_major_code")
     @Schema(description = "专业代码")
     private String schoolAdmissionPlanMajorCode;
+    /**
+     * 专业名称
+     */
+    @TableField("school_admission_plan_major_name")
+    @Schema(description = "专业名称")
+    private String schoolAdmissionPlanMajorName;
 
     /**
      * 招生年份
@@ -94,6 +112,12 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_tuition")
     @Schema(description = "学费（元/年）")
     private Double schoolAdmissionPlanTuition;
+    /**
+     * 学制
+     */
+    @TableField("school_admission_plan_length")
+    @Schema(description = "学制")
+    private Integer schoolAdmissionPlanLength;
 
     /**
      * 招生批次（提前批、一批、二批等）

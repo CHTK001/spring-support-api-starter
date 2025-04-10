@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
@@ -103,7 +103,7 @@ public class SysUserController {
      */
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
-    @OperateLog
+    @SysLog
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission("sys:user:delete")
@@ -123,7 +123,7 @@ public class SysUserController {
      */
     @Operation(summary = "重置当前账号密碼")
     @GetMapping("/resetOwner")
-    @OperateLog
+    @SysLog
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
@@ -141,7 +141,7 @@ public class SysUserController {
      */
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
-    @OperateLog
+    @SysLog
     @Permission(value = "sys:user:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
@@ -159,7 +159,7 @@ public class SysUserController {
      */
     @Operation(summary = "更新用户自身密码")
     @PutMapping("/updateOwner")
-    @OperateLog
+    @SysLog
     public ReturnResult<SysUser> updateOwner(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
@@ -178,7 +178,7 @@ public class SysUserController {
      */
     @Operation(summary = "更新用户")
     @PutMapping("/update")
-    @OperateLog
+    @SysLog
     public ReturnResult<SysUser> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
@@ -198,7 +198,7 @@ public class SysUserController {
      */
     @Operation(summary = "新增用户")
     @PostMapping("/save")
-    @OperateLog
+    @SysLog
     @Permission(value = "sys:user:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {

@@ -4,6 +4,8 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiGroup;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.school.dto.SchoolSyncConfigDTO;
 import com.chua.starter.school.entity.SchoolSyncConfig;
 import com.chua.starter.school.service.SchoolSyncConfigService;
@@ -29,6 +31,18 @@ public class SchoolSyncConfigController {
 
     final SchoolSyncConfigService schoolSyncConfigService;
 
+
+    /**
+     * 执行同步
+     *
+     * @param schoolSyncConfigId 学校同步配置ID
+     * @return 是否成功
+     */
+    @GetMapping("/execute")
+    @Operation(summary = "执行同步", description = "根据学校同步配置ID执行同步")
+    public ReturnResult<Boolean> executeSync(@Parameter(description = "学校同步配置ID") @RequestParam Long schoolSyncConfigId) {
+        return ReturnResult.ok(schoolSyncConfigService.executeSync(schoolSyncConfigId));
+    }
     /**
      * 新增学校同步配置
      *
@@ -68,6 +82,7 @@ public class SchoolSyncConfigController {
      * @return 学校同步配置列表
      */
     @PostMapping("/page")
+    @ApiGroup(IgnoreGroup.class)
     @Operation(summary = "分页查询学校同步配置列表", description = "根据条件分页查询学校同步配置列表")
     public ReturnPageResult<SchoolSyncConfig> page(@ParameterObject @RequestBody SchoolSyncConfigDTO query) {
         return schoolSyncConfigService.pageSyncConfig(query);

@@ -4,6 +4,8 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.common.support.annotations.ApiGroup;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.service.SchoolInfoService;
@@ -69,6 +71,7 @@ public class SchoolInfoController {
      * @return 学校列表
      */
     @PostMapping("/page")
+    @ApiGroup(IgnoreGroup.class)
     @Operation(summary = "分页查询学校列表", description = "根据条件分页查询学校列表")
     public ReturnPageResult<SchoolInfoVO> page(@ParameterObject @RequestBody SchoolQueryDTO query) {
         return schoolInfoService.pageSchoolInfo(query);

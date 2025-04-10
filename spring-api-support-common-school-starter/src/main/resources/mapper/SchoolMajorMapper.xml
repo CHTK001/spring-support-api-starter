@@ -11,7 +11,7 @@
         <result column="school_major_name" property="schoolMajorName"/>
         <result column="school_major_category" property="schoolMajorCategory"/>
         <result column="school_major_subject" property="schoolMajorSubject"/>
-        <result column="school_major_education_level" property="schoolMajorEducationLevel"/>
+        <result column="school_major_education_level" property="schoolMajorLevel"/>
         <result column="school_major_degree" property="schoolMajorDegree"/>
         <result column="school_major_study_duration" property="schoolMajorStudyDuration"/>
         <result column="school_major_establish_year" property="schoolMajorEstablishYear"/>
