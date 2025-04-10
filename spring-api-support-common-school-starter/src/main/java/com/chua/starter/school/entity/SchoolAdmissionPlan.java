@@ -98,6 +98,34 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_plan_count")
     @Schema(description = "计划招生人数")
     private Integer schoolAdmissionPlanPlanCount;
+    
+    /**
+     * 学费
+     */
+    @TableField("school_admission_plan_tuition")
+    @Schema(description = "学费")
+    private Double schoolAdmissionPlanTuition;
+    
+    /**
+     * 学制年限
+     */
+    @TableField("school_admission_plan_length")
+    @Schema(description = "学制年限")
+    private Integer schoolAdmissionPlanLength;
+    
+    /**
+     * 选科要求
+     */
+    @TableField("school_admission_plan_subject_requirements")
+    @Schema(description = "选科要求")
+    private String schoolAdmissionPlanSubjectRequirements;
+    
+    /**
+     * 招生计划名称
+     */
+    @TableField("school_admission_plan_name")
+    @Schema(description = "招生计划名称")
+    private String schoolAdmissionPlanName;
 
     /**
      * 实际招生人数

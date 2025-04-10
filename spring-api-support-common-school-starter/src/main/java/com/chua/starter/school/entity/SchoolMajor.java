@@ -98,7 +98,56 @@ public class SchoolMajor extends SysBase {
      */
     @TableField("school_major_xue_ke_rank")
     @Schema(description = "学科排名")
-    private String schoolMajorXueKeRank;
+    private String schoolMajorXueKeRankScore;
+    
+    /**
+     * 专业年份
+     */
+    @TableField("school_major_year")
+    @Schema(description = "专业年份")
+    private String schoolMajorYear;
+    
+    /**
+     * 专业类别名称
+     */
+    @TableField("school_major_category_name")
+    @Schema(description = "专业类别名称")
+    private String schoolMajorCategoryName;
+    
+    /**
+     * 专业类别标签
+     */
+    @TableField("school_major_category_label")
+    @Schema(description = "专业类别标签")
+    private String schoolMajorCategoryLabel;
+    
+    /**
+     * 学科排名分数
+     */
+    @TableField("school_major_xue_ke_rank_score")
+    @Schema(description = "学科排名分数")
+    private String schoolMajorXueKeRankScore;
+    
+    /**
+     * 专业年份
+     */
+    @TableField("school_major_year")
+    @Schema(description = "专业年份")
+    private String schoolMajorYear;
+    
+    /**
+     * 专业类别名称
+     */
+    @TableField("school_major_category_name")
+    @Schema(description = "专业类别名称")
+    private String schoolMajorCategoryName;
+    
+    /**
+     * 专业类别标签
+     */
+    @TableField("school_major_category_label")
+    @Schema(description = "专业类别标签")
+    private String schoolMajorCategoryLabel;
 
     /**
      * 学科排名
