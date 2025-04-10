@@ -1,6 +1,9 @@
 package com.chua.starter.school.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -25,18 +28,12 @@ public class SchoolMajor extends SysBase {
     private Long schoolMajorId;
 
     /**
-     * 学校ID
+     * 学校Code
      */
-    @TableField("school_major_school_id")
-    @Schema(description = "学校ID")
-    private Long schoolMajorSchoolId;
+    @TableField("school_code")
+    @Schema(description = "学校Code")
+    private String schoolCode;
 
-    /**
-     * 学校代码
-     */
-    @TableField("school_major_school_code")
-    @Schema(description = "学校代码")
-    private String schoolMajorSchoolCode;
 
     /**
      * 专业代码
@@ -44,6 +41,12 @@ public class SchoolMajor extends SysBase {
     @TableField("school_major_code")
     @Schema(description = "专业代码")
     private String schoolMajorCode;
+    /**
+     * 专业父级代码
+     */
+    @TableField("school_major_parent_code")
+    @Schema(description = "专业父级代码")
+    private String schoolMajorParentCode;
 
     /**
      * 专业名称
@@ -51,48 +54,78 @@ public class SchoolMajor extends SysBase {
     @TableField("school_major_name")
     @Schema(description = "专业名称")
     private String schoolMajorName;
-
     /**
-     * 专业类别
+     * 专业类型
      */
-    @TableField("school_major_category")
-    @Schema(description = "专业类别")
-    private String schoolMajorCategory;
-
+    @TableField("school_major_type")
+    @Schema(description = "专业类型")
+    private String schoolMajorType;
     /**
-     * 专业学科
+     * 专业类型名称
      */
-    @TableField("school_major_subject")
-    @Schema(description = "专业学科")
-    private String schoolMajorSubject;
+    @TableField("school_major_type_name")
+    @Schema(description = "专业类型名称")
+    private String schoolMajorTypeName;
+
 
     /**
      * 学历层次（本科、专科）
      */
-    @TableField("school_major_education_level")
-    @Schema(description = "学历层次（本科、专科）")
-    private String schoolMajorEducationLevel;
+    @TableField("school_major_level")
+    @Schema(description = "学历层次")
+    private String schoolMajorLevel;
+    /**
+     * 专业类别
+     */
+    @TableField("school_major_category_code")
+    @Schema(description = "专业类别")
+    private String schoolMajorCategoryCode;
+    /**
+     * 软文级别
+     */
+    @TableField("school_major_ruan_ke_level")
+    @Schema(description = "软文级别")
+    private String schoolMajorRuanKeLevel;
+    /**
+     * 专业级别
+     */
+    @TableField("school_major_ruan_ke_rank")
+    @Schema(description = "专业级别")
+    private String schoolMajorRuanKeRank;
 
     /**
-     * 学位授予
+     * 学科排名
      */
-    @TableField("school_major_degree")
-    @Schema(description = "学位授予")
-    private String schoolMajorDegree;
+    @TableField("school_major_xue_ke_rank")
+    @Schema(description = "学科排名")
+    private String schoolMajorXueKeRank;
 
     /**
-     * 修学年限
+     * 学科排名
      */
-    @TableField("school_major_study_duration")
-    @Schema(description = "修学年限")
-    private String schoolMajorStudyDuration;
+    @TableField("school_major_xue_ke_rank_score")
+    @Schema(description = "学科排名")
+    private String schoolMajorXueKeRankScore;
+    /**
+     * 专业类别名称
+     */
+    @TableField("school_major_category_name")
+    @Schema(description = "专业类别名称")
+    private String schoolMajorCategoryName;
+    /**
+     * 专业类别标签
+     */
+    @TableField("school_major_category_label")
+    @Schema(description = "专业类别标签")
+    private String schoolMajorCategoryLabel;
+
 
     /**
-     * 开设年份
+     * 年份
      */
-    @TableField("school_major_establish_year")
-    @Schema(description = "开设年份")
-    private String schoolMajorEstablishYear;
+    @TableField("school_major_year")
+    @Schema(description = "年份")
+    private String schoolMajorYear;
 
     /**
      * 专业排名
@@ -115,39 +148,4 @@ public class SchoolMajor extends SysBase {
     @Schema(description = "是否为重点专业（0-否，1-是）")
     private Integer schoolMajorIsKeyMajor;
 
-    /**
-     * 培养目标
-     */
-    @TableField("school_major_training_objective")
-    @Schema(description = "培养目标")
-    private String schoolMajorTrainingObjective;
-
-    /**
-     * 核心课程
-     */
-    @TableField("school_major_core_courses")
-    @Schema(description = "核心课程")
-    private String schoolMajorCoreCourses;
-
-    /**
-     * 就业方向
-     */
-    @TableField("school_major_career_prospects")
-    @Schema(description = "就业方向")
-    private String schoolMajorCareerProspects;
-
-    /**
-     * 专业详情链接
-     */
-    @TableField("school_major_detail_url")
-    @Schema(description = "专业详情链接")
-    private String schoolMajorDetailUrl;
-
-    /**
-     * 删除标志（0-存在，1-删除）
-     */
-    @TableField("school_major_deleted")
-    @TableLogic
-    @Schema(description = "删除标志（0-存在，1-删除）")
-    private Integer schoolMajorDeleted;
 }

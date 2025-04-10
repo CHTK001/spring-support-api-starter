@@ -110,7 +110,7 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
             }
 
             // 检查同步状态
-            if (null != config.getSchoolSyncConfigStatus() && 0 != config.getSchoolSyncConfigStatus()) {
+            if (null != config.getSchoolSyncConfigStatus() && 1 == config.getSchoolSyncConfigStatus()) {
                 log.error("同步配置状态不正确，当前状态: {}", config.getSchoolSyncConfigStatus());
                 return false;
             }

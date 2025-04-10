@@ -19,6 +19,8 @@ import com.chua.starter.pay.support.transfer.UserIdTransfer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDateTime;
+
 /**
  * 创建订单
  *
@@ -92,6 +94,7 @@ public class CreateOrder {
         payMerchantOrder.setPayMerchantOrderDeptOrganizer(request.getDeptOrganizer());
         payMerchantOrder.setPayMerchantCouponCode(request.getCouponCode());
         payMerchantOrder.setPayMerchantOrderStatus("1000");
+        payMerchantOrder.setCreateTime(LocalDateTime.now());
         return transactionTemplate.execute(status -> {
             PayOrderCreator payOrderCreator = ServiceProvider.of(PayOrderCreator.class).getNewExtension(tradeType, checked.getData());
             if (null == payOrderCreator) {

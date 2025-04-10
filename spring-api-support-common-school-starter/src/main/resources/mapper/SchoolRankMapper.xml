@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.school.mapper.SchoolRankMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.school.entity.SchoolRank">
+    <!--@mbg.generated-->
+    <!--@Table school_rank-->
+    <id column="school_rank_id" jdbcType="INTEGER" property="schoolRankId" />
+    <result column="school_rank_value" jdbcType="VARCHAR" property="schoolRankValue" />
+    <result column="school_rank_type" jdbcType="VARCHAR" property="schoolRankType" />
+    <result column="school_rank_name" jdbcType="VARCHAR" property="schoolRankName" />
+    <result column="school_code" jdbcType="VARCHAR" property="schoolCode" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    school_rank_id, school_rank_value, school_rank_type, school_rank_name, school_code
+  </sql>
+</mapper>

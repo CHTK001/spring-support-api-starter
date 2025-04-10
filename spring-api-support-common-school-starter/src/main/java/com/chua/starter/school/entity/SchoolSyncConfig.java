@@ -1,7 +1,10 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.chua.starter.common.support.annotations.ApiIgnore;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.school.enums.SyncType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,6 +34,13 @@ public class SchoolSyncConfig extends SysBase {
     private String schoolSyncConfigName;
 
     /**
+     * 同步类型
+     */
+    @TableField("school_sync_config_sync_sync_type")
+    @Schema(description = "同步类型")
+    private SyncType schoolSyncConfigSyncSyncType;
+
+    /**
      * cookie
      */
     @TableField("school_sync_config_cookie")
@@ -41,7 +51,7 @@ public class SchoolSyncConfig extends SysBase {
      * 同步类型（1-学校信息，2-专业信息，3-招生计划，4-历史分数）
      */
     @TableField("school_sync_config_sync_type")
-    @Schema(description = "同步类型（1-学校信息，2-专业信息，3-招生计划，4-历史分数）")
+    @Schema(description = "同步类型")
     private String schoolSyncConfigSyncType;
 
     /**
@@ -70,5 +80,6 @@ public class SchoolSyncConfig extends SysBase {
     @TableField("school_sync_config_deleted")
     @TableLogic
     @Schema(description = "删除标志（0-存在，1-删除）")
+    @ApiIgnore(IgnoreGroup.class)
     private Integer schoolSyncConfigDeleted;
 }

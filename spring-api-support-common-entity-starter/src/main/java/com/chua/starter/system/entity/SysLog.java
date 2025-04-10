@@ -47,6 +47,14 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogUsername;
 
     /**
+     * 请求耗时
+     */
+    @TableField(value = "sys_log_cost")
+    @ApiModelProperty(value = "请求耗时")
+    @Schema(description = "请求耗时")
+    private Long sysLogCost;
+
+    /**
      * 请求IP
      */
     @TableField(value = "sys_log_address")
@@ -63,6 +71,20 @@ public class SysLog extends SysBase implements Serializable {
     @Schema(description = "请求地址")
     @Size(max = 255, message = "请求地址最大长度要小于 255")
     private String sysLogUrl;
+    /**
+     * 浏览器
+     */
+    @TableField(value = "sys_log_browser")
+    @ApiModelProperty(value = "浏览器")
+    @Schema(description = "浏览器")
+    private String sysLogBrowser;
+    /**
+     * 请求描述
+     */
+    @TableField(value = "sys_log_content")
+    @ApiModelProperty(value = "请求描述")
+    @Schema(description = "请求描述")
+    private String sysLogContent;
 
     /**
      * 请求参数
