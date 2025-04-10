@@ -36,9 +36,9 @@ public class SchoolSyncConfig extends SysBase {
     /**
      * 同步类型
      */
-    @TableField("school_sync_config_sync_sync_type")
+    @TableField("school_sync_config_sync_type")
     @Schema(description = "同步类型")
-    private SyncType schoolSyncConfigSyncSyncType;
+    private SyncType schoolSyncConfigSyncType;
 
     /**
      * cookie
@@ -48,18 +48,11 @@ public class SchoolSyncConfig extends SysBase {
     private String schoolSyncConfigCookie;
 
     /**
-     * 同步类型（1-学校信息，2-专业信息，3-招生计划，4-历史分数）
-     */
-    @TableField("school_sync_config_sync_type")
-    @Schema(description = "同步类型")
-    private String schoolSyncConfigSyncType;
-
-    /**
      * 同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）
      */
     @TableField("school_sync_config_sync_status")
     @Schema(description = "同步状态（0-未同步，1-同步中，2-同步成功，3-同步失败）")
-    private Integer schoolSyncConfigStatus;
+    private Integer schoolSyncConfigSyncStatus;
     /**
      * 是否启用
      */

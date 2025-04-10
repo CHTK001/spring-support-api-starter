@@ -203,7 +203,8 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                                 .content(GaokaoScore.class);
                                 
                         if (gaokaoScore != null && gaokaoScore.getData() != null && gaokaoScore.getData().getItem() != null) {
-                            for (GaokaoScore.DataDTO.ItemDTO item : gaokaoScore.getData().getItem()) {
+                            List<GaokaoScore.ItemDTO> item1 = gaokaoScore.getData().getItem();
+                            for (GaokaoScore.ItemDTO item : item1) {
                                 SchoolHistoricalScore score = new SchoolHistoricalScore();
                                 score.setSchoolHistoricalScoreSchoolId(schoolInfo.getSchoolId());
                                 score.setSchoolHistoricalScoreSchoolCode(schoolInfo.getSchoolCode());
@@ -444,13 +445,12 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 Wrappers.<SchoolInfo>lambdaQuery()
                         .eq(SchoolInfo::getSchoolCode, String.valueOf(itemDTO.getSchoolId()))
         );
-        if (config.getSchoolSyncConfigSyncSyncType() == SyncType.NEW) {
+        if (config.getSchoolSyncConfigSyncType() == SyncType.NEW) {
             if (null != selectOne) {
                 return;
             }
-            if (null != selectOne) {
-                schoolInfo = selectOne;
-            }
+        } else if (null != selectOne) {
+            schoolInfo = selectOne;
         }
         schoolInfo.setSchoolLogoUrl("https://static-data.gaokao.cn/upload/logo/" + schoolInfo.getSchoolCode() + ".jpg");
         schoolInfo.setSchoolCode(String.valueOf(itemDTO.getSchoolId()));
@@ -492,9 +492,9 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
 
     private void registerPlan(SchoolInfo schoolInfo) {
         try {
-            schoolMajorMapper.delete(
-                    Wrappers.<SchoolMajor>lambdaQuery()
-                            .eq(SchoolMajor::getSchoolCode, schoolInfo.getSchoolCode())
+            schoolAdmissionPlanMapper.delete(
+                    Wrappers.<SchoolAdmissionPlan>lambdaQuery()
+                            .eq(SchoolAdmissionPlan::getSchoolAdmissionPlanSchoolCode, schoolInfo.getSchoolCode())
             );
         } catch (Exception ignored) {
         }
@@ -526,7 +526,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             SchoolAdmissionPlan schoolAdmissionPlan = new SchoolAdmissionPlan();
             schoolAdmissionPlan.setSchoolAdmissionPlanSchoolId(schoolInfo.getSchoolId());
             schoolAdmissionPlan.setSchoolAdmissionPlanSchoolCode(schoolInfo.getSchoolCode());
-            schoolAdmissionPlan.setSchoolAdmissionPlanNumber(itemDTO.getNum());
+            schoolAdmissionPlan.setSchoolAdmissionPlanNumber(Converter.createInteger(itemDTO.getNum()));
             schoolAdmissionPlan.setSchoolAdmissionPlanYear(year);
             String provideStr = provide + "";
             schoolAdmissionPlan.setSchoolAdmissionPlanProvince(provideStr + Strings.repeat("0", 12 - provideStr.length()));
@@ -584,9 +584,9 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             schoolMajor1.setSchoolMajorCategoryLabel(schoolMajor.getSchoolMajorName());
             schoolMajor1.setSchoolMajorCategoryCode(specialDTO1.getLevel2Code());
             schoolMajor1.setSchoolMajorRuanKeLevel(specialDTO1.getRuankeLevel());
-            schoolMajor1.setSchoolMajorRuanKeRank(specialDTO1.getRuankeRank());
-            schoolMajor1.setSchoolMajorXueKeRank(specialDTO1.getXuekeRank());
-            schoolMajor1.setSchoolMajorXueKeRankScore(specialDTO1.getXuekeRankScore());
+            schoolMajor1.setSchoolMajorRuanKeRank(Converter.createInteger(specialDTO1.getRuankeRank()));
+            schoolMajor1.setSchoolMajorXueKeRank(Converter.createInteger(specialDTO1.getXuekeRank()));
+            schoolMajor1.setSchoolMajorXueKeRankScore(Converter.createInteger(specialDTO1.getXuekeRankScore()));
 
             schoolMajorMapper.insert(schoolMajor1);
         }
@@ -630,15 +630,110 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     .newInvoker()
                     .execute()
                     .content(GaokaoRank.class);
+                    
+            if (gaokaoRank == null || gaokaoRank.getData() == null) {
+                log.warn("获取学校排名信息失败: {}", schoolInfo.getSchoolCode());
+                return;
+            }
+            
             gaokaoRank.getData().forEach(item -> {
-                SchoolRank schoolRank = new SchoolRank();
-                schoolRank.setSchoolRankValue(item.getRank());
-                schoolRank.setSchoolRankType(item.getRankType());
-                schoolRank.setSchoolRankName(item.getRankName());
-                schoolRank.setSchoolCode(schoolInfo.getSchoolCode());
-                schoolRankMapper.insert(schoolRank);
+                try {
+                    SchoolRank schoolRank = new SchoolRank();
+                    // 转换rank字段，确保类型匹配
+                    schoolRank.setSchoolRankValue(Converter.createInteger(item.getRank()));
+                    schoolRank.setSchoolRankType(item.getRankType());
+                    schoolRank.setSchoolRankName(item.getRankName());
+                    schoolRank.setSchoolCode(schoolInfo.getSchoolCode());
+                    
+                    // 设置新增字段的默认值
+                    // 从rankName中提取年份信息，如"2023年软科排名"
+                    String rankName = item.getRankName();
+                    if (rankName != null && rankName.matches(".*\\d{4}.*")) {
+                        // 尝试从名称中提取年份
+                        String yearStr = rankName.replaceAll(".*?(\\d{4}).*", "$1");
+                        try {
+                            schoolRank.setSchoolRankYear(Integer.parseInt(yearStr));
+                        } catch (NumberFormatException e) {
+                            // 提取失败时使用当前年份
+                            schoolRank.setSchoolRankYear(java.time.Year.now().getValue());
+                        }
+                    } else {
+                        // 默认使用当前年份
+                        schoolRank.setSchoolRankYear(java.time.Year.now().getValue());
+                    }
+                    
+                    // 从rankType和rankName中提取排名机构信息
+                    if (item.getRankType() != null && item.getRankType().contains("软科")) {
+                        schoolRank.setSchoolRankInstitution("软科");
+                    } else if (item.getRankName() != null) {
+                        if (item.getRankName().contains("QS")) {
+                            schoolRank.setSchoolRankInstitution("QS");
+                        } else if (item.getRankName().contains("校友会")) {
+                            schoolRank.setSchoolRankInstitution("校友会");
+                        } else if (item.getRankName().contains("软科")) {
+                            schoolRank.setSchoolRankInstitution("软科");
+                        } else if (item.getRankName().contains("泰晤士")) {
+                            schoolRank.setSchoolRankInstitution("泰晤士高等教育");
+                        } else {
+                            schoolRank.setSchoolRankInstitution("其他");
+                        }
+                    }
+                    
+                    // 设置排名得分（如果有）
+                    // 某些排名可能在master字段中包含得分信息
+                    if (item.getMaster() != null && !item.getMaster().isEmpty()) {
+                        try {
+                            // 尝试从master字段提取得分信息
+                            // 得分通常是一个浮点数，比如"得分：85.6分"
+                            if (item.getMaster().matches(".*\\d+(\\.\\d+)?.*")) {
+                                String scoreStr = item.getMaster().replaceAll(".*?(\\d+(\\.\\d+)?).*", "$1");
+                                schoolRank.setSchoolRankScore(Double.parseDouble(scoreStr));
+                            }
+                        } catch (Exception e) {
+                            log.debug("解析排名得分失败: {}", item.getMaster());
+                        }
+                    }
+                    
+                    // 尝试计算排名变化
+                    // 排名变化信息可能在数据源中没有直接提供，这里可以通过比对历史数据来计算
+                    // 这里提供一个基本框架，实际实现可能需要查询上一年的排名数据
+                    try {
+                        // 查询上一年的排名数据
+                        SchoolRank lastYearRank = schoolRankMapper.selectOne(
+                                Wrappers.<SchoolRank>lambdaQuery()
+                                        .eq(SchoolRank::getSchoolCode, schoolInfo.getSchoolCode())
+                                        .eq(SchoolRank::getSchoolRankType, item.getRankType())
+                                        .eq(SchoolRank::getSchoolRankYear, schoolRank.getSchoolRankYear() - 1)
+                        );
+                        
+                        if (lastYearRank != null && lastYearRank.getSchoolRankValue() != null && 
+                                schoolRank.getSchoolRankValue() != null) {
+                            // 计算排名变化：正数表示排名上升（变好），负数表示排名下降（变差）
+                            // 注意：排名数字越小表示排名越好
+                            int lastYearValue = lastYearRank.getSchoolRankValue();
+                            int currentValue = schoolRank.getSchoolRankValue();
+                            int change = lastYearValue - currentValue;
+                            schoolRank.setSchoolRankChange(change);
+                        }
+                    } catch (Exception e) {
+                        log.debug("计算排名变化失败: {}", e.getMessage());
+                    }
+                    
+                    // 增加可能的备注信息
+                    if (item.getMaster() != null && !item.getMaster().isEmpty()) {
+                        schoolRank.setSchoolRankRemark(item.getMaster());
+                    }
+                    
+                    // 设置删除标志
+                    schoolRank.setSchoolRankDeleted(0);
+                    
+                    schoolRankMapper.insert(schoolRank);
+                } catch (Exception e) {
+                    log.error("保存学校排名信息异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
+                }
             });
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.error("获取学校排名信息异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
         }
     }
 
@@ -726,7 +821,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     }
                     
                     // 处理当前页的专业数据
-                    List<GaokaoSpecialty.DataDTO.ItemDTO> specialties = specialtyData.getData().getItem();
+                    List<GaokaoSpecialty.ItemDTO> specialties = specialtyData.getData().getItem();
                     processSpecialties(specialties);
                     
                     totalProcessed += specialties.size();
@@ -757,12 +852,12 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
      *
      * @param specialties 专业数据列表
      */
-    private void processSpecialties(List<GaokaoSpecialty.DataDTO.ItemDTO> specialties) {
+    private void processSpecialties(List<GaokaoSpecialty.ItemDTO> specialties) {
         if (specialties == null || specialties.isEmpty()) {
             return;
         }
         
-        for (GaokaoSpecialty.DataDTO.ItemDTO specialty : specialties) {
+        for (GaokaoSpecialty.ItemDTO specialty : specialties) {
             try {
                 // 创建专业对象并保存到数据库
                 SchoolMajor schoolMajor = new SchoolMajor();
@@ -775,7 +870,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 schoolMajor.setSchoolMajorCategoryName(specialty.getLevel2Name());
                 schoolMajor.setSchoolMajorParentCode(specialty.getLevel1Code());
                 schoolMajor.setSchoolMajorCategoryLabel(specialty.getLevel1Name());
-                schoolMajor.setSchoolMajorYear(specialty.getLimitYear());
+                schoolMajor.setSchoolMajorYear(String.valueOf(specialty.getLimitYear()));
                 schoolMajor.setSchoolMajorContent(specialty.getWhatMajor());
                 schoolMajor.setSchoolMajorCourse(specialty.getCourse());
                 schoolMajor.setSchoolMajorEmployment(specialty.getWhatWork());
