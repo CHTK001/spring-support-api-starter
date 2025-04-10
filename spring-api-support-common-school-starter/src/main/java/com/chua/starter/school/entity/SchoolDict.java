@@ -3,7 +3,7 @@ package com.chua.starter.school.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.common.support.entity.BaseEntity;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 @TableName("school_dict")
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "学校字典")
-public class SchoolDict extends BaseEntity {
+public class SchoolDict extends SysBase {
 
     @TableId(type = IdType.AUTO)
     @Schema(description = "字典ID")

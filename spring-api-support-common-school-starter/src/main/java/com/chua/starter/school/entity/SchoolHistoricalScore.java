@@ -1,7 +1,7 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.chua.common.support.entity.BaseEntity;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @TableName("school_historical_score")
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "学校历史分数线")
-public class SchoolHistoricalScore extends BaseEntity {
+public class SchoolHistoricalScore extends SysBase {
 
     /**
      * 主键ID
