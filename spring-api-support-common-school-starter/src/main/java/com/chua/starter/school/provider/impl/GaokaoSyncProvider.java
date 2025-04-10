@@ -533,7 +533,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             schoolAdmissionPlan.setSchoolAdmissionPlanTuition(Converter.convertIfNecessary(itemDTO.getTuition(), Double.class));
             schoolAdmissionPlan.setSchoolAdmissionPlanLength(Converter.convertIfNecessary(itemDTO.getLength(), Integer.class));
             schoolAdmissionPlan.setSchoolAdmissionPlanSubjectRequirements(itemDTO.getInfo());
-            schoolAdmissionPlan.setSchoolAdmissionPlanName(itemDTO.getSpname());
+            schoolAdmissionPlan.setSchoolAdmissionPlanName(itemDTO.getSpName2());
             schoolAdmissionPlan.setSchoolAdmissionPlanRemark(itemDTO.getSpName());
             schoolAdmissionPlan.setSchoolAdmissionPlanMajorName(itemDTO.getLevel3Name());
             schoolAdmissionPlan.setSchoolAdmissionPlanBatch(itemDTO.getLocalBatchName());

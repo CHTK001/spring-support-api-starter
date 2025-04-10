@@ -110,20 +110,20 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
             }
 
             // 检查同步状态
-            if (null != config.getSchoolSyncConfigStatus() && 1 == config.getSchoolSyncConfigStatus()) {
-                log.error("同步配置状态不正确，当前状态: {}", config.getSchoolSyncConfigStatus());
+            if (null != config.getSchoolSyncConfigSyncStatus() && 1 == config.getSchoolSyncConfigSyncStatus()) {
+                log.error("同步配置状态不正确，当前状态: {}", config.getSchoolSyncConfigSyncStatus());
                 return false;
             }
 
             // 获取同步提供者
-            SchoolSyncProvider provider = getProvider(config.getSchoolSyncConfigSyncType());
+            SchoolSyncProvider provider = getProvider(config.getSchoolSyncConfigType());
             if (provider == null) {
                 log.error("未找到对应的同步提供者: {}", config.getSchoolSyncConfigSyncType());
                 return false;
             }
 
             // 更新同步状态为进行中
-            config.setSchoolSyncConfigStatus(1);
+            config.setSchoolSyncConfigSyncStatus(1);
             config.setUpdateTime(LocalDateTime.now());
             updateById(config);
 
@@ -131,7 +131,7 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
             boolean result = provider.syncAllSchoolData(config);
 
             // 更新同步状态
-            config.setSchoolSyncConfigStatus(result ? 2 : 3);
+            config.setSchoolSyncConfigSyncStatus(result ? 2 : 3);
             config.setUpdateTime(LocalDateTime.now());
             updateById(config);
 

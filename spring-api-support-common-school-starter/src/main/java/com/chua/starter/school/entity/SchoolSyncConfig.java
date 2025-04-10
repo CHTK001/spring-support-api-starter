@@ -32,6 +32,12 @@ public class SchoolSyncConfig extends SysBase {
     @TableField("school_sync_config_name")
     @Schema(description = "配置名称")
     private String schoolSyncConfigName;
+    /**
+     * 配置类型
+     */
+    @TableField("school_sync_config_type")
+    @Schema(description = "配置类型")
+    private String schoolSyncConfigType;
 
     /**
      * 同步类型
