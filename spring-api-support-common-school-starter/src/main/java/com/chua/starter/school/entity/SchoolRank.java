@@ -1,59 +1,37 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.mybatis.pojo.SysBase;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.chua.common.support.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 排名
+ * 学校排名实体类
+ *
+ * @author CH
  */
-@ApiModel(description = "排名")
-@Schema(description = "排名")
 @Data
+@TableName("school_rank")
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "school_rank")
-public class SchoolRank extends SysBase {
-    @TableId(value = "school_rank_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer schoolRankId;
+@Schema(description = "学校排名")
+public class SchoolRank extends BaseEntity {
 
-    /**
-     * 排名
-     */
-    @TableField(value = "school_rank_value")
-    @ApiModelProperty(value = "排名")
-    @Schema(description = "排名")
-    private String schoolRankValue;
+    @TableId(type = IdType.AUTO)
+    @Schema(description = "排名ID")
+    private Long schoolRankId;
 
-    /**
-     * 排名类型
-     */
-    @TableField(value = "school_rank_type")
-    @ApiModelProperty(value = "排名类型")
+    @Schema(description = "学校代码")
+    private String schoolCode;
+
+    @Schema(description = "排名值")
+    private Integer schoolRankValue;
+
     @Schema(description = "排名类型")
     private String schoolRankType;
 
-    /**
-     * 排名名称
-     */
-    @TableField(value = "school_rank_name")
-    @ApiModelProperty(value = "排名名称")
     @Schema(description = "排名名称")
     private String schoolRankName;
-
-    /**
-     * 学校编码
-     */
-    @TableField(value = "school_code")
-    @ApiModelProperty(value = "学校编码")
-    @Schema(description = "学校编码")
-    private String schoolCode;
 }

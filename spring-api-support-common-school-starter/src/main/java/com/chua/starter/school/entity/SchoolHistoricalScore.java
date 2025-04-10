@@ -1,28 +1,27 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.common.support.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 历年分数
+ * 学校历史分数线实体类
  *
  * @author CH
- * 
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("school_historical_score")
-@Schema(description = "历年分数")
-public class SchoolHistoricalScore extends SysBase {
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "学校历史分数线")
+public class SchoolHistoricalScore extends BaseEntity {
 
     /**
      * 主键ID
      */
     @TableId(value = "school_historical_score_id", type = IdType.AUTO)
-    @Schema(description = "主键ID")
+    @Schema(description = "历史分数线ID")
     private Long schoolHistoricalScoreId;
 
     /**
@@ -71,21 +70,21 @@ public class SchoolHistoricalScore extends SysBase {
      * 科目类型（理科、文科、综合）
      */
     @TableField("school_historical_score_subject_type")
-    @Schema(description = "科目类型（理科、文科、综合）")
+    @Schema(description = "科目类型")
     private String schoolHistoricalScoreSubjectType;
 
     /**
      * 批次（提前批、一批、二批等）
      */
     @TableField("school_historical_score_batch")
-    @Schema(description = "批次（提前批、一批、二批等）")
+    @Schema(description = "批次")
     private String schoolHistoricalScoreBatch;
 
     /**
      * 招生类型（普通类、国家专项等）
      */
     @TableField("school_historical_score_admission_type")
-    @Schema(description = "招生类型（普通类、国家专项等）")
+    @Schema(description = "录取类型")
     private String schoolHistoricalScoreAdmissionType;
 
     /**
@@ -115,12 +114,6 @@ public class SchoolHistoricalScore extends SysBase {
     @TableField("school_historical_score_admission_count")
     @Schema(description = "录取人数")
     private Integer schoolHistoricalScoreAdmissionCount;
-    /**
-     * 报考人数
-     */
-    @TableField("school_historical_score_applied_count")
-    @Schema(description = "报名人数")
-    private Integer schoolHistoricalScoreAppliedCount;
 
     /**
      * 省控线
@@ -135,6 +128,13 @@ public class SchoolHistoricalScore extends SysBase {
     @TableField("school_historical_score_lowest_rank")
     @Schema(description = "最低位次")
     private Integer schoolHistoricalScoreLowestRank;
+
+    /**
+     * 报考人数
+     */
+    @TableField("school_historical_score_applied_count")
+    @Schema(description = "报名人数")
+    private Integer schoolHistoricalScoreAppliedCount;
 
     /**
      * 录取率

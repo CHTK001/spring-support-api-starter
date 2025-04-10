@@ -1,35 +1,28 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.common.support.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 招生计划
+ * 学校招生计划实体类
  *
  * @author CH
- * 
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("school_admission_plan")
-@Schema(description = "招生计划")
-public class SchoolAdmissionPlan extends SysBase {
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "学校招生计划")
+public class SchoolAdmissionPlan extends BaseEntity {
 
     /**
      * 主键ID
      */
     @TableId(value = "school_admission_plan_id", type = IdType.AUTO)
-    @Schema(description = "主键ID")
+    @Schema(description = "招生计划ID")
     private Long schoolAdmissionPlanId;
-    /**
-     * 招生计划名称
-     */
-    @TableField("school_admission_plan_name")
-    @Schema(description = "招生计划名称")
-    private String schoolAdmissionPlanName;
 
     /**
      * 学校ID
@@ -44,12 +37,76 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_school_code")
     @Schema(description = "学校代码")
     private String schoolAdmissionPlanSchoolCode;
+
     /**
-     * 招生计划数量
+     * 招生计划名称
+     */
+    @TableField("school_admission_plan_name")
+    @Schema(description = "招生计划名称")
+    private String schoolAdmissionPlanName;
+
+    /**
+     * 招生计划备注
+     */
+    @TableField("school_admission_plan_remark")
+    @Schema(description = "招生计划备注")
+    private String schoolAdmissionPlanRemark;
+
+    /**
+     * 招生计划年份
+     */
+    @TableField("school_admission_plan_year")
+    @Schema(description = "招生计划年份")
+    private Integer schoolAdmissionPlanYear;
+
+    /**
+     * 招生计划省份
+     */
+    @TableField("school_admission_plan_province")
+    @Schema(description = "招生计划省份")
+    private String schoolAdmissionPlanProvince;
+
+    /**
+     * 招生计划批次
+     */
+    @TableField("school_admission_plan_batch")
+    @Schema(description = "招生计划批次")
+    private String schoolAdmissionPlanBatch;
+
+    /**
+     * 招生计划专业名称
+     */
+    @TableField("school_admission_plan_major_name")
+    @Schema(description = "招生计划专业名称")
+    private String schoolAdmissionPlanMajorName;
+
+    /**
+     * 招生计划人数
      */
     @TableField("school_admission_plan_number")
-    @Schema(description = "招生计划数量")
-    private String schoolAdmissionPlanNumber;
+    @Schema(description = "招生计划人数")
+    private Integer schoolAdmissionPlanNumber;
+
+    /**
+     * 招生计划学费
+     */
+    @TableField("school_admission_plan_tuition")
+    @Schema(description = "招生计划学费")
+    private Double schoolAdmissionPlanTuition;
+
+    /**
+     * 招生计划学制
+     */
+    @TableField("school_admission_plan_length")
+    @Schema(description = "招生计划学制")
+    private Integer schoolAdmissionPlanLength;
+
+    /**
+     * 招生计划科目要求
+     */
+    @TableField("school_admission_plan_subject_requirements")
+    @Schema(description = "招生计划科目要求")
+    private String schoolAdmissionPlanSubjectRequirements;
 
     /**
      * 专业ID
@@ -64,26 +121,13 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_major_code")
     @Schema(description = "专业代码")
     private String schoolAdmissionPlanMajorCode;
-    /**
-     * 专业名称
-     */
-    @TableField("school_admission_plan_major_name")
-    @Schema(description = "专业名称")
-    private String schoolAdmissionPlanMajorName;
 
     /**
-     * 招生年份
+     * 实际招生人数
      */
-    @TableField("school_admission_plan_year")
-    @Schema(description = "招生年份")
-    private Integer schoolAdmissionPlanYear;
-
-    /**
-     * 招生省份
-     */
-    @TableField("school_admission_plan_province")
-    @Schema(description = "招生省份")
-    private String schoolAdmissionPlanProvince;
+    @TableField("school_admission_plan_actual_count")
+    @Schema(description = "实际招生人数")
+    private Integer schoolAdmissionPlanActualCount;
 
     /**
      * 科目类型（理科、文科、综合）
@@ -98,61 +142,6 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_plan_count")
     @Schema(description = "计划招生人数")
     private Integer schoolAdmissionPlanPlanCount;
-    
-    /**
-     * 学费
-     */
-    @TableField("school_admission_plan_tuition")
-    @Schema(description = "学费")
-    private Double schoolAdmissionPlanTuition;
-    
-    /**
-     * 学制年限
-     */
-    @TableField("school_admission_plan_length")
-    @Schema(description = "学制年限")
-    private Integer schoolAdmissionPlanLength;
-    
-    /**
-     * 选科要求
-     */
-    @TableField("school_admission_plan_subject_requirements")
-    @Schema(description = "选科要求")
-    private String schoolAdmissionPlanSubjectRequirements;
-    
-    /**
-     * 招生计划名称
-     */
-    @TableField("school_admission_plan_name")
-    @Schema(description = "招生计划名称")
-    private String schoolAdmissionPlanName;
-
-    /**
-     * 实际招生人数
-     */
-    @TableField("school_admission_plan_actual_count")
-    @Schema(description = "实际招生人数")
-    private Integer schoolAdmissionPlanActualCount;
-
-    /**
-     * 学费（元/年）
-     */
-    @TableField("school_admission_plan_tuition")
-    @Schema(description = "学费（元/年）")
-    private Double schoolAdmissionPlanTuition;
-    /**
-     * 学制
-     */
-    @TableField("school_admission_plan_length")
-    @Schema(description = "学制")
-    private Integer schoolAdmissionPlanLength;
-
-    /**
-     * 招生批次（提前批、一批、二批等）
-     */
-    @TableField("school_admission_plan_batch")
-    @Schema(description = "招生批次（提前批、一批、二批等）")
-    private String schoolAdmissionPlanBatch;
 
     /**
      * 招生类型（普通类、国家专项等）
@@ -160,20 +149,6 @@ public class SchoolAdmissionPlan extends SysBase {
     @TableField("school_admission_plan_admission_type")
     @Schema(description = "招生类型（普通类、国家专项等）")
     private String schoolAdmissionPlanAdmissionType;
-
-    /**
-     * 选科要求
-     */
-    @TableField("school_admission_plan_subject_requirements")
-    @Schema(description = "选科要求")
-    private String schoolAdmissionPlanSubjectRequirements;
-
-    /**
-     * 备注
-     */
-    @TableField("school_admission_plan_remark")
-    @Schema(description = "备注")
-    private String schoolAdmissionPlanRemark;
 
     /**
      * 删除标志（0-存在，1-删除）
