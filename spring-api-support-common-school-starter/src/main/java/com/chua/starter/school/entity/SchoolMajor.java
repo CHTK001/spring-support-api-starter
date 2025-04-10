@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.common.support.entity.BaseEntity;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 @TableName("school_major")
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "学校专业")
-public class SchoolMajor extends BaseEntity {
+public class SchoolMajor extends SysBase {
 
     /**
      * 主键ID
