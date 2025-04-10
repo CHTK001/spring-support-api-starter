@@ -5,29 +5,34 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 学校年级
+ * 学校年级实体类
+ * 用于存储学校年级信息，包括年级名称、年级代码、年级类型等
  *
  * @author CH
  */
 @Data
 @TableName("school_grade")
 @EqualsAndHashCode(callSuper = true)
+@Schema(description = "学校年级")
 public class SchoolGrade extends SysBase {
 
     /**
-     * 主键
+     * 年级ID，主键
      */
     @TableId("school_grade_id")
+    @Schema(description = "年级ID")
     private Long schoolGradeId;
 
     /**
      * 学校ID
      */
     @TableField("school_grade_school_id")
+    @Schema(description = "学校ID")
     private Long schoolGradeSchoolId;
 
     /**
@@ -37,15 +42,17 @@ public class SchoolGrade extends SysBase {
     private String schoolGradeSchoolCode;
 
     /**
-     * 年级名称
+     * 年级名称，如一年级、二年级等
      */
     @TableField("school_grade_name")
+    @Schema(description = "年级名称")
     private String schoolGradeName;
 
     /**
-     * 年级编码
+     * 年级代码，用于标识年级
      */
     @TableField("school_grade_code")
+    @Schema(description = "年级代码")
     private String schoolGradeCode;
 
     /**
@@ -91,9 +98,10 @@ public class SchoolGrade extends SysBase {
     private String schoolGradeDirectorName;
 
     /**
-     * 状态（0-禁用，1-启用）
+     * 年级状态，0-禁用，1-启用
      */
     @TableField("school_grade_status")
+    @Schema(description = "年级状态")
     private Integer schoolGradeStatus;
 
     /**

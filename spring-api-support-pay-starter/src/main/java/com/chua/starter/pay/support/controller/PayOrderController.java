@@ -10,7 +10,6 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.pay.support.dto.PayOrderStatisticDTO;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.pojo.PayMerchantOrderQueryRequest;
 import com.chua.starter.pay.support.pojo.PayOrderQueryRequest;
@@ -112,16 +111,6 @@ public class PayOrderController {
     @Operation(summary = "最新未支付订单")
     public ReturnResult<String> newestNoPayOrder(@Parameter(hidden = true) @UserValue("userId") String userId) {
         return payOrderService.newestNoPayOrder(userId);
-    }
-
-    /**
-     * 获取订单统计数据
-     */
-    @GetMapping("/statistic")
-    @Operation(summary = "获取订单统计数据")
-    @Permission({"sys:pay:order:statistic"})
-    public ReturnResult<PayOrderStatisticDTO> statistic() {
-        return ReturnResult.ok(payOrderService.statOrderInfo());
     }
 
     /**

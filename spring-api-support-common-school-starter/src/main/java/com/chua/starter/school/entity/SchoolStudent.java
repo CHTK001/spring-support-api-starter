@@ -7,31 +7,36 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.common.support.annotations.ApiIgnore;
 import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
 /**
- * 学校学生
+ * 学校学生实体类
+ * 用于存储学生信息，包括学生姓名、学号、所属班级等
  *
  * @author CH
  */
 @Data
 @TableName("school_student")
 @EqualsAndHashCode(callSuper = true)
+@Schema(description = "学校学生")
 public class SchoolStudent extends SysBase {
 
     /**
-     * 主键
+     * 学生ID，主键
      */
     @TableId("school_student_id")
+    @Schema(description = "学生ID")
     private Long schoolStudentId;
 
     /**
      * 学校ID
      */
     @TableField("school_student_school_id")
+    @Schema(description = "学校ID")
     private Long schoolStudentSchoolId;
 
     /**
@@ -44,24 +49,28 @@ public class SchoolStudent extends SysBase {
      * 学号
      */
     @TableField("school_student_number")
+    @Schema(description = "学生学号")
     private String schoolStudentNumber;
 
     /**
      * 学生姓名
      */
     @TableField("school_student_name")
+    @Schema(description = "学生姓名")
     private String schoolStudentName;
 
     /**
      * 性别（0-女，1-男）
      */
     @TableField("school_student_gender")
+    @Schema(description = "学生性别")
     private Integer schoolStudentGender;
 
     /**
      * 出生日期
      */
     @TableField("school_student_birth_date")
+    @Schema(description = "学生出生日期")
     private LocalDate schoolStudentBirthDate;
 
     /**
@@ -104,6 +113,7 @@ public class SchoolStudent extends SysBase {
      * 班级ID
      */
     @TableField("school_student_class_id")
+    @Schema(description = "班级ID")
     private Long schoolStudentClassId;
 
     /**
@@ -116,18 +126,21 @@ public class SchoolStudent extends SysBase {
      * 入学日期
      */
     @TableField("school_student_enroll_date")
+    @Schema(description = "入学日期")
     private LocalDate schoolStudentEnrollDate;
 
     /**
      * 毕业日期
      */
     @TableField("school_student_graduate_date")
+    @Schema(description = "毕业日期")
     private LocalDate schoolStudentGraduateDate;
 
     /**
      * 学籍状态（0-休学，1-在读，2-毕业，3-退学）
      */
     @TableField("school_student_status")
+    @Schema(description = "学生状态")
     private Integer schoolStudentStatus;
 
     /**
@@ -160,5 +173,6 @@ public class SchoolStudent extends SysBase {
     @TableLogic
     @TableField("school_student_deleted")
     @ApiIgnore(IgnoreGroup.class)
+    @Schema(description = "是否删除")
     private Integer schoolStudentDeleted;
 } 
