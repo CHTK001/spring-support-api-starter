@@ -143,11 +143,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-report-server-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-postgres-starter</artifactId>
         </dependency>
 
