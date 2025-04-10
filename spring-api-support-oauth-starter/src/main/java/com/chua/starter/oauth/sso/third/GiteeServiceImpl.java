@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.sso.impl.SysUserTripartiteBind;
 import com.chua.starter.oauth.sso.mapper.SysUserTripartiteBindMapper;
-import com.chua.starter.oauth.support.gitee.GiteeService;
+import com.chua.starter.oauth.sso.support.gitee.GiteeService;
 import lombok.RequiredArgsConstructor;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.stereotype.Service;

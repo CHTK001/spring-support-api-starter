@@ -3,7 +3,7 @@ package com.chua.starter.oauth.sso.service;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.oauth.support.service.UserInfoService;
+import com.chua.starter.oauth.sso.support.service.UserInfoService;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
