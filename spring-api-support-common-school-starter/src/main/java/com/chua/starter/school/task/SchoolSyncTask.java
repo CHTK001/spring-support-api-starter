@@ -35,7 +35,7 @@ public class SchoolSyncTask {
         // 查询所有需要同步的配置
         LambdaQueryWrapper<SchoolSyncConfig> queryWrapper = new LambdaQueryWrapper<>();
         // 排除同步状态为正在同步的配置
-        queryWrapper.ne(SchoolSyncConfig::getSchoolSyncConfigStatus, 1);
+        queryWrapper.ne(SchoolSyncConfig::getSchoolSyncConfigSyncStatus, 1);
         // 只查询已启用的配置
         queryWrapper.eq(SchoolSyncConfig::getSchoolSyncConfigEnabled, true);
         // 查询所有配置
@@ -57,7 +57,7 @@ public class SchoolSyncTask {
                 // 更新同步状态为失败
                 SchoolSyncConfig updateConfig = new SchoolSyncConfig();
                 updateConfig.setSchoolSyncConfigId(config.getSchoolSyncConfigId());
-                updateConfig.setSchoolSyncConfigStatus(3); // 3表示同步失败
+                updateConfig.setSchoolSyncConfigSyncStatus(3); // 3表示同步失败
                 updateConfig.setUpdateTime(LocalDateTime.now());
                 schoolSyncConfigService.updateById(updateConfig);
             }
