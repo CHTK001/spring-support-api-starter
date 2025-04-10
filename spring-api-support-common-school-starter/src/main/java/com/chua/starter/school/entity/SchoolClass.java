@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 学校班级
+ * 学校班级实体类
+ * 用于存储班级信息，包括班级名称、年级、所属学校等
  *
  * @author CH
  * <p>
@@ -18,18 +20,21 @@ import lombok.EqualsAndHashCode;
 @Data
 @TableName("school_class")
 @EqualsAndHashCode(callSuper = true)
+@Schema(description = "学校班级")
 public class SchoolClass extends SysBase {
 
     /**
-     * 主键
+     * 班级ID，主键
      */
     @TableId("school_class_id")
+    @Schema(description = "班级ID")
     private Long schoolClassId;
 
     /**
-     * 学校ID
+     * 学校ID，关联学校信息
      */
     @TableField("school_class_school_id")
+    @Schema(description = "学校ID")
     private Long schoolClassSchoolId;
 
     /**
@@ -39,22 +44,31 @@ public class SchoolClass extends SysBase {
     private String schoolClassSchoolCode;
 
     /**
-     * 年级ID
+     * 年级ID，关联年级信息
      */
     @TableField("school_class_grade_id")
+    @Schema(description = "年级ID")
     private Long schoolClassGradeId;
 
     /**
-     * 班级名称
+     * 班级名称，如1班、2班等
      */
     @TableField("school_class_name")
+    @Schema(description = "班级名称")
     private String schoolClassName;
 
     /**
-     * 班级编号
+     * 班级代码，用于标识班级
      */
     @TableField("school_class_code")
+    @Schema(description = "班级代码")
     private String schoolClassCode;
+
+    /**
+     * 班级类型，如普通班、实验班等
+     */
+    @TableField("school_class_type")
+    private String schoolClassType;
 
     /**
      * 班级容量
@@ -87,15 +101,17 @@ public class SchoolClass extends SysBase {
     private String schoolClassDescription;
 
     /**
-     * 状态（0-禁用，1-启用）
+     * 班级状态，0-禁用，1-启用
      */
     @TableField("school_class_status")
+    @Schema(description = "班级状态")
     private Integer schoolClassStatus;
 
     /**
-     * 排序
+     * 班级排序，用于显示顺序
      */
     @TableField("school_class_sort")
+    @Schema(description = "班级排序")
     private Integer schoolClassSort;
 
     /**

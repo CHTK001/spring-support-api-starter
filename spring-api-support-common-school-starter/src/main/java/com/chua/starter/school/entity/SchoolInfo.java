@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 学校信息实体类
+ * 用于存储学校的基本信息，包括学校代码、名称、地址、联系方式等
  *
  * @author CH
  */
@@ -20,14 +21,14 @@ import lombok.EqualsAndHashCode;
 public class SchoolInfo extends SysBase {
 
     /**
-     * 主键ID
+     * 学校ID，主键
      */
     @TableId(value = "school_id", type = IdType.AUTO)
     @Schema(description = "学校ID")
     private Long schoolId;
 
     /**
-     * 学校代码
+     * 学校代码，唯一标识一所学校
      */
     @TableField("school_code")
     @Schema(description = "学校代码")
@@ -41,133 +42,133 @@ public class SchoolInfo extends SysBase {
     private String schoolName;
 
     /**
-     * 学校英文名
+     * 学校英文名称
      */
     @TableField("school_english_name")
     @Schema(description = "学校英文名")
     private String schoolEnglishName;
 
     /**
-     * 学校类型（综合、理工、农林、医药、师范、语言、财经、政法、体育、艺术等）
+     * 学校类型，如综合、理工、农林、医药、师范、语言、财经、政法、体育、艺术等
      */
     @TableField("school_type")
     @Schema(description = "学校类型（综合、理工、农林、医药、师范、语言、财经、政法、体育、艺术等）")
     private String schoolType;
 
     /**
-     * 所在省份
+     * 学校所在省份ID
      */
     @TableField("school_province_id")
     @Schema(description = "学校所在省份ID")
     private String schoolProvinceId;
 
     /**
-     * 所在城市
+     * 学校所在城市ID
      */
     @TableField("school_city_id")
     @Schema(description = "学校所在城市ID")
     private String schoolCityId;
 
     /**
-     * 所在区县
+     * 学校所在区县ID
      */
     @TableField("school_district_id")
     @Schema(description = "学校所在区县ID")
     private String schoolDistrictId;
 
     /**
-     * 详细地址
+     * 学校详细地址
      */
     @TableField("school_address")
     @Schema(description = "学校地址")
     private String schoolAddress;
 
     /**
-     * 创建时间
+     * 学校创建时间
      */
     @TableField("school_create_time")
     @Schema(description = "学校创建时间")
     private String schoolCreateTime;
 
     /**
-     * 办学层次（本科、专科）
+     * 学校办学层次，如本科、专科
      */
     @TableField("school_education_level")
     @Schema(description = "学校办学层次")
     private String schoolEducationLevel;
 
     /**
-     * 办学性质（985、211、普通）
+     * 学校办学性质，如公办、民办
      */
     @TableField("school_education_native")
     @Schema(description = "学校办学性质")
     private String schoolEducationNative;
 
     /**
-     * 隶属于（教育部、地方等）
+     * 学校主管部门，如教育部、地方等
      */
     @TableField("school_subordinate_to")
     @Schema(description = "学校主管部门")
     private String schoolSubordinateTo;
 
     /**
-     * 是否是985（0-否，1-是）
+     * 是否是985院校，0-否，1-是
      */
     @TableField("school_is_985")
     @Schema(description = "是否985院校(0:否,1:是)")
     private Integer schoolIs985;
 
     /**
-     * 是否是双一流类型
+     * 学校双一流等级
      */
     @TableField("school_dual")
     @Schema(description = "学校双一流等级")
     private String schoolDual;
 
     /**
-     * 是否是211（0-否，1-是）
+     * 是否是211院校，0-否，1-是
      */
     @TableField("school_is_211")
     @Schema(description = "是否211院校(0:否,1:是)")
     private Integer schoolIs211;
 
     /**
-     * 是否是双一流（0-否，1-是）
+     * 是否是双一流院校，0-否，1-是
      */
     @TableField("school_is_double_first")
     @Schema(description = "是否是双一流（0-否，1-是）")
     private Integer schoolIsDoubleFirst;
 
     /**
-     * 官网地址
+     * 学校官网地址
      */
     @TableField("school_website_url")
     @Schema(description = "学校网站URL")
     private String schoolWebsiteUrl;
 
     /**
-     * 联系电话
+     * 学校联系电话
      */
     @TableField("school_phone")
     @Schema(description = "学校电话")
     private String schoolPhone;
 
     /**
-     * 邮编
+     * 学校邮编
      */
     @TableField("school_post_code")
     @Schema(description = "学校邮编")
     private String schoolPostCode;
 
     /**
-     * 备注
+     * 学校备注信息
      */
     @TableField("school_remark")
     @Schema(description = "备注")
     private String schoolRemark;
 
     /**
-     * 建校时间
+     * 学校建校时间
      */
     @TableField("school_founding_year")
     @Schema(description = "建校时间")
@@ -202,91 +203,91 @@ public class SchoolInfo extends SysBase {
     private String schoolBadgeUrl;
 
     /**
-     * 招生网址
+     * 学校招生网址
      */
     @TableField("school_admission_url")
     @Schema(description = "招生网址")
     private String schoolAdmissionUrl;
 
     /**
-     * "招生状态": 1（表示正在招生）
+     * 学校录取批次
      */
     @TableField("school_admission")
     @Schema(description = "学校录取批次")
     private Integer schoolAdmission;
 
     /**
-     * "双高计划": 0（非双高院校）
+     * 是否是双高计划院校，0-否，1-是
      */
     @TableField("school_double_high")
     @Schema(description = "双高计划: 0（非双高院校）")
     private Integer schoolDoubleHigh;
 
     /**
-     * 就业率
+     * 学校就业率
      */
     @TableField("school_employment_rate")
     @Schema(description = "就业率")
     private String schoolEmploymentRate;
 
     /**
-     * 标签
+     * 学校标签
      */
     @TableField("school_tag")
     @Schema(description = "学校标签")
     private String schoolTag;
 
     /**
-     * 月访问量
+     * 学校月访问量
      */
     @TableField("school_view_month")
     @Schema(description = "学校月访问量")
     private Integer schoolViewMonth;
 
     /**
-     * 总访问量
+     * 学校总访问量
      */
     @TableField("school_view_total")
     @Schema(description = "学校总访问量")
     private Integer schoolViewTotal;
 
     /**
-     * 排名
+     * 学校排名
      */
     @TableField("school_rank")
     @Schema(description = "学校排名")
     private Integer schoolRank;
 
     /**
-     * 博士人数
+     * 学校博士点数量
      */
     @TableField("school_num_doctor")
     @Schema(description = "博士点数量")
     private Integer schoolNumDoctor;
 
     /**
-     * 硕士人数
+     * 学校硕士点数量
      */
     @TableField("school_num_master")
     @Schema(description = "硕士点数量")
     private Integer schoolNumMaster;
 
     /**
-     * 国家一级重点学科
+     * 学校学科数量
      */
     @TableField("school_num_subject")
     @Schema(description = "学科数量")
     private Integer schoolNumSubject;
 
     /**
-     * 高考网链接
+     * 学校高考网链接
      */
     @TableField("school_gaokao_url")
     @Schema(description = "高考网链接")
     private String schoolGaokaoUrl;
 
     /**
-     * 学校内容
+     * 学校简介内容
      */
     @TableField("school_content")
     @Schema(description = "学校简介")
@@ -300,7 +301,7 @@ public class SchoolInfo extends SysBase {
     private String schoolEmail;
 
     /**
-     * 删除标志（0-存在，1-删除）
+     * 删除标志，0-存在，1-删除
      */
     @TableField("school_deleted")
     @TableLogic

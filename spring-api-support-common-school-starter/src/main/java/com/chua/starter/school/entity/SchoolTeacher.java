@@ -9,29 +9,53 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 
 /**
- * 学校教师
+ * 学校教师实体类
+ * 用于存储教师信息，包括教师姓名、工号、性别、所属学校等
  *
  * @author CH
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("school_teacher")
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "学校教师")
 public class SchoolTeacher extends SysBase {
 
     /**
-     * 主键ID
+     * 教师ID，主键
      */
-    @TableId(value = "school_teacher_id", type = IdType.AUTO)
-    @Schema(description = "主键ID")
+    @TableId(type = IdType.AUTO)
+    @Schema(description = "教师ID")
     private Long schoolTeacherId;
 
     /**
-     * 学校ID
+     * 学校ID，关联学校信息
      */
-    @TableField("school_teacher_school_id")
     @Schema(description = "学校ID")
-    private Long schoolTeacherSchoolId;
+    private Long schoolId;
+
+    /**
+     * 教师姓名
+     */
+    @Schema(description = "教师姓名")
+    private String schoolTeacherName;
+
+    /**
+     * 教师工号
+     */
+    @Schema(description = "教师工号")
+    private String schoolTeacherNumber;
+
+    /**
+     * 教师性别，0-女，1-男
+     */
+    @Schema(description = "教师性别")
+    private Integer schoolTeacherSex;
+
+    /**
+     * 教师状态，0-禁用，1-启用
+     */
+    @Schema(description = "教师状态")
+    private Integer schoolTeacherStatus;
 
     /**
      * 学校代码
@@ -41,31 +65,10 @@ public class SchoolTeacher extends SysBase {
     private String schoolTeacherSchoolCode;
 
     /**
-     * 教师工号
-     */
-    @TableField("school_teacher_number")
-    @Schema(description = "教师工号")
-    private String schoolTeacherNumber;
-
-    /**
-     * 教师姓名
-     */
-    @TableField("school_teacher_name")
-    @Schema(description = "教师姓名")
-    private String schoolTeacherName;
-
-    /**
-     * 性别（0-女，1-男）
-     */
-    @TableField("school_teacher_gender")
-    @Schema(description = "性别（0-女，1-男）")
-    private Integer schoolTeacherGender;
-
-    /**
-     * 出生日期
+     * 教师年龄
      */
     @TableField("school_teacher_birth_date")
-    @Schema(description = "出生日期")
+    @Schema(description = "教师年龄")
     private LocalDate schoolTeacherBirthDate;
 
     /**
@@ -137,13 +140,6 @@ public class SchoolTeacher extends SysBase {
     @TableField("school_teacher_leave_date")
     @Schema(description = "离职日期")
     private LocalDate schoolTeacherLeaveDate;
-
-    /**
-     * 状态（0-离职，1-在职，2-休假）
-     */
-    @TableField("school_teacher_status")
-    @Schema(description = "状态（0-离职，1-在职，2-休假）")
-    private Integer schoolTeacherStatus;
 
     /**
      * 照片URL
