@@ -85,7 +85,7 @@ public class GaokaoPlan {
             @SerializedName("special_group")
             private String specialGroup;
             @SerializedName("spname")
-            private String spname;
+            private String spName2;
             @SerializedName("tuition")
             private String tuition;
             @SerializedName("tuition_unit")
