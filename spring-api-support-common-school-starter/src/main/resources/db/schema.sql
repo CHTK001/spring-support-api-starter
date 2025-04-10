@@ -1,0 +1,150 @@
+-- 学校信息表
+CREATE TABLE IF NOT EXISTS school_info (
+    school_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '学校ID',
+    school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+    school_name VARCHAR(100) NOT NULL COMMENT '学校名称',
+    school_logo_url VARCHAR(255) COMMENT '学校logo URL',
+    school_website_url VARCHAR(255) COMMENT '学校网站URL',
+    school_address VARCHAR(255) COMMENT '学校地址',
+    school_post_code VARCHAR(20) COMMENT '学校邮编',
+    school_phone VARCHAR(50) COMMENT '学校电话',
+    school_email VARCHAR(100) COMMENT '学校邮箱',
+    school_create_time VARCHAR(50) COMMENT '学校创建时间',
+    school_content TEXT COMMENT '学校简介',
+    school_features VARCHAR(500) COMMENT '学校特色',
+    school_rank INT COMMENT '学校排名',
+    school_type VARCHAR(50) COMMENT '学校类型',
+    school_is_211 TINYINT COMMENT '是否211院校(0:否,1:是)',
+    school_is_985 TINYINT COMMENT '是否985院校(0:否,1:是)',
+    school_dual VARCHAR(50) COMMENT '学校双一流等级',
+    school_education_level VARCHAR(50) COMMENT '学校办学层次',
+    school_education_native VARCHAR(50) COMMENT '学校办学性质',
+    school_subordinate_to VARCHAR(100) COMMENT '学校主管部门',
+    school_admission INT COMMENT '学校录取批次',
+    school_view_month INT COMMENT '学校月访问量',
+    school_view_total INT COMMENT '学校总访问量',
+    school_tag VARCHAR(255) COMMENT '学校标签',
+    school_province_id VARCHAR(50) COMMENT '学校所在省份ID',
+    school_city_id VARCHAR(50) COMMENT '学校所在城市ID',
+    school_district_id VARCHAR(50) COMMENT '学校所在区县ID',
+    school_num_doctor INT COMMENT '博士点数量',
+    school_num_master INT COMMENT '硕士点数量',
+    school_num_subject INT COMMENT '学科数量',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    UNIQUE KEY uk_school_code (school_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校信息表';
+
+-- 学校字典表
+CREATE TABLE IF NOT EXISTS school_dict (
+    school_dict_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '字典ID',
+    school_dict_code VARCHAR(50) NOT NULL COMMENT '字典代码',
+    school_dict_name VARCHAR(100) NOT NULL COMMENT '字典名称',
+    school_dict_type VARCHAR(50) NOT NULL COMMENT '字典类型',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    UNIQUE KEY uk_dict_code_type (school_dict_code, school_dict_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校字典表';
+
+-- 学校排名表
+CREATE TABLE IF NOT EXISTS school_rank (
+    school_rank_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '排名ID',
+    school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+    school_rank_value INT COMMENT '排名值',
+    school_rank_type VARCHAR(50) COMMENT '排名类型',
+    school_rank_name VARCHAR(100) COMMENT '排名名称',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    KEY idx_school_code (school_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校排名表';
+
+-- 学校专业表
+CREATE TABLE IF NOT EXISTS school_major (
+    school_major_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '专业ID',
+    school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+    school_major_code VARCHAR(50) NOT NULL COMMENT '专业代码',
+    school_major_name VARCHAR(100) NOT NULL COMMENT '专业名称',
+    school_major_type VARCHAR(50) COMMENT '专业类型',
+    school_major_type_name VARCHAR(100) COMMENT '专业类型名称',
+    school_major_level VARCHAR(50) COMMENT '专业层次',
+    school_major_category_code VARCHAR(50) COMMENT '专业类别代码',
+    school_major_category_name VARCHAR(100) COMMENT '专业类别名称',
+    school_major_parent_code VARCHAR(50) COMMENT '父级专业代码',
+    school_major_category_label VARCHAR(100) COMMENT '专业类别标签',
+    school_major_year VARCHAR(20) COMMENT '专业年份',
+    school_major_content TEXT COMMENT '专业内容',
+    school_major_course TEXT COMMENT '专业课程',
+    school_major_employment TEXT COMMENT '就业方向',
+    school_major_ruan_ke_level VARCHAR(50) COMMENT '软科等级',
+    school_major_ruan_ke_rank INT COMMENT '软科排名',
+    school_major_xue_ke_rank INT COMMENT '学科排名',
+    school_major_xue_ke_rank_score INT COMMENT '学科排名分数',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    UNIQUE KEY uk_school_major_code (school_major_code),
+    KEY idx_school_code (school_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校专业表';
+
+-- 学校招生计划表
+CREATE TABLE IF NOT EXISTS school_admission_plan (
+    school_admission_plan_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '招生计划ID',
+    school_admission_plan_school_id BIGINT NOT NULL COMMENT '学校ID',
+    school_admission_plan_school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+    school_admission_plan_name VARCHAR(100) COMMENT '招生计划名称',
+    school_admission_plan_remark VARCHAR(500) COMMENT '招生计划备注',
+    school_admission_plan_year INT COMMENT '招生计划年份',
+    school_admission_plan_province VARCHAR(50) COMMENT '招生计划省份',
+    school_admission_plan_batch VARCHAR(50) COMMENT '招生计划批次',
+    school_admission_plan_major_name VARCHAR(100) COMMENT '招生计划专业名称',
+    school_admission_plan_number INT COMMENT '招生计划人数',
+    school_admission_plan_tuition DECIMAL(10,2) COMMENT '招生计划学费',
+    school_admission_plan_length INT COMMENT '招生计划学制',
+    school_admission_plan_subject_requirements TEXT COMMENT '招生计划科目要求',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    KEY idx_school_code (school_admission_plan_school_code),
+    KEY idx_school_id (school_admission_plan_school_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校招生计划表';
+
+-- 学校历史分数线表
+CREATE TABLE IF NOT EXISTS school_historical_score (
+    school_historical_score_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '历史分数线ID',
+    school_historical_score_school_id BIGINT NOT NULL COMMENT '学校ID',
+    school_historical_score_school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+    school_historical_score_major_id BIGINT COMMENT '专业ID',
+    school_historical_score_major_code VARCHAR(50) COMMENT '专业代码',
+    school_historical_score_year INT COMMENT '年份',
+    school_historical_score_province VARCHAR(50) COMMENT '省份',
+    school_historical_score_subject_type VARCHAR(50) COMMENT '科目类型',
+    school_historical_score_batch VARCHAR(50) COMMENT '批次',
+    school_historical_score_admission_type VARCHAR(50) COMMENT '录取类型',
+    school_historical_score_max_score INT COMMENT '最高分',
+    school_historical_score_min_score INT COMMENT '最低分',
+    school_historical_score_avg_score INT COMMENT '平均分',
+    school_historical_score_admission_count INT COMMENT '录取人数',
+    school_historical_score_provincial_line INT COMMENT '省控线',
+    school_historical_score_lowest_rank INT COMMENT '最低位次',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    create_by VARCHAR(50) COMMENT '创建人',
+    update_by VARCHAR(50) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标志（0-存在，1-删除）',
+    KEY idx_school_code (school_historical_score_school_code),
+    KEY idx_school_id (school_historical_score_school_id),
+    KEY idx_major_code (school_historical_score_major_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='学校历史分数线表'; 
