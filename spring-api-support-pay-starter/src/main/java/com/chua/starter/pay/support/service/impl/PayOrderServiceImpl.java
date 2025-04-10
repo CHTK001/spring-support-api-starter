@@ -13,7 +13,6 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.pay.support.configuration.PayListenerService;
 import com.chua.starter.pay.support.constant.PayConstant;
-import com.chua.starter.pay.support.dto.PayOrderStatisticDTO;
 import com.chua.starter.pay.support.emuns.TradeType;
 import com.chua.starter.pay.support.entity.PayMerchantOrder;
 import com.chua.starter.pay.support.handler.CallbackNotificationParser;
@@ -252,8 +251,4 @@ public class PayOrderServiceImpl implements PayOrderService {
         return null;
     }
 
-    @Override
-    public PayOrderStatisticDTO statOrderInfo() {
-        return payMerchantOrderMapper.statOrderInfo();
-    }
 }
