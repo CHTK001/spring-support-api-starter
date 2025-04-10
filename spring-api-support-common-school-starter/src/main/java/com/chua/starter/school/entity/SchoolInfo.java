@@ -1,6 +1,8 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.chua.starter.common.support.annotations.ApiIgnore;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -54,23 +56,23 @@ public class SchoolInfo extends SysBase {
     /**
      * 所在省份
      */
-    @TableField("school_province")
+    @TableField("school_province_id")
     @Schema(description = "所在省份")
-    private String schoolProvince;
+    private String schoolProvinceId;
 
     /**
      * 所在城市
      */
-    @TableField("school_city")
+    @TableField("school_city_id")
     @Schema(description = "所在城市")
-    private String schoolCity;
+    private String schoolCityId;
 
     /**
      * 所在区县
      */
-    @TableField("school_district")
+    @TableField("school_district_id")
     @Schema(description = "所在区县")
-    private String schoolDistrict;
+    private String schoolDistrictId;
 
     /**
      * 详细地址
@@ -78,6 +80,12 @@ public class SchoolInfo extends SysBase {
     @TableField("school_address")
     @Schema(description = "详细地址")
     private String schoolAddress;
+    /**
+     * 创建时间
+     */
+    @TableField("school_create_time")
+    @Schema(description = "建校时间")
+    private String schoolCreateTime;
 
     /**
      * 办学层次（本科、专科）
@@ -85,6 +93,12 @@ public class SchoolInfo extends SysBase {
     @TableField("school_education_level")
     @Schema(description = "办学层次（本科、专科）")
     private String schoolEducationLevel;
+    /**
+     * 办学性质（985、211、普通）
+     */
+    @TableField("school_education_native")
+    @Schema(description = "办学性质（985、211、普通）")
+    private String schoolEducationNative;
 
     /**
      * 隶属于（教育部、地方等）
@@ -99,6 +113,12 @@ public class SchoolInfo extends SysBase {
     @TableField("school_is_985")
     @Schema(description = "是否是985（0-否，1-是）")
     private Integer schoolIs985;
+    /**
+     * 是否是双一流类型
+     */
+    @TableField("school_dual")
+    @Schema(description = "是否是双一流类型")
+    private String schoolDual;
 
     /**
      * 是否是211（0-否，1-是）
@@ -127,6 +147,18 @@ public class SchoolInfo extends SysBase {
     @TableField("school_phone")
     @Schema(description = "联系电话")
     private String schoolPhone;
+    /**
+     * 邮编
+     */
+    @TableField("school_post_code")
+    @Schema(description = "邮编")
+    private String schoolPostCode;
+    /**
+     * 备注
+     */
+    @TableField("school_remark")
+    @Schema(description = "备注")
+    private String schoolRemark;
 
     /**
      * 建校时间
@@ -169,6 +201,18 @@ public class SchoolInfo extends SysBase {
     @TableField("school_admission_url")
     @Schema(description = "招生网址")
     private String schoolAdmissionUrl;
+    /**
+     * "招生状态": 1（表示正在招生）
+     */
+    @TableField("school_admission")
+    @Schema(description = "招生状态")
+    private Integer schoolAdmission;
+    /**
+     * "双高计划": 0（非双高院校）
+     */
+    @TableField("school_double_high")
+    @Schema(description = "双高计划: 0（非双高院校）")
+    private Integer schoolDoubleHigh;
 
     /**
      * 就业率
@@ -176,6 +220,49 @@ public class SchoolInfo extends SysBase {
     @TableField("school_employment_rate")
     @Schema(description = "就业率")
     private String schoolEmploymentRate;
+    /**
+     * 标签
+     */
+    @TableField("school_tag")
+    @Schema(description = "标签")
+    private String schoolTag;
+    /**
+     * 月访问量
+     */
+    @TableField("school_view_month")
+    @Schema(description = "月访问量")
+    private Integer schoolViewMonth;
+    /**
+     * 总访问量
+     */
+    @TableField("school_view_total")
+    @Schema(description = "总访问量")
+    private Integer schoolViewTotal;
+
+    /**
+     * 排名
+     */
+    @TableField("school_rank")
+    @Schema(description = "排名")
+    private Integer schoolRank;
+    /**
+     * 博士人数
+     */
+    @TableField("school_num_doctor")
+    @Schema(description = "博士人数")
+    private Integer schoolNumDoctor;
+    /**
+     * 硕士人数
+     */
+    @TableField("school_num_master")
+    @Schema(description = "硕士人数")
+    private Integer schoolNumMaster;
+    /**
+     * 国家一级重点学科
+     */
+    @TableField("school_num_subject")
+    @Schema(description = "国家一级重点学科")
+    private Integer schoolNumSubject;
 
     /**
      * 高考网链接
@@ -185,10 +272,23 @@ public class SchoolInfo extends SysBase {
     private String schoolGaokaoUrl;
 
     /**
+     * 学校内容
+     */
+    @TableField("school_content")
+    @Schema(description = "学校内容")
+    private String schoolContent;
+    /**
+     * 学校邮箱
+     */
+    @TableField("school_email")
+    @Schema(description = "学校邮箱")
+    private String schoolEmail;
+    /**
      * 删除标志（0-存在，1-删除）
      */
     @TableField("school_deleted")
     @TableLogic
+    @ApiIgnore(IgnoreGroup.class)
     @Schema(description = "删除标志（0-存在，1-删除）")
     private Integer schoolDeleted;
 }

@@ -26,7 +26,7 @@ public class SchoolMajorServiceImpl extends ServiceImpl<SchoolMajorMapper, Schoo
     @Override
     public List<SchoolMajorVO> getMajorsBySchoolId(Long schoolId) {
         LambdaQueryWrapper<SchoolMajor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SchoolMajor::getSchoolMajorSchoolId, schoolId);
+        queryWrapper.eq(SchoolMajor::getSchoolCode, schoolId);
         List<SchoolMajor> list = this.list(queryWrapper);
         return list.stream().map(this::convertToVO).collect(Collectors.toList());
     }
@@ -34,7 +34,7 @@ public class SchoolMajorServiceImpl extends ServiceImpl<SchoolMajorMapper, Schoo
     @Override
     public IPage<SchoolMajorVO> pageMajorsBySchoolId(Long schoolId, Integer pageNum, Integer pageSize) {
         LambdaQueryWrapper<SchoolMajor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SchoolMajor::getSchoolMajorSchoolId, schoolId);
+        queryWrapper.eq(SchoolMajor::getSchoolCode, schoolId);
 
         Page<SchoolMajor> page = new Page<>(pageNum, pageSize);
         IPage<SchoolMajor> ipage = this.page(page, queryWrapper);
@@ -56,7 +56,7 @@ public class SchoolMajorServiceImpl extends ServiceImpl<SchoolMajorMapper, Schoo
     @Override
     public SchoolMajorVO getMajorDetailByCode(String schoolCode, String majorCode) {
         LambdaQueryWrapper<SchoolMajor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StringUtils.hasText(schoolCode), SchoolMajor::getSchoolMajorSchoolCode, schoolCode)
+        queryWrapper.eq(StringUtils.hasText(schoolCode), SchoolMajor::getSchoolCode, schoolCode)
                 .eq(StringUtils.hasText(majorCode), SchoolMajor::getSchoolMajorCode, majorCode);
 
         SchoolMajor major = this.getOne(queryWrapper);

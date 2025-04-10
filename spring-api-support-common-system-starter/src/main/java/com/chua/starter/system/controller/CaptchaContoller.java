@@ -6,6 +6,7 @@ import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.starter.common.support.constant.CaptchaTypeEnum;
 import com.chua.starter.common.support.properties.CaptchaProperties;
+import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
 import com.wf.captcha.*;
 import com.wf.captcha.base.Captcha;
 import io.swagger.annotations.Api;
@@ -123,6 +124,7 @@ public class CaptchaContoller {
     @ApiOperation("获取验证码")
     @Operation(summary = "获取验证码")
     @GetMapping
+    @AuthIgnore
     public CaptchaResult captchaBase64(HttpServletRequest request, HttpServletResponse response) {
         Captcha captcha = createCaptcha();
         String captchaText = captcha.text();

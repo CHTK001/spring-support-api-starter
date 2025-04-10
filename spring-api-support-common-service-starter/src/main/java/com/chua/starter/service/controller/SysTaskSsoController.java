@@ -3,7 +3,7 @@ package com.chua.starter.service.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.result.PutObjectResult;
 import com.chua.common.support.validator.group.UploadGroup;
-import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SysTaskSsoService;
 import com.chua.starter.system.pojo.sso.*;
@@ -43,7 +43,7 @@ public class SysTaskSsoController {
      */
     @Operation(summary = "上传文件")
     @PutMapping("/upload")
-    @OperateLog
+    @SysLog
     public ReturnResult<PutObjectResult> upload(@ParameterObject @Validated(UploadGroup.class) SysFileUploadRequest request,
                                                 @RequestPart @RequestParam("file") MultipartFile file,
                                                 BindingResult bindingResult
@@ -66,7 +66,7 @@ public class SysTaskSsoController {
      */
     @Operation(summary = "创建分片任务")
     @PostMapping("/task/create")
-    @OperateLog
+    @SysLog
     public ReturnResult<SysFileUploadTaskResponse> createTask(@Validated(UploadGroup.class) @RequestBody SysFileUploadTaskRequest request,
                                                               BindingResult bindingResult
     ) {
@@ -82,7 +82,7 @@ public class SysTaskSsoController {
      */
     @Operation(summary = "上传分片任务")
     @PostMapping("/task/upload")
-    @OperateLog
+    @SysLog
     public ReturnResult<SysFileUploadTaskPartResponse> uploadTask(@ParameterObject @Validated(UploadGroup.class) SysFileUploadTaskPartRequest request,
                                                                   @RequestPart@RequestParam("file") @Parameter(name= "file", description = "文件") MultipartFile multipartFile,
                                                                   BindingResult bindingResult

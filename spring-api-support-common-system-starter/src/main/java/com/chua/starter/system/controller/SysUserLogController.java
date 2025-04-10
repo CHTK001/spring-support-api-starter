@@ -2,7 +2,7 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.OperateLog;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.common.support.result.Result;
@@ -72,7 +72,7 @@ public class SysUserLogController {
      */
     @Operation(summary = "删除操作日志")
     @DeleteMapping("/delete")
-    @OperateLog
+    @SysLog
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:log:user:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})

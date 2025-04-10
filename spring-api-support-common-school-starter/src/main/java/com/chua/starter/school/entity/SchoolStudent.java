@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.common.support.annotations.ApiIgnore;
+import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -157,5 +159,6 @@ public class SchoolStudent extends SysBase {
      */
     @TableLogic
     @TableField("school_student_deleted")
+    @ApiIgnore(IgnoreGroup.class)
     private Integer schoolStudentDeleted;
 } 
