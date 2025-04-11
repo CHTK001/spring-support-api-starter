@@ -101,18 +101,18 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
 
     @Override
     public boolean executeSync(Long schoolSyncConfigId) {
+        // 获取同步配置
+        SchoolSyncConfig config = getById(schoolSyncConfigId);
         try {
-            // 获取同步配置
-            SchoolSyncConfig config = getById(schoolSyncConfigId);
             if (config == null) {
                 log.error("同步配置不存在: {}", schoolSyncConfigId);
-                return false;
+                throw new RuntimeException("同步配置不存在: " + schoolSyncConfigId);
             }
 
             // 检查同步状态
             if (null != config.getSchoolSyncConfigSyncStatus() && 1 == config.getSchoolSyncConfigSyncStatus()) {
                 log.error("同步配置状态不正确，当前状态: {}", config.getSchoolSyncConfigSyncStatus());
-                return false;
+                throw new RuntimeException("同步配置状态不正确，当前状态: " + config.getSchoolSyncConfigSyncStatus());
             }
 
             // 获取同步提供者
@@ -125,6 +125,7 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
             // 更新同步状态为进行中
             config.setSchoolSyncConfigSyncStatus(1);
             config.setUpdateTime(LocalDateTime.now());
+            config.setSchoolSyncConfigSyncTime(LocalDateTime.now());
             updateById(config);
 
             // 执行同步
@@ -133,11 +134,16 @@ public class SchoolSyncConfigServiceImpl extends ServiceImpl<SchoolSyncConfigMap
             // 更新同步状态
             config.setSchoolSyncConfigSyncStatus(result ? 2 : 3);
             config.setUpdateTime(LocalDateTime.now());
+            config.setSchoolSyncConfigSyncTime(LocalDateTime.now());
             updateById(config);
 
             return result;
         } catch (Exception e) {
             log.error("执行同步异常: {}", e.getMessage(), e);
+            config.setSchoolSyncConfigSyncStatus(3);
+            config.setSchoolSyncConfigSyncTime(LocalDateTime.now());
+            config.setUpdateTime(LocalDateTime.now());
+            updateById(config);
             return false;
         }
     }

@@ -1,6 +1,7 @@
 package com.chua.starter.school.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
@@ -23,7 +24,7 @@ public class SchoolDict extends SysBase {
     /**
      * 字典ID，主键
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.AUTO, value = "school_dict_id")
     @Schema(description = "字典ID")
     private Long schoolDictId;
 
@@ -31,17 +32,20 @@ public class SchoolDict extends SysBase {
      * 字典代码，用于标识字典项
      */
     @Schema(description = "字典代码")
+    @TableField("school_dict_code")
     private String schoolDictCode;
 
     /**
      * 字典名称，字典项的描述
      */
     @Schema(description = "字典名称")
+    @TableField("school_dict_name")
     private String schoolDictName;
 
     /**
      * 字典类型，用于分类字典项，如学校类型、办学层次等
      */
     @Schema(description = "字典类型")
+    @TableField("school_dict_type")
     private String schoolDictType;
 }

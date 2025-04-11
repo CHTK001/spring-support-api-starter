@@ -93,7 +93,7 @@ public class GaokaoSchoolInfo {
             @SerializedName("rate")
             private Integer rate;
             @SerializedName("recommend_master_level")
-            private Integer recommendMasterLevel;
+            private String recommendMasterLevel;
             @SerializedName("school_id")
             private Integer schoolId;
             @SerializedName("school_type")
