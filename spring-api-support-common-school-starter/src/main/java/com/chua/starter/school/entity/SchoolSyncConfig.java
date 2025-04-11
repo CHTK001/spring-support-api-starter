@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 学校同步配置
  *
@@ -71,7 +73,7 @@ public class SchoolSyncConfig extends SysBase {
      */
     @TableField("school_sync_config_sync_time")
     @Schema(description = "同步时间")
-    private String schoolSyncConfigSyncTime;
+    private LocalDateTime schoolSyncConfigSyncTime;
 
     /**
      * 删除标志（0-存在，1-删除）

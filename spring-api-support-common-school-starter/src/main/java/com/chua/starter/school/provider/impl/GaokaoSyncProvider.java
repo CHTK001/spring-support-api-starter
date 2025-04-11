@@ -6,6 +6,8 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.ObjectUtils;
+import com.chua.socketio.support.MsgEvent;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.school.dto.*;
 import com.chua.starter.school.entity.*;
 import com.chua.starter.school.enums.SyncType;
@@ -62,6 +64,8 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
     private SchoolInfoMapper schoolInfoMapper;
 
     @Autowired
+    private SocketSessionTemplate socketSessionTemplate;
+    @Autowired
     private SchoolDictMapper schoolDictMapper;
     @Autowired
     private SchoolRankMapper schoolRankMapper;
@@ -89,6 +93,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
             try {
                 // 同步所有学校基本信息
+                notifyProgress(config, "school", "开始同步学校基本信息");
                 syncSchoolInfo(config);
                 
                 // 获取所有学校ID
@@ -102,7 +107,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 for (SchoolInfo school : allSchools) {
                     try {
                         // 同步学校专业信息
-                        registerMajor(school);
+                        registerMajor(config, school);
                         
                         // 同步招生计划
                         registerPlan(school);
@@ -123,7 +128,35 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
+    private void notifyProgress(SchoolSyncConfig config, String event, String message) {
+        if (null == socketSessionTemplate) {
+            return;
+        }
+        socketSessionTemplate.send("event", MsgEvent
+                .builder()
+                .name(event)
+                .eventId(String.valueOf(config.getSchoolSyncConfigId()))
+                .msg(message)
+                .build()
+        );
+    }
+
+    private void notifyProgress(SchoolSyncConfig config, String event, String message, int step, int total) {
+        if (null == socketSessionTemplate) {
+            return;
+        }
+        socketSessionTemplate.send("event", MsgEvent
+                .builder()
+                .name(event)
+                .eventId(String.valueOf(config.getSchoolSyncConfigId()))
+                .step(step)
+                .total(total)
+                .msg(message)
+                .build()
+        );
+    }
+
     /**
      * 同步单个学校的所有数据
      *
@@ -328,7 +361,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 }
                 
                 // 同步学校专业信息
-                registerMajor(schoolInfo);
+                registerMajor(config, schoolInfo);
                 return true;
             } catch (Exception e) {
                 log.error("同步学校专业异常: {}, {}", schoolCode, e.getMessage(), e);
@@ -399,7 +432,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 
                 for (SchoolInfo schoolInfo : schoolInfoList) {
                     try {
-                        registerMajor(schoolInfo);
+                        registerMajor(config, schoolInfo);
                     } catch (Exception e) {
                         log.error("同步学校专业异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
                         // 继续处理下一个学校，不中断整体流程
@@ -418,6 +451,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
     private void syncSchoolInfo(SchoolSyncConfig config) {
         //https://api.zjzw.cn/web/api/?keyword=&page=3&province_id=&ranktype=&request_type=1&size=20&type=&uri=apidata/api/gkv3/school/lists&signsafe=dea67c187d0f4cb7630b966337f24860
         AtomicInteger page = new AtomicInteger(1);
+        int total = 0;
         while (true) {
             GaokaoSchoolInfo schoolInfo = HttpClient
                     .get("https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() + "&province_id=&ranktype=&request_type=1&size=20&type=&uri=apidata/api/gkv3/school/lists&signsafe=" + IdUtils.createUlid())
@@ -425,16 +459,21 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     .execute()
                     .content(GaokaoSchoolInfo.class);
 
+            if (page.get() == 1) {
+                total = schoolInfo.getData().getNumFound();
+            }
             if (null == schoolInfo || null == schoolInfo.getData() || null == schoolInfo.getData().getItem()) {
                 break;
             }
-            registerSchoolInfo(schoolInfo.getData().getItem(), config);
+            registerSchoolInfo(schoolInfo.getData().getItem(), config, total);
             page.incrementAndGet();
         }
     }
 
-    private void registerSchoolInfo(List<GaokaoSchoolInfo.DataDTO.ItemDTO> item, SchoolSyncConfig config) {
-        for (GaokaoSchoolInfo.DataDTO.ItemDTO itemDTO : item) {
+    private void registerSchoolInfo(List<GaokaoSchoolInfo.DataDTO.ItemDTO> item, SchoolSyncConfig config, int total) {
+        for (int i = 0; i < item.size(); i++) {
+            GaokaoSchoolInfo.DataDTO.ItemDTO itemDTO = item.get(i);
+            notifyProgress(config, "school", "开始同步学校基本信息", i + 1, total);
             registerSchoolInfo(itemDTO, config);
         }
     }
@@ -452,6 +491,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         } else if (null != selectOne) {
             schoolInfo = selectOne;
         }
+        notifyProgress(config, "school", "同步方式: " + config.getSchoolSyncConfigSyncType());
         schoolInfo.setSchoolLogoUrl("https://static-data.gaokao.cn/upload/logo/" + schoolInfo.getSchoolCode() + ".jpg");
         schoolInfo.setSchoolCode(String.valueOf(itemDTO.getSchoolId()));
         schoolInfo.setSchoolProvinceId(itemDTO.getProvinceId());
@@ -470,17 +510,27 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         schoolInfo.setSchoolViewMonth(Converter.createInteger(itemDTO.getViewMonth()));
         schoolInfo.setSchoolTag(itemDTO.getTagName());
         schoolInfo.setSchoolViewTotal(Converter.createInteger(itemDTO.getViewTotalNumber()));
+        notifyProgress(config, "school", "同步学校性质");
         register(itemDTO.getNature(), itemDTO.getNatureName(), "nature");
         //210000000000
+        notifyProgress(config, "school", "同步学校类型");
         register(itemDTO.getType(), itemDTO.getTypeName(), "type");
+        notifyProgress(config, "school", "同步学校等级");
         register(itemDTO.getLevel(), itemDTO.getLevelName(), "level");
         register(itemDTO.getDualClass(), itemDTO.getDualClassName(), "dual");
+        notifyProgress(config, "school", "同步省份");
         register(itemDTO.getProvinceId() + Strings.repeat("0", 12 - itemDTO.getProvinceId().length()), itemDTO.getProvinceName(), "province");
+        notifyProgress(config, "school", "同步城市");
         register(itemDTO.getCountyId() + Strings.repeat("0", 12 - itemDTO.getCountyId().length()), itemDTO.getCountyName(), "county");
+        notifyProgress(config, "school", "同步区县");
         register(itemDTO.getCityId() + Strings.repeat("0", 12 - itemDTO.getCityId().length()), itemDTO.getCityName(), "city");
+        notifyProgress(config, "school", "同步学校排名");
         registerRank(schoolInfo);
+        notifyProgress(config, "school", "同步学校详情");
         registerDetail(schoolInfo);
-        registerMajor(schoolInfo);
+        notifyProgress(config, "school", "同步学校专业");
+        registerMajor(config, schoolInfo);
+        notifyProgress(config, "school", "同步学校计划");
         registerPlan(schoolInfo);
         if (null == schoolInfo.getSchoolId()) {
             schoolInfoMapper.insert(schoolInfo);
@@ -542,7 +592,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         }
     }
 
-    private void registerMajor(SchoolInfo schoolInfo) {
+    private void registerMajor(SchoolSyncConfig config, SchoolInfo schoolInfo) {
         //https://static-data.gaokao.cn/www/2.0/school/140/pc_special.json?a=www.gaokao.cn
         GaokaoMajor gaokaoMajor = HttpClient
                 .get("https://static-data.gaokao.cn/www/2.0/school/" + schoolInfo.getSchoolCode() + "/pc_special.json?a=www.gaokao.cn")
@@ -558,6 +608,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         .eq(SchoolMajor::getSchoolCode, schoolInfo.getSchoolCode())
         );
         for (GaokaoMajor.DataDTO.SpecialDTO specialDTO : data.getSpecial()) {
+            notifyProgress(config, "school", "同步学校专业: " + specialDTO.getName());
             SchoolMajor schoolMajor = new SchoolMajor();
             schoolMajor.setSchoolMajorCode(specialDTO.getCode());
             schoolMajor.setSchoolMajorName(specialDTO.getName());
@@ -565,12 +616,12 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             schoolMajorMapper.insert(schoolMajor);
 
             List<GaokaoMajor.DataDTO.SpecialDTO.SpecialDTO1> special = specialDTO.getSpecial();
-            registerMajor(schoolMajor, special);
+            registerMajor(config, schoolMajor, special);
         }
 
     }
 
-    private void registerMajor(SchoolMajor schoolMajor, List<GaokaoMajor.DataDTO.SpecialDTO.SpecialDTO1> special) {
+    private void registerMajor(SchoolSyncConfig config, SchoolMajor schoolMajor, List<GaokaoMajor.DataDTO.SpecialDTO.SpecialDTO1> special) {
         for (GaokaoMajor.DataDTO.SpecialDTO.SpecialDTO1 specialDTO1 : special) {
             SchoolMajor schoolMajor1 = new SchoolMajor();
             schoolMajor1.setSchoolMajorParentCode(schoolMajor.getSchoolMajorCode());
@@ -587,7 +638,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             schoolMajor1.setSchoolMajorRuanKeRank(Converter.createInteger(specialDTO1.getRuankeRank()));
             schoolMajor1.setSchoolMajorXueKeRank(Converter.createInteger(specialDTO1.getXuekeRank()));
             schoolMajor1.setSchoolMajorXueKeRankScore(Converter.createInteger(specialDTO1.getXuekeRankScore()));
-
+            notifyProgress(config, "school", "同步学校专业: " + specialDTO1.getSpecialName());
             schoolMajorMapper.insert(schoolMajor1);
         }
     }
