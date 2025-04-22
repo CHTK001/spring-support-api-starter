@@ -95,7 +95,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-pay-client-starter</artifactId>
+                <artifactId>spring-support-pay-client-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
@@ -308,8 +308,14 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>spring-support-oauth-client-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-zhipu-starter</artifactId>
-               <version>${utils.version}</version>
+                <version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -318,11 +324,6 @@
                 <version>${utils.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-zhipu-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
