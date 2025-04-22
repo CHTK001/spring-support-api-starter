@@ -90,7 +90,7 @@ public final class WechatPayOrderRefundCreator implements PayOrderRefundCreator 
         request.setOutTradeNo(payMerchantOrder.getPayMerchantOrderCode());
         request.setOutRefundNo(payMerchantOrder.getPayMerchantOrderRefundCode());
         request.setReason(refundRequest.getRefundReason());
-        request.setNotifyUrl(payMerchantConfigWechat.getPayMerchantConfigWechatRefundNotifyUrl());
+        request.setNotifyUrl(payMerchantConfigWechat.getPayMerchantConfigWechatRefundNotifyUrl() + "/" + payMerchantOrder.getPayMerchantCode() + "/" + payMerchantOrder.getPayMerchantOrderCode());
         request.setTransactionId(payMerchantOrder.getPayMerchantOrderTransactionId());
         return request;
     }

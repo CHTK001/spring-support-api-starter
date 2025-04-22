@@ -87,6 +87,8 @@ public class CreateOrder {
         payMerchantOrder.setPayMerchantOrderProductCode(request.getProductCode());
         payMerchantOrder.setPayMerchantOrderRemark(request.getRemark());
         payMerchantOrder.setPayMerchantOrderPrice(request.getPrice());
+        payMerchantOrder.setPayMerchantOrderProductCode(request.getProductCode());
+        payMerchantOrder.setPayMerchantOrderProductName(request.getProductName());
         payMerchantOrder.setPayMerchantOrderCode("P" + IdUtils.createTimeId(31));
         payMerchantOrder.setPayMerchantOrderTotalPrice(request.getTotalPrice());
         payMerchantOrder.setPayMerchantOrderDeptId(request.getDeptId());
