@@ -19,7 +19,11 @@ public class TransferRequest {
      * 商户订单号
      */
     private String outTradeNo;
-
+    /**
+     * 转账笔数
+     */
+    @Builder.Default
+    private String transferSceneId = "1000";
     /**
      * 转账笔数
      */
