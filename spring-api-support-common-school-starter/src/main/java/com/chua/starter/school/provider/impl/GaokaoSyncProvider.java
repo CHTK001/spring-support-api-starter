@@ -91,43 +91,40 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
     @Override
     public boolean syncAllSchoolData(SchoolSyncConfig config) {
         // 使用TransactionTemplate替代@Transactional注解
-        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
-            try {
-                // 同步所有学校基本信息
-                notifyProgress(config, "school", "开始同步学校基本信息");
-                syncSchoolInfo(config);
+        try {
+            // 同步所有学校基本信息
+            notifyProgress(config, "school", "开始同步学校基本信息");
+            syncSchoolInfo(config);
 
-                // 获取所有学校ID
-                List<SchoolInfo> allSchools = schoolInfoMapper.selectList(Wrappers.emptyWrapper());
-                if (allSchools == null || allSchools.isEmpty()) {
-                    log.warn("未找到任何学校信息");
-                    return true;
-                }
-
-                // 对每个学校进行专业、招生计划和历年分数的同步
-                for (SchoolInfo school : allSchools) {
-                    try {
-                        // 同步学校专业信息
-                        registerMajor(config, school);
-
-                        // 同步招生计划
-                        registerPlan(school, config);
-
-                        // 同步历年分数
-                        syncHistoricalScores(school);
-                    } catch (Exception e) {
-                        log.error("同步学校数据异常: {}, {}", school.getSchoolCode(), e.getMessage());
-                        // 继续处理下一个学校，不中断整体流程
-                    }
-                }
-
+            // 获取所有学校ID
+            List<SchoolInfo> allSchools = schoolInfoMapper.selectList(Wrappers.emptyWrapper());
+            if (allSchools == null || allSchools.isEmpty()) {
+                log.warn("未找到任何学校信息");
                 return true;
-            } catch (Exception e) {
-                log.error("同步所有学校数据异常: {}", e.getMessage(), e);
-                status.setRollbackOnly();
-                return false;
             }
-        }));
+
+            // 对每个学校进行专业、招生计划和历年分数的同步
+            for (SchoolInfo school : allSchools) {
+                try {
+                    // 同步学校专业信息
+                    registerMajor(config, school);
+
+                    // 同步招生计划
+                    registerPlan(school, config);
+
+                    // 同步历年分数
+                    syncHistoricalScores(school);
+                } catch (Exception e) {
+                    log.error("同步学校数据异常: {}, {}", school.getSchoolCode(), e.getMessage());
+                    // 继续处理下一个学校，不中断整体流程
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("同步所有学校数据异常: {}", e.getMessage(), e);
+            return false;
+            }
     }
 
     private void notifyProgress(SchoolSyncConfig config, String event, String message) {
@@ -456,6 +453,10 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             String jsonData = HttpClient
                     .get("https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() + "&province_id=&ranktype=&request_type=1&size=20&type=&uri=apidata/api/gkv3/school/lists&signsafe=" + IdUtils.createUlid())
                     .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    .header("Cookie", config.getSchoolSyncConfigCookie())
+                    .header("Accept", "application/json, text/plain, */*")
+                    .header("Accept-Encoding", "gzip, deflate, br")
                     .newInvoker()
                     .execute()
                     .content(String.class);
@@ -472,7 +473,10 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             if (null == schoolInfo || null == schoolInfo.getData() || null == schoolInfo.getData().getItem()) {
                 break;
             }
-            registerSchoolInfo(schoolInfo.getData().getItem(), config, total);
+            try {
+                registerSchoolInfo(schoolInfo.getData().getItem(), config, total);
+            } catch (Exception ignored) {
+            }
             page.incrementAndGet();
         }
     }
