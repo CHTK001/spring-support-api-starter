@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.socketio.support.MsgEvent;
@@ -95,23 +96,23 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 // 同步所有学校基本信息
                 notifyProgress(config, "school", "开始同步学校基本信息");
                 syncSchoolInfo(config);
-                
+
                 // 获取所有学校ID
                 List<SchoolInfo> allSchools = schoolInfoMapper.selectList(Wrappers.emptyWrapper());
                 if (allSchools == null || allSchools.isEmpty()) {
                     log.warn("未找到任何学校信息");
                     return true;
                 }
-                
+
                 // 对每个学校进行专业、招生计划和历年分数的同步
                 for (SchoolInfo school : allSchools) {
                     try {
                         // 同步学校专业信息
                         registerMajor(config, school);
-                        
+
                         // 同步招生计划
-                        registerPlan(school);
-                        
+                        registerPlan(school, config);
+
                         // 同步历年分数
                         syncHistoricalScores(school);
                     } catch (Exception e) {
@@ -119,7 +120,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         // 继续处理下一个学校，不中断整体流程
                     }
                 }
-                
+
                 return true;
             } catch (Exception e) {
                 log.error("同步所有学校数据异常: {}", e.getMessage(), e);
@@ -161,7 +162,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
      * 同步单个学校的所有数据
      *
      * @param schoolCode 学校代码
-     * @param config 同步配置
+     * @param config     同步配置
      * @return 是否同步成功
      */
     public boolean syncAllSchoolDataByCode(String schoolCode, SchoolSyncConfig config) {
@@ -174,28 +175,28 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     status.setRollbackOnly();
                     return false;
                 }
-                
+
                 // 同步学校专业信息
                 boolean majorResult = syncSchoolMajorByCode(schoolCode, config);
                 if (!majorResult) {
                     log.warn("同步学校专业信息失败: {}", schoolCode);
                     // 不中断整体流程
                 }
-                
+
                 // 同步学校招生计划
                 boolean planResult = syncSchoolAdmissionPlanByCode(schoolCode, config);
                 if (!planResult) {
                     log.warn("同步学校招生计划失败: {}", schoolCode);
                     // 不中断整体流程
                 }
-                
+
                 // 同步学校历年分数
                 boolean scoreResult = syncSchoolHistoricalScoreByCode(schoolCode, config);
                 if (!scoreResult) {
                     log.warn("同步学校历年分数失败: {}", schoolCode);
                     // 不中断整体流程
                 }
-                
+
                 return true;
             } catch (Exception e) {
                 log.error("同步学校所有数据异常: {}, {}", schoolCode, e.getMessage(), e);
@@ -204,7 +205,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     /**
      * 同步学校历年分数线
      *
@@ -217,24 +218,24 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     Wrappers.<SchoolHistoricalScore>lambdaQuery()
                             .eq(SchoolHistoricalScore::getSchoolHistoricalScoreSchoolCode, schoolInfo.getSchoolCode())
             );
-            
+
             // 遍历省份和年份
             for (Integer province : PROVIDES) {
                 for (Integer year : YEARS) {
                     try {
                         // 获取分数线数据
-                        String url = "https://api.zjzw.cn/web/api/?local_batch_id=&local_province_id=" + province + 
-                                "&local_type_id=&page=1&school_id=" + schoolInfo.getSchoolCode() + 
-                                "&size=10&uri=apidata/api/gkv3/score/school&year=" + year + 
+                        String url = "https://api.zjzw.cn/web/api/?local_batch_id=&local_province_id=" + province +
+                                "&local_type_id=&page=1&school_id=" + schoolInfo.getSchoolCode() +
+                                "&size=10&uri=apidata/api/gkv3/score/school&year=" + year +
                                 "&signsafe=" + IdUtils.createUlid();
-                        
+
                         // 调用API获取分数线数据并保存
                         GaokaoScore gaokaoScore = HttpClient
                                 .get(url)
                                 .newInvoker()
                                 .execute()
                                 .content(GaokaoScore.class);
-                                
+
                         if (gaokaoScore != null && gaokaoScore.getData() != null && gaokaoScore.getData().getItem() != null) {
                             List<GaokaoScore.ItemDTO> item1 = gaokaoScore.getData().getItem();
                             for (GaokaoScore.ItemDTO item : item1) {
@@ -252,7 +253,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                                 score.setSchoolHistoricalScoreAdmissionCount(Converter.createInteger(item.getCount()));
                                 score.setSchoolHistoricalScoreProvincialLine(Converter.createInteger(item.getProvinceScore()));
                                 score.setSchoolHistoricalScoreLowestRank(Converter.createInteger(item.getMinSection()));
-                                
+
                                 // 如果有专业信息，设置专业相关字段
                                 if (!Strings.isNullOrEmpty(item.getLevel3Name())) {
                                     // 查找对应的专业
@@ -261,18 +262,18 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                                                     .eq(SchoolMajor::getSchoolCode, schoolInfo.getSchoolCode())
                                                     .eq(SchoolMajor::getSchoolMajorName, item.getLevel3Name())
                                     );
-                                    
+
                                     if (major != null) {
                                         score.setSchoolHistoricalScoreMajorId(major.getSchoolMajorId());
                                         score.setSchoolHistoricalScoreMajorCode(major.getSchoolMajorCode());
                                     }
                                 }
-                                
+
                                 schoolHistoricalScoreMapper.insert(score);
                             }
                         }
                     } catch (Exception e) {
-                        log.error("同步学校历年分数异常: {}, 省份: {}, 年份: {}, {}", 
+                        log.error("同步学校历年分数异常: {}, 省份: {}, 年份: {}, {}",
                                 schoolInfo.getSchoolCode(), province, year, e.getMessage());
                     }
                 }
@@ -281,19 +282,21 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             log.error("同步学校历年分数异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
         }
     }
-    
+
     /**
      * 根据学校代码获取学校信息
      *
      * @param schoolCode 学校代码
+     * @param config
      * @return 学校信息
      */
-    private GaokaoSchoolInfo.DataDTO.ItemDTO getSchoolItemByCode(String schoolCode) {
+    private GaokaoSchoolInfo.DataDTO.ItemDTO getSchoolItemByCode(String schoolCode, SchoolSyncConfig config) {
         AtomicInteger page = new AtomicInteger(1);
         while (true) {
             try {
                 GaokaoSchoolInfo schoolInfo = HttpClient
                         .get("https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() + "&province_id=&ranktype=&request_type=1&size=20&type=&uri=apidata/api/gkv3/school/lists&signsafe=" + IdUtils.createUlid())
+                        .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                         .newInvoker()
                         .execute()
                         .content(GaokaoSchoolInfo.class);
@@ -301,16 +304,16 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 if (null == schoolInfo || null == schoolInfo.getData() || null == schoolInfo.getData().getItem()) {
                     break;
                 }
-                
+
                 // 查找匹配的学校
                 for (GaokaoSchoolInfo.DataDTO.ItemDTO item : schoolInfo.getData().getItem()) {
                     if (String.valueOf(item.getSchoolId()).equals(schoolCode)) {
                         return item;
                     }
                 }
-                
+
                 page.incrementAndGet();
-                
+
                 // 防止无限循环，设置最大页数限制
                 if (page.get() > 100) {
                     break;
@@ -322,18 +325,18 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         }
         return null;
     }
-    
+
     @Override
     public boolean syncSchoolInfoByCode(String schoolCode, SchoolSyncConfig config) {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
             try {
                 // 根据schoolCode获取学校信息
-                GaokaoSchoolInfo.DataDTO.ItemDTO schoolItem = getSchoolItemByCode(schoolCode);
+                GaokaoSchoolInfo.DataDTO.ItemDTO schoolItem = getSchoolItemByCode(schoolCode, config);
                 if (schoolItem == null) {
                     log.error("未找到学校信息: {}", schoolCode);
                     return false;
                 }
-                
+
                 // 注册学校信息
                 registerSchoolInfo(schoolItem, config);
                 return true;
@@ -344,7 +347,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     @Override
     public boolean syncSchoolMajorByCode(String schoolCode, SchoolSyncConfig config) {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
@@ -354,12 +357,12 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         Wrappers.<SchoolInfo>lambdaQuery()
                                 .eq(SchoolInfo::getSchoolCode, schoolCode)
                 );
-                
+
                 if (schoolInfo == null) {
                     log.error("未找到学校信息: {}", schoolCode);
                     return false;
                 }
-                
+
                 // 同步学校专业信息
                 registerMajor(config, schoolInfo);
                 return true;
@@ -370,7 +373,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     @Override
     public boolean syncSchoolAdmissionPlanByCode(String schoolCode, SchoolSyncConfig config) {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
@@ -380,14 +383,14 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         Wrappers.<SchoolInfo>lambdaQuery()
                                 .eq(SchoolInfo::getSchoolCode, schoolCode)
                 );
-                
+
                 if (schoolInfo == null) {
                     log.error("未找到学校信息: {}", schoolCode);
                     return false;
                 }
-                
+
                 // 同步学校招生计划
-                registerPlan(schoolInfo);
+                registerPlan(schoolInfo, config);
                 return true;
             } catch (Exception e) {
                 log.error("同步学校招生计划异常: {}, {}", schoolCode, e.getMessage(), e);
@@ -396,7 +399,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     @Override
     public boolean syncSchoolHistoricalScoreByCode(String schoolCode, SchoolSyncConfig config) {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
@@ -406,12 +409,12 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         Wrappers.<SchoolInfo>lambdaQuery()
                                 .eq(SchoolInfo::getSchoolCode, schoolCode)
                 );
-                
+
                 if (schoolInfo == null) {
                     log.error("未找到学校信息: {}", schoolCode);
                     return false;
                 }
-                
+
                 // 同步学校历年分数线
                 syncHistoricalScores(schoolInfo);
                 return true;
@@ -422,30 +425,27 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     @Override
     public boolean syncAllMajors(SchoolSyncConfig config) {
-        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
-            try {
-                // 获取所有学校
-                List<SchoolInfo> schoolInfoList = schoolInfoMapper.selectList(Wrappers.emptyWrapper());
-                
-                for (SchoolInfo schoolInfo : schoolInfoList) {
-                    try {
-                        registerMajor(config, schoolInfo);
-                    } catch (Exception e) {
-                        log.error("同步学校专业异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
-                        // 继续处理下一个学校，不中断整体流程
-                    }
+        try {
+            // 获取所有学校
+            List<SchoolInfo> schoolInfoList = schoolInfoMapper.selectList(Wrappers.emptyWrapper());
+
+            for (SchoolInfo schoolInfo : schoolInfoList) {
+                try {
+                    registerMajor(config, schoolInfo);
+                } catch (Exception e) {
+                    log.error("同步学校专业异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
+                    // 继续处理下一个学校，不中断整体流程
                 }
-                
-                return true;
-            } catch (Exception e) {
-                log.error("同步所有专业异常: {}", e.getMessage(), e);
-                status.setRollbackOnly();
-                return false;
             }
-        }));
+
+            return true;
+        } catch (Exception e) {
+            log.error("同步所有专业异常: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     private void syncSchoolInfo(SchoolSyncConfig config) {
@@ -453,12 +453,19 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         AtomicInteger page = new AtomicInteger(1);
         int total = 0;
         while (true) {
-            GaokaoSchoolInfo schoolInfo = HttpClient
+            String jsonData = HttpClient
                     .get("https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() + "&province_id=&ranktype=&request_type=1&size=20&type=&uri=apidata/api/gkv3/school/lists&signsafe=" + IdUtils.createUlid())
+                    .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                     .newInvoker()
                     .execute()
-                    .content(GaokaoSchoolInfo.class);
-
+                    .content(String.class);
+            GaokaoSchoolInfo schoolInfo = null;
+            try {
+                schoolInfo = Json.fromJson(jsonData, GaokaoSchoolInfo.class);
+            } catch (Exception e) {
+                log.error("解析学校信息失败: {}", jsonData);
+                throw new RuntimeException(e);
+            }
             if (page.get() == 1) {
                 total = schoolInfo.getData().getNumFound();
             }
@@ -525,13 +532,13 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         notifyProgress(config, "school", "同步区县");
         register(itemDTO.getCityId() + Strings.repeat("0", 12 - itemDTO.getCityId().length()), itemDTO.getCityName(), "city");
         notifyProgress(config, "school", "同步学校排名");
-        registerRank(schoolInfo);
+        registerRank(schoolInfo, config);
         notifyProgress(config, "school", "同步学校详情");
-        registerDetail(schoolInfo);
+        registerDetail(schoolInfo, config);
         notifyProgress(config, "school", "同步学校专业");
         registerMajor(config, schoolInfo);
         notifyProgress(config, "school", "同步学校计划");
-        registerPlan(schoolInfo);
+        registerPlan(schoolInfo, config);
         if (null == schoolInfo.getSchoolId()) {
             schoolInfoMapper.insert(schoolInfo);
             return;
@@ -540,7 +547,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
 
     }
 
-    private void registerPlan(SchoolInfo schoolInfo) {
+    private void registerPlan(SchoolInfo schoolInfo, SchoolSyncConfig config) {
         try {
             schoolAdmissionPlanMapper.delete(
                     Wrappers.<SchoolAdmissionPlan>lambdaQuery()
@@ -554,16 +561,17 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             for (int j = 0; j < YEARS.length; j++) {
                 Integer year = YEARS[j];
                 try {
-                    registerPlan(schoolInfo, provide, year);
+                    registerPlan(schoolInfo, provide, year, config);
                 } catch (Exception ignored) {
                 }
             }
         }
     }
 
-    private void registerPlan(SchoolInfo schoolInfo, Integer provide, Integer year) {
+    private void registerPlan(SchoolInfo schoolInfo, Integer provide, Integer year, SchoolSyncConfig config) {
         GaokaoPlan gaokaoPlan = HttpClient
                 .get("https://api.zjzw.cn/web/api/?like_spname=&local_batch_id=14&local_province_id=" + provide + "&local_type_id=3&page=1&school_id=" + schoolInfo.getSchoolCode() + "&sg_xuanke=&size=10&special_group=&uri=apidata/api/gkv3/plan/school&year=" + year + "&signsafe=64d22b09f8d7056413355616de19dcd1")
+                .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                 .newInvoker()
                 .execute()
                 .content(GaokaoPlan.class);
@@ -596,6 +604,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         //https://static-data.gaokao.cn/www/2.0/school/140/pc_special.json?a=www.gaokao.cn
         GaokaoMajor gaokaoMajor = HttpClient
                 .get("https://static-data.gaokao.cn/www/2.0/school/" + schoolInfo.getSchoolCode() + "/pc_special.json?a=www.gaokao.cn")
+                .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                 .newInvoker()
                 .execute()
                 .content(GaokaoMajor.class);
@@ -639,15 +648,19 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             schoolMajor1.setSchoolMajorXueKeRank(Converter.createInteger(specialDTO1.getXuekeRank()));
             schoolMajor1.setSchoolMajorXueKeRankScore(Converter.createInteger(specialDTO1.getXuekeRankScore()));
             notifyProgress(config, "school", "同步学校专业: " + specialDTO1.getSpecialName());
-            schoolMajorMapper.insert(schoolMajor1);
+            try {
+                schoolMajorMapper.insert(schoolMajor1);
+            } catch (Exception ignored) {
+            }
         }
     }
 
-    private void registerDetail(SchoolInfo schoolInfo) {
+    private void registerDetail(SchoolInfo schoolInfo, SchoolSyncConfig config) {
         //https://static-data.gaokao.cn/www/2.0/school/140/info.json?a=www.gaokao.cn
         try {
             GaokaoDetail gaokaoDetail = HttpClient
                     .get("https://static-data.gaokao.cn/www/2.0/school/" + schoolInfo.getSchoolCode() + "/info.json?a=www.gaokao.cn")
+                    .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                     .newInvoker()
                     .execute()
                     .content(GaokaoDetail.class);
@@ -670,7 +683,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         }
     }
 
-    private void registerRank(SchoolInfo schoolInfo) {
+    private void registerRank(SchoolInfo schoolInfo, SchoolSyncConfig config) {
         try {
             schoolRankMapper.delete(
                     Wrappers.<SchoolRank>lambdaQuery()
@@ -678,15 +691,16 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             );
             GaokaoRank gaokaoRank = HttpClient
                     .get("https://static-data.gaokao.cn/www/2.0/school/" + schoolInfo.getSchoolCode() + "/rank.json?a=www.gaokao.cn")
+                    .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                     .newInvoker()
                     .execute()
                     .content(GaokaoRank.class);
-                    
+
             if (gaokaoRank == null || gaokaoRank.getData() == null) {
                 log.warn("获取学校排名信息失败: {}", schoolInfo.getSchoolCode());
                 return;
             }
-            
+
             gaokaoRank.getData().forEach(item -> {
                 try {
                     SchoolRank schoolRank = new SchoolRank();
@@ -695,7 +709,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     schoolRank.setSchoolRankType(item.getRankType());
                     schoolRank.setSchoolRankName(item.getRankName());
                     schoolRank.setSchoolCode(schoolInfo.getSchoolCode());
-                    
+
                     // 设置新增字段的默认值
                     // 从rankName中提取年份信息，如"2023年软科排名"
                     String rankName = item.getRankName();
@@ -712,7 +726,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                         // 默认使用当前年份
                         schoolRank.setSchoolRankYear(java.time.Year.now().getValue());
                     }
-                    
+
                     // 从rankType和rankName中提取排名机构信息
                     if (item.getRankType() != null && item.getRankType().contains("软科")) {
                         schoolRank.setSchoolRankInstitution("软科");
@@ -729,7 +743,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                             schoolRank.setSchoolRankInstitution("其他");
                         }
                     }
-                    
+
                     // 设置排名得分（如果有）
                     // 某些排名可能在master字段中包含得分信息
                     if (item.getMaster() != null && !item.getMaster().isEmpty()) {
@@ -744,7 +758,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                             log.debug("解析排名得分失败: {}", item.getMaster());
                         }
                     }
-                    
+
                     // 尝试计算排名变化
                     // 排名变化信息可能在数据源中没有直接提供，这里可以通过比对历史数据来计算
                     // 这里提供一个基本框架，实际实现可能需要查询上一年的排名数据
@@ -756,8 +770,8 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                                         .eq(SchoolRank::getSchoolRankType, item.getRankType())
                                         .eq(SchoolRank::getSchoolRankYear, schoolRank.getSchoolRankYear() - 1)
                         );
-                        
-                        if (lastYearRank != null && lastYearRank.getSchoolRankValue() != null && 
+
+                        if (lastYearRank != null && lastYearRank.getSchoolRankValue() != null &&
                                 schoolRank.getSchoolRankValue() != null) {
                             // 计算排名变化：正数表示排名上升（变好），负数表示排名下降（变差）
                             // 注意：排名数字越小表示排名越好
@@ -769,15 +783,15 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                     } catch (Exception e) {
                         log.debug("计算排名变化失败: {}", e.getMessage());
                     }
-                    
+
                     // 增加可能的备注信息
                     if (item.getMaster() != null && !item.getMaster().isEmpty()) {
                         schoolRank.setSchoolRankRemark(item.getMaster());
                     }
-                    
+
                     // 设置删除标志
                     schoolRank.setSchoolRankDeleted(0);
-                    
+
                     schoolRankMapper.insert(schoolRank);
                 } catch (Exception e) {
                     log.error("保存学校排名信息异常: {}, {}", schoolInfo.getSchoolCode(), e.getMessage());
@@ -813,7 +827,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             if (allSchools == null || allSchools.isEmpty()) {
                 return List.of();
             }
-            
+
             return allSchools.stream()
                     .map(SchoolInfo::getSchoolCode)
                     .filter(code -> code != null && !code.isEmpty())
@@ -830,7 +844,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             if (schoolName == null || schoolName.trim().isEmpty()) {
                 return List.of();
             }
-            
+
             return schoolInfoMapper.selectList(
                     Wrappers.<SchoolInfo>lambdaQuery()
                             .like(SchoolInfo::getSchoolName, schoolName)
@@ -840,7 +854,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             return List.of();
         }
     }
-    
+
     @Override
     public boolean getAllSpecialties(SchoolSyncConfig config) {
         return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
@@ -849,45 +863,46 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 AtomicInteger page = new AtomicInteger(1);
                 int pageSize = 20;
                 int totalProcessed = 0;
-                
+
                 while (true) {
                     // 构建API请求URL
-                    String url = "https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() + 
-                            "&size=" + pageSize + 
+                    String url = "https://api.zjzw.cn/web/api/?keyword=&page=" + page.get() +
+                            "&size=" + pageSize +
                             "&sort=&uri=apidata/api/gkv3/special/lists&signsafe=" + IdUtils.createUlid();
-                    
+
                     // 调用API获取专业数据
                     GaokaoSpecialty specialtyData = HttpClient
                             .get(url)
+                            .proxy(config.getSchoolSyncConfigProxyHost(), config.getSchoolSyncConfigProxyPort())
                             .newInvoker()
                             .execute()
                             .content(GaokaoSpecialty.class);
-                    
+
                     // 检查返回数据是否有效
-                    if (specialtyData == null || specialtyData.getData() == null || 
-                            specialtyData.getData().getItem() == null || 
+                    if (specialtyData == null || specialtyData.getData() == null ||
+                            specialtyData.getData().getItem() == null ||
                             specialtyData.getData().getItem().isEmpty()) {
                         log.info("没有更多专业数据，结束同步");
                         break;
                     }
-                    
+
                     // 处理当前页的专业数据
                     List<GaokaoSpecialty.ItemDTO> specialties = specialtyData.getData().getItem();
                     processSpecialties(specialties);
-                    
+
                     totalProcessed += specialties.size();
                     log.info("已处理{}个专业数据", totalProcessed);
-                    
+
                     // 检查是否还有下一页
                     if (specialties.size() < pageSize) {
                         log.info("已到达最后一页，结束同步");
                         break;
                     }
-                    
+
                     // 继续处理下一页
                     page.incrementAndGet();
                 }
-                
+
                 log.info("所有专业信息同步完成，共处理{}个专业", totalProcessed);
                 return true;
             } catch (Exception e) {
@@ -897,7 +912,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
             }
         }));
     }
-    
+
     /**
      * 处理专业数据列表
      *
@@ -907,7 +922,7 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
         if (specialties == null || specialties.isEmpty()) {
             return;
         }
-        
+
         for (GaokaoSpecialty.ItemDTO specialty : specialties) {
             try {
                 // 创建专业对象并保存到数据库
@@ -925,14 +940,14 @@ public class GaokaoSyncProvider implements SchoolSyncProvider {
                 schoolMajor.setSchoolMajorContent(specialty.getWhatMajor());
                 schoolMajor.setSchoolMajorCourse(specialty.getCourse());
                 schoolMajor.setSchoolMajorEmployment(specialty.getWhatWork());
-                
+
                 // 检查数据库中是否已存在该专业
                 SchoolMajor existingMajor = schoolMajorMapper.selectOne(
                         Wrappers.<SchoolMajor>lambdaQuery()
                                 .eq(SchoolMajor::getSchoolMajorCode, schoolMajor.getSchoolMajorCode())
                                 .isNull(SchoolMajor::getSchoolCode) // 通用专业没有关联学校
                 );
-                
+
                 if (existingMajor == null) {
                     // 新增专业
                     schoolMajorMapper.insert(schoolMajor);
