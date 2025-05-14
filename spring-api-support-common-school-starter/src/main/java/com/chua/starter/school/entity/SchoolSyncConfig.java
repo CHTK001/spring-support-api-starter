@@ -42,6 +42,20 @@ public class SchoolSyncConfig extends SysBase {
     private String schoolSyncConfigType;
 
     /**
+     * 代理地址
+     */
+    @TableField("school_sync_config_proxy_host")
+    @Schema(description = "代理地址")
+    private String schoolSyncConfigProxyHost;
+
+    /**
+     * 代理端口
+     */
+    @TableField("school_sync_config_proxy_port")
+    @Schema(description = "代理端口")
+    private Integer schoolSyncConfigProxyPort;
+
+    /**
      * 同步类型
      */
     @TableField("school_sync_config_sync_type")
