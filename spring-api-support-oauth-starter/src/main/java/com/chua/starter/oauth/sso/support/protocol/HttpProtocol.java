@@ -51,7 +51,6 @@ public class HttpProtocol implements Protocol, InitializingBean {
     @Value("${plugin.auth.server.context-path:}")
     private String contextPath;
 
-
     /**
      * 鉴权
      *
