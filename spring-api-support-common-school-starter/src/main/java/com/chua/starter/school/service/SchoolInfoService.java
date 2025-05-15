@@ -5,7 +5,6 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
-import com.chua.starter.school.vo.SchoolInfoVO;
 
 /**
  * 学校信息Service
@@ -20,7 +19,7 @@ public interface SchoolInfoService extends IService<SchoolInfo> {
      * @param query 查询条件
      * @return 学校信息分页列表
      */
-    ReturnPageResult<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query);
+    ReturnPageResult<SchoolInfo> pageSchoolInfo(SchoolQueryDTO query);
 
     /**
      * 获取学校详情
@@ -28,7 +27,7 @@ public interface SchoolInfoService extends IService<SchoolInfo> {
      * @param id 学校ID
      * @return 学校详情
      */
-    ReturnResult<SchoolInfoVO> getSchoolDetail(Long id);
+    ReturnResult<SchoolInfo> getSchoolDetail(Long id);
 
     /**
      * 保存学校信息

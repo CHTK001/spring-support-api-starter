@@ -9,7 +9,6 @@ import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.mapper.SchoolInfoMapper;
 import com.chua.starter.school.service.SchoolInfoService;
-import com.chua.starter.school.vo.SchoolInfoVO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,8 +26,8 @@ public class SchoolInfoServiceImpl extends ServiceImpl<SchoolInfoMapper, SchoolI
      * @return 学校信息分页列表
      */
     @Override
-    public ReturnPageResult<SchoolInfoVO> pageSchoolInfo(SchoolQueryDTO query) {
-        IPage<SchoolInfoVO> schoolInfoPage = baseMapper.selectSchoolInfoPage(query.createFullPage(), query);
+    public ReturnPageResult<SchoolInfo> pageSchoolInfo(SchoolQueryDTO query) {
+        IPage<SchoolInfo> schoolInfoPage = baseMapper.selectSchoolInfoPage(query.createFullPage(), query);
         return ReturnPageResultUtils.ok(schoolInfoPage);
     }
 
@@ -39,9 +38,8 @@ public class SchoolInfoServiceImpl extends ServiceImpl<SchoolInfoMapper, SchoolI
      * @return 学校详情
      */
     @Override
-    public ReturnResult<SchoolInfoVO> getSchoolDetail(Long id) {
-        SchoolInfoVO schoolInfoVO = baseMapper.getSchoolDetailById(id);
-        return ReturnResult.ok(schoolInfoVO);
+    public ReturnResult<SchoolInfo> getSchoolDetail(Long id) {
+        return ReturnResult.ok(baseMapper.getSchoolDetailById(id));
     }
 
     @Override
