@@ -9,7 +9,6 @@ import com.chua.starter.common.support.group.IgnoreGroup;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
 import com.chua.starter.school.service.SchoolInfoService;
-import com.chua.starter.school.vo.SchoolInfoVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,7 +72,7 @@ public class SchoolInfoController {
     @PostMapping("/page")
     @ApiGroup(IgnoreGroup.class)
     @Operation(summary = "分页查询学校列表", description = "根据条件分页查询学校列表")
-    public ReturnPageResult<SchoolInfoVO> page(@ParameterObject @RequestBody SchoolQueryDTO query) {
+    public ReturnPageResult<SchoolInfo> page(@ParameterObject @RequestBody SchoolQueryDTO query) {
         return schoolInfoService.pageSchoolInfo(query);
     }
 
@@ -85,7 +84,7 @@ public class SchoolInfoController {
      */
     @GetMapping("/{schoolId}")
     @Operation(summary = "获取学校详情", description = "根据学校ID获取学校详情信息")
-    public ReturnResult<SchoolInfoVO> getSchoolDetail(@Parameter(description = "学校ID") @PathVariable Long schoolId) {
+    public ReturnResult<SchoolInfo> getSchoolDetail(@Parameter(description = "学校ID") @PathVariable Long schoolId) {
         return schoolInfoService.getSchoolDetail(schoolId);
     }
     /**

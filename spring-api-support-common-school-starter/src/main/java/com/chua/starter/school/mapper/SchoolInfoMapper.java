@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.school.dto.SchoolQueryDTO;
 import com.chua.starter.school.entity.SchoolInfo;
-import com.chua.starter.school.vo.SchoolInfoVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,7 +23,7 @@ public interface SchoolInfoMapper extends BaseMapper<SchoolInfo> {
      * @param query 查询条件
      * @return 学校信息列表
      */
-    IPage<SchoolInfoVO> selectSchoolInfoPage(Page<SchoolInfo> page, @Param("query") SchoolQueryDTO query);
+    IPage<SchoolInfo> selectSchoolInfoPage(Page<SchoolInfo> page, @Param("query") SchoolQueryDTO query);
 
     /**
      * 获取学校详情
@@ -32,7 +31,7 @@ public interface SchoolInfoMapper extends BaseMapper<SchoolInfo> {
      * @param id 学校ID
      * @return 学校详情
      */
-    SchoolInfoVO getSchoolDetailById(@Param("id") Long id);
+    SchoolInfo getSchoolDetailById(@Param("id") Long id);
 
     /**
      * 根据学校代码获取学校详情
@@ -40,5 +39,5 @@ public interface SchoolInfoMapper extends BaseMapper<SchoolInfo> {
      * @param schoolCode 学校代码
      * @return 学校详情
      */
-    SchoolInfoVO getSchoolDetailByCode(@Param("schoolCode") String schoolCode);
+    SchoolInfo getSchoolDetailByCode(@Param("schoolCode") String schoolCode);
 } 

@@ -15,8 +15,8 @@
     <select id="selectSchoolInfoPage" resultType="com.chua.starter.school.vo.SchoolInfoVO">
         SELECT
             t.*,
-            (SELECT COUNT(1) FROM school_student s WHERE s.school_id = t.school_id AND s.deleted = 0) as school_info_student_count,
-            (SELECT COUNT(1) FROM school_teacher t2 WHERE t2.school_id = t.school_id AND t2.deleted = 0) as school_info_teacher_count
+            (SELECT COUNT(1) FROM school_student s WHERE s.school_id = t.school_id AND s.sys_deleted = 0) as school_info_student_count,
+            (SELECT COUNT(1) FROM school_teacher t2 WHERE t2.school_id = t.school_id AND t2.sys_deleted = 0) as school_info_teacher_count
         FROM (
             SELECT <include refid="Base_Column_List"/>
             FROM school_info
