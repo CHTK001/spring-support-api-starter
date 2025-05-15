@@ -12,7 +12,7 @@
     </sql>
 
     <!-- 分页查询学校信息 -->
-    <select id="selectSchoolInfoPage" resultType="com.chua.starter.school.vo.SchoolInfoVO">
+    <select id="selectSchoolInfoPage" resultType="com.chua.starter.school.entity.SchoolInfo">
         SELECT
             t.*,
             (SELECT COUNT(1) FROM school_student s WHERE s.school_id = t.school_id AND s.sys_deleted = 0) as school_info_student_count,
@@ -54,7 +54,7 @@
     </select>
 
     <!-- 获取学校详情 -->
-    <select id="getSchoolDetailById" resultType="com.chua.starter.school.vo.SchoolInfoVO">
+    <select id="getSchoolDetailById" resultType="com.chua.starter.school.entity.SchoolInfo">
         SELECT
         <include refid="Base_Column_List"/>
         FROM school_info
