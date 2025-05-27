@@ -18,6 +18,8 @@
     <conversionRule conversionWord="traceId" converterClass="com.chua.starter.log.support.logback.TraceMessageConverter"/>
 
     <property name="log_file_location" value="./logs/system"/>
+    <springProperty scope="context" name="applicationName" source="spring.application.name" defaultValue="default"/>
+    <springProperty scope="context" name="env" source="spring.profiles.active" defaultValue="dev"/>
 
     <!-- 彩色日志格式 -->
     <property name="console_log_pattern_color"
@@ -32,9 +34,14 @@
         </encoder>
 
     </appender>
-    <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
-    <logger name="io.zbus.*" level="OFF" additivity="false"/>
-    <logger name="org.burningwave.core" level="OFF" additivity="false"/>
+    <logger name="*.mapper.*" level="DEBUG"/>
+    <logger name="io.zbus.transport" level="OFF"/>
+    <logger name="org.tio" level="OFF"/>
+    <logger name="net.dreamlu.iot.mqtt.core.client" level="OFF"/>
+    <logger name="org.burningwave.core.assembler.StaticComponentContainer" level="OFF"/>
+    <logger name="com.chua.common.support.reflection.reflections.Reflections" level="TRACE"/>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorCheckers"
+            level="DEBUG"/>
 
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -51,6 +58,18 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://localhost:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>application=${applicationName},env=${env},host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <message class="com.github.loki4j.logback.JsonLayout"/>
+        </format>
+    </appender>
+
 
     <!-- 把日志异步输出到磁盘文件中，避免每次都进行磁盘IO操作 -->
     <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
@@ -63,6 +82,7 @@
     <root>
         <level value="INFO"/>
         <appender-ref ref="console"/>
+        <appender-ref ref="LOKI"/>
         <appender-ref ref="async"/>
     </root>
 
