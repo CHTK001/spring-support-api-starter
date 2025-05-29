@@ -19,10 +19,7 @@ import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +50,7 @@ public class MonitorAppController extends AbstractSwaggerUpdateController<Monito
      */
     @Operation(summary = "分页查询基础数据")
     @GetMapping("detail/{monitorId}")
-    public ReturnResult<MonitorApplication> detail(Integer monitorId) {
+    public ReturnResult<MonitorApplication> detail(@PathVariable("monitorId") Integer monitorId) {
         MonitorApplication monitorApplication = getService().getById(monitorId);
         if (null == monitorApplication) {
             return ReturnResult.error("数据不存在");
