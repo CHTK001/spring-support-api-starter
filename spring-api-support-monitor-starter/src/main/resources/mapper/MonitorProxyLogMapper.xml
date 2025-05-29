@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.report.server.starter.mapper.MonitorProxyLogMapper">
-  <select id="pageForLog" resultType="com.chua.report.server.starter.pojo.MonitorProxyLimitLogResult">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorProxyLogMapper">
+  <select id="pageForLog" resultType="com.chua.starter.monitor.starter.pojo.MonitorProxyLimitLogResult">
     SELECT monitor_proxy_log_date,
     monitor_proxy_log_url,
     monitor_proxy_log_address_geo,
@@ -36,7 +36,7 @@
     ORDER BY monitor_proxy_log_date DESC
   </select>
 
-  <select id="listForGeo" resultType="com.chua.report.server.starter.pojo.MonitorProxyLimitLogResult">
+  <select id="listForGeo" resultType="com.chua.starter.monitor.starter.pojo.MonitorProxyLimitLogResult">
     <trim>
     select create_time,
     sum(allowCount) allowCount,
