@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_maintenance_log")
+@TableName("maintenance_log")
 @ApiModel(value = "MaintenanceLog", description = "维护操作日志实体")
 public class MaintenanceLog {
     
@@ -34,7 +34,7 @@ public class MaintenanceLog {
      */
     @ApiModelProperty(value = "日志ID", example = "1")
     @TableId(value = "maintenance_log_id", type = IdType.AUTO)
-    private Long maintenanceLogId;
+    private Integer maintenanceLogId;
     
     /**
      * 维护组ID

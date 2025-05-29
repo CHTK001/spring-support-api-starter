@@ -9,10 +9,8 @@ import com.chua.socketio.support.SocketIOListener;
 import com.chua.socketio.support.annotations.OnEvent;
 import com.chua.socketio.support.session.SocketSession;
 import com.chua.ssh.support.ssh.SshClient;
-import com.chua.starter.monitor.starter.properties.ReportGenProperties;
 import com.chua.starter.monitor.starter.service.TerminalService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 
 /**
@@ -23,7 +21,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @since 2024/02/06
  */
 @RequiredArgsConstructor
-@EnableConfigurationProperties(ReportGenProperties.class)
 public class TerminalSocketIOListener implements SocketIOListener {
 
     final TerminalService terminalService;

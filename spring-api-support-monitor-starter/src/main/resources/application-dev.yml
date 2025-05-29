@@ -33,3 +33,8 @@ logging:
 plugin:
   oauth:
     address: http://172.16.0.40:19180/oauth
+  table:
+    enable: true
+    packages:
+      - com.chua.starter.monitor.starter.entity
+      - com.chua.starter.monitor.entity
