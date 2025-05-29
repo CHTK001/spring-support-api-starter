@@ -12,7 +12,6 @@ import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
 import com.chua.starter.oauth.sso.support.protocol.Protocol;
 import com.chua.starter.oauth.sso.support.provider.LoginProvider;
-import com.chua.starter.oauth.sso.support.resolver.SimpleLoggerResolver;
 import com.chua.starter.oauth.sso.support.resolver.SimpleUserInfoResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +66,6 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, LoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
-        BeanDefinitionRegistryUtils.registerBeanDefinition(registry, SimpleLoggerResolver.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, SimpleUserInfoResolver.class);
 
         List<String> protocols = authServerProperties.getProtocols();
