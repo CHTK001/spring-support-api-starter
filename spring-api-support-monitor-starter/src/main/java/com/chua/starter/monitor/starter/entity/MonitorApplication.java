@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -47,10 +48,20 @@ public class MonitorApplication extends SysBase implements Serializable {
     @Size(max = 255,message = "所属应用最大长度要小于 255")
     private String monitorApplicationName;
 
+    /**
+     * Prometheus地址
+     */
+    @TableField(value = "monitor_prometheus_address")
+    @ApiModelProperty(value = "Prometheus地址")
+    @Schema(description = "Prometheus地址")
+    private String monitorPrometheusAddress;
+    /**
+     * 绑定的应用
+     */
     @TableField(exist = false)
     @ApiModelProperty(value="绑定的应用")
     @Schema(description="绑定的应用")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Discovery> monitorRequests;
 
-    private static final long serialVersionUID = 1L;
 }

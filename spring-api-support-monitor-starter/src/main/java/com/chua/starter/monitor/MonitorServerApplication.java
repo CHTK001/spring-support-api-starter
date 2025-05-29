@@ -1,8 +1,10 @@
 package com.chua.starter.monitor;
 
+import com.chua.starter.monitor.starter.properties.ReportGenProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -12,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @EnableCaching
 @EnableScheduling
+@EnableConfigurationProperties(ReportGenProperties.class)
 @MapperScan({"com.chua.starter.**.mapper"})
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.monitor", "com.chua.starter.video", "com.chua.starter.service.**"})
 public class MonitorServerApplication {
