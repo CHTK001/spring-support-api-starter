@@ -13,7 +13,6 @@ import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.mybatis.controller.AbstractSwaggerUpdateController;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
-import com.github.xiaoymin.knife4j.annotations.Ignore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,7 +53,7 @@ public class MonitorAppController extends AbstractSwaggerUpdateController<Monito
     @ResponseBody
     @Operation(summary = "分页查询基础数据")
     @GetMapping("page")
-    public ReturnPageResult<MonitorApplication> page(Query<MonitorApplication> page, @Valid MonitorApplication entity, @Ignore BindingResult bindingResult) {
+    public ReturnPageResult<MonitorApplication> page(Query<MonitorApplication> page, @Valid MonitorApplication entity, BindingResult bindingResult) {
         Page<MonitorApplication> page1 = getService().page(page.createPage(), Wrappers.lambdaQuery(entity));
         mergePage(page1);
         return PageResultUtils.ok(page1);
