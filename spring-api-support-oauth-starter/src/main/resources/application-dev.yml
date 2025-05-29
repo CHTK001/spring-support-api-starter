@@ -10,7 +10,7 @@ spring:
       port: 16379
       database: 15
   tenant:
-    enable: true
+    enable: false
     properties:
       - name: tenant1
         driverClassName: com.p6spy.engine.spy.P6SpyDriver
