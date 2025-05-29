@@ -14,6 +14,7 @@ import com.chua.starter.oauth.sso.support.information.AuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 import static com.chua.common.support.lang.code.ReturnCode.OK;
@@ -23,6 +24,7 @@ import static com.chua.common.support.lang.code.ReturnCode.OK;
  *
  * @author CH
  */
+@Slf4j
 public final class RequestAuthorization implements Authorization {
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
@@ -84,6 +86,10 @@ public final class RequestAuthorization implements Authorization {
         ReturnResult<UserResult> resolve = tokenResolver.resolve(cookies, token);
         ReturnResultBuilder<String> result = ReturnResult.<String>newBuilder().code(resolve.getCode()).msg(resolve.getMsg());
         if (OK.getCode().equals(resolve.getCode())) {
+            UserResult data = resolve.getData();
+            if (null != data) {
+                log.info("请求的token:{} => {}({})", token, data.getId(), data.getUsername());
+            }
             String body = Json.toJson(resolve.getData());
             result.setData(encipher ? authInformation.getCodec().encodeHex(body) : body);
         }
@@ -105,11 +111,19 @@ public final class RequestAuthorization implements Authorization {
             loginResult.setToken(getValidToken(cookieName));
             loginResult.setRefreshToken(refreshToken);
             loginResult.setUserResult(resolve.getData());
+            UserResult data = resolve.getData();
+            if (null != data) {
+                log.info("刷新token信息:{} => {}({})", token, data.getId(), data.getUsername());
+            }
         } else if (upgradeType == UpgradeType.VERSION) {
             resolve = tokenResolver.upgradeForVersion(getToken(cookieName), refreshToken);
             loginResult.setToken(getValidToken(cookieName));
             loginResult.setRefreshToken(refreshToken);
             loginResult.setUserResult(resolve.getData());
+            UserResult data = resolve.getData();
+            if (null != data) {
+                log.info("置换token:{}({}) => {}({})", loginResult.getToken(), token, data.getId(), data.getUsername());
+            }
         } else if (upgradeType == UpgradeType.REFRESH) {
             resolve = tokenResolver.upgradeForRefresh(getToken(cookieName), refreshToken);
             if (resolve.isOk()) {
@@ -119,6 +133,10 @@ public final class RequestAuthorization implements Authorization {
                     tokenResolver.logout(cookies, this.token, refreshToken, cookieName);
                     loginResult = token.getData();
                     loginResult.setUserResult(resolve.getData());
+                    UserResult data = resolve.getData();
+                    if (null != data) {
+                        log.info("重置token有效时间:{}({}) => {}({})", refreshToken, loginResult.getToken(), data.getId(), data.getUsername());
+                    }
                 }
             }
 
