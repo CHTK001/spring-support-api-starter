@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.report.server.starter.mapper.MonitorProxyPluginConfigMapper">
-  <resultMap id="BaseResultMap" type="com.chua.report.server.starter.entity.MonitorProxyPluginConfig">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorProxyPluginConfigMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorProxyPluginConfig">
     <!--@mbg.generated-->
     <!--@Table monitor_proxy_plugin_config-->
     <id column="proxy_config_id" jdbcType="INTEGER" property="proxyConfigId" />
