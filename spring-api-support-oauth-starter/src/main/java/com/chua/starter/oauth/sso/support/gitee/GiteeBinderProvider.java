@@ -9,7 +9,6 @@ import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
-import com.chua.starter.oauth.sso.support.resolver.LoggerResolver;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,7 +51,6 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
 
     final CasProperties casProperties;
     final ThirdPartyBinderProperties thirdPartyBinderProperties;
-    final LoggerResolver loggerResolver;
     final LoginCheck loginCheck;
     final AuthServerProperties authServerProperties;
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
