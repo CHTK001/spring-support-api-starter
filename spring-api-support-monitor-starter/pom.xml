@@ -26,6 +26,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-support-configcenter-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-report-client-starter</artifactId>
         </dependency>
 
