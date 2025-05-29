@@ -15,6 +15,7 @@ import com.chua.starter.oauth.sso.support.resolver.LoggerResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +34,7 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_OAUTH_ERROR;
  */
 @Controller
 @Extension("http")
+@Slf4j
 @Conditional(OnBeanCondition.class)
 @RequestMapping("${plugin.auth.server.context-path:}")
 @RequiredArgsConstructor
