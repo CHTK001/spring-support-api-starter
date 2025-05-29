@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication
 @EnableConfigurationProperties(TenantDataSourceProperties.class)
-@MapperScan({"com.chua.starter.sso", "com.chua.starter.service"})
+@MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service"})
 public class AuthApplication {
 
     public static void main(String[] args) {
