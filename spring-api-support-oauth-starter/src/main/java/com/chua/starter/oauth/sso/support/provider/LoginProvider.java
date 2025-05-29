@@ -19,13 +19,13 @@ import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import com.chua.starter.oauth.sso.support.resolver.LoggerResolver;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
@@ -42,7 +42,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.chua.common.support.constant.CommonConstant.EMPTY;
-import static com.chua.common.support.lang.code.ReturnCode.*;
+import static com.chua.common.support.lang.code.ReturnCode.OK;
+import static com.chua.common.support.lang.code.ReturnCode.RESULT_ACCESS_UNAUTHORIZED;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.*;
 
 /**
@@ -53,12 +54,12 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.*;
 @Controller
 @Conditional(OnBeanCondition.class)
 @SuppressWarnings("ALL")
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("${plugin.auth.server.context-path:}")
 public class LoginProvider implements InitializingBean {
     final AuthServerProperties authServerProperties;
     final LoginCheck loginCheck;
-    final LoggerResolver loggerResolver;
     @Value("${plugin.auth.server.context-path:}")
     private String contextPath;
     private String encryption;
@@ -132,7 +133,6 @@ public class LoginProvider implements InitializingBean {
         if (null == data) {
             return new AdviceView(EMPTY, request);
         }
-        loggerResolver.register("logout", OK.getCode(), "登出成功", address);
         if (!Strings.isNullOrEmpty(accept) && !accept.contains("text/html")) {
             return new AdviceView(logoutApi(data, type, request, response), request);
         }
@@ -186,9 +186,10 @@ public class LoginProvider implements InitializingBean {
             address = MapUtils.getString(accessSecret.getExt(), "address", address);
         }
 
+        log.info("登录请求地址: {}, 账号:{}, 登陆方式:{}", address, username, authType);
         ReturnResult result = loginCheck.doLogin(address, username, passwd, authType, accessSecret.getExt());
+        log.info("登录结果: {} => {}", result.getCode(), result.getMsg());
         if (!result.getCode().equals(OK.getCode())) {
-            loggerResolver.register("doLogin", RESOURCE_NOT_FOUND.getCode(), "认证服务器离线", address);
             Object data1 = result.getData();
             if (null != data1) {
                 request.setAttribute(authServerProperties.getTokenName(), ((LoginResult) data1).getToken());
@@ -209,7 +210,6 @@ public class LoginProvider implements InitializingBean {
             doEncodeReturnValue(result, accessSecret);
         }
 
-        loggerResolver.register("doLogin", OK.getCode(), "登录成功", address);
         return result;
 
     }
@@ -343,7 +343,6 @@ public class LoginProvider implements InitializingBean {
         }
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute("KAPTCHA_SESSION_KEY")).orElse("").toString();
         if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
-            loggerResolver.register("doWebLogin", REQUEST_PARAM_ERROR.getCode(), "[" + sessionKey + "][" + code + "]校验码错误", address);
             modelMap.addFlashAttribute("msg", "校验码错误");
             try {
                 return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
@@ -354,7 +353,6 @@ public class LoginProvider implements InitializingBean {
 
         boolean ifRem = "on".equals(ifRemember);
         ReturnResult<LoginResult> result = loginCheck.doLogin(address, username, passwd, type, null);
-        loggerResolver.register("doWebLogin", result.getCode(), "认证服务器离线", address);
 
         if (result.getCode().equals(500)) {
             redirectAttributes.addFlashAttribute("redirect_url", url);
@@ -371,7 +369,6 @@ public class LoginProvider implements InitializingBean {
         }
 
         LoginResult loginResult = result.getData();
-        loggerResolver.register("doWebLogin", OK.getCode(), "登录成功", address);
         CookieUtil.set(response, authServerProperties.getCookieName(), loginResult.getToken(), ifRem);
         return new AdviceView("redirect:" + url);
     }
@@ -393,7 +390,6 @@ public class LoginProvider implements InitializingBean {
         }
 
         if (null == url) {
-            loggerResolver.register("login", RESULT_ACCESS_UNAUTHORIZED.getCode(), "redirect_url不能为空", address);
             return "oauth/login";
         }
 
@@ -410,7 +406,6 @@ public class LoginProvider implements InitializingBean {
                 return "redirect:" + url;
             }
         }
-        loggerResolver.register("login", OK.getCode(), "登录成功", address);
         return "oauth/login";
     }
 
@@ -437,7 +432,6 @@ public class LoginProvider implements InitializingBean {
             rs = codec.encodeHex(Json.toJson(data1));
         }
 
-        loggerResolver.register("oauth", oauth.getCode(), oauth.getMsg(), address);
         return ReturnResult.of(oauth.getCode(), rs, oauth.getMsg());
     }
 

@@ -3,7 +3,6 @@ package com.chua.starter.oauth.sso.support.protocol;
 import com.chua.common.support.annotations.Extension;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.utils.RequestUtils;
-import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
@@ -11,7 +10,6 @@ import com.chua.starter.oauth.sso.support.information.AuthInformation;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.provider.LoginProvider;
-import com.chua.starter.oauth.sso.support.resolver.LoggerResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import static com.chua.common.support.lang.code.ReturnCode.OK;
-import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_OAUTH_ERROR;
 
 
 /**
@@ -43,8 +40,6 @@ public class HttpProtocol implements Protocol, InitializingBean {
     final AuthServerProperties authServerProperties;
 
     final LoginProvider loginProvider;
-
-    final LoggerResolver loggerResolver;
 
     final LoginCheck loginCheck;
 
@@ -68,20 +63,17 @@ public class HttpProtocol implements Protocol, InitializingBean {
 
         if (!authorization.hasKey()) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "密钥不存在", address);
             return ReturnResult.noAuth();
         }
 
         if (!authorization.hasTokenOrCookie()) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "无权限", address);
             return ReturnResult.noAuth();
         }
 
         ReturnResult<String> authentication = authorization.authentication(request1.isEncipher());
         if (!OK.getCode().equals(authentication.getCode())) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "ak,sk限制登录", address);
             return ReturnResult.noAuth();
         }
 
@@ -105,26 +97,22 @@ public class HttpProtocol implements Protocol, InitializingBean {
 
         if (!authorization.hasRefreshToken()) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "无权限", address);
             return ReturnResult.noAuth();
         }
 
         if (!authorization.hasKey()) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "密钥不存在", address);
             return ReturnResult.noAuth();
         }
 
         if (!authorization.hasTokenOrCookie()) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "无权限", address);
             return ReturnResult.noAuth();
         }
 
         ReturnResult<String> authentication = authorization.upgrade(address, authServerProperties.getCookieName());
         if (!OK.getCode().equals(authentication.getCode())) {
             loginProvider.logout(request, response);
-            loggerResolver.register(AuthConstant.OAUTH, RESOURCE_OAUTH_ERROR.getCode(), "ak,sk限制登录", address);
             return ReturnResult.noAuth();
         }
 
