@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,24 @@ public class MonitorAppController extends AbstractSwaggerUpdateController<Monito
 
     final DiscoveryService discoveryService;
 
+
+    /**
+     * 查询数据详情
+     *
+     * @param entity 结果
+     * @return 分页结果
+     */
+    @Operation(summary = "分页查询基础数据")
+    @GetMapping("detail/{monitorId}")
+    public ReturnResult<MonitorApplication> detail(Integer monitorId) {
+        MonitorApplication monitorApplication = getService().getById(monitorId);
+        if (null == monitorApplication) {
+            return ReturnResult.error("数据不存在");
+        }
+        List<MonitorApplication> monitorApplications = Collections.singletonList(monitorApplication);
+        mergePage(monitorApplications);
+        return ReturnResult.ok(monitorApplications.getFirst());
+    }
 
     /**
      * 分页查询数据
