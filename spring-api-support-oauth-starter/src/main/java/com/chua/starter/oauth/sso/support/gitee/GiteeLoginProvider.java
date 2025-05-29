@@ -54,7 +54,6 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
 
     final CasProperties casProperties;
     final ThirdPartyLoginProperties thirdPartyLoginProperties;
-    final LoggerResolver loggerResolver;
     final LoginCheck loginCheck;
     final AuthServerProperties authServerProperties;
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
