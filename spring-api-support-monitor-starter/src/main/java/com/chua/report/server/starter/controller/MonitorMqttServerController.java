@@ -8,7 +8,6 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.report.server.starter.entity.MonitorMqttServer;
 import com.chua.report.server.starter.service.MonitorMqttServerService;
 import com.chua.starter.mybatis.entity.Query;
-import com.github.xiaoymin.knife4j.annotations.Ignore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,7 +58,7 @@ public class MonitorMqttServerController {
     @ResponseBody
     @Operation(summary = "更新数据")
     @PutMapping("update")
-    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody MonitorMqttServer t , @Ignore BindingResult bindingResult) {
+    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody MonitorMqttServer t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -77,7 +76,7 @@ public class MonitorMqttServerController {
     @ResponseBody
     @Operation(summary = "添加数据")
     @PostMapping("save")
-    public ReturnResult<MonitorMqttServer> save(@Validated(AddGroup.class) @RequestBody MonitorMqttServer t, @Ignore BindingResult bindingResult) {
+    public ReturnResult<MonitorMqttServer> save(@Validated(AddGroup.class) @RequestBody MonitorMqttServer t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }

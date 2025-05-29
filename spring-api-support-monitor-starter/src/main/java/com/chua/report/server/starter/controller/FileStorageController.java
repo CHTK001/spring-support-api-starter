@@ -13,7 +13,6 @@ import com.chua.report.server.starter.entity.FileStorage;
 import com.chua.report.server.starter.service.FileStorageService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
-import com.github.xiaoymin.knife4j.annotations.Ignore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -69,7 +68,7 @@ public class FileStorageController {
     @ResponseBody
     @Operation(summary = "更新数据")
     @PutMapping("update")
-    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody FileStorage t , @Ignore BindingResult bindingResult) {
+    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody FileStorage t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -87,7 +86,7 @@ public class FileStorageController {
     @ResponseBody
     @Operation(summary = "添加数据")
     @PostMapping("save")
-    public ReturnResult<FileStorage> save(@Validated(AddGroup.class) @RequestBody FileStorage t, @Ignore BindingResult bindingResult) {
+    public ReturnResult<FileStorage> save(@Validated(AddGroup.class) @RequestBody FileStorage t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }

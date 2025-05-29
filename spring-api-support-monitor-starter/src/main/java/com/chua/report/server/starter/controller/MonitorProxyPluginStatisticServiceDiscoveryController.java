@@ -14,7 +14,6 @@ import com.chua.report.server.starter.service.MonitorProxyPluginStatisticService
 import com.chua.report.server.starter.service.MonitorProxyService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
-import com.github.xiaoymin.knife4j.annotations.Ignore;
 import com.github.yulichang.toolkit.MPJWrappers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -101,7 +100,7 @@ public class MonitorProxyPluginStatisticServiceDiscoveryController {
     @ResponseBody
     @Operation(summary = "更新数据")
     @PutMapping("update")
-    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody MonitorProxyPluginStatisticServiceDiscovery t , @Ignore BindingResult bindingResult) {
+    public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody MonitorProxyPluginStatisticServiceDiscovery t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -128,7 +127,7 @@ public class MonitorProxyPluginStatisticServiceDiscoveryController {
     @ResponseBody
     @Operation(summary = "添加数据")
     @PostMapping("save")
-    public ReturnResult<MonitorProxyPluginStatisticServiceDiscovery> save(@Validated(AddGroup.class) @RequestBody MonitorProxyPluginStatisticServiceDiscovery t, @Ignore BindingResult bindingResult) {
+    public ReturnResult<MonitorProxyPluginStatisticServiceDiscovery> save(@Validated(AddGroup.class) @RequestBody MonitorProxyPluginStatisticServiceDiscovery t, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
