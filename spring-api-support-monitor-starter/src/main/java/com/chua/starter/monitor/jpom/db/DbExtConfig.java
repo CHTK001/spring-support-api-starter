@@ -25,7 +25,7 @@ import org.springframework.util.unit.DataSize;
  * @since 2022/2/9
  */
 @Configuration
-@ConfigurationProperties(prefix = "jpom.db")
+@ConfigurationProperties(prefix = "plugin.maintenance.db")
 @Data
 public class DbExtConfig implements InitializingBean {
 
