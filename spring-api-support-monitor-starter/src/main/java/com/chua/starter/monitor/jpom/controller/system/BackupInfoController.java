@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 @RestController
 @Feature(cls = ClassFeature.SYSTEM_BACKUP)
 @SystemPermission
-@ConditionalOnProperty(prefix = "jpom.db", name = "mode", havingValue = "H2", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "plugin.maintenance.db", name = "mode", havingValue = "H2", matchIfMissing = true)
 @Slf4j
 public class BackupInfoController extends BaseServerController {
 
