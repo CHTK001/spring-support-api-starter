@@ -21,6 +21,8 @@ import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,6 +57,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.*;
 @Conditional(OnBeanCondition.class)
 @SuppressWarnings("ALL")
 @Slf4j
+@Tag(name = "登录")
 @RequiredArgsConstructor
 @RequestMapping("${plugin.auth.server.context-path:}")
 public class LoginProvider implements InitializingBean {
@@ -73,6 +76,7 @@ public class LoginProvider implements InitializingBean {
      * @return 登录页
      */
     @GetMapping("/oauth-page")
+    @Operation(summary = "无权限页面")
     public String oauthPage(@RequestParam(value = "redirect_url", required = false) String url, Model modelMap, HttpServletRequest request) {
         return "oauth/oauth-page";
     }
@@ -98,6 +102,7 @@ public class LoginProvider implements InitializingBean {
      */
     @PostMapping("/logout")
     @ResponseBody
+    @Operation(summary = "登出")
     public AdviceView logoutWeb(@RequestBody AuthRequest request1,
                                 HttpServletRequest request, HttpServletResponse response) {
         String data = request1.getData();
@@ -310,6 +315,7 @@ public class LoginProvider implements InitializingBean {
      *
      * @return 登录页
      */
+    @Operation(summary = "登录")
     @PostMapping("/doLogin")
     public AdviceView doWebLogin(
             @RequestBody AuthRequest authRequest,
@@ -382,6 +388,7 @@ public class LoginProvider implements InitializingBean {
      * @return 登录页
      */
     @GetMapping("/login")
+    @Operation(summary = "登录")
     public String login(@RequestParam(value = "redirect_url", required = false) String url, Model modelMap, HttpServletRequest request) {
         String address = RequestUtils.getIpAddress(request);
 

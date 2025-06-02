@@ -9,9 +9,11 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "monitor_sys_gen_remark")
 public class MonitorSysGenRemark extends SysBase implements Serializable {
