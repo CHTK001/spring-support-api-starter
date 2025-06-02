@@ -3,12 +3,14 @@ package com.chua.starter.monitor.starter.query;
 import com.chua.starter.mybatis.entity.Query;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 表查询
  * @author CH
  * @since 2024/9/27
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "表查询")
 public class TableQuery extends Query<TableQuery> {
