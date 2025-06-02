@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2019 Of Him Code Technology Studio
+ * Jpom is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ * 			http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+package com.chua.starter.monitor.jpom.controller.docker;
+
+import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.starter.monitor.jpom.controller.docker.base.BaseDockerContainerController;
+import com.chua.starter.monitor.jpom.func.assets.model.MachineDockerModel;
+import com.chua.starter.monitor.jpom.func.assets.server.MachineDockerServer;
+import com.chua.starter.monitor.jpom.model.docker.DockerInfoModel;
+import com.chua.starter.monitor.jpom.permission.ClassFeature;
+import com.chua.starter.monitor.jpom.permission.Feature;
+import com.chua.starter.monitor.jpom.service.docker.DockerInfoService;
+import com.chua.starter.monitor.jpom.system.ServerConfig;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+/**
+ * @author bwcx_jzy
+ * @since 2022/2/7
+ */
+@RestController
+@Feature(cls = ClassFeature.DOCKER)
+@RequestMapping(value = "/docker/container")
+public class DockerContainerController extends BaseDockerContainerController {
+
+    private final DockerInfoService dockerInfoService;
+    private final MachineDockerServer machineDockerServer;
+
+    public DockerContainerController(DockerInfoService dockerInfoService,
+                                     MachineDockerServer machineDockerServer,
+                                     ServerConfig serverConfig) {
+        super(serverConfig);
+        this.dockerInfoService = dockerInfoService;
+        this.machineDockerServer = machineDockerServer;
+    }
+
+    @Override
+    protected Map<String, Object> toDockerParameter(String id) {
+        DockerInfoModel dockerInfoModel = dockerInfoService.getByKey(id);
+        Assert.notNull(dockerInfoModel, I18nMessageUtil.get("i18n.no_docker_info.d685"));
+        MachineDockerModel machineDockerModel = machineDockerServer.getByKey(dockerInfoModel.getMachineDockerId());
+        Assert.notNull(machineDockerModel, I18nMessageUtil.get("i18n.no_corresponding_docker_asset.6f06"));
+        return machineDockerServer.toParameter(machineDockerModel);
+    }
+}

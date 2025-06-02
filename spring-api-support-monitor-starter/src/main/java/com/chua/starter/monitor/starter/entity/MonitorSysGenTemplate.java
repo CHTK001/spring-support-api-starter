@@ -9,9 +9,11 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "monitor_sys_gen_template")
 public class MonitorSysGenTemplate extends SysBase implements Serializable {

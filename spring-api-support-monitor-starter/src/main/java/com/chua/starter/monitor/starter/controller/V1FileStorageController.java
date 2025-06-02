@@ -34,7 +34,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @RequestMapping("v1/file/storage")
 @Tag(name = "文件存储")
 @RequiredArgsConstructor
-public class FileStorageController {
+public class V1FileStorageController {
 
     private final FileStorageService fileStorageService;
     /**
