@@ -14,7 +14,7 @@ import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.BaseIdModel;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.user.TriggerTokenLogBean;
 import com.chua.starter.monitor.jpom.permission.ClassFeature;

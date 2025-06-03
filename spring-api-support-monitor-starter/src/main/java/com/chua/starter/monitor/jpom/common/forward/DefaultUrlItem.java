@@ -11,7 +11,7 @@ package com.chua.starter.monitor.jpom.common.forward;
 
 import cn.hutool.core.lang.Opt;
 import cn.hutool.extra.spring.SpringUtil;
-import com.chua.report.client.starter.jpom.common.Const;
+import com.chua.report.client.starter.jpom.common.common.Const;
 import com.chua.starter.monitor.jpom.configuration.NodeConfig;
 import com.chua.starter.monitor.jpom.system.ServerConfig;
 import com.chua.starter.monitor.jpom.transport.DataContentType;

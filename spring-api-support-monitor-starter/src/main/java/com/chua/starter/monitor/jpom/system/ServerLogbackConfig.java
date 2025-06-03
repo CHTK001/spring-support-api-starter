@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.system;
 
-import com.chua.report.client.starter.jpom.system.LogbackConfig;
+import com.chua.report.client.starter.jpom.common.system.LogbackConfig;
 
 /**
  * @author bwcx_jzy

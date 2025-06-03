@@ -14,7 +14,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.extra.servlet.JakartaServletUtil;
-import com.chua.report.client.starter.jpom.model.EnvironmentMapBuilder;
+import com.chua.report.client.starter.jpom.common.model.EnvironmentMapBuilder;
 import com.chua.starter.monitor.jpom.common.ServerConst;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.data.WorkspaceEnvVarModel;

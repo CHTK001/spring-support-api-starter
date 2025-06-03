@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.build.pipeline.model;
 
-import com.chua.report.client.starter.jpom.model.AfterOpt;
+import com.chua.report.client.starter.jpom.common.model.AfterOpt;
 import com.chua.starter.monitor.jpom.model.data.BuildInfoModel;
 import lombok.Data;
 

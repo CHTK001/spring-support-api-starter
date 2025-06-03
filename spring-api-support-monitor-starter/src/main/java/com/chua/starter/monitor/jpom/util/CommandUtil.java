@@ -8,8 +8,8 @@ import cn.hutool.core.io.LineHandler;
 import cn.hutool.core.util.*;
 import cn.hutool.system.OsInfo;
 import cn.hutool.system.SystemUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.system.ExtConfigBean;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.system.ExtConfigBean;
 import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 

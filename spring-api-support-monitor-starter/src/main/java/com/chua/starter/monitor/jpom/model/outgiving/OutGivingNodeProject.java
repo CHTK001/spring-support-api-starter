@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.model.outgiving;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.chua.report.client.starter.jpom.model.BaseEnum;
+import com.chua.report.client.starter.jpom.common.model.BaseEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

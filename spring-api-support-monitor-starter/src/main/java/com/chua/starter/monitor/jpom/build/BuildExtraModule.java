@@ -10,9 +10,9 @@
 package com.chua.starter.monitor.jpom.build;
 
 import cn.hutool.core.io.FileUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.model.AfterOpt;
-import com.chua.report.client.starter.jpom.model.BaseModel;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.model.AfterOpt;
+import com.chua.report.client.starter.jpom.common.model.BaseModel;
 import com.chua.starter.monitor.jpom.model.data.BuildInfoModel;
 import com.chua.starter.monitor.jpom.model.enums.BuildReleaseMethod;
 import com.chua.starter.monitor.jpom.model.log.BuildHistoryLog;

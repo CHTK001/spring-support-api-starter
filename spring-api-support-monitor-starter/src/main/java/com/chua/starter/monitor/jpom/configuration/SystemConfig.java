@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.configuration;
 
-import com.chua.report.client.starter.jpom.system.BaseSystemConfig;
+import com.chua.report.client.starter.jpom.common.system.BaseSystemConfig;
 import com.chua.starter.monitor.jpom.socket.ServiceFileTailWatcher;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

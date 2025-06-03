@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.model.user;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseUserModifyDbModel;
 import lombok.Data;

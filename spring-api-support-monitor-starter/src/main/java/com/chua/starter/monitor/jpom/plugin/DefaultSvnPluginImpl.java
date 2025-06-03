@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.plugin;
 
 import cn.keepbx.jpom.plugins.PluginConfig;
-import com.chua.report.client.starter.jpom.plugin.IWorkspaceEnvPlugin;
+import com.chua.report.client.starter.jpom.common.plugin.IWorkspaceEnvPlugin;
 
 import java.io.File;
 import java.util.Map;

@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.startup.commands;
 
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.service.user.UserService;
 import com.chua.starter.monitor.jpom.startup.StartupCommand;
 import lombok.extern.slf4j.Slf4j;

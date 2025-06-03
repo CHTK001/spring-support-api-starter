@@ -13,7 +13,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.oauth2.BaseOauth2Config;
 import com.chua.starter.monitor.jpom.oauth2.Oauth2Factory;
 import com.chua.starter.monitor.jpom.permission.ClassFeature;

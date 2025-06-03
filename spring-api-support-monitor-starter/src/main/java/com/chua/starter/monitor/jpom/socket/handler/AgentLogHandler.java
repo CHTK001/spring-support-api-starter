@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.socket.handler;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.socket.ConsoleCommandOp;
+import com.chua.report.client.starter.jpom.common.socket.ConsoleCommandOp;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
 import com.chua.starter.monitor.jpom.permission.ClassFeature;
 import com.chua.starter.monitor.jpom.permission.Feature;

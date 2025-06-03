@@ -12,9 +12,9 @@ package com.chua.starter.monitor.jpom.plugin;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.OsInfo;
 import cn.hutool.system.SystemUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.plugin.IWorkspaceEnvPlugin;
-import com.chua.report.client.starter.jpom.util.CommandUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.plugin.IWorkspaceEnvPlugin;
+import com.chua.report.client.starter.jpom.common.util.CommandUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

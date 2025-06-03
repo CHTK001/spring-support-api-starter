@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.util;
 
 import cn.hutool.core.map.SafeConcurrentHashMap;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.socket.TextMessage;

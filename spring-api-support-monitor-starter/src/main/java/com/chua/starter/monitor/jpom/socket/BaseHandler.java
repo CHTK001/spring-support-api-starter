@@ -14,7 +14,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.model.BaseNodeModel;
 import com.chua.starter.monitor.jpom.model.data.NodeModel;
 import com.chua.starter.monitor.jpom.model.user.UserModel;

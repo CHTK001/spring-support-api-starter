@@ -11,8 +11,8 @@ package com.chua.starter.monitor.jpom.socket;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.SafeConcurrentHashMap;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.util.BaseFileTailWatcher;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.util.BaseFileTailWatcher;
 import com.chua.starter.monitor.jpom.util.SocketSessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;

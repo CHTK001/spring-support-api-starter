@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.permission;
 
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineDockerServer;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineNodeServer;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineSshServer;

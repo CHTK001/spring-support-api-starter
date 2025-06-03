@@ -13,7 +13,7 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.alibaba.fastjson2.TypeReference;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.exception.AgentException;
 import com.chua.starter.monitor.jpom.transport.INodeInfo;
 import com.chua.starter.monitor.jpom.transport.TransformServer;

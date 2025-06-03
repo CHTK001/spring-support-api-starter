@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.monitor;
 
 import cn.hutool.core.map.SafeConcurrentHashMap;
-import com.chua.report.client.starter.jpom.model.BaseEnum;
+import com.chua.report.client.starter.jpom.common.model.BaseEnum;
 import com.chua.starter.monitor.jpom.model.data.MonitorModel;
 
 import java.util.Map;
