@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.service.system;
 import cn.hutool.core.util.ReflectUtil;
 import cn.keepbx.jpom.model.BaseJsonModel;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.model.data.SystemParametersModel;
 import com.chua.starter.monitor.jpom.service.h2db.BaseDbService;
 import lombok.extern.slf4j.Slf4j;

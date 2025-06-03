@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.service.node.ssh;
 
 import cn.hutool.core.io.FileUtil;
-import com.chua.report.client.starter.jpom.util.CommandUtil;
+import com.chua.report.client.starter.jpom.common.util.CommandUtil;
 import com.chua.starter.monitor.jpom.model.data.CommandExecLogModel;
 import com.chua.starter.monitor.jpom.service.h2db.BaseWorkspaceService;
 import org.springframework.stereotype.Service;

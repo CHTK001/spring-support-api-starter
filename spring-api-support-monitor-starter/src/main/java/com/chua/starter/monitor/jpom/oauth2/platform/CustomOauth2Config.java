@@ -11,7 +11,7 @@ package com.chua.starter.monitor.jpom.oauth2.platform;
 
 import cn.hutool.core.lang.RegexPool;
 import cn.hutool.core.lang.Validator;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.oauth2.BaseOauth2Config;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

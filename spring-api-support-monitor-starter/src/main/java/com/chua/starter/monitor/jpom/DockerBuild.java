@@ -18,7 +18,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.system.SystemUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.util.LogRecorder;
 import com.chua.starter.monitor.jpom.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;

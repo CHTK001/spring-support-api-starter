@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom;
 
 import cn.hutool.core.io.FileUtil;
-import com.chua.report.client.starter.jpom.plugin.IDefaultPlugin;
+import com.chua.report.client.starter.jpom.common.plugin.IDefaultPlugin;
 
 import java.io.File;
 import java.io.InputStream;

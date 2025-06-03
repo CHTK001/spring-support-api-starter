@@ -15,7 +15,7 @@ import cn.hutool.db.dialect.impl.MysqlDialect;
 import cn.hutool.db.dialect.impl.PostgresqlDialect;
 import cn.hutool.db.sql.Wrapper;
 import cn.hutool.extra.spring.SpringUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.db.DbExtConfig;
 
 import java.util.Set;

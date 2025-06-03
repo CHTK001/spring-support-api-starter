@@ -1,4 +1,4 @@
 org.springframework.context.ApplicationContextInitializer=\
-  com.chua.report.client.starter.jpom.plugin.PluginFactory
+  com.chua.report.client.starter.jpom.common.plugin.PluginFactory
 org.springframework.context.ApplicationListener=\
-  com.chua.report.client.starter.jpom.plugin.PluginFactory
+  com.chua.report.client.starter.jpom.common.plugin.PluginFactory

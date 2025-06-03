@@ -14,7 +14,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import lombok.Data;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.request.AuthRequest;

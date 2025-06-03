@@ -11,8 +11,8 @@ package com.chua.starter.monitor.jpom.oauth2;
 
 import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.map.SafeConcurrentHashMap;
-import com.chua.report.client.starter.jpom.common.ILoadEvent;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.ILoadEvent;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.service.system.SystemParametersServer;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.request.AuthRequest;

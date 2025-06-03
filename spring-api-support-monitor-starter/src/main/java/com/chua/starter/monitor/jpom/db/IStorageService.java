@@ -11,8 +11,8 @@ package com.chua.starter.monitor.jpom.db;
 
 import cn.hutool.db.ds.DSFactory;
 import cn.hutool.setting.Setting;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.system.JpomRuntimeException;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.system.JpomRuntimeException;
 
 import java.io.File;
 import java.sql.SQLException;

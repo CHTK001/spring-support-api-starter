@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.configuration;
 
 import cn.hutool.core.util.StrUtil;
-import com.chua.report.client.starter.jpom.common.Const;
+import com.chua.report.client.starter.jpom.common.common.Const;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

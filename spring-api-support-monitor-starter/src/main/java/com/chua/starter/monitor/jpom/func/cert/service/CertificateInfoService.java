@@ -21,7 +21,7 @@ import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.db.Entity;
 import cn.hutool.extra.servlet.JakartaServletUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.JpomApplication;
 import com.chua.starter.monitor.jpom.common.ServerConst;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineDockerModel;

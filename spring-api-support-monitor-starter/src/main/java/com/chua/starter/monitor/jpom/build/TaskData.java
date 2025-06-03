@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.build;
 
-import com.chua.report.client.starter.jpom.model.EnvironmentMapBuilder;
+import com.chua.report.client.starter.jpom.common.model.EnvironmentMapBuilder;
 import com.chua.starter.monitor.jpom.model.data.BuildInfoModel;
 import com.chua.starter.monitor.jpom.model.data.RepositoryModel;
 import com.chua.starter.monitor.jpom.model.user.UserModel;

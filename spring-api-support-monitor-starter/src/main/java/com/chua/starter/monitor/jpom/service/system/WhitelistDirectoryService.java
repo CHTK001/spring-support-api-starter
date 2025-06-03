@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.service.system;
 
-import com.chua.report.client.starter.jpom.model.data.AgentWhitelist;
+import com.chua.report.client.starter.jpom.common.model.data.AgentWhitelist;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineNodeModel;

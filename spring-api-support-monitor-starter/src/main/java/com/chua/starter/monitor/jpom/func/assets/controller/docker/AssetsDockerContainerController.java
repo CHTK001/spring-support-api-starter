@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.func.assets.controller.docker;
 
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.controller.docker.base.BaseDockerContainerController;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineDockerModel;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineDockerServer;

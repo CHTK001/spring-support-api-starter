@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.model.node;
 
-import com.chua.report.client.starter.jpom.script.CommandParam;
+import com.chua.report.client.starter.jpom.common.script.CommandParam;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseNodeModel;
 import lombok.Data;

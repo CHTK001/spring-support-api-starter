@@ -24,7 +24,7 @@ import cn.hutool.cron.pattern.CronPattern;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONValidator;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 
 import java.io.File;

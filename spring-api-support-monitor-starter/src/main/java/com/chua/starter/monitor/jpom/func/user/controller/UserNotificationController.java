@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.func.user.controller;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.func.user.dto.UserNotificationDto;
 import com.chua.starter.monitor.jpom.permission.ClassFeature;
 import com.chua.starter.monitor.jpom.permission.Feature;

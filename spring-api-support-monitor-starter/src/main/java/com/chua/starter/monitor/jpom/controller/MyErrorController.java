@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.controller;
 
-import com.chua.report.client.starter.jpom.controller.BaseMyErrorController;
+import com.chua.report.client.starter.jpom.common.controller.BaseMyErrorController;
 import com.chua.starter.monitor.jpom.common.interceptor.NotLogin;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.stereotype.Controller;

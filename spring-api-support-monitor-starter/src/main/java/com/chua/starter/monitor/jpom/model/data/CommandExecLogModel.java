@@ -11,7 +11,7 @@ package com.chua.starter.monitor.jpom.model.data;
 
 import cn.hutool.core.annotation.PropIgnore;
 import cn.hutool.core.io.FileUtil;
-import com.chua.report.client.starter.jpom.model.BaseEnum;
+import com.chua.report.client.starter.jpom.common.model.BaseEnum;
 import com.chua.starter.monitor.jpom.JpomApplication;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;

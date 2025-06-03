@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.service.node.script;
 import cn.hutool.db.Entity;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineNodeModel;

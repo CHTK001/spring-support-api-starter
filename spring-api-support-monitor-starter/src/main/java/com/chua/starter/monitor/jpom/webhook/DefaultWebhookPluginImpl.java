@@ -15,8 +15,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.keepbx.jpom.plugins.PluginConfig;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
-import com.chua.report.client.starter.jpom.plugin.IDefaultPlugin;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.plugin.IDefaultPlugin;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.model.data;
 import cn.hutool.core.util.StrUtil;
 import cn.keepbx.jpom.model.BaseJsonModel;
 import com.alibaba.fastjson2.JSON;
-import com.chua.report.client.starter.jpom.model.BaseEnum;
+import com.chua.report.client.starter.jpom.common.model.BaseEnum;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 import com.chua.starter.monitor.jpom.util.StringUtil;

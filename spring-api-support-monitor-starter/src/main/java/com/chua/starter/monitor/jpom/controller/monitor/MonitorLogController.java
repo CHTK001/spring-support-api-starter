@@ -11,7 +11,7 @@ package com.chua.starter.monitor.jpom.controller.monitor;
 
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.log.MonitorNotifyLog;

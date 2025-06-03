@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.plugin;
 
 import cn.hutool.core.lang.Tuple;
-import com.chua.report.client.starter.jpom.plugin.IWorkspaceEnvPlugin;
+import com.chua.report.client.starter.jpom.common.plugin.IWorkspaceEnvPlugin;
 
 import java.io.PrintWriter;
 import java.util.Map;

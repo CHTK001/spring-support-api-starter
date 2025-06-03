@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.func.files.service;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.func.files.model.FileReleaseTaskTemplate;
 import com.chua.starter.monitor.jpom.func.files.model.IFileStorage;
 import com.chua.starter.monitor.jpom.service.h2db.BaseWorkspaceService;
