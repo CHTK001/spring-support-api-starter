@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.oauth2.custom;
 
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.oauth2.platform.CustomOauth2Config;
 import me.zhyd.oauth.config.AuthSource;
 import org.springframework.util.Assert;

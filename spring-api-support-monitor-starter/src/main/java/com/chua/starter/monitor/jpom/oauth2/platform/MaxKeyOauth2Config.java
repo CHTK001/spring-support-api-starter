@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.oauth2.platform;
 
 import cn.hutool.core.util.StrUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.oauth2.custom.MaxKeyAuthOauth2Request;
 import com.chua.starter.monitor.jpom.oauth2.custom.MaxKeyOauth2AuthSource;
 import lombok.Data;

@@ -13,7 +13,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.db.Entity;
 import cn.keepbx.jpom.event.ISystemTask;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.configuration.NodeConfig;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineNodeStatLogModel;
 import com.chua.starter.monitor.jpom.service.h2db.BaseDbService;

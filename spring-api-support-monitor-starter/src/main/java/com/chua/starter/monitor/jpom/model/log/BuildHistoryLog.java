@@ -14,7 +14,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
-import com.chua.report.client.starter.jpom.model.EnvironmentMapBuilder;
+import com.chua.report.client.starter.jpom.common.model.EnvironmentMapBuilder;
 import com.chua.starter.monitor.jpom.build.BuildExtraModule;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;

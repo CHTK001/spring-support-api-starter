@@ -11,8 +11,8 @@ package com.chua.starter.monitor.jpom.plugin;
 
 import cn.hutool.extra.spring.SpringUtil;
 import cn.keepbx.jpom.plugins.PluginConfig;
-import com.chua.report.client.starter.jpom.common.Const;
-import com.chua.report.client.starter.jpom.plugin.IWorkspaceEnvPlugin;
+import com.chua.report.client.starter.jpom.common.common.Const;
+import com.chua.report.client.starter.jpom.common.plugin.IWorkspaceEnvPlugin;
 import com.chua.starter.monitor.jpom.service.system.WorkspaceEnvVarService;
 
 import java.util.Map;

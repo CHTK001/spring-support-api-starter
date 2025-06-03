@@ -9,7 +9,7 @@
  */
 package com.chua.starter.monitor.jpom.common;
 
-import com.chua.report.client.starter.jpom.common.validator.ParameterInterceptor;
+import com.chua.report.client.starter.jpom.common.common.validator.ParameterInterceptor;
 import jakarta.annotation.Resource;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;

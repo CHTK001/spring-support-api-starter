@@ -22,7 +22,7 @@ import cn.hutool.core.net.url.UrlQuery;
 import cn.hutool.core.util.*;
 import cn.keepbx.jpom.plugins.PluginConfig;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.util.StringUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.*;

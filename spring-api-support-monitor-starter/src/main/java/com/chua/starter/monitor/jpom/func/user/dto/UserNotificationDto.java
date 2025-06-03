@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.func.user.dto;
 
 import cn.hutool.core.util.StrUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import lombok.Data;
 import org.springframework.util.Assert;
 

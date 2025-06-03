@@ -13,7 +13,7 @@ import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.keepbx.jpom.event.ICacheTask;
 import com.alibaba.fastjson2.JSONArray;
-import com.chua.report.client.starter.jpom.common.ILoadEvent;
+import com.chua.report.client.starter.jpom.common.common.ILoadEvent;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.service.system.SystemParametersServer;
 import lombok.Data;

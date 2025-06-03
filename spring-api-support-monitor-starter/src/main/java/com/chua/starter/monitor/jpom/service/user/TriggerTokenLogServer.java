@@ -19,7 +19,7 @@ import cn.hutool.db.Entity;
 import cn.hutool.db.Page;
 import cn.keepbx.jpom.event.ISystemTask;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.user.TriggerTokenLogBean;
 import com.chua.starter.monitor.jpom.model.user.UserModel;

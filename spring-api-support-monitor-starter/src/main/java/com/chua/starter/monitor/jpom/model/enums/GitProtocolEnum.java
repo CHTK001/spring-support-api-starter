@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.model.enums;
 
 
-import com.chua.report.client.starter.jpom.model.BaseEnum;
+import com.chua.report.client.starter.jpom.common.model.BaseEnum;
 
 /**
  * Git protocol

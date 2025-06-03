@@ -9,8 +9,8 @@
  */
 package com.chua.starter.monitor.jpom.common;
 
-import com.chua.report.client.starter.jpom.common.Const;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.Const;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 
 import java.util.function.Supplier;
 

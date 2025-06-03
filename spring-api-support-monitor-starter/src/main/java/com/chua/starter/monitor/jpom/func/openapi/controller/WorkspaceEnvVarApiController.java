@@ -11,9 +11,9 @@ package com.chua.starter.monitor.jpom.func.openapi.controller;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
-import com.chua.report.client.starter.jpom.common.BaseJpomController;
-import com.chua.report.client.starter.jpom.common.ServerOpenApi;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.BaseJpomController;
+import com.chua.report.client.starter.jpom.common.common.ServerOpenApi;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.common.interceptor.NotLogin;
 import com.chua.starter.monitor.jpom.model.data.WorkspaceEnvVarModel;
 import com.chua.starter.monitor.jpom.model.user.UserModel;

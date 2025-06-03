@@ -13,7 +13,7 @@ import cn.hutool.core.lang.RegexPool;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.StrUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.oauth2.BaseOauth2Config;
 import com.chua.starter.monitor.jpom.oauth2.MyAuthGitlabRequest;
 import lombok.Data;

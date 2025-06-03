@@ -9,8 +9,8 @@
  */
 package com.chua.starter.monitor.jpom.service.system;
 
-import com.chua.report.client.starter.jpom.common.Const;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.Const;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.starter.monitor.jpom.db.TableName;
 import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 import com.chua.starter.monitor.jpom.model.data.WorkspaceModel;

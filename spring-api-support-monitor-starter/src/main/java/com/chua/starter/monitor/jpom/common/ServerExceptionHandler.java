@@ -11,7 +11,7 @@ package com.chua.starter.monitor.jpom.common;
 
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
-import com.chua.report.client.starter.jpom.exception.BaseExceptionHandler;
+import com.chua.report.client.starter.jpom.common.exception.BaseExceptionHandler;
 import com.chua.starter.monitor.jpom.exception.AgentAuthorizeException;
 import com.chua.starter.monitor.jpom.exception.AgentException;
 import com.chua.starter.monitor.jpom.exception.PermissionException;

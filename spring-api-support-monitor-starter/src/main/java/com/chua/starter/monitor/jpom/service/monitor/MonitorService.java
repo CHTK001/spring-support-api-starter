@@ -10,7 +10,7 @@
 package com.chua.starter.monitor.jpom.service.monitor;
 
 import cn.keepbx.jpom.cron.ICron;
-import com.chua.report.client.starter.jpom.cron.CronUtils;
+import com.chua.report.client.starter.jpom.common.cron.CronUtils;
 import com.chua.starter.monitor.jpom.model.data.MonitorModel;
 import com.chua.starter.monitor.jpom.monitor.MonitorItem;
 import com.chua.starter.monitor.jpom.service.h2db.BaseWorkspaceService;

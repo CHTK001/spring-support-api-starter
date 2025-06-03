@@ -12,7 +12,7 @@ package com.chua.starter.monitor.jpom.util;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.map.SafeConcurrentHashMap;
 import cn.hutool.core.util.RuntimeUtil;
-import com.chua.report.client.starter.jpom.common.i18n.I18nMessageUtil;
+import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import org.springframework.util.Assert;
 
 import java.util.Map;
