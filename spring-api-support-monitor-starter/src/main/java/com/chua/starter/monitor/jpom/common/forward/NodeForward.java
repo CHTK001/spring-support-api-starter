@@ -21,21 +21,16 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import cn.keepbx.jpom.model.BaseIdModel;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
-import com.chua.report.client.starter.jpom.common.common.Const;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
-import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.configuration.NodeConfig;
-import com.chua.starter.monitor.jpom.exception.AgentAuthorizeException;
 import com.chua.starter.monitor.jpom.exception.AgentException;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineNodeModel;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineNodeServer;
 import com.chua.starter.monitor.jpom.model.data.NodeModel;
-import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.system.ServerConfig;
 import com.chua.starter.monitor.jpom.transport.*;
 import com.chua.starter.monitor.jpom.util.StrictSyncFinisher;
@@ -170,8 +165,8 @@ public class NodeForward {
 
     private static Map<String, String> createHeader() {
         Map<String, String> header = new HashMap<>();
-        UserModel userByThreadLocal = BaseServerController.getUserByThreadLocal();
-        header.put(Const.JPOM_SERVER_USER_NAME, Optional.ofNullable(userByThreadLocal).map(BaseIdModel::getId).orElse(StrUtil.EMPTY));
+//        UserModel userByThreadLocal = BaseServerController.getUserByThreadLocal();
+//        header.put(Const.JPOM_SERVER_USER_NAME, Optional.ofNullable(userByThreadLocal).map(BaseIdModel::getId).orElse(StrUtil.EMPTY));
         // 语言
         header.put(HttpHeaders.ACCEPT_LANGUAGE, I18nMessageUtil.getLanguageByRequest());
         return header;
@@ -210,12 +205,20 @@ public class NodeForward {
                     return map2;
                 })
                 .orElse(null);
-
+        Map<String, String> newMap = new HashMap<>();
+        newMap.putAll(map);
+        String str = null != request ? JakartaServletUtil.getBody(request) : StrUtil.EMPTY;
+        if (str.startsWith("{")) {
+            JSONObject jsonObject = JSON.parseObject(str, JSONObject.class);
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                newMap.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
         TypeReference<JsonMessage<T>> tTypeReference = new TypeReference<JsonMessage<T>>() {
         };
         return createUrlItem(nodeModel, nodeUrl,
                 (nodeInfo, urlItem) ->
-                        TransportServerFactory.get().executeToType(nodeInfo, urlItem, map, tTypeReference)
+                        TransportServerFactory.get().executeToType(nodeInfo, urlItem, newMap, tTypeReference)
         );
     }
 
@@ -657,14 +660,6 @@ public class NodeForward {
         if (StrUtil.isEmpty(body)) {
             throw new AgentException(I18nMessageUtil.get("i18n.agent_response_empty.cc8e"));
         }
-        T data = JSON.parseObject(body, tTypeReference);
-        if (data instanceof JsonMessage<?> jsonMessage) {
-            if (jsonMessage.getCode() == Const.AUTHORIZE_ERROR) {
-                throw new AgentAuthorizeException(new JsonMessage<>(jsonMessage.getCode(), jsonMessage.getMsg()));
-            }
-        } else {
-            throw new IllegalStateException(I18nMessageUtil.get("i18n.message_conversion_exception.cce8"));
-        }
-        return data;
+        return JSON.parseObject(body, tTypeReference);
     }
 }

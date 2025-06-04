@@ -23,6 +23,10 @@ import com.chua.starter.monitor.jpom.model.data.NodeModel;
 import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.service.node.NodeService;
 import com.chua.starter.monitor.jpom.util.StringUtil;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.user.UserResult;
+import com.google.common.base.Joiner;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
@@ -31,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,8 +73,22 @@ public abstract class BaseServerController extends BaseJpomController {
      * @return 用户
      */
     public static UserModel getUserByThreadLocal() {
-        return Optional.ofNullable(USER_MODEL_THREAD_LOCAL.get()).orElseGet(BaseServerController::getUserModel);
-//		return ;
+        AuthClientExecute instance = AuthClientExecute.getInstance();
+        UserResult userResult = instance.getSafeUserResult();
+        if (null == userResult) {
+            return null;
+        }
+        UserModel userModel = new UserModel();
+        userModel.setId(userResult.getUserId());
+        userModel.setName(userResult.getUsername());
+        Set<String> roles = userResult.getRoles();
+        Set<String> permission = userResult.getPermission();
+        userModel.setSystemUser(AuthConstant.hasAdmin(roles) ? 1 : 0);
+        userModel.setPermissionGroup(Joiner.on(",").join(permission));
+        userModel.setStatus(1);
+        userModel.setParent(AuthConstant.hasAdmin(roles) ? UserModel.SYSTEM_ADMIN : "");
+
+        return userModel;
     }
 
     public static void removeAll() {
@@ -93,8 +111,20 @@ public abstract class BaseServerController extends BaseJpomController {
             return null;
         }
 //        return (UserModel) servletRequestAttributes.getAttribute(LoginInterceptor.SESSION_NAME, RequestAttributes.SCOPE_SESSION);
-        System.out.println("========================");
-        return null;
+        UserResult userResult = AuthClientExecute.getInstance().getSafeUserResult();
+        if (null == userResult) {
+            return null;
+        }
+        UserModel userModel = new UserModel();
+        userModel.setId(userResult.getUserId());
+        userModel.setName(userResult.getUsername());
+        Set<String> roles = userResult.getRoles();
+        userModel.setSystemUser(AuthConstant.hasAdmin(roles) ? 1 : 0);
+        Set<String> permission = userResult.getPermission();
+        userModel.setPermissionGroup(Joiner.on(",").join(permission));
+        userModel.setStatus(1);
+        userModel.setParent(AuthConstant.hasAdmin(roles) ? UserModel.SYSTEM_ADMIN : "");
+        return userModel;
     }
 
     protected NodeModel getNode() {

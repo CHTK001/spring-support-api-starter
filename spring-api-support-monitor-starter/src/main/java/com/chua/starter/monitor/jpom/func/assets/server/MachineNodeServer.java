@@ -458,7 +458,6 @@ public class MachineNodeServer extends BaseDbService<MachineNodeModel> implement
         int timeout = ObjectUtil.defaultIfNull(nodeModel.getJpomTimeout(), 0);
         // 检查是否可用默认为5秒，避免太长时间无法连接一直等待
         nodeModel.setJpomTimeout(5);
-        //
         JsonMessage<JpomManifest> objectJsonMessage = NodeForward.request(nodeModel, StrUtil.EMPTY, NodeUrl.Info, "nodeId", nodeModel.getId());
         try {
             JpomManifest jpomManifest = objectJsonMessage.getData(JpomManifest.class);
