@@ -33,6 +33,10 @@ logging:
 plugin:
   oauth:
     address: http://172.16.0.40:19180/oauth
+  api:
+    ignore-format-packages:
+      - com.chua.starter.monitor.jpom
+      - com.chua.report.client.starter.jpom.common
   table:
     enable: true
     packages:

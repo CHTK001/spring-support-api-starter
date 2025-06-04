@@ -90,10 +90,14 @@ public class H2StorageServiceImpl implements IStorageService {
 
     @Override
     public DSFactory init(DbExtConfig dbExtConfig) {
+        if (null != this.dsFactory) {
+            return this.dsFactory;
+        }
         Assert.isNull(this.dsFactory, I18nMessageUtil.get("i18n.do_not_reinitialize_database.9bb5"));
         Setting setting = dbExtConfig.toSetting();
         //
         String dbUrl = this.getDbUrl(dbExtConfig);
+        log.info("H2数据库地址: {}", dbUrl);
         setting.set("url", dbUrl);
         // 安全检查
         dbSecurityCheck(dbExtConfig);

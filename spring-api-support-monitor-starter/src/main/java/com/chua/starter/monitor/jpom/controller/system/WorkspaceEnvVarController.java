@@ -11,7 +11,6 @@ package com.chua.starter.monitor.jpom.controller.system;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -205,7 +204,6 @@ public class WorkspaceEnvVarController extends BaseServerController {
     }
 
     private void checkInfo(String id, String name, String workspaceId) {
-        Validator.validateGeneral(name, 1, 50, I18nMessageUtil.get("i18n.variable_name_rules.480a"));
         //
         Entity entity = Entity.create();
         entity.set("name", name);

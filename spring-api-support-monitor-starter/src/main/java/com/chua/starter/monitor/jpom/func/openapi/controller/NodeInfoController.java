@@ -17,6 +17,8 @@ import cn.hutool.crypto.SecureUtil;
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.alibaba.fastjson2.JSONObject;
+import com.chua.common.support.utils.UrlUtils;
+import com.chua.report.client.starter.jpom.agent.configuration.AgentConfig;
 import com.chua.report.client.starter.jpom.common.common.JpomManifest;
 import com.chua.report.client.starter.jpom.common.common.ServerOpenApi;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
@@ -30,6 +32,8 @@ import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.service.node.NodeService;
 import com.chua.starter.monitor.jpom.service.system.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,11 +59,15 @@ public class NodeInfoController extends BaseServerController {
 
     private final NodeService nodeService;
     private final WorkspaceService workspaceService;
+    private final AgentConfig agentConfig;
 
     public NodeInfoController(NodeService nodeService,
-                              WorkspaceService workspaceService) {
+                              WorkspaceService workspaceService,
+                              Environment environment
+    ) {
         this.nodeService = nodeService;
         this.workspaceService = workspaceService;
+        this.agentConfig = Binder.get(environment).bindOrCreate("plugin.maintenance.server", AgentConfig.class);
     }
 
     /**
@@ -92,10 +100,13 @@ public class NodeInfoController extends BaseServerController {
                                                 @ValidatorItem(msg = "i18n.communication_ip_cannot_be_empty.ae35") String ips,
                                                 @ValidatorItem(msg = "i18n.login_name_cannot_be_empty.9a99") String loginName,
                                                 @ValidatorItem(msg = "i18n.password_cannot_be_empty.89b5") String loginPwd,
+                                                String contentPath,
                                                 @ValidatorItem(msg = "i18n.workspace_id_required.c967") String workspaceId,
                                                 @ValidatorItem(value = ValidatorRule.NUMBERS, msg = "i18n.port_error.312e") int port,
                                                 String ping) {
-        Assert.state(StrUtil.equals(token, JpomManifest.getInstance().randomIdSign()), "token error");
+        if (agentConfig.isTokenCheck()) {
+            Assert.state(StrUtil.equals(token, JpomManifest.getInstance().randomIdSign()), "token error");
+        }
         boolean exists = workspaceService.exists(new WorkspaceModel(workspaceId));
         Assert.state(exists, "workspaceId error");
         String sha1Id = SecureUtil.sha1(ips);
@@ -109,7 +120,7 @@ public class NodeInfoController extends BaseServerController {
                 .filter(s -> this.testIpPort(s, ping, port))
                 .collect(Collectors.toList());
         List<MachineNodeModel> canUseNode = canUseIps.stream().map(s -> {
-            MachineNodeModel model = this.createMachineNodeModel(s, loginName, loginPwd, port);
+            MachineNodeModel model = this.createMachineNodeModel(s, loginName, loginPwd, port, contentPath);
             try {
                 machineNodeServer.testNode(model);
             } catch (Exception e) {
@@ -117,7 +128,7 @@ public class NodeInfoController extends BaseServerController {
                 return null;
             }
             return model;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).limit(1).collect(Collectors.toList());
         // 只返回能通的 IP
         canUseIps = canUseNode.stream().map(MachineNodeModel::getName).collect(Collectors.toList());
         // 标记为系统操作
@@ -182,13 +193,13 @@ public class NodeInfoController extends BaseServerController {
         return NetUtil.isOpen(address, (int) TimeUnit.SECONDS.toMillis(timeout));
     }
 
-    private MachineNodeModel createMachineNodeModel(String ip, String loginName, String loginPwd, int port) {
+    private MachineNodeModel createMachineNodeModel(String ip, String loginName, String loginPwd, int port, String contentPath) {
         MachineNodeModel machineNodeModel = new MachineNodeModel();
         machineNodeModel.setName(ip);
         machineNodeModel.setStatus(1);
         machineNodeModel.setJpomUsername(loginName);
         machineNodeModel.setJpomPassword(loginPwd);
-        machineNodeModel.setJpomUrl(ip + StrUtil.COLON + port);
+        machineNodeModel.setJpomUrl(UrlUtils.normalize(ip + StrUtil.COLON + port, contentPath));
         machineNodeModel.setJpomProtocol("http");
         return machineNodeModel;
     }

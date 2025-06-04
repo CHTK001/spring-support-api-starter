@@ -10,6 +10,7 @@
 package com.chua.starter.monitor.jpom.common;
 
 import com.chua.report.client.starter.jpom.common.common.validator.ParameterInterceptor;
+import com.chua.starter.monitor.jpom.common.interceptor.NodeInterceptor;
 import jakarta.annotation.Resource;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -28,11 +29,14 @@ public class WebConfigurer implements WebMvcConfigurer, WebServerFactoryCustomiz
 
     @Resource
     private ParameterInterceptor parameterInterceptor;
+    @Resource
+    private NodeInterceptor nodeInterceptor;
 
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(parameterInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(nodeInterceptor).addPathPatterns("/**");
     }
 
     @Override

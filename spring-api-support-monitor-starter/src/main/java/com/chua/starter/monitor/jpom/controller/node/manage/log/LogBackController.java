@@ -12,6 +12,7 @@ package com.chua.starter.monitor.jpom.controller.node.manage.log;
 import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.alibaba.fastjson2.JSONObject;
+import com.chua.starter.common.support.annotations.ReturnOrigin;
 import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
@@ -20,14 +21,13 @@ import com.chua.starter.monitor.jpom.permission.Feature;
 import com.chua.starter.monitor.jpom.permission.MethodFeature;
 import com.chua.starter.monitor.jpom.permission.NodeDataPermission;
 import com.chua.starter.monitor.jpom.service.node.ProjectInfoCacheService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 控制台日志备份管理
@@ -39,6 +39,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping(value = "node/manage/log")
 @Feature(cls = ClassFeature.PROJECT_LOG)
 @NodeDataPermission(cls = ProjectInfoCacheService.class)
+@ReturnOrigin
 public class LogBackController extends BaseServerController {
 
     private final ProjectInfoCacheService projectInfoCacheService;

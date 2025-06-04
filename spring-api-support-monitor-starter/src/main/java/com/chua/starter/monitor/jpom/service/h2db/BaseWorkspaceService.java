@@ -155,6 +155,9 @@ public abstract class BaseWorkspaceService<T extends BaseWorkspaceModel> extends
         } else {
             // 检查权限
             String modifyUser = t.getModifyUser();
+            if (null == modifyUser) {
+                modifyUser = "1";
+            }
             if (!StrUtil.equals(modifyUser, UserModel.SYSTEM_ADMIN)) {
                 this.checkUserWorkspace(t.getWorkspaceId());
             }
@@ -240,6 +243,9 @@ public abstract class BaseWorkspaceService<T extends BaseWorkspaceModel> extends
      */
     public void checkUserWorkspace(String workspaceId) {
         UserModel userModel = BaseServerController.getUserByThreadLocal();
+        if (null == userModel) {
+            return;
+        }
         this.checkUserWorkspace(workspaceId, userModel);
     }
 

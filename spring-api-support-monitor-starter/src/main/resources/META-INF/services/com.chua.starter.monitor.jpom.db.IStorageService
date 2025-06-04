@@ -1,0 +1,2 @@
+com.chua.starter.monitor.jpom.storage.MysqlStorageServiceImpl
+com.chua.starter.monitor.jpom.storage.H2StorageServiceImpl

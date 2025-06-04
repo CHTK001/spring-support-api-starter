@@ -10,7 +10,6 @@
 package com.chua.starter.monitor.jpom.socket;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.EnumUtil;
@@ -24,17 +23,16 @@ import com.chua.starter.monitor.jpom.func.assets.model.MachineNodeModel;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineNodeServer;
 import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 import com.chua.starter.monitor.jpom.model.data.NodeModel;
-import com.chua.starter.monitor.jpom.model.user.UserBindWorkspaceModel;
 import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.permission.ClassFeature;
-import com.chua.starter.monitor.jpom.permission.Feature;
-import com.chua.starter.monitor.jpom.permission.MethodFeature;
-import com.chua.starter.monitor.jpom.permission.SystemPermission;
 import com.chua.starter.monitor.jpom.service.h2db.BaseDbService;
 import com.chua.starter.monitor.jpom.service.h2db.BaseWorkspaceService;
 import com.chua.starter.monitor.jpom.service.node.NodeService;
 import com.chua.starter.monitor.jpom.service.user.UserBindWorkspaceService;
 import com.chua.starter.monitor.jpom.service.user.UserService;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.user.UserResult;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +45,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -197,16 +196,22 @@ public class ServerWebSocketInterceptor implements HandshakeInterceptor {
         if (request instanceof ServletServerHttpRequest serverHttpRequest) {
             HttpServletRequest httpServletRequest = serverHttpRequest.getServletRequest();
             // 判断用户
-            String userId = httpServletRequest.getParameter("userId");
-            String workspaceId = httpServletRequest.getParameter(ServerConst.WORKSPACE_ID_REQ_HEADER);
-            attributes.put("workspaceId", workspaceId);
-            attributes.put("lang", httpServletRequest.getParameter("lang"));
-            UserModel userModel = userService.checkUser(userId);
-            if (userModel == null) {
+            UserResult userResult = AuthClientExecute.getInstance().getSafeUserResult();
+            if (null == userResult) {
                 String string = I18nMessageUtil.get("i18n.user_not_exist.4892");
                 attributes.put("permissionMsg", string);
                 return true;
             }
+            Set<String> roles = userResult.getRoles();
+            String userId = userResult.getUserId();
+            String workspaceId = httpServletRequest.getParameter(ServerConst.WORKSPACE_ID_REQ_HEADER);
+            attributes.put("workspaceId", workspaceId);
+            attributes.put("lang", httpServletRequest.getParameter("lang"));
+            UserModel userModel = new UserModel(userId);
+            userModel.setName(userResult.getUsername());
+            userModel.setStatus(1);
+            userModel.setSystemUser(AuthConstant.hasAdmin(roles) ? 1 : 0);
+            userModel.setParent(AuthConstant.hasAdmin(roles) ? UserModel.SYSTEM_ADMIN : "");
             HandlerType handlerType = this.fromType(httpServletRequest);
             if (handlerType == null) {
                 String string = I18nMessageUtil.get("i18n.no_matching_process_type.b468");
@@ -224,9 +229,12 @@ public class ServerWebSocketInterceptor implements HandshakeInterceptor {
                 attributes.put("permissionMsg", string);
                 return true;
             }
-            // 判断权限
-            String permissionMsg = this.checkPermission(userModel, attributes, handlerType);
-            attributes.put("permissionMsg", permissionMsg);
+            if (!AuthConstant.hasAdmin(userResult.getRoles())) {
+                attributes.put("permission", userResult.getPermission());
+                // 判断权限
+                String permissionMsg = this.checkPermission(userModel, attributes, handlerType);
+                attributes.put("permissionMsg", permissionMsg);
+            }
 
             //
             String ip = JakartaServletUtil.getClientIP(httpServletRequest);
@@ -251,6 +259,7 @@ public class ServerWebSocketInterceptor implements HandshakeInterceptor {
     private String checkPermission(UserModel userInfo, Map<String, Object> attributes, HandlerType handlerType) {
         Object dataItem = attributes.get("dataItem");
         Object nodeInfo = attributes.get("nodeInfo");
+        Set<String> permission = (Set<String>) attributes.get("permission");
         Object optData = dataItem == null ? nodeInfo : dataItem;
         String workspaceId = BeanUtil.getProperty(optData, "workspaceId");
         //?  : BeanUtil.getProperty(dataItem, "workspaceId");
@@ -276,30 +285,17 @@ public class ServerWebSocketInterceptor implements HandshakeInterceptor {
         if (userInfo.isSuperSystemUser()) {
             return StrUtil.EMPTY;
         }
-        boolean isAssetsManager = Convert.toBool(attributes.get("isAssetsManager"), false);
-        if (isAssetsManager && !userInfo.isSystemUser()) {
-            // 判断资产权限
-            return I18nMessageUtil.get("i18n.no_asset_management_permission.739e");
-        }
+//        boolean isAssetsManager = Convert.toBool(attributes.get("isAssetsManager"), false);
+//        if (isAssetsManager && !userInfo.isSystemUser()) {
+//            // 判断资产权限
+//            return I18nMessageUtil.get("i18n.no_asset_management_permission.739e");
+//        }
+
         Supplier<String> nodeUpgradeName = ClassFeature.NODE_UPGRADE.getName();
-        if (handlerType == HandlerType.nodeUpdate) {
+        if (permission.contains("node:update")) {
             return StrUtil.format(I18nMessageUtil.get("i18n.no_permission_for_function.b63d"), I18nMessageUtil.get(nodeUpgradeName.get()));
         }
-        Class<?> handlerClass = handlerType.getHandlerClass();
-        SystemPermission systemPermission = handlerClass.getAnnotation(SystemPermission.class);
-        if (systemPermission != null) {
-            if (!userInfo.isSuperSystemUser()) {
-                return StrUtil.format(I18nMessageUtil.get("i18n.no_permission_for_function.b63d"), I18nMessageUtil.get(nodeUpgradeName.get()));
-            }
-        }
-        Feature feature = handlerClass.getAnnotation(Feature.class);
-        MethodFeature method = feature.method();
-        ClassFeature cls = feature.cls();
-        UserBindWorkspaceModel.PermissionResult permissionResult = userBindWorkspaceService.checkPermission(userInfo, useWorkspaceId + StrUtil.DASHED + method.name());
-        if (permissionResult.isSuccess()) {
-            return StrUtil.EMPTY;
-        }
-        return permissionResult.errorMsg(StrUtil.format(I18nMessageUtil.get("i18n.corresponding_function.5bb5"), I18nMessageUtil.get(cls.getName().get()), I18nMessageUtil.get(method.getName().get())));
+        return StrUtil.EMPTY;
     }
 
     private BaseWorkspaceModel checkData(HandlerType handlerType, UserModel userModel, HttpServletRequest httpServletRequest) {

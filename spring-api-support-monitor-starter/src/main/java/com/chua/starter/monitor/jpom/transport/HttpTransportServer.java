@@ -15,11 +15,12 @@ import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
 import com.alibaba.fastjson2.JSONObject;
-import lombok.Lombok;
-import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.utils.UrlUtils;
 import com.chua.starter.monitor.jpom.encrypt.EncryptFactory;
 import com.chua.starter.monitor.jpom.encrypt.Encryptor;
 import com.chua.starter.monitor.jpom.transport.i18n.TransportI18nMessageUtil;
+import lombok.Lombok;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class HttpTransportServer implements TransportServer {
 
     private HttpRequest createRequest(INodeInfo nodeInfo, IUrlItem urlItem, Method method) {
         String url = StrUtil.format("{}://{}/", nodeInfo.scheme(), nodeInfo.url());
-        UrlBuilder urlBuilder = UrlBuilder.of(url).addPath(urlItem.path());
+        UrlBuilder urlBuilder = UrlBuilder.of(UrlUtils.normalize(url, urlItem.path()));
         HttpRequest httpRequest = HttpRequest.of(urlBuilder);
         httpRequest.setMethod(method);
         // 添加请求头
