@@ -30,6 +30,7 @@ import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.report.client.starter.jpom.common.common.validator.ValidatorItem;
 import com.chua.report.client.starter.jpom.common.common.validator.ValidatorRule;
 import com.chua.report.client.starter.jpom.common.model.RunMode;
+import com.chua.starter.common.support.annotations.ReturnOrigin;
 import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
@@ -79,6 +80,7 @@ import java.util.stream.Collectors;
 @Feature(cls = ClassFeature.PROJECT)
 @NodeDataPermission(cls = ProjectInfoCacheService.class)
 @Slf4j
+@ReturnOrigin
 public class ProjectManageControl extends BaseServerController {
 
     private final OutGivingServer outGivingServer;

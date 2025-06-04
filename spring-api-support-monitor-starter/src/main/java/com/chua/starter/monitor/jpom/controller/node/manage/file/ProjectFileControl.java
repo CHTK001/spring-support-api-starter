@@ -13,6 +13,7 @@ import cn.keepbx.jpom.IJsonMessage;
 import cn.keepbx.jpom.model.JsonMessage;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.report.client.starter.jpom.common.common.validator.ValidatorItem;
+import com.chua.starter.common.support.annotations.ReturnOrigin;
 import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.common.forward.NodeForward;
 import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
@@ -39,6 +40,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @RequestMapping(value = "/node/manage/file/")
 @Feature(cls = ClassFeature.PROJECT_FILE)
 @NodeDataPermission(cls = ProjectInfoCacheService.class)
+@ReturnOrigin
 public class ProjectFileControl extends BaseServerController {
     private final OutGivingWhitelistService outGivingWhitelistService;
 

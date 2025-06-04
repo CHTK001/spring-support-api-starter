@@ -179,7 +179,6 @@ public abstract class BaseDbService<T extends BaseDbModel> extends BaseDbCommonS
         t.setId(StrUtil.emptyToDefault(t.getId(), IdUtil.fastSimpleUUID()));
         if (t instanceof BaseUserModifyDbModel modifyDbModel) {
             UserModel userModel = BaseServerController.getUserModel();
-            userModel = userModel == null ? BaseServerController.getUserByThreadLocal() : userModel;
             // 获取数据修改人
             if (userModel != null) {
                 modifyDbModel.setModifyUser(ObjectUtil.defaultIfNull(modifyDbModel.getModifyUser(), userModel.getId()));

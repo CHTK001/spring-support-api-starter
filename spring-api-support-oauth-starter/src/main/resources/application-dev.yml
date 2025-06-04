@@ -20,3 +20,6 @@ spring:
 logging:
   level:
     com.chua.starter.sso.mapper: debug
+plugin:
+  oauth:
+    enable: false
