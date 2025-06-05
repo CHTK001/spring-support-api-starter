@@ -12,14 +12,13 @@ package com.chua.starter.monitor.jpom.controller;
 import com.chua.report.client.starter.jpom.common.controller.BaseMyErrorController;
 import com.chua.starter.monitor.jpom.common.interceptor.NotLogin;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author bwcx_jzy
  * @since 2022/4/16
  */
-@Controller
+//@Controller
 @RequestMapping("${server.error.path:${error.path:/error}}")
 @NotLogin
 public class MyErrorController extends BaseMyErrorController {

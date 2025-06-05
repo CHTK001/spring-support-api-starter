@@ -19,6 +19,7 @@ import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.MultipartFileUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.monitor.handler.backup.BackupHandler;
 import com.chua.starter.monitor.starter.entity.MonitorSysGen;
 import com.chua.starter.monitor.starter.properties.ReportGenProperties;
 import com.chua.starter.monitor.starter.query.DeleteFileQuery;
@@ -128,6 +129,7 @@ public class MonitorGenDatabaseController {
             String genDriver = record.getGenDriver();
             Dialect dialect = DialectFactory.createDriver(genDriver);
             record.setSupportBackup(ServiceProvider.of(Backup.class).isSupport(dialect.protocol().toUpperCase()));
+            record.setSupportAllBackup(ServiceProvider.of(BackupHandler.class).isSupport(record.getGenJdbcType()));
             record.setSupportDocument(ServiceProvider.of(Document.class).isSupport(record.getGenType()));
             record.setSupportDriver(ClassUtils.isPresent(genDriver));
             record.setGenBackupStatus(null == record.getGenBackupStatus() ? 0 : record.getGenBackupStatus());
