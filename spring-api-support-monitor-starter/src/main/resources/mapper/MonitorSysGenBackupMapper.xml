@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenBackupMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorSysGenBackup">
+    <!--@mbg.generated-->
+    <!--@Table monitor_sys_gen_backup-->
+    <id column="monitor_sys_gen_backup_id" jdbcType="INTEGER" property="monitorSysGenBackupId" />
+    <result column="monitor_sys_gen_backup_day" jdbcType="INTEGER" property="monitorSysGenBackupDay" />
+    <result column="monitor_sys_gen_backup_path" jdbcType="VARCHAR" property="monitorSysGenBackupPath" />
+    <result column="monitor_sys_gen_backup_status" jdbcType="VARCHAR" property="monitorSysGenBackupStatus" />
+    <result column="monitor_sys_gen_backup_retry" jdbcType="INTEGER" property="monitorSysGenBackupRetry" />
+    <result column="monitor_sys_gen_backup_enable" jdbcType="BIT" property="monitorSysGenBackupEnable" />
+    <result column="monitor_sys_gen_backup_timeout" jdbcType="INTEGER" property="monitorSysGenBackupTimeout" />
+    <result column="monitor_sys_gen_backup_retention_days" jdbcType="INTEGER" property="monitorSysGenBackupRetentionDays" />
+    <result column="monitor_sys_gen_id" jdbcType="INTEGER" property="monitorSysGenId" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    monitor_sys_gen_backup_id, monitor_sys_gen_backup_day, monitor_sys_gen_backup_path, 
+    monitor_sys_gen_backup_status, monitor_sys_gen_backup_retry, monitor_sys_gen_backup_enable, 
+    monitor_sys_gen_backup_timeout, monitor_sys_gen_backup_retention_days, monitor_sys_gen_id, 
+    create_name, create_by, create_time, update_time, update_name, update_by
+  </sql>
+
+  <select id="backupList" resultType="com.chua.starter.monitor.entity.MonitorSysGenBackup">
+    SELECT
+      msgb.*
+    FROM monitor_sys_gen_backup msgb
+    LEFT JOIN (SELECT * FROM monitor_sys_gen_backup_log WHERE monitor_sys_gen_backup_log_day = curdate() - interval 1 day AND monitor_sys_gen_backup_log_status <![CDATA[<>]]> 'SUCCESS' LIMIT 1)        msgbl
+        ON msgb.monitor_sys_gen_backup_id = msgbl.monitor_sys_gen_backup_id
+  </select>
+</mapper>

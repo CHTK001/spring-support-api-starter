@@ -243,6 +243,12 @@ public class MonitorSysGen implements Serializable {
     @TableField(exist = false)
     private Boolean supportBackup;
     /**
+     * 是否支持全部备份
+     */
+    @ColumnDesc("是否支持全量备份")
+    @TableField(exist = false)
+    private Boolean supportAllBackup;
+    /**
      * 是否支持文档
      */
     @ApiModelProperty(value = "是否支持文档")

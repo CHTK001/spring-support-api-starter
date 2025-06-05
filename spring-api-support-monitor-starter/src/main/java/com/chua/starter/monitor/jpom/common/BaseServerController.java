@@ -30,6 +30,7 @@ import com.google.common.base.Joiner;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,10 +84,15 @@ public abstract class BaseServerController extends BaseJpomController {
         userModel.setName(userResult.getUsername());
         Set<String> roles = userResult.getRoles();
         Set<String> permission = userResult.getPermission();
-        userModel.setSystemUser(AuthConstant.hasAdmin(roles) ? 1 : 0);
-        userModel.setPermissionGroup(Joiner.on(",").join(permission));
+        if (!CollectionUtils.isEmpty(roles)) {
+            userModel.setSystemUser(AuthConstant.hasAdmin(roles) ? 1 : 0);
+            userModel.setParent(AuthConstant.hasAdmin(roles) ? UserModel.SYSTEM_ADMIN : "");
+        }
+
+        if (!CollectionUtils.isEmpty(permission)) {
+            userModel.setPermissionGroup(Joiner.on(",").join(permission));
+        }
         userModel.setStatus(1);
-        userModel.setParent(AuthConstant.hasAdmin(roles) ? UserModel.SYSTEM_ADMIN : "");
 
         return userModel;
     }
