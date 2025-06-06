@@ -70,7 +70,7 @@ public class SoftServiceInstallController {
      * 添加安装记录
      *
      * @param softServiceInstall 安装记录
-     * @param result             校验结果
+     * @param result 校验结果
      * @return 操作结果
      */
     @PostMapping("/add")
@@ -86,7 +86,7 @@ public class SoftServiceInstallController {
      * 更新安装记录
      *
      * @param softServiceInstall 安装记录
-     * @param result             校验结果
+     * @param result 校验结果
      * @return 操作结果
      */
     @PutMapping("/update")
@@ -114,7 +114,7 @@ public class SoftServiceInstallController {
      * 开始安装软件
      *
      * @param softServiceInstall 安装记录
-     * @param result             校验结果
+     * @param result 校验结果
      * @return 操作结果
      */
     @PostMapping("/start")
