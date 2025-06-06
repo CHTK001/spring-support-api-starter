@@ -12,49 +12,78 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
+ * 软件服务日志
+ *
  * @author CH
  * @since 2025/6/5 9:19
  */
-@ApiModel(description = "soft_service_log")
-@Schema
+@ApiModel(description = "软件服务日志")
+@Schema(description = "软件服务日志")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "soft_service_log")
 public class SoftServiceLog extends SysBase {
-    @TableId(value = "soft_service_log_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    private Integer softServiceLogId;
+    /**
+     * 日志ID
+     */
+    @TableId(value = "log_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "日志ID")
+    @Schema(description = "日志ID")
+    private Integer logId;
 
     /**
-     * 安装的服务器
+     * 安装ID
      */
-    @TableField(value = "soft_service_host")
-    @ApiModelProperty(value = "安装的服务器")
-    @Schema(description = "安装的服务器")
-    private String softServiceHost;
+    @TableField(value = "install_id")
+    @ApiModelProperty(value = "安装ID")
+    @Schema(description = "安装ID")
+    private Integer installId;
 
     /**
-     * 使用的ssh表ID
+     * 软件服务ID
      */
-    @TableField(value = "soft_service_ssh_id")
-    @ApiModelProperty(value = "使用的ssh表ID")
-    @Schema(description = "使用的ssh表ID")
-    private String softServiceSshId;
+    @TableField(value = "soft_service_id")
+    @ApiModelProperty(value = "软件服务ID")
+    @Schema(description = "软件服务ID")
+    private Integer softServiceId;
 
     /**
-     * 安装结果
+     * SSH ID
      */
-    @TableField(value = "soft_service_status")
-    @ApiModelProperty(value = "安装结果")
-    @Schema(description = "安装结果")
-    private String softServiceStatus;
+    @TableField(value = "ssh_id")
+    @ApiModelProperty(value = "SSH ID")
+    @Schema(description = "SSH ID")
+    private String sshId;
 
     /**
-     * 报错信息
+     * 日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启
      */
-    @TableField(value = "soft_service_error_message")
-    @ApiModelProperty(value = "报错信息")
-    @Schema(description = "报错信息")
-    private String softServiceErrorMessage;
+    @TableField(value = "log_type")
+    @ApiModelProperty(value = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启")
+    @Schema(description = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启")
+    private Integer logType;
+
+    /**
+     * 日志内容
+     */
+    @TableField(value = "log_content")
+    @ApiModelProperty(value = "日志内容")
+    @Schema(description = "日志内容")
+    private String logContent;
+
+    /**
+     * 日志状态：0-进行中，1-成功，2-失败
+     */
+    @TableField(value = "log_status")
+    @ApiModelProperty(value = "日志状态：0-进行中，1-成功，2-失败")
+    @Schema(description = "日志状态：0-进行中，1-成功，2-失败")
+    private Integer logStatus;
+
+    /**
+     * 日志时间
+     */
+    @TableField(value = "log_time")
+    @ApiModelProperty(value = "日志时间")
+    @Schema(description = "日志时间")
+    private Long logTime;
 }
