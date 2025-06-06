@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenPrometheusConfigMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorSysGenPrometheusConfig">
+    <!--@mbg.generated-->
+    <!--@Table monitor_sys_gen_prometheus_config-->
+    <id column="monitor_sys_gen_promethus_config_id" jdbcType="INTEGER" property="monitorSysGenPromethusConfigId" />
+    <result column="monitor_sys_gen_promethus_config_name" jdbcType="VARCHAR" property="monitorSysGenPromethusConfigName" />
+    <result column="monitor_sys_gen_promethus_config_postion" jdbcType="VARCHAR" property="monitorSysGenPromethusConfigPostion" />
+    <result column="monitor_sys_gen_promethus_config_ql" jdbcType="LONGVARCHAR" property="monitorSysGenPromethusConfigQl" />
+    <result column="monitor_sys_gen_promethus_config_chart_type" jdbcType="VARCHAR" property="monitorSysGenPromethusConfigChartType" />
+    <result column="monitor_sys_gen_promethus_config_enable" jdbcType="BIT" property="monitorSysGenPromethusConfigEnable" />
+    <result column="monitor_sys_gen_id" jdbcType="INTEGER" property="monitorSysGenId" />
+    <result column="monitor_sys_gen_promethus_config_share" jdbcType="BIT" property="monitorSysGenPromethusConfigShare" />
+    <result column="monitor_sys_gen_promethus_config_origin" jdbcType="VARCHAR" property="monitorSysGenPromethusConfigOrigin" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    monitor_sys_gen_promethus_config_id, monitor_sys_gen_promethus_config_name, monitor_sys_gen_promethus_config_postion, 
+    monitor_sys_gen_promethus_config_ql, monitor_sys_gen_promethus_config_chart_type, 
+    monitor_sys_gen_promethus_config_enable, monitor_sys_gen_id, monitor_sys_gen_promethus_config_share, 
+    monitor_sys_gen_promethus_config_origin
+  </sql>
+</mapper>
