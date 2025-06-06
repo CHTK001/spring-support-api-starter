@@ -10,10 +10,13 @@ import com.chua.starter.monitor.starter.properties.ReportGenProperties;
 import com.chua.starter.monitor.starter.service.MonitorGenBackupService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +49,11 @@ public class MonitorSysGenServiceImpl extends ServiceImpl<MonitorSysGenMapper, M
         ServiceProvider.of(Session.class).closeKeepExtension(oldSysGen.getGenId() + "");
         baseMapper.deleteById(oldSysGen.getGenId());
         return true;
+    }
+
+    @Override
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator", key = "'sys:gen:' + #monitorSysGenId")
+    public MonitorSysGen getByIdCache(Integer monitorSysGenId) {
+        return this.getById(monitorSysGenId);
     }
 }

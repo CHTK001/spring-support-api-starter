@@ -14,7 +14,6 @@ import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.entity.SysProjectDefault;

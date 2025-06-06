@@ -3,8 +3,6 @@ package com.chua.starter.monitor.pojo.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.Duration;
-
 /**
  * prometheus查询
  *
@@ -27,13 +25,18 @@ public class PrometheusQueryRequest {
     private String promQL;
 
     /**
-     * 时间范围
+     * 开始时间（Unix 时间戳，秒级）
      */
-    @Schema(description = "时间范围")
-    private Duration range;
+    @Schema(description = "开始时间（Unix 时间戳，秒级）")
+    private Long start;
     /**
-     * 时间间隔
+     * 结束时间（Unix 时间戳，秒级）
      */
-    @Schema(description = "时间间隔")
-    private Duration step;
+    @Schema(description = "结束时间（Unix 时间戳，秒级）")
+    private Long end;
+    /**
+     * 步长（秒）
+     */
+    @Schema(description = "步长（秒）")
+    private int step;
 }

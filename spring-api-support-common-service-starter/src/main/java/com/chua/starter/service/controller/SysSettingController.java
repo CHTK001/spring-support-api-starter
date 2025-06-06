@@ -66,6 +66,21 @@ public class SysSettingController {
     /**
      * 设置分页列表
      *
+     * @return 设置分页列表
+     */
+    @Operation(summary = "默认设置列表")
+    @GetMapping("/default")
+    @Ignore
+    @ApiCacheKey("'sys:setting:default'")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    public ReturnResult<List<SysSettingVO>> listForDefault() {
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
+        return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
+    }
+
+    /**
+     * 设置分页列表
+     *
      * @param sysSettingUpdate 条件
      * @return 设置分页列表
      */
@@ -80,20 +95,6 @@ public class SysSettingController {
             list = list.stream().filter(it -> null != it.getSysSettingAdmin() && it.getSysSettingAdmin() != 1).toList();
         }
         return ReturnResult.ok(BeanUtils.copyPropertiesList(list, SysSettingVO.class));
-    }
-    /**
-     * 设置分页列表
-     *
-     * @return 设置分页列表
-     */
-    @Operation(summary = "默认设置列表")
-    @GetMapping("/default")
-    @Ignore
-    @ApiCacheKey("'sys:setting:default'")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<List<SysSettingVO>> listForDefault() {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
-        return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
     /**
