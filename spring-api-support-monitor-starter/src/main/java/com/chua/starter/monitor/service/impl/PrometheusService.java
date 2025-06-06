@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -35,8 +36,9 @@ public class PrometheusService {
      *
      * @return 是否在线
      */
-    public boolean isOnline(String prometheusAddress) {
-        String string = restTemplate.getForObject(prometheusAddress + "/-/healthy", String.class);
+    public boolean isOnline(String monitorSysGenId) {
+        MonitorSysGen sysGenServiceByIdCache = monitorSysGenService.getByIdCache(Integer.valueOf(monitorSysGenId));
+        String string = restTemplate.getForObject(sysGenServiceByIdCache.getGenDriverRemoteUrl("http") + "/-/healthy", String.class);
         return string != null && string.contains("Prometheus Server is Healthy.");
     }
 
@@ -46,15 +48,16 @@ public class PrometheusService {
      *
      * @return 是否成功
      */
-    public boolean reload(String prometheusAddress) {
+    public boolean reload(String monitorSysGenId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        MonitorSysGen sysGenServiceByIdCache = monitorSysGenService.getByIdCache(Integer.valueOf(monitorSysGenId));
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    prometheusAddress + "/-/reload",
+                    sysGenServiceByIdCache.getGenDriverRemoteUrl("http") + "/-/reload",
                     HttpMethod.POST,
                     entity,
                     String.class
@@ -78,7 +81,35 @@ public class PrometheusService {
         String url = String.format("%s/api/v1/query?query=%s", prometheusAddress, encodedQuery);
         return restTemplate.getForObject(url, String.class);
     }
+    /**
+     * 查询
+     *
+     * @param request request
+     * @return 结果
+     */
+    public JsonNode query(PrometheusGenQueryRequest request) {
+        MonitorSysGen sysGenServiceByIdCache = monitorSysGenService.getByIdCache(request.getMonitorSysGenId());
+        if (null == sysGenServiceByIdCache) {
+            return null;
+        }
+        String promQL = request.getPromQL();
+        String prometheusAddress = sysGenServiceByIdCache.getGenDriverRemoteUrl("http");
+        String genUser = sysGenServiceByIdCache.getGenUser();
+        String genPassword = sysGenServiceByIdCache.getGenPassword();
+        HttpHeaders headers = new HttpHeaders();
+        if (StringUtils.isNotBlank(genUser) && null != genPassword) {
+            // 添加基本认证头
+            String auth = genUser + ":" + genPassword;
+            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+            headers.set("Authorization", "Basic " + encodedAuth);
+        }
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        String url = String.format("%s/api/v1/query?query=%s", prometheusAddress, promQL);
 
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String response = exchange.getBody();
+        return parseQueryResponse(response);
+    }
     /**
      * 查询
      *
@@ -91,23 +122,22 @@ public class PrometheusService {
             return null;
         }
         String promQL = request.getPromQL();
-        String prometheusAddress = sysGenServiceByIdCache.getGenDriverRemoteUrl();
+        String prometheusAddress = sysGenServiceByIdCache.getGenDriverRemoteUrl("http");
         Long start = request.getStart();
         Long end = request.getEnd();
         int step = request.getStep();
         String genUser = sysGenServiceByIdCache.getGenUser();
         String genPassword = sysGenServiceByIdCache.getGenPassword();
         HttpHeaders headers = new HttpHeaders();
-        if (null != genUser && null != genPassword) {
+        if (StringUtils.isNotBlank(genUser) && null != genPassword) {
             // 添加基本认证头
             String auth = genUser + ":" + genPassword;
             String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
             headers.set("Authorization", "Basic " + encodedAuth);
         }
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        String encodedQuery = URLEncoder.encode(promQL, StandardCharsets.UTF_8);
         String url = String.format("%s/api/v1/query_range?query=%s&start=%d&end=%d&step=%ds",
-                prometheusAddress, encodedQuery, start, end, step);
+                prometheusAddress, promQL, start, end, step);
 
         ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String response = exchange.getBody();
@@ -146,6 +176,7 @@ public class PrometheusService {
             throw new RuntimeException("Failed to parse Prometheus response", e);
         }
     }
+
 
 
 }

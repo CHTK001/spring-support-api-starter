@@ -37,8 +37,8 @@ public class PrometheusController {
      */
     @GetMapping("isOnline")
     @Operation(summary = "是否在线")
-    public ReturnResult<Boolean> isOnline(String prometheusAddress) {
-        return ReturnResult.preconditioning(prometheusService.isOnline(prometheusAddress)).toResult();
+    public ReturnResult<Boolean> isOnline(String monitorSysGenId) {
+        return ReturnResult.preconditioning(prometheusService.isOnline(monitorSysGenId)).toResult();
     }
 
     /**
@@ -49,8 +49,8 @@ public class PrometheusController {
      */
     @GetMapping("reload")
     @Operation(summary = "重载")
-    public ReturnResult<Boolean> reload(String prometheusAddress) {
-        return ReturnResult.preconditioning(prometheusService.reload(prometheusAddress)).toResult();
+    public ReturnResult<Boolean> reload(String monitorSysGenId) {
+        return ReturnResult.preconditioning(prometheusService.reload(monitorSysGenId)).toResult();
     }
 
 
@@ -89,5 +89,17 @@ public class PrometheusController {
     @Operation(summary = "查询")
     public ReturnResult<JsonNode> queryRange(@RequestBody PrometheusGenQueryRequest request) {
         return ReturnResult.preconditioning(prometheusService.queryRange(request)).toResult();
+    }
+
+    /**
+     * 查询
+     *
+     * @param request request
+     * @return
+     */
+    @PostMapping("queryGen")
+    @Operation(summary = "查询")
+    public ReturnResult<JsonNode> query(@RequestBody PrometheusGenQueryRequest request) {
+        return ReturnResult.preconditioning(prometheusService.query(request)).toResult();
     }
 }

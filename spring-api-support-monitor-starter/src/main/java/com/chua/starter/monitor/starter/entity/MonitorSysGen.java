@@ -335,4 +335,14 @@ public class MonitorSysGen implements Serializable {
         return !Objects.equals(genUser, oldSysGen.getGenUser()) || (null != genPassword && !Objects.equals(genPassword, oldSysGen.getGenPassword()))
                 || !Objects.equals(genHost, oldSysGen.getGenHost()) || !Objects.equals(genPort, oldSysGen.getGenPort());
     }
+
+    /**
+     * 获取驱动远程url
+     *
+     * @param protocol 协议
+     * @return {@link String}
+     */
+    public String getGenDriverRemoteUrl(String protocol) {
+        return protocol + "://" + genDriverRemoteUrl;
+    }
 }
