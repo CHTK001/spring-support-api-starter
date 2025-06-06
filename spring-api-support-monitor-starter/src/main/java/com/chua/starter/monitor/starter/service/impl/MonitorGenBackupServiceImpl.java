@@ -10,7 +10,6 @@ import com.chua.common.support.constant.EventType;
 import com.chua.common.support.datasource.dialect.Dialect;
 import com.chua.common.support.datasource.dialect.DialectFactory;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
-import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -23,6 +22,7 @@ import com.chua.redis.support.search.SearchQuery;
 import com.chua.redis.support.search.SearchResultItem;
 import com.chua.redis.support.search.SearchSchema;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.common.support.utils.ArrayUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGen;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenMapper;
 import com.chua.starter.monitor.starter.query.LogTimeQuery;
@@ -123,14 +123,14 @@ public class MonitorGenBackupServiceImpl extends ServiceImpl<MonitorSysGenMapper
         })));
     }
     private void registerDocument(EventType event, BackupData backupData, Integer genId) {
-        Map<String, String> document = new HashMap<>(2);
+        Map<String, String> document = new HashMap<>(9);
         document.put("text",  backupData.getMessage());
         document.put("event",  event.name());
         document.put("threadId", StringUtils.toString(backupData.getId()));
         document.put("threadAddress", StringUtils.toString(backupData.getAddress()));
         document.put("from",  backupData.getFrom());
-        document.put("newValue", Joiner.on(",").join(backupData.getNewValue()));
-        document.put("oldValue", Joiner.on(",").join(backupData.getOldValue()));
+        document.put("newValue", ArrayUtils.join(backupData.getNewValue(), ","));
+        document.put("oldValue", ArrayUtils.join(backupData.getOldValue(), ","));
         document.put("timestamp", String.valueOf(System.currentTimeMillis()));
         redisSearchService.addDocument(RedisConstant.REDIS_SEARCH_PREFIX + "GEN" + genId, document);
     }

@@ -70,7 +70,7 @@ public class SoftServiceInstallController {
      * 添加安装记录
      *
      * @param softServiceInstall 安装记录
-     * @param result 校验结果
+     * @param result             校验结果
      * @return 操作结果
      */
     @PostMapping("/add")
@@ -86,7 +86,7 @@ public class SoftServiceInstallController {
      * 更新安装记录
      *
      * @param softServiceInstall 安装记录
-     * @param result 校验结果
+     * @param result             校验结果
      * @return 操作结果
      */
     @PutMapping("/update")
@@ -111,10 +111,23 @@ public class SoftServiceInstallController {
     }
 
     /**
+     * 批量安装软件服务
+     *
+     * @param softServiceId 软件服务ID
+     * @param sshIds        SSH ID列表
+     * @return 操作结果
+     */
+    @PostMapping("/batch/install")
+    @ApiOperation(value = "批量安装软件服务")
+    public ReturnResult<Boolean> batchInstall(@RequestParam Integer softServiceId, @RequestBody List<String> sshIds) {
+        return softServiceInstallService.batchInstall(softServiceId, sshIds);
+    }
+
+    /**
      * 开始安装软件
      *
      * @param softServiceInstall 安装记录
-     * @param result 校验结果
+     * @param result             校验结果
      * @return 操作结果
      */
     @PostMapping("/start")
@@ -136,5 +149,90 @@ public class SoftServiceInstallController {
     @ApiOperation(value = "停止安装软件")
     public ReturnResult<Boolean> stopInstall(@PathVariable Integer installId) {
         return softServiceInstallService.stopInstall(installId);
+    }
+
+    /**
+     * 卸载软件
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/uninstall/{installId}")
+    @ApiOperation(value = "卸载软件")
+    public ReturnResult<Boolean> uninstall(@PathVariable Integer installId) {
+        return softServiceInstallService.uninstall(installId);
+    }
+
+    /**
+     * 启动服务
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/service/start/{installId}")
+    @ApiOperation(value = "启动服务")
+    public ReturnResult<Boolean> startService(@PathVariable Integer installId) {
+        return softServiceInstallService.startService(installId);
+    }
+
+    /**
+     * 停止服务
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/service/stop/{installId}")
+    @ApiOperation(value = "停止服务")
+    public ReturnResult<Boolean> stopService(@PathVariable Integer installId) {
+        return softServiceInstallService.stopService(installId);
+    }
+
+    /**
+     * 重启服务
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/service/restart/{installId}")
+    @ApiOperation(value = "重启服务")
+    public ReturnResult<Boolean> restartService(@PathVariable Integer installId) {
+        return softServiceInstallService.restartService(installId);
+    }
+
+    /**
+     * 查看服务日志
+     *
+     * @param installId 安装记录ID
+     * @param lines     要查看的行数，默认100行
+     * @return 操作结果
+     */
+    @GetMapping("/service/log/{installId}")
+    @ApiOperation(value = "查看服务日志")
+    public ReturnResult<String> viewServiceLog(@PathVariable Integer installId, @RequestParam(required = false, defaultValue = "100") Integer lines) {
+        return softServiceInstallService.viewServiceLog(installId, lines);
+    }
+
+    /**
+     * 开始实时监控服务日志
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/service/log/monitor/start/{installId}")
+    @ApiOperation(value = "开始实时监控服务日志")
+    public ReturnResult<Boolean> startMonitorServiceLog(@PathVariable Integer installId) {
+        return softServiceInstallService.startMonitorServiceLog(installId);
+    }
+
+    /**
+     * 停止实时监控服务日志
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果
+     */
+    @PostMapping("/service/log/monitor/stop/{installId}")
+    @ApiOperation(value = "停止实时监控服务日志")
+    public ReturnResult<Boolean> stopMonitorServiceLog(@PathVariable Integer installId) {
+        return softServiceInstallService.stopMonitorServiceLog(installId);
     }
 } 

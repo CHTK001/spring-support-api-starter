@@ -12,8 +12,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
+ *
  * @author CH
- * @since 2025/6/6 16:56
+ * @since 2025/6/6 19:46
  */
 
 /**
@@ -25,50 +26,58 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "monitor_sys_gen_prometheus_config")
 public class MonitorSysGenPrometheusConfig extends SysBase {
-    @TableId(value = "monitor_sys_gen_promethus_config_id", type = IdType.AUTO)
+    @TableId(value = "monitor_sys_gen_prometheus_config_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
-    private Integer monitorSysGenPromethusConfigId;
+    private Integer monitorSysGenPrometheusConfigId;
 
     /**
      * 名称
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_name")
+    @TableField(value = "monitor_sys_gen_prometheus_config_name")
     @ApiModelProperty(value = "名称")
     @Schema(description = "名称")
-    private String monitorSysGenPromethusConfigName;
+    private String monitorSysGenPrometheusConfigName;
 
     /**
      * 位置
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_postion")
+    @TableField(value = "monitor_sys_gen_prometheus_config_postion")
     @ApiModelProperty(value = "位置")
     @Schema(description = "位置")
-    private String monitorSysGenPromethusConfigPostion;
+    private String monitorSysGenPrometheusConfigPostion;
 
     /**
      * 表达式
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_ql")
+    @TableField(value = "monitor_sys_gen_prometheus_config_ql")
     @ApiModelProperty(value = "表达式")
     @Schema(description = "表达式")
-    private String monitorSysGenPromethusConfigQl;
+    private String monitorSysGenPrometheusConfigQl;
 
     /**
      * 图表类型
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_chart_type")
+    @TableField(value = "monitor_sys_gen_prometheus_config_chart_type")
     @ApiModelProperty(value = "图表类型")
     @Schema(description = "图表类型")
-    private String monitorSysGenPromethusConfigChartType;
+    private String monitorSysGenPrometheusConfigChartType;
 
     /**
      * 是否开启
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_enable")
+    @TableField(value = "monitor_sys_gen_prometheus_config_enable")
     @ApiModelProperty(value = "是否开启")
     @Schema(description = "是否开启")
-    private Boolean monitorSysGenPromethusConfigEnable;
+    private Boolean monitorSysGenPrometheusConfigEnable;
+
+    /**
+     * 类型
+     */
+    @TableField(value = "monitor_sys_gen_prometheus_config_type")
+    @ApiModelProperty(value = "类型")
+    @Schema(description = "类型")
+    private String monitorSysGenPrometheusConfigType;
 
     /**
      * 所属genId
@@ -81,16 +90,16 @@ public class MonitorSysGenPrometheusConfig extends SysBase {
     /**
      * 是否共享
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_share")
+    @TableField(value = "monitor_sys_gen_prometheus_config_share")
     @ApiModelProperty(value = "是否共享")
     @Schema(description = "是否共享")
-    private Boolean monitorSysGenPromethusConfigShare;
+    private Boolean monitorSysGenPrometheusConfigShare;
 
     /**
      * 共享来源
      */
-    @TableField(value = "monitor_sys_gen_promethus_config_origin")
+    @TableField(value = "monitor_sys_gen_prometheus_config_origin")
     @ApiModelProperty(value = "共享来源")
     @Schema(description = "共享来源")
-    private String monitorSysGenPromethusConfigOrigin;
+    private String monitorSysGenPrometheusConfigOrigin;
 }

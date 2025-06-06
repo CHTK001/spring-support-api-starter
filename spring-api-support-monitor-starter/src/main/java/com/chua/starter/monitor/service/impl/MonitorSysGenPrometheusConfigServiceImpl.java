@@ -22,8 +22,8 @@ public class MonitorSysGenPrometheusConfigServiceImpl extends ServiceImpl<Monito
         return this.list(
                 Wrappers.lambdaQuery(MonitorSysGenPrometheusConfig.class)
                         .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenId, genId)
-                        .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigEnable, true)
-                        .orderByDesc(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigId)
+                        .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigEnable, true)
+                        .orderByDesc(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigId)
         );
     }
 
@@ -45,15 +45,15 @@ public class MonitorSysGenPrometheusConfigServiceImpl extends ServiceImpl<Monito
     @Override
     public ReturnResult<Boolean> sharePrometheusConfig(Integer id) {
         return ReturnResult.success(this.update(Wrappers.lambdaUpdate(MonitorSysGenPrometheusConfig.class)
-                .set(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigShare, true)
-                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigId, id)
+                .set(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigShare, true)
+                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigId, id)
         ));
     }
 
     @Override
     public ReturnResult<List<MonitorSysGenPrometheusConfig>> sharePrometheusConfig() {
         return ReturnResult.success(this.list(Wrappers.lambdaQuery(MonitorSysGenPrometheusConfig.class)
-                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigShare, true)
+                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigShare, true)
         ));
     }
 }
