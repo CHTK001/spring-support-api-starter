@@ -98,24 +98,72 @@ public class SoftServiceInstall extends SysBase {
     /**
      * 最后一次启动时间
      */
-    @TableField(value = "last_start_time")
+    @TableField(value = "install_last_start_time")
     @ApiModelProperty(value = "最后一次启动时间")
     @Schema(description = "最后一次启动时间")
-    private Long lastStartTime;
+    private Long installLastStartTime;
 
     /**
      * 最后一次停止时间
      */
-    @TableField(value = "last_stop_time")
+    @TableField(value = "install_last_stop_time")
     @ApiModelProperty(value = "最后一次停止时间")
     @Schema(description = "最后一次停止时间")
-    private Long lastStopTime;
+    private Long installLastStopTime;
 
     /**
      * 运行状态：0-未运行，1-运行中
      */
-    @TableField(value = "run_status")
+    @TableField(value = "install_run_status")
     @ApiModelProperty(value = "运行状态：0-未运行，1-运行中")
     @Schema(description = "运行状态：0-未运行，1-运行中")
-    private Integer runStatus;
+    private Integer installRunStatus;
+
+    /**
+     * 配置文件目录
+     */
+    @TableField(value = "install_config_path")
+    @ApiModelProperty(value = "配置文件目录")
+    @Schema(description = "配置文件目录")
+    private String installConfigPath;
+
+    /**
+     * 启动命令
+     */
+    @TableField(value = "install_start_command")
+    @ApiModelProperty(value = "启动命令")
+    @Schema(description = "启动命令")
+    private String installStartCommand;
+
+    /**
+     * 重启命令
+     */
+    @TableField(value = "install_restart_command")
+    @ApiModelProperty(value = "重启命令")
+    @Schema(description = "重启命令")
+    private String installRestartCommand;
+
+    /**
+     * 关闭命令
+     */
+    @TableField(value = "install_stop_command")
+    @ApiModelProperty(value = "关闭命令")
+    @Schema(description = "关闭命令")
+    private String installStopCommand;
+
+    /**
+     * 日志目录
+     */
+    @TableField(value = "install_log_path")
+    @ApiModelProperty(value = "日志目录")
+    @Schema(description = "日志目录")
+    private String installLogPath;
+
+    /**
+     * 卸载命令
+     */
+    @TableField(value = "install_uninstall_command")
+    @ApiModelProperty(value = "卸载命令")
+    @Schema(description = "卸载命令")
+    private String installUninstallCommand;
 } 
