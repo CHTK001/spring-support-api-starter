@@ -1,16 +1,16 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.pojo.request.PrometheusGenQueryRequest;
 import com.chua.starter.monitor.pojo.request.PrometheusQueryRequest;
 import com.chua.starter.monitor.service.impl.PrometheusService;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * prometheus服务
@@ -75,8 +75,19 @@ public class PrometheusController {
      */
     @PostMapping("queryRange")
     @Operation(summary = "查询")
-    public ReturnResult<Map<String, Object>> queryRange(@RequestBody PrometheusQueryRequest request) {
-        return ReturnResult.preconditioning(prometheusService.queryRange(request.getPrometheusAddress(), request.getPromQL(), request.getRange(), request.getStep())).toResult();
+    public ReturnResult<JsonNode> queryRange(@RequestBody PrometheusQueryRequest request) {
+        return ReturnResult.preconditioning(prometheusService.queryRange(request.getPrometheusAddress(), request.getPromQL(), request.getStart(), request.getEnd(), request.getStep())).toResult();
     }
 
+    /**
+     * 查询
+     *
+     * @param request request
+     * @return
+     */
+    @PostMapping("queryRangeGen")
+    @Operation(summary = "查询")
+    public ReturnResult<JsonNode> queryRange(@RequestBody PrometheusGenQueryRequest request) {
+        return ReturnResult.preconditioning(prometheusService.queryRange(request)).toResult();
+    }
 }

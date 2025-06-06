@@ -10,7 +10,6 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.mapper.PayMerchantMapper;
 import com.chua.starter.pay.support.service.PayMerchantService;
-import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
