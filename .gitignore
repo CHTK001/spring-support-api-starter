@@ -10,3 +10,9 @@ target/
 *.ipr
 *.iws
 */**/rebel.xml
+*.log
+*.log.gz
+*.iml
+*.jar
+*.html
+rebel.xml
