@@ -10,6 +10,7 @@ import com.chua.starter.monitor.starter.properties.ReportGenProperties;
 import com.chua.starter.monitor.starter.service.MonitorGenBackupService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ public class MonitorSysGenServiceImpl extends ServiceImpl<MonitorSysGenMapper, M
     final MonitorGenBackupService monitorGenBackupService;
     final ReportGenProperties genProperties;
     @Override
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator",
+            key = "'sys:gen:' + #newSysGen.genId")
     public void updateFor(MonitorSysGen newSysGen, MonitorSysGen oldSysGen) {
         baseMapper.updateById(newSysGen);
         //更新备份
@@ -39,6 +42,7 @@ public class MonitorSysGenServiceImpl extends ServiceImpl<MonitorSysGenMapper, M
     }
 
     @Override
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator", key = "'sys:gen:' + #id")
     public Boolean deleteFor(String id, MonitorSysGen oldSysGen) {
         monitorGenBackupService.stop(oldSysGen);
         File mkdir = FileUtils.mkdir(new File(genProperties.getTempPath(), id));
