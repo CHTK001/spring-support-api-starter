@@ -47,7 +47,9 @@ public class MysqlStorageServiceImpl implements IStorageService {
 
     @Override
     public DSFactory init(DbExtConfig dbExtConfig) {
-        Assert.isNull(this.dsFactory, I18nMessageUtil.get("i18n.do_not_reinitialize_database.9bb5"));
+        if(null != this.dsFactory) {
+            return this.dsFactory;
+        }
         Assert.hasText(dbExtConfig.getUrl(), I18nMessageUtil.get("i18n.database_connection_not_configured.c80e"));
         Setting setting = dbExtConfig.toSetting();
         this.dsFactory = DSFactory.create(setting);

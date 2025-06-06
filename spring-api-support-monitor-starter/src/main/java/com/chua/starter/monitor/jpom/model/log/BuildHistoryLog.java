@@ -14,6 +14,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.chua.common.support.datasource.annotation.ColumnLength;
 import com.chua.report.client.starter.jpom.common.model.EnvironmentMapBuilder;
 import com.chua.starter.monitor.jpom.build.BuildExtraModule;
 import com.chua.starter.monitor.jpom.db.TableName;
@@ -117,6 +118,7 @@ public class BuildHistoryLog extends BaseWorkspaceModel {
     /**
      * 构建环境变量缓存
      */
+    @ColumnLength(1000)
     private String buildEnvCache;
     /**
      * 产物文件大小

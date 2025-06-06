@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
+import com.chua.starter.common.support.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
@@ -157,7 +158,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     }
 
     private void clearDefaultCache(String model, Integer sysProjectId) {
-        StringBuilder keyPref = SpringBeanUtils.getBean(CustomTenantedKeyGenerator.class).getKeyPref();
+        StringBuilder keyPref = SpringBeanUtils.getBean(CacheCustomTenantedKeyGenerator.class).getKeyPref();
         SpringBeanUtils.getBean(CacheConstant.REDIS_CACHE_ALWAYS, CacheManager.class)
                 .getCache(CacheConstant.REDIS_CACHE_ALWAYS)
                 .evict(keyPref.toString() + "sys:ai:module:" + model + ":" + sysProjectId);
