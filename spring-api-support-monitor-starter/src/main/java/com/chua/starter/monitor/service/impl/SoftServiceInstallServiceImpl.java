@@ -180,7 +180,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     log.error("安装软件失败: {}", e.getMessage(), e);
                     // 更新安装状态为失败
                     updateInstallStatus(finalExistInstall.getInstallId(), 3, logBuilder + "\n安装失败: " + e.getMessage());
-
+                    
                     // 推送安装失败通知
                     sendInstallProgress(finalExistInstall.getInstallId(), "安装失败：" + e.getMessage(), 100, 100, "ERROR");
                 }
@@ -237,8 +237,8 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
      * 更新安装状态
      *
      * @param installId 安装记录ID
-     * @param status    状态：0-未安装，1-安装中，2-安装成功，3-安装失败
-     * @param log       日志
+     * @param status 状态：0-未安装，1-安装中，2-安装成功，3-安装失败
+     * @param log 日志
      */
     private void updateInstallStatus(Integer installId, Integer status, String log) {
         SoftServiceInstall updateInstall = new SoftServiceInstall();
@@ -252,10 +252,10 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
      * 发送安装进度消息
      *
      * @param installId 安装ID
-     * @param message   消息内容
-     * @param step      当前步骤
-     * @param total     总步骤
-     * @param type      消息类型：INFO, ERROR, SUCCESS, WARNING
+     * @param message 消息内容
+     * @param step 当前步骤
+     * @param total 总步骤
+     * @param type 消息类型：INFO, ERROR, SUCCESS, WARNING
      */
     private void sendInstallProgress(Integer installId, String message, int step, int total, String type) {
         if (socketSessionTemplate == null) {

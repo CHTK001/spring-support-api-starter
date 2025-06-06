@@ -65,7 +65,7 @@ public interface SoftServiceInstallService extends IService<SoftServiceInstall> 
     /**
      * 根据SSH ID和软件服务ID获取软件服务安装记录
      *
-     * @param sshId         SSH ID
+     * @param sshId SSH ID
      * @param softServiceId 软件服务ID
      * @return 软件服务安装记录
      */
