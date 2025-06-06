@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
+import com.chua.starter.common.support.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.pay.support.entity.PayMerchant;
 import com.chua.starter.pay.support.mapper.PayMerchantMapper;
@@ -27,7 +28,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @RequiredArgsConstructor
 public class PayMerchantServiceImpl extends ServiceImpl<PayMerchantMapper, PayMerchant> implements PayMerchantService {
 
-    final CustomTenantedKeyGenerator customTenantedKeyGenerator;
+    final CacheCustomTenantedKeyGenerator customTenantedKeyGenerator;
     private final TransactionTemplate transactionTemplate;
 
     @Override
