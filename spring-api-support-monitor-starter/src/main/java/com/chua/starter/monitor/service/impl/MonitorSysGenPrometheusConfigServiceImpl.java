@@ -1,0 +1,59 @@
+package com.chua.starter.monitor.service.impl;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.starter.monitor.entity.MonitorSysGenPrometheusConfig;
+import com.chua.starter.monitor.mapper.MonitorSysGenPrometheusConfigMapper;
+import com.chua.starter.monitor.pojo.ReturnResult;
+import com.chua.starter.monitor.service.MonitorSysGenPrometheusConfigService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @author CH
+ * @since 2025/6/6 16:50
+ */
+@Service
+public class MonitorSysGenPrometheusConfigServiceImpl extends ServiceImpl<MonitorSysGenPrometheusConfigMapper, MonitorSysGenPrometheusConfig> implements MonitorSysGenPrometheusConfigService {
+
+    @Override
+    public List<MonitorSysGenPrometheusConfig> listPrometheusConfig(Integer genId) {
+        return this.list(
+                Wrappers.lambdaQuery(MonitorSysGenPrometheusConfig.class)
+                        .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenId, genId)
+                        .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigEnable, true)
+                        .orderByDesc(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigId)
+        );
+    }
+
+    @Override
+    public ReturnResult<Boolean> savePrometheusConfig(MonitorSysGenPrometheusConfig monitorSysGenPrometheusConfig) {
+        return ReturnResult.success(this.save(monitorSysGenPrometheusConfig));
+    }
+
+    @Override
+    public ReturnResult<Boolean> updatePrometheusConfig(MonitorSysGenPrometheusConfig monitorSysGenPrometheusConfig) {
+        return ReturnResult.success(this.updateById(monitorSysGenPrometheusConfig));
+    }
+
+    @Override
+    public ReturnResult<Boolean> deletePrometheusConfig(Integer id) {
+        return ReturnResult.success(this.removeById(id));
+    }
+
+    @Override
+    public ReturnResult<Boolean> sharePrometheusConfig(Integer id) {
+        return ReturnResult.success(this.update(Wrappers.lambdaUpdate(MonitorSysGenPrometheusConfig.class)
+                .set(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigShare, true)
+                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigId, id)
+        ));
+    }
+
+    @Override
+    public ReturnResult<List<MonitorSysGenPrometheusConfig>> sharePrometheusConfig() {
+        return ReturnResult.success(this.list(Wrappers.lambdaQuery(MonitorSysGenPrometheusConfig.class)
+                .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPromethusConfigShare, true)
+        ));
+    }
+}

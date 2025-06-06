@@ -29,5 +29,8 @@ public class MonitorWebSocketMessageBrokerConfigurer implements WebSocketMessage
         registry.addEndpoint("/monitor-command")
                 .addInterceptors(serverInterceptor)
                 .withSockJS();
+        registry.addEndpoint("/soft-command")
+                .addInterceptors(serverInterceptor)
+                .withSockJS();
     }
 }

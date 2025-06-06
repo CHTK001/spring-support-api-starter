@@ -69,12 +69,14 @@ public class MysqlBackupHandler implements BackupHandler {
                     messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                             MsgEvent.builder().msg("备份进度: " + it)
                                     .type("INFO")
+                                    .module("backup-file-call")
                                     .build());
                 },
                 it -> {
                     messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                             MsgEvent.builder().msg("备份进度: " + it)
                                     .type("ERROR")
+                                    .module("backup-file-call")
                                     .build());
                 });
 
@@ -89,6 +91,7 @@ public class MysqlBackupHandler implements BackupHandler {
             messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                     MsgEvent.builder().msg("备份进度: 备份成功" + compressedFile)
                             .type("INFO")
+                            .module("backup-file-call")
                             .build());
         } else {
             System.err.println("备份失败，退出码: " + result.getExitCode());
@@ -96,6 +99,7 @@ public class MysqlBackupHandler implements BackupHandler {
             messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                     MsgEvent.builder().msg("备份进度: " + result.getError())
                             .type("ERROR")
+                            .module("backup-file-call")
                             .build());
             throw new IOException("备份失败: " + result.getError());
         }
@@ -121,11 +125,13 @@ public class MysqlBackupHandler implements BackupHandler {
             messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                     MsgEvent.builder().msg("恢复进度: " + it)
                             .type("INFO")
+                            .module("backup-file-restore")
                             .build());
         }, it -> {
             messagingTemplate.send("/topic/command/backup/" + monitorSysGenBackup.getMonitorSysGenBackupId(),
                     MsgEvent.builder().msg("恢复进度: " + it)
                             .type("ERROR")
+                            .module("backup-file-restore")
                             .build());
         });
 
