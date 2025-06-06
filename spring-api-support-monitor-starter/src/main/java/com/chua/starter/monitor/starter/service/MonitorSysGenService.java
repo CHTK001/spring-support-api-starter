@@ -35,4 +35,19 @@ public interface MonitorSysGenService extends IService<MonitorSysGen>{
      * @return 返回一个Boolean值，表示删除操作是否成功。如果删除成功，返回true；如果删除失败，返回false。
      */
     Boolean deleteFor(String id, MonitorSysGen oldSysGen);
+
+    /**
+     * 根据ID获取监控系统生成对象。
+     * <p>
+     * 此方法用于根据提供的ID来获取监控系统生成对象。这个对象可能是一个数据库中的记录，
+     * 文件系统中的一个文件，或者其他任何形式的数据。方法的目的是为了在系统更新或迁移时，
+     * 能够准确地获取到最新的数据，以保持系统的整洁和性能。
+     *
+     * @param monitorSysGenId 要获取的资源或信息的唯一标识符。这个ID是用来精确地定位要获取的特定资源或信息。
+     * @return 返回一个MonitorSysGen对象，表示根据提供的ID获取到的监控系统
+     * 生对象。如果获取成功，返回该对象；如果获取失败，返回null。
+     * @return MonitorSysGen对象，表示根据提供的ID获取到的监控系统生成对象。
+     * 如果获取成功，返回该对象；如果获取失败，返回null。
+     */
+    MonitorSysGen getByIdCache(Integer monitorSysGenId);
 }

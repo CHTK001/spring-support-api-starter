@@ -2,7 +2,6 @@ package com.chua.starter.tenant.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.common.support.constant.CacheConstant;
-import com.chua.starter.service.configuration.CustomTenantedKeyGenerator;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.entity.SysTenant;
