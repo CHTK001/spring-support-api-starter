@@ -4,4 +4,4 @@ plugin:
       - group-name: 系统配置
         base-package: com.chua.starter.monitor.controller
       - group-name: 扩展服务
-        base-package: com.chua.report.server.starter.controller
+        base-package: com.chua.starter.monitor.starter.controller
