@@ -21,6 +21,11 @@ import cn.hutool.db.*;
 import cn.hutool.db.ds.DSFactory;
 import cn.hutool.db.sql.Wrapper;
 import cn.hutool.setting.Setting;
+import com.chua.common.support.datasource.meta.Table;
+import com.chua.common.support.function.strategy.name.NamedStrategy;
+import com.chua.common.support.lang.engine.JdbcEngine;
+import com.chua.common.support.lang.engine.datasource.JdbcEngineDataSource;
+import com.chua.common.support.lang.engine.ddl.ActionType;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.report.client.starter.jpom.common.system.ExtConfigBean;
 import com.chua.report.client.starter.jpom.common.system.JpomRuntimeException;
@@ -30,6 +35,7 @@ import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -114,6 +120,21 @@ public class StorageServiceFactory {
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             log.info(I18nMessageUtil.get("i18n.prepare_to_migrate_data.f251"));
             int total = 0;
+            DataSource dataSource = nowDsFactory.getDataSource();
+            for (Class<?> aClass : classes) {
+                JdbcEngine engine = new JdbcEngine();
+                engine.addDataSource(JdbcEngineDataSource.builder()
+                        .name("DEFAULT")
+                        .dataSource(dataSource)
+                        .build()
+                );
+                engine.createTable().doIt(Table.of(aClass, new NamedStrategy() {
+                    @Override
+                    public String named(String s) {
+                        return s;
+                    }
+                }), ActionType.UPDATE);
+            }
             for (Class<?> aClass : classes) {
                 total += migrateH2ToNowItem(aClass, h2DsFactory, nowDsFactory, targetNode);
             }
