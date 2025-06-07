@@ -47,8 +47,8 @@ public class MonitorGenPrometheusConfigController {
      */
     @GetMapping("/list")
     @Operation(summary = "获取配置")
-    public ReturnResult<List<MonitorSysGenPrometheusConfig>> listPrometheusConfig(Integer genId) {
-        return ReturnResult.success(monitorSysGenPrometheusConfigService.listPrometheusConfig(genId));
+    public ReturnResult<List<MonitorSysGenPrometheusConfig>> listPrometheusConfig(Integer genId, String monitorSysGenPrometheusConfigType) {
+        return ReturnResult.success(monitorSysGenPrometheusConfigService.listPrometheusConfig(genId, monitorSysGenPrometheusConfigType));
     }
 
     /**

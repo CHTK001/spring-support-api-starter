@@ -16,10 +16,11 @@ public interface MonitorSysGenPrometheusConfigService extends IService<MonitorSy
     /**
      * 根据生成ID列出Prometheus配置
      *
-     * @param genId 生成ID，用于标识特定的Prometheus配置
+     * @param genId                             生成ID，用于标识特定的Prometheus配置
+     * @param monitorSysGenPrometheusConfigType
      * @return 返回Prometheus配置列表
      */
-    List<MonitorSysGenPrometheusConfig> listPrometheusConfig(Integer genId);
+    List<MonitorSysGenPrometheusConfig> listPrometheusConfig(Integer genId, String monitorSysGenPrometheusConfigType);
 
     /**
      * 保存Prometheus配置

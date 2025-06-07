@@ -7,6 +7,7 @@
     <id column="monitor_sys_gen_prometheus_config_id" jdbcType="INTEGER" property="monitorSysGenPrometheusConfigId" />
     <result column="monitor_sys_gen_prometheus_config_name" jdbcType="VARCHAR" property="monitorSysGenPrometheusConfigName" />
     <result column="monitor_sys_gen_prometheus_config_postion" jdbcType="VARCHAR" property="monitorSysGenPrometheusConfigPostion" />
+    <result column="monitor_sys_gen_prometheus_config_title" jdbcType="VARCHAR" property="monitorSysGenPrometheusConfigTitle" />
     <result column="monitor_sys_gen_prometheus_config_ql" jdbcType="LONGVARCHAR" property="monitorSysGenPrometheusConfigQl" />
     <result column="monitor_sys_gen_prometheus_config_chart_type" jdbcType="VARCHAR" property="monitorSysGenPrometheusConfigChartType" />
     <result column="monitor_sys_gen_prometheus_config_enable" jdbcType="BIT" property="monitorSysGenPrometheusConfigEnable" />
@@ -24,7 +25,7 @@
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     monitor_sys_gen_prometheus_config_id, monitor_sys_gen_prometheus_config_name, monitor_sys_gen_prometheus_config_postion, 
-    monitor_sys_gen_prometheus_config_ql, monitor_sys_gen_prometheus_config_chart_type, 
+    monitor_sys_gen_prometheus_config_title, monitor_sys_gen_prometheus_config_ql, monitor_sys_gen_prometheus_config_chart_type, 
     monitor_sys_gen_prometheus_config_enable, monitor_sys_gen_prometheus_config_type, 
     monitor_sys_gen_id, monitor_sys_gen_prometheus_config_share, monitor_sys_gen_prometheus_config_origin, 
     create_name, create_by, create_time, update_time, update_name, update_by

@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenPrometheusConfig;
 import com.chua.starter.monitor.mapper.MonitorSysGenPrometheusConfigMapper;
 import com.chua.starter.monitor.service.MonitorSysGenPrometheusConfigService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +19,12 @@ import java.util.List;
 public class MonitorSysGenPrometheusConfigServiceImpl extends ServiceImpl<MonitorSysGenPrometheusConfigMapper, MonitorSysGenPrometheusConfig> implements MonitorSysGenPrometheusConfigService {
 
     @Override
-    public List<MonitorSysGenPrometheusConfig> listPrometheusConfig(Integer genId) {
+    public List<MonitorSysGenPrometheusConfig> listPrometheusConfig(Integer genId, String monitorSysGenPrometheusConfigType) {
         return this.list(
                 Wrappers.lambdaQuery(MonitorSysGenPrometheusConfig.class)
                         .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenId, genId)
                         .eq(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigEnable, true)
+                        .eq(StringUtils.isNotBlank(monitorSysGenPrometheusConfigType), MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigType, monitorSysGenPrometheusConfigType)
                         .orderByDesc(MonitorSysGenPrometheusConfig::getMonitorSysGenPrometheusConfigId)
         );
     }
