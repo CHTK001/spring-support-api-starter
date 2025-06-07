@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenPrometheusConfig;
 import com.chua.starter.monitor.mapper.MonitorSysGenPrometheusConfigMapper;
-import com.chua.starter.monitor.pojo.ReturnResult;
 import com.chua.starter.monitor.service.MonitorSysGenPrometheusConfigService;
 import org.springframework.stereotype.Service;
 
