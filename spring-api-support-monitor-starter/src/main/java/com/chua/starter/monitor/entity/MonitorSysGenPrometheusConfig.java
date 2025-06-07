@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author CH
- * @since 2025/6/6 19:46
+ * @since 2025/6/7 18:59
  */
 
 /**
@@ -46,6 +46,14 @@ public class MonitorSysGenPrometheusConfig extends SysBase {
     @ApiModelProperty(value = "位置")
     @Schema(description = "位置")
     private String monitorSysGenPrometheusConfigPostion;
+
+    /**
+     * 标题
+     */
+    @TableField(value = "monitor_sys_gen_prometheus_config_title")
+    @ApiModelProperty(value = "标题")
+    @Schema(description = "标题")
+    private String monitorSysGenPrometheusConfigTitle;
 
     /**
      * 表达式

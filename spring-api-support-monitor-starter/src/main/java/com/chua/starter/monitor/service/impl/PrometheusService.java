@@ -10,12 +10,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * prometheus查询服务
@@ -94,19 +101,40 @@ public class PrometheusService {
         }
         String promQL = request.getPromQL();
         String prometheusAddress = sysGenServiceByIdCache.getGenDriverRemoteUrl("http");
+        Long start = request.getStart();
+        Long end = request.getEnd();
+        int step = request.getStep();
         String genUser = sysGenServiceByIdCache.getGenUser();
         String genPassword = sysGenServiceByIdCache.getGenPassword();
         HttpHeaders headers = new HttpHeaders();
+
+        Map<String, String> params = new HashMap<>(4);
+        params.put("query", request.getPromQL());
+        params.put("start", String.valueOf(start));
+        params.put("end", String.valueOf(end));
+        params.put("step", step + "s");
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 设置超时时间（可选）
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5秒
+        factory.setReadTimeout(30000);   // 30秒
+        restTemplate.setRequestFactory(factory);
+        // 构建URI
+        URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/api/v1/query", prometheusAddress))
+                .queryParam("query", "{query}")
+                .buildAndExpand(params)
+                .toUri();
         if (StringUtils.isNotBlank(genUser) && null != genPassword) {
             // 添加基本认证头
-            String auth = genUser + ":" + genPassword;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-            headers.set("Authorization", "Basic " + encodedAuth);
+            restTemplate.setInterceptors(Collections.singletonList(
+                    basicAuthInterceptor(
+                            genUser,
+                            genPassword
+                    )
+            ));
         }
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        String url = String.format("%s/api/v1/query?query=%s", prometheusAddress, promQL);
-
-        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> exchange = restTemplate.getForEntity(uri, String.class);
         String response = exchange.getBody();
         return parseQueryResponse(response);
     }
@@ -129,19 +157,49 @@ public class PrometheusService {
         String genUser = sysGenServiceByIdCache.getGenUser();
         String genPassword = sysGenServiceByIdCache.getGenPassword();
         HttpHeaders headers = new HttpHeaders();
+
+        Map<String, String> params = new HashMap<>(4);
+        params.put("query", request.getPromQL());
+        params.put("start", String.valueOf(start));
+        params.put("end", String.valueOf(end));
+        params.put("step", step + "s");
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 设置超时时间（可选）
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5秒
+        factory.setReadTimeout(30000);   // 30秒
+        restTemplate.setRequestFactory(factory);
+        // 构建URI
+        URI uri = UriComponentsBuilder.fromHttpUrl(String.format("%s/api/v1/query_range", prometheusAddress))
+                .queryParam("query", "{query}")
+                .queryParam("start", "{start}")
+                .queryParam("end", "{end}")
+                .queryParam("step", "{step}")
+                .buildAndExpand(params)
+                .toUri();
         if (StringUtils.isNotBlank(genUser) && null != genPassword) {
             // 添加基本认证头
-            String auth = genUser + ":" + genPassword;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-            headers.set("Authorization", "Basic " + encodedAuth);
+            restTemplate.setInterceptors(Collections.singletonList(
+                    basicAuthInterceptor(
+                            genUser,
+                            genPassword
+                    )
+            ));
         }
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        String url = String.format("%s/api/v1/query_range?query=%s&start=%d&end=%d&step=%ds",
-                prometheusAddress, promQL, start, end, step);
-
-        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> exchange = restTemplate.getForEntity(uri, String.class);
         String response = exchange.getBody();
         return parseQueryResponse(response);
+    }
+
+    private ClientHttpRequestInterceptor basicAuthInterceptor(String username, String password) {
+        return (request, body, execution) -> {
+            String auth = username + ":" + password;
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            request.getHeaders().add("Authorization", authHeader);
+            return execution.execute(request, body);
+        };
     }
     /**
      * 查询
