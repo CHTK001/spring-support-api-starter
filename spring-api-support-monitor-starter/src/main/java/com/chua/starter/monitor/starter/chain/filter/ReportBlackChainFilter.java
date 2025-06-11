@@ -13,8 +13,8 @@ import com.chua.common.support.protocol.request.Request;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.netty.support.proxy.filter.LastNettyFinishChainFilter;
 import com.chua.starter.monitor.starter.entity.MonitorProxyLog;
+import com.chua.starter.monitor.starter.service.IptablesService;
 import com.chua.starter.monitor.starter.service.MonitorProxyLogService;
-import com.chua.starter.monitor.starter.service.ReportIptablesService;
 import org.redisson.api.RedissonClient;
 
 import java.time.LocalDate;
@@ -45,7 +45,7 @@ public class ReportBlackChainFilter implements Filter {
     private static final ExecutorService POOL = ThreadUtils.newVirtualThreadExecutor();
 
     @AutoInject
-    private ReportIptablesService reportIptablesService;
+    private IptablesService iptablesService;
     @AutoInject
     private MonitorProxyLogService monitorProxyLogService;
 
@@ -83,7 +83,7 @@ public class ReportBlackChainFilter implements Filter {
                 monitorProxyLimitLog.setMonitorProxyLogType("BLACK");
                 monitorProxyLimitLog.setMonitorProxyLogCode("deny".equals(type) ? "-1" : "0");
                 try {
-                    ReturnResult<GeoCity> geoCityReturnResult = reportIptablesService.transferReportAddress(hostString);
+                    ReturnResult<GeoCity> geoCityReturnResult = iptablesService.transferAddress(hostString);
                     if(geoCityReturnResult.isOk()) {
                         monitorProxyLimitLog.setMonitorProxyLogAddressGeo(geoCityReturnResult.getData().getCity());
                     }

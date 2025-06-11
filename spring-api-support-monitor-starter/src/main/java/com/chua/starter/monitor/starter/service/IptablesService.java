@@ -7,13 +7,12 @@ import org.springframework.cache.annotation.Cacheable;
 import static com.chua.starter.common.support.constant.Constant.REDIS_CACHE_MIN;
 
 /**
- * ip
+ * IP地址服务
+ *
  * @author CH
- * @version 1.0.0
- * @since 2024/01/19
+ * @since 2024/7/31
  */
 public interface IptablesService {
-
 
     /**
      * 翻译地址

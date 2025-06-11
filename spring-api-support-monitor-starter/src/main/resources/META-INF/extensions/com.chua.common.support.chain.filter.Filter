@@ -2,3 +2,4 @@ path-limit=com.chua.starter.monitor.starter.chain.filter.ReportUrlLimitChainFilt
 ip-limit=com.chua.starter.monitor.starter.chain.filter.ReportIpLimitChainFilter
 black=com.chua.starter.monitor.starter.chain.filter.ReportBlackChainFilter
 white=com.chua.starter.monitor.starter.chain.filter.ReportWhiteChainFilter
+qps-limit=com.chua.starter.monitor.starter.chain.filter.ReportQpsChainFilter
