@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  *
  * @author CH
@@ -144,6 +146,32 @@ public class SoftService extends SysBase {
     private Integer softServiceRestartCommandType;
 
     /**
+     * 服务状态检查命令
+     * 用于检查服务是否正常运行的命令，如：ps -ef | grep xxx
+     */
+    @TableField(value = "soft_service_status_check_command")
+    @ApiModelProperty(value = "服务状态检查命令")
+    @Schema(description = "服务状态检查命令")
+    private String softServiceStatusCheckCommand;
+
+    /**
+     * 服务状态检查命令类型（0:单行命令，1:脚本）
+     */
+    @TableField(value = "soft_service_status_check_command_type")
+    @ApiModelProperty(value = "服务状态检查命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "服务状态检查命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceStatusCheckCommandType;
+
+    /**
+     * 服务状态检查成功标识
+     * 命令执行结果中包含此字符串则表示服务正常运行
+     */
+    @TableField(value = "soft_service_status_check_success_flag")
+    @ApiModelProperty(value = "服务状态检查成功标识")
+    @Schema(description = "服务状态检查成功标识")
+    private String softServiceStatusCheckSuccessFlag;
+
+    /**
      * 是否安装
      */
     @TableField(value = "soft_service_installed")
@@ -212,4 +240,31 @@ public class SoftService extends SysBase {
     @ApiModelProperty(value = "收藏次数")
     @Schema(description = "收藏次数")
     private Integer favoriteCount;
+
+    /**
+     * 已安装的服务器列表
+     * 包含服务器ID、名称和安装状态等信息
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "已安装的服务器列表")
+    @Schema(description = "已安装的服务器列表")
+    private List<ServerInfo> installedServers;
+
+    /**
+     * 软件版本列表
+     * 包含不同版本的软件服务信息
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "软件版本列表")
+    @Schema(description = "软件版本列表")
+    private List<SoftServiceVersion> versions;
+
+    /**
+     * 是否为分组头
+     * 用于前端展示，标识是否为同名软件的分组头
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否为分组头")
+    @Schema(description = "是否为分组头")
+    private Boolean isGroupHeader;
 }
