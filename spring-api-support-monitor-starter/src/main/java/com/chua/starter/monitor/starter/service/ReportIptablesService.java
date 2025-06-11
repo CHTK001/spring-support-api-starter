@@ -4,18 +4,18 @@ import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 
 /**
- * ip
+ * IP地址服务
+ *
  * @author CH
- * @version 1.0.0
- * @since 2024/01/19
+ * @since 2024/7/31
  */
 public interface ReportIptablesService {
 
 
     /**
-     * 翻译地址
-     * @param address 地址
-     * @return {@link ReturnResult}<{@link GeoCity}>
+     * 转换报表地址
+     * @param ip ip
+     * @return 地址
      */
-    ReturnResult<GeoCity> transferReportAddress(String address);
+    ReturnResult<GeoCity> transferReportAddress(String ip);
 }
