@@ -7,7 +7,7 @@
         <result column="soft_service_id" jdbcType="INTEGER" property="softServiceId"/>
         <result column="install_status" jdbcType="INTEGER" property="installStatus"/>
         <result column="install_path" jdbcType="VARCHAR" property="installPath"/>
-        <result column="install_log" jdbcType="VARCHAR" property="installLog"/>
+        <result column="install_log_path" jdbcType="VARCHAR" property="installLogPath"/>
         <result column="install_version" jdbcType="VARCHAR" property="installVersion"/>
         <result column="install_time" jdbcType="BIGINT" property="installTime"/>
         <result column="last_start_time" jdbcType="BIGINT" property="lastStartTime"/>
@@ -21,7 +21,7 @@
     </resultMap>
     
     <sql id="Base_Column_List">
-        install_id, ssh_id, soft_service_id, install_status, install_path, install_log, install_version,
+        install_id, ssh_id, soft_service_id, install_status, install_path, install_log_path, install_version,
         install_time, last_start_time, last_stop_time, run_status, create_time, update_time, create_by, update_by, tenant_id
     </sql>
 </mapper> 

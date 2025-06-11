@@ -3,9 +3,9 @@ package com.chua.starter.monitor.controller;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SoftService;
+import com.chua.starter.monitor.service.SoftServiceInstallService;
 import com.chua.starter.monitor.service.SoftServiceService;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +31,7 @@ import java.util.Map;
 public class SoftServiceController {
 
     private final SoftServiceService softServiceService;
+    private final SoftServiceInstallService softServiceInstallService;
 
     /**
      * 列表软件服务
@@ -42,7 +43,7 @@ public class SoftServiceController {
     @GetMapping("page")
     @Operation(summary = "列表软件服务")
     public ReturnPageResult<SoftService> listSoftService(@ParameterObject Query<SoftService> query, @ParameterObject SoftService softService) {
-        return ReturnPageResultUtils.ok(softServiceService.pageFor(query, softService));
+        return softServiceService.pageForWithoutCommands(query, softService);
     }
 
     /**
@@ -105,7 +106,7 @@ public class SoftServiceController {
     public ReturnPageResult<SoftService> listSoftServiceByOs(@ParameterObject Query<SoftService> query, @PathVariable("os") String os) {
         SoftService softService = new SoftService();
         softService.setSoftServiceOs(os);
-        return ReturnPageResultUtils.ok(softServiceService.pageFor(query, softService));
+        return softServiceService.pageForWithoutCommands(query, softService);
     }
 
     /**
@@ -128,17 +129,38 @@ public class SoftServiceController {
     @Operation(summary = "检测命令类型")
     @PostMapping("detect-command-type")
     public ReturnResult<Map<String, Object>> detectCommandType(@RequestBody String command) {
-        // 检查命令是否以#!/bin/bash开头
-        boolean isScript = command != null && command.trim().startsWith("#!/bin/bash");
-
-        // 返回命令类型信息
-        Map<String, Object> result = Map.of(
-                "commandType", isScript ? 1 : 0,
-                "commandTypeName", isScript ? "脚本" : "单行命令",
-                "isScript", isScript
-        );
-
-        return ReturnResult.success(result);
+        return softServiceService.detectCommandType(command);
     }
 
+    /**
+     * 更新服务状态检查命令
+     *
+     * @param installId   安装记录ID
+     * @param command     状态检查命令
+     * @param commandType 命令类型（0:单行命令，1:脚本）
+     * @param successFlag 成功标识
+     * @return 结果
+     */
+    @PutMapping("/updateStatusCheckCommand")
+    @ApiOperation(value = "更新服务状态检查命令")
+    @Operation(summary = "更新服务状态检查命令")
+    public ReturnResult<Boolean> updateStatusCheckCommand(
+            @RequestParam("installId") Integer installId,
+            @RequestParam("command") String command,
+            @RequestParam(value = "commandType", required = false, defaultValue = "0") Integer commandType,
+            @RequestParam(value = "successFlag", required = false) String successFlag) {
+        return softServiceInstallService.updateStatusCheckCommand(installId, command, commandType, successFlag);
+    }
+
+    /**
+     * 根据ID获取软件服务详情
+     *
+     * @param softServiceId 软件服务ID
+     * @return {@link ReturnResult}<{@link SoftService}>
+     */
+    @GetMapping("get")
+    @Operation(summary = "根据ID获取软件服务详情")
+    public ReturnResult<SoftService> getSoftServiceDetail(@RequestParam("softServiceId") Integer softServiceId) {
+        return ReturnResult.ok(softServiceService.getById(softServiceId));
+    }
 }
