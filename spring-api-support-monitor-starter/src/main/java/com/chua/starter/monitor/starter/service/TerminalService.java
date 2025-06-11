@@ -20,4 +20,15 @@ public interface TerminalService {
      */
     SshClient getClient(String genId);
 
+    /**
+     * 根据SSH ID创建或获取SSH客户端。
+     * <p>
+     * 此方法通过SSH ID获取SSH模型信息，并创建或返回对应的SSH客户端对象。
+     * 如果该SSH ID的客户端已经存在，则直接返回缓存的客户端对象；
+     * 否则，创建新的SSH客户端对象并缓存。
+     *
+     * @param sshId SSH ID，用于唯一标识一个SSH连接配置
+     * @return 与给定SSH ID关联的SSH客户端对象。如果找不到匹配的SSH配置或创建失败，返回null。
+     */
+    SshClient createClientBySshId(String sshId);
 }

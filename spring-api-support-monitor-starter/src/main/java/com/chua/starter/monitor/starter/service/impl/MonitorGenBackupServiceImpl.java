@@ -6,6 +6,7 @@ import com.chua.common.support.backup.Backup;
 import com.chua.common.support.backup.BackupSetting;
 import com.chua.common.support.backup.listener.BackupData;
 import com.chua.common.support.backup.strategy.DayBackupStrategy;
+import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.constant.EventType;
 import com.chua.common.support.datasource.dialect.Dialect;
 import com.chua.common.support.datasource.dialect.DialectFactory;
@@ -14,6 +15,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.NumberUtils;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.redis.support.constant.RedisConstant;
@@ -124,13 +126,13 @@ public class MonitorGenBackupServiceImpl extends ServiceImpl<MonitorSysGenMapper
     }
     private void registerDocument(EventType event, BackupData backupData, Integer genId) {
         Map<String, String> document = new HashMap<>(9);
-        document.put("text",  backupData.getMessage());
-        document.put("event",  event.name());
+        document.put("text", StringUtils.defaultString(backupData.getMessage(), CommonConstant.EMPTY));
+        document.put("event", StringUtils.defaultString(event.name(), CommonConstant.EMPTY));
         document.put("threadId", StringUtils.toString(backupData.getId()));
         document.put("threadAddress", StringUtils.toString(backupData.getAddress()));
-        document.put("from",  backupData.getFrom());
+        document.put("from", StringUtils.defaultString(backupData.getFrom(), CommonConstant.EMPTY));
         document.put("newValue", ArrayUtils.join(backupData.getNewValue(), ","));
-        document.put("oldValue", ArrayUtils.join(backupData.getOldValue(), ","));
+        document.put("oldValue", ObjectUtils.defaultIfNull(ArrayUtils.join(backupData.getOldValue(), ","), CommonConstant.EMPTY));
         document.put("timestamp", String.valueOf(System.currentTimeMillis()));
         redisSearchService.addDocument(RedisConstant.REDIS_SEARCH_PREFIX + "GEN" + genId, document);
     }

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 监控工厂
@@ -20,6 +22,7 @@ public class ReportFactory {
     private ReportIpLimitFactory reportIpLimitFactory;
     private ReportBlackLimitFactory reportBlackLimitFactory;
     private ReportWhiteLimitFactory reportWhiteLimitFactory;
+    private ReportQpsLimitFactory reportQpsLimitFactory;
 
 
     /**
@@ -33,6 +36,10 @@ public class ReportFactory {
 
         if(null != reportIpLimitFactory) {
             reportIpLimitFactory.refresh(list);
+        }
+
+        if (null != reportQpsLimitFactory) {
+            reportQpsLimitFactory.refresh(list);
         }
     }
 
@@ -48,5 +55,43 @@ public class ReportFactory {
         if(null != reportWhiteLimitFactory) {
             reportWhiteLimitFactory.refresh(list);
         }
+    }
+
+    /**
+     * 检查路径是否允许通过QPS限流
+     *
+     * @param path API路径
+     * @return 是否允许访问
+     */
+    public boolean tryAcquireQps(String path) {
+        if (null == reportQpsLimitFactory) {
+            return true;
+        }
+        return reportQpsLimitFactory.tryAcquire(path);
+    }
+
+    /**
+     * 获取所有路径的QPS统计数据
+     *
+     * @return 路径与QPS的映射
+     */
+    public Map<String, Long> getQpsStats() {
+        if (null == reportQpsLimitFactory) {
+            return new ConcurrentHashMap<>();
+        }
+        return reportQpsLimitFactory.getAllQpsStats();
+    }
+
+    /**
+     * 获取指定路径的当前QPS
+     *
+     * @param path API路径
+     * @return 当前QPS值
+     */
+    public long getCurrentQps(String path) {
+        if (null == reportQpsLimitFactory) {
+            return 0;
+        }
+        return reportQpsLimitFactory.getCurrentQps(path);
     }
 }

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author CH
- * @since 2025/6/7 18:59
+ * @since 2025/6/7 22:11
  */
 @Mapper
 public interface MonitorSysGenPrometheusConfigMapper extends BaseMapper<MonitorSysGenPrometheusConfig> {

@@ -7,6 +7,7 @@
     monitor_proxy_log_address_geo,
     monitor_proxy_log_address,
     monitor_proxy_log_server_id,
+
     count(*) count,
     (select count(*) from monitor_proxy_log where monitor_proxy_log_date = mpll.monitor_proxy_log_date and monitor_proxy_log_server_id = mpll.monitor_proxy_log_server_id and  monitor_proxy_log_address = mpll.monitor_proxy_log_address and monitor_proxy_log_type = 'allow' and monitor_proxy_log_url = mpll.monitor_proxy_log_url) allowCount,
     (select count(*) from monitor_proxy_log where monitor_proxy_log_date = mpll.monitor_proxy_log_date and monitor_proxy_log_server_id = mpll.monitor_proxy_log_server_id and  monitor_proxy_log_address = mpll.monitor_proxy_log_address and monitor_proxy_log_type = 'deny' and monitor_proxy_log_url = mpll.monitor_proxy_log_url) denyCount,

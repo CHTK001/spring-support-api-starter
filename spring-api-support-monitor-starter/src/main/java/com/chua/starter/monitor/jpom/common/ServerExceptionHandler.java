@@ -19,7 +19,6 @@ import com.chua.starter.monitor.jpom.transport.TransportAgentException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 全局异常处理
@@ -27,7 +26,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author bwcx_jzy
  * @since 2019/04/17
  */
-@RestControllerAdvice
+//@RestControllerAdvice
 @Slf4j
 public class ServerExceptionHandler extends BaseExceptionHandler {
 

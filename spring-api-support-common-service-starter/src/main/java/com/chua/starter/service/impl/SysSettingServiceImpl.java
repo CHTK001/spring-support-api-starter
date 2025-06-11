@@ -32,6 +32,7 @@ import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -50,6 +51,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
 
     @Autowired
+    @Lazy
     private SysSettingService sysSettingService;
     static final String[] APP_KEY = new String[]{"appId", "clientId"};
     static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"};

@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SoftServiceInstall;
+import com.chua.starter.monitor.pojo.SoftServiceStatusInfo;
 
 import java.util.List;
 
@@ -152,4 +153,20 @@ public interface SoftServiceInstallService extends IService<SoftServiceInstall> 
      * @return 操作结果，包含布尔值表示是否成功
      */
     ReturnResult<Boolean> stopMonitorServiceLog(Integer installId);
+
+    /**
+     * 检测服务状态
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果，包含服务状态信息
+     */
+    ReturnResult<SoftServiceStatusInfo> checkServiceStatus(Integer installId);
+
+    /**
+     * 批量检测服务状态
+     *
+     * @param installIds 安装记录ID列表
+     * @return 操作结果，包含服务状态信息列表
+     */
+    ReturnResult<List<SoftServiceStatusInfo>> batchCheckServiceStatus(List<Integer> installIds);
 } 
