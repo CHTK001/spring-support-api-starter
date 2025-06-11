@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author CH
- * @since 2025/6/5 9:19
+ * @since 2025/6/9 15:34
  */
 @Mapper
 public interface SoftServiceMapper extends BaseMapper<SoftService> {

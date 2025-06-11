@@ -162,6 +162,38 @@ public abstract class BaseDbCommonService<T> {
      * @param consumer 参数回调
      * @return 数据
      */
+    public T getByKeyFull(String keyValue, boolean fill, Consumer<Entity> consumer) {
+        if (StrUtil.isEmpty(keyValue)) {
+            return null;
+        }
+        Entity where = new Entity(tableName);
+        where.set(ID_STR, keyValue);
+        Entity entity;
+        try {
+            Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+            if (consumer != null) {
+                consumer.accept(where);
+            }
+            entity = db.get(where);
+        } catch (Exception e) {
+            throw warpException(e);
+        }
+        if (entity == null) {
+            return null;
+        }
+        CopyOptions copyOptions = new CopyOptions();
+        copyOptions.setIgnoreError(true);
+        copyOptions.setIgnoreCase(true);
+        return BeanUtil.toBean(entity, this.tClass, copyOptions);
+    }
+    /**
+     * 根据主键查询实体
+     *
+     * @param keyValue 主键值
+     * @param fill     是否执行填充逻辑
+     * @param consumer 参数回调
+     * @return 数据
+     */
     public final T getByKey(String keyValue, boolean fill, Consumer<Entity> consumer) {
         if (StrUtil.isEmpty(keyValue)) {
             return null;
@@ -408,4 +440,6 @@ public abstract class BaseDbCommonService<T> {
     private JpomRuntimeException warpException(Exception e) {
         return StorageServiceFactory.get().warpException(e);
     }
+
+
 }
