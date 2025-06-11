@@ -98,13 +98,84 @@ public class MonitorProxyLog implements Serializable {
     private String monitorProxyLogAddress;
 
     /**
-     * 客户端地址
+     * 客户端地址地理位置（城市）
      */
     @TableField(value = "monitor_proxy_log_address_geo")
-    @ApiModelProperty(value = "客户端地址")
-    @Schema(description = "客户端地址")
-    @Size(max = 255, message = "客户端地址最大长度要小于 255")
+    @ApiModelProperty(value = "客户端地址地理位置（城市）")
+    @Schema(description = "客户端地址地理位置（城市）")
+    @Size(max = 255, message = "客户端地址地理位置最大长度要小于 255")
     private String monitorProxyLogAddressGeo;
+
+    /**
+     * 客户端地址地理位置（国家）
+     */
+    @TableField(value = "monitor_proxy_log_address_country")
+    @ApiModelProperty(value = "客户端地址地理位置（国家）")
+    @Schema(description = "客户端地址地理位置（国家）")
+    @Size(max = 255, message = "客户端地址地理位置（国家）最大长度要小于 255")
+    private String monitorProxyLogAddressCountry;
+
+    /**
+     * 客户端地址地理位置（省份）
+     */
+    @TableField(value = "monitor_proxy_log_address_province")
+    @ApiModelProperty(value = "客户端地址地理位置（省份）")
+    @Schema(description = "客户端地址地理位置（省份）")
+    @Size(max = 255, message = "客户端地址地理位置（省份）最大长度要小于 255")
+    private String monitorProxyLogAddressProvince;
+
+    /**
+     * QPS值
+     */
+    @TableField(value = "monitor_proxy_log_qps")
+    @ApiModelProperty(value = "QPS值")
+    @Schema(description = "QPS值")
+    private Long monitorProxyLogQps;
+
+    /**
+     * 浏览器类型
+     */
+    @TableField(value = "monitor_proxy_log_browser")
+    @ApiModelProperty(value = "浏览器类型")
+    @Schema(description = "浏览器类型")
+    @Size(max = 255, message = "浏览器类型最大长度要小于 255")
+    private String monitorProxyLogBrowser;
+
+    /**
+     * 操作系统
+     */
+    @TableField(value = "monitor_proxy_log_os")
+    @ApiModelProperty(value = "操作系统")
+    @Schema(description = "操作系统")
+    @Size(max = 255, message = "操作系统最大长度要小于 255")
+    private String monitorProxyLogOs;
+
+    /**
+     * 设备类型
+     */
+    @TableField(value = "monitor_proxy_log_device")
+    @ApiModelProperty(value = "设备类型")
+    @Schema(description = "设备类型")
+    @Size(max = 255, message = "设备类型最大长度要小于 255")
+    private String monitorProxyLogDevice;
+
+    /**
+     * 浏览器指纹
+     */
+    @TableField(value = "monitor_proxy_log_fingerprint")
+    @ApiModelProperty(value = "浏览器指纹")
+    @Schema(description = "浏览器指纹")
+    @Size(max = 255, message = "浏览器指纹最大长度要小于 255")
+    private String monitorProxyLogFingerprint;
+
+    /**
+     * User-Agent
+     */
+    @TableField(value = "monitor_proxy_log_user_agent")
+    @ApiModelProperty(value = "User-Agent")
+    @Schema(description = "User-Agent")
+    @Size(max = 1000, message = "User-Agent最大长度要小于 1000")
+    private String monitorProxyLogUserAgent;
 
     /**
      * 发生时间(day)
