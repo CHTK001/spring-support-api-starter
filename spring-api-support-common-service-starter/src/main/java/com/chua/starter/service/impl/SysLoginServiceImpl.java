@@ -30,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.request.AuthRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     final RestTemplate restTemplate;
     final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     final RedisTemplate redisTemplate;
-    final SysSettingService sysSettingService;
+    @Lazy
+    @Autowired
+    private SysSettingService sysSettingService;
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
 

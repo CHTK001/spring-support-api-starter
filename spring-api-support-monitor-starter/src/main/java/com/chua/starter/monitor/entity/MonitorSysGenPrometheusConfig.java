@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author CH
- * @since 2025/6/7 18:59
+ * @since 2025/6/7 22:11
  */
 
 /**
@@ -72,6 +72,22 @@ public class MonitorSysGenPrometheusConfig extends SysBase {
     private String monitorSysGenPrometheusConfigChartType;
 
     /**
+     * 图表配置
+     */
+    @TableField(value = "monitor_sys_gen_prometheus_config_chart_config")
+    @ApiModelProperty(value = "图表配置")
+    @Schema(description = "图表配置")
+    private String monitorSysGenPrometheusConfigChartConfig;
+
+    /**
+     * 说明
+     */
+    @TableField(value = "monitor_sys_gen_prometheus_config_tip")
+    @ApiModelProperty(value = "说明")
+    @Schema(description = "说明")
+    private String monitorSysGenPrometheusConfigTip;
+
+    /**
      * 是否开启
      */
     @TableField(value = "monitor_sys_gen_prometheus_config_enable")
@@ -102,6 +118,14 @@ public class MonitorSysGenPrometheusConfig extends SysBase {
     @ApiModelProperty(value = "是否共享")
     @Schema(description = "是否共享")
     private Boolean monitorSysGenPrometheusConfigShare;
+
+    /**
+     * 数据单位
+     */
+    @TableField(value = "monitor_sys_gen_prometheus_config_value_unit")
+    @ApiModelProperty(value = "数据单位")
+    @Schema(description = "数据单位")
+    private String monitorSysGenPrometheusConfigValueUnit;
 
     /**
      * 共享来源

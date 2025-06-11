@@ -4,9 +4,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.SoftServiceInstall;
+import com.chua.starter.monitor.pojo.SoftServiceStatusInfo;
 import com.chua.starter.monitor.service.SoftServiceInstallService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
@@ -37,7 +38,7 @@ public class SoftServiceInstallController {
      * @return 安装记录
      */
     @GetMapping("/{installId}")
-    @ApiOperation(value = "根据ID获取安装记录")
+    @Operation(summary = "根据ID获取安装记录")
     public ReturnResult<SoftServiceInstall> getInstallById(@PathVariable Integer installId) {
         return ReturnResult.success(softServiceInstallService.getInstallById(installId));
     }
@@ -49,7 +50,7 @@ public class SoftServiceInstallController {
      * @return 安装记录列表
      */
     @GetMapping("/ssh/{sshId}")
-    @ApiOperation(value = "根据SSH ID获取安装记录列表")
+    @Operation(summary = "根据SSH ID获取安装记录列表")
     public ReturnResult<List<SoftServiceInstall>> listInstallBySshId(@PathVariable String sshId) {
         return ReturnResult.success(softServiceInstallService.listInstallBySshId(sshId));
     }
@@ -61,7 +62,7 @@ public class SoftServiceInstallController {
      * @return 安装记录列表
      */
     @GetMapping("/service/{softServiceId}")
-    @ApiOperation(value = "根据软件服务ID获取安装记录列表")
+    @Operation(summary = "根据软件服务ID获取安装记录列表")
     public ReturnResult<List<SoftServiceInstall>> listInstallBySoftServiceId(@PathVariable Integer softServiceId) {
         return ReturnResult.success(softServiceInstallService.listInstallBySoftServiceId(softServiceId));
     }
@@ -74,7 +75,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @PostMapping("/add")
-    @ApiOperation(value = "添加安装记录")
+    @Operation(summary = "添加安装记录")
     public ReturnResult<Boolean> addInstall(@Validated(AddGroup.class) @RequestBody SoftServiceInstall softServiceInstall, BindingResult result) {
         if (result.hasErrors()) {
             return ReturnResult.illegal(result.getAllErrors().getFirst().getDefaultMessage());
@@ -90,7 +91,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @PutMapping("/update")
-    @ApiOperation(value = "更新安装记录")
+    @Operation(summary = "更新安装记录")
     public ReturnResult<Boolean> updateInstall(@Validated(UpdateGroup.class) @RequestBody SoftServiceInstall softServiceInstall, BindingResult result) {
         if (result.hasErrors()) {
             return ReturnResult.illegal(result.getAllErrors().getFirst().getDefaultMessage());
@@ -105,7 +106,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @DeleteMapping("/delete/{installId}")
-    @ApiOperation(value = "删除安装记录")
+    @Operation(summary = "删除安装记录")
     public ReturnResult<Boolean> removeInstallById(@PathVariable Integer installId) {
         return softServiceInstallService.removeInstallById(installId);
     }
@@ -118,7 +119,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @PostMapping("/batch/install")
-    @ApiOperation(value = "批量安装软件服务")
+    @Operation(summary = "批量安装软件服务")
     public ReturnResult<Boolean> batchInstall(@RequestParam Integer softServiceId, @RequestBody List<String> sshIds) {
         return softServiceInstallService.batchInstall(softServiceId, sshIds);
     }
@@ -131,7 +132,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @PostMapping("/start")
-    @ApiOperation(value = "开始安装软件")
+    @Operation(summary = "开始安装软件")
     public ReturnResult<Boolean> startInstall(@Validated(AddGroup.class) @RequestBody SoftServiceInstall softServiceInstall, BindingResult result) {
         if (result.hasErrors()) {
             return ReturnResult.illegal(result.getAllErrors().getFirst().getDefaultMessage());
@@ -145,8 +146,8 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/stop/{installId}")
-    @ApiOperation(value = "停止安装软件")
+    @PostMapping("/stopInstall/{installId}")
+    @Operation(summary = "停止安装软件")
     public ReturnResult<Boolean> stopInstall(@PathVariable Integer installId) {
         return softServiceInstallService.stopInstall(installId);
     }
@@ -158,7 +159,7 @@ public class SoftServiceInstallController {
      * @return 操作结果
      */
     @PostMapping("/uninstall/{installId}")
-    @ApiOperation(value = "卸载软件")
+    @Operation(summary = "卸载软件")
     public ReturnResult<Boolean> uninstall(@PathVariable Integer installId) {
         return softServiceInstallService.uninstall(installId);
     }
@@ -169,8 +170,8 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/service/start/{installId}")
-    @ApiOperation(value = "启动服务")
+    @PostMapping("/start/{installId}")
+    @Operation(summary = "启动服务")
     public ReturnResult<Boolean> startService(@PathVariable Integer installId) {
         return softServiceInstallService.startService(installId);
     }
@@ -181,8 +182,8 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/service/stop/{installId}")
-    @ApiOperation(value = "停止服务")
+    @PostMapping("/stop/{installId}")
+    @Operation(summary = "停止服务")
     public ReturnResult<Boolean> stopService(@PathVariable Integer installId) {
         return softServiceInstallService.stopService(installId);
     }
@@ -193,8 +194,8 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/service/restart/{installId}")
-    @ApiOperation(value = "重启服务")
+    @PostMapping("/restart/{installId}")
+    @Operation(summary = "重启服务")
     public ReturnResult<Boolean> restartService(@PathVariable Integer installId) {
         return softServiceInstallService.restartService(installId);
     }
@@ -206,8 +207,8 @@ public class SoftServiceInstallController {
      * @param lines     要查看的行数，默认100行
      * @return 操作结果
      */
-    @GetMapping("/service/log/{installId}")
-    @ApiOperation(value = "查看服务日志")
+    @GetMapping("/log/{installId}")
+    @Operation(summary = "查看服务日志")
     public ReturnResult<String> viewServiceLog(@PathVariable Integer installId, @RequestParam(required = false, defaultValue = "100") Integer lines) {
         return softServiceInstallService.viewServiceLog(installId, lines);
     }
@@ -218,8 +219,8 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/service/log/monitor/start/{installId}")
-    @ApiOperation(value = "开始实时监控服务日志")
+    @PostMapping("/log/monitor/start/{installId}")
+    @Operation(summary = "开始实时监控服务日志")
     public ReturnResult<Boolean> startMonitorServiceLog(@PathVariable Integer installId) {
         return softServiceInstallService.startMonitorServiceLog(installId);
     }
@@ -230,9 +231,35 @@ public class SoftServiceInstallController {
      * @param installId 安装记录ID
      * @return 操作结果
      */
-    @PostMapping("/service/log/monitor/stop/{installId}")
-    @ApiOperation(value = "停止实时监控服务日志")
+    @PostMapping("/log/monitor/stop/{installId}")
+    @Operation(summary = "停止实时监控服务日志")
     public ReturnResult<Boolean> stopMonitorServiceLog(@PathVariable Integer installId) {
         return softServiceInstallService.stopMonitorServiceLog(installId);
     }
-} 
+
+    /**
+     * 检测服务状态
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果，包含服务状态信息
+     */
+    @GetMapping("/status/{installId}")
+    @Operation(summary = "检测服务状态")
+    public ReturnResult<SoftServiceStatusInfo> checkServiceStatus(@PathVariable Integer installId) {
+        return softServiceInstallService.checkServiceStatus(installId);
+    }
+
+    /**
+     * 批量检测服务状态
+     *
+     * @param installIds 安装记录ID列表
+     * @return 操作结果，包含服务状态信息列表
+     */
+    @PostMapping("/status/batch")
+    @Operation(summary = "批量检测服务状态")
+    public ReturnResult<List<SoftServiceStatusInfo>> batchCheckServiceStatus(@RequestBody List<Integer> installIds) {
+        return softServiceInstallService.batchCheckServiceStatus(installIds);
+    }
+
+
+}
