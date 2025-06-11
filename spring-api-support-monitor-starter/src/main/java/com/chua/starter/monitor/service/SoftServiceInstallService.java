@@ -169,4 +169,15 @@ public interface SoftServiceInstallService extends IService<SoftServiceInstall> 
      * @return 操作结果，包含服务状态信息列表
      */
     ReturnResult<List<SoftServiceStatusInfo>> batchCheckServiceStatus(List<Integer> installIds);
+
+    /**
+     * 更新服务状态检查命令
+     *
+     * @param installId   安装记录ID
+     * @param command     状态检查命令
+     * @param commandType 命令类型（0:单行命令，1:脚本）
+     * @param successFlag 成功标识
+     * @return 结果
+     */
+    ReturnResult<Boolean> updateStatusCheckCommand(Integer installId, String command, Integer commandType, String successFlag);
 } 

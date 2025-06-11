@@ -72,12 +72,12 @@ public class SoftServiceInstall extends SysBase {
     private String installPath;
 
     /**
-     * 安装日志
+     * 日志路径
      */
-    @TableField(value = "install_log")
-    @ApiModelProperty(value = "安装日志")
-    @Schema(description = "安装日志")
-    private String installLog;
+    @TableField(value = "install_log_path")
+    @ApiModelProperty(value = "日志路径")
+    @Schema(description = "日志路径")
+    private String installLogPath;
 
     /**
      * 安装版本
@@ -128,42 +128,163 @@ public class SoftServiceInstall extends SysBase {
     private String installConfigPath;
 
     /**
-     * 启动命令
+     * 最后一次状态检查时间
      */
-    @TableField(value = "install_start_command")
-    @ApiModelProperty(value = "启动命令")
-    @Schema(description = "启动命令")
-    private String installStartCommand;
+    @TableField(value = "install_last_check_time")
+    @ApiModelProperty(value = "最后一次状态检查时间")
+    @Schema(description = "最后一次状态检查时间")
+    private Long installLastCheckTime;
 
     /**
-     * 重启命令
+     * SSH主机地址
+     * 非数据库字段，用于前端展示
      */
-    @TableField(value = "install_restart_command")
-    @ApiModelProperty(value = "重启命令")
-    @Schema(description = "重启命令")
-    private String installRestartCommand;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "SSH主机地址")
+    @Schema(description = "SSH主机地址")
+    private String sshHost;
+    
+    /**
+     * SSH端口
+     * 非数据库字段，用于前端展示
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "SSH端口")
+    @Schema(description = "SSH端口")
+    private Integer sshPort;
+    
+    /**
+     * SSH服务器名称
+     * 非数据库字段，用于前端展示
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "SSH服务器名称")
+    @Schema(description = "SSH服务器名称")
+    private String sshName;
+    
+    /**
+     * 软件服务名称
+     * 非数据库字段，用于前端展示
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "软件服务名称")
+    @Schema(description = "软件服务名称")
+    private String softServiceName;
 
     /**
-     * 关闭命令
+     * 安装命令
+     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(value = "install_stop_command")
-    @ApiModelProperty(value = "关闭命令")
-    @Schema(description = "关闭命令")
-    private String installStopCommand;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "安装命令")
+    @Schema(description = "安装命令")
+    private String softServiceInstallCommand;
 
     /**
-     * 日志目录
+     * 安装命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(value = "install_log_path")
-    @ApiModelProperty(value = "日志目录")
-    @Schema(description = "日志目录")
-    private String installLogPath;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "安装命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "安装命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceInstallCommandType;
 
     /**
      * 卸载命令
+     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(value = "install_uninstall_command")
+    @TableField(exist = false)
     @ApiModelProperty(value = "卸载命令")
     @Schema(description = "卸载命令")
-    private String installUninstallCommand;
+    private String softServiceUninstallCommand;
+
+    /**
+     * 卸载命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "卸载命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "卸载命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceUninstallCommandType;
+
+    /**
+     * 启动命令
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "启动命令")
+    @Schema(description = "启动命令")
+    private String softServiceStartCommand;
+
+    /**
+     * 启动命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "启动命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "启动命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceStartCommandType;
+
+    /**
+     * 停止命令
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "停止命令")
+    @Schema(description = "停止命令")
+    private String softServiceStopCommand;
+
+    /**
+     * 停止命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "停止命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "停止命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceStopCommandType;
+
+    /**
+     * 重启命令
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "重启命令")
+    @Schema(description = "重启命令")
+    private String softServiceRestartCommand;
+
+    /**
+     * 重启命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "重启命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "重启命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceRestartCommandType;
+
+    /**
+     * 服务状态检查命令
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "服务状态检查命令")
+    @Schema(description = "服务状态检查命令")
+    private String softServiceStatusCheckCommand;
+
+    /**
+     * 服务状态检查命令类型（0:单行命令，1:脚本）
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "服务状态检查命令类型（0:单行命令，1:脚本）")
+    @Schema(description = "服务状态检查命令类型（0:单行命令，1:脚本）")
+    private Integer softServiceStatusCheckCommandType;
+
+    /**
+     * 服务状态检查成功标识
+     * 非数据库字段，用于缓存SoftService命令数据
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "服务状态检查成功标识")
+    @Schema(description = "服务状态检查成功标识")
+    private String softServiceStatusCheckSuccessFlag;
 } 
