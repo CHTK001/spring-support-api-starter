@@ -10,6 +10,10 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +51,7 @@ import java.nio.charset.StandardCharsets;
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor
 @RequestMapping("${plugin.auth.server.context-path:/gitee/bind}")
+@Tag(name = "Gitee账号绑定", description = "提供将Gitee账号与系统账号绑定的功能")
 public class GiteeBinderProvider implements InitializingBean, ApplicationContextAware {
 
     final CasProperties casProperties;
@@ -65,7 +70,18 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
      * @return 登录页
      */
     @GetMapping("/callback")
-    public RedirectView thirdIndex(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    @Operation(
+            summary = "Gitee绑定回调",
+            description = "接收Gitee授权后的回调请求，处理账号绑定",
+            responses = {
+                    @ApiResponse(responseCode = "302", description = "重定向到指定页面")
+            }
+    )
+    public RedirectView thirdIndex(
+            @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
+            RedirectAttributes attributes,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         RedirectView view = new RedirectView();
         view.setUrl("/");
 //        view.addStaticAttribute("Set-Cookie", CookieUtil.toString(request.getCookies()));

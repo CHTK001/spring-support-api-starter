@@ -29,7 +29,7 @@ public class SoftServiceLog extends SysBase {
     @TableId(value = "log_id", type = IdType.AUTO)
     @ApiModelProperty(value = "日志ID")
     @Schema(description = "日志ID")
-    private Integer logId;
+    private Integer softServiceLogId;
 
     /**
      * 安装ID
@@ -37,7 +37,7 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "install_id")
     @ApiModelProperty(value = "安装ID")
     @Schema(description = "安装ID")
-    private Integer installId;
+    private Integer softServiceLogInstallId;
 
     /**
      * 软件服务ID
@@ -45,7 +45,7 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "soft_service_id")
     @ApiModelProperty(value = "软件服务ID")
     @Schema(description = "软件服务ID")
-    private Integer softServiceId;
+    private Integer softServiceLogServiceId;
 
     /**
      * SSH ID
@@ -53,15 +53,15 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "ssh_id")
     @ApiModelProperty(value = "SSH ID")
     @Schema(description = "SSH ID")
-    private String sshId;
+    private String softServiceLogSshId;
 
     /**
-     * 日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启
+     * 日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启，6-状态检查
      */
     @TableField(value = "log_type")
-    @ApiModelProperty(value = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启")
-    @Schema(description = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启")
-    private Integer logType;
+    @ApiModelProperty(value = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启，6-状态检查")
+    @Schema(description = "日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启，6-状态检查")
+    private Integer softServiceLogType;
 
     /**
      * 日志内容
@@ -69,7 +69,7 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "log_content")
     @ApiModelProperty(value = "日志内容")
     @Schema(description = "日志内容")
-    private String logContent;
+    private String softServiceLogContent;
 
     /**
      * 日志状态：0-进行中，1-成功，2-失败
@@ -77,7 +77,7 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "log_status")
     @ApiModelProperty(value = "日志状态：0-进行中，1-成功，2-失败")
     @Schema(description = "日志状态：0-进行中，1-成功，2-失败")
-    private Integer logStatus;
+    private Integer softServiceLogStatus;
 
     /**
      * 日志时间
@@ -85,5 +85,85 @@ public class SoftServiceLog extends SysBase {
     @TableField(value = "log_time")
     @ApiModelProperty(value = "日志时间")
     @Schema(description = "日志时间")
-    private Long logTime;
+    private Long softServiceLogTime;
+
+    /**
+     * 日志文件路径
+     */
+    @TableField(value = "log_file_path")
+    @ApiModelProperty(value = "日志文件路径")
+    @Schema(description = "日志文件路径")
+    private String softServiceLogFilePath;
+
+    /**
+     * 日志操作类型（字符串形式）：install, uninstall, start, stop, restart, status
+     */
+    @TableField(value = "log_operation_type")
+    @ApiModelProperty(value = "日志操作类型：install, uninstall, start, stop, restart, status")
+    @Schema(description = "日志操作类型：install, uninstall, start, stop, restart, status")
+    private String softServiceLogOperationType;
+
+    /**
+     * 软件服务名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "软件服务名称")
+    @Schema(description = "软件服务名称")
+    private String softServiceLogServiceName;
+
+    /**
+     * SSH主机名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "SSH主机名称")
+    @Schema(description = "SSH主机名称")
+    private String softServiceLogSshName;
+
+    /**
+     * SSH主机地址
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "SSH主机地址")
+    @Schema(description = "SSH主机地址")
+    private String softServiceLogSshHost;
+
+    /**
+     * 日志文件大小（字节）
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "日志文件大小（字节）")
+    @Schema(description = "日志文件大小（字节）")
+    private Long softServiceLogFileSize;
+
+    /**
+     * 日志执行耗时（毫秒）
+     */
+    @TableField(value = "log_duration")
+    @ApiModelProperty(value = "日志执行耗时（毫秒）")
+    @Schema(description = "日志执行耗时（毫秒）")
+    private Long softServiceLogDuration;
+
+    /**
+     * 日志执行命令
+     */
+    @TableField(value = "log_command")
+    @ApiModelProperty(value = "日志执行命令")
+    @Schema(description = "日志执行命令")
+    private String softServiceLogCommand;
+
+    /**
+     * 日志执行错误信息
+     */
+    @TableField(value = "log_error")
+    @ApiModelProperty(value = "日志执行错误信息")
+    @Schema(description = "日志执行错误信息")
+    private String softServiceLogError;
+
+    /**
+     * 日志结束时间
+     */
+    @TableField(value = "log_end_time")
+    @ApiModelProperty(value = "日志结束时间")
+    @Schema(description = "日志结束时间")
+    private Long softServiceLogEndTime;
 }
