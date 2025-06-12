@@ -14,3 +14,15 @@ server:
   port: 19180
   servlet:
     context-path: /oauth
+
+# Swagger配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  show-actuator: false
+  packages-to-scan: com.chua.starter.oauth.sso
+  default-produces-media-type: application/json

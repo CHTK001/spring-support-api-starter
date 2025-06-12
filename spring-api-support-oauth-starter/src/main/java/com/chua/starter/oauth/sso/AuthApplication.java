@@ -1,6 +1,10 @@
 package com.chua.starter.oauth.sso;
 
 import com.chua.starter.oauth.sso.properties.TenantDataSourceProperties;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +19,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication
 @EnableConfigurationProperties(TenantDataSourceProperties.class)
 @MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service"})
+@OpenAPIDefinition(
+        info = @Info(
+                title = "统一认证中心API",
+                version = "4.0.0",
+                description = "提供单点登录、第三方登录和认证授权功能",
+                contact = @Contact(name = "CH", email = "admin@example.com"),
+                license = @License(name = "Private License", url = "https://example.com")
+        )
+)
 public class AuthApplication {
 
     public static void main(String[] args) {

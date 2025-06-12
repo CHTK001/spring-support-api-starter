@@ -51,13 +51,20 @@ public class LoginCheck {
 
 
     /**
-     * 登入校验
+     * 登录验证
+     * <p>
+     * 根据登录类型选择合适的UserInfoService实现，验证用户凭证，并生成登录令牌。
+     * 不同登录类型的参数含义可能不同，如用户名密码登录、令牌登录或第三方登录。
+     * </p>
      *
-     * @param address  地址
-     * @param username 用户名
-     * @param passwd   密码
+     * @param address    客户端地址
+     * @param principal  用户标识（用户名/手机号/邮箱/令牌等）
+     * @param credential 用户凭证（密码/令牌/证书等）
+     * @param authType   认证类型，与UserInfoService实现的@LoginType注解值匹配
+     * @param ext        扩展参数，传递给UserInfoService实现
+     * @return 登录结果，包含令牌和用户信息
      */
-    public ReturnResult<LoginResult> doLogin(String address, String username, String passwd, String authType, Object ext) {
+    public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
         UserResult userResult = null;
         Map<String, UserInfoService> beansOfType = applicationContext.getBeansOfType(UserInfoService.class);
         for (Map.Entry<String, UserInfoService> entry : beansOfType.entrySet()) {
@@ -67,18 +74,17 @@ public class LoginCheck {
             }
 
             try {
-                userResult = userInfoService.checkLogin(username, passwd, address, ext);
+                userResult = userInfoService.checkLogin(principal, credential, address, ext);
             } catch (Exception e) {
-                log.error("", e);
+                log.error("用户认证异常: {}, 类型: {}", principal, authType, e);
                 continue;
             }
             if (null != userResult && Strings.isNullOrEmpty(userResult.getMessage())) {
                 userResult.setAuthType(authType);
-                userResult.setUid(createUid(username, authType));
+                userResult.setUid(createUid(principal, authType));
                 break;
             }
         }
-
 
         if (null == userResult) {
             return ReturnResult.noAuth();

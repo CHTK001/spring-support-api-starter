@@ -180,4 +180,30 @@ public interface SoftServiceInstallService extends IService<SoftServiceInstall> 
      * @return 结果
      */
     ReturnResult<Boolean> updateStatusCheckCommand(Integer installId, String command, Integer commandType, String successFlag);
+
+    /**
+     * 获取服务操作日志
+     *
+     * @param installId     安装记录ID
+     * @param operationType 操作类型
+     * @return 操作结果，包含日志内容
+     */
+    ReturnResult<String> getServiceOperationLog(Integer installId, String operationType);
+
+    /**
+     * 下载服务操作日志
+     *
+     * @param installId     安装记录ID
+     * @param operationType 操作类型
+     * @return 操作结果，包含日志文件字节数组
+     */
+    ReturnResult<byte[]> downloadServiceOperationLog(Integer installId, String operationType);
+
+    /**
+     * 获取服务日志文件列表
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果，包含日志文件列表
+     */
+    ReturnResult<List<String>> listServiceLogFiles(Integer installId);
 } 

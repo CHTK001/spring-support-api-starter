@@ -11,6 +11,10 @@ import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,6 +54,7 @@ import java.nio.charset.StandardCharsets;
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor
 @RequestMapping("${plugin.auth.server.context-path:/gitee/login}")
+@Tag(name = "Gitee登录", description = "提供Gitee第三方账号登录功能")
 public class GiteeLoginProvider implements InitializingBean, ApplicationContextAware {
 
     final CasProperties casProperties;
@@ -68,7 +73,18 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
      * @return 登录页
      */
     @GetMapping("/callback")
-    public RedirectView thirdIndex(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    @Operation(
+            summary = "Gitee登录回调",
+            description = "接收Gitee登录后的回调请求，处理用户登录信息",
+            responses = {
+                    @ApiResponse(responseCode = "302", description = "重定向到指定页面")
+            }
+    )
+    public RedirectView thirdIndex(
+            @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
+            RedirectAttributes attributes,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         AuthResponse<AuthUser> authResponse = authRequest.login(authCallback);
         RedirectView view = new RedirectView();
         String state = authCallback.getState();
@@ -112,7 +128,16 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
      */
     @ResponseBody
     @GetMapping("loginCodeType")
-    public String gitee(@RequestParam("loginCode") String loginCode, String callback) {
+    @Operation(
+            summary = "获取Gitee登录URL",
+            description = "获取跳转到Gitee登录页面的URL",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "返回Gitee登录URL")
+            }
+    )
+    public String gitee(
+            @Parameter(description = "登录代码", required = true) @RequestParam("loginCode") String loginCode,
+            @Parameter(description = "回调URL") String callback) {
         String state = AuthStateUtils.createState();
         authStateCache.cache(state + "_info", URLDecoder.decode(loginCode, StandardCharsets.UTF_8));
         authStateCache.cache(state + "_callback", URLDecoder.decode(callback, StandardCharsets.UTF_8));
