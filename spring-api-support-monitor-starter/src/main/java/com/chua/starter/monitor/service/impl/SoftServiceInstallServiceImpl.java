@@ -2091,9 +2091,9 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
      * @param operationType   操作类型(安装/启动/停止/重启/卸载)
      * @return 命令输出监听器
      */
-    private Consumer<String> createCommandOutputListener(
+    private com.chua.common.support.protocol.channel.ChannelListener createCommandOutputListener(
             SoftServiceInstall install,
-            StringBuilder logBuilder,
+            StringBuilder logBuilder, 
             int[] progressCounter,
             boolean[] foundSuccess,
             boolean[] foundFailure,

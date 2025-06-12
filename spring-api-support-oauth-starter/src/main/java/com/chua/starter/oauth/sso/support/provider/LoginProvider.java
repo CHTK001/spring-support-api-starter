@@ -496,7 +496,7 @@ public class LoginProvider implements InitializingBean {
     )
     public ReturnResult<?> createTemporaryToken(
             @Parameter(description = "当前用户的有效令牌", required = true) @RequestParam("token") String token,
-            @Parameter(description = "临时令牌的过期时间（秒）", required = false, defaultValue = "10") @RequestParam(value = "expireTime", required = false, defaultValue = "10") Long expireTime,
+            @Parameter(description = "临时令牌的过期时间（秒）", required = false) @RequestParam(value = "expireTime", required = false, defaultValue = "10") Long expireTime,
             HttpServletRequest request,
             HttpServletResponse response) {
 
