@@ -14,6 +14,7 @@ import com.chua.starter.monitor.jpom.func.assets.model.MachineSshModel;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineSshServer;
 import com.chua.starter.monitor.mapper.SoftServiceInstallMapper;
 import com.chua.starter.monitor.mapper.SoftServiceMapper;
+import com.chua.starter.monitor.service.SoftServiceInstallService;
 import com.chua.starter.monitor.service.SoftServiceService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
@@ -38,6 +39,7 @@ public class SoftServiceServiceImpl extends ServiceImpl<SoftServiceMapper, SoftS
 
     private final SoftServiceInstallMapper softServiceInstallMapper;
     private final MachineSshServer machineSshServer;
+    private final SoftServiceInstallService softServiceInstallService;
 
     @Override
     public IPage<SoftService> pageFor(Query<SoftService> query, SoftService softService) {
@@ -434,18 +436,123 @@ public class SoftServiceServiceImpl extends ServiceImpl<SoftServiceMapper, SoftS
         return command != null && command.trim().startsWith("#!/bin/bash");
     }
 
+    /**
+     * 保存软件服务
+     *
+     * @param entity 软件服务实体
+     * @return 保存结果
+     */
     @Override
-    public boolean save(SoftService entity) {
+    public Boolean saveFor(SoftService entity) {
         // 在保存前自动检测并设置命令类型
         detectAndSetCommandTypes(entity);
-        return super.save(entity);
+
+        // 保存实体
+        boolean result = super.save(entity);
+
+        // 如果是更新现有软件服务的新版本，同步更新所有相关的安装记录
+        if (result && entity.getSoftServiceId() != null && StringUtils.isNotBlank(entity.getSoftServiceName())) {
+            try {
+                // 查询是否有同名软件的安装记录
+                List<SoftServiceInstall> installList = softServiceInstallMapper.selectList(
+                        Wrappers.lambdaQuery(SoftServiceInstall.class)
+                                .eq(SoftServiceInstall::getSoftServiceName, entity.getSoftServiceName())
+                );
+
+                if (installList != null && !installList.isEmpty()) {
+                    log.info("发现{}个同名软件的安装记录，准备同步更新命令数据", installList.size());
+
+                    for (SoftServiceInstall install : installList) {
+                        // 更新软件服务ID为新版本ID
+                        install.setSoftServiceId(entity.getSoftServiceId());
+
+                        // 更新命令数据
+                        updateInstallCommandData(install, entity);
+
+                        // 更新安装记录
+                        softServiceInstallService.updateById(install);
+                    }
+                    
+                    log.info("已同步更新{}个安装记录的命令数据", installList.size());
+                }
+            } catch (Exception e) {
+                log.error("同步更新安装记录失败: {}", e.getMessage(), e);
+            }
+        }
+
+        return result;
     }
 
     @Override
-    public boolean updateById(SoftService entity) {
+    public Boolean updateFor(SoftService entity) {
         // 在更新前自动检测并设置命令类型
         detectAndSetCommandTypes(entity);
-        return super.updateById(entity);
+
+        // 先保存更新结果
+        boolean result = super.updateById(entity);
+
+        // 如果更新成功，同步更新所有相关的SoftServiceInstall记录
+        if (result && entity.getSoftServiceId() != null) {
+            try {
+                // 获取所有相关的安装记录
+                List<SoftServiceInstall> installList = softServiceInstallService.listInstallBySoftServiceId(entity.getSoftServiceId());
+
+                if (installList != null && !installList.isEmpty()) {
+                    for (SoftServiceInstall install : installList) {
+                        // 更新命令数据
+                        updateInstallCommandData(install, entity);
+
+                        // 更新安装记录
+                        softServiceInstallService.updateById(install);
+                    }
+
+                    log.info("已同步更新{}个安装记录的命令数据", installList.size());
+                }
+            } catch (Exception e) {
+                log.error("同步更新安装记录失败: {}", e.getMessage(), e);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 更新安装记录的命令数据
+     *
+     * @param install     安装记录
+     * @param softService 软件服务
+     */
+    private void updateInstallCommandData(SoftServiceInstall install, SoftService softService) {
+        // 更新基本信息
+        install.setSoftServiceName(softService.getSoftServiceName());
+
+        // 更新命令数据
+        install.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
+        install.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
+        install.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
+        install.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
+        install.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
+        install.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
+        install.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
+        install.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
+        install.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
+        install.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
+        install.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
+        install.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
+
+        // 更新命令成功和失败标识
+        install.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
+        install.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
+        install.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
+        install.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
+        install.setSoftServiceUninstallSuccessFlag(softService.getSoftServiceUninstallSuccessFlag());
+        install.setSoftServiceUninstallFailureFlag(softService.getSoftServiceUninstallFailureFlag());
+        install.setSoftServiceStartSuccessFlag(softService.getSoftServiceStartSuccessFlag());
+        install.setSoftServiceStartFailureFlag(softService.getSoftServiceStartFailureFlag());
+        install.setSoftServiceStopSuccessFlag(softService.getSoftServiceStopSuccessFlag());
+        install.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
+        install.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
+        install.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
     }
 
     /**
