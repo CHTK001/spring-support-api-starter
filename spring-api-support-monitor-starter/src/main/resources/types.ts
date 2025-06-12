@@ -100,13 +100,13 @@ export interface SoftServiceInstall {
   installLastStopTime?: number;
   installLastCheckTime?: number;
   
-  // 缓存的服务信息
+  // 服务信息
   softServiceName?: string;
   sshName?: string;
   sshHost?: string;
   sshPort?: number;
   
-  // 缓存的命令信息
+  // 命令信息
   softServiceInstallCommand?: string;
   softServiceInstallCommandType?: number;
   softServiceUninstallCommand?: string;
@@ -120,7 +120,7 @@ export interface SoftServiceInstall {
   softServiceStatusCheckCommand?: string;
   softServiceStatusCheckCommandType?: number;
   
-  // 缓存的命令执行成功和失败标识
+  // 命令执行成功和失败标识
   softServiceStatusCheckSuccessFlag?: string;
   softServiceStatusCheckFailureFlag?: string;
   softServiceInstallSuccessFlag?: string;

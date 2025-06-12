@@ -1882,7 +1882,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         // 检查是否已安装
         Integer installStatus = install.getInstallStatus();
-        if (installStatus == 3 && installStatus == 0) {
+        if (installStatus == 3 || installStatus == 0) {
             return ReturnResult.illegal("软件未安装或安装失败，无需卸载");
         }
 
@@ -2274,5 +2274,26 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         private boolean success;
         private boolean failure;
         private StringBuilder logBuilder;
+    }
+
+    @Override
+    public boolean updateById(SoftServiceInstall entity) {
+        // 先清除缓存
+        String cacheKey = CACHE_KEY_PREFIX + entity.getInstallId();
+        redisTemplate.delete(cacheKey);
+
+        // 如果是更新命令相关字段，确保这些字段被正确保存到数据库
+        if (entity.getSoftServiceInstallCommand() != null ||
+                entity.getSoftServiceUninstallCommand() != null ||
+                entity.getSoftServiceStartCommand() != null ||
+                entity.getSoftServiceStopCommand() != null ||
+                entity.getSoftServiceRestartCommand() != null ||
+                entity.getSoftServiceStatusCheckCommand() != null) {
+
+            log.info("更新安装记录[ID:{}]的命令数据", entity.getInstallId());
+        }
+
+        // 执行更新
+        return super.updateById(entity);
     }
 } 
