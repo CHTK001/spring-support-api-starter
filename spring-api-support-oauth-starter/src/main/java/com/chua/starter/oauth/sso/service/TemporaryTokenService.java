@@ -122,7 +122,7 @@ public class TemporaryTokenService implements UserInfoService, Constant {
         if (!resolve.isOk() || null == resolve.getData()) {
             log.warn("临时令牌创建失败: 无效的源令牌 {} - {}",
                     principal.substring(0, Math.min(principal.length(), 10)) + "...",
-                    resolve.getMessage());
+                    resolve.getMsg());
             return new UserResult().setMessage(ERROR_INVALID_TOKEN);
         }
 
