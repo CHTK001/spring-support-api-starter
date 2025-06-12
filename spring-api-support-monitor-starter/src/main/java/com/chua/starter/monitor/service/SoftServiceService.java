@@ -85,4 +85,20 @@ public interface SoftServiceService extends IService<SoftService> {
      * @return 分组后的软件服务列表
      */
     List<SoftService> groupServicesByName(List<SoftService> originalServices);
+
+    /**
+     * 更新软件服务信息
+     *
+     * @param softService 软件服务信息
+     * @return 是否更新成功
+     */
+    Boolean updateFor(SoftService softService);
+
+    /**
+     * 保存软件服务信息
+     *
+     * @param softService 软件服务信息
+     * @return 是否保存成功
+     */
+    Boolean saveFor(SoftService softService);
 }

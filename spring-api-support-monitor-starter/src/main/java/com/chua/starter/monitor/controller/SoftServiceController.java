@@ -73,7 +73,7 @@ public class SoftServiceController {
     @PostMapping("save")
     public ReturnResult<Boolean> saveSoftService(
             @RequestBody @Parameter(description = "软件服务信息", required = true) SoftService softService) {
-        return ReturnResult.ok(softServiceService.save(softService));
+        return ReturnResult.ok(softServiceService.saveFor(softService));
     }
 
     /**
@@ -90,7 +90,7 @@ public class SoftServiceController {
     @PutMapping("update")
     public ReturnResult<Boolean> updateSoftService(
             @RequestBody @Parameter(description = "软件服务更新信息", required = true) SoftService softService) {
-        return ReturnResult.ok(softServiceService.updateById(softService));
+        return ReturnResult.ok(softServiceService.updateFor(softService));
     }
 
     /**
