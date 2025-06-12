@@ -82,6 +82,24 @@ public class SoftService extends SysBase {
     private Integer softServiceInstallCommandType;
 
     /**
+     * 安装命令成功标识
+     * 命令执行结果中包含此字符串则表示安装成功，多个标识用逗号分隔，支持通配符
+     */
+    @TableField(value = "soft_service_install_success_flag")
+    @ApiModelProperty(value = "安装命令成功标识")
+    @Schema(description = "安装命令成功标识，多个标识用逗号分隔，支持通配符")
+    private String softServiceInstallSuccessFlag;
+
+    /**
+     * 安装命令失败标识
+     * 命令执行结果中包含此字符串则表示安装失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_install_failure_flag")
+    @ApiModelProperty(value = "安装命令失败标识")
+    @Schema(description = "安装命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceInstallFailureFlag;
+
+    /**
      * 卸载命令
      */
     @TableField(value = "soft_service_uninstall_command")
@@ -96,6 +114,24 @@ public class SoftService extends SysBase {
     @ApiModelProperty(value = "卸载命令类型（0:单行命令，1:脚本）")
     @Schema(description = "卸载命令类型（0:单行命令，1:脚本）")
     private Integer softServiceUninstallCommandType;
+
+    /**
+     * 卸载命令成功标识
+     * 命令执行结果中包含此字符串则表示卸载成功，多个标识用逗号分隔，支持通配符
+     */
+    @TableField(value = "soft_service_uninstall_success_flag")
+    @ApiModelProperty(value = "卸载命令成功标识")
+    @Schema(description = "卸载命令成功标识，多个标识用逗号分隔，支持通配符")
+    private String softServiceUninstallSuccessFlag;
+
+    /**
+     * 卸载命令失败标识
+     * 命令执行结果中包含此字符串则表示卸载失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_uninstall_failure_flag")
+    @ApiModelProperty(value = "卸载命令失败标识")
+    @Schema(description = "卸载命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceUninstallFailureFlag;
 
     /**
      * 启动命令
@@ -114,6 +150,24 @@ public class SoftService extends SysBase {
     private Integer softServiceStartCommandType;
 
     /**
+     * 启动命令成功标识
+     * 命令执行结果中包含此字符串则表示启动成功，多个标识用逗号分隔，支持通配符
+     */
+    @TableField(value = "soft_service_start_success_flag")
+    @ApiModelProperty(value = "启动命令成功标识")
+    @Schema(description = "启动命令成功标识，多个标识用逗号分隔，支持通配符")
+    private String softServiceStartSuccessFlag;
+
+    /**
+     * 启动命令失败标识
+     * 命令执行结果中包含此字符串则表示启动失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_start_failure_flag")
+    @ApiModelProperty(value = "启动命令失败标识")
+    @Schema(description = "启动命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceStartFailureFlag;
+
+    /**
      * 停止命令
      */
     @TableField(value = "soft_service_stop_command")
@@ -130,6 +184,24 @@ public class SoftService extends SysBase {
     private Integer softServiceStopCommandType;
 
     /**
+     * 停止命令成功标识
+     * 命令执行结果中包含此字符串则表示停止成功，多个标识用逗号分隔，支持通配符
+     */
+    @TableField(value = "soft_service_stop_success_flag")
+    @ApiModelProperty(value = "停止命令成功标识")
+    @Schema(description = "停止命令成功标识，多个标识用逗号分隔，支持通配符")
+    private String softServiceStopSuccessFlag;
+
+    /**
+     * 停止命令失败标识
+     * 命令执行结果中包含此字符串则表示停止失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_stop_failure_flag")
+    @ApiModelProperty(value = "停止命令失败标识")
+    @Schema(description = "停止命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceStopFailureFlag;
+
+    /**
      * 重启命令
      */
     @TableField(value = "soft_service_restart_command")
@@ -144,6 +216,24 @@ public class SoftService extends SysBase {
     @ApiModelProperty(value = "重启命令类型（0:单行命令，1:脚本）")
     @Schema(description = "重启命令类型（0:单行命令，1:脚本）")
     private Integer softServiceRestartCommandType;
+
+    /**
+     * 重启命令成功标识
+     * 命令执行结果中包含此字符串则表示重启成功，多个标识用逗号分隔，支持通配符
+     */
+    @TableField(value = "soft_service_restart_success_flag")
+    @ApiModelProperty(value = "重启命令成功标识")
+    @Schema(description = "重启命令成功标识，多个标识用逗号分隔，支持通配符")
+    private String softServiceRestartSuccessFlag;
+
+    /**
+     * 重启命令失败标识
+     * 命令执行结果中包含此字符串则表示重启失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_restart_failure_flag")
+    @ApiModelProperty(value = "重启命令失败标识")
+    @Schema(description = "重启命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceRestartFailureFlag;
 
     /**
      * 服务状态检查命令
@@ -164,12 +254,21 @@ public class SoftService extends SysBase {
 
     /**
      * 服务状态检查成功标识
-     * 命令执行结果中包含此字符串则表示服务正常运行
+     * 命令执行结果中包含此字符串则表示服务正常运行，多个标识用逗号分隔，支持通配符
      */
     @TableField(value = "soft_service_status_check_success_flag")
     @ApiModelProperty(value = "服务状态检查成功标识")
-    @Schema(description = "服务状态检查成功标识")
+    @Schema(description = "服务状态检查成功标识，多个标识用逗号分隔，支持通配符")
     private String softServiceStatusCheckSuccessFlag;
+
+    /**
+     * 服务状态检查失败标识
+     * 命令执行结果中包含此字符串则表示服务未正常运行，多个标识用逗号分隔，支持通配符，优先级高于成功标识
+     */
+    @TableField(value = "soft_service_status_check_failure_flag")
+    @ApiModelProperty(value = "服务状态检查失败标识")
+    @Schema(description = "服务状态检查失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
+    private String softServiceStatusCheckFailureFlag;
 
     /**
      * 是否安装

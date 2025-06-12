@@ -10,6 +10,10 @@ import com.chua.starter.oauth.sso.support.information.AuthInformation;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.provider.LoginProvider;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,7 @@ import static com.chua.common.support.lang.code.ReturnCode.OK;
 @Conditional(OnBeanCondition.class)
 @RequestMapping("${plugin.auth.server.context-path:}")
 @RequiredArgsConstructor
+@Tag(name = "认证服务", description = "提供HTTP协议的认证服务接口")
 public class HttpProtocol implements Protocol, InitializingBean {
 
     final AuthServerProperties authServerProperties;
@@ -55,7 +60,18 @@ public class HttpProtocol implements Protocol, InitializingBean {
      */
     @PostMapping("/oauth")
     @ResponseBody
-    public ReturnResult<String> oauth(@RequestBody AuthRequest request1, HttpServletRequest request, HttpServletResponse response) {
+    @Operation(
+            summary = "用户鉴权",
+            description = "验证用户权限，确认用户身份和访问权限",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "鉴权成功"),
+                    @ApiResponse(responseCode = "401", description = "鉴权失败")
+            }
+    )
+    public ReturnResult<String> oauth(
+            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest request1,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         String data = request1.getData();
         AuthInformation authInformation = new AuthInformation(request1.isEncipher(), data, request, authServerProperties, applicationContext, loginCheck);
         Authorization authorization = authInformation.resolve();
@@ -90,7 +106,18 @@ public class HttpProtocol implements Protocol, InitializingBean {
      */
     @PostMapping("/upgrade")
     @ResponseBody
-    public ReturnResult<String> upgrade(@RequestParam("data") String data, HttpServletRequest request, HttpServletResponse response) {
+    @Operation(
+            summary = "令牌升级",
+            description = "升级用户令牌，刷新令牌有效期或权限",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "升级成功"),
+                    @ApiResponse(responseCode = "401", description = "升级失败，无效的令牌")
+            }
+    )
+    public ReturnResult<String> upgrade(
+            @Parameter(description = "包含升级相关的加密数据", required = true) @RequestParam("data") String data,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         AuthInformation authInformation = new AuthInformation(true, data, request, authServerProperties, applicationContext, loginCheck);
         Authorization authorization = authInformation.resolve();
         String address = RequestUtils.getIpAddress(request);

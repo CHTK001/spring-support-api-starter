@@ -22,6 +22,8 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,8 +79,17 @@ public class LoginProvider implements InitializingBean {
      * @return 登录页
      */
     @GetMapping("/oauth-page")
-    @Operation(summary = "无权限页面")
-    public String oauthPage(@RequestParam(value = "redirect_url", required = false) String url, Model modelMap, HttpServletRequest request) {
+    @Operation(
+            summary = "无权限页面",
+            description = "当用户没有权限访问某个资源时，重定向到此页面",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "成功返回无权限页面")
+            }
+    )
+    public String oauthPage(
+            @Parameter(description = "重定向URL", required = false) @RequestParam(value = "redirect_url", required = false) String url,
+            Model modelMap,
+            HttpServletRequest request) {
         return "oauth/oauth-page";
     }
 
@@ -86,6 +98,13 @@ public class LoginProvider implements InitializingBean {
      *
      * @return 登出
      */
+    @Operation(
+            summary = "登出",
+            description = "退出用户登录状态，清除认证信息",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "登出成功")
+            }
+    )
     public ReturnResult<UserResult> logout(
             HttpServletRequest request, HttpServletResponse response) {
         AuthRequest request1 = new AuthRequest();
@@ -180,19 +199,22 @@ public class LoginProvider implements InitializingBean {
      * @param response
      * @return 登录页
      */
-    public ReturnResult<?> doLogin(String username, String passwd, String authType, String data, HttpServletRequest request, HttpServletResponse response) {
+    public ReturnResult<?> doLogin(String username, String passwd, String authType, String data, HttpServletRequest request, HttpServletResponse response, Map<String, Object> extParams) {
         String address = RequestUtils.getIpAddress(request);
         AccessSecret accessSecret = getAkSk(data);
         if (StringUtils.isEmpty(passwd)) {
             passwd = accessSecret.getPassword();
         }
 
-        if (null != accessSecret.getExt()) {
+        // 如果传入了额外参数，优先使用传入的
+        Object ext = (extParams != null) ? extParams : ((accessSecret != null) ? accessSecret.getExt() : null);
+
+        if (null != accessSecret && null != accessSecret.getExt()) {
             address = MapUtils.getString(accessSecret.getExt(), "address", address);
         }
 
         log.info("登录请求地址: {}, 账号:{}, 登陆方式:{}", address, username, authType);
-        ReturnResult result = loginCheck.doLogin(address, username, passwd, authType, accessSecret.getExt());
+        ReturnResult result = loginCheck.doLogin(address, username, passwd, authType, ext);
         log.info("登录结果: {} => {}", result.getCode(), result.getMsg());
         if (!result.getCode().equals(OK.getCode())) {
             Object data1 = result.getData();
@@ -315,10 +337,17 @@ public class LoginProvider implements InitializingBean {
      *
      * @return 登录页
      */
-    @Operation(summary = "登录")
+    @Operation(
+            summary = "用户登录",
+            description = "处理用户登录请求，验证用户身份并颁发访问令牌",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "登录成功，返回令牌"),
+                    @ApiResponse(responseCode = "401", description = "登录失败，用户名或密码错误")
+            }
+    )
     @PostMapping("/doLogin")
     public AdviceView doWebLogin(
-            @RequestBody AuthRequest authRequest,
+            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response,
             RedirectAttributes redirectAttributes,
@@ -335,7 +364,7 @@ public class LoginProvider implements InitializingBean {
         String address = RequestUtils.getIpAddress(request);
         String accept = request.getHeader("accept");
         if (null != accept && !accept.contains("text/html")) {
-            ReturnResult<?> result = doLogin(username, passwd, type, data, request, response);
+            ReturnResult<?> result = doLogin(username, passwd, type, data, request, response, null);
             return new AdviceView(result, request);
         }
 
@@ -442,6 +471,50 @@ public class LoginProvider implements InitializingBean {
         return ReturnResult.of(oauth.getCode(), rs, oauth.getMsg());
     }
 
+    /**
+     * 创建临时令牌
+     * <p>
+     * 基于当前用户的有效令牌创建一个短期临时令牌，用于特定场景下的短期授权访问。
+     * 临时令牌继承原令牌的所有权限，但有效期更短，适用于临时授权和敏感操作场景。
+     * </p>
+     *
+     * @param token      当前用户的有效令牌，作为principal参数传递给临时令牌服务
+     * @param expireTime 临时令牌的过期时间（秒），默认10秒
+     * @param request    HTTP请求
+     * @param response   HTTP响应
+     * @return 包含临时令牌的登录结果
+     */
+    @PostMapping("/temporary-token")
+    @ResponseBody
+    @Operation(
+            summary = "创建临时令牌",
+            description = "基于当前用户令牌创建一个短期临时令牌，默认有效期10秒",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "创建成功，返回临时令牌"),
+                    @ApiResponse(responseCode = "401", description = "创建失败，无效的令牌")
+            }
+    )
+    public ReturnResult<?> createTemporaryToken(
+            @Parameter(description = "当前用户的有效令牌", required = true) @RequestParam("token") String token,
+            @Parameter(description = "临时令牌的过期时间（秒）", required = false, defaultValue = "10") @RequestParam(value = "expireTime", required = false, defaultValue = "10") Long expireTime,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        // 获取客户端IP地址
+        String address = RequestUtils.getIpAddress(request);
+
+        // 准备扩展参数，包含过期时间
+        Map<String, Object> ext = new HashMap<>();
+        ext.put("expireTime", expireTime);
+
+        // 调用登录处理方法，其中token作为principal参数传递给TemporaryTokenService
+        ReturnResult<?> result = doLogin(token, null, "TEMPORARY", null, request, response, ext);
+
+        // 记录临时令牌创建结果
+        log.info("临时令牌创建: 地址={}, 过期时间={}秒, 结果={}", address, expireTime, result.getCode());
+
+        return result;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

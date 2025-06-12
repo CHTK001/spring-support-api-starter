@@ -21,6 +21,8 @@ import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserRole;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,95 +39,268 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_ERROR;
 
 /**
- * 用户信息鉴权
+ * 租户用户登录服务
+ * <p>支持多租户数据源的用户登录验证与授权</p>
+ *
+ * <h2>功能特性</h2>
+ * <ul>
+ *   <li>支持动态多租户数据源切换</li>
+ *   <li>自动查找包含目标用户的租户数据库</li>
+ *   <li>租户用户信息与权限管理</li>
+ *   <li>错误密码尝试次数限制和账号锁定机制</li>
+ * </ul>
+ *
+ * <h2>实现原理</h2>
+ * <ol>
+ *   <li>接收租户用户的登录请求和租户ID</li>
+ *   <li>自动查找包含该用户的租户数据源</li>
+ *   <li>动态切换数据源验证用户凭证</li>
+ *   <li>加载租户特定的用户权限和角色信息</li>
+ * </ol>
+ *
+ * <h2>性能优化</h2>
+ * <ul>
+ *   <li>使用ConcurrentReferenceHashMap缓存用户-数据源映射</li>
+ *   <li>避免重复查询多个租户数据库</li>
+ *   <li>处理完成后自动恢复默认数据源</li>
+ * </ul>
  *
  * @author CH
  */
+@Slf4j
 @Service
 @LoginType("tenant")
+@Tag(name = "租户用户登录", description = "多租户环境下的用户登录验证")
 public class TenantUserService implements UserInfoService, Constant {
+    /**
+     * 数据源缓存过期时间(分钟)
+     */
+    private static final long DATASOURCE_CACHE_TIMEOUT = 30;
+    /** 用户与数据源映射缓存 */
+    private static final Map<String, String> _ENGINE_CACHE = new ConcurrentReferenceHashMap<>(1024);
+    /**
+     * 登录尝试失败最大次数
+     */
     private final int count = 6;
-    private final int timeout = 5;
+    
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-    private static final Map<String, String> _ENGINE_CACHE = new ConcurrentReferenceHashMap<>(1024);
+    /** 账户锁定时间(分钟) */
+    private final int timeout = 5;
+    
     @Autowired
     private SysUserMapper sysUserMapper;
 
     @Autowired
     private SysDeptMapper sysDeptMapper;
+    
     @Autowired
     private ApplicationContext applicationContext;
 
+    /**
+     * 租户用户登录验证
+     * <p>
+     * 根据用户凭证验证租户系统中的用户账号，支持多租户数据源动态切换。
+     * 本方法会自动查找并切换到包含该用户的租户数据源。
+     * </p>
+     *
+     * @param principal  用户标识（通常是用户名）
+     * @param credential 用户凭证（通常是密码）
+     * @param address    客户端地址
+     * @param ext        扩展参数，必须包含tenantId字段
+     * @return 用户信息，若验证失败则message字段包含错误信息
+     */
     @Override
-    public UserResult checkLogin(String username, String password, String address, Object ext) {
-        String newAccessKey = "tenant:" + LOGIN_ERROR + username;
+    public UserResult checkLogin(String principal, String credential, String address, Object ext) {
+        // 构造登录错误计数的Redis key
+        String newAccessKey = "tenant:" + LOGIN_ERROR + principal;
+
+        // 从扩展参数中获取租户ID
         Map extMap = (Map) ext;
         String tenantId = (String) extMap.get("tenantId");
-        Boolean boos = stringRedisTemplate.hasKey(newAccessKey);
-        if (null != boos && boos) {
+
+        log.debug("租户登录请求: 用户={}, 租户={}, IP={}", principal, tenantId, address);
+
+        // 检查账户是否已被锁定
+        Boolean hasKey = stringRedisTemplate.hasKey(newAccessKey);
+        if (null != hasKey && hasKey) {
             int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
             if (errorCount == count) {
+                log.warn("租户账户已被锁定: 用户={}, 租户={}", principal, tenantId);
                 return new UserResult().setMessage("账户已被锁定");
             }
         }
 
-        String dataSourceName = findDataSource(username, tenantId);
+        // 查找包含该用户的租户数据源
+        long startTime = System.currentTimeMillis();
+        String dataSourceName = findDataSource(principal, tenantId);
+        log.debug("数据源查找耗时: {}ms, 结果={}", System.currentTimeMillis() - startTime, dataSourceName);
+
+        if (dataSourceName == null) {
+            log.warn("租户登录失败: 未找到包含该用户的数据源 用户={}, 租户={}", principal, tenantId);
+            return check(newAccessKey, hasKey);
+        }
+        
         DataSourceContextSupport.setDbType(dataSourceName);
         try {
-            SysUser user = sysUserMapper.selectOne(username, tenantId);
+            // 查询用户信息
+            startTime = System.currentTimeMillis();
+            SysUser user = sysUserMapper.selectOne(principal, tenantId);
+            log.debug("租户用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
+            
             if (null == user || null == user.getSysTenantId()) {
-                check(newAccessKey, boos);
+                log.warn("租户登录失败: 用户不存在 用户={}, 租户={}", principal, tenantId);
+                check(newAccessKey, hasKey);
                 return new UserResult().setMessage("账号/密码不正确");
             }
 
+            // 检查账户状态
             if (1 != user.getSysUserStatus()) {
+                log.warn("租户登录失败: 账户已禁用 用户={}, 租户={}", principal, tenantId);
                 return new UserResult().setMessage("账号已被禁用");
             }
 
+            // 验证密码
             String salt = user.getSysUserSalt();
-            String md5String = DigestUtils.md5Hex(password + salt);
+            String md5String = DigestUtils.md5Hex(credential + salt);
             if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
-                return check(newAccessKey, boos);
+                log.warn("租户登录失败: 密码错误 用户={}, 租户={}", principal, tenantId);
+                return check(newAccessKey, hasKey);
             }
 
+            // 更新登录信息
             user.setSysUserLastIp(address);
             sysUserMapper.updateById(user);
             stringRedisTemplate.delete(newAccessKey);
 
-            return loginInfo(username, user, address);
+            log.info("租户登录成功: 用户={} (ID:{}), 租户={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantId, address);
+
+            // 返回用户登录信息
+            return loginInfo(principal, user, address);
         } finally {
+            // 清除数据源设置，恢复默认数据源
             DataSourceContextSupport.clearDbType();
             DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
         }
     }
 
-    private String findDataSource(String username, String tenantId) {
-        return _ENGINE_CACHE.computeIfAbsent(username, (key) -> {
-            Map<String, DataSource> beansOfType = applicationContext.getBeansOfType(DataSource.class);
-            Map<String, DataSource> filter = new HashMap<>(beansOfType.size());
-            for (Map.Entry<String, DataSource> entry : beansOfType.entrySet()) {
-                if (entry.getKey().contains("tenant")) {
-                    filter.put(entry.getKey(), entry.getValue());
-                }
-            }
-            for (Map.Entry<String, DataSource> entry : filter.entrySet()) {
-                // 切换数据源
-                DataSourceContextSupport.setDbType(entry.getKey());
-                try {
-                    SysUser user = sysUserMapper.selectOne(username, tenantId);
-                    if (null != user) {
-                        return entry.getKey();
+    /**
+     * 查找包含指定用户的租户数据源
+     * <p>
+     * 通过缓存和智能搜索策略查找包含特定用户的租户数据源。
+     * 首先检查缓存，然后仅在租户相关的数据源中搜索，
+     * 避免不必要的数据库切换和查询操作。
+     * </p>
+     *
+     * @param principal 用户标识（用户名）
+     * @param tenantId  租户ID
+     * @return 包含该用户的数据源名称，如果未找到返回null
+     */
+    private String findDataSource(String principal, String tenantId) {
+        // 构建缓存键 - 组合用户名和租户ID以支持同一用户在不同租户的情况
+        String cacheKey = principal + ":" + tenantId;
+
+        // 首先检查内存缓存
+        String cachedDataSource = _ENGINE_CACHE.get(cacheKey);
+        if (cachedDataSource != null) {
+            log.debug("数据源命中缓存: 用户={}, 租户={}, 数据源={}", principal, tenantId, cachedDataSource);
+            return cachedDataSource;
+        }
+
+        // 检查Redis缓存
+        String redisKey = "tenant:datasource:" + cacheKey;
+        String redisDataSource = stringRedisTemplate.opsForValue().get(redisKey);
+        if (redisDataSource != null) {
+            // 更新内存缓存
+            _ENGINE_CACHE.put(cacheKey, redisDataSource);
+            log.debug("数据源命中Redis缓存: 用户={}, 租户={}, 数据源={}", principal, tenantId, redisDataSource);
+            return redisDataSource;
+        }
+
+        log.debug("开始查找数据源: 用户={}, 租户={}", principal, tenantId);
+
+        // 缓存未命中，执行数据源搜索
+        return _ENGINE_CACHE.computeIfAbsent(cacheKey, (key) -> {
+            try {
+                // 获取所有数据源
+                Map<String, DataSource> beansOfType = applicationContext.getBeansOfType(DataSource.class);
+
+                // 过滤只包含租户相关的数据源
+                Map<String, DataSource> tenantDataSources = new HashMap<>(beansOfType.size());
+                for (Map.Entry<String, DataSource> entry : beansOfType.entrySet()) {
+                    if (entry.getKey().contains("tenant")) {
+                        tenantDataSources.put(entry.getKey(), entry.getValue());
                     }
-                } finally {
-                    DataSourceContextSupport.clearDbType();
-                    DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
                 }
+
+                log.debug("找到{}个租户数据源", tenantDataSources.size());
+
+                // 如果提供了租户ID，优先检查包含该ID的数据源
+                if (StringUtils.isNotEmpty(tenantId)) {
+                    List<Map.Entry<String, DataSource>> prioritySources = tenantDataSources.entrySet().stream()
+                            .filter(entry -> entry.getKey().contains(tenantId))
+                            .collect(Collectors.toList());
+
+                    if (!prioritySources.isEmpty()) {
+                        log.debug("找到{}个与租户ID匹配的数据源，优先检查", prioritySources.size());
+                        for (Map.Entry<String, DataSource> entry : prioritySources) {
+                            String dataSourceName = entry.getKey();
+                            DataSourceContextSupport.setDbType(dataSourceName);
+                            try {
+                                SysUser user = sysUserMapper.selectOne(principal, tenantId);
+                                if (null != user) {
+                                    // 找到匹配的数据源，缓存结果
+                                    stringRedisTemplate.opsForValue().set(redisKey, dataSourceName, DATASOURCE_CACHE_TIMEOUT, TimeUnit.MINUTES);
+                                    log.info("用户数据源匹配成功: 用户={}, 租户={}, 数据源={}", principal, tenantId, dataSourceName);
+                                    return dataSourceName;
+                                }
+                            } finally {
+                                DataSourceContextSupport.clearDbType();
+                                DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
+                            }
+                        }
+                    }
+                }
+
+                // 检查所有其他租户数据源
+                for (Map.Entry<String, DataSource> entry : tenantDataSources.entrySet()) {
+                    String dataSourceName = entry.getKey();
+                    DataSourceContextSupport.setDbType(dataSourceName);
+                    try {
+                        SysUser user = sysUserMapper.selectOne(principal, tenantId);
+                        if (null != user) {
+                            // 找到匹配的数据源，缓存结果
+                            stringRedisTemplate.opsForValue().set(redisKey, dataSourceName, DATASOURCE_CACHE_TIMEOUT, TimeUnit.MINUTES);
+                            log.info("用户数据源匹配成功: 用户={}, 租户={}, 数据源={}", principal, tenantId, dataSourceName);
+                            return dataSourceName;
+                        }
+                    } catch (Exception e) {
+                        log.warn("检查数据源时出错: {} - {}", dataSourceName, e.getMessage());
+                    } finally {
+                        DataSourceContextSupport.clearDbType();
+                        DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
+                    }
+                }
+
+                log.warn("未找到包含用户的数据源: 用户={}, 租户={}", principal, tenantId);
+                return null;
+            } catch (Exception e) {
+                log.error("数据源查找过程出错: 用户={}, 租户={}", principal, tenantId, e);
+                return null;
             }
-            return null;
         });
     }
 
+    /**
+     * 升级/刷新租户用户信息
+     * <p>
+     * 根据已有的用户信息获取最新的租户用户数据，包括权限、角色等信息。
+     * 租户数据刷新也遵循相同的权限检查机制，确保用户账户状态正常。
+     * </p>
+     *
+     * @param userResult 已有的用户信息
+     * @return 更新后的用户信息
+     */
     @Override
     public UserResult upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getId());
