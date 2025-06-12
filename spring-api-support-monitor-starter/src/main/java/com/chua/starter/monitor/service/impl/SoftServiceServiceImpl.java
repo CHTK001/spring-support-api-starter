@@ -557,6 +557,10 @@ public class SoftServiceServiceImpl extends ServiceImpl<SoftServiceMapper, SoftS
         install.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
         install.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
         install.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
+
+        // 记录日志
+        log.info("已更新安装记录[ID:{}]的命令数据，软件服务ID:{}, 名称:{}",
+                install.getInstallId(), softService.getSoftServiceId(), softService.getSoftServiceName());
     }
 
     /**

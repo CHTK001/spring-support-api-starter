@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Lob;
 import java.util.List;
 
 /**
@@ -71,6 +72,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_install_command")
     @ApiModelProperty(value = "安装命令")
     @Schema(description = "安装命令")
+    @Lob
     private String softServiceInstallCommand;
 
     /**
@@ -105,6 +107,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_uninstall_command")
     @ApiModelProperty(value = "卸载命令")
     @Schema(description = "卸载命令")
+    @Lob
     private String softServiceUninstallCommand;
 
     /**
@@ -139,6 +142,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_start_command")
     @ApiModelProperty(value = "启动命令")
     @Schema(description = "启动命令")
+    @Lob
     private String softServiceStartCommand;
 
     /**
@@ -173,6 +177,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_stop_command")
     @ApiModelProperty(value = "停止命令")
     @Schema(description = "停止命令")
+    @Lob
     private String softServiceStopCommand;
 
     /**
@@ -207,6 +212,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_restart_command")
     @ApiModelProperty(value = "重启命令")
     @Schema(description = "重启命令")
+    @Lob
     private String softServiceRestartCommand;
 
     /**
@@ -242,6 +248,7 @@ public class SoftService extends SysBase {
     @TableField(value = "soft_service_status_check_command")
     @ApiModelProperty(value = "服务状态检查命令")
     @Schema(description = "服务状态检查命令")
+    @Lob
     private String softServiceStatusCheckCommand;
 
     /**

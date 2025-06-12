@@ -15,6 +15,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Lob;
+
 /**
  * 软件服务安装记录
  *
@@ -173,108 +175,102 @@ public class SoftServiceInstall extends SysBase {
 
     /**
      * 安装命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_install_command")
     @ApiModelProperty(value = "安装命令")
     @Schema(description = "安装命令")
+    @Lob
     private String softServiceInstallCommand;
 
     /**
      * 安装命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_install_command_type")
     @ApiModelProperty(value = "安装命令类型（0:单行命令，1:脚本）")
     @Schema(description = "安装命令类型（0:单行命令，1:脚本）")
     private Integer softServiceInstallCommandType;
 
     /**
      * 卸载命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_uninstall_command")
     @ApiModelProperty(value = "卸载命令")
     @Schema(description = "卸载命令")
+    @Lob
     private String softServiceUninstallCommand;
 
     /**
      * 卸载命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_uninstall_command_type")
     @ApiModelProperty(value = "卸载命令类型（0:单行命令，1:脚本）")
     @Schema(description = "卸载命令类型（0:单行命令，1:脚本）")
     private Integer softServiceUninstallCommandType;
 
     /**
      * 启动命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_start_command")
     @ApiModelProperty(value = "启动命令")
     @Schema(description = "启动命令")
+    @Lob
     private String softServiceStartCommand;
 
     /**
      * 启动命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_start_command_type")
     @ApiModelProperty(value = "启动命令类型（0:单行命令，1:脚本）")
     @Schema(description = "启动命令类型（0:单行命令，1:脚本）")
     private Integer softServiceStartCommandType;
 
     /**
      * 停止命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_stop_command")
     @ApiModelProperty(value = "停止命令")
     @Schema(description = "停止命令")
+    @Lob
     private String softServiceStopCommand;
 
     /**
      * 停止命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_stop_command_type")
     @ApiModelProperty(value = "停止命令类型（0:单行命令，1:脚本）")
     @Schema(description = "停止命令类型（0:单行命令，1:脚本）")
     private Integer softServiceStopCommandType;
 
     /**
      * 重启命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_restart_command")
     @ApiModelProperty(value = "重启命令")
     @Schema(description = "重启命令")
+    @Lob
     private String softServiceRestartCommand;
 
     /**
      * 重启命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_restart_command_type")
     @ApiModelProperty(value = "重启命令类型（0:单行命令，1:脚本）")
     @Schema(description = "重启命令类型（0:单行命令，1:脚本）")
     private Integer softServiceRestartCommandType;
 
     /**
      * 服务状态检查命令
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_status_check_command")
     @ApiModelProperty(value = "服务状态检查命令")
     @Schema(description = "服务状态检查命令")
+    @Lob
     private String softServiceStatusCheckCommand;
 
     /**
      * 服务状态检查命令类型（0:单行命令，1:脚本）
-     * 非数据库字段，用于缓存SoftService命令数据
      */
-    @TableField(exist = false)
+    @TableField(value = "soft_service_status_check_command_type")
     @ApiModelProperty(value = "服务状态检查命令类型（0:单行命令，1:脚本）")
     @Schema(description = "服务状态检查命令类型（0:单行命令，1:脚本）")
     private Integer softServiceStatusCheckCommandType;
