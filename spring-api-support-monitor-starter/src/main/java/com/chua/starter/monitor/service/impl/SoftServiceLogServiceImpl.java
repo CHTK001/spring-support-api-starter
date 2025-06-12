@@ -96,7 +96,7 @@ public class SoftServiceLogServiceImpl extends ServiceImpl<SoftServiceLogMapper,
 
             // 创建一个虚拟的分页结果
             int total = logs.size();
-            int pageSize = query.getSize();
+            int pageSize = query.getPageSize();
             int pageNum = query.getPage();
             int startIndex = (pageNum - 1) * pageSize;
             int endIndex = Math.min(startIndex + pageSize, total);
@@ -129,46 +129,46 @@ public class SoftServiceLogServiceImpl extends ServiceImpl<SoftServiceLogMapper,
      * @return 日志对象
      */
     private SoftServiceLog createLogFromFile(Integer installId, File logFile) {
-        SoftServiceLog log = new SoftServiceLog();
-        log.setSoftServiceLogInstallId(installId);
-        log.setSoftServiceLogFilePath(logFile.getAbsolutePath());
+        SoftServiceLog softServiceLog = new SoftServiceLog();
+        softServiceLog.setSoftServiceLogInstallId(installId);
+        softServiceLog.setSoftServiceLogFilePath(logFile.getAbsolutePath());
 
         // 从文件名解析操作类型 (如 install.log, start.log 等)
         String fileName = logFile.getName();
         String operationType = fileName.substring(0, fileName.lastIndexOf("."));
-        log.setSoftServiceLogOperationType(operationType);
+        softServiceLog.setSoftServiceLogOperationType(operationType);
 
         // 设置日志时间为文件最后修改时间
-        log.setSoftServiceLogTime(logFile.lastModified());
+        softServiceLog.setSoftServiceLogTime(logFile.lastModified());
 
         // 设置日志文件大小
-        log.setSoftServiceLogFileSize(logFile.length());
+        softServiceLog.setSoftServiceLogFileSize(logFile.length());
 
         // 尝试解析文件内容以确定状态
         try {
             String content = new String(Files.readAllBytes(logFile.toPath()));
             // 简单判断状态
             if (content.contains("成功") || content.contains("SUCCESS")) {
-                log.setSoftServiceLogStatus(1); // 成功
+                softServiceLog.setSoftServiceLogStatus(1); // 成功
             } else if (content.contains("失败") || content.contains("ERROR") || content.contains("FAILURE")) {
-                log.setSoftServiceLogStatus(2); // 失败
+                softServiceLog.setSoftServiceLogStatus(2); // 失败
             } else {
-                log.setSoftServiceLogStatus(0); // 进行中
+                softServiceLog.setSoftServiceLogStatus(0); // 进行中
             }
 
             // 设置日志内容预览
             if (content.length() > 200) {
-                log.setSoftServiceLogContent(content.substring(0, 200) + "...");
+                softServiceLog.setSoftServiceLogContent(content.substring(0, 200) + "...");
             } else {
-                log.setSoftServiceLogContent(content);
+                softServiceLog.setSoftServiceLogContent(content);
             }
         } catch (IOException e) {
             log.error("读取日志文件内容失败: {}", e.getMessage());
-            log.setSoftServiceLogStatus(0); // 默认进行中
-            log.setSoftServiceLogContent("无法读取日志内容");
+            softServiceLog.setSoftServiceLogStatus(0); // 默认进行中
+            softServiceLog.setSoftServiceLogContent("无法读取日志内容");
         }
 
-        return log;
+        return softServiceLog;
     }
 
     /**
