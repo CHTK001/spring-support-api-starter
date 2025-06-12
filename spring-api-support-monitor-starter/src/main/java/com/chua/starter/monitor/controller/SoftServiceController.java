@@ -15,13 +15,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -226,81 +224,4 @@ public class SoftServiceController {
         return ReturnResult.ok(softServiceService.getById(softServiceId));
     }
 
-    /**
-     * 获取服务操作日志
-     *
-     * @param installId     安装ID
-     * @param operationType 操作类型
-     * @return {@link ReturnResult}<{@link String}> 日志内容
-     */
-    @GetMapping("/log")
-    @Operation(summary = "获取服务操作日志", description = "获取指定安装记录的操作日志内容")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "获取成功",
-                    content = @Content(schema = @Schema(implementation = ReturnResult.class)))
-    })
-    public ReturnResult<String> getServiceOperationLog(
-            @RequestParam @Parameter(description = "安装记录ID", required = true) Integer installId,
-            @RequestParam @Parameter(description = "操作类型，如install/start/stop/restart/uninstall", required = true) String operationType) {
-        return softServiceInstallService.getServiceOperationLog(installId, operationType);
-    }
-
-    /**
-     * 获取服务日志文件列表
-     *
-     * @param installId 安装ID
-     * @return {@link ReturnResult}<{@link List}<{@link String}>> 日志文件列表
-     */
-    @GetMapping("/logs")
-    @Operation(summary = "获取服务日志文件列表", description = "获取指定安装记录的所有日志文件列表")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "获取成功",
-                    content = @Content(schema = @Schema(implementation = ReturnResult.class)))
-    })
-    public ReturnResult<List<String>> listServiceLogFiles(
-            @RequestParam @Parameter(description = "安装记录ID", required = true) Integer installId) {
-        return softServiceInstallService.listServiceLogFiles(installId);
-    }
-
-    /**
-     * 下载服务操作日志文件
-     *
-     * @param installId     安装记录ID
-     * @param operationType 操作类型
-     * @param response      HTTP响应
-     */
-    @GetMapping("/log/download")
-    @Operation(summary = "下载服务操作日志文件", description = "下载指定安装记录的操作日志文件")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "下载成功",
-                    content = @Content(mediaType = "application/octet-stream"))
-    })
-    public void downloadServiceOperationLog(
-            @RequestParam @Parameter(description = "安装记录ID", required = true) Integer installId,
-            @RequestParam @Parameter(description = "操作类型，如install/start/stop/restart/uninstall", required = true) String operationType,
-            HttpServletResponse response) {
-        ReturnResult<byte[]> result = softServiceInstallService.downloadServiceOperationLog(installId, operationType);
-        if (result.isOk()) {
-            try {
-                // 设置响应头
-                response.setContentType("application/octet-stream");
-                response.setHeader("Content-Disposition", "attachment; filename=" + operationType + ".log");
-
-                // 写入日志文件内容
-                byte[] logContent = result.getData();
-                response.setContentLength(logContent.length);
-                response.getOutputStream().write(logContent);
-                response.getOutputStream().flush();
-            } catch (IOException e) {
-                log.error("下载日志文件失败: {}", e.getMessage(), e);
-            }
-        } else {
-            try {
-                response.setContentType("application/json");
-                response.getWriter().write("{\"code\":500,\"msg\":\"" + result.getMsg() + "\"}");
-            } catch (IOException e) {
-                log.error("返回错误信息失败: {}", e.getMessage(), e);
-            }
-        }
-    }
 }
