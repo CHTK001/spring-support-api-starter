@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.starter.service;
 
 import com.chua.ssh.support.ssh.SshClient;
+import com.chua.sshj.support.ssh.SshjClient;
 
 /**
  * 终端
@@ -30,5 +31,5 @@ public interface TerminalService {
      * @param sshId SSH ID，用于唯一标识一个SSH连接配置
      * @return 与给定SSH ID关联的SSH客户端对象。如果找不到匹配的SSH配置或创建失败，返回null。
      */
-    SshClient createClientBySshId(String sshId);
+    SshjClient createClientBySshId(String sshId);
 }

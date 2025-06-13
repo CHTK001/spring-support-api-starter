@@ -3,7 +3,7 @@ package com.chua.starter.monitor.task;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.protocol.channel.Channel;
 import com.chua.common.support.protocol.session.ChannelSession;
-import com.chua.ssh.support.ssh.SshClient;
+import com.chua.sshj.support.ssh.SshjClient;
 import com.chua.starter.monitor.entity.SoftService;
 import com.chua.starter.monitor.entity.SoftServiceInstall;
 import com.chua.starter.monitor.mapper.SoftServiceInstallMapper;
@@ -122,7 +122,7 @@ public class ServiceStatusCheckTask {
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(sshId);
+            SshjClient sshClient = terminalService.createClientBySshId(sshId);
             if (sshClient == null) {
                 log.warn("服务[{}]所在服务器SSH连接失败，无法检查服务状态", installId);
                 return;

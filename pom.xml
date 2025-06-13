@@ -163,6 +163,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ssh-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-sshj-starter</artifactId>
                <version>${utils.version}</version>
             </dependency>
 
