@@ -8,7 +8,7 @@ import com.chua.common.support.protocol.channel.Channel;
 import com.chua.common.support.protocol.session.ChannelSession;
 import com.chua.socketio.support.MsgEvent;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.ssh.support.ssh.SshClient;
+import com.chua.sshj.support.ssh.SshjClient;
 import com.chua.starter.monitor.entity.SoftService;
 import com.chua.starter.monitor.entity.SoftServiceInstall;
 import com.chua.starter.monitor.entity.SoftServiceLog;
@@ -75,35 +75,6 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         }
         softServiceInstall.setInstallTime(System.currentTimeMillis());
 
-        // 获取软件服务信息，缓存命令数据
-        try {
-            SoftService softService = softServiceService.getById(softServiceInstall.getSoftServiceId());
-            if (softService != null) {
-                // 缓存SoftService命令数据
-                softServiceInstall.setSoftServiceName(softService.getSoftServiceName());
-                softServiceInstall.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
-                softServiceInstall.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
-                softServiceInstall.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
-                softServiceInstall.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
-                softServiceInstall.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
-                softServiceInstall.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
-                softServiceInstall.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
-                softServiceInstall.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
-                softServiceInstall.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
-                softServiceInstall.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
-                softServiceInstall.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
-                softServiceInstall.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
-                softServiceInstall.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
-
-                // 同步日志路径
-                if (StringUtils.hasText(softService.getSoftServiceLogPath())) {
-                    softServiceInstall.setServiceLogPath(softService.getSoftServiceLogPath());
-                }
-            }
-        } catch (Exception e) {
-            log.error("获取软件服务信息失败: {}", e.getMessage(), e);
-        }
-
         boolean success = this.save(softServiceInstall);
 
         // 如果保存成功且ID已生成，添加到缓存
@@ -117,30 +88,6 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
     @Override
     public ReturnResult<Boolean> updateInstall(SoftServiceInstall softServiceInstall) {
-        // 获取软件服务信息，缓存命令数据
-        try {
-            SoftService softService = softServiceService.getById(softServiceInstall.getSoftServiceId());
-            if (softService != null) {
-                // 缓存SoftService命令数据
-                softServiceInstall.setSoftServiceName(softService.getSoftServiceName());
-                softServiceInstall.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
-                softServiceInstall.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
-                softServiceInstall.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
-                softServiceInstall.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
-                softServiceInstall.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
-                softServiceInstall.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
-                softServiceInstall.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
-                softServiceInstall.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
-                softServiceInstall.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
-                softServiceInstall.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
-                softServiceInstall.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
-                softServiceInstall.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
-                softServiceInstall.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
-            }
-        } catch (Exception e) {
-            log.error("获取软件服务信息失败: {}", e.getMessage(), e);
-        }
-
         boolean success = this.updateById(softServiceInstall);
 
         // 更新成功后清除缓存
@@ -182,43 +129,6 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         if (install != null) {
             // 获取软件服务信息，缓存命令数据
             try {
-                SoftService softService = softServiceService.getById(install.getSoftServiceId());
-                if (softService != null) {
-                    install.setSoftServiceName(softService.getSoftServiceName());
-                    // 缓存SoftService命令数据
-                    install.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
-                    install.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
-                    install.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
-                    install.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
-                    install.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
-                    install.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
-                    install.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
-                    install.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
-                    install.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
-                    install.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
-                    install.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
-                    install.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
-                    install.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
-
-                    // 新增：添加命令成功和失败标识
-                    install.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
-                    install.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
-                    install.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
-                    install.setSoftServiceUninstallSuccessFlag(softService.getSoftServiceUninstallSuccessFlag());
-                    install.setSoftServiceUninstallFailureFlag(softService.getSoftServiceUninstallFailureFlag());
-                    install.setSoftServiceStartSuccessFlag(softService.getSoftServiceStartSuccessFlag());
-                    install.setSoftServiceStartFailureFlag(softService.getSoftServiceStartFailureFlag());
-                    install.setSoftServiceStopSuccessFlag(softService.getSoftServiceStopSuccessFlag());
-                    install.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
-                    install.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
-                    install.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
-
-                    // 同步日志路径
-                    if (StringUtils.hasText(softService.getSoftServiceLogPath())) {
-                        install.setServiceLogPath(softService.getSoftServiceLogPath());
-                    }
-                }
-
                 // 获取SSH服务器信息
                 MachineSshModel sshModel = machineSshServer.getByKey(install.getSshId());
                 if (sshModel != null) {
@@ -275,41 +185,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     install.setSshPort(sshModel.getPort());
                     install.setSshName(sshModel.getName());
                 }
-
-                // 填充软件服务名称和命令数据
-                SoftService softService = softServiceMap.get(install.getSoftServiceId());
-                if (softService != null) {
-                    install.setSoftServiceName(softService.getSoftServiceName());
-                    // 缓存SoftService命令数据
-                    install.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
-                    install.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
-                    install.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
-                    install.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
-                    install.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
-                    install.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
-                    install.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
-                    install.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
-                    install.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
-                    install.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
-                    install.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
-                    install.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
-                    install.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
-
-                    // 新增：添加命令成功和失败标识
-                    install.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
-                    install.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
-                    install.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
-                    install.setSoftServiceUninstallSuccessFlag(softService.getSoftServiceUninstallSuccessFlag());
-                    install.setSoftServiceUninstallFailureFlag(softService.getSoftServiceUninstallFailureFlag());
-                    install.setSoftServiceStartSuccessFlag(softService.getSoftServiceStartSuccessFlag());
-                    install.setSoftServiceStartFailureFlag(softService.getSoftServiceStartFailureFlag());
-                    install.setSoftServiceStopSuccessFlag(softService.getSoftServiceStopSuccessFlag());
-                    install.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
-                    install.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
-                    install.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
-                } else {
                     install.setSoftServiceName("未知软件");
-                }
             }
         } catch (Exception e) {
             log.error("填充安装记录信息失败: {}", e.getMessage(), e);
@@ -364,36 +240,6 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
                 // 添加软件服务名称到每一个安装记录中
                 install.setSoftServiceName(softServiceName);
-
-                // 缓存SoftService命令数据
-                if (softService != null) {
-                    install.setSoftServiceInstallCommand(softService.getSoftServiceInstallCommand());
-                    install.setSoftServiceInstallCommandType(softService.getSoftServiceInstallCommandType());
-                    install.setSoftServiceUninstallCommand(softService.getSoftServiceUninstallCommand());
-                    install.setSoftServiceUninstallCommandType(softService.getSoftServiceUninstallCommandType());
-                    install.setSoftServiceStartCommand(softService.getSoftServiceStartCommand());
-                    install.setSoftServiceStartCommandType(softService.getSoftServiceStartCommandType());
-                    install.setSoftServiceStopCommand(softService.getSoftServiceStopCommand());
-                    install.setSoftServiceStopCommandType(softService.getSoftServiceStopCommandType());
-                    install.setSoftServiceRestartCommand(softService.getSoftServiceRestartCommand());
-                    install.setSoftServiceRestartCommandType(softService.getSoftServiceRestartCommandType());
-                    install.setSoftServiceStatusCheckCommand(softService.getSoftServiceStatusCheckCommand());
-                    install.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
-                    install.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
-
-                    // 新增：添加命令成功和失败标识
-                    install.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
-                    install.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
-                    install.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
-                    install.setSoftServiceUninstallSuccessFlag(softService.getSoftServiceUninstallSuccessFlag());
-                    install.setSoftServiceUninstallFailureFlag(softService.getSoftServiceUninstallFailureFlag());
-                    install.setSoftServiceStartSuccessFlag(softService.getSoftServiceStartSuccessFlag());
-                    install.setSoftServiceStartFailureFlag(softService.getSoftServiceStartFailureFlag());
-                    install.setSoftServiceStopSuccessFlag(softService.getSoftServiceStopSuccessFlag());
-                    install.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
-                    install.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
-                    install.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
-                }
             }
         } catch (Exception e) {
             log.error("填充SSH信息失败: {}", e.getMessage(), e);
@@ -557,20 +403,19 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     "安装",
                     5000, // 5s超时
                     result -> {
-                        if (result.isFailure()) {
-                            // 匹配到失败标识
-                            updateInstallStatus(finalExistInstall.getInstallId(), 3, result.getLogBuilder().toString() + "\n安装失败: 匹配到失败标识");
-                            sendInstallProgress(finalExistInstall, "安装失败：匹配到失败标识", 100, 100, "ERROR");
-                        } else {
-                            // 匹配到成功标识或无法判断，默认为成功
-                            SoftServiceInstall updatedInstall = updateInstallStatus(finalExistInstall.getInstallId(), 2, result.getLogBuilder().toString());
-
-                            if (result.isSuccess()) {
+                        // 只处理明确的成功或失败状态
+                        if (result.isSuccess() || result.isFailure()) {
+                            if (result.isFailure()) {
+                                // 匹配到失败标识
+                                updateInstallStatus(finalExistInstall.getInstallId(), 3, result.getLogBuilder().toString() + "\n安装失败: 匹配到失败标识");
+                                sendInstallProgress(finalExistInstall, "安装失败：匹配到失败标识", 100, 100, "ERROR");
+                            } else if (result.isSuccess()) {
+                                // 匹配到成功标识
+                                SoftServiceInstall updatedInstall = updateInstallStatus(finalExistInstall.getInstallId(), 2, result.getLogBuilder().toString());
                                 sendInstallProgress(updatedInstall, "安装成功：匹配到成功标识", 100, 100, "SUCCESS");
-                            } else {
-                                sendInstallProgress(updatedInstall, "安装完成：" + finalExistInstall.getSoftServiceName(), 100, 100, "SUCCESS");
                             }
                         }
+                        // 未知状态不处理
                     }
             );
         });
@@ -606,7 +451,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         CompletableFuture.runAsync(() -> {
             try {
                 // 获取SSH客户端
-                SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+                SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
                 if (sshClient == null) {
                     sendInstallProgress(install, "无法连接到SSH服务器", 100, 100, "ERROR");
                     return;
@@ -770,30 +615,27 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     "启动",
                     60000, // 1分钟超时
                     result -> {
-                        if (result.isFailure()) {
-                            // 匹配到失败标识
-                            SoftServiceInstall updateInstall = new SoftServiceInstall();
-                            updateInstall.setInstallId(installId);
-                            updateInstall.setInstallRunStatus(0);
-                            this.updateById(updateInstall);
-                            sendInstallProgress(install, "启动失败：匹配到失败标识", 100, 100, "ERROR");
-                    } else {
-                            // 匹配到成功标识或无法判断，默认为成功
-                            // 更新运行状态为运行中
-                            SoftServiceInstall updateInstall = new SoftServiceInstall();
-                            updateInstall.setInstallId(installId);
-                            updateInstall.setInstallRunStatus(1);
-                            updateInstall.setInstallLastStartTime(System.currentTimeMillis());
-                            this.updateById(updateInstall);
-                            sendInstallProgress(install, "更新服务状态为运行中", 98, 100, "INFO");
-
-                            // 推送启动完成通知
-                            if (result.isSuccess()) {
+                        // 只处理明确的成功或失败状态
+                        if (result.isSuccess() || result.isFailure()) {
+                            if (result.isFailure()) {
+                                // 匹配到失败标识
+                                SoftServiceInstall updateInstall = new SoftServiceInstall();
+                                updateInstall.setInstallId(installId);
+                                updateInstall.setInstallRunStatus(0);
+                                this.updateById(updateInstall);
+                                sendInstallProgress(install, "启动失败：匹配到失败标识", 100, 100, "ERROR");
+                            } else if (result.isSuccess()) {
+                                // 匹配到成功标识，更新运行状态为运行中
+                                SoftServiceInstall updateInstall = new SoftServiceInstall();
+                                updateInstall.setInstallId(installId);
+                                updateInstall.setInstallRunStatus(1);
+                                updateInstall.setInstallLastStartTime(System.currentTimeMillis());
+                                this.updateById(updateInstall);
+                                sendInstallProgress(install, "更新服务状态为运行中", 98, 100, "INFO");
                                 sendInstallProgress(install, "服务启动成功：匹配到成功标识", 100, 100, "SUCCESS");
-                            } else {
-                                sendInstallProgress(install, "服务启动完成：" + install.getSoftServiceName(), 100, 100, "SUCCESS");
                             }
                         }
+                        // 未知状态不处理
                     }
             );
         });
@@ -840,35 +682,79 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     install.getSoftServiceStopFailureFlag(),
                     "停止",
                     60000, // 1分钟超时
-                    result -> {
-                        if (result.isFailure()) {
-                            // 匹配到失败标识
-                            sendInstallProgress(install, "停止失败：匹配到失败标识", 100, 100, "ERROR");
-                    } else {
-                            // 匹配到成功标识或无法判断，默认为成功
-                            // 更新运行状态为未运行
-                            SoftServiceInstall updateInstall = new SoftServiceInstall();
-                            updateInstall.setInstallId(installId);
-                            updateInstall.setInstallRunStatus(0);
-                            updateInstall.setInstallLastStopTime(System.currentTimeMillis());
-                            this.updateById(updateInstall);
-                            sendInstallProgress(install, "更新服务状态为未运行", 98, 100, "INFO");
+                    stopResult -> {
+                        // 只处理明确的成功或失败状态
+                        if (stopResult.isSuccess() || stopResult.isFailure()) {
+                            if (stopResult.isFailure()) {
+                                // 停止失败，不继续执行启动
+                                sendInstallProgress(install, "停止失败：匹配到失败标识，中止重启过程", 100, 100, "ERROR");
+                            } else if (stopResult.isSuccess()) {
+                                // 停止成功
+                                // 更新运行状态为未运行
+                                SoftServiceInstall updateStopInstall = new SoftServiceInstall();
+                                updateStopInstall.setInstallId(installId);
+                                updateStopInstall.setInstallRunStatus(0);
+                                updateStopInstall.setInstallLastStopTime(System.currentTimeMillis());
+                                this.updateById(updateStopInstall);
 
-                            // 推送停止完成通知
-                            if (result.isSuccess()) {
-                                sendInstallProgress(install, "服务停止成功：匹配到成功标识", 100, 100, "SUCCESS");
-                            } else {
-                                sendInstallProgress(install, "服务停止完成：" + install.getSoftServiceName(), 100, 100, "SUCCESS");
+                                // 推送停止完成通知
+                                sendInstallProgress(install, "服务停止成功：匹配到成功标识", 50, 100, "SUCCESS");
+                                sendInstallProgress(install, "服务停止完成，准备启动服务", 50, 100, "INFO");
+
+                                // 等待一段时间再启动
+                                try {
+                                    sendInstallProgress(install, "等待3秒后开始启动服务", 55, 100, "INFO");
+                                    Thread.sleep(3000);
+
+                                    // 2. 再执行启动命令
+                                    executeCommandWithHandling(
+                                            install,
+                                            install.getSoftServiceStartCommandType(),
+                                            install.getSoftServiceStartCommand(),
+                                            install.getSoftServiceStartSuccessFlag(),
+                                            install.getSoftServiceStartFailureFlag(),
+                                            "启动",
+                                            60000, // 1分钟超时
+                                            startResult -> {
+                                                // 只处理明确的成功或失败状态
+                                                if (startResult.isSuccess() || startResult.isFailure()) {
+                                                    if (startResult.isFailure()) {
+                                                        // 匹配到失败标识
+                                                        SoftServiceInstall updateStartInstall = new SoftServiceInstall();
+                                                        updateStartInstall.setInstallId(installId);
+                                                        updateStartInstall.setInstallRunStatus(0);
+                                                        this.updateById(updateStartInstall);
+                                                        sendInstallProgress(install, "启动失败：匹配到失败标识", 100, 100, "ERROR");
+                                                    } else if (startResult.isSuccess()) {
+                                                        // 匹配到成功标识，更新运行状态为运行中
+                                                        SoftServiceInstall updateStartInstall = new SoftServiceInstall();
+                                                        updateStartInstall.setInstallId(installId);
+                                                        updateStartInstall.setInstallRunStatus(1);
+                                                        updateStartInstall.setInstallLastStartTime(System.currentTimeMillis());
+                                                        this.updateById(updateStartInstall);
+
+                                                        // 推送启动完成通知
+                                                        sendInstallProgress(install, "服务启动成功：匹配到成功标识", 100, 100, "SUCCESS");
+
+                                                        // 延迟检查服务状态
+                                                        try {
+                                                            Thread.sleep(2000);
+                                                            checkServiceStatus(installId);
+                                                        } catch (Exception e) {
+                                                            log.error("检查服务状态失败: {}", e.getMessage(), e);
+                                                        }
+                                                    }
+                                                }
+                                                // 未知状态不处理
+                                            }
+                                    );
+                                } catch (Exception e) {
+                                    log.error("等待启动过程中发生错误: {}", e.getMessage(), e);
+                                    sendInstallProgress(install, "重启过程中发生错误: " + e.getMessage(), 100, 100, "ERROR");
+                                }
                             }
                         }
-
-                    // 延迟检查服务状态
-                        try {
-                            Thread.sleep(2000);
-                            checkServiceStatus(installId);
-                        } catch (Exception e) {
-                            log.error("检查服务状态失败: {}", e.getMessage(), e);
-                        }
+                        // 未知状态不处理
                     }
             );
         });
@@ -908,39 +794,37 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                         "重启",
                         120000, // 2分钟超时
                         result -> {
-                            if (result.isFailure()) {
-                                // 匹配到失败标识
-                                SoftServiceInstall updateInstall = new SoftServiceInstall();
-                                updateInstall.setInstallId(installId);
-                                updateInstall.setInstallRunStatus(0);
-                                this.updateById(updateInstall);
-                                sendInstallProgress(install, "重启失败：匹配到失败标识", 100, 100, "ERROR");
-                        } else {
-                                // 匹配到成功标识或无法判断，默认为成功
-                                // 更新运行状态为运行中
-                                SoftServiceInstall updateInstall = new SoftServiceInstall();
-                                updateInstall.setInstallId(installId);
-                                updateInstall.setInstallRunStatus(1);
-                                updateInstall.setInstallLastStopTime(System.currentTimeMillis());
-                                updateInstall.setInstallLastStartTime(System.currentTimeMillis());
-                                this.updateById(updateInstall);
-                                sendInstallProgress(install, "更新服务状态为运行中", 98, 100, "INFO");
+                            // 只处理明确的成功或失败状态
+                            if (result.isSuccess() || result.isFailure()) {
+                                if (result.isFailure()) {
+                                    // 匹配到失败标识
+                                    SoftServiceInstall updateInstall = new SoftServiceInstall();
+                                    updateInstall.setInstallId(installId);
+                                    updateInstall.setInstallRunStatus(0);
+                                    this.updateById(updateInstall);
+                                    sendInstallProgress(install, "重启失败：匹配到失败标识", 100, 100, "ERROR");
+                                } else if (result.isSuccess()) {
+                                    // 匹配到成功标识，更新运行状态为运行中
+                                    SoftServiceInstall updateInstall = new SoftServiceInstall();
+                                    updateInstall.setInstallId(installId);
+                                    updateInstall.setInstallRunStatus(1);
+                                    updateInstall.setInstallLastStopTime(System.currentTimeMillis());
+                                    updateInstall.setInstallLastStartTime(System.currentTimeMillis());
+                                    this.updateById(updateInstall);
 
-                                // 推送重启完成通知
-                                if (result.isSuccess()) {
+                                    // 推送重启完成通知
                                     sendInstallProgress(install, "服务重启成功：匹配到成功标识", 100, 100, "SUCCESS");
-                                } else {
-                                    sendInstallProgress(install, "服务重启完成：" + install.getSoftServiceName(), 100, 100, "SUCCESS");
+                                }
+
+                                // 延迟检查服务状态
+                                try {
+                                    Thread.sleep(2000);
+                                    checkServiceStatus(installId);
+                                } catch (Exception e) {
+                                    log.error("检查服务状态失败: {}", e.getMessage(), e);
                                 }
                             }
-
-                        // 延迟检查服务状态
-                            try {
-                                Thread.sleep(2000);
-                                checkServiceStatus(installId);
-                            } catch (Exception e) {
-                                log.error("检查服务状态失败: {}", e.getMessage(), e);
-                            }
+                            // 未知状态不处理
                         }
                 );
             });
@@ -990,7 +874,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                             // 停止失败，不继续执行启动
                             sendInstallProgress(install, "停止失败：匹配到失败标识，中止重启过程", 100, 100, "ERROR");
                             return;
-                    }
+                        }
 
                         // 更新运行状态为未运行
                     SoftServiceInstall updateStopInstall = new SoftServiceInstall();
@@ -1200,8 +1084,8 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                 return;
             }
 
-            // 调用重载方法
-            sendInstallProgress(install, message, step, total, type);
+            // 调用重载方法，非回调方式
+            sendInstallProgress(install, message, step, total, type, false);
         } catch (Exception e) {
             log.error("发送安装进度通知失败: {}", e.getMessage(), e);
         }
@@ -1217,6 +1101,21 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
      * @param type    消息类型：INFO, ERROR, SUCCESS, WARNING, FAILURE
      */
     public void sendInstallProgress(SoftServiceInstall install, String message, int step, int total, String type) {
+        // 调用带isFromCallback参数的方法，默认为非回调方式
+        sendInstallProgress(install, message, step, total, type, false);
+    }
+
+    /**
+     * 发送安装进度消息（使用SoftServiceInstall参数）
+     *
+     * @param install        SoftServiceInstall对象
+     * @param message        消息内容
+     * @param step           当前步骤
+     * @param total          总步骤
+     * @param type           消息类型：INFO, ERROR, SUCCESS, WARNING, FAILURE
+     * @param isFromCallback 是否来自回调
+     */
+    public void sendInstallProgress(SoftServiceInstall install, String message, int step, int total, String type, boolean isFromCallback) {
         if (socketSessionTemplate == null) {
             log.warn("socketSessionTemplate为空，无法发送安装进度通知");
             return;
@@ -1225,6 +1124,11 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         try {
             Integer installId = install.getInstallId();
             String sshId = install.getSshId();
+
+            // 如果不是来自回调，则在消息末尾添加换行符
+            if (!isFromCallback) {
+                message = message + "\n";
+            }
             
             // 创建消息事件
             MsgEvent msgEvent = MsgEvent.builder()
@@ -1318,7 +1222,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
                 return ReturnResult.illegal("无法连接到SSH服务器");
             }
@@ -1381,7 +1285,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         CompletableFuture.runAsync(() -> {
             try {
                 // 获取SSH客户端
-                SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+                SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
                 if (sshClient == null) {
                     sendInstallProgress(install, "无法连接到SSH服务器", 100, 100, "ERROR");
                     return;
@@ -1419,7 +1323,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             }
 
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
                 return ReturnResult.illegal("无法连接到SSH服务器");
             }
@@ -1454,7 +1358,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(softServiceInstall.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(softServiceInstall.getSshId());
             if (sshClient == null) {
                 return ReturnResult.illegal("无法连接到SSH服务器");
             }
@@ -1565,11 +1469,11 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                                                 if (s.matches("(?s).*" + pattern + ".*")) {
                                                     log.info("状态检查成功，匹配到成功标识: {}", flag);
                                                     foundSuccess[0] = true;
-                                                }
+                            }
                                             } else if (s.contains(flag)) {
                                                 log.info("状态检查成功，匹配到成功标识: {}", flag);
                                                 foundSuccess[0] = true;
-                                            }
+                        }
                                         }
                                     }
                                 }
@@ -1622,7 +1526,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                 statusBuilder.runStatus(0);
                 statusBuilder.runStatusDesc("未运行");
                 statusBuilder.message("软件未安装成功，无法检查运行状态");
-            }
+                }
 
             // 更新安装记录中的运行状态
             softServiceInstall.setInstallRunStatus(statusBuilder.build().getRunStatus());
@@ -2060,7 +1964,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         CompletableFuture.runAsync(() -> {
             try {
                 // 获取SSH客户端
-                SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+                SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
                 if (sshClient == null) {
                     sendInstallProgress(install, "无法连接到SSH服务器", 100, 100, "ERROR");
                     return;
@@ -2158,7 +2062,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                         updateInstallStatus(installId, 0, logBuilder.toString());
                         sendInstallProgress(install, "更新安装状态为未安装", 98, 100, "INFO");
 
-                        // 推送卸载完成通知
+                    // 推送卸载完成通知
                         if (foundSuccess[0]) {
                             sendInstallProgress(install, "卸载成功：匹配到成功标识", 100, 100, "SUCCESS");
                         } else {
@@ -2202,8 +2106,18 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                                      boolean[] foundSuccess,
                                      boolean[] foundFailure,
                                      Consumer<CommandResult> resultHandler) {
+        // 如果没有配置任何标识，则不处理
+        if (!StringUtils.hasText(successFlag) && !StringUtils.hasText(failureFlag)) {
+            log.debug("未配置成功或失败标识，跳过状态更新");
+            return;
+        }
+
+        // 检查输出是否包含位置状态信息的特征
+        boolean isLocationStatus = isLocationStatusOutput(output);
+        boolean hasMatch = false; // 是否有匹配
+
         // 检查输出是否包含失败标识
-        if (StringUtils.hasText(failureFlag)) {
+        if (StringUtils.hasText(failureFlag) && !foundFailure[0]) {  // 只有尚未找到失败标识时才检查
             String[] failureFlags = failureFlag.split(",");
             for (String flag : failureFlags) {
                 flag = flag.trim();
@@ -2214,20 +2128,32 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                         if (output.matches("(?s).*" + pattern + ".*")) {
                             log.info("命令执行失败，匹配到失败标识: {}", flag);
                             foundFailure[0] = true;
-                            resultHandler.accept(new CommandResult(false, true, logBuilder));
+                            hasMatch = true;
+                            if (isLocationStatus) {
+                                resultHandler.accept(CommandResult.locationStatus(false, true, logBuilder));
+                            } else {
+                                resultHandler.accept(new CommandResult(false, true, logBuilder));
+                            }
+                            break;  // 找到一个失败标识就退出循环
                         }
                     } else if (output.contains(flag)) {
                         log.info("命令执行失败，匹配到失败标识: {}", flag);
                         // 处理命令执行结果
                         foundFailure[0] = true;
-                        resultHandler.accept(new CommandResult(false, true, logBuilder));
+                        hasMatch = true;
+                        if (isLocationStatus) {
+                            resultHandler.accept(CommandResult.locationStatus(false, true, logBuilder));
+                        } else {
+                            resultHandler.accept(new CommandResult(false, true, logBuilder));
+                        }
+                        break;  // 找到一个失败标识就退出循环
                     }
                 }
             }
         }
 
-        // 检查是否包含成功标识（只有在没有匹配到失败标识的情况下才检查）
-        if (!foundFailure[0] && StringUtils.hasText(successFlag)) {
+        // 检查是否包含成功标识（只有在没有匹配到失败标识且尚未找到成功标识的情况下才检查）
+        if (!foundFailure[0] && !foundSuccess[0] && StringUtils.hasText(successFlag)) {
             String[] successFlags = successFlag.split(",");
             for (String flag : successFlags) {
                 flag = flag.trim();
@@ -2237,15 +2163,67 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                         String pattern = flag.replace("*", ".*");
                         if (output.matches("(?s).*" + pattern + ".*")) {
                             log.info("命令执行成功，匹配到成功标识: {}", flag);
-                            resultHandler.accept(new CommandResult(true, false, logBuilder));
+                            foundSuccess[0] = true;
+                            hasMatch = true;
+                            if (isLocationStatus) {
+                                resultHandler.accept(CommandResult.locationStatus(true, false, logBuilder));
+                            } else {
+                                resultHandler.accept(new CommandResult(true, false, logBuilder));
+                            }
+                            break;  // 找到一个成功标识就退出循环
                         }
                     } else if (output.contains(flag)) {
                         log.info("命令执行成功，匹配到成功标识: {}", flag);
-                        resultHandler.accept(new CommandResult(true, false, logBuilder));
+                        foundSuccess[0] = true;
+                        hasMatch = true;
+                        if (isLocationStatus) {
+                            resultHandler.accept(CommandResult.locationStatus(true, false, logBuilder));
+                        } else {
+                            resultHandler.accept(new CommandResult(true, false, logBuilder));
+                        }
+                        break;  // 找到一个成功标识就退出循环
                     }
                 }
             }
         }
+
+        // 如果既没有匹配到成功也没有匹配到失败标识，记录日志
+        if (!hasMatch) {
+            log.debug("未匹配到成功或失败标识，继续等待输出...");
+        }
+    }
+
+    /**
+     * 判断输出是否为位置状态信息
+     *
+     * @param output 输出内容
+     * @return 是否为位置状态信息
+     */
+    private boolean isLocationStatusOutput(String output) {
+        // 根据一些特征判断是否是位置状态信息
+        // 检查输出中是否包含位置相关的关键词
+        String[] locationKeywords = {
+                // 英文关键词
+                "position", "location", "coordinates", "gps", "latitude", "longitude", "geo",
+                "coordinate", "pos", "place", "spot", "site", "point", "latlng", "latlong",
+                // 位置状态关键词
+                "位置信息", "位置状态", "地理位置", "坐标", "经度", "纬度", "方位", "定位", "座标",
+                // 路径和位置类关键词
+                "path/to", "路径位置", "文件位置", "目录位置", "存放于", "安装位置", "安装路径"
+        };
+
+        // 使用小写比较，忽略大小写
+        String lowerOutput = output.toLowerCase();
+
+        for (String keyword : locationKeywords) {
+            if (lowerOutput.contains(keyword.toLowerCase())) {
+                return true;
+            }
+        }
+
+        // 检查是否包含常见的位置格式，如坐标格式
+        // 例如： 经纬度坐标 "40.7128, -74.0060"
+        return output.matches(".*\\d+\\.\\d+[,\\s]+[-]?\\d+\\.\\d+.*");
     }
 
     /**
@@ -2299,8 +2277,8 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             // 确保进度不超过95%（留5%给最后的完成步骤）
             int progress = Math.min(progressCounter[0], 95);
 
-            // 推送进度
-            sendInstallProgress(install, s, progress, 100, "INFO");
+            // 推送进度，标记为回调中的调用
+            sendInstallProgress(install, s, progress, 100, "INFO", true);
         };
     }
 
@@ -2328,7 +2306,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
                 sendInstallProgress(install, "无法连接到SSH服务器", 100, 100, "ERROR");
                 return;
@@ -2344,6 +2322,8 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             final int[] progressCounter = {10}; // 从10%开始
             final boolean[] foundSuccess = {false};
             final boolean[] foundFailure = {false};
+            // 添加Channel关闭状态标记
+            final boolean[] channelClosed = {false};
 
             // 记录命令执行到日志
             String logOperationType;
@@ -2373,7 +2353,53 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             // 创建并设置命令输出监听器
             channel.setListener(createCommandOutputListener(
                     install, logBuilder, progressCounter, foundSuccess, foundFailure,
-                    successFlag, failureFlag, operationType, resultHandler));
+                    successFlag, failureFlag, operationType, result -> {
+                        // 如果已经关闭过Channel，不再处理后续回调
+                        if (channelClosed[0]) {
+                            return;
+                        }
+
+                        // 如果是位置状态，不调用resultHandler更新状态，只处理日志
+                        if (result.isLocationStatus()) {
+                            log.info("检测到位置状态信息，不更新状态");
+                            // 可以添加一些位置信息的处理，例如记录日志
+                            appendOperationLog(install.getInstallId(), logOperationType + "_location", "位置状态: " + (result.isSuccess() ? "成功" : "失败"));
+
+                            // 关闭Channel
+                            if (result.isSuccess() || result.isFailure()) {
+                                try {
+                                    log.info("位置检测{}，关闭Channel", result.isSuccess() ? "成功" : "失败");
+                                    channel.close();
+                                    channelClosed[0] = true;
+                                } catch (Exception e) {
+                                    log.error("关闭Channel失败: {}", e.getMessage(), e);
+                                }
+                            }
+                            return;
+                        }
+
+                        // 判断状态，只有明确是成功或失败的状态才处理
+                        boolean isKnownStatus = result.isSuccess() || result.isFailure();
+
+                        if (isKnownStatus) {
+                            // 处理命令结果（已知状态）
+                            resultHandler.accept(result);
+
+                            // 关闭Channel
+                            try {
+                                log.info("命令执行{}，关闭Channel", result.isSuccess() ? "成功" : "失败");
+                                channel.close();
+                                channelClosed[0] = true;
+                            } catch (Exception e) {
+                                log.error("关闭Channel失败: {}", e.getMessage(), e);
+                            }
+                        } else {
+                            // 未知状态，只记录日志，不更新状态，不关闭Channel
+                            log.info("命令执行状态未知，继续等待更多输出");
+                            appendOperationLog(install.getInstallId(), logOperationType + "_unknown",
+                                    "执行状态未知，等待更多输出: " + logBuilder);
+                        }
+                    }));
 
             try {
                 // 检查命令类型并执行命令
@@ -2394,6 +2420,15 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                 sendInstallProgress(install, operationType + "失败：" + e.getMessage(), 100, 100, "ERROR");
                 // 记录错误到日志
                 appendOperationLog(install.getInstallId(), logOperationType, operationType + "执行失败: " + e.getMessage());
+
+                // 关闭Channel
+                if (!channelClosed[0]) {
+                    try {
+                        channel.close();
+                    } catch (Exception ex) {
+                        log.error("关闭Channel失败: {}", ex.getMessage(), ex);
+                    }
+                }
             }
         } catch (Exception e) {
             log.error(operationType + "执行失败: {}", e.getMessage(), e);
@@ -2463,13 +2498,13 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
                 return ReturnResult.illegal("无法连接到SSH服务器");
             }
 
             ChannelSession clientSession = (ChannelSession) sshClient.getSession();
-            Channel channel = clientSession.openChannel(installId + "_getconfig", "cmd");
+            Channel channel = clientSession.openChannel(installId + "__getconfig", "exec");
 
             // 设置监听器接收输出
             StringBuilder configBuilder = new StringBuilder();
@@ -2526,7 +2561,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         try {
             // 获取SSH客户端
-            SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
+            SshjClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
                 return ReturnResult.illegal("无法连接到SSH服务器");
             }
@@ -2586,6 +2621,19 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         private boolean success;
         private boolean failure;
         private StringBuilder logBuilder;
+        private boolean isLocationStatus; // 是否为位置状态（而非实际状态变化）
+
+        public CommandResult(boolean success, boolean failure, StringBuilder logBuilder) {
+            this.success = success;
+            this.failure = failure;
+            this.logBuilder = logBuilder;
+            this.isLocationStatus = false; // 默认为实际状态变化
+        }
+
+        // 创建位置状态的结果
+        public static CommandResult locationStatus(boolean success, boolean failure, StringBuilder logBuilder) {
+            return new CommandResult(success, failure, logBuilder, true);
+        }
     }
 
     @Override

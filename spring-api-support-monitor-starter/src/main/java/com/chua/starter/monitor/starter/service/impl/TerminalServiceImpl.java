@@ -2,6 +2,7 @@ package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.ssh.support.ssh.SshClient;
+import com.chua.sshj.support.ssh.SshjClient;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineSshModel;
 import com.chua.starter.monitor.jpom.func.assets.server.MachineSshServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGen;
@@ -27,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TerminalServiceImpl implements TerminalService {
 
     private static final Map<String, CacheClient> SERVER_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, CacheJClient> SERVER_JMAP = new ConcurrentHashMap<>();
     final MonitorSysGenService monitorSysGenService;
     final MachineSshServer machineSshServer;
 
@@ -43,14 +45,14 @@ public class TerminalServiceImpl implements TerminalService {
     }
 
     @Override
-    public SshClient createClientBySshId(String sshId) {
+    public SshjClient createClientBySshId(String sshId) {
         if (sshId == null || sshId.isEmpty()) {
             log.error("sshId不能为空");
             return null;
         }
 
         // 检查缓存
-        CacheClient cacheClient = SERVER_MAP.get("ssh_" + sshId);
+        CacheJClient cacheClient = SERVER_JMAP.get("ssh_" + sshId);
         if (null != cacheClient) {
             return cacheClient.getSshClient();
         }
@@ -60,7 +62,7 @@ public class TerminalServiceImpl implements TerminalService {
             MachineSshModel machineSshModel = machineSshServer.getByKeyFull(sshId, true, null);
 
             // 创建SshClient
-            SshClient sshClient = new SshClient(ClientSetting.builder()
+            SshjClient sshClient = new SshjClient(ClientSetting.builder()
                     .username(machineSshModel.getUser())
                     .password(machineSshModel.getPassword())
                     .host(machineSshModel.getHost())
@@ -69,7 +71,7 @@ public class TerminalServiceImpl implements TerminalService {
             );
             sshClient.connect();
             // 缓存客户端
-            SERVER_MAP.put("ssh_" + sshId, new CacheClient(sshClient));
+            SERVER_JMAP.put("ssh_" + sshId, new CacheJClient(sshClient));
             return sshClient;
         } catch (Exception e) {
             log.error("创建SSH客户端失败: {}", e.getMessage(), e);
@@ -93,5 +95,11 @@ public class TerminalServiceImpl implements TerminalService {
     @AllArgsConstructor
     static class CacheClient {
         private SshClient sshClient;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class CacheJClient {
+        private SshjClient sshClient;
     }
 }
