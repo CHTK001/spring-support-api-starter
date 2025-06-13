@@ -3,7 +3,7 @@ package com.chua.starter.monitor.task;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.ssh.support.ssh.CmdChannel;
 import com.chua.ssh.support.ssh.SshChannelSession;
-import com.chua.ssh.support.ssh.SshClient;
+import com.chua.sshj.support.ssh.SshjClient;
 import com.chua.starter.monitor.entity.SoftService;
 import com.chua.starter.monitor.entity.SoftServiceInstall;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineSshModel;
@@ -101,7 +101,7 @@ public class SshStatusCheckTask {
 
         try {
             // 尝试连接SSH
-            SshClient sshClient = terminalService.createClientBySshId(sshId);
+            SshjClient sshClient = terminalService.createClientBySshId(sshId);
             boolean isOnline = (sshClient != null && sshClient.getSession() != null);
 
             // 获取上次状态
@@ -162,7 +162,7 @@ public class SshStatusCheckTask {
      * @param sshId     SSH服务器ID
      * @param sshClient SSH客户端
      */
-    private void checkServicesOnSsh(String sshId, SshClient sshClient) {
+    private void checkServicesOnSsh(String sshId, SshjClient sshClient) {
         try {
             // 查询该SSH服务器上已安装的所有服务
             List<SoftServiceInstall> installList = softServiceInstallMapper.selectBySshId(sshId);
@@ -216,7 +216,7 @@ public class SshStatusCheckTask {
      * @param softService 软件服务
      * @param sshClient   SSH客户端
      */
-    private void checkServiceStatus(SoftServiceInstall install, SoftService softService, SshClient sshClient) {
+    private void checkServiceStatus(SoftServiceInstall install, SoftService softService, SshjClient sshClient) {
         // 调用ServiceStatusCheckTask中的逻辑检查服务状态
         // 这里简化实现，实际项目中可以考虑将ServiceStatusCheckTask中的核心逻辑抽取出来复用
 
