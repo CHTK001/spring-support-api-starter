@@ -82,6 +82,14 @@ public class SoftServiceInstall extends SysBase {
     private String installLogPath;
 
     /**
+     * 服务日志路径
+     */
+    @TableField(value = "service_log_path")
+    @ApiModelProperty(value = "服务日志路径")
+    @Schema(description = "服务日志路径")
+    private String serviceLogPath;
+
+    /**
      * 安装版本
      */
     @TableField(value = "install_version")
@@ -376,10 +384,18 @@ public class SoftServiceInstall extends SysBase {
 
     /**
      * 软件服务重启命令失败标识
-     * 命令执行结果中包含此字符串则表示重启失败，多个标识用逗号分隔，支持通配符，优先级高于成功标识
      */
     @TableField(value = "soft_service_restart_failure_flag")
     @ApiModelProperty(value = "软件服务重启命令失败标识")
     @Schema(description = "软件服务重启命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识")
     private String softServiceRestartFailureFlag;
+
+    /**
+     * 服务配置项，JSON格式存储
+     */
+    @TableField(value = "service_config")
+    @ApiModelProperty(value = "服务配置项")
+    @Schema(description = "服务配置项，JSON格式存储")
+    @Lob
+    private String serviceConfig;
 } 

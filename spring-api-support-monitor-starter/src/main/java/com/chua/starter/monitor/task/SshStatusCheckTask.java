@@ -224,7 +224,9 @@ public class SshStatusCheckTask {
         String checkCommand = install.getSoftServiceStatusCheckCommand();
 
         if (checkCommand == null || checkCommand.trim().isEmpty()) {
-            log.debug("服务[{}]未配置状态检查命令，跳过检查", installId);
+            log.debug("服务[{}]未配置状态检查命令，标记为未知状态", installId);
+            // 更新为未知状态
+            updateServiceStatusUnknown(install);
             return;
         }
 
@@ -310,6 +312,40 @@ public class SshStatusCheckTask {
         } catch (Exception e) {
             log.error("更新服务[{}]运行状态失败: {}",
                     install.getInstallId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 更新服务为未知状态
+     *
+     * @param install 服务安装记录
+     */
+    private void updateServiceStatusUnknown(SoftServiceInstall install) {
+        try {
+            // 更新服务为未知状态（使用特殊状态码2表示未知状态）
+            SoftServiceInstall updateInstall = new SoftServiceInstall();
+            updateInstall.setInstallId(install.getInstallId());
+            updateInstall.setInstallRunStatus(2); // 2表示未知状态
+            updateInstall.setInstallLastCheckTime(System.currentTimeMillis());
+
+            // 更新到数据库
+            softServiceInstallMapper.updateById(updateInstall);
+
+            // 更新缓存（使用null表示未知状态）
+            serviceStatusCache.remove(install.getInstallId());
+
+            // 发送状态变更通知
+            softServiceInstallService.sendInstallProgress(
+                    install,
+                    "服务状态检查: 未配置检查命令，状态未知",
+                    100,
+                    100,
+                    "WARNING"
+            );
+
+            log.info("已更新服务[{}]运行状态为: 未知状态", install.getInstallId());
+        } catch (Exception e) {
+            log.error("更新服务[{}]为未知状态失败: {}", install.getInstallId(), e.getMessage());
         }
     }
 } 

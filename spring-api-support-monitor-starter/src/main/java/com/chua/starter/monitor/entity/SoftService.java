@@ -286,6 +286,14 @@ public class SoftService extends SysBase {
     private Boolean softServiceInstalled;
 
     /**
+     * 日志路径
+     */
+    @TableField(value = "soft_service_log_path")
+    @ApiModelProperty(value = "日志路径")
+    @Schema(description = "日志路径")
+    private String softServiceLogPath;
+
+    /**
      * 描述
      */
     @TableField(value = "soft_service_remark")

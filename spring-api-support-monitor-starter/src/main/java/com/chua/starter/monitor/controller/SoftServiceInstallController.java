@@ -261,5 +261,28 @@ public class SoftServiceInstallController {
         return softServiceInstallService.batchCheckServiceStatus(installIds);
     }
 
+    /**
+     * 获取服务配置项
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果，包含服务配置项JSON字符串
+     */
+    @GetMapping("/config/{installId}")
+    @Operation(summary = "获取服务配置项")
+    public ReturnResult<String> getServiceConfig(@PathVariable Integer installId) {
+        return softServiceInstallService.getServiceConfig(installId);
+    }
 
+    /**
+     * 更新服务配置项
+     *
+     * @param installId 安装记录ID
+     * @param config    配置项JSON字符串
+     * @return 操作结果
+     */
+    @PostMapping("/config/{installId}")
+    @Operation(summary = "更新服务配置项")
+    public ReturnResult<Boolean> updateServiceConfig(@PathVariable Integer installId, @RequestBody String config) {
+        return softServiceInstallService.updateServiceConfig(installId, config);
+    }
 }
