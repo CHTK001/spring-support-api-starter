@@ -9,11 +9,11 @@
  */
 package com.chua.starter.monitor.jpom.func.files.model;
 
+import com.chua.starter.monitor.jpom.db.TableName;
+import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import com.chua.starter.monitor.jpom.db.TableName;
-import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 
 /**
  * @author bwcx_jzy
@@ -21,7 +21,7 @@ import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
  */
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "FILE_RELEASE_TASK_LOG",
-        nameKey = "i18n.file_publish_task_record.edc4", parents = FileStorageModel.class)
+        nameKey = "i18n.file_publish_task_record.edc4", parents = JpomFileStorageModel.class)
 @Data
 @NoArgsConstructor
 public class FileReleaseTaskLogModel extends BaseWorkspaceModel {
@@ -43,7 +43,7 @@ public class FileReleaseTaskLogModel extends BaseWorkspaceModel {
     /**
      * 文件 id
      *
-     * @see FileStorageModel#getId()
+     * @see JpomFileStorageModel#getId()
      */
     private String fileId;
     /**

@@ -22,7 +22,7 @@ import com.chua.report.client.starter.jpom.common.common.ServerOpenApi;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.report.client.starter.jpom.common.util.FileUtils;
 import com.chua.starter.monitor.jpom.common.interceptor.NotLogin;
-import com.chua.starter.monitor.jpom.func.files.model.FileStorageModel;
+import com.chua.starter.monitor.jpom.func.files.model.JpomFileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.service.FileStorageService;
 import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.service.user.TriggerTokenLogServer;
@@ -74,10 +74,10 @@ public class FileStorageApiController extends BaseDownloadApiController {
      * @param request 请求
      * @return 数据
      */
-    private FileStorageModel queryByAliasCode(String id, String token, String sort, HttpServletRequest request) {
+    private JpomFileStorageModel queryByAliasCode(String id, String token, String sort, HttpServletRequest request) {
         // 先验证 token 和 id 是否都存在
         {
-            FileStorageModel data = new FileStorageModel();
+            JpomFileStorageModel data = new JpomFileStorageModel();
             data.setAliasCode(id);
             data.setTriggerToken(token);
             Assert.state(fileStorageService.exists(data), I18nMessageUtil.get("i18n.alias_or_token_error.d5c6"));
@@ -97,7 +97,7 @@ public class FileStorageApiController extends BaseDownloadApiController {
                                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
         Map<String, String> paramMap = JakartaServletUtil.getParamMap(request);
-        FileStorageModel where = new FileStorageModel();
+        JpomFileStorageModel where = new JpomFileStorageModel();
         for (Map.Entry<String, String> entry : paramMap.entrySet()) {
             String key = entry.getKey();
             if (StrUtil.startWith(key, "filter_")) {
@@ -106,8 +106,8 @@ public class FileStorageApiController extends BaseDownloadApiController {
             }
         }
         where.setAliasCode(id);
-        List<FileStorageModel> fileStorageModels = fileStorageService.queryList(where, 1, orders.toArray(new Order[]{}));
-        return CollUtil.getFirst(fileStorageModels);
+        List<JpomFileStorageModel> jpomFileStorageModels = fileStorageService.queryList(where, 1, orders.toArray(new Order[]{}));
+        return CollUtil.getFirst(jpomFileStorageModels);
     }
 
     @GetMapping(value = ServerOpenApi.FILE_STORAGE_DOWNLOAD, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -116,7 +116,7 @@ public class FileStorageApiController extends BaseDownloadApiController {
                          String sort,
                          HttpServletRequest request,
                          HttpServletResponse response) throws IOException {
-        FileStorageModel storageModel = fileStorageService.getByKey(id);
+        JpomFileStorageModel storageModel = fileStorageService.getByKey(id);
         if (storageModel == null) {
             // 根据别名查询
             storageModel = this.queryByAliasCode(id, token, sort, request);
