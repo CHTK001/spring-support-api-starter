@@ -461,7 +461,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             softServiceInstall.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
             softServiceInstall.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
 
-            // 新增：添加命令成功和失败标识
+            // 添加命令成功和失败标识
             softServiceInstall.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
             softServiceInstall.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
             softServiceInstall.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
@@ -473,6 +473,17 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             softServiceInstall.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
             softServiceInstall.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
             softServiceInstall.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
+
+            // 保存自定义安装路径和端口
+            if (StringUtils.hasText(softService.getSoftServiceInstallPath())) {
+                softServiceInstall.setInstallPathCustom(softService.getSoftServiceInstallPath());
+            }
+            if (StringUtils.hasText(softService.getSoftServiceInstallPort())) {
+                softServiceInstall.setInstallPort(softService.getSoftServiceInstallPort());
+            }
+            if (StringUtils.hasText(softService.getSoftServiceDefaultPort())) {
+                softServiceInstall.setInstallDefaultPort(softService.getSoftServiceDefaultPort());
+            }
             
             softServiceInstall.setInstallStatus(1); // 安装中
             softServiceInstall.setInstallTime(System.currentTimeMillis());
@@ -501,7 +512,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             existInstall.setSoftServiceStatusCheckCommandType(softService.getSoftServiceStatusCheckCommandType());
             existInstall.setSoftServiceStatusCheckSuccessFlag(softService.getSoftServiceStatusCheckSuccessFlag());
 
-            // 新增：添加命令成功和失败标识
+            // 添加命令成功和失败标识
             existInstall.setSoftServiceStatusCheckFailureFlag(softService.getSoftServiceStatusCheckFailureFlag());
             existInstall.setSoftServiceInstallSuccessFlag(softService.getSoftServiceInstallSuccessFlag());
             existInstall.setSoftServiceInstallFailureFlag(softService.getSoftServiceInstallFailureFlag());
@@ -513,6 +524,17 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             existInstall.setSoftServiceStopFailureFlag(softService.getSoftServiceStopFailureFlag());
             existInstall.setSoftServiceRestartSuccessFlag(softService.getSoftServiceRestartSuccessFlag());
             existInstall.setSoftServiceRestartFailureFlag(softService.getSoftServiceRestartFailureFlag());
+
+            // 保存自定义安装路径和端口
+            if (StringUtils.hasText(softService.getSoftServiceInstallPath())) {
+                existInstall.setInstallPathCustom(softService.getSoftServiceInstallPath());
+            }
+            if (StringUtils.hasText(softService.getSoftServiceInstallPort())) {
+                existInstall.setInstallPort(softService.getSoftServiceInstallPort());
+            }
+            if (StringUtils.hasText(softService.getSoftServiceDefaultPort())) {
+                existInstall.setInstallDefaultPort(softService.getSoftServiceDefaultPort());
+            }
             
             this.updateById(existInstall);
         }
@@ -533,7 +555,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     finalExistInstall.getSoftServiceInstallSuccessFlag(),
                     finalExistInstall.getSoftServiceInstallFailureFlag(),
                     "安装",
-                    10000, // 5分钟超时
+                    5000, // 5s超时
                     result -> {
                         if (result.isFailure()) {
                             // 匹配到失败标识
@@ -667,7 +689,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     // 执行卸载命令
                     String uninstallCommand = install.getSoftServiceUninstallCommand();
                     sendInstallProgress(install, "执行卸载命令：" + (uninstallCommand.length() > 50 ? uninstallCommand.substring(0, 50) + "..." : uninstallCommand), 20, 100, "INFO");
-                    executeCommands(channel, uninstallCommand, 10000);
+                    executeCommands(channel, uninstallCommand, 10000, install);
 
                     // 等待一段时间，确保所有输出都被处理
                     Thread.sleep(2000);
@@ -1554,7 +1576,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                             });
 
                             // 执行状态检查命令
-                            executeCommands(statusChannel, checkCmd, 10000);
+                            executeCommands(statusChannel, checkCmd, 10000, softServiceInstall);
 
                             // 等待一段时间，确保所有输出都被处理
                             Thread.sleep(1000);
@@ -1698,10 +1720,13 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
      * @param timeout  超时时间（毫秒）
      * @throws Exception 执行异常
      */
-    private void executeCommands(Channel channel, String commands, int timeout) throws Exception {
+    private void executeCommands(Channel channel, String commands, int timeout, SoftServiceInstall install) throws Exception {
         if (commands == null || commands.trim().isEmpty()) {
             return;
         }
+
+        // 替换命令中的变量
+        commands = replaceCommandVariables(commands, install);
         
         // 检查是否是脚本（以#!/bin/bash开头）
         if (commands.trim().startsWith("#!/bin/bash")) {
@@ -1756,6 +1781,67 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                 }
             }
         }
+    }
+
+    /**
+     * 替换命令中的变量
+     *
+     * @param command 原始命令
+     * @param install 安装记录
+     * @return 替换后的命令
+     */
+    private String replaceCommandVariables(String command, SoftServiceInstall install) {
+        if (command == null || command.isEmpty()) {
+            return command;
+        }
+
+        // 替换安装路径变量 $DIR
+        if (StringUtils.hasText(install.getInstallPathCustom())) {
+            command = command.replace("$DIR", install.getInstallPathCustom());
+        } else if (StringUtils.hasText(install.getInstallPath())) {
+            command = command.replace("$DIR", install.getInstallPath());
+        }
+
+        // 替换安装端口变量 $PORT
+        if (StringUtils.hasText(install.getInstallPort())) {
+            command = command.replace("$PORT", install.getInstallPort());
+        }
+
+        // 替换默认端口变量 $DEFAULT_PORT
+        if (StringUtils.hasText(install.getInstallDefaultPort())) {
+            command = command.replace("$DEFAULT_PORT", install.getInstallDefaultPort());
+        }
+
+        // 替换配置目录变量 $CONFIG_DIR
+        if (StringUtils.hasText(install.getInstallConfigPath())) {
+            command = command.replace("$CONFIG_DIR", install.getInstallConfigPath());
+        } else if (StringUtils.hasText(install.getInstallPathCustom())) {
+            command = command.replace("$CONFIG_DIR", install.getInstallPathCustom() + "/config");
+        } else if (StringUtils.hasText(install.getInstallPath())) {
+            command = command.replace("$CONFIG_DIR", install.getInstallPath() + "/config");
+        }
+
+        // 替换日志目录变量 $LOG_DIR
+        if (StringUtils.hasText(install.getServiceLogPath())) {
+            command = command.replace("$LOG_DIR", install.getServiceLogPath());
+        } else if (StringUtils.hasText(install.getInstallPathCustom())) {
+            command = command.replace("$LOG_DIR", install.getInstallPathCustom() + "/logs");
+        } else if (StringUtils.hasText(install.getInstallPath())) {
+            command = command.replace("$LOG_DIR", install.getInstallPath() + "/logs");
+        }
+
+        // 替换版本变量 $VERSION
+        if (StringUtils.hasText(install.getInstallVersion())) {
+            command = command.replace("$VERSION", install.getInstallVersion());
+        }
+
+        // 替换时间戳变量 $TIMESTAMP
+        command = command.replace("$TIMESTAMP", String.valueOf(System.currentTimeMillis()));
+
+        // 替换日期变量 $DATE
+        command = command.replace("$DATE", java.time.LocalDate.now().toString());
+
+        return command;
     }
 
     /**
@@ -2057,7 +2143,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     // 执行卸载命令
                     String uninstallCommand = install.getSoftServiceUninstallCommand();
                     sendInstallProgress(install, "执行卸载命令：" + (uninstallCommand.length() > 50 ? uninstallCommand.substring(0, 50) + "..." : uninstallCommand), 20, 100, "INFO");
-                    executeCommands(channel, uninstallCommand, 10000); // 5分钟超时
+                    executeCommands(channel, uninstallCommand, 10000, install);
 
                     // 等待一段时间，确保所有输出都被处理
                     Thread.sleep(2000);
@@ -2187,49 +2273,34 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             String operationType,
             Consumer<CommandResult> resultHandler) {
 
-        // 创建缓冲区，用于收集一段时间内的输出
-        StringBuilder outputBuffer = new StringBuilder();
-        // 上次处理时间
-        final long[] lastProcessTime = {System.currentTimeMillis()};
-        // 延迟处理时间（毫秒）
-        final int delayTime = 300;
-
         return s -> {
             // 将新输出添加到缓冲区
-            outputBuffer.append(s);
+            logBuilder.append(s);
 
-            // 检查是否需要处理缓冲区内容（时间间隔超过delayTime或者包含换行符）
-            long currentTime = System.currentTimeMillis();
-            boolean shouldProcess = (currentTime - lastProcessTime[0] > delayTime) ||
-                    outputBuffer.toString().contains("\n");
+            // 检查输出是否包含成功或失败标识
+            checkOutputForFlags(s, logBuilder, successFlag, failureFlag, foundSuccess, foundFailure, resultHandler);
 
-            if (shouldProcess) {
-                // 获取缓冲区内容并清空
-                String bufferedOutput = outputBuffer.toString();
-                outputBuffer.setLength(0);
-                lastProcessTime[0] = currentTime;
-
-                // 追加日志
-                logBuilder.append(bufferedOutput).append("\n");
-
-                // 按行分割处理
-                String[] lines = bufferedOutput.split("\n|\r");
-                for (String line : lines) {
-                    if (line.trim().isEmpty()) {
-                        continue;
-                    }
-
-                    // 检查输出是否包含成功或失败标识
-                    checkOutputForFlags(line, logBuilder, successFlag, failureFlag, foundSuccess, foundFailure, resultHandler);
-
-                    // 计算进度（简单模拟，每收到一条消息增加一点进度，最多到95%）
-                    progressCounter[0] += 3;
-                    int progress = Math.min(progressCounter[0], 95);
-
-                    // 推送进度
-                    sendInstallProgress(install, line, progress, 100, "INFO");
-                }
+            // 计算进度（根据不同阶段使用不同增量）
+            int currentProgress = progressCounter[0];
+            if (currentProgress < 50) {
+                // 1-50阶段，每次+5
+                progressCounter[0] += 5;
+            } else if (currentProgress < 70) {
+                // 50-70阶段，每次+3
+                progressCounter[0] += 3;
+            } else if (currentProgress < 90) {
+                // 70-90阶段，每次+1
+                progressCounter[0] += 1;
+            } else {
+                // 90往上，每次+0.5（使用整数时，我们乘以10再除以10来表示0.5）
+                progressCounter[0] += (progressCounter[0] >= 95) ? 0 : 1;
             }
+
+            // 确保进度不超过95%（留5%给最后的完成步骤）
+            int progress = Math.min(progressCounter[0], 95);
+
+            // 推送进度
+            sendInstallProgress(install, s, progress, 100, "INFO");
         };
     }
 
@@ -2316,7 +2387,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
                 // 执行命令
                 sendInstallProgress(install, "执行" + operationType + "命令：" + (command.length() > 50 ? command.substring(0, 50) + "..." : command), 20, 100, "INFO");
-                executeCommands(channel, command, timeout);
+                executeCommands(channel, command, timeout, install);
 
             } catch (Exception e) {
                 log.error(operationType + "执行失败: {}", e.getMessage(), e);
@@ -2431,7 +2502,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         }
 
         if (config == null) {
-            return ReturnResult.illegal("配置不能为空");
+            return ReturnResult.illegal("配置内容不能为空");
         }
 
         // 获取安装记录
@@ -2445,21 +2516,15 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             return ReturnResult.illegal("该软件未安装成功，无法更新配置");
         }
 
+        // 获取配置文件目录
+        String configPath = install.getInstallConfigPath();
+        if (configPath == null || configPath.isEmpty()) {
+            // 如果配置文件目录为空，尝试使用默认目录
+            configPath = install.getInstallPath() + "/config/application.conf";
+            log.info("配置文件目录为空，使用默认目录: {}", configPath);
+        }
+
         try {
-            // 获取配置文件目录
-            String configPath = install.getInstallConfigPath();
-            if (configPath == null || configPath.isEmpty()) {
-                // 如果配置文件目录为空，尝试使用默认目录
-                configPath = install.getInstallPath() + "/config/application.conf";
-                log.info("配置文件目录为空，使用默认目录: {}", configPath);
-
-                // 更新安装记录中的配置文件目录
-                SoftServiceInstall updateInstall = new SoftServiceInstall();
-                updateInstall.setInstallId(installId);
-                updateInstall.setInstallConfigPath(configPath);
-                this.updateById(updateInstall);
-            }
-
             // 获取SSH客户端
             SshClient sshClient = terminalService.createClientBySshId(install.getSshId());
             if (sshClient == null) {
@@ -2467,53 +2532,48 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             }
 
             ChannelSession clientSession = (ChannelSession) sshClient.getSession();
-            Channel channel = clientSession.openChannel(installId + "_updateconfig", "shell");
+            Channel channel = clientSession.openChannel(installId + "_updateconfig", "cmd");
 
-            // 设置监听器接收输出
-            StringBuilder outputBuilder = new StringBuilder();
-            channel.setListener(s -> {
-                outputBuilder.append(s).append("\n");
-                log.debug("更新配置输出: {}", s);
-            });
+            // 替换配置文件中的变量
+            config = replaceCommandVariables(config, install);
 
-            // 确保配置文件目录存在
-            String configDir = configPath.substring(0, configPath.lastIndexOf('/'));
-            String createDirCommand = "mkdir -p " + configDir;
-            log.info("创建配置目录: {}", createDirCommand);
-            channel.execute(createDirCommand, 10000); // 30秒超时
+            // 备份原配置文件
+            String backupCommand = "cp " + configPath + " " + configPath + ".bak." + System.currentTimeMillis();
+            log.info("备份配置文件: {}", backupCommand);
+            channel.execute(backupCommand, 5000);
 
-            // 创建临时文件
+            // 写入新配置文件
             String tempFile = "/tmp/config_" + installId + "_" + System.currentTimeMillis() + ".tmp";
-            String createTempFileCommand = "cat > " + tempFile + " << 'EOF'\n" + config + "\nEOF";
             log.info("创建临时配置文件: {}", tempFile);
-            channel.execute(createTempFileCommand, 10000); // 30秒超时
+
+            // 使用heredoc写入临时文件
+            String writeCommand = "cat > " + tempFile + " << 'EOL'\n" +
+                    config + "\nEOL\n";
+
+            log.info("写入临时配置文件");
+            channel.execute(writeCommand, 5000);
 
             // 移动临时文件到目标位置
             String moveCommand = "mv " + tempFile + " " + configPath;
-            log.info("移动配置文件: {}", moveCommand);
-            channel.execute(moveCommand, 10000); // 30秒超时
+            log.info("移动临时配置文件到目标位置: {}", moveCommand);
+            channel.execute(moveCommand, 5000);
 
-            // 设置适当的权限
-            String chmodCommand = "chmod 644 " + configPath;
-            log.info("设置配置文件权限: {}", chmodCommand);
-            channel.execute(chmodCommand, 10000); // 30秒超时
+            // 更新配置记录
+            SoftServiceInstall updateInstall = new SoftServiceInstall();
+            updateInstall.setInstallId(installId);
+            updateInstall.setServiceConfig(config);
+            this.updateById(updateInstall);
 
-            // 检查是否成功
-            String checkCommand = "ls -la " + configPath;
-            log.info("检查配置文件: {}", checkCommand);
-            channel.execute(checkCommand, 10000); // 30秒超时
+            // 记录操作日志
+            appendOperationLog(installId, "config", "更新配置文件: " + configPath);
 
-            String output = outputBuilder.toString();
-            if (output.contains("No such file or directory") || output.contains("cannot access")) {
-                log.error("更新配置失败，文件不存在: {}", output);
-                return ReturnResult.error("更新配置失败，无法创建或访问配置文件");
-            }
+            // 发送通知
+            sendInstallProgress(install, "配置文件更新成功", 100, 100, "SUCCESS");
 
-            log.info("更新配置成功: {}", configPath);
             return ReturnResult.success(true);
         } catch (Exception e) {
-            log.error("更新配置失败: {}", e.getMessage(), e);
-            return ReturnResult.error("更新配置失败: " + e.getMessage());
+            log.error("更新服务配置失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal("更新服务配置失败: " + e.getMessage());
         }
     }
 

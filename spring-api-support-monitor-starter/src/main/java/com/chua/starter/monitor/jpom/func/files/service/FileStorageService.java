@@ -28,7 +28,7 @@ import com.chua.report.client.starter.jpom.common.common.i18n.I18nThreadUtil;
 import com.chua.starter.monitor.jpom.JpomApplication;
 import com.chua.starter.monitor.jpom.common.ServerConst;
 import com.chua.starter.monitor.jpom.configuration.BuildExtConfig;
-import com.chua.starter.monitor.jpom.func.files.model.FileStorageModel;
+import com.chua.starter.monitor.jpom.func.files.model.JpomFileStorageModel;
 import com.chua.starter.monitor.jpom.service.IStatusRecover;
 import com.chua.starter.monitor.jpom.service.ITriggerToken;
 import com.chua.starter.monitor.jpom.service.h2db.BaseGlobalOrWorkspaceService;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
-public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorageModel> implements ISystemTask, IStatusRecover, ITriggerToken {
+public class FileStorageService extends BaseGlobalOrWorkspaceService<JpomFileStorageModel> implements ISystemTask, IStatusRecover, ITriggerToken {
 
     private final ServerConfig serverConfig;
     private final JpomApplication configBean;
@@ -72,31 +72,31 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
      * @param keepDay     保留天数
      */
     public void download(String url, Boolean global, String workspaceId, Integer keepDay, String description, String aliasCode) {
-        FileStorageModel fileStorageModel = new FileStorageModel();
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
         // 临时使用 uuid，代替
         String uuid = IdUtil.fastSimpleUUID();
         long startTime = SystemClock.now();
         {
-            fileStorageModel.setId(uuid);
-            fileStorageModel.setName(I18nMessageUtil.get("i18n.file_downloading.7a8f"));
+            jpomFileStorageModel.setId(uuid);
+            jpomFileStorageModel.setName(I18nMessageUtil.get("i18n.file_downloading.7a8f"));
             String empty = StrUtil.emptyToDefault(description, StrUtil.EMPTY);
 
-            fileStorageModel.setDescription(StrUtil.format(I18nMessageUtil.get("i18n.remote_download_url.011f"), empty, url));
+            jpomFileStorageModel.setDescription(StrUtil.format(I18nMessageUtil.get("i18n.remote_download_url.011f"), empty, url));
             String extName = "download";
             String path = StrUtil.format("/{}/{}.{}", DateTime.now().toString(DatePattern.PURE_DATE_FORMAT), uuid, extName);
-            fileStorageModel.setExtName("download");
-            fileStorageModel.setPath(path);
-            fileStorageModel.setAliasCode(aliasCode);
-            fileStorageModel.setSize(0L);
-            fileStorageModel.setStatus(0);
-            fileStorageModel.setSource(2);
+            jpomFileStorageModel.setExtName("download");
+            jpomFileStorageModel.setPath(path);
+            jpomFileStorageModel.setAliasCode(aliasCode);
+            jpomFileStorageModel.setSize(0L);
+            jpomFileStorageModel.setStatus(0);
+            jpomFileStorageModel.setSource(2);
             if (global != null && global) {
-                fileStorageModel.setWorkspaceId(ServerConst.WORKSPACE_GLOBAL);
+                jpomFileStorageModel.setWorkspaceId(ServerConst.WORKSPACE_GLOBAL);
             } else {
-                fileStorageModel.setWorkspaceId(workspaceId);
+                jpomFileStorageModel.setWorkspaceId(workspaceId);
             }
-            fileStorageModel.validUntil(keepDay, null);
-            this.insert(fileStorageModel);
+            jpomFileStorageModel.validUntil(keepDay, null);
+            this.insert(jpomFileStorageModel);
         }
         // 异步下载
         I18nThreadUtil.execute(() -> {
@@ -107,7 +107,7 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
                 StreamProgress streamProgress = this.createStreamProgress(uuid);
                 File fileFromUrl = HttpUtil.downloadFileFromUrl(url, file, -1, streamProgress);
                 String md5 = SecureUtil.md5(fileFromUrl);
-                FileStorageModel storageModel = this.getByKey(md5);
+                JpomFileStorageModel storageModel = this.getByKey(md5);
                 if (storageModel != null) {
                     this.updateError(uuid, I18nMessageUtil.get("i18n.file_already_exists.983d"));
                     FileUtil.del(fileFromUrl);
@@ -121,7 +121,7 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
                 FileUtil.mkParentDirs(fileStorageFile);
                 FileUtil.move(fileFromUrl, fileStorageFile, true);
                 //
-                FileStorageModel update = new FileStorageModel();
+                JpomFileStorageModel update = new JpomFileStorageModel();
                 // 需要将 id 更新为真实 id
                 update.setId(md5);
                 update.setName(fileFromUrl.getName());
@@ -177,16 +177,16 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
     }
 
     private void updateProgress(String id, String desc, long total, long progressSize) {
-        FileStorageModel fileStorageModel = new FileStorageModel();
-        fileStorageModel.setId(id);
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
+        jpomFileStorageModel.setId(id);
         String fileSize = FileUtil.readableFileSize(progressSize);
         desc = StrUtil.emptyToDefault(desc, fileSize);
-        fileStorageModel.setName(I18nMessageUtil.get("i18n.file_downloading_status.c995") + desc);
-        fileStorageModel.setStatus(0);
-        fileStorageModel.setSize(progressSize);
+        jpomFileStorageModel.setName(I18nMessageUtil.get("i18n.file_downloading_status.c995") + desc);
+        jpomFileStorageModel.setStatus(0);
+        jpomFileStorageModel.setSize(progressSize);
 
-        fileStorageModel.setProgressDesc(StrUtil.format(I18nMessageUtil.get("i18n.download_progress.898a"), desc, FileUtil.readableFileSize(total), fileSize));
-        this.updateById(fileStorageModel);
+        jpomFileStorageModel.setProgressDesc(StrUtil.format(I18nMessageUtil.get("i18n.download_progress.898a"), desc, FileUtil.readableFileSize(total), fileSize));
+        this.updateById(jpomFileStorageModel);
     }
 
     /**
@@ -196,12 +196,12 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
      * @param error 错误信息
      */
     private void updateError(String id, String error) {
-        FileStorageModel fileStorageModel = new FileStorageModel();
-        fileStorageModel.setId(id);
-        fileStorageModel.setName(I18nMessageUtil.get("i18n.file_download_failed.7983") + StrUtil.maxLength(error, 200));
-        fileStorageModel.setStatus(2);
-        fileStorageModel.setProgressDesc(error);
-        this.updateById(fileStorageModel);
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
+        jpomFileStorageModel.setId(id);
+        jpomFileStorageModel.setName(I18nMessageUtil.get("i18n.file_download_failed.7983") + StrUtil.maxLength(error, 200));
+        jpomFileStorageModel.setStatus(2);
+        jpomFileStorageModel.setProgressDesc(error);
+        this.updateById(jpomFileStorageModel);
     }
 
     /**
@@ -233,23 +233,23 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
         File storageSavePath = serverConfig.fileStorageSavePath();
         String extName = FileUtil.extName(file);
         String path = StrUtil.format("/{}/{}.{}", DateTime.now().toString(DatePattern.PURE_DATE_FORMAT), md5, extName);
-        FileStorageModel storageModel = this.getByKey(md5);
+        JpomFileStorageModel storageModel = this.getByKey(md5);
         if (storageModel != null) {
             return null;
         }
         // 保存
-        FileStorageModel fileStorageModel = new FileStorageModel();
-        fileStorageModel.setId(md5);
-        fileStorageModel.setAliasCode(aliasCode);
-        fileStorageModel.setName(file.getName());
-        fileStorageModel.setDescription(description);
-        fileStorageModel.setExtName(extName);
-        fileStorageModel.setPath(path);
-        fileStorageModel.setSize(FileUtil.size(file));
-        fileStorageModel.setSource(source);
-        fileStorageModel.setWorkspaceId(workspaceId);
-        fileStorageModel.validUntil(keepDay, null);
-        this.insert(fileStorageModel);
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
+        jpomFileStorageModel.setId(md5);
+        jpomFileStorageModel.setAliasCode(aliasCode);
+        jpomFileStorageModel.setName(file.getName());
+        jpomFileStorageModel.setDescription(description);
+        jpomFileStorageModel.setExtName(extName);
+        jpomFileStorageModel.setPath(path);
+        jpomFileStorageModel.setSize(FileUtil.size(file));
+        jpomFileStorageModel.setSource(source);
+        jpomFileStorageModel.setWorkspaceId(workspaceId);
+        jpomFileStorageModel.validUntil(keepDay, null);
+        this.insert(jpomFileStorageModel);
         //
         File fileStorageFile = FileUtil.file(storageSavePath, path);
         FileUtil.mkParentDirs(fileStorageFile);
@@ -262,12 +262,12 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
         // 定时删除文件
         Entity entity = Entity.create();
         entity.set("validUntil", " < " + SystemClock.now());
-        List<FileStorageModel> storageModels = this.listByEntity(entity);
+        List<JpomFileStorageModel> storageModels = this.listByEntity(entity);
         if (CollUtil.isEmpty(storageModels)) {
             return;
         }
         File storageSavePath = serverConfig.fileStorageSavePath();
-        for (FileStorageModel storageModel : storageModels) {
+        for (JpomFileStorageModel storageModel : storageModels) {
             log.info(I18nMessageUtil.get("i18n.start_deleting_files.210c"), storageModel.getName(), storageModel.getPath());
             File fileStorageFile = FileUtil.file(storageSavePath, storageModel.getPath());
             FileUtil.del(fileStorageFile);
@@ -277,7 +277,7 @@ public class FileStorageService extends BaseGlobalOrWorkspaceService<FileStorage
 
     @Override
     public int statusRecover() {
-        FileStorageModel update = new FileStorageModel();
+        JpomFileStorageModel update = new JpomFileStorageModel();
         update.setName(I18nMessageUtil.get("i18n.system_restart_cancel_download.444e"));
         update.setModifyTimeMillis(SystemClock.now());
         update.setStatus(2);

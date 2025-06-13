@@ -16,22 +16,22 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.chua.starter.monitor.jpom.db.TableName;
+import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import com.chua.starter.monitor.jpom.db.TableName;
-import com.chua.starter.monitor.jpom.model.BaseWorkspaceModel;
 
 /**
  * @author bwcx_jzy
  * @since 2023/3/16
  */
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "FILE_STORAGE",
+@TableName(value = "JPOM_FILE_STORAGE",
         nameKey = "i18n.file_management_center.0f5f")
 @Data
 @NoArgsConstructor
-public class FileStorageModel extends BaseWorkspaceModel implements IFileStorage {
+public class JpomFileStorageModel extends BaseWorkspaceModel implements IFileStorage {
 
     /**
      * 文件名

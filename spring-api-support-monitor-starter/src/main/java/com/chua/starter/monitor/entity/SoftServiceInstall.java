@@ -398,4 +398,28 @@ public class SoftServiceInstall extends SysBase {
     @Schema(description = "服务配置项，JSON格式存储")
     @Lob
     private String serviceConfig;
+
+    /**
+     * 安装路径
+     */
+    @TableField(value = "install_path_custom")
+    @ApiModelProperty(value = "自定义安装路径")
+    @Schema(description = "自定义安装路径")
+    private String installPathCustom;
+
+    /**
+     * 安装端口
+     */
+    @TableField(value = "install_port")
+    @ApiModelProperty(value = "安装端口")
+    @Schema(description = "安装端口")
+    private String installPort;
+
+    /**
+     * 默认端口
+     */
+    @TableField(value = "install_default_port")
+    @ApiModelProperty(value = "默认端口")
+    @Schema(description = "默认端口")
+    private String installDefaultPort;
 } 
