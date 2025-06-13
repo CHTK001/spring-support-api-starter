@@ -206,4 +206,21 @@ public interface SoftServiceInstallService extends IService<SoftServiceInstall> 
      * @return 操作结果，包含日志文件列表
      */
     ReturnResult<List<String>> listServiceLogFiles(Integer installId);
+
+    /**
+     * 获取服务配置项
+     *
+     * @param installId 安装记录ID
+     * @return 操作结果，包含服务配置项JSON字符串
+     */
+    ReturnResult<String> getServiceConfig(Integer installId);
+
+    /**
+     * 更新服务配置项
+     *
+     * @param installId 安装记录ID
+     * @param config    配置项JSON字符串
+     * @return 操作结果，包含布尔值表示是否成功
+     */
+    ReturnResult<Boolean> updateServiceConfig(Integer installId, String config);
 } 
