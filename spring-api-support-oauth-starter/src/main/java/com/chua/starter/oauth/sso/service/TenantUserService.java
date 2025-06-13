@@ -63,6 +63,9 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  *   <li>使用ConcurrentReferenceHashMap缓存用户-数据源映射</li>
  *   <li>避免重复查询多个租户数据库</li>
  *   <li>处理完成后自动恢复默认数据源</li>
+ *   <li>批量加载用户权限和角色信息</li>
+ *   <li>Redis缓存数据源查找结果</li>
+ *   <li>优化数据库查询语句</li>
  * </ul>
  *
  * @author CH
@@ -76,8 +79,13 @@ public class TenantUserService implements UserInfoService, Constant {
      * 数据源缓存过期时间(分钟)
      */
     private static final long DATASOURCE_CACHE_TIMEOUT = 30;
-    /** 用户与数据源映射缓存 */
+
+    /**
+     * 用户与数据源映射缓存
+     * <p>使用ConcurrentReferenceHashMap提高并发性能并减少内存占用</p>
+     */
     private static final Map<String, String> _ENGINE_CACHE = new ConcurrentReferenceHashMap<>(1024);
+
     /**
      * 登录尝试失败最大次数
      */
@@ -85,7 +93,10 @@ public class TenantUserService implements UserInfoService, Constant {
     
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-    /** 账户锁定时间(分钟) */
+
+    /**
+     * 账户锁定时间(分钟)
+     */
     private final int timeout = 5;
     
     @Autowired
@@ -140,7 +151,8 @@ public class TenantUserService implements UserInfoService, Constant {
             log.warn("租户登录失败: 未找到包含该用户的数据源 用户={}, 租户={}", principal, tenantId);
             return check(newAccessKey, hasKey);
         }
-        
+
+        // 切换到目标数据源
         DataSourceContextSupport.setDbType(dataSourceName);
         try {
             // 查询用户信息
@@ -171,6 +183,8 @@ public class TenantUserService implements UserInfoService, Constant {
             // 更新登录信息
             user.setSysUserLastIp(address);
             sysUserMapper.updateById(user);
+
+            // 清除错误计数
             stringRedisTemplate.delete(newAccessKey);
 
             log.info("租户登录成功: 用户={} (ID:{}), 租户={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantId, address);
@@ -317,28 +331,42 @@ public class TenantUserService implements UserInfoService, Constant {
     }
 
     /**
-     * 登录信息
+     * 构建用户登录信息
+     * <p>
+     * 根据用户基本信息构建完整的用户登录结果，包括角色、权限、部门等信息。
+     * 使用批量查询优化数据库访问，减少多次单条查询的开销。
+     * </p>
      *
      * @param accessKey 访问密钥
-     * @param user      使用者
-     * @param address
-     * @return {@link UserResult}
+     * @param user      用户实体
+     * @param address   客户端地址，可为null
+     * @return 完整的用户登录结果
      */
     protected UserResult loginInfo(String accessKey, SysUser user, String address) {
-        ValueOperations stringStringValueOperations = stringRedisTemplate.opsForValue();
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
         String countKey = "system:user:count:" + user.getSysUserId();
-        stringStringValueOperations.increment(countKey);
+        ops.increment(countKey);
 
         if (null != address) {
             user.setSysUserLastIp(address);
-            user.setSysUserLongCount(Converter.convertIfNecessary(stringStringValueOperations.get(countKey), Integer.class));
+            user.setSysUserLongCount(Converter.convertIfNecessary(ops.get(countKey), Integer.class));
             sysUserMapper.updateById(user);
         }
-        List<SysRole> role = getRole(user);
 
-        LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
-        LinkedHashSet<UserResult.RoleInfo> roleInfo =
-                role.stream().map(it -> {
+        // 批量查询用户角色信息
+        long startTime = System.currentTimeMillis();
+        List<SysRole> roles = getRole(user);
+        log.debug("用户角色查询耗时: {}ms", System.currentTimeMillis() - startTime);
+
+        // 构建角色代码集合
+        LinkedHashSet<String> roleCodes = roles.stream()
+                .map(SysRole::getSysRoleCode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        // 构建角色详细信息集合
+        LinkedHashSet<UserResult.RoleInfo> roleInfos = roles.stream()
+                .map(it -> {
                     UserResult.RoleInfo item = new UserResult.RoleInfo();
                     item.setRoleCode(it.getSysRoleCode());
                     item.setRoleName(it.getSysRoleName());
@@ -346,33 +374,50 @@ public class TenantUserService implements UserInfoService, Constant {
                     item.setWriteable(it.getSysRoleWriteable() == null || it.getSysRoleWriteable() == 1);
                     item.setExecutable(it.getSysRoleExecutable() == null || it.getSysRoleExecutable() == 1);
                     return item;
-                }).collect(Collectors.toCollection(LinkedHashSet::new));
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
+        // 获取部门信息和数据权限
         Integer sysDeptId = user.getSysDeptId();
         String userDashboardGrid = "";
         DataFilterTypeEnum dataPermission = ALL;
         String dataPermissionRule = "";
         String userDashboard = "";
+
         if (null != sysDeptId) {
-            SysDept sysDept = sysDeptMapper.selectOne(Wrappers.<SysDept>lambdaQuery().eq(SysDept::getSysDeptId, sysDeptId), false);
+            startTime = System.currentTimeMillis();
+            SysDept sysDept = sysDeptMapper.selectOne(
+                    Wrappers.<SysDept>lambdaQuery()
+                            .eq(SysDept::getSysDeptId, sysDeptId)
+                            .select(SysDept::getSysDeptDataPermission, SysDept::getSysDeptDataPermissionDeptId),
+                    false);
+            log.debug("部门信息查询耗时: {}ms", System.currentTimeMillis() - startTime);
+            
             if (null != sysDept) {
                 dataPermission = ObjectUtils.defaultIfNull(DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()), ALL);
                 dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
             }
         }
+
+        // 获取用户权限
+        startTime = System.currentTimeMillis();
+        Set<String> permissions = getPermission(user);
+        log.debug("用户权限查询耗时: {}ms", System.currentTimeMillis() - startTime);
+
+        // 构建用户结果对象
         return new UserResult()
                 .setId(user.getSysUserId() + "")
                 .setUserId(user.getSysUserId() + "")
                 .setClientId(user.getSysClientId())
                 .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
                 .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
-                .setRoles(collect)
+                .setRoles(roleCodes)
                 .setTenantId(String.valueOf(user.getSysTenantId()))
-                .setRolesByRole(roleInfo)
+                .setRolesByRole(roleInfos)
                 .setDeptId(user.getSysDeptId() + "")
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
-                .setPermission(getPermission(user))
+                .setPermission(permissions)
                 .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
                 .setLoginCnt(user.getSysUserLongCount())
@@ -385,6 +430,16 @@ public class TenantUserService implements UserInfoService, Constant {
                         .build());
     }
 
+    /**
+     * 获取用户角色信息
+     * <p>
+     * 使用联表查询一次性获取用户的所有角色信息，减少数据库访问次数。
+     * 仅查询状态为启用的角色。
+     * </p>
+     *
+     * @param user 用户实体
+     * @return 用户角色列表
+     */
     private List<SysRole> getRole(SysUser user) {
         try {
             List<Map<String, Object>> maps = sysUserMapper.selectMaps(new MPJLambdaWrapper<SysUser>()
@@ -401,41 +456,66 @@ public class TenantUserService implements UserInfoService, Constant {
                 return sysRole;
             }).collect(Collectors.toList());
         } catch (Exception e) {
+            log.warn("获取用户角色失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
             return Collections.emptyList();
         }
     }
 
+    /**
+     * 获取用户权限信息
+     * <p>
+     * 调用专用的权限查询方法，一次性获取用户的所有权限。
+     * 方法内部已处理了角色-权限的关联关系。
+     * </p>
+     *
+     * @param user 用户实体
+     * @return 用户权限集合
+     */
     private Set<String> getPermission(SysUser user) {
         try {
             return sysUserMapper.selectPermission(user.getSysUserId());
         } catch (Exception e) {
+            log.warn("获取用户权限失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
             return Collections.emptySet();
         }
     }
 
     /**
-     * 限制次数校验
+     * 登录失败次数限制检查
+     * <p>
+     * 跟踪用户登录失败次数，并在达到阈值时锁定账户。
+     * 使用Redis存储失败计数，设置自动过期时间。
+     * </p>
      *
-     * @param newAccessKey 账号
-     * @param boos         key是否存在
-     * @return 结果
+     * @param newAccessKey Redis键名
+     * @param boos         键是否已存在
+     * @return 登录失败结果，包含适当的错误消息
      */
     private UserResult check(String newAccessKey, Boolean boos) {
         if (null == boos) {
             boos = false;
         }
         if (boos) {
-            //如果boos为true,则证明redis中有此key,获取key的数值并加1
+            // 如果boos为true,则证明redis中有此key,获取key的数值并加1
             Integer inte = NumberUtils.toInt(stringRedisTemplate.opsForValue().get(newAccessKey));
             inte++;
             stringRedisTemplate.opsForValue().set(newAccessKey, inte + "", timeout, TimeUnit.MINUTES);
             return checkLimit(inte);
         }
-        //false,则证明redis中没有此key,密码是第一次错误,故走以下逻辑
+        // false,则证明redis中没有此key,密码是第一次错误,故走以下逻辑
         stringRedisTemplate.opsForValue().set(newAccessKey, 1 + "", timeout, TimeUnit.MINUTES);
         return checkLimit(1);
     }
 
+    /**
+     * 检查登录失败次数限制
+     * <p>
+     * 根据失败次数返回不同的错误消息，并在达到阈值时锁定账户。
+     * </p>
+     *
+     * @param errorCount 错误计数
+     * @return 包含适当错误消息的结果
+     */
     private UserResult checkLimit(Integer errorCount) {
         if (errorCount == count) {
             return new UserResult().setMessage("账号已被锁定");
@@ -445,8 +525,6 @@ public class TenantUserService implements UserInfoService, Constant {
             return new UserResult().setMessage("密码错误, 剩余尝试次数" + (count - errorCount) + "次,账号将被锁定" + timeout + "分钟");
         }
 
-
         return new UserResult().setMessage("账号/密码不正确");
     }
-
 }
