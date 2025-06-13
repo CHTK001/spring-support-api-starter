@@ -381,4 +381,30 @@ public class SoftService extends SysBase {
     @ApiModelProperty(value = "是否为分组头")
     @Schema(description = "是否为分组头")
     private Boolean isGroupHeader;
+
+    /**
+     * 安装路径
+     * 非数据库字段，用于保存更新，存入到SoftServiceInstall表中
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "安装路径")
+    @Schema(description = "安装路径")
+    private String softServiceInstallPath;
+
+    /**
+     * 安装端口
+     * 非数据库字段，用于保存更新，存入到SoftServiceInstall表中
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "安装端口")
+    @Schema(description = "安装端口")
+    private String softServiceInstallPort;
+
+    /**
+     * 默认端口
+     */
+    @TableField("soft_service_default_port")
+    @ApiModelProperty(value = "默认端口")
+    @Schema(description = "默认端口")
+    private String softServiceDefaultPort;
 }

@@ -34,8 +34,8 @@ import com.chua.starter.monitor.jpom.common.forward.NodeUrl;
 import com.chua.starter.monitor.jpom.configuration.BuildExtConfig;
 import com.chua.starter.monitor.jpom.func.assets.model.MachineSshModel;
 import com.chua.starter.monitor.jpom.func.files.model.FileReleaseTaskLogModel;
-import com.chua.starter.monitor.jpom.func.files.model.FileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.model.IFileStorage;
+import com.chua.starter.monitor.jpom.func.files.model.JpomFileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.model.StaticFileStorageModel;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.data.NodeModel;
@@ -136,7 +136,7 @@ public class FileReleaseTaskService extends BaseWorkspaceService<FileReleaseTask
      * @return tuple 0 文件 1 文件信息
      */
     private Tuple getFileStorage(String fileId, HttpServletRequest request) {
-        FileStorageModel storageModel = fileStorageService.getByKey(fileId, request);
+        JpomFileStorageModel storageModel = fileStorageService.getByKey(fileId, request);
         Assert.notNull(storageModel, I18nMessageUtil.get("i18n.file_not_exist.ea6a"));
         File storageSavePath = serverConfig.fileStorageSavePath();
         File file = FileUtil.file(storageSavePath, storageModel.getPath());

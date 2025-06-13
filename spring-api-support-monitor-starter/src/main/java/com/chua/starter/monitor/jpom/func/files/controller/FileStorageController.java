@@ -24,7 +24,7 @@ import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.common.ServerConst;
 import com.chua.starter.monitor.jpom.common.UrlRedirectUtil;
 import com.chua.starter.monitor.jpom.controller.outgiving.OutGivingWhitelistService;
-import com.chua.starter.monitor.jpom.func.files.model.FileStorageModel;
+import com.chua.starter.monitor.jpom.func.files.model.JpomFileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.service.FileStorageService;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import com.chua.starter.monitor.jpom.model.data.ServerWhitelist;
@@ -79,10 +79,10 @@ public class FileStorageController extends BaseServerController {
      */
     @PostMapping(value = "list", produces = MediaType.APPLICATION_JSON_VALUE)
     @Feature(method = MethodFeature.LIST)
-    public IJsonMessage<PageResultDto<FileStorageModel>> list(HttpServletRequest request) {
+    public IJsonMessage<PageResultDto<JpomFileStorageModel>> list(HttpServletRequest request) {
         File storageSavePath = serverConfig.fileStorageSavePath();
         //
-        PageResultDto<FileStorageModel> listPage = fileStorageService.listPage(request);
+        PageResultDto<JpomFileStorageModel> listPage = fileStorageService.listPage(request);
         listPage.each(fileStorageModel -> {
             File file = FileUtil.file(storageSavePath, fileStorageModel.getPath());
             fileStorageModel.setExists(FileUtil.isFile(file));
@@ -98,8 +98,8 @@ public class FileStorageController extends BaseServerController {
      */
     @GetMapping(value = "has-file", produces = MediaType.APPLICATION_JSON_VALUE)
     @Feature(method = MethodFeature.LIST)
-    public IJsonMessage<FileStorageModel> hasFile(@ValidatorItem String fileSumMd5) {
-        FileStorageModel storageModel = fileStorageService.getByKey(fileSumMd5);
+    public IJsonMessage<JpomFileStorageModel> hasFile(@ValidatorItem String fileSumMd5) {
+        JpomFileStorageModel storageModel = fileStorageService.getByKey(fileSumMd5);
         return JsonMessage.success("", storageModel);
     }
 
@@ -147,10 +147,10 @@ public class FileStorageController extends BaseServerController {
         Opt.ofBlankAble(aliasCode).ifPresent(s -> Validator.validateGeneral(s, I18nMessageUtil.get("i18n.alias_code_validation.8b99")));
         File storageSavePath = serverConfig.fileStorageSavePath();
         // 验证文件
-        FileStorageModel fileStorageModel1 = fileStorageService.getByKey(fileSumMd5);
-        if (fileStorageModel1 != null) {
+        JpomFileStorageModel jpomFileStorageModel1 = fileStorageService.getByKey(fileSumMd5);
+        if (jpomFileStorageModel1 != null) {
             // 如果存在记录，判断文件是否存在
-            File file = FileUtil.file(storageSavePath, fileStorageModel1.getPath());
+            File file = FileUtil.file(storageSavePath, jpomFileStorageModel1.getPath());
             Assert.state(!FileUtil.exist(file), I18nMessageUtil.get("i18n.file_already_exists.d60c"));
         }
         // 合并文件
@@ -163,20 +163,20 @@ public class FileStorageController extends BaseServerController {
         FileUtil.mkParentDirs(fileStorageFile);
         FileUtil.move(successFile, fileStorageFile, true);
         // 保存
-        FileStorageModel fileStorageModel = new FileStorageModel();
-        fileStorageModel.setId(fileSumMd5);
-        fileStorageModel.setName(successFile.getName());
-        fileStorageModel.setDescription(description);
-        fileStorageModel.setAliasCode(aliasCode);
-        fileStorageModel.setExtName(extName);
-        fileStorageModel.setPath(path);
-        fileStorageModel.setSize(FileUtil.size(fileStorageFile));
-        fileStorageModel.setSource(0);
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
+        jpomFileStorageModel.setId(fileSumMd5);
+        jpomFileStorageModel.setName(successFile.getName());
+        jpomFileStorageModel.setDescription(description);
+        jpomFileStorageModel.setAliasCode(aliasCode);
+        jpomFileStorageModel.setExtName(extName);
+        jpomFileStorageModel.setPath(path);
+        jpomFileStorageModel.setSize(FileUtil.size(fileStorageFile));
+        jpomFileStorageModel.setSource(0);
         //
-        fileStorageModel.setWorkspaceId(fileStorageService.covertGlobalWorkspace(request));
-        fileStorageModel.validUntil(keepDay, null);
+        jpomFileStorageModel.setWorkspaceId(fileStorageService.covertGlobalWorkspace(request));
+        jpomFileStorageModel.validUntil(keepDay, null);
         //
-        fileStorageService.insert(fileStorageModel);
+        fileStorageService.insert(jpomFileStorageModel);
         return JsonMessage.success(I18nMessageUtil.get("i18n.upload_success.a769"));
     }
 
@@ -189,18 +189,18 @@ public class FileStorageController extends BaseServerController {
                                      String aliasCode,
                                      HttpServletRequest request) throws IOException {
         Opt.ofBlankAble(aliasCode).ifPresent(s -> Validator.validateGeneral(s, I18nMessageUtil.get("i18n.alias_code_validation.8b99")));
-        FileStorageModel storageModel = fileStorageService.getByKeyAndGlobal(id, request);
+        JpomFileStorageModel storageModel = fileStorageService.getByKeyAndGlobal(id, request);
 
-        FileStorageModel fileStorageModel = new FileStorageModel();
-        fileStorageModel.setId(id);
-        fileStorageModel.setName(name);
-        fileStorageModel.setAliasCode(aliasCode);
-        fileStorageModel.setDescription(description);
+        JpomFileStorageModel jpomFileStorageModel = new JpomFileStorageModel();
+        jpomFileStorageModel.setId(id);
+        jpomFileStorageModel.setName(name);
+        jpomFileStorageModel.setAliasCode(aliasCode);
+        jpomFileStorageModel.setDescription(description);
         //
-        fileStorageModel.setWorkspaceId(fileStorageService.covertGlobalWorkspace(request));
+        jpomFileStorageModel.setWorkspaceId(fileStorageService.covertGlobalWorkspace(request));
         //
-        fileStorageModel.validUntil(keepDay, storageModel.getCreateTimeMillis());
-        fileStorageService.updateById(fileStorageModel);
+        jpomFileStorageModel.validUntil(keepDay, storageModel.getCreateTimeMillis());
+        fileStorageService.updateById(jpomFileStorageModel);
         return JsonMessage.success(I18nMessageUtil.get("i18n.modify_success.69be"));
     }
 
@@ -219,7 +219,7 @@ public class FileStorageController extends BaseServerController {
         if (StrUtil.isEmpty(id)) {
             return;
         }
-        FileStorageModel storageModel = fileStorageService.getByKeyAndGlobal(id, request);
+        JpomFileStorageModel storageModel = fileStorageService.getByKeyAndGlobal(id, request);
         if (storageModel == null) {
             return;
         }
@@ -271,12 +271,12 @@ public class FileStorageController extends BaseServerController {
     public IJsonMessage<Map<String, String>> getTriggerUrl(@ValidatorItem String id, String rest, HttpServletRequest request) {
         UserModel user = getUser();
         // 查询当前工作空间
-        FileStorageModel item = fileStorageService.getByKey(id, request);
+        JpomFileStorageModel item = fileStorageService.getByKey(id, request);
         Assert.notNull(item, I18nMessageUtil.get("i18n.no_file_info.db01"));
         //
-        FileStorageModel updateInfo;
+        JpomFileStorageModel updateInfo;
         if (StrUtil.isEmpty(item.getTriggerToken()) || StrUtil.isNotEmpty(rest)) {
-            updateInfo = new FileStorageModel();
+            updateInfo = new JpomFileStorageModel();
             updateInfo.setId(id);
             updateInfo.setTriggerToken(triggerTokenLogServer.restToken(item.getTriggerToken(), fileStorageService.typeName(),
                     item.getId(), user.getId()));
@@ -291,7 +291,7 @@ public class FileStorageController extends BaseServerController {
         return JsonMessage.success(StrUtil.isEmpty(rest) ? "ok" : string, map);
     }
 
-    private Map<String, String> getBuildToken(FileStorageModel item, HttpServletRequest request) {
+    private Map<String, String> getBuildToken(JpomFileStorageModel item, HttpServletRequest request) {
         String contextPath = UrlRedirectUtil.getHeaderProxyPath(request, ServerConst.PROXY_PATH);
         Map<String, String> map = new HashMap<>(10);
         {

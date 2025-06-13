@@ -31,7 +31,7 @@ import com.chua.starter.monitor.jpom.build.BuildExtraModule;
 import com.chua.starter.monitor.jpom.build.BuildUtil;
 import com.chua.starter.monitor.jpom.common.BaseServerController;
 import com.chua.starter.monitor.jpom.common.ServerConst;
-import com.chua.starter.monitor.jpom.func.files.model.FileStorageModel;
+import com.chua.starter.monitor.jpom.func.files.model.JpomFileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.model.StaticFileStorageModel;
 import com.chua.starter.monitor.jpom.func.files.service.FileStorageService;
 import com.chua.starter.monitor.jpom.func.files.service.StaticFileStorageService;
@@ -382,7 +382,7 @@ public class OutGivingProjectController extends BaseServerController {
         OutGivingModel outGivingModel = this.check(id, (status, outGivingModel1) -> Assert.state(status != OutGivingModel.Status.ING, I18nMessageUtil.get("i18n.distribution_in_progress.c3ae")), request);
         AfterOpt afterOpt1 = BaseEnum.getEnum(AfterOpt.class, Convert.toInt(afterOpt, 0));
         Assert.notNull(afterOpt1, I18nMessageUtil.get("i18n.post_distribution_action_required.8cc8"));
-        FileStorageModel storageModel = fileStorageService.getByKey(fileId, request);
+        JpomFileStorageModel storageModel = fileStorageService.getByKey(fileId, request);
         Assert.notNull(storageModel, I18nMessageUtil.get("i18n.file_not_exist.5091"));
         //
         outGivingModel.setClearOld(Convert.toBool(clearOld, false));
