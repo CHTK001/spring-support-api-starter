@@ -1138,7 +1138,7 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
                     .total(total)
                     .msg(message)
                     .type(type)
-                    .module("soft-service-install")
+                    .module(getModuleTypeByMessage(message))
                     .timestamp(System.currentTimeMillis())
                     .build();
 
@@ -1146,8 +1146,8 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
             socketSessionTemplate.send("/topic/install/soft", msgEvent);
 
             // 记录日志
-            log.info("发送安装进度通知: installId={}, sshId={}, message={}, step={}/{}, type={}",
-                    installId, sshId, message, step, total, type);
+            log.info("发送安装进度通知: installId={}, sshId={}, message={}, step={}/{}, type={}, module={}",
+                    installId, sshId, message, step, total, type, msgEvent.getModule());
 
             // 记录操作日志
             // 根据消息类型确定操作类型
@@ -1617,77 +1617,6 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
     }
 
     /**
-     * 执行多条命令
-     *
-     * @param channel  SSH通道
-     * @param commands 命令字符串，多条命令以\n分隔
-     * @param timeout  超时时间（毫秒）
-     * @throws Exception 执行异常
-     */
-    private void executeCommands(Channel channel, String commands, int timeout, SoftServiceInstall install) throws Exception {
-        if (commands == null || commands.trim().isEmpty()) {
-            return;
-        }
-
-        // 替换命令中的变量
-        commands = replaceCommandVariables(commands, install);
-        
-        // 检查是否是脚本（以#!/bin/bash开头）
-        if (commands.trim().startsWith("#!/bin/bash")) {
-            log.debug("检测到脚本命令，将整体执行");
-
-            // 创建临时脚本文件
-            String tempScriptName = "temp_script_" + System.currentTimeMillis() + ".sh";
-
-            try {
-                // 在脚本末尾添加自删除命令
-                String scriptWithCleanup = commands + "\n\n# 脚本执行完成后自动删除自身\nrm -f /tmp/" + tempScriptName + "\n";
-
-                // 上传脚本(改进heredoc语法)
-                log.debug("上传脚本到远程服务器: /tmp/{}", tempScriptName);
-                channel.execute("cat > /tmp/" + tempScriptName + " << EOL\n" + scriptWithCleanup + "\nEOL\n", 500);
-
-                // 添加执行权限(确保前一个命令完成)
-                Thread.sleep(500); // 添加短暂延迟
-                log.debug("添加执行权限: chmod +x /tmp/{}", tempScriptName);
-                channel.execute("chmod +x /tmp/" + tempScriptName + "\n", 500);
-
-                // 直接执行脚本，不使用nohup，不重定向输出
-                log.debug("执行脚本: /bin/bash /tmp/{}", tempScriptName);
-                channel.execute("/bin/bash /tmp/" + tempScriptName + "\n", timeout);
-
-            } catch (Exception e) {
-                // 确保即使出错也尝试删除临时文件
-                try {
-                    channel.execute("rm -f /tmp/" + tempScriptName + " 2>/dev/null\n", 500);
-                } catch (Exception ignore) {}
-                throw e;
-            }
-        } else {
-            // 非脚本，按行执行命令
-            String[] commandArray = commands.split("\\n");
-
-            for (String command : commandArray) {
-                if (command != null && !command.trim().isEmpty()) {
-                    String trimmedCommand = command.trim();
-
-                    if (StringUtils.isEmpty(trimmedCommand)) {
-                        continue;
-                    }
-                    // 跳过以#开头的注释行
-                    if (trimmedCommand.startsWith("#")) {
-                        log.debug("跳过注释行: {}", trimmedCommand);
-                        continue;
-                    }
-
-                    log.debug("执行命令: {}", trimmedCommand);
-                    channel.execute(com.chua.common.support.utils.StringUtils.endWithAppend(trimmedCommand, "\n"), timeout);
-                }
-            }
-        }
-    }
-
-    /**
      * 替换命令中的变量
      *
      * @param command 原始命令
@@ -1746,6 +1675,77 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
         command = command.replace("$DATE", java.time.LocalDate.now().toString());
 
         return command;
+    }
+
+    /**
+     * 执行多条命令
+     *
+     * @param channel  SSH通道
+     * @param commands 命令字符串，多条命令以\n分隔
+     * @param timeout  超时时间（毫秒）
+     * @throws Exception 执行异常
+     */
+    private void executeCommands(Channel channel, String commands, int timeout, SoftServiceInstall install) throws Exception {
+        if (commands == null || commands.trim().isEmpty()) {
+            return;
+        }
+
+        // 替换命令中的变量
+        commands = replaceCommandVariables(commands, install);
+
+        // 检查是否是脚本（以#!/bin/bash开头）
+        if (commands.trim().startsWith("#!/bin/bash")) {
+            log.debug("检测到脚本命令，将整体执行");
+
+            // 创建临时脚本文件
+            String tempScriptName = "temp_script_" + System.currentTimeMillis() + ".sh";
+
+            try {
+                // 在脚本末尾添加自删除命令
+                String scriptWithCleanup = commands + "\n\n# 脚本执行完成后自动删除自身\nrm -f /tmp/" + tempScriptName + "\n";
+
+                // 上传脚本(改进heredoc语法)
+                log.debug("上传脚本到远程服务器: /tmp/{}", tempScriptName);
+                channel.execute("cat > /tmp/" + tempScriptName + " << EOL\n" + scriptWithCleanup + "\nEOL\n", 500);
+
+                // 添加执行权限(确保前一个命令完成)
+                Thread.sleep(500); // 添加短暂延迟
+                log.debug("添加执行权限: chmod +x /tmp/{}", tempScriptName);
+                channel.execute("chmod +x /tmp/" + tempScriptName + "\n", 500);
+
+                // 直接执行脚本，不使用nohup，不重定向输出
+                log.debug("执行脚本: /bin/bash /tmp/{}", tempScriptName);
+                channel.execute("/bin/bash /tmp/" + tempScriptName + "\n\n", timeout);
+
+            } catch (Exception e) {
+                // 确保即使出错也尝试删除临时文件
+                try {
+                    channel.execute("rm -f /tmp/" + tempScriptName + " 2>/dev/null\n", 500);
+                } catch (Exception ignore) {}
+                throw e;
+            }
+        } else {
+            // 非脚本，按行执行命令
+            String[] commandArray = commands.split("\\n");
+
+            for (String command : commandArray) {
+                if (command != null && !command.trim().isEmpty()) {
+                    String trimmedCommand = command.trim();
+
+                    if (StringUtils.isEmpty(trimmedCommand)) {
+                        continue;
+                    }
+                    // 跳过以#开头的注释行
+                    if (trimmedCommand.startsWith("#")) {
+                        log.debug("跳过注释行: {}", trimmedCommand);
+                        continue;
+                    }
+
+                    log.debug("执行命令: {}", trimmedCommand);
+                    channel.execute(com.chua.common.support.utils.StringUtils.endWithAppend(trimmedCommand, "\n"), timeout);
+                }
+            }
+        }
     }
 
     /**
@@ -2655,5 +2655,34 @@ public class SoftServiceInstallServiceImpl extends ServiceImpl<SoftServiceInstal
 
         // 执行更新
         return super.updateById(entity);
+    }
+
+    /**
+     * 根据消息内容确定模块类型
+     *
+     * @param message 消息内容
+     * @return 确定的模块类型
+     */
+    private String getModuleTypeByMessage(String message) {
+        if (message.contains("安装")) {
+            return "soft-service-install";
+        } else if (message.contains("卸载")) {
+            return "soft-service-uninstall";
+        } else if (message.contains("启动")) {
+            return "soft-service-start";
+        } else if (message.contains("停止")) {
+            return "soft-service-stop";
+        } else if (message.contains("重启")) {
+            return "soft-service-restart";
+        } else if (message.contains("状态")) {
+            return "soft-service-status";
+        } else if (message.contains("配置")) {
+            return "soft-service-config";
+        } else if (message.contains("日志")) {
+            return "soft-service-log";
+        } else {
+            // 默认使用install类型
+            return "soft-service-install";
+        }
     }
 }
