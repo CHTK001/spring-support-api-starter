@@ -45,6 +45,8 @@ import com.chua.starter.monitor.jpom.service.h2db.BaseDbService;
 import com.chua.starter.monitor.jpom.service.node.NodeService;
 import com.chua.starter.monitor.jpom.system.ServerConfig;
 import com.chua.starter.monitor.jpom.system.db.InitDb;
+import com.chua.starter.redis.support.service.SimpleRedisService;
+import com.chua.starter.redis.support.service.TimeSeriesService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -73,17 +75,24 @@ public class MachineNodeServer extends BaseDbService<MachineNodeModel> implement
     private final MachineNodeStatLogServer machineNodeStatLogServer;
     private final ClusterInfoService clusterInfoService;
     private final AssetsExecutorPoolService assetsExecutorPoolService;
+    private final TimeSeriesService timeSeriesService;
+    private final SimpleRedisService simpleRedisService;
 
     public MachineNodeServer(NodeService nodeService,
                              ServerConfig serverConfig,
                              MachineNodeStatLogServer machineNodeStatLogServer,
                              ClusterInfoService clusterInfoService,
-                             AssetsExecutorPoolService assetsExecutorPoolService) {
+                             AssetsExecutorPoolService assetsExecutorPoolService,
+                             TimeSeriesService timeSeriesService,
+                             SimpleRedisService simpleRedisService
+    ) {
         this.nodeService = nodeService;
         this.nodeConfig = serverConfig.getNode();
         this.machineNodeStatLogServer = machineNodeStatLogServer;
         this.clusterInfoService = clusterInfoService;
         this.assetsExecutorPoolService = assetsExecutorPoolService;
+        this.timeSeriesService = timeSeriesService;
+        this.simpleRedisService = simpleRedisService;
     }
 
     @Override
@@ -345,6 +354,7 @@ public class MachineNodeServer extends BaseDbService<MachineNodeModel> implement
         this.updateById(machineNodeModel);
         if (machineNodeStatLogModel.getMonitorTime() != null) {
             machineNodeStatLogServer.insert(machineNodeStatLogModel);
+            registerTimeSeries(machineNodeModel);
         }
         //
         Optional.ofNullable(jpomInfo).ifPresent(jsonObject -> {
@@ -366,6 +376,9 @@ public class MachineNodeServer extends BaseDbService<MachineNodeModel> implement
                 nodeService.update(entity, where);
             }
         });
+    }
+
+    private void registerTimeSeries(MachineNodeModel machineNodeModel) {
     }
 
     /**
