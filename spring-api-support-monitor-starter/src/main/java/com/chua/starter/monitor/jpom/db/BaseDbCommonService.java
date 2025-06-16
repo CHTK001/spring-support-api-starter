@@ -24,6 +24,7 @@ import cn.hutool.db.sql.Condition;
 import cn.hutool.extra.spring.SpringUtil;
 import com.chua.report.client.starter.jpom.common.common.i18n.I18nMessageUtil;
 import com.chua.report.client.starter.jpom.common.system.JpomRuntimeException;
+import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.jpom.dialect.DialectUtil;
 import com.chua.starter.monitor.jpom.model.PageResultDto;
 import lombok.Getter;
@@ -91,7 +92,7 @@ public abstract class BaseDbCommonService<T> {
      * @param t 数据
      */
     protected final int insertDb(T t) {
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             Entity entity = this.dataBeanToEntity(t);
             return db.insert(entity);
@@ -109,7 +110,7 @@ public abstract class BaseDbCommonService<T> {
         if (CollUtil.isEmpty(t)) {
             return;
         }
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             List<Entity> entities = t.stream().map(this::dataBeanToEntity).collect(Collectors.toList());
             db.insert(entities);
@@ -141,7 +142,7 @@ public abstract class BaseDbCommonService<T> {
      * @return 影响行数
      */
     protected final int updateDb(Entity entity, Entity where) {
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         if (where.isEmpty()) {
             throw new JpomRuntimeException(I18nMessageUtil.get("i18n.update_condition_not_found.0870"));
         }
@@ -170,7 +171,7 @@ public abstract class BaseDbCommonService<T> {
         where.set(ID_STR, keyValue);
         Entity entity;
         try {
-            Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+            Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
             if (consumer != null) {
                 consumer.accept(where);
             }
@@ -202,7 +203,7 @@ public abstract class BaseDbCommonService<T> {
         where.set(ID_STR, keyValue);
         Entity entity;
         try {
-            Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+            Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
             if (consumer != null) {
                 consumer.accept(where);
             }
@@ -229,7 +230,7 @@ public abstract class BaseDbCommonService<T> {
         where.set(ID_STR, keyValue);
         List<Entity> entities;
         try {
-            Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+            Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
             if (consumer != null) {
                 consumer.accept(where);
             }
@@ -252,7 +253,7 @@ public abstract class BaseDbCommonService<T> {
             throw new JpomRuntimeException(I18nMessageUtil.get("i18n.no_deletion_condition.19d0"));
         }
         try {
-            Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+            Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
             return db.del(where);
         } catch (Exception e) {
             throw warpException(e);
@@ -267,7 +268,7 @@ public abstract class BaseDbCommonService<T> {
      */
     public final long count(Entity where) {
         where.setTableName(getTableName());
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             return db.count(where);
         } catch (Exception e) {
@@ -283,7 +284,7 @@ public abstract class BaseDbCommonService<T> {
      */
     public final long count(String sql, Object... params) {
         try {
-            return Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode)).count(sql, params);
+            return Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode)).count(sql, params);
         } catch (Exception e) {
             throw warpException(e);
         }
@@ -298,7 +299,7 @@ public abstract class BaseDbCommonService<T> {
      */
     public final List<Entity> queryList(Entity where) {
         where.setTableName(getTableName());
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             return db.find(where);
         } catch (Exception e) {
@@ -313,7 +314,7 @@ public abstract class BaseDbCommonService<T> {
      * @return List
      */
     public final List<T> findByCondition(Condition... wheres) {
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             List<Entity> entities = db.findBy(getTableName(), wheres);
             return this.entityToBeanList(entities);
@@ -368,7 +369,7 @@ public abstract class BaseDbCommonService<T> {
     public final PageResultDto<T> listPageDb(Entity where, Page page, boolean fill) {
         where.setTableName(getTableName());
         PageResult<Entity> pageResult;
-        Db db = Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode));
+        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
         try {
             pageResult = db.page(where, page);
         } catch (Exception e) {
@@ -394,7 +395,7 @@ public abstract class BaseDbCommonService<T> {
      */
     public final List<Entity> query(String sql, Object... params) {
         try {
-            return Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode)).query(sql, params);
+            return Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode)).query(sql, params);
         } catch (Exception e) {
             throw warpException(e);
         }
@@ -402,7 +403,7 @@ public abstract class BaseDbCommonService<T> {
 
     public Number queryNumber(String sql, Object... params) {
         try {
-            return Db.use(this.getDataSource()).queryNumber(sql, params);
+            return Db.use(SpringBeanUtils.getBean(DataSource.class)).queryNumber(sql, params);
         } catch (Exception e) {
             throw warpException(e);
         }
@@ -418,7 +419,7 @@ public abstract class BaseDbCommonService<T> {
      */
     public final int execute(String sql, Object... params) {
         try {
-            return Db.use(this.getDataSource(), DialectUtil.getDialectByMode(dbMode)).execute(sql, params);
+            return Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode)).execute(sql, params);
         } catch (Exception e) {
             throw warpException(e);
         }
