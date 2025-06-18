@@ -258,6 +258,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-com-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
 

@@ -3,6 +3,7 @@ package com.chua.starter.oauth.sso.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -288,13 +289,13 @@ public class UserService implements UserInfoService, Constant {
 
         // 构建用户结果对象 - 使用链式调用提高代码可读性
         return new UserResult()
-                .setId(user.getSysUserId())
+                .setId(String.valueOf(user.getSysUserId()))
                 .setUserId(String.valueOf(user.getSysUserId()))
                 .setUsername(user.getSysUserUsername())
                 .setPhone(user.getSysUserPhone())
-                .setName(user.getSysUserName())
+                .setName(user.getSysUserUsername())
                 .setDeptId(String.valueOf(user.getSysDeptId()))
-                .setDataPermission(dataPermission.name())
+                .setDataPermission(DataFilterTypeEnum.valueOf(dataPermission.name().toLowerCase()))
                 .setDataPermissionRule(dataPermissionRule)
                 .setRoles(roleCodes)
                 .setRolesByRole(roleInfos)
@@ -312,10 +313,9 @@ public class UserService implements UserInfoService, Constant {
      */
     private UserResult.RoleInfo convertToRoleInfo(SysRole role) {
         UserResult.RoleInfo roleInfo = new UserResult.RoleInfo();
-        roleInfo.setId(String.valueOf(role.getSysRoleId()));
-        roleInfo.setName(role.getSysRoleName());
-        roleInfo.setCode(role.getSysRoleCode());
-        roleInfo.setDescription(role.getSysRoleDesc());
+        roleInfo.setRoleId(String.valueOf(role.getSysRoleId()));
+        roleInfo.setRoleName(role.getSysRoleName());
+        roleInfo.setRoleCode(role.getSysRoleCode());
         return roleInfo;
     }
 
@@ -353,10 +353,10 @@ public class UserService implements UserInfoService, Constant {
         long startTime = System.currentTimeMillis();
 
         // 使用连接查询一次性获取用户角色，避免多次数据库访问
-        List<SysRole> roles = sysUserMapper.selectJoinList(SysRole.class,
+        List<SysRole> roles = sysUserMapper.selectList(
                 new MPJLambdaWrapper<SysUser>()
                         .select(SysRole::getSysRoleId, SysRole::getSysRoleName,
-                                SysRole::getSysRoleCode, SysRole::getSysRoleDesc)
+                                SysRole::getSysRoleCode)
                         .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
                         .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
                         .eq(SysUser::getSysUserId, user.getSysUserId())
@@ -367,7 +367,7 @@ public class UserService implements UserInfoService, Constant {
         // 缓存查询结果到Redis
         if (!roles.isEmpty()) {
             try {
-                String json = BeanUtils.toJson(roles);
+                String json = Json.toJson(roles);
                 stringRedisTemplate.opsForValue().set(cacheKey, json, ROLE_CACHE_TIMEOUT, TimeUnit.MINUTES);
             } catch (Exception e) {
                 log.warn("缓存用户角色异常: {}", e.getMessage());

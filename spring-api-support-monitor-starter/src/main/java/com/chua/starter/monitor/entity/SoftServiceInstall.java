@@ -146,6 +146,69 @@ public class SoftServiceInstall extends SysBase {
     private Long installLastCheckTime;
 
     /**
+     * 命令执行超时时间（毫秒）
+     * 如果未设置，则使用默认超时时间
+     */
+    @TableField(value = "command_timeout")
+    @ApiModelProperty(value = "命令执行超时时间（毫秒）")
+    @Schema(description = "命令执行超时时间（毫秒），如果未设置，则使用默认超时时间")
+    private Integer commandTimeout;
+
+    /**
+     * 安装命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "install_command_timeout")
+    @ApiModelProperty(value = "安装命令执行超时时间（毫秒）")
+    @Schema(description = "安装命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer installCommandTimeout;
+
+    /**
+     * 卸载命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "uninstall_command_timeout")
+    @ApiModelProperty(value = "卸载命令执行超时时间（毫秒）")
+    @Schema(description = "卸载命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer uninstallCommandTimeout;
+
+    /**
+     * 启动命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "start_command_timeout")
+    @ApiModelProperty(value = "启动命令执行超时时间（毫秒）")
+    @Schema(description = "启动命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer startCommandTimeout;
+
+    /**
+     * 停止命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "stop_command_timeout")
+    @ApiModelProperty(value = "停止命令执行超时时间（毫秒）")
+    @Schema(description = "停止命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer stopCommandTimeout;
+
+    /**
+     * 重启命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "restart_command_timeout")
+    @ApiModelProperty(value = "重启命令执行超时时间（毫秒）")
+    @Schema(description = "重启命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer restartCommandTimeout;
+
+    /**
+     * 状态检查命令执行超时时间（毫秒）
+     * 如果未设置，则使用通用超时时间
+     */
+    @TableField(value = "status_check_command_timeout")
+    @ApiModelProperty(value = "状态检查命令执行超时时间（毫秒）")
+    @Schema(description = "状态检查命令执行超时时间（毫秒），如果未设置，则使用通用超时时间")
+    private Integer statusCheckCommandTimeout;
+
+    /**
      * SSH主机地址
      * 非数据库字段，用于前端展示
      */

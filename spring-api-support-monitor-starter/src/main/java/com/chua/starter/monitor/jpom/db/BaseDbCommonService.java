@@ -92,7 +92,12 @@ public abstract class BaseDbCommonService<T> {
      * @param t 数据
      */
     protected final int insertDb(T t) {
-        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
+        Db db = null;
+        try {
+            db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
+        } catch (Exception e) {
+            return 0;
+        }
         try {
             Entity entity = this.dataBeanToEntity(t);
             return db.insert(entity);
@@ -142,7 +147,12 @@ public abstract class BaseDbCommonService<T> {
      * @return 影响行数
      */
     protected final int updateDb(Entity entity, Entity where) {
-        Db db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
+        Db db = null;
+        try {
+            db = Db.use(SpringBeanUtils.getBean(DataSource.class), DialectUtil.getDialectByMode(dbMode));
+        } catch (Exception e) {
+            return 0;
+        }
         if (where.isEmpty()) {
             throw new JpomRuntimeException(I18nMessageUtil.get("i18n.update_condition_not_found.0870"));
         }
