@@ -35,6 +35,7 @@ import com.chua.starter.monitor.jpom.model.user.UserModel;
 import com.chua.starter.monitor.jpom.service.h2db.BaseDbService;
 import com.chua.starter.monitor.jpom.service.system.WorkspaceService;
 import com.chua.starter.monitor.jpom.system.ServerConfig;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -59,7 +60,13 @@ public class ClusterInfoService extends BaseDbService<ClusterInfoModel> implemen
     private final WorkspaceService workspaceService;
     /**
      * 是否为多集群
+     * -- GETTER --
+     *  是否为多服务，集群模式
+     *
+     * @return true
+
      */
+    @Getter
     private boolean multiServer = false;
 
     public ClusterInfoService(ServerConfig serverConfig,
@@ -77,15 +84,6 @@ public class ClusterInfoService extends BaseDbService<ClusterInfoModel> implemen
         ClusterInfoModel clusterInfoModel = this.getByKey(JpomManifest.getInstance().getInstallId());
         Assert.notNull(clusterInfoModel, I18nMessageUtil.get("i18n.cluster_does_not_exist.97a4"));
         return clusterInfoModel;
-    }
-
-    /**
-     * 是否为多服务，集群模式
-     *
-     * @return true
-     */
-    public boolean isMultiServer() {
-        return multiServer;
     }
 
     @Override

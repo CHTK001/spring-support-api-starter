@@ -50,6 +50,14 @@ public class MonitorSysGen implements Serializable {
     private String genName;
 
     /**
+     * 是否分屏
+     */
+    @TableField(value = "gen_spilt")
+    @ApiModelProperty(value = "是否分屏")
+    @Schema(description = "是否分屏")
+    private Boolean genSpilt;
+
+    /**
      * 数据库类型
      */
     @TableField(value = "gen_type")

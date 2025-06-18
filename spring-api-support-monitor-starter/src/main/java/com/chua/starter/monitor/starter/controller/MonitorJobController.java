@@ -22,10 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -98,23 +95,35 @@ public class MonitorJobController extends AbstractSwaggerController<MonitorJobSe
      * @return {@link ReturnResult}<{@link String}>
      */
     @Operation(summary = "日志详情")
-    @RequestMapping("/logCat")
+    @GetMapping("/logCat")
     public ReturnResult<String> logCat(int jobLogId) {
         return ReturnResult.ok(monitorJobLogService.logCat(jobLogId));
     }
 
-    @RequestMapping("/stop")
+
+    @Operation(summary = "更新数据")
+    @GetMapping("/stop")
     @Permission("sys:monitor:job:stop")
     public ReturnResult<String> pause(int jobId) {
         return service.stop(jobId);
     }
 
-    @RequestMapping("/start")
+    @Operation(summary = "启动")
+    @RequestMapping(value = "/start", method = {RequestMethod.GET, RequestMethod.POST})
     @Permission("sys:monitor:job:start")
     public ReturnResult<String> start(int jobId) {
         return service.start(jobId);
     }
-    @RequestMapping("/trigger")
+
+    /**
+     * 手动触发
+     *
+     * @param id            任务id
+     * @param executorParam 执行参数
+     * @return {@link ReturnResult}<{@link String}>
+     */
+    @Operation(summary = "手动触发")
+    @GetMapping("/trigger")
     @Permission("sys:monitor:job:run")
     public ReturnResult<String> triggerJob(int id, String executorParam) {
         // force cover job param
