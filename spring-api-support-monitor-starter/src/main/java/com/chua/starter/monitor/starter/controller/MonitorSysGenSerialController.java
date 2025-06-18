@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.starter.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -18,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
@@ -108,8 +109,7 @@ public class MonitorSysGenSerialController {
     @Operation(summary = "分页查询数据")
     @GetMapping("page")
     public ReturnPageResult<MonitorSysGenSerial> page(Query<MonitorSysGenSerial> page, MonitorSysGenSerial entity) {
-        Page<MonitorSysGenSerial> resultPage = monitorSysGenSerialService.page(page.createPage());
-        return PageResultUtils.ok(resultPage);
+        return PageResultUtils.ok(monitorSysGenSerialService.pageFor(page.createPage(),  entity));
     }
 
     /**
@@ -142,9 +142,46 @@ public class MonitorSysGenSerialController {
      * @param id 串口配置ID
      * @return 操作结果
      */
-    @Operation(summary = "测试串口连接1")
+    @Operation(summary = "测试串口连接")
     @GetMapping("test")
     public ReturnResult<Boolean> test(String id) {
         return monitorSysGenSerialService.test(id);
     }
-} 
+
+    /**
+     * 向串口发送数据
+     *
+     * @param id 串口配置ID
+     * @param data 要发送的数据
+     * @return 操作结果
+     */
+    @Operation(summary = "向串口发送数据")
+    @PostMapping("send")
+    public ReturnResult<Boolean> sendData(@Parameter(name = "串口配置ID") String id,
+                                         @Parameter(name = "发送数据") @RequestBody String data) {
+        return monitorSysGenSerialService.sendData(id, data);
+    }
+
+    /**
+     * 获取串口状态
+     *
+     * @param id 串口配置ID
+     * @return 串口状态信息
+     */
+    @Operation(summary = "获取串口状态")
+    @GetMapping("status")
+    public ReturnResult<Map<String, Object>> getStatus(@Parameter(name = "串口配置ID") String id) {
+        return monitorSysGenSerialService.getStatus(id);
+    }
+
+    /**
+     * 获取当前服务器可用的串口列表
+     *
+     * @return 串口列表
+     */
+    @Operation(summary = "获取可用串口列表")
+    @GetMapping("available-ports")
+    public ReturnResult<List<Map<String, Object>>> getAvailableSerialPorts() {
+        return monitorSysGenSerialService.getAvailableSerialPorts();
+    }
+}
