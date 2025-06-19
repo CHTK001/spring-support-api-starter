@@ -177,6 +177,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-guacamole-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-starter</artifactId>
         </dependency>
 
@@ -259,6 +264,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-com-starter</artifactId>
+        </dependency>
+
+        <!-- Guacamole支持 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-guacamole-starter</artifactId>
         </dependency>
 
         <dependency>
