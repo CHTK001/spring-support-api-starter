@@ -41,7 +41,7 @@ public class MonitorSysGenServerController {
     /**
      * 根据主键删除数据
      *
-     * @param id 主键
+     * @param id 主键M
      * @return 操作结果
      */
     @ResponseBody
