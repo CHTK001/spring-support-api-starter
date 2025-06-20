@@ -6,8 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDateTime;
 import java.util.List;
