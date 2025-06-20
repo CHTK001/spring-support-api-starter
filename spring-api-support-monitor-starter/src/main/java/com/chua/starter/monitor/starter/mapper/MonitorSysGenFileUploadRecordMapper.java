@@ -33,26 +33,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      * @param endTime   结束时间
      * @return 分页结果
      */
-    @Select("<script>" +
-            "SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_file_upload_record_status = 1 " +
-            "<if test='taskId != null'>" +
-            "AND monitor_sys_gen_file_upload_task_id = #{taskId} " +
-            "</if>" +
-            "<if test='serverId != null'>" +
-            "AND monitor_sys_gen_server_id = #{serverId} " +
-            "</if>" +
-            "<if test='status != null and status != &quot;&quot;'>" +
-            "AND monitor_sys_gen_file_upload_status = #{status} " +
-            "</if>" +
-            "<if test='startTime != null'>" +
-            "AND monitor_sys_gen_file_upload_create_time >= #{startTime} " +
-            "</if>" +
-            "<if test='endTime != null'>" +
-            "AND monitor_sys_gen_file_upload_create_time <= #{endTime} " +
-            "</if>" +
-            "ORDER BY monitor_sys_gen_file_upload_create_time DESC" +
-            "</script>")
     IPage<MonitorSysGenFileUploadRecord> selectRecordPage(Page<MonitorSysGenFileUploadRecord> page,
                                                           @Param("taskId") Long taskId,
                                                           @Param("serverId") Integer serverId,
@@ -66,10 +46,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      * @param taskId 任务ID
      * @return 上传记录列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_file_upload_task_id = #{taskId} " +
-            "AND monitor_sys_gen_file_upload_record_status = 1 " +
-            "ORDER BY monitor_sys_gen_file_upload_create_time ASC")
     List<MonitorSysGenFileUploadRecord> selectRecordsByTaskId(@Param("taskId") Long taskId);
 
     /**
@@ -79,11 +55,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      * @param limit    限制数量
      * @return 上传记录列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_server_id = #{serverId} " +
-            "AND monitor_sys_gen_file_upload_record_status = 1 " +
-            "ORDER BY monitor_sys_gen_file_upload_create_time DESC " +
-            "LIMIT #{limit}")
     List<MonitorSysGenFileUploadRecord> selectRecordsByServerId(@Param("serverId") Integer serverId,
                                                                 @Param("limit") Integer limit);
 
@@ -93,10 +64,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      * @param status 上传状态
      * @return 上传记录列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_file_upload_status = #{status} " +
-            "AND monitor_sys_gen_file_upload_record_status = 1 " +
-            "ORDER BY monitor_sys_gen_file_upload_create_time ASC")
     List<MonitorSysGenFileUploadRecord> selectRecordsByStatus(@Param("status") String status);
 
     /**
@@ -104,10 +71,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      *
      * @return 正在上传的记录列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_file_upload_status = 'UPLOADING' " +
-            "AND monitor_sys_gen_file_upload_record_status = 1 " +
-            "ORDER BY monitor_sys_gen_file_upload_start_time ASC")
     List<MonitorSysGenFileUploadRecord> selectUploadingRecords();
 
     /**
@@ -116,11 +79,6 @@ public interface MonitorSysGenFileUploadRecordMapper extends BaseMapper<MonitorS
      * @param limit 限制数量
      * @return 失败的上传记录列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_file_upload_records " +
-            "WHERE monitor_sys_gen_file_upload_status = 'FAILED' " +
-            "AND monitor_sys_gen_file_upload_record_status = 1 " +
-            "ORDER BY monitor_sys_gen_file_upload_update_time DESC " +
-            "LIMIT #{limit}")
     List<MonitorSysGenFileUploadRecord> selectFailedRecords(@Param("limit") Integer limit);
 
     /**
