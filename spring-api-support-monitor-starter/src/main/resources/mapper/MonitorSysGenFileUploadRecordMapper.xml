@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenFileUploadRecordMapper">
+
+  <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadRecord">
+    <id column="monitor_sys_gen_file_upload_record_id" jdbcType="BIGINT" property="monitorSysGenFileUploadRecordId" />
+    <result column="monitor_sys_gen_file_upload_task_id" jdbcType="BIGINT" property="monitorSysGenFileUploadTaskId" />
+    <result column="monitor_sys_gen_server_id" jdbcType="INTEGER" property="monitorSysGenServerId" />
+    <result column="monitor_sys_gen_file_upload_target_path" jdbcType="VARCHAR" property="monitorSysGenFileUploadTargetPath" />
+    <result column="monitor_sys_gen_file_upload_status" jdbcType="VARCHAR" property="monitorSysGenFileUploadStatus" />
+    <result column="monitor_sys_gen_file_upload_progress" jdbcType="INTEGER" property="monitorSysGenFileUploadProgress" />
+    <result column="monitor_sys_gen_file_upload_speed" jdbcType="BIGINT" property="monitorSysGenFileUploadSpeed" />
+    <result column="monitor_sys_gen_file_upload_transferred_bytes" jdbcType="BIGINT" property="monitorSysGenFileUploadTransferredBytes" />
+    <result column="monitor_sys_gen_file_upload_total_bytes" jdbcType="BIGINT" property="monitorSysGenFileUploadTotalBytes" />
+    <result column="monitor_sys_gen_file_upload_start_time" jdbcType="TIMESTAMP" property="monitorSysGenFileUploadStartTime" />
+    <result column="monitor_sys_gen_file_upload_end_time" jdbcType="TIMESTAMP" property="monitorSysGenFileUploadEndTime" />
+    <result column="monitor_sys_gen_file_upload_duration_ms" jdbcType="BIGINT" property="monitorSysGenFileUploadDurationMs" />
+    <result column="monitor_sys_gen_file_upload_error_message" jdbcType="VARCHAR" property="monitorSysGenFileUploadErrorMessage" />
+    <result column="monitor_sys_gen_file_upload_error_code" jdbcType="VARCHAR" property="monitorSysGenFileUploadErrorCode" />
+    <result column="monitor_sys_gen_file_upload_retry_count" jdbcType="INTEGER" property="monitorSysGenFileUploadRetryCount" />
+    <result column="monitor_sys_gen_file_upload_file_md5_remote" jdbcType="VARCHAR" property="monitorSysGenFileUploadFileMd5Remote" />
+    <result column="monitor_sys_gen_file_upload_verification_status" jdbcType="VARCHAR" property="monitorSysGenFileUploadVerificationStatus" />
+    <result column="monitor_sys_gen_file_upload_backup_path" jdbcType="VARCHAR" property="monitorSysGenFileUploadBackupPath" />
+    <result column="monitor_sys_gen_file_upload_connection_info" jdbcType="VARCHAR" property="monitorSysGenFileUploadConnectionInfo" />
+    <result column="monitor_sys_gen_file_upload_extra_data" jdbcType="VARCHAR" property="monitorSysGenFileUploadExtraData" />
+    <result column="monitor_sys_gen_file_upload_create_time" jdbcType="TIMESTAMP" property="monitorSysGenFileUploadCreateTime" />
+    <result column="monitor_sys_gen_file_upload_update_time" jdbcType="TIMESTAMP" property="monitorSysGenFileUploadUpdateTime" />
+    <result column="monitor_sys_gen_file_upload_record_status" jdbcType="INTEGER" property="monitorSysGenFileUploadRecordStatus" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    monitor_sys_gen_file_upload_record_id, monitor_sys_gen_file_upload_task_id, monitor_sys_gen_server_id,
+    monitor_sys_gen_file_upload_target_path, monitor_sys_gen_file_upload_status, monitor_sys_gen_file_upload_progress,
+    monitor_sys_gen_file_upload_speed, monitor_sys_gen_file_upload_transferred_bytes, monitor_sys_gen_file_upload_total_bytes,
+    monitor_sys_gen_file_upload_start_time, monitor_sys_gen_file_upload_end_time, monitor_sys_gen_file_upload_duration_ms,
+    monitor_sys_gen_file_upload_error_message, monitor_sys_gen_file_upload_error_code, monitor_sys_gen_file_upload_retry_count,
+    monitor_sys_gen_file_upload_file_md5_remote, monitor_sys_gen_file_upload_verification_status, monitor_sys_gen_file_upload_backup_path,
+    monitor_sys_gen_file_upload_connection_info, monitor_sys_gen_file_upload_extra_data, monitor_sys_gen_file_upload_create_time,
+    monitor_sys_gen_file_upload_update_time, monitor_sys_gen_file_upload_record_status
+  </sql>
+
+  <!-- 分页查询文件上传记录 -->
+  <select id="selectRecordPage" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_record_status = 1
+    <if test="taskId != null">
+      AND monitor_sys_gen_file_upload_task_id = #{taskId}
+    </if>
+    <if test="serverId != null">
+      AND monitor_sys_gen_server_id = #{serverId}
+    </if>
+    <if test="status != null and status != ''">
+      AND monitor_sys_gen_file_upload_status = #{status}
+    </if>
+    <if test="startTime != null">
+      AND monitor_sys_gen_file_upload_create_time &gt;= #{startTime}
+    </if>
+    <if test="endTime != null">
+      AND monitor_sys_gen_file_upload_create_time &lt;= #{endTime}
+    </if>
+    ORDER BY monitor_sys_gen_file_upload_create_time DESC
+  </select>
+
+  <!-- 根据任务ID查询上传记录 -->
+  <select id="selectRecordsByTaskId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_task_id = #{taskId}
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_create_time ASC
+  </select>
+
+  <!-- 根据服务器ID查询上传记录 -->
+  <select id="selectRecordsByServerId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_server_id = #{serverId}
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_create_time DESC
+    LIMIT #{limit}
+  </select>
+
+  <!-- 根据状态查询上传记录 -->
+  <select id="selectRecordsByStatus" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_status = #{status}
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_create_time ASC
+  </select>
+
+  <!-- 查询正在上传的记录 -->
+  <select id="selectUploadingRecords" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_status = 'UPLOADING'
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_start_time ASC
+  </select>
+
+  <!-- 查询失败的上传记录 -->
+  <select id="selectFailedRecords" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_status = 'FAILED'
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_update_time DESC
+    LIMIT #{limit}
+  </select>
+
+  <!-- 更新上传进度 -->
+  <update id="updateUploadProgress">
+    UPDATE monitor_sys_gen_file_upload_records SET
+      monitor_sys_gen_file_upload_progress = #{progress},
+      monitor_sys_gen_file_upload_transferred_bytes = #{transferredBytes},
+      monitor_sys_gen_file_upload_speed = #{speed},
+      monitor_sys_gen_file_upload_update_time = NOW()
+    WHERE monitor_sys_gen_file_upload_record_id = #{recordId}
+  </update>
+
+  <!-- 更新上传状态 -->
+  <update id="updateUploadStatus">
+    UPDATE monitor_sys_gen_file_upload_records SET
+      monitor_sys_gen_file_upload_status = #{status},
+      monitor_sys_gen_file_upload_error_message = #{errorMessage},
+      monitor_sys_gen_file_upload_error_code = #{errorCode},
+      monitor_sys_gen_file_upload_end_time = #{endTime},
+      monitor_sys_gen_file_upload_duration_ms = #{durationMs},
+      monitor_sys_gen_file_upload_update_time = NOW()
+    WHERE monitor_sys_gen_file_upload_record_id = #{recordId}
+  </update>
+
+  <!-- 更新验证状态 -->
+  <update id="updateVerificationStatus">
+    UPDATE monitor_sys_gen_file_upload_records SET
+      monitor_sys_gen_file_upload_verification_status = #{verificationStatus},
+      monitor_sys_gen_file_upload_file_md5_remote = #{remoteMd5},
+      monitor_sys_gen_file_upload_update_time = NOW()
+    WHERE monitor_sys_gen_file_upload_record_id = #{recordId}
+  </update>
+
+  <!-- 增加重试次数 -->
+  <update id="incrementRetryCount">
+    UPDATE monitor_sys_gen_file_upload_records SET
+      monitor_sys_gen_file_upload_retry_count = monitor_sys_gen_file_upload_retry_count + 1,
+      monitor_sys_gen_file_upload_update_time = NOW()
+    WHERE monitor_sys_gen_file_upload_record_id = #{recordId}
+  </update>
+
+  <!-- 获取任务的上传统计 -->
+  <select id="getTaskUploadStatistics" resultType="java.util.Map">
+    SELECT
+      COUNT(*) as totalRecords,
+      SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'COMPLETED' THEN 1 ELSE 0 END) as completedRecords,
+      SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'FAILED' THEN 1 ELSE 0 END) as failedRecords,
+      SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'UPLOADING' THEN 1 ELSE 0 END) as uploadingRecords,
+      AVG(monitor_sys_gen_file_upload_progress) as avgProgress,
+      SUM(monitor_sys_gen_file_upload_transferred_bytes) as totalTransferred,
+      AVG(monitor_sys_gen_file_upload_speed) as avgSpeed
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_task_id = #{taskId}
+      AND monitor_sys_gen_file_upload_record_status = 1
+  </select>
+
+  <!-- 获取服务器上传统计 -->
+  <select id="getServerUploadStatistics" resultType="java.util.Map">
+    SELECT
+      COUNT(*) as totalRecords,
+      SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'COMPLETED' THEN 1 ELSE 0 END) as completedRecords,
+      SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'FAILED' THEN 1 ELSE 0 END) as failedRecords,
+      SUM(monitor_sys_gen_file_upload_transferred_bytes) as totalTransferred,
+      AVG(monitor_sys_gen_file_upload_speed) as avgSpeed,
+      AVG(monitor_sys_gen_file_upload_duration_ms) as avgDuration
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_server_id = #{serverId}
+      AND monitor_sys_gen_file_upload_record_status = 1
+      AND monitor_sys_gen_file_upload_create_time BETWEEN #{startTime} AND #{endTime}
+  </select>
+
+  <!-- 获取上传速度排行 -->
+  <select id="getUploadSpeedRanking" resultType="java.util.Map">
+    SELECT
+      monitor_sys_gen_server_id as serverId,
+      AVG(monitor_sys_gen_file_upload_speed) as avgSpeed,
+      MAX(monitor_sys_gen_file_upload_speed) as maxSpeed,
+      COUNT(*) as recordCount
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_status = 'COMPLETED'
+      AND monitor_sys_gen_file_upload_record_status = 1
+      AND monitor_sys_gen_file_upload_speed > 0
+    GROUP BY monitor_sys_gen_server_id
+    ORDER BY avgSpeed DESC
+    LIMIT #{limit}
+  </select>
+
+  <!-- 获取上传时间分布 -->
+  <select id="getUploadTimeDistribution" resultType="java.util.Map">
+    SELECT
+      DATE_FORMAT(monitor_sys_gen_file_upload_start_time, '%Y-%m-%d %H:00:00') as hour,
+      COUNT(*) as count,
+      SUM(monitor_sys_gen_file_upload_transferred_bytes) as totalBytes
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_start_time BETWEEN #{startTime} AND #{endTime}
+      AND monitor_sys_gen_file_upload_record_status = 1
+    GROUP BY DATE_FORMAT(monitor_sys_gen_file_upload_start_time, '%Y-%m-%d %H:00:00')
+    ORDER BY hour
+  </select>
+
+  <!-- 查询长时间上传的记录 -->
+  <select id="getLongTimeUploadingRecords" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM monitor_sys_gen_file_upload_records
+    WHERE monitor_sys_gen_file_upload_status = 'UPLOADING'
+      AND monitor_sys_gen_file_upload_start_time &lt; DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+      AND monitor_sys_gen_file_upload_record_status = 1
+    ORDER BY monitor_sys_gen_file_upload_start_time ASC
+  </select>
+
+  <!-- 删除过期记录 -->
+  <update id="deleteExpiredRecords">
+    UPDATE monitor_sys_gen_file_upload_records SET
+      monitor_sys_gen_file_upload_record_status = 0,
+      monitor_sys_gen_file_upload_update_time = NOW()
+    WHERE monitor_sys_gen_file_upload_create_time &lt; #{expiredTime}
+      AND monitor_sys_gen_file_upload_status IN ('COMPLETED', 'FAILED', 'CANCELLED')
+  </update>
+
+</mapper>
