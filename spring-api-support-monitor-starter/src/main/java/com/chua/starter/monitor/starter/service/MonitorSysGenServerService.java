@@ -203,4 +203,36 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @return 克隆结果
      */
     ReturnResult<MonitorSysGenServer> cloneServer(String sourceId, String targetName);
+
+    /**
+     * 更新服务器连接状态
+     *
+     * @param id 服务器ID
+     * @param status 连接状态
+     * @param errorMessage 错误信息
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> updateConnectionStatus(String id, Integer status, String errorMessage);
+
+    /**
+     * 批量测试服务器连接
+     *
+     * @param ids 服务器ID列表
+     * @return 测试结果
+     */
+    ReturnResult<Map<String, Object>> batchTestConnection(List<String> ids);
+
+    /**
+     * 获取所有服务器连接状态
+     *
+     * @return 连接状态列表
+     */
+    ReturnResult<List<Map<String, Object>>> getAllConnectionStatus();
+
+    /**
+     * 定时检查服务器连接状态
+     */
+    void scheduleConnectionCheck();
+
+
 }
