@@ -8,6 +8,7 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
@@ -249,6 +250,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             status.put("protocol", server.getMonitorSysGenServerProtocol());
             status.put("connected", connectionService.isConnected(server.getMonitorSysGenServerId()));
             status.put("sessionId", connectionService.getSessionId(server.getMonitorSysGenServerId()));
+            status.put("connectionStatus", server.getMonitorSysGenServerConnectionStatus());
+            status.put("statusDesc", getStatusDesc(server.getMonitorSysGenServerConnectionStatus()));
+            status.put("lastConnectTime", server.getMonitorSysGenServerLastConnectTime());
+            status.put("connectionError", server.getMonitorSysGenServerConnectionError());
+            status.put("monitorEnabled", server.getMonitorSysGenServerMonitorEnabled());
+            status.put("tags", server.getMonitorSysGenServerTags());
             status.put("timestamp", System.currentTimeMillis());
 
             return ReturnResult.ok(status);
@@ -810,6 +817,198 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送服务器消息失败: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> updateConnectionStatus(String id, Integer status, String errorMessage) {
+        if (StringUtils.isEmpty(id)) {
+            return ReturnResult.error("服务器ID不能为空");
+        }
+
+        try {
+            MonitorSysGenServer server = this.getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+
+            server.setMonitorSysGenServerConnectionStatus(status);
+            server.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());
+            server.setMonitorSysGenServerConnectionError(errorMessage);
+            server.setMonitorSysGenServerUpdateTime(LocalDateTime.now());
+
+            boolean result = this.updateById(server);
+
+            if (result) {
+                // 发送WebSocket消息通知前端
+                sendConnectionStatusMessage(server, status, errorMessage);
+                log.info("服务器连接状态已更新: {} -> {}", server.getMonitorSysGenServerName(), status);
+            }
+
+            return ReturnResult.of(result, result ? "连接状态更新成功" : "连接状态更新失败");
+        } catch (Exception e) {
+            log.error("更新服务器连接状态失败: {}", e.getMessage(), e);
+            return ReturnResult.error("更新连接状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> batchTestConnection(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return ReturnResult.error("服务器ID列表不能为空");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> successList = new ArrayList<>();
+        List<Map<String, Object>> failedList = new ArrayList<>();
+
+        for (String id : ids) {
+            try {
+                ReturnResult<Boolean> testResult = testConnection(id);
+                Map<String, Object> serverResult = new HashMap<>();
+                MonitorSysGenServer server = this.getById(id);
+
+                if (server != null) {
+                    serverResult.put("serverId", server.getMonitorSysGenServerId());
+                    serverResult.put("serverName", server.getMonitorSysGenServerName());
+                    serverResult.put("host", server.getMonitorSysGenServerHost());
+                    serverResult.put("port", server.getMonitorSysGenServerPort());
+                    serverResult.put("protocol", server.getMonitorSysGenServerProtocol());
+                    serverResult.put("success", testResult.getData());
+                    serverResult.put("message", testResult.getMsg());
+
+                    if (testResult.getData() != null && testResult.getData()) {
+                        successList.add(serverResult);
+                    } else {
+                        failedList.add(serverResult);
+                    }
+                }
+            } catch (Exception e) {
+                Map<String, Object> errorResult = new HashMap<>();
+                errorResult.put("serverId", id);
+                errorResult.put("success", false);
+                errorResult.put("message", "测试连接异常: " + e.getMessage());
+                failedList.add(errorResult);
+            }
+        }
+
+        result.put("total", ids.size());
+        result.put("success", successList.size());
+        result.put("failed", failedList.size());
+        result.put("successList", successList);
+        result.put("failedList", failedList);
+
+        return ReturnResult.ok(result);
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getAllConnectionStatus() {
+        try {
+            List<MonitorSysGenServer> servers = this.list();
+            List<Map<String, Object>> statusList = new ArrayList<>();
+
+            for (MonitorSysGenServer server : servers) {
+                Map<String, Object> status = new HashMap<>();
+                status.put("serverId", server.getMonitorSysGenServerId());
+                status.put("serverName", server.getMonitorSysGenServerName());
+                status.put("host", server.getMonitorSysGenServerHost());
+                status.put("port", server.getMonitorSysGenServerPort());
+                status.put("protocol", server.getMonitorSysGenServerProtocol());
+                status.put("connectionStatus", server.getMonitorSysGenServerConnectionStatus());
+                status.put("statusDesc", getStatusDesc(server.getMonitorSysGenServerConnectionStatus()));
+                status.put("lastConnectTime", server.getMonitorSysGenServerLastConnectTime());
+                status.put("connectionError", server.getMonitorSysGenServerConnectionError());
+                status.put("monitorEnabled", server.getMonitorSysGenServerMonitorEnabled());
+                status.put("tags", server.getMonitorSysGenServerTags());
+                statusList.add(status);
+            }
+
+            return ReturnResult.ok(statusList);
+        } catch (Exception e) {
+            log.error("获取所有服务器连接状态失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取连接状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void scheduleConnectionCheck() {
+        try {
+            List<MonitorSysGenServer> servers = this.list(
+                Wrappers.lambdaQuery(MonitorSysGenServer.class)
+                    .eq(MonitorSysGenServer::getMonitorSysGenServerStatus, 1)
+                    .eq(MonitorSysGenServer::getMonitorSysGenServerMonitorEnabled, 1)
+            );
+
+            log.info("开始定时检查服务器连接状态，共{}台服务器", servers.size());
+
+            for (MonitorSysGenServer server : servers) {
+                try {
+                    ReturnResult<Boolean> testResult = testConnection(server.getMonitorSysGenServerId().toString());
+
+                    Integer newStatus = testResult.getData() != null && testResult.getData() ? 1 : 0;
+
+                    // 只有状态发生变化时才更新
+                    if (!Objects.equals(server.getMonitorSysGenServerConnectionStatus(), newStatus)) {
+                        updateConnectionStatus(server.getMonitorSysGenServerId().toString(),
+                            newStatus, testResult.getData() != null && testResult.getData() ? null : testResult.getMsg());
+                    }
+                } catch (Exception e) {
+                    log.error("检查服务器连接状态失败: serverId={}, error={}",
+                        server.getMonitorSysGenServerId(), e.getMessage());
+
+                    updateConnectionStatus(server.getMonitorSysGenServerId().toString(),
+                        3, e.getMessage());
+                }
+            }
+
+            log.info("定时检查服务器连接状态完成");
+        } catch (Exception e) {
+            log.error("定时检查服务器连接状态异常: {}", e.getMessage(), e);
+        }
+    }
+
+
+
+    /**
+     * 获取状态描述
+     */
+    private String getStatusDesc(Integer status) {
+        if (status == null) {
+            return "未知";
+        }
+        switch (status) {
+            case 0:
+                return "离线";
+            case 1:
+                return "在线";
+            case 2:
+                return "连接中";
+            case 3:
+                return "连接失败";
+            default:
+                return "未知";
+        }
+    }
+
+    /**
+     * 发送连接状态消息
+     */
+    private void sendConnectionStatusMessage(MonitorSysGenServer server, Integer status, String errorMessage) {
+        try {
+            Map<String, Object> message = new HashMap<>();
+            message.put("messageType", "connection_status_change");
+            message.put("serverId", server.getMonitorSysGenServerId());
+            message.put("serverName", server.getMonitorSysGenServerName());
+            message.put("connectionStatus", status);
+            message.put("statusDesc", getStatusDesc(status));
+            message.put("errorMessage", errorMessage);
+            message.put("connectTime", LocalDateTime.now());
+            message.put("timestamp", System.currentTimeMillis());
+
+            String topic = "server_connection";
+            socketSessionTemplate.send(topic, Json.toJson(message));
+        } catch (Exception e) {
+            log.error("发送连接状态消息失败: {}", e.getMessage(), e);
         }
     }
 }
