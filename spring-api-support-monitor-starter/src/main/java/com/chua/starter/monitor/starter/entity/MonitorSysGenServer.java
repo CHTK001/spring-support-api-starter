@@ -158,6 +158,31 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     private String monitorSysGenServerTags;
 
     /**
+     * 连接状态 0:离线 1:在线 2:连接中 3:连接失败
+     */
+    @TableField(value = "monitor_sys_gen_server_connection_status")
+    @ApiModelProperty(value = "连接状态")
+    @Schema(description = "连接状态")
+    private Integer monitorSysGenServerConnectionStatus;
+
+    /**
+     * 最后连接时间
+     */
+    @TableField(value = "monitor_sys_gen_server_last_connect_time")
+    @ApiModelProperty(value = "最后连接时间")
+    @Schema(description = "最后连接时间")
+    private LocalDateTime monitorSysGenServerLastConnectTime;
+
+    /**
+     * 连接失败原因
+     */
+    @TableField(value = "monitor_sys_gen_server_connection_error")
+    @ApiModelProperty(value = "连接失败原因")
+    @Schema(description = "连接失败原因")
+    @Size(max = 1000, message = "连接失败原因最大长度要小于 1000")
+    private String monitorSysGenServerConnectionError;
+
+    /**
      * 生成器id
      */
     @TableField(value = "gen_id")
