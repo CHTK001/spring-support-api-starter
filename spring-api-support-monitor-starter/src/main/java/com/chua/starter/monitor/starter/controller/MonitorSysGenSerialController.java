@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
@@ -51,11 +52,20 @@ public class MonitorSysGenSerialController {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, "主键不能为空");
         }
 
-        Set<String> ids = Splitter.on(",").trimResults().omitEmptyStrings().splitToSet(id);
-        if (ids.isEmpty()) {
+        Set<String> stringIds = Splitter.on(",").trimResults().omitEmptyStrings().splitToSet(id);
+        if (stringIds.isEmpty()) {
             return ReturnResult.ok();
         }
-        return ReturnResult.of(monitorSysGenSerialService.removeBatchByIds(ids));
+
+        // 将字符串ID转换为Integer类型，因为实体主键类型是Integer
+        try {
+            Set<Integer> integerIds = stringIds.stream()
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toSet());
+            return ReturnResult.of(monitorSysGenSerialService.removeBatchByIds(integerIds));
+        } catch (NumberFormatException e) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "主键格式不正确，必须为数字");
+        }
     }
 
     /**

@@ -36,6 +36,91 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     private final SocketSessionTemplate socketSessionTemplate;
     private final List<ServerConnectionService> connectionServices;
 
+    /**
+     * 重写updateById方法，在特定字段变更时关闭设备连接
+     * 如果修改了地址、端口、账号、密码这四个字段中的任何一个，则关闭对应的client连接
+     */
+    @Override
+    public boolean updateById(MonitorSysGenServer entity) {
+        if (entity == null || entity.getMonitorSysGenServerId() == null) {
+            return false;
+        }
+
+        try {
+            // 获取更新前的服务器配置
+            MonitorSysGenServer oldServer = this.getById(entity.getMonitorSysGenServerId());
+            if (oldServer == null) {
+                return false;
+            }
+
+            // 检查关键连接字段是否发生变化
+            boolean needDisconnect = isConnectionFieldsChanged(oldServer, entity);
+
+            // 如果关键字段发生变化，先断开连接
+            if (needDisconnect) {
+                try {
+                    log.info("检测到服务器连接配置变更，断开现有连接: {}", oldServer.getMonitorSysGenServerName());
+                    disconnect(String.valueOf(oldServer.getMonitorSysGenServerId()));
+                } catch (Exception e) {
+                    log.warn("断开服务器连接时发生异常: {}", e.getMessage(), e);
+                    // 不阻止更新操作，只记录警告
+                }
+            }
+
+            // 设置更新时间
+            entity.setMonitorSysGenServerUpdateTime(LocalDateTime.now());
+
+            // 执行更新操作
+            boolean result = super.updateById(entity);
+
+            if (result) {
+                // 发送服务器更新消息
+                sendServerMessage(entity, "server_updated", true, needDisconnect ? "连接配置已变更，已断开现有连接" : null);
+                log.info("服务器配置更新成功: {}", entity.getMonitorSysGenServerName());
+            }
+
+            return result;
+        } catch (Exception e) {
+            log.error("更新服务器配置失败: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 检查连接相关字段是否发生变化
+     * 检查字段：地址(host)、端口(port)、用户名(username)、密码(password)
+     */
+    private boolean isConnectionFieldsChanged(MonitorSysGenServer oldServer, MonitorSysGenServer newServer) {
+        // 检查主机地址
+        if (!Objects.equals(oldServer.getMonitorSysGenServerHost(), newServer.getMonitorSysGenServerHost())) {
+            log.debug("服务器主机地址发生变化: {} -> {}",
+                    oldServer.getMonitorSysGenServerHost(), newServer.getMonitorSysGenServerHost());
+            return true;
+        }
+
+        // 检查端口
+        if (!Objects.equals(oldServer.getMonitorSysGenServerPort(), newServer.getMonitorSysGenServerPort())) {
+            log.debug("服务器端口发生变化: {} -> {}",
+                    oldServer.getMonitorSysGenServerPort(), newServer.getMonitorSysGenServerPort());
+            return true;
+        }
+
+        // 检查用户名
+        if (!Objects.equals(oldServer.getMonitorSysGenServerUsername(), newServer.getMonitorSysGenServerUsername())) {
+            log.debug("服务器用户名发生变化: {} -> {}",
+                    oldServer.getMonitorSysGenServerUsername(), newServer.getMonitorSysGenServerUsername());
+            return true;
+        }
+
+        // 检查密码
+        if (!Objects.equals(oldServer.getMonitorSysGenServerPassword(), newServer.getMonitorSysGenServerPassword())) {
+            log.debug("服务器密码发生变化");
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public IPage<MonitorSysGenServer> pageFor(Page<MonitorSysGenServer> page, MonitorSysGenServer entity) {
         return this.page(page, Wrappers.<MonitorSysGenServer>lambdaQuery()
