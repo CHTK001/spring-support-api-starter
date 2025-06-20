@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,11 +22,12 @@ import java.time.LocalDateTime;
  * @author CH
  * @since 2024/12/18
  */
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "服务器指标数据")
 @Schema(description = "服务器指标数据")
 @Data
 @TableName(value = "monitor_sys_gen_server_metrics")
-public class MonitorSysGenServerMetrics implements Serializable {
+public class MonitorSysGenServerMetrics extends SysBase implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
