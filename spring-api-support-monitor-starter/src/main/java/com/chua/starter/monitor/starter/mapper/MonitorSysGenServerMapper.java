@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      *
      * @return 协议统计
      */
-    @Select("SELECT monitor_sys_gen_server_protocol as protocol, COUNT(*) as count " +
-            "FROM monitor_sys_gen_server " +
-            "GROUP BY monitor_sys_gen_server_protocol")
     List<Map<String, Object>> countByProtocol();
 
     /**
@@ -33,9 +29,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      *
      * @return 状态统计
      */
-    @Select("SELECT monitor_sys_gen_server_status as status, COUNT(*) as count " +
-            "FROM monitor_sys_gen_server " +
-            "GROUP BY monitor_sys_gen_server_status")
     List<Map<String, Object>> countByStatus();
 
     /**
@@ -43,9 +36,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      *
      * @return 标签统计
      */
-    @Select("SELECT COALESCE(monitor_sys_gen_server_tags, '未分组') as tags, COUNT(*) as count " +
-            "FROM monitor_sys_gen_server " +
-            "GROUP BY monitor_sys_gen_server_tags")
     List<Map<String, Object>> countByTags();
 
     /**
@@ -53,9 +43,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      *
      * @return 服务器列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_server " +
-            "WHERE monitor_sys_gen_server_monitor_enabled = 1 " +
-            "AND monitor_sys_gen_server_status = 1")
     List<MonitorSysGenServer> selectMonitoringEnabledServers();
 
     /**
@@ -64,7 +51,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      * @param genId 生成器ID
      * @return 服务器列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_server WHERE gen_id = #{genId}")
     List<MonitorSysGenServer> selectByGenId(@Param("genId") Integer genId);
 
     /**
@@ -73,7 +59,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      * @param protocol 协议类型
      * @return 服务器列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_server WHERE monitor_sys_gen_server_protocol = #{protocol}")
     List<MonitorSysGenServer> selectByProtocol(@Param("protocol") String protocol);
 
     /**
@@ -82,7 +67,6 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      * @param tags 标签
      * @return 服务器列表
      */
-    @Select("SELECT * FROM monitor_sys_gen_server WHERE monitor_sys_gen_server_tags LIKE CONCAT('%', #{tags}, '%')")
     List<MonitorSysGenServer> selectByTags(@Param("tags") String tags);
 
     /**
@@ -90,12 +74,5 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      *
      * @return 统计信息
      */
-    @Select("SELECT " +
-            "COUNT(*) as total_servers, " +
-            "SUM(CASE WHEN monitor_sys_gen_server_status = 1 THEN 1 ELSE 0 END) as enabled_servers, " +
-            "SUM(CASE WHEN monitor_sys_gen_server_monitor_enabled = 1 THEN 1 ELSE 0 END) as monitoring_enabled, " +
-            "COUNT(DISTINCT monitor_sys_gen_server_protocol) as protocol_types, " +
-            "COUNT(DISTINCT monitor_sys_gen_server_tags) as tag_groups " +
-            "FROM monitor_sys_gen_server")
     Map<String, Object> getServerOverview();
 }

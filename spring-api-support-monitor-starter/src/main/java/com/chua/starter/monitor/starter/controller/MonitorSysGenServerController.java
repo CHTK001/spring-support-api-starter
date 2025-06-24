@@ -106,6 +106,13 @@ public class MonitorSysGenServerController {
         if (null == monitorSysGenServer.getMonitorSysGenServerTimeout()) {
             monitorSysGenServer.setMonitorSysGenServerTimeout(30000);
         }
+        // 设置新增字段的默认值
+        if (null == monitorSysGenServer.getMonitorSysGenServerReportEnabled()) {
+            monitorSysGenServer.setMonitorSysGenServerReportEnabled(1); // 默认上报
+        }
+        if (null == monitorSysGenServer.getMonitorSysGenServerDataReportMethod()) {
+            monitorSysGenServer.setMonitorSysGenServerDataReportMethod("NONE"); // 默认不支持上报
+        }
 
         monitorSysGenServerService.save(monitorSysGenServer);
         return ReturnResult.ok(monitorSysGenServer);
@@ -391,6 +398,156 @@ public class MonitorSysGenServerController {
     @PostMapping("clone")
     public ReturnResult<MonitorSysGenServer> cloneServer(@RequestBody CloneServerRequest request) {
         return monitorSysGenServerService.cloneServer(request.getSourceId(), request.getTargetName());
+    }
+
+    /**
+     * 获取Guacamole代理连接URL
+     *
+     * @param id 服务器ID
+     * @return 代理连接URL
+     */
+    @Operation(summary = "获取Guacamole代理连接URL")
+    @GetMapping("proxy/guacamole")
+    public ReturnResult<String> getGuacamoleProxyUrl(@Parameter(name = "服务器ID") String id) {
+        return monitorSysGenServerService.getGuacamoleProxyUrl(id);
+    }
+
+    /**
+     * 测试代理连接
+     *
+     * @param id 服务器ID
+     * @return 测试结果
+     */
+    @Operation(summary = "测试代理连接")
+    @PostMapping("proxy/test")
+    public ReturnResult<Boolean> testProxyConnection(@Parameter(name = "服务器ID") String id) {
+        return monitorSysGenServerService.testProxyConnection(id);
+    }
+
+    /**
+     * 获取服务器支持的数据上报方式
+     *
+     * @param id 服务器ID
+     * @return 支持的上报方式列表
+     */
+    @Operation(summary = "获取服务器支持的数据上报方式")
+    @GetMapping("report/methods")
+    public ReturnResult<List<String>> getSupportedReportMethods(@Parameter(name = "服务器ID") String id) {
+        return monitorSysGenServerService.getSupportedReportMethods(id);
+    }
+
+    /**
+     * 根据配置查询数据
+     *
+     * @param id         服务器ID
+     * @param queryType  查询类型 (prometheus/sql)
+     * @param expression 查询表达式
+     * @param timeRange  时间范围参数
+     * @return 查询结果
+     */
+    @Operation(summary = "根据配置查询数据")
+    @PostMapping("query/data")
+    public ReturnResult<Object> queryDataByConfig(@Parameter(name = "服务器ID") String id,
+                                                  @Parameter(name = "查询类型") @RequestParam String queryType,
+                                                  @Parameter(name = "查询表达式") @RequestParam String expression,
+                                                  @RequestBody Map<String, Object> timeRange) {
+        return monitorSysGenServerService.queryDataByConfig(id, queryType, expression, timeRange);
+    }
+
+    /**
+     * 更新服务器数据上报配置
+     *
+     * @param id     服务器ID
+     * @param config 上报配置
+     * @return 操作结果
+     */
+    @Operation(summary = "更新服务器数据上报配置")
+    @PostMapping("report/config")
+    public ReturnResult<Boolean> updateReportConfig(@Parameter(name = "服务器ID") String id,
+                                                    @RequestBody ReportConfigRequest config) {
+        return monitorSysGenServerService.updateReportConfig(id, config);
+    }
+
+    /**
+     * 获取服务器数据上报配置
+     *
+     * @param id 服务器ID
+     * @return 上报配置
+     */
+    @Operation(summary = "获取服务器数据上报配置")
+    @GetMapping("report/config")
+    public ReturnResult<Map<String, Object>> getReportConfig(@Parameter(name = "服务器ID") String id) {
+        return monitorSysGenServerService.getReportConfig(id);
+    }
+
+    /**
+     * 数据上报配置请求
+     */
+    public static class ReportConfigRequest {
+        private Boolean reportEnabled;
+        private String dataReportMethod;
+        private String prometheusHost;
+        private Integer prometheusPort;
+        private String proxyType;
+        private String proxyHost;
+        private Integer proxyPort;
+
+        // Getters and Setters
+        public Boolean getReportEnabled() {
+            return reportEnabled;
+        }
+
+        public void setReportEnabled(Boolean reportEnabled) {
+            this.reportEnabled = reportEnabled;
+        }
+
+        public String getDataReportMethod() {
+            return dataReportMethod;
+        }
+
+        public void setDataReportMethod(String dataReportMethod) {
+            this.dataReportMethod = dataReportMethod;
+        }
+
+        public String getPrometheusHost() {
+            return prometheusHost;
+        }
+
+        public void setPrometheusHost(String prometheusHost) {
+            this.prometheusHost = prometheusHost;
+        }
+
+        public Integer getPrometheusPort() {
+            return prometheusPort;
+        }
+
+        public void setPrometheusPort(Integer prometheusPort) {
+            this.prometheusPort = prometheusPort;
+        }
+
+        public String getProxyType() {
+            return proxyType;
+        }
+
+        public void setProxyType(String proxyType) {
+            this.proxyType = proxyType;
+        }
+
+        public String getProxyHost() {
+            return proxyHost;
+        }
+
+        public void setProxyHost(String proxyHost) {
+            this.proxyHost = proxyHost;
+        }
+
+        public Integer getProxyPort() {
+            return proxyPort;
+        }
+
+        public void setProxyPort(Integer proxyPort) {
+            this.proxyPort = proxyPort;
+        }
     }
 
     /**

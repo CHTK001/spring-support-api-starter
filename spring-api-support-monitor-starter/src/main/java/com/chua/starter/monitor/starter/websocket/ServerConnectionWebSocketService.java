@@ -3,16 +3,17 @@ package com.chua.starter.monitor.starter.websocket;
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -29,16 +30,14 @@ import java.util.concurrent.TimeUnit;
 public class ServerConnectionWebSocketService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final MonitorSysGenServerConnectionStatusService connectionStatusService;
+    // WebSocket主题常量 - 统一使用gen/server主题
+    private static final String TOPIC_CONNECTION_STATUS = "gen/server";
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
-    
-
-    
-    // WebSocket主题常量
-    private static final String TOPIC_CONNECTION_STATUS = "gen/server/connection/status";
-    private static final String TOPIC_CONNECTION_STATISTICS = "gen/server/connection/statistics";
-    private static final String TOPIC_CONNECTION_HEALTH = "gen/server/connection/health";
-    private static final String TOPIC_CONNECTION_ALERT = "gen/server/connection/alert";
+    private static final String TOPIC_CONNECTION_STATISTICS = "gen/server";
+    private static final String TOPIC_CONNECTION_HEALTH = "gen/server";
+    private static final String TOPIC_CONNECTION_ALERT = "gen/server";
+    @Lazy
+    private final MonitorSysGenServerConnectionStatusService connectionStatusService;
 
     /**
      * 启动WebSocket服务
@@ -74,23 +73,28 @@ public class ServerConnectionWebSocketService {
      */
     public void broadcastServerConnectionStatus(Integer serverId, Integer connectionStatus, String message, Long responseTime) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("serverId", serverId);
-            data.put("connectionStatus", connectionStatus);
-            data.put("message", message);
-            data.put("responseTime", responseTime);
-            data.put("timestamp", System.currentTimeMillis());
-            data.put("type", "server_connection_status");
+            // 获取服务器信息
+            String serverName = "Server-" + serverId; // 简化处理，实际应该从数据库获取
+            String statusDesc = getConnectionStatusDesc(connectionStatus);
 
-            // 发送到特定服务器主题
-            String serverTopic = TOPIC_CONNECTION_STATUS + "/" + serverId;
-            socketSessionTemplate.send(serverTopic, Json.toJson(data));
+            ServerWebSocketMessage wsMessage = ServerWebSocketMessage.createConnectionStatusMessage(
+                    serverId,
+                    serverName,
+                    null, // host
+                    null, // port
+                    null, // protocol
+                    connectionStatus,
+                    statusDesc,
+                    message,
+                    responseTime
+            );
 
-            // 发送到全局连接状态主题
-            socketSessionTemplate.send(TOPIC_CONNECTION_STATUS, Json.toJson(data));
+            // 统一发送到gen/server主题
+            String topic = "gen/server";
+            socketSessionTemplate.send(topic, Json.toJson(wsMessage));
 
             log.debug("广播服务器连接状态: serverId={}, status={}", serverId, connectionStatus);
-            
+
         } catch (Exception e) {
             log.error("广播服务器连接状态失败: serverId={}", serverId, e);
         }
@@ -103,15 +107,16 @@ public class ServerConnectionWebSocketService {
      */
     public void broadcastBatchTestResults(List<MonitorSysGenServerConnectionStatus> results) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("results", results);
-            data.put("timestamp", System.currentTimeMillis());
-            data.put("type", "batch_test_results");
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("batch_test_results")
+                    .data(results)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            socketSessionTemplate.send(TOPIC_CONNECTION_STATUS, Json.toJson(data));
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
 
             log.debug("广播批量连接测试结果: count={}", results.size());
-            
+
         } catch (Exception e) {
             log.error("广播批量连接测试结果失败", e);
         }
@@ -124,13 +129,14 @@ public class ServerConnectionWebSocketService {
         try {
             var statisticsResult = connectionStatusService.getConnectionStatusStatistics();
             if (statisticsResult != null && statisticsResult.getData() != null) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("statistics", statisticsResult.getData());
-                data.put("timestamp", System.currentTimeMillis());
-                data.put("type", "connection_statistics");
+                ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                        .messageType("connection_statistics")
+                        .data(statisticsResult.getData())
+                        .timestamp(System.currentTimeMillis())
+                        .build();
 
-                socketSessionTemplate.send(TOPIC_CONNECTION_STATISTICS, Json.toJson(data));
-                
+                socketSessionTemplate.send("gen/server", Json.toJson(message));
+
                 log.debug("广播连接状态统计信息");
             }
         } catch (Exception e) {
@@ -145,13 +151,14 @@ public class ServerConnectionWebSocketService {
         try {
             var healthResult = connectionStatusService.getServerConnectionHealthReport();
             if (healthResult != null && healthResult.getData() != null) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("healthReport", healthResult.getData());
-                data.put("timestamp", System.currentTimeMillis());
-                data.put("type", "health_report");
+                ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                        .messageType("health_report")
+                        .data(healthResult.getData())
+                        .timestamp(System.currentTimeMillis())
+                        .build();
 
-                socketSessionTemplate.send(TOPIC_CONNECTION_HEALTH, Json.toJson(data));
-                
+                socketSessionTemplate.send("gen/server", Json.toJson(message));
+
                 log.debug("广播健康状态报告");
             }
         } catch (Exception e) {
@@ -167,15 +174,20 @@ public class ServerConnectionWebSocketService {
             // 检查长时间未连接的服务器
             var longTimeNoConnectResult = connectionStatusService.getLongTimeNoConnectServers(30);
             if (longTimeNoConnectResult != null && longTimeNoConnectResult.getData() != null && !longTimeNoConnectResult.getData().isEmpty()) {
-                Map<String, Object> alert = new HashMap<>();
-                alert.put("type", "long_time_no_connect");
-                alert.put("level", "warning");
-                alert.put("message", "发现长时间未连接的服务器");
-                alert.put("servers", longTimeNoConnectResult.getData());
-                alert.put("timestamp", System.currentTimeMillis());
+                Map<String, Object> alertData = new HashMap<>();
+                alertData.put("type", "long_time_no_connect");
+                alertData.put("level", "warning");
+                alertData.put("message", "发现长时间未连接的服务器");
+                alertData.put("servers", longTimeNoConnectResult.getData());
 
-                socketSessionTemplate.send(TOPIC_CONNECTION_ALERT, Json.toJson(alert));
-                
+                ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                        .messageType("connection_alert")
+                        .data(alertData)
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+
+                socketSessionTemplate.send("gen/server", Json.toJson(message));
+
                 log.warn("发现长时间未连接的服务器: count={}", longTimeNoConnectResult.getData().size());
             }
 
@@ -183,21 +195,36 @@ public class ServerConnectionWebSocketService {
             var failedServersResult = connectionStatusService.getServersByConnectionStatus(
                     MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode());
             if (failedServersResult != null && failedServersResult.getData() != null && !failedServersResult.getData().isEmpty()) {
-                Map<String, Object> alert = new HashMap<>();
-                alert.put("type", "connection_failed");
-                alert.put("level", "error");
-                alert.put("message", "发现连接失败的服务器");
-                alert.put("servers", failedServersResult.getData());
-                alert.put("timestamp", System.currentTimeMillis());
+                Map<String, Object> alertData = new HashMap<>();
+                alertData.put("type", "connection_failed");
+                alertData.put("level", "error");
+                alertData.put("message", "发现连接失败的服务器");
+                alertData.put("servers", failedServersResult.getData());
 
-                socketSessionTemplate.send(TOPIC_CONNECTION_ALERT, Json.toJson(alert));
-                
+                ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                        .messageType("connection_alert")
+                        .data(alertData)
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+
+                socketSessionTemplate.send("gen/server", Json.toJson(message));
+
                 log.warn("发现连接失败的服务器: count={}", failedServersResult.getData().size());
             }
 
         } catch (Exception e) {
             log.error("检查连接告警失败", e);
         }
+    }
+
+    /**
+     * 获取连接状态描述
+     */
+    private String getConnectionStatusDesc(Integer status) {
+        if (status == null) {
+            return "未知";
+        }
+        return MonitorSysGenServerConnectionStatus.ConnectionStatus.fromCode(status).getDesc();
     }
 
     /**
@@ -210,23 +237,23 @@ public class ServerConnectionWebSocketService {
      */
     public void broadcastConnectionStatusChange(Integer serverId, Integer oldStatus, Integer newStatus, LocalDateTime changeTime) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("serverId", serverId);
-            data.put("oldStatus", oldStatus);
-            data.put("newStatus", newStatus);
-            data.put("changeTime", changeTime);
-            data.put("timestamp", System.currentTimeMillis());
-            data.put("type", "connection_status_change");
+            Map<String, Object> changeData = new HashMap<>();
+            changeData.put("serverId", serverId);
+            changeData.put("oldStatus", oldStatus);
+            changeData.put("newStatus", newStatus);
+            changeData.put("changeTime", changeTime);
 
-            // 发送到特定服务器主题
-            String serverTopic = TOPIC_CONNECTION_STATUS + "/" + serverId + "/change";
-            socketSessionTemplate.send(serverTopic, Json.toJson(data));
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("connection_status_change")
+                    .serverId(serverId)
+                    .data(changeData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            // 发送到全局状态变化主题
-            socketSessionTemplate.send(TOPIC_CONNECTION_STATUS + "/change", Json.toJson(data));
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
 
             log.debug("广播连接状态变化: serverId={}, {} -> {}", serverId, oldStatus, newStatus);
-            
+
         } catch (Exception e) {
             log.error("广播连接状态变化失败: serverId={}", serverId, e);
         }
@@ -242,19 +269,22 @@ public class ServerConnectionWebSocketService {
      */
     public void sendTestProgress(String taskId, int progress, int currentItem, int totalItems) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("taskId", taskId);
-            data.put("progress", progress);
-            data.put("currentItem", currentItem);
-            data.put("totalItems", totalItems);
-            data.put("timestamp", System.currentTimeMillis());
-            data.put("type", "test_progress");
+            Map<String, Object> progressData = new HashMap<>();
+            progressData.put("taskId", taskId);
+            progressData.put("progress", progress);
+            progressData.put("currentItem", currentItem);
+            progressData.put("totalItems", totalItems);
 
-            String progressTopic = TOPIC_CONNECTION_STATUS + "/progress/" + taskId;
-            socketSessionTemplate.send(progressTopic, Json.toJson(data));
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("test_progress")
+                    .data(progressData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
 
             log.debug("发送连接测试进度: taskId={}, progress={}%", taskId, progress);
-            
+
         } catch (Exception e) {
             log.error("发送连接测试进度失败: taskId={}", taskId, e);
         }

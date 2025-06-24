@@ -11,21 +11,20 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenSerial;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenSerialMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenSerialService;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PreDestroy;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 串口配置服务实现类
@@ -855,7 +854,7 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.warn("socketSessionTemplate为空，无法发送串口状态变更通知");
             return;
         }
-        
+
         try {
             // 创建消息内容
             Map<String, Object> message = new HashMap<>(8);
@@ -866,12 +865,12 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             message.put("action", action);
             message.put("timestamp", System.currentTimeMillis());
             message.put("success", true);
-            
+
             // 发送消息
             String topic = "gen/serial/" + action;
             socketSessionTemplate.send(topic, Json.toJson(message));
-            
-            log.info("发送串口状态变更消息: topic={}, serialId={}, action={}", 
+
+            log.info("发送串口状态变更消息: topic={}, serialId={}, action={}",
                     topic, serial.getMonitorSysGenSerialId(), action);
         } catch (Exception e) {
             log.error("发送串口状态变更消息失败: {}", e.getMessage(), e);
@@ -890,7 +889,7 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.warn("socketSessionTemplate为空，无法发送串口操作错误通知");
             return;
         }
-        
+
         try {
             // 创建消息内容
             Map<String, Object> message = new HashMap<>(8);
@@ -902,12 +901,12 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             message.put("timestamp", System.currentTimeMillis());
             message.put("success", false);
             message.put("error", errorMsg);
-            
+
             // 发送消息
             String topic = "gen/serial/" +  action;
             socketSessionTemplate.send(topic, Json.toJson(message));
-            
-            log.info("发送串口操作错误消息: topic={}, serialId={}, action={}, error={}", 
+
+            log.info("发送串口操作错误消息: topic={}, serialId={}, action={}, error={}",
                     topic, serial.getMonitorSysGenSerialId(), action, errorMsg);
         } catch (Exception e) {
             log.error("发送串口操作错误消息失败: {}", e.getMessage(), e);

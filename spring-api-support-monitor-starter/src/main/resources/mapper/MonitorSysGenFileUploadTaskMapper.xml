@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenFileUploadTaskMapper">
+    <!-- 分页查询文件上传任务 -->
+    <select id="selectTaskPage" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_task_status = 1
+        <if test='taskName != null and taskName != ""'>
+            AND monitor_sys_gen_file_upload_task_name LIKE CONCAT('%', #{taskName}, '%')
+        </if>
+        <if test='status != null and status != ""'>
+            AND monitor_sys_gen_file_upload_status = #{status}
+        </if>
+        <if test='mode != null and mode != ""'>
+            AND monitor_sys_gen_file_upload_mode = #{mode}
+        </if>
+        <if test='type != null and type != ""'>
+            AND monitor_sys_gen_file_upload_type = #{type}
+        </if>
+
+        <if test='createUser != null and createUser != ""'>
+            AND monitor_sys_gen_file_upload_create_user = #{createUser}
+        </if>
+
+        <if test='startTime != null'>
+            AND monitor_sys_gen_file_upload_create_time <![CDATA[>=]]>#{startTime}
+        </if>
+
+        <if test='endTime != null'>
+            AND monitor_sys_gen_file_upload_create_time <![CDATA[<=]]> #{endTime}
+        </if>
+        ORDER BY monitor_sys_gen_file_upload_priority ASC, monitor_sys_gen_file_upload_create_time DESC
+    </select>
+
+    <!-- 根据状态查询任务 -->
+    <select id="selectTasksByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_status = #{status}
+          AND monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_priority ASC, monitor_sys_gen_file_upload_create_time ASC
+    </select>
+
+    <!-- 查询待处理的定时任务 -->
+    <select id="selectPendingScheduledTasks"
+            resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_status = 'PENDING'
+          AND monitor_sys_gen_file_upload_mode = 'SCHEDULED'
+          AND monitor_sys_gen_file_upload_scheduled_time <![CDATA[<=]]> #{currentTime}
+          AND monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_priority ASC, monitor_sys_gen_file_upload_scheduled_time ASC
+    </select>
+
+    <!-- 查询可重试的失败任务 -->
+    <select id="selectRetryableTasks" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_status = 'FAILED'
+          AND monitor_sys_gen_file_upload_retry_count <![CDATA[<]]> monitor_sys_gen_file_upload_max_retry
+          AND monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_priority ASC, monitor_sys_gen_file_upload_update_time ASC
+    </select>
+
+    <!-- 查询超时的处理中任务 -->
+    <select id="selectTimeoutTasks" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_status = 'PROCESSING'
+          AND monitor_sys_gen_file_upload_start_time <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL #{timeoutMinutes} MINUTE)
+          AND monitor_sys_gen_file_upload_task_status = 1
+    </select>
+
+    <!-- 更新任务状态 -->
+    <update id="updateTaskStatus">
+        UPDATE monitor_sys_gen_file_upload_tasks
+        SET monitor_sys_gen_file_upload_status      = #{status},
+            monitor_sys_gen_file_upload_start_time  = #{startTime},
+            monitor_sys_gen_file_upload_end_time    = #{endTime},
+            monitor_sys_gen_file_upload_update_time = NOW()
+        WHERE monitor_sys_gen_file_upload_task_id = #{taskId}
+    </update>
+
+    <!-- 增加重试次数 -->
+    <update id="incrementRetryCount">
+        UPDATE monitor_sys_gen_file_upload_tasks
+        SET monitor_sys_gen_file_upload_retry_count = monitor_sys_gen_file_upload_retry_count + 1,
+            monitor_sys_gen_file_upload_update_time = NOW()
+        WHERE monitor_sys_gen_file_upload_task_id = #{taskId}
+    </update>
+
+    <!-- 获取任务统计信息 -->
+    <select id="getTaskStatistics" resultType="java.util.Map">
+        SELECT monitor_sys_gen_file_upload_status         as status,
+               COUNT(*)                                   as count,
+               SUM(monitor_sys_gen_file_upload_file_size) as totalSize
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_task_status = 1
+          AND monitor_sys_gen_file_upload_create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY monitor_sys_gen_file_upload_status
+    </select>
+
+    <!-- 根据用户查询任务统计 -->
+    <select id="getUserTaskStatistics" resultType="java.util.Map">
+        SELECT COUNT(*)                                                                          as totalTasks,
+               SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'COMPLETED' THEN 1 ELSE 0 END) as completedTasks,
+               SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'FAILED' THEN 1 ELSE 0 END)    as failedTasks,
+               SUM(monitor_sys_gen_file_upload_file_size)                                        as totalSize
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_create_user = #{createUser}
+          AND monitor_sys_gen_file_upload_task_status = 1
+          AND monitor_sys_gen_file_upload_create_time BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <!-- 查询热门文件类型 -->
+    <select id="getPopularFileTypes" resultType="java.util.Map">
+        SELECT SUBSTRING_INDEX(monitor_sys_gen_file_upload_file_name, '.', -1) as fileType,
+               COUNT(*)                                                        as count,
+               SUM(monitor_sys_gen_file_upload_file_size)                      as totalSize
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_task_status = 1
+          AND monitor_sys_gen_file_upload_file_name LIKE '%.%'
+        GROUP BY fileType
+        ORDER BY count DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询大文件任务 -->
+    <select id="getLargeFileTasks" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_file_size <![CDATA[>=]]> #{minSizeMB} * 1024 * 1024
+          AND monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_file_size DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 查询最近的任务 -->
+    <select id="getRecentTasks" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据文件MD5查询任务 -->
+    <select id="selectTasksByFileMd5" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileUploadTask">
+        SELECT *
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_file_md5 = #{fileMd5}
+          AND monitor_sys_gen_file_upload_task_status = 1
+        ORDER BY monitor_sys_gen_file_upload_create_time DESC
+    </select>
+
+    <!-- 查询队列中的任务数量 -->
+    <select id="getQueueTaskCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE monitor_sys_gen_file_upload_status IN ('PENDING', 'PROCESSING')
+          AND monitor_sys_gen_file_upload_task_status = 1
+    </select>
+
+    <!-- 查询今日任务统计 -->
+    <select id="getTodayTaskStatistics" resultType="java.util.Map">
+        SELECT COUNT(*)                                                                           as totalTasks,
+               SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'COMPLETED' THEN 1 ELSE 0 END)  as completedTasks,
+               SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'FAILED' THEN 1 ELSE 0 END)     as failedTasks,
+               SUM(CASE WHEN monitor_sys_gen_file_upload_status = 'PROCESSING' THEN 1 ELSE 0 END) as processingTasks,
+               SUM(monitor_sys_gen_file_upload_file_size)                                         as totalSize
+        FROM monitor_sys_gen_file_upload_tasks
+        WHERE DATE(monitor_sys_gen_file_upload_create_time) = CURDATE()
+          AND monitor_sys_gen_file_upload_task_status = 1
+    </select>
+
+    <!-- 删除过期任务 -->
+    <update id="deleteExpiredTasks">
+        UPDATE monitor_sys_gen_file_upload_tasks
+        SET monitor_sys_gen_file_upload_task_status = 0,
+            monitor_sys_gen_file_upload_update_time = NOW()
+        WHERE monitor_sys_gen_file_upload_create_time <![CDATA[<]]> #{expiredTime}
+          AND monitor_sys_gen_file_upload_status IN ('COMPLETED', 'FAILED', 'CANCELLED')
+    </update>
+</mapper>
