@@ -137,4 +137,22 @@ public interface ServerConnectionService {
      * @return 下载结果
      */
     boolean downloadFile(Integer serverId, String remotePath, String localPath);
+
+    /**
+     * 设置数据回调（用于实时数据传输）
+     *
+     * @param serverId 服务器ID
+     * @param callback 数据回调函数
+     */
+    default void setDataCallback(Integer serverId, DataCallback callback) {
+        // 默认空实现，子类可以重写
+    }
+
+    /**
+     * 数据回调接口
+     */
+    @FunctionalInterface
+    interface DataCallback {
+        void onData(String data);
+    }
 }

@@ -205,4 +205,64 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @ApiModelProperty(value = "更新时间")
     @Schema(description = "更新时间")
     private LocalDateTime monitorSysGenServerUpdateTime;
+
+    /**
+     * 是否需要上报 0:否 1:是 (默认上报)
+     */
+    @TableField(value = "monitor_sys_gen_server_report_enabled")
+    @ApiModelProperty(value = "是否需要上报")
+    @Schema(description = "是否需要上报")
+    private Integer monitorSysGenServerReportEnabled;
+
+    /**
+     * 代理类型 (GUACAMOLE等)
+     */
+    @TableField(value = "monitor_sys_gen_server_proxy_type")
+    @ApiModelProperty(value = "代理类型")
+    @Schema(description = "代理类型")
+    @Size(max = 50, message = "代理类型最大长度要小于 50")
+    private String monitorSysGenServerProxyType;
+
+    /**
+     * 数据上报方式 (NONE:不支持上报, API:接口上报, PROMETHEUS:prometheus)
+     */
+    @TableField(value = "monitor_sys_gen_server_data_report_method")
+    @ApiModelProperty(value = "数据上报方式")
+    @Schema(description = "数据上报方式")
+    @Size(max = 20, message = "数据上报方式最大长度要小于 20")
+    private String monitorSysGenServerDataReportMethod;
+
+    /**
+     * Prometheus服务器地址
+     */
+    @TableField(value = "monitor_sys_gen_server_prometheus_host")
+    @ApiModelProperty(value = "Prometheus服务器地址")
+    @Schema(description = "Prometheus服务器地址")
+    @Size(max = 255, message = "Prometheus服务器地址最大长度要小于 255")
+    private String monitorSysGenServerPrometheusHost;
+
+    /**
+     * Prometheus服务器端口
+     */
+    @TableField(value = "monitor_sys_gen_server_prometheus_port")
+    @ApiModelProperty(value = "Prometheus服务器端口")
+    @Schema(description = "Prometheus服务器端口")
+    private Integer monitorSysGenServerPrometheusPort;
+
+    /**
+     * 代理服务器地址
+     */
+    @TableField(value = "monitor_sys_gen_server_proxy_host")
+    @ApiModelProperty(value = "代理服务器地址")
+    @Schema(description = "代理服务器地址")
+    @Size(max = 255, message = "代理服务器地址最大长度要小于 255")
+    private String monitorSysGenServerProxyHost;
+
+    /**
+     * 代理服务器端口
+     */
+    @TableField(value = "monitor_sys_gen_server_proxy_port")
+    @ApiModelProperty(value = "代理服务器端口")
+    @Schema(description = "代理服务器端口")
+    private Integer monitorSysGenServerProxyPort;
 }

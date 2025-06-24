@@ -19,7 +19,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties(ReportGenProperties.class)
 @MapperScan({"com.chua.starter.**.mapper"})
 @JpomAppType(Type.Server)
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.monitor", "com.chua.starter.monitor.starter", "com.chua.starter.video", "com.chua.starter.service.**"})
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.monitor",
+        "com.chua.starter.monitor.starter", "com.chua.starter.video", "com.chua.starter.service.**"})
 public class MonitorServerApplication {
 
     public static void main(String[] args) {

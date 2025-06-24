@@ -54,10 +54,10 @@
       AND monitor_sys_gen_file_upload_status = #{status}
     </if>
     <if test="startTime != null">
-      AND monitor_sys_gen_file_upload_create_time &gt;= #{startTime}
+      AND monitor_sys_gen_file_upload_create_time <![CDATA[>=]]> #{startTime}
     </if>
     <if test="endTime != null">
-      AND monitor_sys_gen_file_upload_create_time &lt;= #{endTime}
+      AND monitor_sys_gen_file_upload_create_time <![CDATA[<=]]> #{endTime}
     </if>
     ORDER BY monitor_sys_gen_file_upload_create_time DESC
   </select>
@@ -188,7 +188,7 @@
     FROM monitor_sys_gen_file_upload_records
     WHERE monitor_sys_gen_file_upload_status = 'COMPLETED'
       AND monitor_sys_gen_file_upload_record_status = 1
-      AND monitor_sys_gen_file_upload_speed > 0
+      AND monitor_sys_gen_file_upload_speed <![CDATA[>]]> 0
     GROUP BY monitor_sys_gen_server_id
     ORDER BY avgSpeed DESC
     LIMIT #{limit}
@@ -196,6 +196,7 @@
 
   <!-- 获取上传时间分布 -->
   <select id="getUploadTimeDistribution" resultType="java.util.Map">
+    <![CDATA[
     SELECT
       DATE_FORMAT(monitor_sys_gen_file_upload_start_time, '%Y-%m-%d %H:00:00') as hour,
       COUNT(*) as count,
@@ -205,6 +206,7 @@
       AND monitor_sys_gen_file_upload_record_status = 1
     GROUP BY DATE_FORMAT(monitor_sys_gen_file_upload_start_time, '%Y-%m-%d %H:00:00')
     ORDER BY hour
+    ]]>
   </select>
 
   <!-- 查询长时间上传的记录 -->
@@ -212,7 +214,7 @@
     SELECT <include refid="Base_Column_List" />
     FROM monitor_sys_gen_file_upload_records
     WHERE monitor_sys_gen_file_upload_status = 'UPLOADING'
-      AND monitor_sys_gen_file_upload_start_time &lt; DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+      AND monitor_sys_gen_file_upload_start_time <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
       AND monitor_sys_gen_file_upload_record_status = 1
     ORDER BY monitor_sys_gen_file_upload_start_time ASC
   </select>
@@ -222,7 +224,7 @@
     UPDATE monitor_sys_gen_file_upload_records SET
       monitor_sys_gen_file_upload_record_status = 0,
       monitor_sys_gen_file_upload_update_time = NOW()
-    WHERE monitor_sys_gen_file_upload_create_time &lt; #{expiredTime}
+    WHERE monitor_sys_gen_file_upload_create_time <![CDATA[<]]> #{expiredTime}
       AND monitor_sys_gen_file_upload_status IN ('COMPLETED', 'FAILED', 'CANCELLED')
   </update>
 

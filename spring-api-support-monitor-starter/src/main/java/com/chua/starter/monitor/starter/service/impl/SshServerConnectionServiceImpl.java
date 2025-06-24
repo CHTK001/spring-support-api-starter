@@ -9,17 +9,20 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.ssh.support.ssh.SshClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PreDestroy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * SSH服务器连接服务实现
@@ -49,28 +52,25 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
      */
     private final Map<Integer, MonitorSysGenServer> serverConfigCache = new ConcurrentHashMap<>();
 
-    @Override
-    public String getProtocol() {
-        return "SSH";
-    }
+    /**
+     * 数据回调映射
+     */
+    private final Map<Integer, DataCallback> dataCallbackMap = new ConcurrentHashMap<>();
 
-    @Override
-    public boolean testConnection(MonitorSysGenServer server) {
-        try {
-            SshClient sshClient = createSshClient(server);
-            sshClient.connect();
-            // 连接成功，检查会话状态
-            ChannelSession session = (ChannelSession) sshClient.getSession();
-            boolean connected = session != null;
-            if (connected) {
-                sshClient.close();
-            }
-            return connected;
-        } catch (Exception e) {
-            log.error("SSH连接测试失败: {}", e.getMessage(), e);
-            return false;
-        }
-    }
+    /**
+     * Shell Channel映射
+     */
+    private final Map<Integer, Channel> shellChannelMap = new ConcurrentHashMap<>();
+
+    /**
+     * Shell Channel监听器映射
+     */
+    private final Map<Integer, ShellChannelListener> shellListenerMap = new ConcurrentHashMap<>();
+
+    /**
+     * 线程池用于处理shell channel监听
+     */
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
     public boolean connect(MonitorSysGenServer server) {
@@ -95,6 +95,14 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                 String sessionId = "ssh_" + serverId + "_" + System.currentTimeMillis();
                 sessionIdMap.put(serverId, sessionId);
 
+                // 创建shell类型的channel并监听整个channel
+                try {
+                    createShellChannel(serverId, session);
+                } catch (Exception e) {
+                    log.error("创建Shell channel失败: {}", e.getMessage(), e);
+                    // 即使shell channel创建失败，SSH连接仍然可用
+                }
+
                 // 发送连接成功消息
                 sendConnectionMessage(server, "connected", true, null);
 
@@ -113,27 +121,90 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     }
 
     @Override
+    public String getProtocol() {
+        return "SSH";
+    }
+
+    @Override
+    public boolean testConnection(MonitorSysGenServer server) {
+        try {
+            SshClient sshClient = createSshClient(server);
+            sshClient.connect();
+            // 连接成功，检查会话状态
+            ChannelSession session = (ChannelSession) sshClient.getSession();
+            boolean connected = session != null;
+            if (connected) {
+                sshClient.close();
+            }
+            return connected;
+        } catch (Exception e) {
+            log.error("SSH连接测试失败: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
     public void disconnect(Integer serverId) {
         try {
+            // 停止并清理shell channel监听器
+            ShellChannelListener listener = shellListenerMap.remove(serverId);
+            if (listener != null) {
+                listener.stop();
+            }
+            shellChannelMap.remove(serverId);
+
             SshClient sshClient = sshClientPool.remove(serverId);
             if (sshClient != null) {
                 sshClient.close();
             }
             sessionIdMap.remove(serverId);
             serverConfigCache.remove(serverId); // 清理服务器配置缓存
+            dataCallbackMap.remove(serverId); // 清理数据回调
 
             // 发送断开连接消息
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", serverId);
-            message.put("action", "disconnected");
-            message.put("timestamp", System.currentTimeMillis());
+            ServerWebSocketMessage message = ServerWebSocketMessage.createSSHDisconnectMessage(
+                    serverId,
+                    "Server-" + serverId,
+                    "连接断开"
+            );
 
-            String topic = "gen/server/ssh/" + serverId;
-            socketSessionTemplate.send(topic, Json.toJson(message));
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
 
             log.info("SSH连接已断开: serverId={}", serverId);
         } catch (Exception e) {
             log.error("断开SSH连接失败: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String executeCommand(Integer serverId, String command) {
+        try {
+            SshClient sshClient = sshClientPool.get(serverId);
+            if (!isConnected(serverId)) {
+                return "SSH连接不存在或已断开";
+            }
+
+            String result = executeCommandInternal(sshClient, command);
+
+            // 发送命令执行结果
+            Map<String, Object> commandData = new HashMap<>();
+            commandData.put("command", command);
+            commandData.put("result", result);
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("command_result")
+                    .serverId(serverId)
+                    .serverName("Server-" + serverId)
+                    .data(commandData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+
+            return result;
+        } catch (Exception e) {
+            log.error("执行SSH命令失败: {}", e.getMessage(), e);
+            return "命令执行失败: " + e.getMessage();
         }
     }
 
@@ -152,30 +223,43 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     }
 
     @Override
-    public String executeCommand(Integer serverId, String command) {
+    public void sendData(Integer serverId, String data) {
         try {
-            SshClient sshClient = sshClientPool.get(serverId);
-            if (!isConnected(serverId)) {
-                return "SSH连接不存在或已断开";
+            if (isConnected(serverId)) {
+                // 优先使用shell channel发送数据
+                ShellChannelListener listener = shellListenerMap.get(serverId);
+                if (listener != null) {
+                    // 使用shell channel发送输入，监听器会自动处理输出
+                    listener.sendInput(data);
+                } else {
+                    // 如果没有shell channel，回退到exec方式
+                    SshClient sshClient = sshClientPool.get(serverId);
+                    String result = executeCommandInternal(sshClient, data);
+
+                    // 优先使用数据回调
+                    DataCallback callback = dataCallbackMap.get(serverId);
+                    if (callback != null) {
+                        callback.onData(result);
+                    } else {
+                        // 发送结果到客户端（兼容旧方式）
+                        Map<String, Object> terminalData = new HashMap<>();
+                        terminalData.put("input", data);
+                        terminalData.put("output", result);
+
+                        ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                                .messageType("terminal_output")
+                                .serverId(serverId)
+                                .serverName("Server-" + serverId)
+                                .data(terminalData)
+                                .timestamp(System.currentTimeMillis())
+                                .build();
+
+                        socketSessionTemplate.send("gen/server", Json.toJson(message));
+                    }
+                }
             }
-
-            String result = executeCommandInternal(sshClient, command);
-
-            // 发送命令执行结果
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", serverId);
-            message.put("command", command);
-            message.put("result", result);
-            message.put("timestamp", System.currentTimeMillis());
-            message.put("type", "command_result");
-
-            String topic = "gen/server/ssh/" + serverId;
-            socketSessionTemplate.send(topic, Json.toJson(message));
-
-            return result;
         } catch (Exception e) {
-            log.error("执行SSH命令失败: {}", e.getMessage(), e);
-            return "命令执行失败: " + e.getMessage();
+            log.error("发送数据到SSH服务器失败: {}", e.getMessage(), e);
         }
     }
 
@@ -256,26 +340,11 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     }
 
     @Override
-    public void sendData(Integer serverId, String data) {
-        try {
-            SshClient sshClient = sshClientPool.get(serverId);
-            if (isConnected(serverId)) {
-                // 对于SSH，这里可以执行命令或发送到终端
-                String result = executeCommandInternal(sshClient, data);
-
-                // 发送结果到客户端
-                Map<String, Object> message = new HashMap<>();
-                message.put("serverId", serverId);
-                message.put("input", data);
-                message.put("output", result);
-                message.put("timestamp", System.currentTimeMillis());
-                message.put("type", "terminal_output");
-
-                String topic = "gen/server/ssh/" + serverId;
-                socketSessionTemplate.send(topic, Json.toJson(message));
-            }
-        } catch (Exception e) {
-            log.error("发送数据到SSH服务器失败: {}", e.getMessage(), e);
+    public void setDataCallback(Integer serverId, DataCallback callback) {
+        if (callback != null) {
+            dataCallbackMap.put(serverId, callback);
+        } else {
+            dataCallbackMap.remove(serverId);
         }
     }
 
@@ -602,6 +671,50 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     }
 
     /**
+     * 发送连接消息
+     */
+    private void sendConnectionMessage(MonitorSysGenServer server, String action, boolean success, String error) {
+        try {
+            ServerWebSocketMessage message;
+
+            if ("connected".equals(action) && success) {
+                message = ServerWebSocketMessage.createSSHConnectMessage(
+                        server.getMonitorSysGenServerId(),
+                        server.getMonitorSysGenServerName(),
+                        server.getMonitorSysGenServerHost(),
+                        server.getMonitorSysGenServerPort()
+                );
+            } else if (error != null) {
+                message = ServerWebSocketMessage.createSSHErrorMessage(
+                        server.getMonitorSysGenServerId(),
+                        server.getMonitorSysGenServerName(),
+                        error
+                );
+            } else {
+                // 通用消息
+                Map<String, Object> actionData = new HashMap<>();
+                actionData.put("action", action);
+                actionData.put("success", success);
+
+                message = ServerWebSocketMessage.builder()
+                        .messageType("ssh_action")
+                        .serverId(server.getMonitorSysGenServerId())
+                        .serverName(server.getMonitorSysGenServerName())
+                        .serverHost(server.getMonitorSysGenServerHost())
+                        .serverPort(server.getMonitorSysGenServerPort())
+                        .serverProtocol("SSH")
+                        .data(actionData)
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+            }
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+        } catch (Exception e) {
+            log.error("发送连接消息失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
      * 通过SCP上传文件
      */
     private boolean uploadFileViaScp(SshClient sshClient, String localPath, String remotePath) {
@@ -640,28 +753,119 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     }
 
     /**
-     * 发送连接消息
+     * 创建Shell Channel并开始监听
      */
-    private void sendConnectionMessage(MonitorSysGenServer server, String action, boolean success, String error) {
+    private void createShellChannel(Integer serverId, ChannelSession session) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("host", server.getMonitorSysGenServerHost());
-            message.put("port", server.getMonitorSysGenServerPort());
-            message.put("protocol", "SSH");
-            message.put("action", action);
-            message.put("success", success);
-            message.put("timestamp", System.currentTimeMillis());
+            // 创建shell类型的channel
+            String channelId = "shell_" + serverId + "_" + System.currentTimeMillis();
+            Channel shellChannel = session.openChannel(channelId, "shell");
 
-            if (error != null) {
-                message.put("error", error);
-            }
+            // 创建监听器
+            ShellChannelListener listener = new ShellChannelListener(serverId, shellChannel);
 
-            String topic = "gen/server/ssh/" + server.getMonitorSysGenServerId();
-            socketSessionTemplate.send(topic, Json.toJson(message));
+            // 缓存channel和监听器
+            shellChannelMap.put(serverId, shellChannel);
+            shellListenerMap.put(serverId, listener);
+
+            // 初始化shell环境
+//            shellChannel.execute("cd ~", 0);
+
+            log.info("Shell channel创建成功: serverId={}, channelId={}", serverId, channelId);
+
         } catch (Exception e) {
-            log.error("发送连接消息失败: {}", e.getMessage(), e);
+            log.error("创建Shell channel失败: serverId={}, error={}", serverId, e.getMessage(), e);
+            throw new RuntimeException("创建Shell channel失败", e);
+        }
+    }
+
+    /**
+     * 发送Shell输出到客户端
+     */
+    private void sendShellOutput(Integer serverId, String output) {
+        try {
+            Map<String, Object> shellData = new HashMap<>();
+            shellData.put("output", output);
+            shellData.put("type", "output");
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("shell_output")
+                    .serverId(serverId)
+                    .serverName("Server-" + serverId)
+                    .data(shellData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+        } catch (Exception e) {
+            log.error("发送Shell输出失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送Shell错误到客户端
+     */
+    private void sendShellError(Integer serverId, String error) {
+        try {
+            Map<String, Object> shellData = new HashMap<>();
+            shellData.put("error", error);
+            shellData.put("type", "error");
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("shell_error")
+                    .serverId(serverId)
+                    .serverName("Server-" + serverId)
+                    .data(shellData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+        } catch (Exception e) {
+            log.error("发送Shell错误失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Shell Channel监听器内部类
+     */
+    private class ShellChannelListener {
+        private final Integer serverId;
+        private final Channel shellChannel;
+        private volatile boolean running = true;
+
+        public ShellChannelListener(Integer serverId, Channel shellChannel) {
+            this.serverId = serverId;
+            this.shellChannel = shellChannel;
+
+            // 设置channel监听器，监听整个channel的输出
+            shellChannel.setListener(output -> {
+                if (running) {
+                    sendShellOutput(serverId, output);
+                }
+            });
+        }
+
+        public void sendInput(String input) {
+            try {
+                if (shellChannel != null && running) {
+                    // 使用channel的execute方法发送输入
+                    shellChannel.execute(input, 0);
+                }
+            } catch (Exception e) {
+                log.error("发送输入到Shell channel失败: serverId={}, error={}", serverId, e.getMessage());
+                sendShellError(serverId, "发送命令失败: " + e.getMessage());
+            }
+        }
+
+        public void stop() {
+            running = false;
+            try {
+                if (shellChannel != null) {
+                    shellChannel.close();
+                }
+            } catch (Exception e) {
+                log.warn("关闭Shell channel失败: {}", e.getMessage());
+            }
         }
     }
 }

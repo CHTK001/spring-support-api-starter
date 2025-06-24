@@ -2,8 +2,6 @@ package com.chua.starter.oauth.sso.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
-import com.chua.common.support.collection.ImmutableBuilder;
-import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -26,10 +24,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -330,51 +325,23 @@ public class UserService implements UserInfoService, Constant {
      * @return 用户角色列表
      */
     private List<SysRole> getRole(SysUser user) {
-        // 构建角色缓存键
-        String cacheKey = "system:user:role:" + user.getSysUserId();
-
-        // 尝试从缓存获取角色数据
-        String roleCache = stringRedisTemplate.opsForValue().get(cacheKey);
-        if (StringUtils.isNotEmpty(roleCache)) {
-            try {
-                // 反序列化缓存的角色数据
-                List<SysRole> roles = BeanUtils.fromJson(roleCache, BeanUtils.getTypeReference(List.class, SysRole.class));
-                if (null != roles && !roles.isEmpty()) {
-                    log.debug("用户角色命中缓存: userId={}, 角色数={}", user.getSysUserId(), roles.size());
-                    return roles;
-                }
-            } catch (Exception e) {
-                log.warn("解析用户角色缓存异常: {}", e.getMessage());
-                // 缓存解析失败，继续从数据库查询
-            }
+        try {
+            List<Map<String, Object>> maps = sysUserMapper.selectMaps(new MPJLambdaWrapper<SysUser>()
+                    .distinct()
+                    .selectAll(SysRole.class)
+                    .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
+                    .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
+                    .eq(SysUser::getSysUserId, user.getSysUserId())
+                    .eq(SysRole::getSysRoleStatus, 1)
+            );
+            return maps.stream().map(it -> {
+                SysRole sysRole = new SysRole();
+                BeanUtils.copyProperties(it, sysRole);
+                return sysRole;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
-
-        // 缓存未命中，从数据库查询用户角色
-        long startTime = System.currentTimeMillis();
-
-        // 使用连接查询一次性获取用户角色，避免多次数据库访问
-        List<SysRole> roles = sysUserMapper.selectList(
-                new MPJLambdaWrapper<SysUser>()
-                        .select(SysRole::getSysRoleId, SysRole::getSysRoleName,
-                                SysRole::getSysRoleCode)
-                        .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
-                        .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
-                        .eq(SysUser::getSysUserId, user.getSysUserId())
-                        .eq(SysRole::getSysRoleStatus, 1));
-
-        log.debug("数据库角色查询耗时: {}ms, 角色数={}", System.currentTimeMillis() - startTime, roles.size());
-
-        // 缓存查询结果到Redis
-        if (!roles.isEmpty()) {
-            try {
-                String json = Json.toJson(roles);
-                stringRedisTemplate.opsForValue().set(cacheKey, json, ROLE_CACHE_TIMEOUT, TimeUnit.MINUTES);
-            } catch (Exception e) {
-                log.warn("缓存用户角色异常: {}", e.getMessage());
-            }
-        }
-
-        return roles;
     }
 
     /**
@@ -387,47 +354,13 @@ public class UserService implements UserInfoService, Constant {
      * @param user 用户实体对象
      * @return 用户权限集合
      */
+
     private Set<String> getPermission(SysUser user) {
-        // 构建权限缓存键
-        String cacheKey = "system:user:permission:" + user.getSysUserId();
-
-        // 尝试从缓存获取权限数据
-        String permissionCache = stringRedisTemplate.opsForValue().get(cacheKey);
-        if (StringUtils.isNotEmpty(permissionCache)) {
-            try {
-                // 反序列化缓存的权限数据
-                Set<String> permissions = BeanUtils.fromJson(permissionCache, BeanUtils.getTypeReference(Set.class, String.class));
-                if (null != permissions && !permissions.isEmpty()) {
-                    log.debug("用户权限命中缓存: userId={}, 权限数={}", user.getSysUserId(), permissions.size());
-                    return permissions;
-                }
-            } catch (Exception e) {
-                log.warn("解析用户权限缓存异常: {}", e.getMessage());
-                // 缓存解析失败，继续从数据库查询
-            }
+        try {
+            return sysUserMapper.selectPermission(user.getSysUserId());
+        } catch (Exception e) {
+            return Collections.emptySet();
         }
-
-        // 缓存未命中，从数据库查询用户权限
-        long startTime = System.currentTimeMillis();
-        Set<String> permissions = ImmutableBuilder.of(LinkedHashSet<String>::new)
-                .build();
-
-        // TODO: 实现从数据库加载权限的逻辑
-        // 此处应该有查询用户权限的代码，但示例中未实现
-
-        log.debug("数据库权限查询耗时: {}ms, 权限数={}", System.currentTimeMillis() - startTime, permissions.size());
-
-        // 缓存查询结果到Redis
-        if (!permissions.isEmpty()) {
-            try {
-                String json = BeanUtils.toJson(permissions);
-                stringRedisTemplate.opsForValue().set(cacheKey, json, PERMISSION_CACHE_TIMEOUT, TimeUnit.MINUTES);
-            } catch (Exception e) {
-                log.warn("缓存用户权限异常: {}", e.getMessage());
-            }
-        }
-
-        return permissions;
     }
 
     /**
