@@ -255,8 +255,6 @@ public class UserService implements UserInfoService, Constant {
         Integer sysDeptId = user.getSysDeptId();
         DataFilterTypeEnum dataPermission = ALL;
         String dataPermissionRule = "";
-        String userDashboardGrid = "";
-        String userDashboard = "";
 
         if (null != sysDeptId) {
             startTime = System.currentTimeMillis();
@@ -295,8 +293,6 @@ public class UserService implements UserInfoService, Constant {
                 .setRoles(roleCodes)
                 .setRolesByRole(roleInfos)
                 .setPermission(permissions)
-                .setUserDashboardGrid(userDashboardGrid)
-                .setUserDashboard(userDashboard)
                 .setAuthType("WEB");
     }
 
