@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -238,43 +239,32 @@ public class UserService implements UserInfoService, Constant {
         }
 
         // 获取用户角色信息 - 优先从缓存获取
-        List<SysRole> roles = getRole(user);
-        log.debug("角色加载耗时: {}ms", System.currentTimeMillis() - startTime);
+        List<SysRole> role = getRole(user);
 
-        // 处理角色数据 - 使用并行流加速处理大量角色
-        LinkedHashSet<String> roleCodes = roles.stream()
-                .map(SysRole::getSysRoleCode)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<UserResult.RoleInfo> roleInfo =
+                role.stream().map(it -> {
+                    UserResult.RoleInfo item = new UserResult.RoleInfo();
+                    item.setRoleCode(it.getSysRoleCode());
+                    item.setRoleName(it.getSysRoleName());
+                    item.setReadable(it.getSysRoleReadable() == null || it.getSysRoleReadable() == 1);
+                    item.setWriteable(it.getSysRoleWriteable() == null || it.getSysRoleWriteable() == 1);
+                    item.setExecutable(it.getSysRoleExecutable() == null || it.getSysRoleExecutable() == 1);
+                    return item;
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        LinkedHashSet<UserResult.RoleInfo> roleInfos = roles.stream()
-                .map(this::convertToRoleInfo)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        // 获取部门数据权限信息 - 使用单次查询获取所需数据
         Integer sysDeptId = user.getSysDeptId();
+        String userDashboardGrid = "";
         DataFilterTypeEnum dataPermission = ALL;
         String dataPermissionRule = "";
-
+        String userDashboard = "";
         if (null != sysDeptId) {
-            startTime = System.currentTimeMillis();
-            SysDept sysDept = sysDeptMapper.selectOne(
-                    Wrappers.<SysDept>lambdaQuery()
-                            .select(SysDept::getSysDeptDataPermission, SysDept::getSysDeptDataPermissionDeptId)
-                            .eq(SysDept::getSysDeptId, sysDeptId),
-                    false
-            );
-            log.debug("部门数据权限查询耗时: {}ms", System.currentTimeMillis() - startTime);
-            
+            SysDept sysDept = sysDeptMapper.selectOne(Wrappers.<SysDept>lambdaQuery().eq(SysDept::getSysDeptId, sysDeptId), false);
             if (null != sysDept) {
-                dataPermission = ObjectUtils.defaultIfNull(
-                        DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()),
-                        ALL
-                );
+                dataPermission = ObjectUtils.defaultIfNull(DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()), ALL);
                 dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
             }
         }
-
         // 获取用户权限信息 - 优先从缓存获取
         startTime = System.currentTimeMillis();
         Set<String> permissions = getPermission(user);
@@ -282,33 +272,29 @@ public class UserService implements UserInfoService, Constant {
 
         // 构建用户结果对象 - 使用链式调用提高代码可读性
         return new UserResult()
-                .setId(String.valueOf(user.getSysUserId()))
-                .setUserId(String.valueOf(user.getSysUserId()))
-                .setUsername(user.getSysUserUsername())
-                .setPhone(user.getSysUserPhone())
-                .setName(user.getSysUserUsername())
-                .setDeptId(String.valueOf(user.getSysDeptId()))
-                .setDataPermission(DataFilterTypeEnum.valueOf(dataPermission.name().toLowerCase()))
+                .setId(user.getSysUserId() + "")
+                .setUserId(user.getSysUserId() + "")
+                .setClientId(user.getSysClientId())
+                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
+                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
+                .setRoles(collect)
+                .setRolesByRole(roleInfo)
+                .setDeptId(user.getSysDeptId() + "")
+                .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
-                .setRoles(roleCodes)
-                .setRolesByRole(roleInfos)
-                .setPermission(permissions)
-                .setAuthType("WEB");
+                .setPermission(getPermission(user))
+                .setPhone(user.getSysUserPhone())
+                .setUsername(accessKey)
+                .setLoginCnt(user.getSysUserLongCount())
+                .setName(user.getSysUserNickname())
+                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
+                        .put(user)
+                        .put("userDashboardGrid", userDashboardGrid)
+                        .put("userDashboard", userDashboard)
+                        .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
+                        .build());
     }
 
-    /**
-     * 将系统角色对象转换为用户结果角色信息
-     *
-     * @param role 系统角色对象
-     * @return 用户结果角色信息对象
-     */
-    private UserResult.RoleInfo convertToRoleInfo(SysRole role) {
-        UserResult.RoleInfo roleInfo = new UserResult.RoleInfo();
-        roleInfo.setRoleId(String.valueOf(role.getSysRoleId()));
-        roleInfo.setRoleName(role.getSysRoleName());
-        roleInfo.setRoleCode(role.getSysRoleCode());
-        return roleInfo;
-    }
 
     /**
      * 获取用户角色列表
