@@ -4,6 +4,7 @@ import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
@@ -148,8 +149,14 @@ public class ServerMetricsCleanupTask {
             Map<String, Object> report = generateHealthReport();
             
             // 发送健康报告
-            String topic = "gen/server/health-report";
-            socketSessionTemplate.send(topic, Json.toJson(report));
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("daily_health_report")
+                    .data(report)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            String topic = "gen/server";
+            socketSessionTemplate.send(topic, Json.toJson(message));
             
             log.info("每日服务器健康报告发送完成");
             
@@ -205,17 +212,22 @@ public class ServerMetricsCleanupTask {
             }
 
             boolean connected = connectionService.isConnected(server.getMonitorSysGenServerId());
-            
+
             // 发送连接状态消息
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("connected", connected);
-            message.put("timestamp", System.currentTimeMillis());
-            message.put("type", "connection_check");
-            
-            String topic = "gen/server/connection/" + server.getMonitorSysGenServerId();
-            socketSessionTemplate.send(topic, Json.toJson(message));
+            Map<String, Object> checkData = new HashMap<>();
+            checkData.put("serverId", server.getMonitorSysGenServerId());
+            checkData.put("serverName", server.getMonitorSysGenServerName());
+            checkData.put("connected", connected);
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("connection_check")
+                    .serverId(server.getMonitorSysGenServerId())
+                    .serverName(server.getMonitorSysGenServerName())
+                    .data(checkData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
             
         } catch (Exception e) {
             log.error("检查服务器 {} 连接状态失败: {}", 
@@ -294,19 +306,22 @@ public class ServerMetricsCleanupTask {
      */
     private void sendCleanupMessage(int serverCount, int totalCleaned, boolean success, String error) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverCount", serverCount);
-            message.put("totalCleaned", totalCleaned);
-            message.put("success", success);
-            message.put("timestamp", System.currentTimeMillis());
-            message.put("type", "cleanup_result");
-            
+            Map<String, Object> cleanupData = new HashMap<>();
+            cleanupData.put("serverCount", serverCount);
+            cleanupData.put("totalCleaned", totalCleaned);
+            cleanupData.put("success", success);
+
             if (error != null) {
-                message.put("error", error);
+                cleanupData.put("error", error);
             }
-            
-            String topic = "gen/server/cleanup";
-            socketSessionTemplate.send(topic, Json.toJson(message));
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("cleanup_result")
+                    .data(cleanupData)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
         } catch (Exception e) {
             log.error("发送清理消息失败: {}", e.getMessage(), e);
         }
@@ -317,14 +332,13 @@ public class ServerMetricsCleanupTask {
      */
     private void sendMetricsMessage(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("metrics", metrics);
-            message.put("timestamp", System.currentTimeMillis());
-            message.put("type", "metrics_collected");
-            
-            String topic = "gen/server/metrics/" + server.getMonitorSysGenServerId();
+            ServerWebSocketMessage message = ServerWebSocketMessage.createServerMetricsMessage(
+                    server.getMonitorSysGenServerId(),
+                    server.getMonitorSysGenServerName(),
+                    metrics
+            );
+
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送指标消息失败: {}", e.getMessage(), e);

@@ -5,17 +5,22 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerConnectionStatusMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +38,9 @@ import java.util.stream.Collectors;
 public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSysGenServerConnectionStatusService {
 
     private final MonitorSysGenServerConnectionStatusMapper connectionStatusMapper;
-    private final MonitorSysGenServerService serverService;
+    @Lazy
+    @Autowired
+    private MonitorSysGenServerService serverService;
     private final List<ServerConnectionService> connectionServices;
     private final SocketSessionTemplate socketSessionTemplate;
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
@@ -371,15 +378,15 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
      */
     private void sendConnectionStatusMessage(Integer serverId, Integer status, String message) {
         try {
-            Map<String, Object> messageData = new HashMap<>();
-            messageData.put("serverId", serverId);
-            messageData.put("connectionStatus", status);
-            messageData.put("message", message);
-            messageData.put("timestamp", System.currentTimeMillis());
-            messageData.put("type", "connection_status_update");
+            ServerWebSocketMessage wsMessage = ServerWebSocketMessage.builder()
+                    .messageType("connection_status_update")
+                    .serverId(serverId)
+                    .connectionStatus(status)
+                    .statusDesc(message)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            String topic = "gen/server/connection/" + serverId;
-            socketSessionTemplate.send(topic, Json.toJson(messageData));
+            socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
         } catch (Exception e) {
             log.error("发送连接状态消息失败: serverId={}", serverId, e);
         }

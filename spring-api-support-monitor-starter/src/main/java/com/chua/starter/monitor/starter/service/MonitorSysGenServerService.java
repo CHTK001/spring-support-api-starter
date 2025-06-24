@@ -234,5 +234,57 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      */
     void scheduleConnectionCheck();
 
+    /**
+     * 获取Guacamole代理连接URL
+     *
+     * @param id 服务器ID
+     * @return 代理连接URL
+     */
+    ReturnResult<String> getGuacamoleProxyUrl(String id);
+
+    /**
+     * 测试代理连接
+     *
+     * @param id 服务器ID
+     * @return 测试结果
+     */
+    ReturnResult<Boolean> testProxyConnection(String id);
+
+    /**
+     * 获取服务器支持的数据上报方式
+     *
+     * @param id 服务器ID
+     * @return 支持的上报方式列表
+     */
+    ReturnResult<List<String>> getSupportedReportMethods(String id);
+
+    /**
+     * 根据配置查询数据
+     *
+     * @param id         服务器ID
+     * @param queryType  查询类型 (prometheus/sql)
+     * @param expression 查询表达式
+     * @param timeRange  时间范围参数
+     * @return 查询结果
+     */
+    ReturnResult<Object> queryDataByConfig(String id, String queryType, String expression, Map<String, Object> timeRange);
+
+    /**
+     * 更新服务器数据上报配置
+     *
+     * @param id     服务器ID
+     * @param config 上报配置
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> updateReportConfig(String id, Object config);
+
+    /**
+     * 获取服务器数据上报配置
+     *
+     * @param id 服务器ID
+     * @return 上报配置
+     */
+    ReturnResult<Map<String, Object>> getReportConfig(String id);
+
 
 }

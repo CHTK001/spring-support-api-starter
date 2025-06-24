@@ -5,6 +5,7 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -146,12 +147,15 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             serverConfigCache.remove(serverId); // 清理服务器配置缓存
 
             // 发送断开连接消息
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", serverId);
-            message.put("action", "disconnected");
-            message.put("timestamp", System.currentTimeMillis());
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("vnc_disconnect")
+                    .serverId(serverId)
+                    .serverName("VNC服务器")
+                    .data(Map.of("action", "disconnected"))
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            String topic = "gen/server/vnc/" + serverId;
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
 
             log.info("VNC连接已断开: serverId={}", serverId);
@@ -177,14 +181,13 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             String result = "VNC协议不支持直接命令执行，请使用图形界面操作";
 
             // 发送命令执行结果
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", serverId);
-            message.put("command", command);
-            message.put("result", result);
-            message.put("timestamp", System.currentTimeMillis());
-            message.put("type", "command_result");
+            ServerWebSocketMessage message = ServerWebSocketMessage.createVncDataMessage(
+                    serverId,
+                    "VNC服务器",
+                    Map.of("command", command, "result", result, "type", "command_result")
+            );
 
-            String topic = "gen/server/vnc/" + serverId;
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
 
             return result;
@@ -266,13 +269,13 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
                 log.info("发送数据到VNC服务器: serverId={}, data={}", serverId, data);
 
                 // 发送确认消息到客户端
-                Map<String, Object> message = new HashMap<>();
-                message.put("serverId", serverId);
-                message.put("input", data);
-                message.put("timestamp", System.currentTimeMillis());
-                message.put("type", "input_sent");
+                ServerWebSocketMessage message = ServerWebSocketMessage.createVncInputMessage(
+                        serverId,
+                        "VNC服务器",
+                        Map.of("input", data, "type", "input_sent")
+                );
 
-                String topic = "gen/server/vnc/" + serverId;
+                String topic = "gen/server";
                 socketSessionTemplate.send(topic, Json.toJson(message));
             }
         } catch (Exception e) {
@@ -402,21 +405,19 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
      */
     private void sendConnectionMessage(MonitorSysGenServer server, String action, boolean success, String error) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("host", server.getMonitorSysGenServerHost());
-            message.put("port", server.getMonitorSysGenServerPort());
-            message.put("protocol", "VNC");
-            message.put("action", action);
-            message.put("success", success);
-            message.put("timestamp", System.currentTimeMillis());
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("vnc_" + action)
+                    .serverId(server.getMonitorSysGenServerId())
+                    .serverName(server.getMonitorSysGenServerName())
+                    .serverHost(server.getMonitorSysGenServerHost())
+                    .serverPort(server.getMonitorSysGenServerPort())
+                    .serverProtocol("VNC")
+                    .errorMessage(error)
+                    .data(Map.of("action", action, "success", success))
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            if (error != null) {
-                message.put("error", error);
-            }
-
-            String topic = "gen/server/vnc/" + server.getMonitorSysGenServerId();
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送连接消息失败: {}", e.getMessage(), e);

@@ -8,14 +8,17 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import com.chua.starter.monitor.starter.websocket.ServerConnectionWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,11 +34,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenServerMapper, MonitorSysGenServer> 
+public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenServerMapper, MonitorSysGenServer>
         implements MonitorSysGenServerService {
 
     private final SocketSessionTemplate socketSessionTemplate;
     private final List<ServerConnectionService> connectionServices;
+    @Autowired
+    @Lazy
+    private ServerConnectionWebSocketService webSocketService;
 
     /**
      * 重写updateById方法，在特定字段变更时关闭设备连接
@@ -158,6 +164,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
             // 发送测试结果消息
             sendServerMessage(server, "test", testResult, testResult ? null : "连接测试失败");
+            server.setMonitorSysGenServerConnectionStatus(testResult ? 1 : 0);
+            this.updateById(server);
 
             return ReturnResult.of(testResult, testResult ? "连接测试成功" : "连接测试失败");
         } catch (Exception e) {
@@ -179,21 +187,79 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         }
 
         try {
+            // 广播连接开始状态
+            webSocketService.broadcastServerConnectionStatus(
+                    server.getMonitorSysGenServerId(),
+                    2, // CONNECTING状态
+                    "正在建立连接...",
+                    null
+            );
+
             ServerConnectionService connectionService = getConnectionService(server.getMonitorSysGenServerProtocol());
             if (connectionService == null) {
+                // 广播连接失败状态
+                webSocketService.broadcastServerConnectionStatus(
+                        server.getMonitorSysGenServerId(),
+                        3, // FAILED状态
+                        "不支持的协议类型: " + server.getMonitorSysGenServerProtocol(),
+                        null
+                );
                 return ReturnResult.error("不支持的协议类型: " + server.getMonitorSysGenServerProtocol());
             }
 
+            long startTime = System.currentTimeMillis();
             boolean connected = connectionService.connect(server);
+            long responseTime = System.currentTimeMillis() - startTime;
 
             if (connected) {
+                // 更新服务器连接状态
+                server.setMonitorSysGenServerConnectionStatus(1); // ONLINE
+                server.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());
+                server.setMonitorSysGenServerConnectionError(null);
+                this.updateById(server);
+
+                // 广播连接成功状态
+                webSocketService.broadcastServerConnectionStatus(
+                        server.getMonitorSysGenServerId(),
+                        1, // ONLINE状态
+                        "连接成功",
+                        responseTime
+                );
+
                 log.info("服务器连接成功: {}", server.getMonitorSysGenServerName());
                 return ReturnResult.ok(true, "连接成功");
             } else {
+                // 更新服务器连接状态
+                server.setMonitorSysGenServerConnectionStatus(3); // FAILED
+                server.setMonitorSysGenServerConnectionError("连接失败");
+                this.updateById(server);
+
+                // 广播连接失败状态
+                webSocketService.broadcastServerConnectionStatus(
+                        server.getMonitorSysGenServerId(),
+                        3, // FAILED状态
+                        "连接失败",
+                        responseTime
+                );
+
                 return ReturnResult.error("连接失败");
             }
         } catch (Exception e) {
             log.error("连接服务器失败: {}", e.getMessage(), e);
+
+            // 更新服务器连接状态
+            server.setMonitorSysGenServerConnectionStatus(3); // FAILED
+            server.setMonitorSysGenServerConnectionError("连接异常: " + e.getMessage());
+            this.updateById(server);
+
+            // 广播连接异常状态
+            webSocketService.broadcastServerConnectionStatus(
+                    server.getMonitorSysGenServerId(),
+                    3, // FAILED状态
+                    "连接异常: " + e.getMessage(),
+                    null
+            );
+
             return ReturnResult.error("连接失败: " + e.getMessage());
         }
     }
@@ -217,10 +283,32 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
             connectionService.disconnect(server.getMonitorSysGenServerId());
 
+            // 更新服务器连接状态
+            server.setMonitorSysGenServerConnectionStatus(0); // OFFLINE
+            server.setMonitorSysGenServerConnectionError(null);
+            this.updateById(server);
+
+            // 广播断开连接状态
+            webSocketService.broadcastServerConnectionStatus(
+                    server.getMonitorSysGenServerId(),
+                    0, // OFFLINE状态
+                    "连接已断开",
+                    null
+            );
+
             log.info("服务器连接已断开: {}", server.getMonitorSysGenServerName());
             return ReturnResult.ok(true, "断开连接成功");
         } catch (Exception e) {
             log.error("断开服务器连接失败: {}", e.getMessage(), e);
+
+            // 广播断开连接失败状态
+            webSocketService.broadcastServerConnectionStatus(
+                    server.getMonitorSysGenServerId(),
+                    3, // FAILED状态
+                    "断开连接失败: " + e.getMessage(),
+                    null
+            );
+
             return ReturnResult.error("断开连接失败: " + e.getMessage());
         }
     }
@@ -799,21 +887,19 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      */
     private void sendServerMessage(MonitorSysGenServer server, String action, boolean success, String error) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("host", server.getMonitorSysGenServerHost());
-            message.put("port", server.getMonitorSysGenServerPort());
-            message.put("protocol", server.getMonitorSysGenServerProtocol());
-            message.put("action", action);
-            message.put("success", success);
-            message.put("timestamp", System.currentTimeMillis());
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("server_" + action)
+                    .serverId(server.getMonitorSysGenServerId())
+                    .serverName(server.getMonitorSysGenServerName())
+                    .serverHost(server.getMonitorSysGenServerHost())
+                    .serverPort(server.getMonitorSysGenServerPort())
+                    .serverProtocol(server.getMonitorSysGenServerProtocol())
+                    .errorMessage(error)
+                    .data(Map.of("action", action, "success", success))
+                    .timestamp(System.currentTimeMillis())
+                    .build();
 
-            if (error != null) {
-                message.put("error", error);
-            }
-
-            String topic = "gen/server/" + server.getMonitorSysGenServerProtocol().toLowerCase() + "/" + server.getMonitorSysGenServerId();
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送服务器消息失败: {}", e.getMessage(), e);
@@ -995,20 +1081,196 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      */
     private void sendConnectionStatusMessage(MonitorSysGenServer server, Integer status, String errorMessage) {
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("messageType", "connection_status_change");
-            message.put("serverId", server.getMonitorSysGenServerId());
-            message.put("serverName", server.getMonitorSysGenServerName());
-            message.put("connectionStatus", status);
-            message.put("statusDesc", getStatusDesc(status));
-            message.put("errorMessage", errorMessage);
-            message.put("connectTime", LocalDateTime.now());
-            message.put("timestamp", System.currentTimeMillis());
+            ServerWebSocketMessage message = ServerWebSocketMessage.createConnectionStatusMessage(
+                    server.getMonitorSysGenServerId(),
+                    server.getMonitorSysGenServerName(),
+                    server.getMonitorSysGenServerHost(),
+                    server.getMonitorSysGenServerPort(),
+                    server.getMonitorSysGenServerProtocol(),
+                    status,
+                    getStatusDesc(status),
+                    errorMessage,
+                    null
+            );
 
-            String topic = "server_connection";
+            String topic = "gen/server";
             socketSessionTemplate.send(topic, Json.toJson(message));
+            log.debug("发送连接状态消息: serverId={}, status={}", server.getMonitorSysGenServerId(), status);
         } catch (Exception e) {
             log.error("发送连接状态消息失败: {}", e.getMessage(), e);
         }
+    }
+
+    @Override
+    public ReturnResult<String> getGuacamoleProxyUrl(String id) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            // 检查是否配置了Guacamole代理
+            if (!"GUACAMOLE".equals(server.getMonitorSysGenServerProxyType())) {
+                return ReturnResult.error("服务器未配置Guacamole代理");
+            }
+
+            if (server.getMonitorSysGenServerProxyHost() == null || server.getMonitorSysGenServerProxyPort() == null) {
+                return ReturnResult.error("代理服务器地址或端口未配置");
+            }
+
+            // 构建Guacamole连接URL
+            String proxyUrl = String.format("http://%s:%d/guacamole/#/client/%s",
+                    server.getMonitorSysGenServerProxyHost(),
+                    server.getMonitorSysGenServerProxyPort(),
+                    generateGuacamoleConnectionId(server));
+
+            return ReturnResult.ok(proxyUrl);
+        } catch (Exception e) {
+            log.error("获取Guacamole代理URL失败: serverId={}", id, e);
+            return ReturnResult.error("获取代理URL失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> testProxyConnection(String id) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            if (server.getMonitorSysGenServerProxyHost() == null || server.getMonitorSysGenServerProxyPort() == null) {
+                return ReturnResult.error("代理服务器地址或端口未配置");
+            }
+
+            // TODO: 实现代理连接测试逻辑
+            // 这里可以尝试连接到代理服务器，验证连接是否正常
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("测试代理连接失败: serverId={}", id, e);
+            return ReturnResult.error("测试代理连接失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<List<String>> getSupportedReportMethods(String id) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            List<String> supportedMethods = new ArrayList<>();
+            supportedMethods.add("NONE"); // 不支持上报
+
+            // 根据服务器配置判断支持的上报方式
+            if (server.getMonitorSysGenServerReportEnabled() != null && server.getMonitorSysGenServerReportEnabled() == 1) {
+                supportedMethods.add("API"); // 接口上报
+
+                // 如果配置了Prometheus服务器，则支持Prometheus上报
+                if (server.getMonitorSysGenServerPrometheusHost() != null && server.getMonitorSysGenServerPrometheusPort() != null) {
+                    supportedMethods.add("PROMETHEUS");
+                }
+            }
+
+            return ReturnResult.ok(supportedMethods);
+        } catch (Exception e) {
+            log.error("获取支持的数据上报方式失败: serverId={}", id, e);
+            return ReturnResult.error("获取支持的上报方式失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Object> queryDataByConfig(String id, String queryType, String expression, Map<String, Object> timeRange) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            // 根据查询类型执行不同的查询
+            switch (queryType.toUpperCase()) {
+                case "PROMETHEUS":
+                    return queryPrometheusData(server, expression, timeRange);
+                case "SQL":
+                    return querySqlData(server, expression, timeRange);
+                default:
+                    return ReturnResult.error("不支持的查询类型: " + queryType);
+            }
+        } catch (Exception e) {
+            log.error("根据配置查询数据失败: serverId={}, queryType={}, expression={}", id, queryType, expression, e);
+            return ReturnResult.error("查询数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> updateReportConfig(String id, Object config) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            // TODO: 根据config对象更新服务器的上报配置
+            // 这里需要解析config对象并更新相应的字段
+
+            boolean success = updateById(server);
+            return ReturnResult.ok(success);
+        } catch (Exception e) {
+            log.error("更新服务器数据上报配置失败: serverId={}", id, e);
+            return ReturnResult.error("更新上报配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getReportConfig(String id) {
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+
+            Map<String, Object> config = new HashMap<>();
+            config.put("reportEnabled", server.getMonitorSysGenServerReportEnabled());
+            config.put("dataReportMethod", server.getMonitorSysGenServerDataReportMethod());
+            config.put("prometheusHost", server.getMonitorSysGenServerPrometheusHost());
+            config.put("prometheusPort", server.getMonitorSysGenServerPrometheusPort());
+            config.put("proxyType", server.getMonitorSysGenServerProxyType());
+            config.put("proxyHost", server.getMonitorSysGenServerProxyHost());
+            config.put("proxyPort", server.getMonitorSysGenServerProxyPort());
+
+            return ReturnResult.ok(config);
+        } catch (Exception e) {
+            log.error("获取服务器数据上报配置失败: serverId={}", id, e);
+            return ReturnResult.error("获取上报配置失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 生成Guacamole连接ID
+     */
+    private String generateGuacamoleConnectionId(MonitorSysGenServer server) {
+        // 根据服务器信息生成唯一的连接ID
+        return String.format("%s_%s_%d_%s",
+                server.getMonitorSysGenServerProtocol().toLowerCase(),
+                server.getMonitorSysGenServerHost(),
+                server.getMonitorSysGenServerPort(),
+                server.getMonitorSysGenServerId());
+    }
+
+    /**
+     * 查询Prometheus数据
+     */
+    private ReturnResult<Object> queryPrometheusData(MonitorSysGenServer server, String expression, Map<String, Object> timeRange) {
+        // TODO: 实现Prometheus数据查询逻辑
+        return ReturnResult.ok("Prometheus查询功能待实现");
+    }
+
+    /**
+     * 查询SQL数据
+     */
+    private ReturnResult<Object> querySqlData(MonitorSysGenServer server, String expression, Map<String, Object> timeRange) {
+        // TODO: 实现SQL数据查询逻辑
+        return ReturnResult.ok("SQL查询功能待实现");
     }
 }
