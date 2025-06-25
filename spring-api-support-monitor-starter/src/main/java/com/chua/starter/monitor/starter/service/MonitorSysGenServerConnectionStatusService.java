@@ -2,6 +2,9 @@ package com.chua.starter.monitor.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionCheckResult;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionHealthReport;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionStatistics;
 
 import java.util.List;
 import java.util.Map;
@@ -77,7 +80,7 @@ public interface MonitorSysGenServerConnectionStatusService {
      *
      * @return 连接状态统计
      */
-    ReturnResult<Map<String, Object>> getConnectionStatusStatistics();
+    ReturnResult<MonitorSysGenServerConnectionStatistics> getConnectionStatusStatistics();
 
     /**
      * 获取长时间未连接的服务器
@@ -92,12 +95,12 @@ public interface MonitorSysGenServerConnectionStatusService {
      *
      * @return 检查结果
      */
-    ReturnResult<Map<String, Object>> checkAllServerConnections();
+    ReturnResult<MonitorSysGenServerConnectionCheckResult> checkAllServerConnections();
 
     /**
      * 获取服务器连接健康度报告
      *
      * @return 健康度报告
      */
-    ReturnResult<Map<String, Object>> getServerConnectionHealthReport();
+    ReturnResult<MonitorSysGenServerConnectionHealthReport> getServerConnectionHealthReport();
 }

@@ -5,7 +5,7 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

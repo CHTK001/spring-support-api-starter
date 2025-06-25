@@ -572,4 +572,38 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
         anomaly.put("anomalyType", "threshold_exceeded");
         return anomaly;
     }
+
+    @Override
+    public ReturnResult<Integer> cleanupExpiredMetrics(LocalDateTime expireTime) {
+        try {
+            log.info("开始清理过期指标数据，过期时间: {}", expireTime);
+
+            int deletedCount = baseMapper.delete(Wrappers.<MonitorSysGenServerMetrics>lambdaQuery()
+                    .lt(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsCollectTime, expireTime));
+
+            log.info("清理过期指标数据完成，删除了 {} 条记录", deletedCount);
+            return ReturnResult.ok(deletedCount);
+
+        } catch (Exception e) {
+            log.error("清理过期指标数据失败", e);
+            return ReturnResult.error("清理过期指标数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> optimizeTables() {
+        try {
+            log.info("开始优化指标数据表");
+
+            // 执行表优化操作
+            baseMapper.optimizeTable();
+
+            log.info("指标数据表优化完成");
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("优化指标数据表失败", e);
+            return ReturnResult.error("优化指标数据表失败: " + e.getMessage());
+        }
+    }
 }

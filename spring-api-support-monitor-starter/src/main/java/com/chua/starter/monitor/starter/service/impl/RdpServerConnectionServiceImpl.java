@@ -6,7 +6,9 @@ import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerProxy;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RdpServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-
+    private final MonitorSysGenServerProxyService monitorSysGenServerProxyService;
     /**
      * RDP连接池 (使用GuacamoleClient)
      */
@@ -86,6 +88,24 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         config.password(server.getMonitorSysGenServerPassword());
         config.protocol(server.getMonitorSysGenServerProtocol());
 
+        // 检查是否配置了代理
+        if (server.getMonitorSysGenServerProxyId() != null) {
+            try {
+                // 根据服务器ID获取代理配置
+                var proxyResult = monitorSysGenServerProxyService.getByServerId(server.getMonitorSysGenServerId());
+                if (proxyResult.isOk() && !proxyResult.getData().isEmpty()) {
+                    MonitorSysGenServerProxy proxy = proxyResult.getData().get(0);
+                    // 从代理配置中解析地址和端口
+                    String proxyConfig = proxy.getMonitorSysGenServerProxyConfig();
+                    if (proxyConfig != null) {
+                        // TODO: 解析JSON配置获取代理地址和端口
+                        log.info("RDP客户端使用代理配置: {}", proxyConfig);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
+            }
+        }
 //        if (StringUtils.isNotEmpty(server.getMonitorSysGenServerPrivateKey())) {
 //            config.setPrivateKey(server.getMonitorSysGenServerPrivateKey());
 //        }

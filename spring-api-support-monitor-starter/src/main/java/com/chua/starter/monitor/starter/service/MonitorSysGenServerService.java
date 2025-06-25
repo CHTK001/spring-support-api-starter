@@ -7,6 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -270,6 +271,21 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     ReturnResult<Object> queryDataByConfig(String id, String queryType, String expression, Map<String, Object> timeRange);
 
     /**
+     * 手动检测服务器信息
+     *
+     * @param id 服务器ID
+     * @return 检测结果
+     */
+    ReturnResult<Map<String, Object>> detectServerInfo(String id);
+
+    /**
+     * 批量检测服务器信息
+     *
+     * @return 检测结果
+     */
+    ReturnResult<Map<String, Object>> batchDetectServerInfo();
+
+    /**
      * 更新服务器数据上报配置
      *
      * @param id     服务器ID
@@ -286,5 +302,136 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      */
     ReturnResult<Map<String, Object>> getReportConfig(String id);
 
+    /**
+     * 获取启用本地上报的服务器列表
+     *
+     * @return 本地上报服务器列表
+     */
+    List<MonitorSysGenServer> getLocalReportServers();
+
+    /**
+     * 更新服务器在线状态
+     *
+     * @param serverId 服务器ID
+     * @param isOnline 是否在线
+     * @return 更新结果
+     */
+    boolean updateServerOnlineStatus(Integer serverId, boolean isOnline);
+
+    /**
+     * 保存服务器指标数据
+     *
+     * @param serverId 服务器ID
+     * @param systemData 系统数据
+     * @return 保存结果
+     */
+    boolean saveServerMetrics(Integer serverId, Map<String, Object> systemData);
+
+    /**
+     * 通过WebSocket推送服务器数据
+     *
+     * @param serverId 服务器ID
+     * @param systemData 系统数据
+     */
+    void pushServerDataToWebSocket(Integer serverId, Map<String, Object> systemData);
+
+    /**
+     * 清理过期的指标数据
+     *
+     * @param expireTime 过期时间戳
+     * @return 清理结果
+     */
+    boolean cleanupExpiredMetrics(long expireTime);
+
+    /**
+     * 更新服务器健康状态
+     *
+     * @param serverId 服务器ID
+     * @param isHealthy 是否健康
+     * @return 更新结果
+     */
+    boolean updateServerHealthStatus(Integer serverId, boolean isHealthy);
+
+    /**
+     * 保存服务器配置（包含业务逻辑验证）
+     *
+     * @param monitorSysGenServer 服务器实体
+     * @return 保存结果
+     */
+    ReturnResult<MonitorSysGenServer> saveServer(MonitorSysGenServer monitorSysGenServer);
+
+    /**
+     * 更新服务器配置（包含业务逻辑验证）
+     *
+     * @param monitorSysGenServer 服务器实体
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> updateServer(MonitorSysGenServer monitorSysGenServer);
+
+    /**
+     * 删除服务器配置（包含业务逻辑验证）
+     *
+     * @param id 服务器ID字符串（支持逗号分隔的多个ID）
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> deleteServer(String id);
+
+    /**
+     * 测试本地IP检测功能（包含业务逻辑验证）
+     *
+     * @param host 主机地址
+     * @return 检测结果
+     */
+    ReturnResult<Map<String, Object>> testLocalIpDetection(String host);
+
+    /**
+     * 清理过期连接状态数据
+     *
+     * @param expireTime 过期时间
+     * @return 清理的记录数
+     */
+    ReturnResult<Integer> cleanupExpiredConnectionStatus(LocalDateTime expireTime);
+
+    /**
+     * 清理临时文件
+     *
+     * @return 清理的文件数
+     */
+    ReturnResult<Integer> cleanupTempFiles();
+
+    /**
+     * 清理缓存
+     *
+     * @return 清理结果
+     */
+    ReturnResult<Void> cleanupCache();
+
+    /**
+     * 优化服务器相关数据表
+     *
+     * @return 优化结果
+     */
+    ReturnResult<Void> optimizeTables();
+
+    /**
+     * 检查数据库健康状态
+     *
+     * @return 检查结果
+     */
+    ReturnResult<Void> checkDatabaseHealth();
+
+    /**
+     * 检查磁盘空间
+     *
+     * @return 检查结果
+     */
+    ReturnResult<Void> checkDiskSpace();
+
+    /**
+     * 检查内存使用情况
+     *
+     * @return 检查结果
+     */
+    ReturnResult<Void> checkMemoryUsage();
 
 }

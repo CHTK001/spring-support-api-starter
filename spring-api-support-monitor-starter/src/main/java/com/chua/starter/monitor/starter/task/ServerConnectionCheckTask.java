@@ -2,9 +2,13 @@ package com.chua.starter.monitor.starter.task;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerLatencyDetectionService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.websocket.ServerConnectionWebSocketService;
+import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.common.support.json.Json;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +37,8 @@ public class ServerConnectionCheckTask {
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerConnectionStatusService connectionStatusService;
     private final ServerConnectionWebSocketService webSocketService;
+    private final SocketSessionTemplate socketSessionTemplate;
+    private final MonitorSysGenServerLatencyDetectionService latencyDetectionService;
     private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
@@ -134,19 +141,92 @@ public class ServerConnectionCheckTask {
     }
 
     /**
+     * 延迟检测任务
+     * 每10分钟执行一次，只检测在线的服务器
+     */
+    @Scheduled(fixedRate = 600000) // 10分钟
+    public void checkServerLatency() {
+        log.debug("开始定时检查服务器延迟...");
+
+        try {
+            // 获取所有在线的服务器
+            List<MonitorSysGenServer> onlineServers = serverService.list().stream()
+                    .filter(server -> server.getMonitorSysGenServerStatus() != null &&
+                                    server.getMonitorSysGenServerStatus() == 1 &&
+                                    server.getMonitorSysGenServerConnectionStatus() != null &&
+                                    server.getMonitorSysGenServerConnectionStatus() == 1)
+                    .toList();
+
+            if (onlineServers.isEmpty()) {
+                log.debug("没有在线的服务器需要检测延迟");
+                return;
+            }
+
+            log.info("开始检测 {} 台在线服务器的延迟", onlineServers.size());
+
+            // 异步检测所有在线服务器的延迟
+            List<CompletableFuture<Void>> futures = onlineServers.stream()
+                    .map(server -> CompletableFuture.runAsync(() -> {
+                        try {
+                            latencyDetectionService.detectLatencyAsync(server);
+                        } catch (Exception e) {
+                            log.error("检测服务器延迟失败: serverId={}", server.getMonitorSysGenServerId(), e);
+                        }
+                    }, executorService))
+                    .toList();
+
+            // 等待所有检测完成
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                    .thenRun(() -> {
+                        log.info("服务器延迟检测完成");
+                        // 检查延迟告警
+                        checkLatencyAlerts();
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("服务器延迟检测出现异常", throwable);
+                        return null;
+                    });
+
+        } catch (Exception e) {
+            log.error("定时检查服务器延迟失败", e);
+        }
+    }
+
+    /**
+     * 检查延迟告警
+     */
+    private void checkLatencyAlerts() {
+        try {
+            var alertResult = latencyDetectionService.checkLatencyAlerts();
+            if (alertResult != null && alertResult.isOk() && alertResult.getData() != null) {
+                var alerts = alertResult.getData();
+                Integer totalAlerts = alerts.getTotalAlerts();
+
+                if (totalAlerts != null && totalAlerts > 0) {
+                    log.warn("发现 {} 个延迟告警", totalAlerts);
+                    // 通过WebSocket广播延迟告警
+                    broadcastLatencyAlerts(alerts);
+                }
+            }
+        } catch (Exception e) {
+            log.error("检查延迟告警失败", e);
+        }
+    }
+
+    /**
      * 清理过期的连接状态数据
      * 每天凌晨3点执行
      */
     @Scheduled(cron = "0 0 3 * * ?")
     public void cleanupExpiredConnectionData() {
         log.info("开始清理过期的连接状态数据...");
-        
+
         try {
             // 这里可以添加清理逻辑，比如清理过期的连接日志等
             // 目前连接状态数据存储在主表中，暂不需要清理
-            
+
             log.info("过期连接状态数据清理完成");
-            
+
         } catch (Exception e) {
             log.error("清理过期连接状态数据失败", e);
         }
@@ -249,5 +329,23 @@ public class ServerConnectionCheckTask {
                 log.error("手动检查服务器连接状态失败: serverId={}", serverId, e);
             }
         }, executorService);
+    }
+
+    /**
+     * 广播延迟告警信息到前端
+     */
+    private void broadcastLatencyAlerts(com.chua.starter.monitor.starter.pojo.LatencyAlerts alerts) {
+        try {
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("latency_alerts")
+                    .data(alerts)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            log.debug("延迟告警信息已广播: totalAlerts={}", alerts.getTotalAlerts());
+        } catch (Exception e) {
+            log.error("广播延迟告警信息失败", e);
+        }
     }
 }

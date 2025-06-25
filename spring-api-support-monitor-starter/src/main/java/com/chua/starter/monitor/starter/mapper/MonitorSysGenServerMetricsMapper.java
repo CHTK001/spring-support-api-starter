@@ -162,4 +162,9 @@ public interface MonitorSysGenServerMetricsMapper extends BaseMapper<MonitorSysG
                                                     @Param("cpuThreshold") Double cpuThreshold,
                                                     @Param("memoryThreshold") Double memoryThreshold,
                                                     @Param("diskThreshold") Double diskThreshold);
+
+    /**
+     * 优化指标数据表
+     */
+    void optimizeTable();
 }

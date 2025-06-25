@@ -4,7 +4,7 @@ import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
