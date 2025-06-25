@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.starter.controller;
 
-import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
@@ -14,13 +13,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
@@ -34,6 +33,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @RequestMapping("v1/gen/server")
 @Tag(name = "服务器管理")
 @RequiredArgsConstructor
+@Slf4j
 public class MonitorSysGenServerController {
 
     private final MonitorSysGenServerService monitorSysGenServerService;
@@ -48,15 +48,7 @@ public class MonitorSysGenServerController {
     @Operation(summary = "删除数据")
     @DeleteMapping("delete")
     public ReturnResult<Boolean> delete(@Parameter(name = "主键") String id) {
-        if (null == id) {
-            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "主键不能为空");
-        }
-
-        Set<String> ids = Splitter.on(",").trimResults().omitEmptyStrings().splitToSet(id);
-        if (ids.isEmpty()) {
-            return ReturnResult.ok();
-        }
-        return ReturnResult.of(monitorSysGenServerService.removeBatchByIds(ids));
+        return monitorSysGenServerService.deleteServer(id);
     }
 
     /**
@@ -73,7 +65,7 @@ public class MonitorSysGenServerController {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return ReturnResult.of(monitorSysGenServerService.updateById(monitorSysGenServer));
+        return monitorSysGenServerService.updateServer(monitorSysGenServer);
     }
 
     /**
@@ -90,32 +82,7 @@ public class MonitorSysGenServerController {
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        // 设置默认值
-        if (null == monitorSysGenServer.getMonitorSysGenServerStatus()) {
-            monitorSysGenServer.setMonitorSysGenServerStatus(0);
-        }
-        if (null == monitorSysGenServer.getMonitorSysGenServerMonitorEnabled()) {
-            monitorSysGenServer.setMonitorSysGenServerMonitorEnabled(0);
-        }
-        if (null == monitorSysGenServer.getMonitorSysGenServerMetricsRetentionDays()) {
-            monitorSysGenServer.setMonitorSysGenServerMetricsRetentionDays(30);
-        }
-        if (null == monitorSysGenServer.getMonitorSysGenServerMonitorInterval()) {
-            monitorSysGenServer.setMonitorSysGenServerMonitorInterval(60);
-        }
-        if (null == monitorSysGenServer.getMonitorSysGenServerTimeout()) {
-            monitorSysGenServer.setMonitorSysGenServerTimeout(30000);
-        }
-        // 设置新增字段的默认值
-        if (null == monitorSysGenServer.getMonitorSysGenServerReportEnabled()) {
-            monitorSysGenServer.setMonitorSysGenServerReportEnabled(1); // 默认上报
-        }
-        if (null == monitorSysGenServer.getMonitorSysGenServerDataReportMethod()) {
-            monitorSysGenServer.setMonitorSysGenServerDataReportMethod("NONE"); // 默认不支持上报
-        }
-
-        monitorSysGenServerService.save(monitorSysGenServer);
-        return ReturnResult.ok(monitorSysGenServer);
+        return monitorSysGenServerService.saveServer(monitorSysGenServer);
     }
 
     /**
@@ -452,6 +419,41 @@ public class MonitorSysGenServerController {
                                                   @Parameter(name = "查询表达式") @RequestParam String expression,
                                                   @RequestBody Map<String, Object> timeRange) {
         return monitorSysGenServerService.queryDataByConfig(id, queryType, expression, timeRange);
+    }
+
+    /**
+     * 手动检测服务器信息
+     *
+     * @param id 服务器ID
+     * @return 检测结果
+     */
+    @Operation(summary = "手动检测服务器信息")
+    @PostMapping("detect-info")
+    public ReturnResult<Map<String, Object>> detectServerInfo(@Parameter(name = "服务器ID") String id) {
+        return monitorSysGenServerService.detectServerInfo(id);
+    }
+
+    /**
+     * 批量检测服务器信息
+     *
+     * @return 检测结果
+     */
+    @Operation(summary = "批量检测服务器信息")
+    @PostMapping("batch-detect-info")
+    public ReturnResult<Map<String, Object>> batchDetectServerInfo() {
+        return monitorSysGenServerService.batchDetectServerInfo();
+    }
+
+    /**
+     * 测试本地IP检测功能
+     *
+     * @param host 要测试的主机地址
+     * @return 检测结果
+     */
+    @Operation(summary = "测试本地IP检测功能")
+    @GetMapping("test-local-ip")
+    public ReturnResult<Map<String, Object>> testLocalIpDetection(@Parameter(name = "主机地址") String host) {
+        return monitorSysGenServerService.testLocalIpDetection(host);
     }
 
     /**

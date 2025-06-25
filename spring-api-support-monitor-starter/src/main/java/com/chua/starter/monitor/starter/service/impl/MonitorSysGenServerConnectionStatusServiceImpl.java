@@ -5,8 +5,11 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
-import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerConnectionStatusMapper;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionCheckResult;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionHealthReport;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionStatistics;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
@@ -197,23 +200,22 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getConnectionStatusStatistics() {
+    public ReturnResult<MonitorSysGenServerConnectionStatistics> getConnectionStatusStatistics() {
         try {
             List<Map<String, Object>> statistics = connectionStatusMapper.getConnectionStatusStatistics();
-            
-            Map<String, Object> result = new HashMap<>();
+
             int total = 0;
             int online = 0;
             int offline = 0;
             int connecting = 0;
             int failed = 0;
-            
+
             for (Map<String, Object> stat : statistics) {
                 Integer status = (Integer) stat.get("monitor_sys_gen_server_connection_status");
                 Long count = (Long) stat.get("count");
-                
+
                 total += count.intValue();
-                
+
                 if (status != null) {
                     switch (status) {
                         case 1:
@@ -231,14 +233,16 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
                     }
                 }
             }
-            
-            result.put("total", total);
-            result.put("online", online);
-            result.put("offline", offline);
-            result.put("connecting", connecting);
-            result.put("failed", failed);
-            result.put("onlineRate", total > 0 ? (double) online / total * 100 : 0.0);
-            
+
+            MonitorSysGenServerConnectionStatistics result = MonitorSysGenServerConnectionStatistics.builder()
+                    .total(total)
+                    .online(online)
+                    .offline(offline)
+                    .connecting(connecting)
+                    .failed(failed)
+                    .onlineRate(total > 0 ? (double) online / total * 100 : 0.0)
+                    .build();
+
             return ReturnResult.success(result);
         } catch (Exception e) {
             log.error("获取连接状态统计失败", e);
@@ -258,14 +262,16 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> checkAllServerConnections() {
+    public ReturnResult<MonitorSysGenServerConnectionCheckResult> checkAllServerConnections() {
         try {
             List<MonitorSysGenServer> servers = serverService.list();
-            
-            Map<String, Object> result = new HashMap<>();
-            result.put("totalServers", servers.size());
-            result.put("checkTime", LocalDateTime.now());
-            
+
+            MonitorSysGenServerConnectionCheckResult result = MonitorSysGenServerConnectionCheckResult.builder()
+                    .totalServers(servers.size())
+                    .checkTime(LocalDateTime.now())
+                    .message("连接检查已启动，请稍后查看结果")
+                    .build();
+
             // 异步检查所有服务器连接
             CompletableFuture.runAsync(() -> {
                 for (MonitorSysGenServer server : servers) {
@@ -276,10 +282,9 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
                     }
                 }
             }, executorService);
-            
-            result.put("message", "连接检查已启动，请稍后查看结果");
+
             return ReturnResult.success(result);
-            
+
         } catch (Exception e) {
             log.error("检查所有服务器连接失败", e);
             return ReturnResult.error("检查连接失败: " + e.getMessage());
@@ -287,33 +292,39 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getServerConnectionHealthReport() {
+    public ReturnResult<MonitorSysGenServerConnectionHealthReport> getServerConnectionHealthReport() {
         try {
-            Map<String, Object> report = new HashMap<>();
-            
             // 获取统计信息
-            ReturnResult<Map<String, Object>> statisticsResult = getConnectionStatusStatistics();
+            ReturnResult<MonitorSysGenServerConnectionStatistics> statisticsResult = getConnectionStatusStatistics();
+            MonitorSysGenServerConnectionStatistics statistics = null;
             if (statisticsResult.isOk()) {
-                report.put("statistics", statisticsResult.getData());
+                statistics = statisticsResult.getData();
             }
-            
+
             // 获取长时间未连接的服务器
             ReturnResult<List<MonitorSysGenServerConnectionStatus>> longTimeNoConnectResult = getLongTimeNoConnectServers(60);
+            List<MonitorSysGenServerConnectionStatus> longTimeNoConnectServers = null;
             if (longTimeNoConnectResult.isOk()) {
-                report.put("longTimeNoConnectServers", longTimeNoConnectResult.getData());
+                longTimeNoConnectServers = longTimeNoConnectResult.getData();
             }
-            
+
             // 获取连接失败的服务器
-            ReturnResult<List<MonitorSysGenServerConnectionStatus>> failedServersResult = 
+            ReturnResult<List<MonitorSysGenServerConnectionStatus>> failedServersResult =
                     getServersByConnectionStatus(MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode());
+            List<MonitorSysGenServerConnectionStatus> failedServers = null;
             if (failedServersResult.isOk()) {
-                report.put("failedServers", failedServersResult.getData());
+                failedServers = failedServersResult.getData();
             }
-            
-            report.put("reportTime", LocalDateTime.now());
-            
+
+            MonitorSysGenServerConnectionHealthReport report = MonitorSysGenServerConnectionHealthReport.builder()
+                    .statistics(statistics)
+                    .longTimeNoConnectServers(longTimeNoConnectServers)
+                    .failedServers(failedServers)
+                    .reportTime(LocalDateTime.now())
+                    .build();
+
             return ReturnResult.success(report);
-            
+
         } catch (Exception e) {
             log.error("获取服务器连接健康度报告失败", e);
             return ReturnResult.error("获取健康度报告失败: " + e.getMessage());

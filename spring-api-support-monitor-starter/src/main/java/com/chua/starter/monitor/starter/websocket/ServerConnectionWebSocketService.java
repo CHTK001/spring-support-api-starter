@@ -3,7 +3,7 @@ package com.chua.starter.monitor.starter.websocket;
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
-import com.chua.starter.monitor.starter.entity.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
