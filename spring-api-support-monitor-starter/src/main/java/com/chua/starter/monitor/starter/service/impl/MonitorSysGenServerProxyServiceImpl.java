@@ -500,8 +500,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
                 }
 
                 MonitorSysGenServerProxy clonedProxy = new MonitorSysGenServerProxy();
-                clonedProxy.setMonitorSysGenServerId(targetServerId);
-
                 clonedProxy.setMonitorSysGenServerProxyType(sourceProxy.getMonitorSysGenServerProxyType());
                 clonedProxy.setMonitorSysGenServerProxyConfig(sourceProxy.getMonitorSysGenServerProxyConfig());
                 clonedProxy.setMonitorSysGenServerProxyEnabled(sourceProxy.getMonitorSysGenServerProxyEnabled());
