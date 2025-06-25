@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -34,7 +37,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableId(value = "monitor_sys_gen_server_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置ID")
     @Schema(description = "服务器配置ID")
-    @NotNull(message = "不能为null")
+    @NotNull(message = "服务器ID不能为空", groups = {UpdateGroup.class})
     private Integer monitorSysGenServerId;
 
     /**
@@ -43,6 +46,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableField(value = "monitor_sys_gen_server_name")
     @ApiModelProperty(value = "服务器名称")
     @Schema(description = "服务器名称")
+    @NotBlank(message = "服务器名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @Size(max = 255, message = "服务器名称最大长度要小于 255")
     private String monitorSysGenServerName;
 
@@ -52,6 +56,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableField(value = "monitor_sys_gen_server_host")
     @ApiModelProperty(value = "服务器主机地址")
     @Schema(description = "服务器主机地址")
+    @NotBlank(message = "服务器地址不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @Size(max = 255, message = "服务器主机地址最大长度要小于 255")
     private String monitorSysGenServerHost;
 
@@ -61,6 +66,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableField(value = "monitor_sys_gen_server_port")
     @ApiModelProperty(value = "服务器端口")
     @Schema(description = "服务器端口")
+    @NotNull(message = "端口号不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer monitorSysGenServerPort;
 
     /**
@@ -69,6 +75,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableField(value = "monitor_sys_gen_server_protocol")
     @ApiModelProperty(value = "连接协议")
     @Schema(description = "连接协议")
+    @NotBlank(message = "连接协议不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @Size(max = 50, message = "连接协议最大长度要小于 50")
     private String monitorSysGenServerProtocol;
 
@@ -78,6 +85,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @TableField(value = "monitor_sys_gen_server_username")
     @ApiModelProperty(value = "用户名")
     @Schema(description = "用户名")
+    @NotBlank(message = "用户名不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @Size(max = 255, message = "用户名最大长度要小于 255")
     private String monitorSysGenServerUsername;
 
