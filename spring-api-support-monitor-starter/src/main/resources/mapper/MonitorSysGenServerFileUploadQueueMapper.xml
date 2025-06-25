@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerFileUploadQueueMapper">
+
+    <!-- 获取队列统计信息 -->
+    <select id="getQueueStatistics" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            COUNT(*) as total_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'PENDING' THEN 1 ELSE 0 END) as pending_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'PROCESSING' THEN 1 ELSE 0 END) as processing_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'FAILED' THEN 1 ELSE 0 END) as failed_count,
+            AVG(CASE 
+                WHEN monitor_sys_gen_server_file_upload_queue_process_time IS NOT NULL 
+                     AND monitor_sys_gen_server_file_upload_queue_complete_time IS NOT NULL 
+                THEN TIMESTAMPDIFF(MICROSECOND, monitor_sys_gen_server_file_upload_queue_process_time, monitor_sys_gen_server_file_upload_queue_complete_time) / 1000
+                ELSE NULL 
+            END) as avg_process_duration_ms,
+            AVG(CASE 
+                WHEN monitor_sys_gen_server_file_upload_queue_create_time IS NOT NULL 
+                     AND monitor_sys_gen_server_file_upload_queue_process_time IS NOT NULL 
+                THEN TIMESTAMPDIFF(MICROSECOND, monitor_sys_gen_server_file_upload_queue_create_time, monitor_sys_gen_server_file_upload_queue_process_time) / 1000
+                ELSE NULL 
+            END) as avg_wait_duration_ms
+        FROM monitor_sys_gen_server_file_upload_queue
+        ]]>
+    </select>
+
+    <!-- 获取服务器队列统计信息 -->
+    <select id="getServerQueueStatistics" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            COUNT(*) as total_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'PENDING' THEN 1 ELSE 0 END) as pending_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'PROCESSING' THEN 1 ELSE 0 END) as processing_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
+            SUM(CASE WHEN monitor_sys_gen_server_file_upload_queue_status = 'FAILED' THEN 1 ELSE 0 END) as failed_count,
+            AVG(CASE 
+                WHEN monitor_sys_gen_server_file_upload_queue_process_time IS NOT NULL 
+                     AND monitor_sys_gen_server_file_upload_queue_complete_time IS NOT NULL 
+                THEN TIMESTAMPDIFF(MICROSECOND, monitor_sys_gen_server_file_upload_queue_process_time, monitor_sys_gen_server_file_upload_queue_complete_time) / 1000
+                ELSE NULL 
+            END) as avg_process_duration_ms,
+            AVG(CASE 
+                WHEN monitor_sys_gen_server_file_upload_queue_create_time IS NOT NULL 
+                     AND monitor_sys_gen_server_file_upload_queue_process_time IS NOT NULL 
+                THEN TIMESTAMPDIFF(MICROSECOND, monitor_sys_gen_server_file_upload_queue_create_time, monitor_sys_gen_server_file_upload_queue_process_time) / 1000
+                ELSE NULL 
+            END) as avg_wait_duration_ms
+        FROM monitor_sys_gen_server_file_upload_queue
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        ]]>
+    </select>
+
+    <!-- 查询超时的处理中队列项 -->
+    <select id="selectTimeoutProcessingItems" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerFileUploadQueue">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_server_file_upload_queue
+        WHERE monitor_sys_gen_server_file_upload_queue_status = 'PROCESSING'
+        AND monitor_sys_gen_server_file_upload_queue_process_time < #{timeoutTime}
+        ORDER BY monitor_sys_gen_server_file_upload_queue_process_time ASC
+        ]]>
+    </select>
+
+    <!-- 重置超时的处理中队列项 -->
+    <update id="resetTimeoutProcessingItems">
+        <![CDATA[
+        UPDATE monitor_sys_gen_server_file_upload_queue 
+        SET monitor_sys_gen_server_file_upload_queue_status = 'PENDING',
+            monitor_sys_gen_server_file_upload_queue_process_time = NULL,
+            monitor_sys_gen_server_file_upload_queue_retry_count = monitor_sys_gen_server_file_upload_queue_retry_count + 1
+        WHERE monitor_sys_gen_server_file_upload_queue_status = 'PROCESSING'
+        AND monitor_sys_gen_server_file_upload_queue_process_time < #{timeoutTime}
+        ]]>
+    </update>
+
+    <!-- 清理已完成的队列项 -->
+    <update id="cleanupCompletedItems">
+        <![CDATA[
+        DELETE FROM monitor_sys_gen_server_file_upload_queue 
+        WHERE monitor_sys_gen_server_file_upload_queue_status = 'COMPLETED'
+        AND monitor_sys_gen_server_file_upload_queue_complete_time < #{expiredTime}
+        ]]>
+    </update>
+
+    <!-- 获取队列长度 -->
+    <select id="getQueueLength" resultType="java.lang.Long">
+        <![CDATA[
+        SELECT COUNT(*) FROM monitor_sys_gen_server_file_upload_queue
+        WHERE monitor_sys_gen_server_file_upload_queue_status IN ('PENDING', 'PROCESSING')
+        ]]>
+    </select>
+
+    <!-- 获取指定服务器的队列长度 -->
+    <select id="getServerQueueLength" resultType="java.lang.Long">
+        <![CDATA[
+        SELECT COUNT(*) FROM monitor_sys_gen_server_file_upload_queue
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_file_upload_queue_status IN ('PENDING', 'PROCESSING')
+        ]]>
+    </select>
+
+    <!-- 清空队列 -->
+    <update id="clearQueue">
+        <![CDATA[
+        DELETE FROM monitor_sys_gen_server_file_upload_queue 
+        WHERE monitor_sys_gen_server_file_upload_queue_status IN ('PENDING', 'FAILED')
+        ]]>
+    </update>
+
+    <!-- 清空指定服务器的队列 -->
+    <update id="clearServerQueue">
+        <![CDATA[
+        DELETE FROM monitor_sys_gen_server_file_upload_queue 
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_file_upload_queue_status IN ('PENDING', 'FAILED')
+        ]]>
+    </update>
+
+    <!-- 查询可重试的失败队列项 -->
+    <select id="selectRetryableItems" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerFileUploadQueue">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_server_file_upload_queue
+        WHERE monitor_sys_gen_server_file_upload_queue_status = 'FAILED'
+        AND (monitor_sys_gen_server_file_upload_queue_retry_count IS NULL 
+             OR monitor_sys_gen_server_file_upload_queue_retry_count < #{maxRetryCount})
+        ORDER BY monitor_sys_gen_server_file_upload_queue_create_time ASC
+        ]]>
+    </select>
+
+    <!-- 批量更新队列项状态 -->
+    <update id="batchUpdateStatus">
+        UPDATE monitor_sys_gen_server_file_upload_queue 
+        SET monitor_sys_gen_server_file_upload_queue_status = #{status}
+        WHERE monitor_sys_gen_server_file_upload_queue_id IN
+        <foreach collection="queueIds" item="queueId" open="(" separator="," close=")">
+            #{queueId}
+        </foreach>
+    </update>
+
+    <!-- 获取队列项详细信息（包含任务信息） -->
+    <select id="getQueueItemDetails" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            q.*,
+            t.monitor_sys_gen_server_file_upload_task_name,
+            t.monitor_sys_gen_server_file_upload_file_name,
+            t.monitor_sys_gen_server_file_upload_file_size,
+            t.monitor_sys_gen_server_file_upload_target_path,
+            s.monitor_sys_gen_server_name,
+            s.monitor_sys_gen_server_host,
+            s.monitor_sys_gen_server_type
+        FROM monitor_sys_gen_server_file_upload_queue q
+        LEFT JOIN monitor_sys_gen_server_file_upload_tasks t 
+            ON q.monitor_sys_gen_server_file_upload_task_id = t.monitor_sys_gen_server_file_upload_task_id
+        LEFT JOIN monitor_sys_gen_server s 
+            ON q.monitor_sys_gen_server_id = s.monitor_sys_gen_server_id
+        WHERE q.monitor_sys_gen_server_file_upload_queue_id = #{queueId}
+        ]]>
+    </select>
+
+</mapper>

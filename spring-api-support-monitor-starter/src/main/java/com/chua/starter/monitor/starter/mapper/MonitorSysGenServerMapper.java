@@ -75,4 +75,9 @@ public interface MonitorSysGenServerMapper extends BaseMapper<MonitorSysGenServe
      * @return 统计信息
      */
     Map<String, Object> getServerOverview();
+
+    /**
+     * 优化服务器相关数据表
+     */
+    void optimizeTable();
 }

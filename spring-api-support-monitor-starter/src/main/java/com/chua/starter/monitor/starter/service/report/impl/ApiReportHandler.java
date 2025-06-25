@@ -185,17 +185,61 @@ public class ApiReportHandler implements ReportHandler {
             if (networkOut != null) {
                 metrics.setMonitorSysGenServerMetricsNetworkOut(parseLong(networkOut));
             }
-            
+
+            // 解析系统负载
+            Object loadAverage = reportData.get("loadAverage");
+            if (loadAverage != null) {
+                // 如果是字符串格式的负载平均值，解析第一个值作为1分钟负载
+                String loadStr = loadAverage.toString();
+                if (loadStr.contains(" ")) {
+                    String[] loads = loadStr.split("\\s+");
+                    if (loads.length >= 1) {
+                        metrics.setMonitorSysGenServerMetricsCpuLoad1m(parseBigDecimal(loads[0]));
+                    }
+                    if (loads.length >= 2) {
+                        metrics.setMonitorSysGenServerMetricsCpuLoad5m(parseBigDecimal(loads[1]));
+                    }
+                    if (loads.length >= 3) {
+                        metrics.setMonitorSysGenServerMetricsCpuLoad15m(parseBigDecimal(loads[2]));
+                    }
+                } else {
+                    // 单个值作为1分钟负载
+                    metrics.setMonitorSysGenServerMetricsCpuLoad1m(parseBigDecimal(loadAverage));
+                }
+            }
+
+            // 解析单独的负载值
+            Object load1m = reportData.get("load1m");
+            if (load1m != null) {
+                metrics.setMonitorSysGenServerMetricsCpuLoad1m(parseBigDecimal(load1m));
+            }
+
+            Object load5m = reportData.get("load5m");
+            if (load5m != null) {
+                metrics.setMonitorSysGenServerMetricsCpuLoad5m(parseBigDecimal(load5m));
+            }
+
+            Object load15m = reportData.get("load15m");
+            if (load15m != null) {
+                metrics.setMonitorSysGenServerMetricsCpuLoad15m(parseBigDecimal(load15m));
+            }
+
             // 解析运行时间
             Object uptime = reportData.get("uptime");
             if (uptime != null) {
                 metrics.setMonitorSysGenServerMetricsUptime(parseLong(uptime));
             }
-            
-            log.debug("API上报数据解析完成: CPU={}%, Memory={}%, Load={}", 
+
+            // 解析进程数量
+            Object processCount = reportData.get("processCount");
+            if (processCount != null) {
+                metrics.setMonitorSysGenServerMetricsProcessCount(parseInteger(processCount));
+            }
+
+            log.debug("API上报数据解析完成: CPU={}%, Memory={}%, Load={}",
                     metrics.getMonitorSysGenServerMetricsCpuUsage(),
                     metrics.getMonitorSysGenServerMetricsMemoryUsage(),
-                    metrics.getMonitorSysGenServerMetricsSystemLoad());
+                    metrics.getMonitorSysGenServerMetricsCpuLoad1m());
             
         } catch (Exception e) {
             log.error("解析API上报数据失败", e);
@@ -222,22 +266,6 @@ public class ApiReportHandler implements ReportHandler {
     }
 
     /**
-     * 安全解析Double值
-     */
-    private Double parseDouble(Object value) {
-        if (value == null) return null;
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        try {
-            return Double.parseDouble(value.toString());
-        } catch (NumberFormatException e) {
-            log.warn("无法解析Double值: {}", value);
-            return null;
-        }
-    }
-
-    /**
      * 安全解析Long值
      */
     private Long parseLong(Object value) {
@@ -249,6 +277,22 @@ public class ApiReportHandler implements ReportHandler {
             return Long.parseLong(value.toString());
         } catch (NumberFormatException e) {
             log.warn("无法解析Long值: {}", value);
+            return null;
+        }
+    }
+
+    /**
+     * 安全解析Integer值
+     */
+    private Integer parseInteger(Object value) {
+        if (value == null) return null;
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException e) {
+            log.warn("无法解析Integer值: {}", value);
             return null;
         }
     }
