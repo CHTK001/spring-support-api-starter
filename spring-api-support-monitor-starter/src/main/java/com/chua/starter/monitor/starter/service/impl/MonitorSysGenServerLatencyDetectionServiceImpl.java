@@ -322,7 +322,7 @@ public class MonitorSysGenServerLatencyDetectionServiceImpl implements MonitorSy
             server.setMonitorSysGenServerLastLatencyCheckTime(null);
 
             // 清除历史记录
-            latencyHistory.remove(serverId);
+            lastDetectTime.remove(serverId);
 
             boolean result = serverService.updateById(server);
 

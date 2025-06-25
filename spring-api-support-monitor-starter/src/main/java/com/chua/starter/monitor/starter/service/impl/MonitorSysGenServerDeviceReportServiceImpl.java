@@ -51,7 +51,7 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
                 return ReturnResult.error("设备指标数据不能为空");
             }
 
-            String deviceIp = metrics.getDeviceIp();
+            String deviceIp = metrics.getIpAddress();
             if (StringUtils.isEmpty(deviceIp)) {
                 return ReturnResult.error("设备IP地址不能为空");
             }
@@ -84,9 +84,9 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
             return ReturnResult.success("设备数据处理成功，关联了 " + matchedServers.size() + " 台服务器");
 
         } catch (Exception e) {
-            log.error("处理设备指标数据失败: deviceIp={}", metrics != null ? metrics.getDeviceIp() : "unknown", e);
-            if (metrics != null && StringUtils.isNotEmpty(metrics.getDeviceIp())) {
-                updateDeviceReportStats(metrics.getDeviceIp(), false);
+            log.error("处理设备指标数据失败: deviceIp={}", metrics != null ? metrics.getIpAddress() : "unknown", e);
+            if (metrics != null && StringUtils.isNotEmpty(metrics.getIpAddress())) {
+                updateDeviceReportStats(metrics.getIpAddress(), false);
             }
             return ReturnResult.error("处理设备数据失败: " + e.getMessage());
         }
@@ -247,7 +247,7 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
         LambdaQueryWrapper<MonitorSysGenServer> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MonitorSysGenServer::getMonitorSysGenServerHost, deviceIp)
                 .or()
-                .like(MonitorSysGenServer::getMonitorSysGenServerAdditionalIps, deviceIp);
+                .like(MonitorSysGenServer::getMonitorSysGenServerIpAddresses, deviceIp);
         
         return serverService.list(queryWrapper);
     }
@@ -272,11 +272,11 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
         if (deviceMetrics.getDiskUsage() != null) {
             serverMetrics.setMonitorSysGenServerMetricsDiskUsage(BigDecimal.valueOf(deviceMetrics.getDiskUsage()));
         }
-        if (deviceMetrics.getNetworkIn() != null) {
-            serverMetrics.setMonitorSysGenServerMetricsNetworkIn(deviceMetrics.getNetworkIn());
+        if (deviceMetrics.getNetworkInBytes() != null) {
+            serverMetrics.setMonitorSysGenServerMetricsNetworkIn(deviceMetrics.getNetworkInBytes());
         }
-        if (deviceMetrics.getNetworkOut() != null) {
-            serverMetrics.setMonitorSysGenServerMetricsNetworkOut(deviceMetrics.getNetworkOut());
+        if (deviceMetrics.getNetworkOutBytes() != null) {
+            serverMetrics.setMonitorSysGenServerMetricsNetworkOut(deviceMetrics.getNetworkOutBytes());
         }
         
         return serverMetrics;
@@ -291,7 +291,7 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
         // 设置设备IP
         Object deviceIp = metricsData.get("deviceIp");
         if (deviceIp != null) {
-            metrics.setDeviceIp(deviceIp.toString());
+            metrics.setIpAddress(deviceIp.toString());
         }
         
         // 设置指标数据
@@ -312,12 +312,12 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
         
         Object networkIn = metricsData.get("networkIn");
         if (networkIn instanceof Number) {
-            metrics.setNetworkIn(((Number) networkIn).longValue());
+            metrics.setNetworkInBytes(((Number) networkIn).longValue());
         }
-        
+
         Object networkOut = metricsData.get("networkOut");
         if (networkOut instanceof Number) {
-            metrics.setNetworkOut(((Number) networkOut).longValue());
+            metrics.setNetworkOutBytes(((Number) networkOut).longValue());
         }
         
         return metrics;

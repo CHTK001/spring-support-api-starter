@@ -92,8 +92,32 @@ public interface MonitorSysGenServerDataReportService {
 
     /**
      * 批量处理服务器数据上报
-     * 
+     *
      * @return 处理结果
      */
     ReturnResult<Map<String, Object>> handleBatchServerReport();
+
+    /**
+     * 启动数据收集
+     *
+     * @param server 服务器配置
+     * @return 启动结果
+     */
+    ReturnResult<String> startDataCollection(MonitorSysGenServer server);
+
+    /**
+     * 停止数据收集
+     *
+     * @param serverId 服务器ID
+     * @return 停止结果
+     */
+    ReturnResult<String> stopDataCollection(Integer serverId);
+
+    /**
+     * 处理Prometheus查询
+     *
+     * @param server 服务器配置
+     * @return 查询结果
+     */
+    ReturnResult<Map<String, Object>> handlePrometheusQuery(MonitorSysGenServer server);
 }

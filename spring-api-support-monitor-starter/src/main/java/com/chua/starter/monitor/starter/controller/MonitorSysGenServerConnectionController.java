@@ -2,6 +2,8 @@ package com.chua.starter.monitor.starter.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionCheckResult;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionHealthReport;
 import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionStatistics;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import io.swagger.annotations.Api;
@@ -15,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 服务器连接状态管理控制器
@@ -178,7 +179,7 @@ public class MonitorSysGenServerConnectionController {
     @PostMapping("/check-all")
     @Operation(summary = "检查所有服务器连接状态")
     @ApiOperation("检查所有服务器连接状态")
-    public ReturnResult<Map<String, Object>> checkAllServerConnections() {
+    public ReturnResult<MonitorSysGenServerConnectionCheckResult> checkAllServerConnections() {
         log.info("开始检查所有服务器连接状态");
         return connectionStatusService.checkAllServerConnections();
     }
@@ -191,7 +192,7 @@ public class MonitorSysGenServerConnectionController {
     @GetMapping("/health-report")
     @Operation(summary = "获取服务器连接健康度报告")
     @ApiOperation("获取服务器连接健康度报告")
-    public ReturnResult<Map<String, Object>> getServerConnectionHealthReport() {
+    public ReturnResult<MonitorSysGenServerConnectionHealthReport> getServerConnectionHealthReport() {
         return connectionStatusService.getServerConnectionHealthReport();
     }
 

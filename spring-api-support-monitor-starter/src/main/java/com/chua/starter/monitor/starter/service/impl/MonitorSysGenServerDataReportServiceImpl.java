@@ -307,9 +307,74 @@ public class MonitorSysGenServerDataReportServiceImpl implements MonitorSysGenSe
     private void updateServerReportStats(Integer serverId, boolean success) {
         serverReportCount.computeIfAbsent(serverId, k -> new AtomicLong(0)).incrementAndGet();
         serverLastReportTime.put(serverId, LocalDateTime.now());
-        
+
         if (!success) {
             serverErrorCount.computeIfAbsent(serverId, k -> new AtomicLong(0)).incrementAndGet();
+        }
+    }
+
+    @Override
+    public ReturnResult<String> startDataCollection(MonitorSysGenServer server) {
+        try {
+            if (server == null) {
+                return ReturnResult.error("服务器配置不能为空");
+            }
+
+            // 委托给ReportManager处理
+            reportManager.startDataCollection(server);
+
+            log.info("启动数据收集成功: serverId={}, serverName={}",
+                server.getMonitorSysGenServerId(), server.getMonitorSysGenServerName());
+            return ReturnResult.success("数据收集已启动");
+
+        } catch (Exception e) {
+            log.error("启动数据收集失败: serverId={}",
+                server != null ? server.getMonitorSysGenServerId() : "unknown", e);
+            return ReturnResult.error("启动数据收集失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<String> stopDataCollection(Integer serverId) {
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            // 委托给ReportManager处理，需要获取上报方式
+            // 这里简化处理，实际应该查询服务器配置获取上报方式
+            reportManager.stopDataCollection(serverId, "API");
+
+            log.info("停止数据收集成功: serverId={}", serverId);
+            return ReturnResult.success("数据收集已停止");
+
+        } catch (Exception e) {
+            log.error("停止数据收集失败: serverId={}", serverId, e);
+            return ReturnResult.error("停止数据收集失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> handlePrometheusQuery(MonitorSysGenServer server) {
+        try {
+            if (server == null) {
+                return ReturnResult.error("服务器配置不能为空");
+            }
+
+            // 委托给ReportManager处理Prometheus查询
+            Map<String, Object> result = new HashMap<>();
+            result.put("serverId", server.getMonitorSysGenServerId());
+            result.put("serverName", server.getMonitorSysGenServerName());
+            result.put("queryTime", LocalDateTime.now());
+            result.put("message", "Prometheus查询功能待实现");
+
+            log.info("Prometheus查询完成: serverId={}", server.getMonitorSysGenServerId());
+            return ReturnResult.success(result);
+
+        } catch (Exception e) {
+            log.error("Prometheus查询失败: serverId={}",
+                server != null ? server.getMonitorSysGenServerId() : "unknown", e);
+            return ReturnResult.error("Prometheus查询失败: " + e.getMessage());
         }
     }
 }

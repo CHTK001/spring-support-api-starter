@@ -100,15 +100,15 @@ public class DataReportController {
      */
     @PostMapping("/start/{serverId}")
     @ApiOperation("启动数据收集")
-    public ReturnResult<Boolean> startCollection(
+    public ReturnResult<String> startCollection(
             @ApiParam("服务器ID") @PathVariable Integer serverId) {
-        
+
         try {
             MonitorSysGenServer server = serverService.getById(serverId);
             if (server == null) {
                 return ReturnResult.error("服务器配置不存在");
             }
-            
+
             return dataReportService.startDataCollection(server);
             
         } catch (Exception e) {
@@ -125,9 +125,9 @@ public class DataReportController {
      */
     @PostMapping("/stop/{serverId}")
     @ApiOperation("停止数据收集")
-    public ReturnResult<Boolean> stopCollection(
+    public ReturnResult<String> stopCollection(
             @ApiParam("服务器ID") @PathVariable Integer serverId) {
-        
+
         try {
             return dataReportService.stopDataCollection(serverId);
             

@@ -24,7 +24,13 @@ public interface MonitorSysGenServerProxyMapper extends BaseMapper<MonitorSysGen
      */
     List<MonitorSysGenServerProxy> selectByServerId(@Param("serverId") Integer serverId);
 
-
+    /**
+     * 根据代理ID查询服务器关联列表
+     *
+     * @param proxyId 代理ID
+     * @return 服务器关联列表
+     */
+    List<MonitorSysGenServerProxy> selectByProxyId(@Param("proxyId") Integer proxyId);
 
     /**
      * 根据服务器ID和代理类型查询代理关联
@@ -33,7 +39,7 @@ public interface MonitorSysGenServerProxyMapper extends BaseMapper<MonitorSysGen
      * @param proxyType 代理类型
      * @return 代理关联
      */
-    MonitorSysGenServerProxy selectByServerIdAndProxyType(@Param("serverId") Integer serverId, 
+    MonitorSysGenServerProxy selectByServerIdAndProxyType(@Param("serverId") Integer serverId,
                                                           @Param("proxyType") String proxyType);
 
     /**

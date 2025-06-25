@@ -239,10 +239,13 @@ public class PrometheusReportHandler implements ReportHandler {
     private Map<String, Object> queryPrometheusMetric(MonitorSysGenServer server, String query) {
         try {
             String url = buildPrometheusUrl(server, query);
+            @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            
+
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return response.getBody();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> body = response.getBody();
+                return body;
             } else {
                 log.warn("Prometheus查询返回异常状态: {}", response.getStatusCode());
                 return new HashMap<>();
