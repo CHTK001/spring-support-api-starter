@@ -7,11 +7,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerProxy;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerProxyMapper;
-
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,10 +46,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
     @Override
     public IPage<MonitorSysGenServerProxy> pageFor(Page<MonitorSysGenServerProxy> page, MonitorSysGenServerProxy entity) {
         LambdaQueryWrapper<MonitorSysGenServerProxy> wrapper = Wrappers.lambdaQuery();
-        
-        if (entity.getMonitorSysGenServerId() != null) {
-            wrapper.eq(MonitorSysGenServerProxy::getMonitorSysGenServerId, entity.getMonitorSysGenServerId());
-        }
 
         if (StringUtils.isNotBlank(entity.getMonitorSysGenServerProxyType())) {
             wrapper.eq(MonitorSysGenServerProxy::getMonitorSysGenServerProxyType, entity.getMonitorSysGenServerProxyType());
@@ -117,32 +114,12 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<MonitorSysGenServerProxy> createServerProxy(MonitorSysGenServerProxy serverProxy) {
         try {
-            // 验证必填字段
-            if (serverProxy.getMonitorSysGenServerId() == null) {
-                return ReturnResult.error("服务器ID不能为空");
-            }
 
             if (StringUtils.isBlank(serverProxy.getMonitorSysGenServerProxyType())) {
                 return ReturnResult.error("代理类型不能为空");
             }
-            
-            // 验证服务器是否存在
-            MonitorSysGenServer server = monitorSysGenServerService.getById(serverProxy.getMonitorSysGenServerId());
-            if (server == null) {
-                return ReturnResult.error("服务器不存在");
-            }
-            
 
-            
-            // 检查是否已存在相同的关联
-            MonitorSysGenServerProxy existing = baseMapper.selectByServerIdAndProxyType(
-                serverProxy.getMonitorSysGenServerId(), 
-                serverProxy.getMonitorSysGenServerProxyType()
-            );
-            if (existing != null) {
-                return ReturnResult.error("该服务器已存在相同类型的代理关联");
-            }
-            
+
             // 设置默认值
             LocalDateTime now = LocalDateTime.now();
             serverProxy.setMonitorSysGenServerProxyCreateTime(now);
@@ -157,8 +134,7 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
             
             boolean result = this.save(serverProxy);
             if (result) {
-                log.info("创建服务器代理关联成功: serverId={}, proxyType={}",
-                    serverProxy.getMonitorSysGenServerId(),
+                log.info("创建服务器代理关联成功: proxyType={}",
                     serverProxy.getMonitorSysGenServerProxyType());
                 return ReturnResult.ok(serverProxy);
             } else {

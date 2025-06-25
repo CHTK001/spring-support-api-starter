@@ -37,15 +37,6 @@ public class MonitorSysGenServerProxy extends SysBase implements Serializable {
     @NotNull(message = "不能为null")
     private Integer monitorSysGenServerProxyId;
 
-    /**
-     * 服务器ID
-     */
-    @TableField(value = "monitor_sys_gen_server_id")
-    @ApiModelProperty(value = "服务器ID")
-    @Schema(description = "服务器ID")
-    @NotNull(message = "服务器ID不能为空")
-    private Integer monitorSysGenServerId;
-
 
 
     /**
