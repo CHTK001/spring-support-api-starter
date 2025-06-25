@@ -217,11 +217,6 @@ public class ServerInfoDetector {
                     if (!addr.isLoopbackAddress()) {
                         ipv4Addresses.add(ip);
                     }
-                } else if (addr instanceof Inet6Address) {
-                    // IPv6地址，排除回环和链路本地地址
-                    if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                        ipv6Addresses.add(ip);
-                    }
                 }
             } catch (Exception e) {
                 log.debug("解析IP地址失败: {}", ip);
@@ -259,11 +254,10 @@ public class ServerInfoDetector {
         serverInfo.put("osArch", osArch);
         
         // 检测Docker支持
-        detectDockerSupport(serverInfo);
+       //detectDockerSupport(serverInfo);
         
-        log.info("本地服务器信息检测完成: OS={} {}, IPs={}, Docker={}",
-                osName, osVersion, localIps.size(),
-                serverInfo.get("dockerEnabled"));
+        log.info("本地服务器信息检测完成: OS={} {}, IPs={}",
+                osName, osVersion, localIps.size());
     }
 
     /**
