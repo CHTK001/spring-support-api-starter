@@ -3,11 +3,13 @@ package com.chua.starter.monitor.starter.utils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -198,7 +200,7 @@ public class ServerOperationUtils {
         if (errors.isEmpty()) {
             return ReturnResult.success(validation);
         } else {
-            return ReturnResult.error("配置验证失败", validation);
+            return ReturnResult.error(validation);
         }
     }
 

@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.starter.task;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.service.DataReportService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.report.ReportManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -24,7 +24,7 @@ import java.util.List;
 public class DataCollectionTask implements CommandLineRunner {
 
     private final MonitorSysGenServerService serverService;
-    private final DataReportService dataReportService;
+    private final ReportManager reportManager;
 
     /**
      * 应用启动时初始化数据收集任务
@@ -55,10 +55,13 @@ public class DataCollectionTask implements CommandLineRunner {
             for (MonitorSysGenServer server : servers) {
                 // 只为启用监控且需要上报的服务器启动数据收集
                 if (isMonitoringEnabled(server) && isReportingEnabled(server)) {
-                    dataReportService.startDataCollection(server);
+                    reportManager.startDataCollection(server);
                 } else {
                     // 停止不需要监控的服务器的数据收集
-                    dataReportService.stopDataCollection(server.getMonitorSysGenServerId());
+                    String reportType = server.getMonitorSysGenServerDataReportMethod();
+                    if (reportType != null && !"NONE".equals(reportType)) {
+                        reportManager.stopDataCollection(server.getMonitorSysGenServerId(), reportType);
+                    }
                 }
             }
             

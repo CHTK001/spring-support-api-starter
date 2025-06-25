@@ -34,7 +34,13 @@ public interface MonitorSysGenServerProxyService extends IService<MonitorSysGenS
      */
     ReturnResult<List<MonitorSysGenServerProxy>> getByServerId(Integer serverId);
 
-
+    /**
+     * 根据代理ID查询服务器关联列表
+     *
+     * @param proxyId 代理ID
+     * @return 服务器关联列表
+     */
+    ReturnResult<List<MonitorSysGenServerProxy>> getByProxyId(Integer proxyId);
 
     /**
      * 根据服务器ID和代理类型查询代理关联

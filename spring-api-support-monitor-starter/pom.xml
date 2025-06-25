@@ -19,6 +19,7 @@
         <hutool.version>5.8.34</hutool.version>
         <docker-java-version>3.4.0</docker-java-version>
         <jna-version>5.14.0</jna-version>
+        <oshi.version>6.4.8</oshi.version>
 
     </properties>
     <dependencies>
@@ -26,6 +27,13 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- OSHI系统信息库 -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${oshi.version}</version>
         </dependency>
 
         <dependency>

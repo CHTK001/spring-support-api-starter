@@ -71,7 +71,7 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
             if (serverId == null) {
                 return ReturnResult.error("服务器ID不能为空");
             }
-            
+
             List<MonitorSysGenServerProxy> list = baseMapper.selectByServerId(serverId);
             return ReturnResult.ok(list);
         } catch (Exception e) {
@@ -80,7 +80,20 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
         }
     }
 
+    @Override
+    public ReturnResult<List<MonitorSysGenServerProxy>> getByProxyId(Integer proxyId) {
+        try {
+            if (proxyId == null) {
+                return ReturnResult.error("代理ID不能为空");
+            }
 
+            List<MonitorSysGenServerProxy> list = baseMapper.selectByProxyId(proxyId);
+            return ReturnResult.ok(list);
+        } catch (Exception e) {
+            log.error("根据代理ID查询服务器关联失败: proxyId={}", proxyId, e);
+            return ReturnResult.error("查询失败: " + e.getMessage());
+        }
+    }
 
     @Override
     public ReturnResult<MonitorSysGenServerProxy> getByServerIdAndProxyType(Integer serverId, String proxyType) {

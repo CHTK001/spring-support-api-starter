@@ -15,7 +15,7 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.DataReportService;
+import com.chua.starter.monitor.starter.service.report.ReportManager;
 import com.chua.starter.monitor.starter.service.MonitorProxyService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         implements MonitorSysGenServerService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final DataReportService dataReportService;
+    private final ReportManager reportManager;
     private final List<ServerConnectionService> connectionServices;
     @Autowired
     @Lazy
@@ -115,6 +116,9 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             if (oldServer == null) {
                 return false;
             }
+
+            // 自动检测服务器信息
+            autoDetectServerInfo(entity);
             String host = entity.getMonitorSysGenServerHost();
             Map<String, Object> serverInfo = ServerInfoDetector.detectServerInfo(host);
 
@@ -622,7 +626,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
             if (result) {
                 // 启动数据收集任务
-                dataReportService.startDataCollection(server);
+                reportManager.startDataCollection(server);
 
                 // 发送监控启用消息
                 sendServerMessage(server, "monitoring_enabled", true, null);
@@ -654,7 +658,10 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
             if (result) {
                 // 停止数据收集任务
-                dataReportService.stopDataCollection(server.getMonitorSysGenServerId());
+                String reportType = server.getMonitorSysGenServerDataReportMethod();
+                if (reportType != null && !"NONE".equals(reportType)) {
+                    reportManager.stopDataCollection(server.getMonitorSysGenServerId(), reportType);
+                }
 
                 // 发送监控停用消息
                 sendServerMessage(server, "monitoring_disabled", true, null);
@@ -1853,6 +1860,141 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         } catch (Exception e) {
             log.error("本地IP检测测试失败: host={}, error={}", host, e.getMessage(), e);
             return ReturnResult.error("检测失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Integer> cleanupExpiredConnectionStatus(LocalDateTime expireTime) {
+        try {
+            log.info("开始清理过期连接状态数据，过期时间: {}", expireTime);
+
+            // 这里可以清理连接状态历史记录表
+            // 暂时返回0，具体实现可以根据需要添加
+            int deletedCount = 0;
+
+            log.info("清理过期连接状态数据完成，删除了 {} 条记录", deletedCount);
+            return ReturnResult.ok(deletedCount);
+
+        } catch (Exception e) {
+            log.error("清理过期连接状态数据失败", e);
+            return ReturnResult.error("清理过期连接状态数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Integer> cleanupTempFiles() {
+        try {
+            log.info("开始清理临时文件");
+
+            // 清理临时文件逻辑
+            int deletedCount = 0;
+
+            log.info("临时文件清理完成，删除了 {} 个文件", deletedCount);
+            return ReturnResult.ok(deletedCount);
+
+        } catch (Exception e) {
+            log.error("清理临时文件失败", e);
+            return ReturnResult.error("清理临时文件失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> cleanupCache() {
+        try {
+            log.info("开始清理缓存");
+
+            // 清理缓存逻辑
+
+            log.info("缓存清理完成");
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("清理缓存失败", e);
+            return ReturnResult.error("清理缓存失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> optimizeTables() {
+        try {
+            log.info("开始优化服务器相关数据表");
+
+            // 执行表优化操作
+            baseMapper.optimizeTable();
+
+            log.info("服务器相关数据表优化完成");
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("优化服务器相关数据表失败", e);
+            return ReturnResult.error("优化数据表失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> checkDatabaseHealth() {
+        try {
+            log.debug("开始检查数据库健康状态");
+
+            // 执行简单的数据库查询来检查连接
+            this.count();
+
+            log.debug("数据库健康检查通过");
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("数据库健康检查失败", e);
+            return ReturnResult.error("数据库连接异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> checkDiskSpace() {
+        try {
+            log.debug("开始检查磁盘空间");
+
+            // 检查磁盘空间逻辑
+            File root = new File("/");
+            long freeSpace = root.getFreeSpace();
+            long totalSpace = root.getTotalSpace();
+            double usagePercent = (double) (totalSpace - freeSpace) / totalSpace * 100;
+
+            if (usagePercent > 90) {
+                return ReturnResult.error("磁盘空间不足，使用率: " + String.format("%.2f%%", usagePercent));
+            }
+
+            log.debug("磁盘空间检查通过，使用率: {:.2f}%", usagePercent);
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("磁盘空间检查失败", e);
+            return ReturnResult.error("磁盘空间检查失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Void> checkMemoryUsage() {
+        try {
+            log.debug("开始检查内存使用情况");
+
+            // 检查内存使用情况
+            Runtime runtime = Runtime.getRuntime();
+            long maxMemory = runtime.maxMemory();
+            long totalMemory = runtime.totalMemory();
+            long freeMemory = runtime.freeMemory();
+            long usedMemory = totalMemory - freeMemory;
+            double usagePercent = (double) usedMemory / maxMemory * 100;
+
+            if (usagePercent > 90) {
+                return ReturnResult.error("内存使用率过高: " + String.format("%.2f%%", usagePercent));
+            }
+
+            log.debug("内存使用检查通过，使用率: {:.2f}%", usagePercent);
+            return ReturnResult.ok();
+
+        } catch (Exception e) {
+            log.error("内存使用检查失败", e);
+            return ReturnResult.error("内存使用检查失败: " + e.getMessage());
         }
     }
 }

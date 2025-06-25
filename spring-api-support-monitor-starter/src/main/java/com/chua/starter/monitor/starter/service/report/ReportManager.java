@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -209,13 +210,15 @@ public class ReportManager {
      */
     public List<Map<String, Object>> getSupportedReportMethods() {
         return reportHandlers.stream()
-                .map(handler -> Map.of(
-                        "type", handler.getReportType(),
-                        "description", handler.getDescription(),
-                        "priority", handler.getPriority(),
-                        "requiresScheduledTask", handler.requiresScheduledTask(),
-                        "defaultInterval", handler.getDefaultMonitorInterval()
-                ))
+                .map(handler -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("type", handler.getReportType());
+                    map.put("description", handler.getDescription());
+                    map.put("priority", handler.getPriority());
+                    map.put("requiresScheduledTask", handler.requiresScheduledTask());
+                    map.put("defaultInterval", handler.getDefaultMonitorInterval());
+                    return map;
+                })
                 .collect(Collectors.toList());
     }
 
