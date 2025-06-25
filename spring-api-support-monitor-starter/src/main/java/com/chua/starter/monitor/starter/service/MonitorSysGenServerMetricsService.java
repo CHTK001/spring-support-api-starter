@@ -188,4 +188,19 @@ public interface MonitorSysGenServerMetricsService extends IService<MonitorSysGe
      * @return 异常检测结果
      */
     ReturnResult<List<Map<String, Object>>> getAnomalyDetection(Integer serverId, String sensitivity);
+
+    /**
+     * 清理过期指标数据
+     *
+     * @param expireTime 过期时间
+     * @return 清理的记录数
+     */
+    ReturnResult<Integer> cleanupExpiredMetrics(LocalDateTime expireTime);
+
+    /**
+     * 优化指标数据表
+     *
+     * @return 优化结果
+     */
+    ReturnResult<Void> optimizeTables();
 }

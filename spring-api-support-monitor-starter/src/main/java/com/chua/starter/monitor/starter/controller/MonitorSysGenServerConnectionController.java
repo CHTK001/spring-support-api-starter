@@ -2,6 +2,7 @@ package com.chua.starter.monitor.starter.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionStatistics;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -150,7 +151,7 @@ public class MonitorSysGenServerConnectionController {
     @GetMapping("/statistics")
     @Operation(summary = "获取连接状态统计")
     @ApiOperation("获取连接状态统计")
-    public ReturnResult<Map<String, Object>> getConnectionStatusStatistics() {
+    public ReturnResult<MonitorSysGenServerConnectionStatistics> getConnectionStatusStatistics() {
         return connectionStatusService.getConnectionStatusStatistics();
     }
 
