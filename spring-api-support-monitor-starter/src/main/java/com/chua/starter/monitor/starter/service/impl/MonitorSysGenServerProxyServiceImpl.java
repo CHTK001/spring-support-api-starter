@@ -56,8 +56,8 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
         if (entity.getMonitorSysGenServerProxyStatus() != null) {
             wrapper.eq(MonitorSysGenServerProxy::getMonitorSysGenServerProxyStatus, entity.getMonitorSysGenServerProxyStatus());
         }
-        
-        wrapper.orderByDesc(MonitorSysGenServerProxy::getMonitorSysGenServerProxyCreateTime);
+
+        wrapper.orderByDesc(MonitorSysGenServerProxy::getMonitorSysGenServerProxyId);
         
         return this.page(page, wrapper);
     }
@@ -121,9 +121,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
 
 
             // 设置默认值
-            LocalDateTime now = LocalDateTime.now();
-            serverProxy.setMonitorSysGenServerProxyCreateTime(now);
-            serverProxy.setMonitorSysGenServerProxyUpdateTime(now);
             
             if (serverProxy.getMonitorSysGenServerProxyEnabled() == null) {
                 serverProxy.setMonitorSysGenServerProxyEnabled(1); // 默认启用
@@ -160,8 +157,7 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
                 return ReturnResult.error("代理关联不存在");
             }
             
-            // 设置更新时间
-            serverProxy.setMonitorSysGenServerProxyUpdateTime(LocalDateTime.now());
+
             
             boolean result = this.updateById(serverProxy);
             if (result) {
@@ -270,7 +266,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
             }
 
             serverProxy.setMonitorSysGenServerProxyEnabled(1);
-            serverProxy.setMonitorSysGenServerProxyUpdateTime(LocalDateTime.now());
 
             boolean result = this.updateById(serverProxy);
             if (result) {
@@ -298,7 +293,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
 
             serverProxy.setMonitorSysGenServerProxyEnabled(0);
             serverProxy.setMonitorSysGenServerProxyStatus(0); // 设为离线
-            serverProxy.setMonitorSysGenServerProxyUpdateTime(LocalDateTime.now());
 
             boolean result = this.updateById(serverProxy);
             if (result) {
@@ -331,11 +325,10 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
                 return ReturnResult.error("代理未在线");
             }
 
-            String proxyUrl = serverProxy.getMonitorSysGenServerProxyUrl();
+            // 根据Host和Port生成URL
+            String proxyUrl = generateProxyUrl(serverProxy);
             if (StringUtils.isBlank(proxyUrl)) {
-                // 如果没有预设URL，可以根据代理配置生成
-                // TODO: 根据代理类型和配置生成URL
-                proxyUrl = generateProxyUrl(serverProxy);
+                return ReturnResult.error("无法生成代理URL，请检查Host和Port配置");
             }
 
             return ReturnResult.ok(proxyUrl);
@@ -486,7 +479,6 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
 
             // 克隆代理配置
             List<MonitorSysGenServerProxy> clonedProxies = new ArrayList<>();
-            LocalDateTime now = LocalDateTime.now();
 
             for (MonitorSysGenServerProxy sourceProxy : sourceProxies) {
                 // 检查目标服务器是否已存在相同类型的代理
@@ -501,12 +493,11 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
 
                 MonitorSysGenServerProxy clonedProxy = new MonitorSysGenServerProxy();
                 clonedProxy.setMonitorSysGenServerProxyType(sourceProxy.getMonitorSysGenServerProxyType());
-                clonedProxy.setMonitorSysGenServerProxyConfig(sourceProxy.getMonitorSysGenServerProxyConfig());
+                clonedProxy.setMonitorSysGenServerProxyHost(sourceProxy.getMonitorSysGenServerProxyHost());
+                clonedProxy.setMonitorSysGenServerProxyPort(sourceProxy.getMonitorSysGenServerProxyPort());
                 clonedProxy.setMonitorSysGenServerProxyEnabled(sourceProxy.getMonitorSysGenServerProxyEnabled());
                 clonedProxy.setMonitorSysGenServerProxyStatus(0); // 默认离线
                 clonedProxy.setMonitorSysGenServerProxyRemark("从服务器 " + sourceServer.getMonitorSysGenServerName() + " 克隆");
-                clonedProxy.setMonitorSysGenServerProxyCreateTime(now);
-                clonedProxy.setMonitorSysGenServerProxyUpdateTime(now);
 
                 this.save(clonedProxy);
                 clonedProxies.add(clonedProxy);
@@ -526,8 +517,34 @@ public class MonitorSysGenServerProxyServiceImpl extends ServiceImpl<MonitorSysG
      * 生成代理URL
      */
     private String generateProxyUrl(MonitorSysGenServerProxy serverProxy) {
-        // TODO: 根据代理类型和配置生成URL
-        // 这里可以根据不同的代理类型实现不同的URL生成逻辑
-        return "http://proxy-url-placeholder";
+        try {
+            String host = serverProxy.getMonitorSysGenServerProxyHost();
+            Integer port = serverProxy.getMonitorSysGenServerProxyPort();
+            String type = serverProxy.getMonitorSysGenServerProxyType();
+
+            if (StringUtils.isBlank(host) || port == null) {
+                log.warn("代理Host或Port为空: host={}, port={}", host, port);
+                return null;
+            }
+
+            // 根据代理类型生成不同的URL
+            String upperType = StringUtils.isBlank(type) ? "HTTP" : type.toUpperCase();
+            switch (upperType) {
+                case "HTTP":
+                case "HTTPS":
+                    return String.format("http://%s:%d", host, port);
+                case "SOCKS4":
+                case "SOCKS5":
+                    return String.format("socks://%s:%d", host, port);
+                case "GUACAMOLE":
+                    return String.format("http://%s:%d/guacamole", host, port);
+                default:
+                    // 默认使用HTTP协议
+                    return String.format("http://%s:%d", host, port);
+            }
+        } catch (Exception e) {
+            log.error("生成代理URL失败", e);
+            return null;
+        }
     }
 }
