@@ -48,14 +48,7 @@ public class MonitorSysGenServerProxy extends SysBase implements Serializable {
     @Size(max = 50, message = "代理类型最大长度要小于 50")
     private String monitorSysGenServerProxyType;
 
-    /**
-     * 代理配置 (JSON格式)
-     */
-    @TableField(value = "monitor_sys_gen_server_proxy_config")
-    @ApiModelProperty(value = "代理配置")
-    @Schema(description = "代理配置")
-    @Size(max = 2000, message = "代理配置最大长度要小于 2000")
-    private String monitorSysGenServerProxyConfig;
+
 
     /**
      * 是否启用 0:否 1:是
@@ -91,29 +84,22 @@ public class MonitorSysGenServerProxy extends SysBase implements Serializable {
     private String monitorSysGenServerProxyConnectionError;
 
     /**
-     * 代理URL
+     * 代理主机地址
      */
-    @TableField(value = "monitor_sys_gen_server_proxy_url")
-    @ApiModelProperty(value = "代理URL")
-    @Schema(description = "代理URL")
-    @Size(max = 500, message = "代理URL最大长度要小于 500")
-    private String monitorSysGenServerProxyUrl;
+    @TableField(value = "monitor_sys_gen_server_proxy_host")
+    @ApiModelProperty(value = "代理主机地址")
+    @Schema(description = "代理主机地址")
+    @Size(max = 255, message = "代理主机地址最大长度要小于 255")
+    private String monitorSysGenServerProxyHost;
 
     /**
-     * 创建时间
+     * 代理端口
      */
-    @TableField(value = "monitor_sys_gen_server_proxy_create_time")
-    @ApiModelProperty(value = "创建时间")
-    @Schema(description = "创建时间")
-    private LocalDateTime monitorSysGenServerProxyCreateTime;
+    @TableField(value = "monitor_sys_gen_server_proxy_port")
+    @ApiModelProperty(value = "代理端口")
+    @Schema(description = "代理端口")
+    private Integer monitorSysGenServerProxyPort;
 
-    /**
-     * 更新时间
-     */
-    @TableField(value = "monitor_sys_gen_server_proxy_update_time")
-    @ApiModelProperty(value = "更新时间")
-    @Schema(description = "更新时间")
-    private LocalDateTime monitorSysGenServerProxyUpdateTime;
 
     /**
      * 备注

@@ -95,11 +95,11 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
                 var proxyResult = monitorSysGenServerProxyService.getByServerId(server.getMonitorSysGenServerId());
                 if (proxyResult.isOk() && !proxyResult.getData().isEmpty()) {
                     MonitorSysGenServerProxy proxy = proxyResult.getData().get(0);
-                    // 从代理配置中解析地址和端口
-                    String proxyConfig = proxy.getMonitorSysGenServerProxyConfig();
-                    if (proxyConfig != null) {
-                        // TODO: 解析JSON配置获取代理地址和端口
-                        log.info("RDP客户端使用代理配置: {}", proxyConfig);
+                    // 使用代理Host和Port
+                    String proxyHost = proxy.getMonitorSysGenServerProxyHost();
+                    Integer proxyPort = proxy.getMonitorSysGenServerProxyPort();
+                    if (proxyHost != null && proxyPort != null) {
+                        log.info("RDP客户端使用代理: {}:{}", proxyHost, proxyPort);
                     }
                 }
             } catch (Exception e) {

@@ -15,10 +15,10 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.report.ReportManager;
 import com.chua.starter.monitor.starter.service.MonitorProxyService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import com.chua.starter.monitor.starter.service.report.ReportManager;
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
 import com.chua.starter.monitor.starter.websocket.ServerConnectionWebSocketService;
 import lombok.RequiredArgsConstructor;
@@ -1339,18 +1339,21 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             config.put("prometheusHost", server.getMonitorSysGenServerPrometheusHost());
             config.put("prometheusPort", server.getMonitorSysGenServerPrometheusPort());
 
-            // 获取代理类型
+            // 获取代理配置
             String proxyType = null;
+            String proxyHost = null;
+            Integer proxyPort = null;
             if (server.getMonitorSysGenServerProxyId() != null) {
                 MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
                 if (proxy != null) {
                     proxyType = proxy.getProxyProtocol();
+                    proxyHost = proxy.getProxyHost();
+                    proxyPort = proxy.getProxyPort();
                 }
             }
             config.put("proxyType", proxyType);
-            // TODO: 从MonitorSysGenServerProxy获取代理配置
-            config.put("proxyHost", null);
-            config.put("proxyPort", null);
+            config.put("proxyHost", proxyHost);
+            config.put("proxyPort", proxyPort);
 
             return ReturnResult.ok(config);
         } catch (Exception e) {
