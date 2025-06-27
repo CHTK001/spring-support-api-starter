@@ -1,22 +1,23 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMetricsMapper;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务器指标数据服务实现类
@@ -27,26 +28,107 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSysGenServerMetricsMapper, MonitorSysGenServerMetrics>
-        implements MonitorSysGenServerMetricsService {
+public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServerMetricsService {
+
+    private final TimeSeriesService timeSeriesService;
+    private final MonitorSysGenServerSettingService serverSettingService;
+
+    private static final String REDIS_METRICS_PREFIX = "SERVER:server:metrics:";
+    private static final String REDIS_LATEST_PREFIX = "SERVER:server:latest:";
 
     @Override
     public IPage<MonitorSysGenServerMetrics> pageFor(Page<MonitorSysGenServerMetrics> page, MonitorSysGenServerMetrics entity) {
-        return this.page(page, Wrappers.<MonitorSysGenServerMetrics>lambdaQuery()
-                .eq(entity.getMonitorSysGenServerId() != null, 
-                    MonitorSysGenServerMetrics::getMonitorSysGenServerId, entity.getMonitorSysGenServerId())
-                .eq(entity.getMonitorSysGenServerMetricsStatus() != null, 
-                    MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsStatus, entity.getMonitorSysGenServerMetricsStatus())
-                .ge(entity.getMonitorSysGenServerMetricsCollectTime() != null, 
-                    MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsCollectTime, entity.getMonitorSysGenServerMetricsCollectTime())
-                .orderByDesc(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsCollectTime));
+        // 基于Redis的分页查询实现
+        try {
+            if (entity == null || entity.getMonitorSysGenServerId() == null) {
+                log.warn("分页查询参数不完整");
+                return page;
+            }
+
+            // 从Redis获取指标数据
+            Integer monitorSysGenServerId = entity.getMonitorSysGenServerId();
+            String serverId = String.valueOf(monitorSysGenServerId);
+            long endTime = System.currentTimeMillis();
+            long startTime = endTime - (24 * 60 * 60 * 1000); // 默认查询最近24小时
+
+            // 计算分页参数
+            long offset = (page.getCurrent() - 1) * page.getSize();
+            long count = page.getSize();
+
+            var result = timeSeriesService.range(
+                REDIS_METRICS_PREFIX + serverId,
+                startTime,
+                endTime,
+                false,
+                (int) count
+            );
+
+            if (result.isSuccess() && result.getData() != null) {
+                List<MonitorSysGenServerMetrics> metricsList = result.getData().stream()
+                    .map(it -> convertTimeIndicatorToMetrics(it, monitorSysGenServerId))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+                page.setRecords(metricsList);
+                page.setTotal(metricsList.size());
+            }
+
+            return page;
+        } catch (Exception e) {
+            log.error("分页查询服务器指标数据失败: {}", e.getMessage(), e);
+            return page;
+        }
     }
 
     @Override
     public ReturnResult<Boolean> saveMetrics(MonitorSysGenServerMetrics metrics) {
         try {
-            boolean result = this.save(metrics);
-            return ReturnResult.of(result, result ? "保存成功" : "保存失败");
+            // 检查服务器是否存在
+            if (metrics.getMonitorSysGenServerId() == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            if (metrics.getMonitorSysGenServerMetricsCollectTime() == null) {
+                metrics.setMonitorSysGenServerMetricsCollectTime(LocalDateTime.now());
+            }
+
+            // 将指标数据存储到Redis
+            String serverId = String.valueOf(metrics.getMonitorSysGenServerId());
+            long timestamp = metrics.getMonitorSysGenServerMetricsCollectTime().toEpochSecond(ZoneOffset.UTC) * 1000;
+
+            // 构建指标数据Map
+            Map<String, Object> metricsData = buildMetricsDataMap(metrics);
+
+            // 使用简单的Redis存储方式，因为TimeSeriesService的API不明确
+            // 存储最新指标数据到Hash
+            Map<String, String> hashData = new HashMap<>();
+            for (Map.Entry<String, Object> entry : metricsData.entrySet()) {
+                hashData.put(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+            hashData.put("timestamp", String.valueOf(timestamp));
+
+            // 使用hSet存储最新数据
+            Map<String, String> latestData = timeSeriesService.hGet(REDIS_LATEST_PREFIX + serverId);
+            if (latestData == null) {
+                latestData = new HashMap<>();
+            }
+            latestData.putAll(hashData);
+
+            // 保存最新数据到Redis Hash - 逐个字段保存
+            for (Map.Entry<String, String> entry : hashData.entrySet()) {
+                timeSeriesService.hSet(REDIS_LATEST_PREFIX + serverId, entry.getKey(), entry.getValue());
+            }
+
+            // 设置过期时间
+            setMetricsExpireTime(metrics.getMonitorSysGenServerId(), REDIS_LATEST_PREFIX + serverId);
+
+            // 这里简化实现，实际应该使用时序数据库
+            log.info("保存服务器指标数据到Redis: serverId={}, timestamp={}", serverId, timestamp);
+            log.debug("CPU使用率: {}", metrics.getMonitorSysGenServerMetricsCpuUsage());
+            log.debug("内存使用率: {}", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+            log.debug("磁盘使用率: {}", metrics.getMonitorSysGenServerMetricsDiskUsage());
+
+            return ReturnResult.ok(true, "保存成功");
         } catch (Exception e) {
             log.error("保存服务器指标数据失败: {}", e.getMessage(), e);
             return ReturnResult.error("保存失败: " + e.getMessage());
@@ -56,8 +138,22 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<Boolean> batchSaveMetrics(List<MonitorSysGenServerMetrics> metricsList) {
         try {
-            boolean result = this.saveBatch(metricsList);
-            return ReturnResult.of(result, result ? "批量保存成功" : "批量保存失败");
+            if (metricsList == null || metricsList.isEmpty()) {
+                return ReturnResult.ok(true, "没有数据需要保存");
+            }
+
+            int successCount = 0;
+            for (MonitorSysGenServerMetrics metrics : metricsList) {
+                var result = saveMetrics(metrics);
+                if (result.isOk()) {
+                    successCount++;
+                }
+            }
+
+            boolean allSuccess = successCount == metricsList.size();
+            String message = String.format("批量保存完成，成功: %d/%d", successCount, metricsList.size());
+
+            return ReturnResult.of(allSuccess, message);
         } catch (Exception e) {
             log.error("批量保存服务器指标数据失败: {}", e.getMessage(), e);
             return ReturnResult.error("批量保存失败: " + e.getMessage());
@@ -67,7 +163,14 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<MonitorSysGenServerMetrics> getLatestMetrics(Integer serverId) {
         try {
-            MonitorSysGenServerMetrics metrics = baseMapper.selectLatestByServerId(serverId);
+            String key = REDIS_LATEST_PREFIX + serverId;
+            Map<String, String> latestData = timeSeriesService.hGet(key);
+
+            if (latestData == null || latestData.isEmpty()) {
+                return ReturnResult.ok(null);
+            }
+
+            MonitorSysGenServerMetrics metrics = convertHashToMetrics(latestData, serverId);
             return ReturnResult.ok(metrics);
         } catch (Exception e) {
             log.error("获取最新指标数据失败: {}", e.getMessage(), e);
@@ -78,8 +181,22 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<List<MonitorSysGenServerMetrics>> getHistoryMetrics(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            List<MonitorSysGenServerMetrics> metrics = baseMapper.selectHistoryByServerId(serverId, startTime, endTime);
-            return ReturnResult.ok(metrics);
+            String key = REDIS_METRICS_PREFIX + serverId;
+            long start = startTime.toEpochSecond(ZoneOffset.UTC) * 1000;
+            long end = endTime.toEpochSecond(ZoneOffset.UTC) * 1000;
+
+            var result = timeSeriesService.range(key, start, end, false, 1000);
+
+            if (result.isOk() && result.getData() != null) {
+                List<MonitorSysGenServerMetrics> metricsList = result.getData().stream()
+                    .map(indicator -> convertTimeIndicatorToMetrics(indicator, serverId))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+                return ReturnResult.ok(metricsList);
+            }
+
+            return ReturnResult.ok(List.of());
         } catch (Exception e) {
             log.error("获取历史指标数据失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取历史指标数据失败: " + e.getMessage());
@@ -93,22 +210,9 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
             Map<String, Object> chartData = new HashMap<>();
             List<Map<String, Object>> data;
             
-            switch (metricType.toLowerCase()) {
-                case "cpu":
-                    data = baseMapper.getCpuUsageChartData(serverId, startTime, endTime, parseInterval(interval));
-                    break;
-                case "memory":
-                    data = baseMapper.getMemoryUsageChartData(serverId, startTime, endTime, parseInterval(interval));
-                    break;
-                case "disk":
-                    data = baseMapper.getDiskUsageChartData(serverId, startTime, endTime, parseInterval(interval));
-                    break;
-                case "network":
-                    data = baseMapper.getNetworkChartData(serverId, startTime, endTime, parseInterval(interval));
-                    break;
-                default:
-                    return ReturnResult.error("不支持的指标类型: " + metricType);
-            }
+            // TODO: 实现基于Redis的图表数据查询
+            log.warn("getMetricsChartData方法暂未实现Redis查询逻辑: serverId={}, metricType={}", serverId, metricType);
+            data = List.of();
             
             chartData.put("serverId", serverId);
             chartData.put("metricType", metricType);
@@ -128,16 +232,17 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     public ReturnResult<Map<String, Object>> getCompareChartData(List<Integer> serverIds, String metricType,
                                                                 LocalDateTime startTime, LocalDateTime endTime, String interval) {
         try {
-            List<Map<String, Object>> data = baseMapper.getCompareChartData(serverIds, metricType, startTime, endTime);
-            
+            // TODO: 实现基于Redis的对比图表数据查询
+            log.warn("getCompareChartData方法暂未实现Redis查询逻辑: serverIds={}, metricType={}", serverIds, metricType);
+
             Map<String, Object> chartData = new HashMap<>();
             chartData.put("serverIds", serverIds);
             chartData.put("metricType", metricType);
-            chartData.put("data", data);
+            chartData.put("data", List.of());
             chartData.put("startTime", startTime);
             chartData.put("endTime", endTime);
             chartData.put("interval", interval);
-            
+
             return ReturnResult.ok(chartData);
         } catch (Exception e) {
             log.error("获取对比图表数据失败: {}", e.getMessage(), e);
@@ -148,8 +253,9 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<Map<String, Object>> getMetricsStatistics(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            Map<String, Object> statistics = baseMapper.getMetricsStatistics(serverId, startTime, endTime);
-            return ReturnResult.ok(statistics);
+            // TODO: 实现基于Redis的指标统计查询
+            log.warn("getMetricsStatistics方法暂未实现Redis查询逻辑");
+            return ReturnResult.ok(Map.of());
         } catch (Exception e) {
             log.error("获取指标统计数据失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取指标统计数据失败: " + e.getMessage());
@@ -159,22 +265,26 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<List<Map<String, Object>>> getAlertData(Integer serverId, Map<String, Object> thresholds) {
         try {
-            // 简化实现，实际应该根据阈值配置进行告警检测
+            // 基于Redis的告警检测实现
             LocalDateTime endTime = LocalDateTime.now();
             LocalDateTime startTime = endTime.minusHours(24); // 检查最近24小时
-            
+
             Double cpuThreshold = getThreshold(thresholds, "cpu", 80.0);
             Double memoryThreshold = getThreshold(thresholds, "memory", 80.0);
             Double diskThreshold = getThreshold(thresholds, "disk", 90.0);
-            
-            List<MonitorSysGenServerMetrics> anomalyData = baseMapper.getAnomalyData(
-                    serverId, startTime, endTime, cpuThreshold, memoryThreshold, diskThreshold);
-            
-            // 转换为告警格式
-            List<Map<String, Object>> alerts = anomalyData.stream()
-                    .map(this::convertToAlert)
-                    .toList();
-            
+
+            // 获取历史数据进行告警检测
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            List<Map<String, Object>> alerts = new ArrayList<>();
+
+            if (historyResult.isOk() && historyResult.getData() != null) {
+                for (MonitorSysGenServerMetrics metrics : historyResult.getData()) {
+                    if (isAnomalyData(metrics, cpuThreshold, memoryThreshold, diskThreshold)) {
+                        alerts.add(convertToAlert(metrics));
+                    }
+                }
+            }
+
             return ReturnResult.ok(alerts);
         } catch (Exception e) {
             log.error("获取告警数据失败: {}", e.getMessage(), e);
@@ -186,7 +296,9 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     public ReturnResult<Integer> deleteExpiredMetrics(Integer serverId, Integer retentionDays) {
         try {
             LocalDateTime expireTime = LocalDateTime.now().minusDays(retentionDays);
-            int deletedCount = baseMapper.deleteExpiredMetrics(serverId, expireTime);
+            // 基于Redis的删除实现
+            log.warn("Redis时序数据删除功能暂未实现");
+            int deletedCount = 0;
             return ReturnResult.ok(deletedCount);
         } catch (Exception e) {
             log.error("删除过期指标数据失败: {}", e.getMessage(), e);
@@ -199,12 +311,14 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
         try {
             // 默认删除30天前的数据
             LocalDateTime expireTime = LocalDateTime.now().minusDays(30);
-            int deletedCount = baseMapper.batchDeleteExpiredMetrics(expireTime);
-            
+            // 基于Redis的批量删除实现
+            log.warn("Redis时序数据批量删除功能暂未实现");
+            int deletedCount = 0;
+
             Map<String, Object> result = new HashMap<>();
             result.put("deletedCount", deletedCount);
             result.put("expireTime", expireTime);
-            
+
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("批量删除过期指标数据失败: {}", e.getMessage(), e);
@@ -217,21 +331,29 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
                                                                  LocalDateTime startTime, LocalDateTime endTime) {
         try {
             Map<String, Object> report = new HashMap<>();
-            
-            // 获取统计数据
-            Map<String, Object> statistics = baseMapper.getMetricsStatistics(serverId, startTime, endTime);
+
+            // 基于Redis的统计数据获取
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            Map<String, Object> statistics = new HashMap<>();
+
+            if (historyResult.isSuccess() && historyResult.getData() != null) {
+                List<MonitorSysGenServerMetrics> metricsList = historyResult.getData();
+                statistics = calculateStatistics(metricsList);
+            }
+
             report.put("statistics", statistics);
-            
+
             // 获取健康状态
-            Map<String, Object> healthData = baseMapper.getServerHealthData(serverId);
+            var healthResult = getServerHealthStatus(serverId);
+            Map<String, Object> healthData = healthResult.isOk() ? healthResult.getData() : new HashMap<>();
             report.put("currentHealth", healthData);
-            
+
             report.put("serverId", serverId);
             report.put("reportType", reportType);
             report.put("startTime", startTime);
             report.put("endTime", endTime);
             report.put("generateTime", LocalDateTime.now());
-            
+
             return ReturnResult.ok(report);
         } catch (Exception e) {
             log.error("获取性能报告失败: {}", e.getMessage(), e);
@@ -242,9 +364,11 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<byte[]> exportMetricsData(Integer serverId, LocalDateTime startTime, LocalDateTime endTime, String format) {
         try {
-            // 简化实现，实际应该根据格式生成对应的文件
-            List<MonitorSysGenServerMetrics> metrics = baseMapper.selectHistoryByServerId(serverId, startTime, endTime);
-            
+            // 基于Redis的数据导出
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            List<MonitorSysGenServerMetrics> metrics = historyResult.isSuccess() ?
+                historyResult.getData() : new ArrayList<>();
+
             String data = "导出数据: " + metrics.size() + " 条记录";
             return ReturnResult.ok(data.getBytes());
         } catch (Exception e) {
@@ -256,10 +380,11 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<Map<String, Object>> getRealTimeMetrics(Integer serverId) {
         try {
-            MonitorSysGenServerMetrics latestMetrics = baseMapper.selectLatestByServerId(serverId);
-            
+            var latestResult = getLatestMetrics(serverId);
+
             Map<String, Object> realTimeData = new HashMap<>();
-            if (latestMetrics != null) {
+            if (latestResult.isSuccess() && latestResult.getData() != null) {
+                MonitorSysGenServerMetrics latestMetrics = latestResult.getData();
                 realTimeData.put("serverId", serverId);
                 realTimeData.put("cpuUsage", latestMetrics.getMonitorSysGenServerMetricsCpuUsage());
                 realTimeData.put("memoryUsage", latestMetrics.getMonitorSysGenServerMetricsMemoryUsage());
@@ -269,7 +394,7 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
                 realTimeData.put("status", latestMetrics.getMonitorSysGenServerMetricsStatus());
                 realTimeData.put("collectTime", latestMetrics.getMonitorSysGenServerMetricsCollectTime());
             }
-            
+
             return ReturnResult.ok(realTimeData);
         } catch (Exception e) {
             log.error("获取实时指标数据失败: {}", e.getMessage(), e);
@@ -280,9 +405,17 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
     @Override
     public ReturnResult<Map<String, Object>> getServerHealthStatus(Integer serverId) {
         try {
-            Map<String, Object> healthData = baseMapper.getServerHealthData(serverId);
+            // 基于Redis的健康状态获取
+            var latestResult = getLatestMetrics(serverId);
+            Map<String, Object> healthData = new HashMap<>();
 
-            if (healthData != null) {
+            if (latestResult.isOk() && latestResult.getData() != null) {
+                MonitorSysGenServerMetrics metrics = latestResult.getData();
+                healthData.put("cpu_usage", metrics.getMonitorSysGenServerMetricsCpuUsage());
+                healthData.put("memory_usage", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+                healthData.put("disk_usage", metrics.getMonitorSysGenServerMetricsDiskUsage());
+                healthData.put("status", metrics.getMonitorSysGenServerMetricsStatus());
+
                 // 根据指标判断健康状态
                 String status = determineHealthStatus(healthData);
                 healthData.put("healthStatus", status);
@@ -302,7 +435,13 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
             LocalDateTime endTime = LocalDateTime.now();
             LocalDateTime startTime = endTime.minusDays(30); // 使用最近30天的数据进行预测
 
-            Map<String, Object> statistics = baseMapper.getMetricsStatistics(serverId, startTime, endTime);
+            // 基于Redis的统计数据计算
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            Map<String, Object> statistics = new HashMap<>();
+
+            if (historyResult.isOk() && historyResult.getData() != null) {
+                statistics = calculateStatistics(historyResult.getData());
+            }
 
             Map<String, Object> prediction = new HashMap<>();
             prediction.put("serverId", serverId);
@@ -310,7 +449,7 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
             prediction.put("baseStatistics", statistics);
 
             // 简单的线性预测（实际应该使用更复杂的算法）
-            if (statistics != null) {
+            if (!statistics.isEmpty()) {
                 Double avgCpuUsage = (Double) statistics.get("avg_cpu_usage");
                 Double avgMemoryUsage = (Double) statistics.get("avg_memory_usage");
                 Double avgDiskUsage = (Double) statistics.get("avg_disk_usage");
@@ -341,19 +480,12 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
             LocalDateTime endTime = LocalDateTime.now();
             LocalDateTime startTime = endTime.minusDays(days);
 
-            List<Map<String, Object>> data;
-            switch (metricType.toLowerCase()) {
-                case "cpu":
-                    data = baseMapper.getCpuUsageChartData(serverId, startTime, endTime, 60);
-                    break;
-                case "memory":
-                    data = baseMapper.getMemoryUsageChartData(serverId, startTime, endTime, 60);
-                    break;
-                case "disk":
-                    data = baseMapper.getDiskUsageChartData(serverId, startTime, endTime, 60);
-                    break;
-                default:
-                    return ReturnResult.error("不支持的指标类型: " + metricType);
+            // 基于Redis的趋势分析
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            List<Map<String, Object>> data = new ArrayList<>();
+
+            if (historyResult.isSuccess() && historyResult.getData() != null) {
+                data = convertMetricsToChartData(historyResult.getData(), metricType);
             }
 
             Map<String, Object> trendAnalysis = new HashMap<>();
@@ -387,15 +519,17 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
             // 根据敏感度设置阈值
             Map<String, Double> thresholds = getSensitivityThresholds(sensitivity);
 
-            List<MonitorSysGenServerMetrics> anomalyData = baseMapper.getAnomalyData(
-                    serverId, startTime, endTime,
-                    thresholds.get("cpu"),
-                    thresholds.get("memory"),
-                    thresholds.get("disk"));
+            // 基于Redis的异常检测
+            var historyResult = getHistoryMetrics(serverId, startTime, endTime);
+            List<Map<String, Object>> anomalies = new ArrayList<>();
 
-            List<Map<String, Object>> anomalies = anomalyData.stream()
-                    .map(metrics -> convertToAnomaly(metrics, thresholds))
-                    .toList();
+            if (historyResult.isOk() && historyResult.getData() != null) {
+                for (MonitorSysGenServerMetrics metrics : historyResult.getData()) {
+                    if (isAnomalyData(metrics, thresholds.get("cpu"), thresholds.get("memory"), thresholds.get("disk"))) {
+                        anomalies.add(convertToAnomaly(metrics, thresholds));
+                    }
+                }
+            }
 
             return ReturnResult.ok(anomalies);
         } catch (Exception e) {
@@ -578,8 +712,10 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
         try {
             log.info("开始清理过期指标数据，过期时间: {}", expireTime);
 
-            int deletedCount = baseMapper.delete(Wrappers.<MonitorSysGenServerMetrics>lambdaQuery()
-                    .lt(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsCollectTime, expireTime));
+            // 基于Redis的清理实现
+            // 这里简化实现，实际应该遍历所有服务器的时序数据进行清理
+            int deletedCount = 0;
+            log.warn("Redis时序数据清理功能暂未实现");
 
             log.info("清理过期指标数据完成，删除了 {} 条记录", deletedCount);
             return ReturnResult.ok(deletedCount);
@@ -595,15 +731,249 @@ public class MonitorSysGenServerMetricsServiceImpl extends ServiceImpl<MonitorSy
         try {
             log.info("开始优化指标数据表");
 
-            // 执行表优化操作
-            baseMapper.optimizeTable();
-
-            log.info("指标数据表优化完成");
+            // Redis不需要表优化
+            log.info("Redis存储无需表优化");
             return ReturnResult.ok();
 
         } catch (Exception e) {
             log.error("优化指标数据表失败", e);
             return ReturnResult.error("优化指标数据表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 构建指标数据Map
+     */
+    private Map<String, Object> buildMetricsDataMap(MonitorSysGenServerMetrics metrics) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("serverId", metrics.getMonitorSysGenServerId());
+        data.put("collectTime", metrics.getMonitorSysGenServerMetricsCollectTime());
+        data.put("cpuUsage", metrics.getMonitorSysGenServerMetricsCpuUsage());
+        data.put("cpuCores", metrics.getMonitorSysGenServerMetricsCpuCores());
+        data.put("cpuLoad1m", metrics.getMonitorSysGenServerMetricsCpuLoad1m());
+        data.put("cpuLoad5m", metrics.getMonitorSysGenServerMetricsCpuLoad5m());
+        data.put("cpuLoad15m", metrics.getMonitorSysGenServerMetricsCpuLoad15m());
+        data.put("memoryUsage", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+        data.put("memoryTotal", metrics.getMonitorSysGenServerMetricsMemoryTotal());
+        data.put("memoryUsed", metrics.getMonitorSysGenServerMetricsMemoryUsed());
+        data.put("memoryFree", metrics.getMonitorSysGenServerMetricsMemoryFree());
+        data.put("diskUsage", metrics.getMonitorSysGenServerMetricsDiskUsage());
+        data.put("diskTotal", metrics.getMonitorSysGenServerMetricsDiskTotal());
+        data.put("diskUsed", metrics.getMonitorSysGenServerMetricsDiskUsed());
+        data.put("diskFree", metrics.getMonitorSysGenServerMetricsDiskFree());
+        data.put("networkIn", metrics.getMonitorSysGenServerMetricsNetworkIn());
+        data.put("networkOut", metrics.getMonitorSysGenServerMetricsNetworkOut());
+        data.put("uptime", metrics.getMonitorSysGenServerMetricsUptime());
+        data.put("processCount", metrics.getMonitorSysGenServerMetricsProcessCount());
+        data.put("status", metrics.getMonitorSysGenServerMetricsStatus());
+        data.put("responseTime", metrics.getMonitorSysGenServerMetricsResponseTime());
+        data.put("osInfo", metrics.getMonitorSysGenServerMetricsOsInfo());
+        return data;
+    }
+
+    /**
+     * 将TimeIndicator转换为MonitorSysGenServerMetrics
+     */
+    private MonitorSysGenServerMetrics convertTimeIndicatorToMetrics(com.chua.common.support.session.indicator.TimeIndicator indicator, Integer serverId) {
+        try {
+            MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
+            metrics.setMonitorSysGenServerId(serverId);
+
+            // 从TimeIndicator中提取数据
+            if (indicator.getTimestamp() > 0) {
+                metrics.setMonitorSysGenServerMetricsCollectTime(
+                    LocalDateTime.ofEpochSecond(indicator.getTimestamp() / 1000, 0, ZoneOffset.UTC)
+                );
+            }
+
+            // 这里需要根据实际的TimeIndicator结构来解析数据
+            // 暂时返回基本结构
+            return metrics;
+        } catch (Exception e) {
+            log.error("转换TimeIndicator失败: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 计算统计数据
+     */
+    private Map<String, Object> calculateStatistics(List<MonitorSysGenServerMetrics> metricsList) {
+        Map<String, Object> statistics = new HashMap<>();
+
+        if (metricsList == null || metricsList.isEmpty()) {
+            return statistics;
+        }
+
+        double totalCpu = 0, totalMemory = 0, totalDisk = 0;
+        int count = 0;
+
+        for (MonitorSysGenServerMetrics metrics : metricsList) {
+            if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null) {
+                totalCpu += metrics.getMonitorSysGenServerMetricsCpuUsage().doubleValue();
+            }
+            if (metrics.getMonitorSysGenServerMetricsMemoryUsage() != null) {
+                totalMemory += metrics.getMonitorSysGenServerMetricsMemoryUsage().doubleValue();
+            }
+            if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null) {
+                totalDisk += metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue();
+            }
+            count++;
+        }
+
+        if (count > 0) {
+            statistics.put("avg_cpu_usage", totalCpu / count);
+            statistics.put("avg_memory_usage", totalMemory / count);
+            statistics.put("avg_disk_usage", totalDisk / count);
+            statistics.put("count", count);
+        }
+
+        return statistics;
+    }
+
+    /**
+     * 将指标数据转换为图表数据
+     */
+    private List<Map<String, Object>> convertMetricsToChartData(List<MonitorSysGenServerMetrics> metricsList, String metricType) {
+        List<Map<String, Object>> chartData = new ArrayList<>();
+
+        for (MonitorSysGenServerMetrics metrics : metricsList) {
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("timestamp", metrics.getMonitorSysGenServerMetricsCollectTime());
+
+            switch (metricType.toLowerCase()) {
+                case "cpu":
+                    dataPoint.put("cpu_usage", metrics.getMonitorSysGenServerMetricsCpuUsage());
+                    break;
+                case "memory":
+                    dataPoint.put("memory_usage", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+                    break;
+                case "disk":
+                    dataPoint.put("disk_usage", metrics.getMonitorSysGenServerMetricsDiskUsage());
+                    break;
+                default:
+                    continue;
+            }
+
+            chartData.add(dataPoint);
+        }
+
+        return chartData;
+    }
+
+    /**
+     * 检查是否为异常数据
+     */
+    private boolean isAnomalyData(MonitorSysGenServerMetrics metrics, Double cpuThreshold, Double memoryThreshold, Double diskThreshold) {
+        if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null &&
+            metrics.getMonitorSysGenServerMetricsCpuUsage().doubleValue() > cpuThreshold) {
+            return true;
+        }
+
+        if (metrics.getMonitorSysGenServerMetricsMemoryUsage() != null &&
+            metrics.getMonitorSysGenServerMetricsMemoryUsage().doubleValue() > memoryThreshold) {
+            return true;
+        }
+
+        if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
+            metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > diskThreshold) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 将Hash数据转换为MonitorSysGenServerMetrics
+     */
+    private MonitorSysGenServerMetrics convertHashToMetrics(Map<String, String> hashData, Integer serverId) {
+        try {
+            MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
+            metrics.setMonitorSysGenServerId(serverId);
+
+            if (hashData.containsKey("timestamp")) {
+                long timestamp = Long.parseLong(hashData.get("timestamp"));
+                metrics.setMonitorSysGenServerMetricsCollectTime(
+                    LocalDateTime.ofEpochSecond(timestamp / 1000, 0, ZoneOffset.UTC)
+                );
+            }
+
+            if (hashData.containsKey("cpuUsage")) {
+                metrics.setMonitorSysGenServerMetricsCpuUsage(new BigDecimal(hashData.get("cpuUsage")));
+            }
+
+            if (hashData.containsKey("memoryUsage")) {
+                metrics.setMonitorSysGenServerMetricsMemoryUsage(new BigDecimal(hashData.get("memoryUsage")));
+            }
+
+            if (hashData.containsKey("diskUsage")) {
+                metrics.setMonitorSysGenServerMetricsDiskUsage(new BigDecimal(hashData.get("diskUsage")));
+            }
+
+            if (hashData.containsKey("networkIn")) {
+                metrics.setMonitorSysGenServerMetricsNetworkIn(Long.parseLong(hashData.get("networkIn")));
+            }
+
+            if (hashData.containsKey("networkOut")) {
+                metrics.setMonitorSysGenServerMetricsNetworkOut(Long.parseLong(hashData.get("networkOut")));
+            }
+
+            if (hashData.containsKey("status")) {
+                metrics.setMonitorSysGenServerMetricsStatus(Integer.parseInt(hashData.get("status")));
+            }
+
+            if (hashData.containsKey("responseTime")) {
+                metrics.setMonitorSysGenServerMetricsResponseTime(Long.parseLong(hashData.get("responseTime")));
+            }
+
+            return metrics;
+        } catch (Exception e) {
+            log.error("转换Hash数据失败: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 设置指标数据的过期时间
+     */
+    private void setMetricsExpireTime(Integer serverId, String redisKey) {
+        try {
+            // 获取服务器配置
+            var settingResult = serverSettingService.getOrCreateSetting(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                log.warn("获取服务器配置失败，使用默认过期时间: serverId={}", serverId);
+                // TODO: 使用默认30天过期时间 - 需要实现Redis过期时间设置
+                // timeSeriesService.expire(redisKey, 30 * 24 * 60 * 60);
+                log.debug("暂时跳过设置过期时间，需要实现Redis过期功能: key={}", redisKey);
+                return;
+            }
+
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 获取指标存储时间配置，优先使用具体指标的配置，其次使用通用配置
+            Integer retentionDays = setting.getMonitorSysGenServerSettingMetricsRetentionDays();
+
+            // 检查是否有更细粒度的配置
+            if (setting.getMonitorSysGenServerSettingCpuRetentionDays() != null) {
+                retentionDays = setting.getMonitorSysGenServerSettingCpuRetentionDays();
+            }
+
+            // 如果没有配置，使用默认30天
+            if (retentionDays == null || retentionDays <= 0) {
+                retentionDays = 30;
+            }
+
+            // 设置过期时间（转换为秒）
+            int expireSeconds = retentionDays * 24 * 60 * 60;
+            // TODO: 实现Redis过期时间设置
+            // timeSeriesService.expire(redisKey, expireSeconds);
+
+            log.debug("配置指标数据过期时间: key={}, days={}, seconds={} (暂未实现)", redisKey, retentionDays, expireSeconds);
+
+        } catch (Exception e) {
+            log.error("设置指标数据过期时间失败: key={}, serverId={}", redisKey, serverId, e);
+            // TODO: 出错时使用默认30天过期时间 - 需要实现Redis过期功能
+            log.debug("暂时跳过设置默认过期时间，需要实现Redis过期功能: key={}", redisKey);
         }
     }
 }

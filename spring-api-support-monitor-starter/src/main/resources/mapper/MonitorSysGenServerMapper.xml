@@ -25,9 +25,11 @@
 
     <!-- 获取启用监控的服务器列表 -->
     <select id="selectMonitoringEnabledServers" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServer">
-        SELECT * FROM monitor_sys_gen_server 
-        WHERE monitor_sys_gen_server_monitor_enabled = 1 
-        AND monitor_sys_gen_server_status = 1
+        SELECT s.* FROM monitor_sys_gen_server s
+        INNER JOIN monitor_sys_gen_server_setting st ON s.monitor_sys_gen_server_id = st.monitor_sys_gen_server_id
+        WHERE st.monitor_sys_gen_server_setting_monitor_enabled = 1
+        AND s.monitor_sys_gen_server_status = 1
+        AND st.monitor_sys_gen_server_setting_status = 1
     </select>
 
     <!-- 根据生成器ID获取服务器列表 -->

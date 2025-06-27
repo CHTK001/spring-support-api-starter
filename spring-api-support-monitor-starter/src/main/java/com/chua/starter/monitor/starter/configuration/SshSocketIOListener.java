@@ -244,6 +244,11 @@ public class SshSocketIOListener implements SocketIOListener {
                     handleSSHConnect(session, message);
                     break;
                 case ServerWebSocketMessage.MessageType.SSH_INPUT:
+                    Integer serverId = message.getServerId();
+                    if(!sshCommandService.isSSHConnected(serverId)) {
+                        handleSSHDisconnect(session, message);
+                        break;
+                    }
                     handleSSHInput(session, message);
                     break;
                 case ServerWebSocketMessage.MessageType.SSH_DISCONNECT:

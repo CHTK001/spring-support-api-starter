@@ -6,6 +6,7 @@ import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
 
+    private final MonitorSysGenServerProxyService monitorSysGenServerProxyService;
     /**
      * VNC连接池 (使用GuacamoleClient)
      */
@@ -57,7 +59,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             log.info("测试VNC连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
 
             // 使用GuacamoleClient创建VNC连接进行测试
-            GuacamoleClient client = createGuacamoleClient(server);
+            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerProxyService);
             if (client == null) {
                 return false;
             }
@@ -89,7 +91,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             }
 
             // 使用GuacamoleClient创建VNC连接
-            GuacamoleClient client = createGuacamoleClient(server);
+            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerProxyService);
             if (client == null) {
                 sendConnectionMessage(server, "connect_failed", false, "创建客户端失败");
                 return false;
@@ -123,18 +125,6 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
         }
     }
 
-    /**
-     * 创建GuacamoleClient
-     */
-    private GuacamoleClient createGuacamoleClient(MonitorSysGenServer server) {
-        // 模拟实现，实际应该根据GuacamoleClient的真实API来实现
-        try {
-            return GuacamoleClient.class.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            log.error("创建GuacamoleClient失败: {}", e.getMessage(), e);
-            return null;
-        }
-    }
 
     @Override
     public void disconnect(Integer serverId) {
