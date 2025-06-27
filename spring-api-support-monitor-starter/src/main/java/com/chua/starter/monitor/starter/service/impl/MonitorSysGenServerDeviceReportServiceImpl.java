@@ -75,12 +75,11 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
             for (MonitorSysGenServer server : matchedServers) {
                 try {
                     MonitorSysGenServerMetrics serverMetrics = convertDeviceMetricsToServerMetrics(metrics, server);
-
+                    // 通过WebSocket推送到前端
+                    broadcastServerMetrics(server.getMonitorSysGenServerId(), serverMetrics);
                     // 保存到Redis
                     var saveResult = metricsService.saveMetrics(serverMetrics);
                     if (saveResult.isOk()) {
-                        // 通过WebSocket推送到前端
-                        broadcastServerMetrics(server.getMonitorSysGenServerId(), serverMetrics);
                         log.debug("设备指标数据已关联到服务器并推送到前端: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId());
                     } else {
                         log.warn("保存服务器指标数据失败: deviceIp={}, serverId={}, error={}", deviceIp, server.getMonitorSysGenServerId(), saveResult.getMsg());
