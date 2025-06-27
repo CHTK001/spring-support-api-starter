@@ -521,7 +521,9 @@ public class MonitorSysGenServerSetting extends SysBase implements Serializable 
     public enum ProxyType {
         HTTP("HTTP", "HTTP代理"),
         SOCKS4("SOCKS4", "SOCKS4代理"),
-        SOCKS5("SOCKS5", "SOCKS5代理");
+        SOCKS5("SOCKS5", "SOCKS5代理"),
+        SSH_TUNNEL("SSH_TUNNEL", "SSH隧道"),
+        GUACAMOLE("GUACAMOLE", "Guacamole代理");
 
         private final String code;
         private final String desc;
