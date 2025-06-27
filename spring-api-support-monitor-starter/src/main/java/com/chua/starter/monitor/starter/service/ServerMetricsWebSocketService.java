@@ -236,6 +236,14 @@ public class ServerMetricsWebSocketService {
     }
 
     /**
+     * 推送单个服务器的指标数据
+     * 由设备上报服务调用
+     */
+    public void pushSingleServerMetrics(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics) {
+        pushServerMetrics(server, metrics);
+    }
+
+    /**
      * 推送服务器指标数据
      */
     private void pushServerMetrics(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics) {
