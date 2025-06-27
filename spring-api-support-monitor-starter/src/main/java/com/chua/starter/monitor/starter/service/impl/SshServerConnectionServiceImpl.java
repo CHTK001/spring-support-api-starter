@@ -813,10 +813,25 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                 output = output.replaceAll("W{6,}", "");
             }
 
-            // 过滤掉可能导致显示问题的控制字符
+            // 调试：记录原始输出数据
+            if (output != null && output.length() > 0) {
+                // 检查是否包含ANSI转义序列
+                boolean hasAnsi = output.contains("\u001B[");
+                log.debug("发送Shell输出 serverId: {}, length: {}, hasAnsi: {}, preview: {}",
+                    serverId, output.length(), hasAnsi,
+                    output.length() > 50 ? output.substring(0, 50) + "..." : output);
+
+                // 如果包含ANSI序列，记录详细信息
+                if (hasAnsi) {
+                    log.debug("包含ANSI转义序列的完整输出: {}", output);
+                }
+            }
+
+            // 过滤掉可能导致显示问题的控制字符，但保留ANSI转义序列
             if (output != null) {
-                // 保留常用的控制字符：\t, \n, \r, ESC
-                output = output.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]", "");
+                // 保留常用的控制字符：\t, \n, \r, ESC(用于ANSI转义序列)
+                // 只过滤掉真正有害的控制字符，保留ANSI转义序列所需的ESC字符(\x1B)
+                output = output.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1A\\x1C-\\x1F\\x7F]", "");
             }
 
             ServerWebSocketMessage message = ServerWebSocketMessage.createShellOutputMessage(
