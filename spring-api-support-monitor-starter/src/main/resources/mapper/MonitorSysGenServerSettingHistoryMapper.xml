@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory">
+        <id column="monitor_sys_gen_server_setting_history_id" property="monitorSysGenServerSettingHistoryId" />
+        <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" />
+        <result column="monitor_sys_gen_server_setting_id" property="monitorSysGenServerSettingId" />
+        <result column="change_type" property="changeType" />
+        <result column="change_description" property="changeDescription" />
+        <result column="change_user" property="changeUser" />
+        <result column="change_time" property="changeTime" />
+        <result column="setting_snapshot" property="settingSnapshot" />
+        <result column="changed_fields" property="changedFields" />
+        <result column="old_values" property="oldValues" />
+        <result column="new_values" property="newValues" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_setting_history_id,
+        monitor_sys_gen_server_id,
+        monitor_sys_gen_server_setting_id,
+        change_type,
+        change_description,
+        change_user,
+        change_time,
+        setting_snapshot,
+        changed_fields,
+        old_values,
+        new_values,
+        create_time,
+        update_time
+    </sql>
+
+    <!-- 根据服务器ID查询历史记录 -->
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_history
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        ORDER BY change_time DESC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 根据服务器ID和时间范围查询历史记录 -->
+    <select id="selectByServerIdAndTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_history
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        <if test="startTime != null">
+            AND change_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND change_time &lt;= #{endTime}
+        </if>
+        ORDER BY change_time DESC
+    </select>
+
+    <!-- 根据变更类型查询历史记录 -->
+    <select id="selectByChangeType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_history
+        WHERE change_type = #{changeType}
+        ORDER BY change_time DESC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 获取历史记录统计信息 -->
+    <select id="getHistoryStatistics" resultType="map">
+        SELECT 
+            COUNT(*) as total_count,
+            COUNT(DISTINCT monitor_sys_gen_server_id) as server_count,
+            COUNT(CASE WHEN change_type = 'CREATE' THEN 1 END) as create_count,
+            COUNT(CASE WHEN change_type = 'UPDATE' THEN 1 END) as update_count,
+            COUNT(CASE WHEN change_type = 'DELETE' THEN 1 END) as delete_count,
+            MAX(change_time) as latest_change_time,
+            MIN(change_time) as earliest_change_time
+        FROM monitor_sys_gen_server_setting_history
+        <if test="serverId != null">
+            WHERE monitor_sys_gen_server_id = #{serverId}
+        </if>
+    </select>
+
+    <!-- 删除指定时间之前的历史记录 -->
+    <delete id="deleteBeforeTime">
+        DELETE FROM monitor_sys_gen_server_setting_history
+        WHERE change_time &lt; #{beforeTime}
+    </delete>
+
+    <!-- 根据服务器ID删除历史记录 -->
+    <delete id="deleteByServerId">
+        DELETE FROM monitor_sys_gen_server_setting_history
+        WHERE monitor_sys_gen_server_id = #{serverId}
+    </delete>
+
+</mapper>

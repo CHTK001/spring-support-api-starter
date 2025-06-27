@@ -1,6 +1,7 @@
 package com.chua.starter.tenant.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.starter.common.support.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysMenu;
@@ -31,7 +32,7 @@ public class DefaultTenantServiceHandler implements TenantServiceHandler {
     final SysTenantMapper sysTenantMapper;
     final SysMenuService sysMenuService;
     final ApplicationContext applicationContext;
-    final CustomTenantedKeyGenerator customTenantedKeyGenerator;
+    final CacheCustomTenantedKeyGenerator customTenantedKeyGenerator;
     @Override
     public void saveOrUpdate(Integer sysTenantId, List<SysMenu> sysMenus) {
         Long l = sysTenantMapper.selectCount(Wrappers.lambdaQuery());

@@ -1,18 +1,18 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.json.Json;
-import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.guacamole.support.client.GuacamoleClient;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PreDestroy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -32,7 +32,6 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
 
-    private final MonitorSysGenServerProxyService monitorSysGenServerProxyService;
     /**
      * VNC连接池 (使用GuacamoleClient)
      */
@@ -47,6 +46,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
      * 服务器配置缓存
      */
     private final Map<Integer, MonitorSysGenServer> serverConfigCache = new ConcurrentHashMap<>();
+    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
 
     @Override
     public String getProtocol() {
@@ -59,7 +59,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             log.info("测试VNC连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
 
             // 使用GuacamoleClient创建VNC连接进行测试
-            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerProxyService);
+            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService);
             if (client == null) {
                 return false;
             }
@@ -91,7 +91,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             }
 
             // 使用GuacamoleClient创建VNC连接
-            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerProxyService);
+            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService);
             if (client == null) {
                 sendConnectionMessage(server, "connect_failed", false, "创建客户端失败");
                 return false;
