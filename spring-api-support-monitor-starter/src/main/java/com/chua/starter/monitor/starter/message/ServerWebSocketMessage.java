@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 服务器WebSocket消息实体
@@ -136,10 +138,17 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String SSH_DISCONNECT = "ssh_disconnect";
         public static final String SSH_RESIZE = "ssh_resize";
         public static final String SSH_ERROR = "ssh_error";
+        public static final String SHELL_OUTPUT = "shell_output";
         public static final String VNC_DATA = "vnc_data";
         public static final String VNC_INPUT = "vnc_input";
+        public static final String VNC_CONNECT = "vnc_connect";
+        public static final String VNC_DISCONNECT = "vnc_disconnect";
+        public static final String VNC_ERROR = "vnc_error";
         public static final String RDP_DATA = "rdp_data";
         public static final String RDP_INPUT = "rdp_input";
+        public static final String RDP_CONNECT = "rdp_connect";
+        public static final String RDP_DISCONNECT = "rdp_disconnect";
+        public static final String RDP_ERROR = "rdp_error";
     }
 
     /**
@@ -225,6 +234,24 @@ public class ServerWebSocketMessage implements Serializable {
     }
 
     /**
+     * 创建Shell输出消息
+     */
+    public static ServerWebSocketMessage createShellOutputMessage(
+            Integer serverId, String serverName, String output) {
+        Map<String, Object> shellData = new HashMap<>();
+        shellData.put("output", output);
+        shellData.put("type", "output");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.SHELL_OUTPUT)
+                .serverId(serverId)
+                .serverName(serverName)
+                .data(shellData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
      * 创建服务器指标消息
      */
     public static ServerWebSocketMessage createServerMetricsMessage(
@@ -290,6 +317,62 @@ public class ServerWebSocketMessage implements Serializable {
                 .serverId(serverId)
                 .serverName(serverName)
                 .data(inputData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建RDP连接消息
+     */
+    public static ServerWebSocketMessage createRdpConnectionMessage(
+            Integer serverId, String serverName, String status) {
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.RDP_CONNECT)
+                .serverId(serverId)
+                .serverName(serverName)
+                .data(Map.of("status", status))
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建RDP断开连接消息
+     */
+    public static ServerWebSocketMessage createRdpDisconnectMessage(
+            Integer serverId, String serverName, String reason) {
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.RDP_DISCONNECT)
+                .serverId(serverId)
+                .serverName(serverName)
+                .errorMessage(reason)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建VNC连接消息
+     */
+    public static ServerWebSocketMessage createVncConnectionMessage(
+            Integer serverId, String serverName, String status) {
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.VNC_CONNECT)
+                .serverId(serverId)
+                .serverName(serverName)
+                .data(Map.of("status", status))
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建VNC断开连接消息
+     */
+    public static ServerWebSocketMessage createVncDisconnectMessage(
+            Integer serverId, String serverName, String reason) {
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.VNC_DISCONNECT)
+                .serverId(serverId)
+                .serverName(serverName)
+                .errorMessage(reason)
                 .timestamp(System.currentTimeMillis())
                 .build();
     }

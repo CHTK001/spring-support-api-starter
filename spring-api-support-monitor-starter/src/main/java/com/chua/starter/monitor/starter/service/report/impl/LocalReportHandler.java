@@ -2,7 +2,9 @@ package com.chua.starter.monitor.starter.service.report.impl;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.report.ReportHandler;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import com.chua.socketio.support.session.SocketSessionTemplate;
@@ -17,11 +19,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 本地上报处理器
@@ -36,11 +33,11 @@ import java.util.concurrent.TimeUnit;
 public class LocalReportHandler implements ReportHandler {
 
     private final MonitorSysGenServerMetricsService metricsService;
+    private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
     private final LocalSystemDataCollector dataCollector;
     
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-    private final Map<Integer, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
     @Override
     public String getReportType() {
@@ -49,9 +46,22 @@ public class LocalReportHandler implements ReportHandler {
 
     @Override
     public boolean supports(MonitorSysGenServer server) {
-        return "LOCAL".equals(server.getMonitorSysGenServerDataReportMethod()) 
-                && server.getMonitorSysGenServerIsLocal() != null 
-                && server.getMonitorSysGenServerIsLocal() == 1;
+        try {
+            // 从配置表获取上报方式
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                return "LOCAL".equals(setting.getMonitorSysGenServerSettingDataReportMethod())
+                        && server.getMonitorSysGenServerIsLocal() != null
+                        && server.getMonitorSysGenServerIsLocal() == 1;
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+        return false;
     }
 
     @Override
@@ -63,7 +73,7 @@ public class LocalReportHandler implements ReportHandler {
             MonitorSysGenServerMetrics metrics = collectLocalMetrics(server);
             
             // 保存到数据库
-            metricsService.save(metrics);
+            metricsService.saveMetrics(metrics);
             
             // 通过WebSocket推送到前端
             broadcastServerMetrics(server.getMonitorSysGenServerId(), metrics);
@@ -81,47 +91,24 @@ public class LocalReportHandler implements ReportHandler {
     public ReturnResult<Boolean> startDataCollection(MonitorSysGenServer server) {
         try {
             Integer serverId = server.getMonitorSysGenServerId();
-            
-            // 停止已存在的任务
-            stopDataCollection(serverId);
-            
-            // 获取监控间隔，默认30秒
-            long interval = server.getMonitorSysGenServerMonitorInterval() != null ? 
-                server.getMonitorSysGenServerMonitorInterval() : getDefaultMonitorInterval();
-            
-            // 启动定时收集任务
-            ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
-                try {
-                    handleReport(server, null);
-                } catch (Exception e) {
-                    log.error("本地数据收集任务执行失败: serverId={}", serverId, e);
-                }
-            }, 0, interval, TimeUnit.SECONDS);
-            
-            scheduledTasks.put(serverId, task);
-            log.info("本地数据收集任务启动成功: serverId={}, interval={}s", serverId, interval);
-            
+            log.info("本地数据收集配置已启用: serverId={}, 数据收集由DataCollectionTask统一管理", serverId);
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
-            log.error("启动本地数据收集任务失败: serverId={}", server.getMonitorSysGenServerId(), e);
-            return ReturnResult.error("启动本地数据收集失败: " + e.getMessage());
+            log.error("启动本地数据收集配置失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            return ReturnResult.error("启动数据收集配置失败: " + e.getMessage());
         }
     }
 
     @Override
     public ReturnResult<Boolean> stopDataCollection(Integer serverId) {
         try {
-            ScheduledFuture<?> task = scheduledTasks.remove(serverId);
-            if (task != null && !task.isCancelled()) {
-                task.cancel(true);
-                log.info("本地数据收集任务已停止: serverId={}", serverId);
-            }
+            log.info("本地数据收集配置已停用: serverId={}", serverId);
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
-            log.error("停止本地数据收集任务失败: serverId={}", serverId, e);
-            return ReturnResult.error("停止本地数据收集失败: " + e.getMessage());
+            log.error("停止本地数据收集配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("停止数据收集配置失败: " + e.getMessage());
         }
     }
 
@@ -133,9 +120,16 @@ public class LocalReportHandler implements ReportHandler {
                 return ReturnResult.error("服务器不是本地服务器，无法使用本地上报方式");
             }
             
-            // 检查监控间隔
-            if (server.getMonitorSysGenServerMonitorInterval() != null && server.getMonitorSysGenServerMonitorInterval() < 5) {
-                return ReturnResult.error("监控间隔不能小于5秒");
+            // 检查监控间隔 - 从配置表获取
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                if (setting.getMonitorSysGenServerSettingMonitorInterval() != null &&
+                    setting.getMonitorSysGenServerSettingMonitorInterval() < 5) {
+                    return ReturnResult.error("监控间隔不能小于5秒");
+                }
             }
             
             return ReturnResult.success(true);

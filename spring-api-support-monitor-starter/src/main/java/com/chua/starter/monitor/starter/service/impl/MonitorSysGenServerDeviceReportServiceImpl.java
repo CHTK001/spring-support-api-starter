@@ -73,7 +73,7 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
             for (MonitorSysGenServer server : matchedServers) {
                 try {
                     MonitorSysGenServerMetrics serverMetrics = convertDeviceMetricsToServerMetrics(metrics, server);
-                    metricsService.save(serverMetrics);
+                    metricsService.saveMetrics(serverMetrics);
                     log.debug("设备指标数据已关联到服务器: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId());
                 } catch (Exception e) {
                     log.error("保存服务器指标数据失败: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId(), e);

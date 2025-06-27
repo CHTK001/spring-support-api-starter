@@ -2,7 +2,6 @@ package com.chua.starter.monitor.starter.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 
@@ -16,7 +15,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/18
  */
-public interface MonitorSysGenServerMetricsService extends IService<MonitorSysGenServerMetrics> {
+public interface MonitorSysGenServerMetricsService {
 
     /**
      * 分页查询服务器指标数据

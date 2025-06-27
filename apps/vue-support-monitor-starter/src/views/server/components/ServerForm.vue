@@ -160,20 +160,22 @@
       <el-row :gutter="24">
         <el-col :span="12">
           <el-form-item label="启用监控">
-            <el-switch
-              v-model="monitorEnabled"
-              active-text="启用"
-              inactive-text="禁用"
-            />
+            <div class="switch-container">
+              <el-switch v-model="monitorEnabled" />
+              <el-tooltip content="开启后将定期收集服务器监控数据" placement="top">
+                <el-icon class="switch-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="服务器状态">
-            <el-switch
-              v-model="serverEnabled"
-              active-text="启用"
-              inactive-text="禁用"
-            />
+            <div class="switch-container">
+              <el-switch v-model="serverEnabled" />
+              <el-tooltip content="控制服务器是否启用，禁用后不会进行监控" placement="top">
+                <el-icon class="switch-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -227,25 +229,31 @@
       <el-row :gutter="24">
         <el-col :span="12">
           <el-form-item label="启用数据上报">
-            <el-switch
-              v-model="reportEnabled"
-              active-text="启用"
-              inactive-text="禁用"
-            />
+            <div class="switch-container">
+              <el-switch v-model="reportEnabled" />
+              <el-tooltip content="开启后将向监控中心上报服务器数据" placement="top">
+                <el-icon class="switch-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="上报方式">
-            <el-select
-              v-model="formData.monitorSysGenServerDataReportMethod"
-              placeholder="请选择上报方式"
-              style="width: 100%"
-              :disabled="!reportEnabled"
-            >
-              <el-option label="无" value="NONE" />
-              <el-option label="API上报" value="API" />
-              <el-option label="Prometheus" value="PROMETHEUS" />
-            </el-select>
+            <div class="select-container">
+              <el-select
+                v-model="formData.monitorSysGenServerDataReportMethod"
+                placeholder="请选择上报方式"
+                style="width: 100%"
+                :disabled="!reportEnabled"
+              >
+                <el-option label="无" value="NONE" />
+                <el-option label="API上报" value="API" />
+                <el-option label="Prometheus" value="PROMETHEUS" />
+              </el-select>
+              <el-tooltip content="选择数据上报的方式：API直接上报或通过Prometheus收集" placement="top">
+                <el-icon class="select-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -277,24 +285,30 @@
       <!-- Docker配置 -->
       <el-row :gutter="24">
         <el-col :span="12">
-          <el-form-item label="支持Docker">
-            <el-switch
-              v-model="dockerEnabled"
-              active-text="支持"
-              inactive-text="不支持"
-            />
+          <el-form-item label="Docker支持">
+            <div class="switch-container">
+              <el-switch v-model="dockerEnabled" />
+              <el-tooltip content="开启后可以监控和管理Docker容器" placement="top">
+                <el-icon class="switch-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="12" v-if="dockerEnabled">
           <el-form-item label="Docker连接方式">
-            <el-select
-              v-model="formData.monitorSysGenServerDockerConnectionType"
-              placeholder="请选择连接方式"
-              style="width: 100%"
-            >
-              <el-option label="Shell连接" value="SHELL" />
-              <el-option label="TCP连接" value="TCP" />
-            </el-select>
+            <div class="select-container">
+              <el-select
+                v-model="formData.monitorSysGenServerDockerConnectionType"
+                placeholder="请选择连接方式"
+                style="width: 100%"
+              >
+                <el-option label="Shell连接" value="SHELL" />
+                <el-option label="TCP连接" value="TCP" />
+              </el-select>
+              <el-tooltip content="Shell连接通过SSH执行Docker命令，TCP连接直接连接Docker API" placement="top">
+                <el-icon class="select-help-icon"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -492,17 +506,17 @@ defineExpose({
 .server-form {
   .form-card {
     margin-bottom: 20px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     .card-header {
       display: flex;
       align-items: center;
       gap: 8px;
       font-weight: 500;
-      
+
       .help-icon {
         margin-left: auto;
         color: var(--el-color-info);
@@ -510,17 +524,96 @@ defineExpose({
       }
     }
   }
-  
+
+  // Switch容器样式
+  .switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px; // 与输入框高度保持一致
+
+    .switch-help-icon {
+      color: var(--el-color-info);
+      cursor: help;
+      font-size: 14px;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--el-color-primary);
+      }
+    }
+  }
+
+  // Select容器样式
+  .select-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .select-help-icon {
+      color: var(--el-color-info);
+      cursor: help;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        color: var(--el-color-primary);
+      }
+    }
+  }
+
   :deep(.el-card__body) {
     padding: 20px;
   }
-  
+
   :deep(.el-form-item) {
     margin-bottom: 18px;
+
+    // 确保表单项标签和内容垂直居中对齐
+    .el-form-item__label {
+      line-height: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .el-form-item__content {
+      line-height: 32px;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+    }
   }
-  
+
   :deep(.el-input-number) {
     width: 100%;
+  }
+
+  // Switch组件样式优化
+  :deep(.el-switch) {
+    height: 20px;
+    line-height: 20px;
+
+    .el-switch__core {
+      height: 20px;
+      line-height: 18px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .el-switch__action {
+      width: 16px;
+      height: 16px;
+      top: 2px;
+      left: 2px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    &.is-checked .el-switch__action {
+      left: calc(100% - 18px);
+    }
   }
 }
 </style>

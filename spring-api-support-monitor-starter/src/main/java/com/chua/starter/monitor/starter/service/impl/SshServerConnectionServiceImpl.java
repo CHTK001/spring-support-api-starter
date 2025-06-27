@@ -806,17 +806,21 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
      */
     private void sendShellOutput(Integer serverId, String output) {
         try {
-            Map<String, Object> shellData = new HashMap<>();
-            shellData.put("output", output);
-            shellData.put("type", "output");
+            // 调试：检查输出数据
+            if (output != null && output.contains("WWWWWW")) {
+                log.warn("检测到异常的WWWWWW字符，serverId: {}, output: {}", serverId, output);
+                // 过滤掉异常字符
+                output = output.replaceAll("W{6,}", "");
+            }
 
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("shell_output")
-                    .serverId(serverId)
-                    .serverName("Server-" + serverId)
-                    .data(shellData)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
+            // 过滤掉可能导致显示问题的控制字符
+            if (output != null) {
+                // 保留常用的控制字符：\t, \n, \r, ESC
+                output = output.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]", "");
+            }
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.createShellOutputMessage(
+                    serverId, "Server-" + serverId, output);
 
             socketSessionTemplate.send("gen/server", Json.toJson(message));
         } catch (Exception e) {
@@ -862,6 +866,18 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             // 设置channel监听器，监听整个channel的输出
             shellChannel.setListener(output -> {
                 if (running) {
+                    // 调试：记录原始输出
+                    if (output != null && output.length() > 0) {
+                        log.debug("SSH原始输出 serverId: {}, length: {}, preview: {}",
+                                serverId, output.length(),
+                                output.length() > 100 ? output.substring(0, 100) + "..." : output);
+
+                        // 检查是否包含异常字符
+                        if (output.contains("WWWWWW")) {
+                            log.warn("检测到异常的WWWWWW字符，serverId: {}, 完整输出: {}", serverId, output);
+                        }
+                    }
+
                     sendShellOutput(serverId, output);
                 }
             });

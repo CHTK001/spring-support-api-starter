@@ -6,6 +6,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -97,6 +98,19 @@ public class MonitorSysGenServerController {
     @GetMapping("page")
     public ReturnPageResult<MonitorSysGenServer> page(Query<MonitorSysGenServer> page, MonitorSysGenServer entity) {
         return PageResultUtils.ok(monitorSysGenServerService.pageFor(page.createPage(), entity));
+    }
+
+    /**
+     * 根据ID获取服务器信息和配置信息
+     *
+     * @param id 服务器ID
+     * @return 服务器信息和配置信息
+     */
+    @ResponseBody
+    @Operation(summary = "获取服务器信息和配置")
+    @GetMapping("detail/{id}")
+    public ReturnResult<ServerWithConfigDto> getByIdAndConfig(@Parameter(name = "服务器ID") @PathVariable String id) {
+        return monitorSysGenServerService.getByIdAndConfig(id);
     }
 
     /**
