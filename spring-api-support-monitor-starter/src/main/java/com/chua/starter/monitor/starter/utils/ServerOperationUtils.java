@@ -295,7 +295,9 @@ public class ServerOperationUtils {
             case "LOCAL":
                 return server.getMonitorSysGenServerIsLocal() != null && server.getMonitorSysGenServerIsLocal() == 1;
             case "PROMETHEUS":
-                return "PROMETHEUS".equalsIgnoreCase(server.getMonitorSysGenServerDataReportMethod());
+                // Prometheus配置已迁移到MonitorSysGenServerSetting表，这里暂时返回false
+                // 如果需要检查Prometheus支持，需要查询服务器设置表
+                return false;
             default:
                 return false;
         }

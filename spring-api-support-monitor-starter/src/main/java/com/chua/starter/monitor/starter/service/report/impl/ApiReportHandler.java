@@ -2,7 +2,9 @@ package com.chua.starter.monitor.starter.service.report.impl;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.report.ReportHandler;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -30,6 +32,7 @@ import java.util.Map;
 public class ApiReportHandler implements ReportHandler {
 
     private final MonitorSysGenServerMetricsService metricsService;
+    private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
 
     @Override
@@ -39,9 +42,22 @@ public class ApiReportHandler implements ReportHandler {
 
     @Override
     public boolean supports(MonitorSysGenServer server) {
-        return "API".equals(server.getMonitorSysGenServerDataReportMethod())
-                && server.getMonitorSysGenServerIsLocal() != null 
-                && server.getMonitorSysGenServerIsLocal() == 0;
+        try {
+            // 从配置表获取上报方式
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                return "API".equals(setting.getMonitorSysGenServerSettingDataReportMethod())
+                        && server.getMonitorSysGenServerIsLocal() != null
+                        && server.getMonitorSysGenServerIsLocal() == 0;
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+        return false;
     }
 
     @Override
@@ -56,8 +72,8 @@ public class ApiReportHandler implements ReportHandler {
             // 解析上报数据并转换为指标对象
             MonitorSysGenServerMetrics metrics = parseReportData(server, reportData);
             
-            // 保存到数据库
-            metricsService.save(metrics);
+            // 保存到Redis时序数据库
+            metricsService.saveMetrics(metrics);
             
             // 通过WebSocket推送到前端
             broadcastServerMetrics(server.getMonitorSysGenServerId(), metrics);

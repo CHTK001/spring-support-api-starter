@@ -33,7 +33,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/monitor/server/file-upload")
+@RequestMapping("server/file-upload")
 @RequiredArgsConstructor
 @Api(tags = "服务器文件上传管理")
 @Tag(name = "服务器文件上传管理", description = "服务器文件上传任务管理接口")

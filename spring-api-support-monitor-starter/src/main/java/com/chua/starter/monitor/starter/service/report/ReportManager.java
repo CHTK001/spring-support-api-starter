@@ -3,6 +3,8 @@ package com.chua.starter.monitor.starter.service.report;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class ReportManager {
 
     private final List<ReportHandler> reportHandlers;
+    private final MonitorSysGenServerSettingService serverSettingService;
 
     /**
      * 根据服务器配置获取合适的上报处理器
@@ -34,19 +37,27 @@ public class ReportManager {
      * @return 上报处理器
      */
     public Optional<ReportHandler> getReportHandler(MonitorSysGenServer server) {
-        if (server == null || server.getMonitorSysGenServerDataReportMethod() == null) {
-            log.warn("服务器配置或上报方式为空");
+        if (server == null) {
+            log.warn("服务器配置为空");
+            return Optional.empty();
+        }
+
+        // 从配置表获取上报方式
+        String reportMethod = getServerReportMethod(server);
+        if (reportMethod == null) {
+            log.warn("服务器上报方式为空");
             return Optional.empty();
         }
 
         return reportHandlers.stream()
+                .filter(handler -> handler.getReportType().equals(reportMethod))
                 .filter(handler -> handler.supports(server))
                 .min((h1, h2) -> Integer.compare(h1.getPriority(), h2.getPriority()));
     }
 
     /**
      * 根据上报类型获取处理器
-     * 
+     *
      * @param reportType 上报类型
      * @return 上报处理器
      */
@@ -55,6 +66,8 @@ public class ReportManager {
                 .filter(handler -> handler.getReportType().equals(reportType))
                 .findFirst();
     }
+
+
 
     /**
      * 处理数据上报
@@ -67,8 +80,8 @@ public class ReportManager {
         try {
             Optional<ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
-                String reportMethod = server.getMonitorSysGenServerDataReportMethod();
-                log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}", 
+                String reportMethod = getServerReportMethod(server);
+                log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}",
                         server.getMonitorSysGenServerId(), reportMethod);
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
@@ -95,8 +108,8 @@ public class ReportManager {
         try {
             Optional<ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
-                String reportMethod = server.getMonitorSysGenServerDataReportMethod();
-                log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}", 
+                String reportMethod = getServerReportMethod(server);
+                log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}",
                         server.getMonitorSysGenServerId(), reportMethod);
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
@@ -190,7 +203,7 @@ public class ReportManager {
         try {
             Optional<ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
-                String reportMethod = server.getMonitorSysGenServerDataReportMethod();
+                String reportMethod = getServerReportMethod(server);
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
 
@@ -232,12 +245,8 @@ public class ReportManager {
         return reportHandlers.stream()
                 .filter(handler -> {
                     try {
-                        // 临时设置上报方式进行测试
-                        String originalMethod = server.getMonitorSysGenServerDataReportMethod();
-                        server.setMonitorSysGenServerDataReportMethod(handler.getReportType());
-                        boolean supports = handler.supports(server);
-                        server.setMonitorSysGenServerDataReportMethod(originalMethod);
-                        return supports;
+                        // 直接测试处理器是否支持该服务器
+                        return handler.supports(server);
                     } catch (Exception e) {
                         return false;
                     }
@@ -267,5 +276,30 @@ public class ReportManager {
             log.error("重新初始化数据收集失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("重新初始化失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 获取服务器的数据上报方式
+     */
+    private String getServerReportMethod(MonitorSysGenServer server) {
+        try {
+            // 从配置表获取上报方式
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                String reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+                if (reportMethod != null && !reportMethod.trim().isEmpty()) {
+                    return reportMethod;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器上报配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+
+        // 默认返回NONE
+        return "NONE";
     }
 }

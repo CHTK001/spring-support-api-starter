@@ -135,13 +135,28 @@
 
       <!-- 右侧内容区域 -->
       <div class="right-panel">
-        <div v-if="!selectedServerId" class="welcome-panel">
-          <el-empty description="请选择一个服务器">
-            <el-tooltip content="点击新增第一台服务器" placement="top" :show-after="500">
-              <el-button type="primary" @click="showAddDialog">新增服务器</el-button>
-            </el-tooltip>
-          </el-empty>
-        </div>
+        <el-tabs v-model="activeTab" type="border-card" class="full-height-tabs">
+          <el-tab-pane label="服务器监控" name="monitor">
+            <div v-if="!selectedServerId" class="welcome-panel">
+              <el-empty description="请选择一个服务器">
+                <el-tooltip content="点击新增第一台服务器" placement="top" :show-after="500">
+                  <el-button type="primary" @click="showAddDialog">新增服务器</el-button>
+                </el-tooltip>
+              </el-empty>
+            </div>
+            <div v-else>
+              <!-- 这里可以添加服务器监控组件 -->
+              <div class="server-monitor-placeholder">
+                <h3>服务器监控 - {{ selectedServerId }}</h3>
+                <p>服务器监控功能正在开发中...</p>
+              </div>
+            </div>
+          </el-tab-pane>
+
+          <el-tab-pane label="WebSocket调试" name="websocket">
+            <WebSocketDebug />
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </div>
   </div>
@@ -164,6 +179,7 @@ import {
   type ServerMetricsDisplay,
   mapServerListToDisplayData,
 } from "@/api/monitor/gen/server";
+import WebSocketDebug from "./components/WebSocketDebug.vue";
 
 // 响应式状态
 const loading = ref(false);
@@ -183,6 +199,7 @@ const leftPanelMinimized = ref(false);
 const leftPanelOriginalWidth = ref(400);
 const selectedServerId = ref("");
 const currentComponent = ref("");
+const activeTab = ref("monitor");
 
 // 服务器数据
 const servers = ref<ServerDisplayData[]>([]);
@@ -512,6 +529,23 @@ onMounted(() => {
   background: var(--el-bg-color);
   display: flex;
   flex-direction: column;
+}
+
+.full-height-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height-tabs :deep(.el-tabs__content) {
+  flex: 1;
+  overflow: auto;
+}
+
+.server-monitor-placeholder {
+  padding: 40px;
+  text-align: center;
+  color: var(--el-text-color-regular);
 }
 
 .welcome-panel {

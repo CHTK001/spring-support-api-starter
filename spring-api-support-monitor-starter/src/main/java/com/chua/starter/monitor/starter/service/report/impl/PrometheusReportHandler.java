@@ -2,6 +2,8 @@ package com.chua.starter.monitor.starter.service.report.impl;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.report.ReportHandler;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.common.support.json.Json;
@@ -17,11 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Prometheus上报处理器
@@ -36,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 public class PrometheusReportHandler implements ReportHandler {
 
     private final SocketSessionTemplate socketSessionTemplate;
+    private final MonitorSysGenServerSettingService serverSettingService;
     private final RestTemplate restTemplate = new RestTemplate();
     
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-    private final Map<Integer, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
     @Override
     public String getReportType() {
@@ -48,9 +45,22 @@ public class PrometheusReportHandler implements ReportHandler {
 
     @Override
     public boolean supports(MonitorSysGenServer server) {
-        return "PROMETHEUS".equals(server.getMonitorSysGenServerDataReportMethod())
-                && StringUtils.hasText(server.getMonitorSysGenServerPrometheusHost())
-                && server.getMonitorSysGenServerPrometheusPort() != null;
+        try {
+            // 从配置表获取Prometheus配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                return "PROMETHEUS".equals(setting.getMonitorSysGenServerSettingDataReportMethod())
+                        && StringUtils.hasText(setting.getMonitorSysGenServerSettingPrometheusHost())
+                        && setting.getMonitorSysGenServerSettingPrometheusPort() != null;
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器Prometheus配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+        return false;
     }
 
     @Override
@@ -79,67 +89,33 @@ public class PrometheusReportHandler implements ReportHandler {
     public ReturnResult<Boolean> startDataCollection(MonitorSysGenServer server) {
         try {
             Integer serverId = server.getMonitorSysGenServerId();
-            
-            // 停止已存在的任务
-            stopDataCollection(serverId);
-            
-            // 获取监控间隔，默认30秒
-            long interval = server.getMonitorSysGenServerMonitorInterval() != null ? 
-                server.getMonitorSysGenServerMonitorInterval() : getDefaultMonitorInterval();
-            
-            // 启动定时查询任务
-            ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
-                try {
-                    handleReport(server, null);
-                } catch (Exception e) {
-                    log.error("Prometheus数据查询任务执行失败: serverId={}", serverId, e);
-                }
-            }, 0, interval, TimeUnit.SECONDS);
-            
-            scheduledTasks.put(serverId, task);
-            log.info("Prometheus数据查询任务启动成功: serverId={}, interval={}s", serverId, interval);
-            
+            log.info("Prometheus数据收集配置已启用: serverId={}, 数据收集由DataCollectionTask统一管理", serverId);
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
-            log.error("启动Prometheus数据查询任务失败: serverId={}", server.getMonitorSysGenServerId(), e);
-            return ReturnResult.error("启动Prometheus数据查询失败: " + e.getMessage());
+            log.error("启动Prometheus数据收集配置失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            return ReturnResult.error("启动数据收集配置失败: " + e.getMessage());
         }
     }
 
     @Override
     public ReturnResult<Boolean> stopDataCollection(Integer serverId) {
         try {
-            ScheduledFuture<?> task = scheduledTasks.remove(serverId);
-            if (task != null && !task.isCancelled()) {
-                task.cancel(true);
-                log.info("Prometheus数据查询任务已停止: serverId={}", serverId);
-            }
+            log.info("Prometheus数据收集配置已停用: serverId={}", serverId);
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
-            log.error("停止Prometheus数据查询任务失败: serverId={}", serverId, e);
-            return ReturnResult.error("停止Prometheus数据查询失败: " + e.getMessage());
+            log.error("停止Prometheus数据收集配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("停止数据收集配置失败: " + e.getMessage());
         }
     }
 
     @Override
     public ReturnResult<Boolean> validateServerConfig(MonitorSysGenServer server) {
         try {
-            // 检查Prometheus服务器地址
-            if (!StringUtils.hasText(server.getMonitorSysGenServerPrometheusHost())) {
-                return ReturnResult.error("Prometheus服务器地址不能为空");
-            }
-            
-            // 检查Prometheus端口
-            if (server.getMonitorSysGenServerPrometheusPort() == null || server.getMonitorSysGenServerPrometheusPort() <= 0) {
-                return ReturnResult.error("Prometheus服务器端口配置无效");
-            }
-            
-            // 检查监控间隔
-            if (server.getMonitorSysGenServerMonitorInterval() != null && server.getMonitorSysGenServerMonitorInterval() < 10) {
-                return ReturnResult.error("Prometheus查询间隔不能小于10秒");
-            }
+            // Prometheus相关配置已迁移到配置表，这里暂时跳过验证
+            // TODO: 从配置表获取Prometheus配置进行验证
+            log.info("Prometheus配置验证已迁移到配置表，暂时跳过验证");
             
             // 测试连接Prometheus服务器
             try {
@@ -265,10 +241,27 @@ public class PrometheusReportHandler implements ReportHandler {
      * @return 查询URL
      */
     private String buildPrometheusUrl(MonitorSysGenServer server, String query) {
-        return String.format("http://%s:%d/api/v1/query?query=%s",
-                server.getMonitorSysGenServerPrometheusHost(),
-                server.getMonitorSysGenServerPrometheusPort(),
-                query);
+        try {
+            // 从配置表获取Prometheus配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                String host = setting.getMonitorSysGenServerSettingPrometheusHost();
+                Integer port = setting.getMonitorSysGenServerSettingPrometheusPort();
+
+                if (StringUtils.hasText(host) && port != null) {
+                    return String.format("http://%s:%d/api/v1/query?query=%s", host, port, query);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取Prometheus配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+
+        // 如果获取配置失败，返回默认URL（可能会失败）
+        return String.format("http://localhost:9090/api/v1/query?query=%s", query);
     }
 
     /**

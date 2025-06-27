@@ -13,14 +13,17 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorProxy;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorProxyService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import com.chua.starter.monitor.starter.service.report.ReportManager;
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
-import com.chua.starter.monitor.starter.websocket.ServerConnectionWebSocketService;
+import com.chua.starter.monitor.starter.service.ServerConnectionWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +58,9 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Autowired
     @Lazy
     private MonitorProxyService monitorProxyService;
+    @Autowired
+    @Lazy
+    private MonitorSysGenServerSettingService monitorSysGenServerSettingService;
 
     /**
      * 重写save方法，自动检测服务器信息
@@ -75,15 +81,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             if (entity.getMonitorSysGenServerStatus() == null) {
                 entity.setMonitorSysGenServerStatus(1); // 默认启用
             }
-            if (entity.getMonitorSysGenServerMonitorEnabled() == null) {
-                entity.setMonitorSysGenServerMonitorEnabled(1); // 默认启用监控
-            }
-            if (entity.getMonitorSysGenServerReportEnabled() == null) {
-                entity.setMonitorSysGenServerReportEnabled(1); // 默认启用上报
-            }
             if (entity.getMonitorSysGenServerConnectionStatus() == null) {
                 entity.setMonitorSysGenServerConnectionStatus(0); // 默认离线
             }
+
+            // 监控和上报相关配置已迁移到MonitorSysGenServerSetting表，在这里创建默认配置
+            // 这些字段不再在MonitorSysGenServer中设置
 
             boolean result = super.save(entity);
 
@@ -209,6 +212,43 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 .eq(entity.getMonitorSysGenServerStatus() != null,
                         MonitorSysGenServer::getMonitorSysGenServerStatus, entity.getMonitorSysGenServerStatus())
                 .orderByDesc(MonitorSysGenServer::getCreateTime));
+    }
+
+    @Override
+    public ReturnResult<ServerWithConfigDto> getByIdAndConfig(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ReturnResult.error("服务器ID不能为空");
+        }
+
+        try {
+            // 获取服务器基本信息
+            MonitorSysGenServer server = this.getById(id);
+            if (server == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+
+            // 获取服务器配置信息
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(Integer.valueOf(id));
+
+            MonitorSysGenServerSetting setting;
+            if (!settingResult.isOk()) {
+                log.warn("获取服务器配置失败，使用默认配置: serverId={}, error={}", id, settingResult.getMsg());
+                // 如果获取配置失败，创建默认配置
+                setting = MonitorSysGenServerSetting.getDefaultSetting(Integer.valueOf(id));
+            } else {
+                setting = settingResult.getData();
+            }
+
+            // 组装返回结果
+            ServerWithConfigDto result = ServerWithConfigDto.of(server, setting);
+
+            log.debug("获取服务器信息和配置成功: serverId={}", id);
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("获取服务器信息和配置失败: serverId={}", id, e);
+            return ReturnResult.error("获取服务器信息失败: " + e.getMessage());
+        }
     }
 
     @Override
@@ -398,6 +438,11 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 return ReturnResult.error("不支持的协议类型: " + server.getMonitorSysGenServerProtocol());
             }
 
+            // 获取服务器配置信息
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+            MonitorSysGenServerSetting setting = settingResult.isOk() ? settingResult.getData() : null;
+
             Map<String, Object> status = new HashMap<>();
             status.put("serverId", server.getMonitorSysGenServerId());
             status.put("serverName", server.getMonitorSysGenServerName());
@@ -410,7 +455,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             status.put("statusDesc", getStatusDesc(server.getMonitorSysGenServerConnectionStatus()));
             status.put("lastConnectTime", server.getMonitorSysGenServerLastConnectTime());
             status.put("connectionError", server.getMonitorSysGenServerConnectionError());
-            status.put("monitorEnabled", server.getMonitorSysGenServerMonitorEnabled());
+            // 从配置表获取监控状态
+            status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
             status.put("tags", server.getMonitorSysGenServerTags());
             status.put("timestamp", System.currentTimeMillis());
 
@@ -620,20 +666,31 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         }
 
         try {
-            server.setMonitorSysGenServerMonitorEnabled(1);
+            // 获取或创建服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
 
-            boolean result = this.updateById(server);
-
-            if (result) {
-                // 启动数据收集任务
-                reportManager.startDataCollection(server);
-
-                // 发送监控启用消息
-                sendServerMessage(server, "monitoring_enabled", true, null);
-                log.info("服务器监控已启用: {}", server.getMonitorSysGenServerName());
+            if (!settingResult.isOk()) {
+                return ReturnResult.error("获取服务器配置失败: " + settingResult.getMsg());
             }
 
-            return ReturnResult.of(result, result ? "监控启用成功" : "监控启用失败");
+            MonitorSysGenServerSetting setting = settingResult.getData();
+            setting.setMonitorSysGenServerSettingMonitorEnabled(1);
+
+            // 更新配置
+            ReturnResult<Boolean> updateResult = monitorSysGenServerSettingService.saveOrUpdateSetting(setting);
+            if (!updateResult.isOk()) {
+                return ReturnResult.error("更新监控配置失败: " + updateResult.getMsg());
+            }
+
+            // 启动数据收集任务
+            reportManager.startDataCollection(server);
+
+            // 发送监控启用消息
+            sendServerMessage(server, "monitoring_enabled", true, null);
+            log.info("服务器监控已启用: {}", server.getMonitorSysGenServerName());
+
+            return ReturnResult.ok(true, "监控启用成功");
         } catch (Exception e) {
             log.error("启用服务器监控失败: {}", e.getMessage(), e);
             return ReturnResult.error("启用监控失败: " + e.getMessage());
@@ -652,23 +709,34 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         }
 
         try {
-            server.setMonitorSysGenServerMonitorEnabled(0);
+            // 获取服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
 
-            boolean result = this.updateById(server);
-
-            if (result) {
-                // 停止数据收集任务
-                String reportType = server.getMonitorSysGenServerDataReportMethod();
-                if (reportType != null && !"NONE".equals(reportType)) {
-                    reportManager.stopDataCollection(server.getMonitorSysGenServerId(), reportType);
-                }
-
-                // 发送监控停用消息
-                sendServerMessage(server, "monitoring_disabled", true, null);
-                log.info("服务器监控已停用: {}", server.getMonitorSysGenServerName());
+            if (!settingResult.isOk()) {
+                return ReturnResult.error("获取服务器配置失败: " + settingResult.getMsg());
             }
 
-            return ReturnResult.of(result, result ? "监控停用成功" : "监控停用失败");
+            MonitorSysGenServerSetting setting = settingResult.getData();
+            setting.setMonitorSysGenServerSettingMonitorEnabled(0);
+
+            // 更新配置
+            ReturnResult<Boolean> updateResult = monitorSysGenServerSettingService.saveOrUpdateSetting(setting);
+            if (!updateResult.isOk()) {
+                return ReturnResult.error("更新监控配置失败: " + updateResult.getMsg());
+            }
+
+            // 停止数据收集任务
+            String reportType = setting.getMonitorSysGenServerSettingDataReportMethod();
+            if (reportType != null && !"NONE".equals(reportType)) {
+                reportManager.stopDataCollection(server.getMonitorSysGenServerId(), reportType);
+            }
+
+            // 发送监控停用消息
+            sendServerMessage(server, "monitoring_disabled", false, null);
+            log.info("服务器监控已停用: {}", server.getMonitorSysGenServerName());
+
+            return ReturnResult.ok(true, "监控停用成功");
         } catch (Exception e) {
             log.error("停用服务器监控失败: {}", e.getMessage(), e);
             return ReturnResult.error("停用监控失败: " + e.getMessage());
@@ -687,12 +755,18 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         }
 
         try {
+            // 获取服务器配置信息
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+            MonitorSysGenServerSetting setting = settingResult.isOk() ? settingResult.getData() : null;
+
             Map<String, Object> status = new HashMap<>();
             status.put("serverId", server.getMonitorSysGenServerId());
             status.put("serverName", server.getMonitorSysGenServerName());
-            status.put("monitorEnabled", server.getMonitorSysGenServerMonitorEnabled());
-            status.put("monitorInterval", server.getMonitorSysGenServerMonitorInterval());
-            status.put("retentionDays", server.getMonitorSysGenServerMetricsRetentionDays());
+            // 从配置表获取监控相关信息
+            status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
+            status.put("monitorInterval", setting != null ? setting.getMonitorSysGenServerSettingMonitorInterval() : 60);
+            status.put("retentionDays", setting != null ? setting.getMonitorSysGenServerSettingMetricsRetentionDays() : 7);
             status.put("lastUpdateTime", server.getUpdateTime());
 
             return ReturnResult.ok(status);
@@ -817,9 +891,10 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     .sum();
             statistics.put("onlineServers", onlineServers);
 
-            // 启用监控的服务器数
-            long monitoringEnabled = this.count(Wrappers.<MonitorSysGenServer>lambdaQuery()
-                    .eq(MonitorSysGenServer::getMonitorSysGenServerMonitorEnabled, 1));
+            // 启用监控的服务器数 - 从配置表统计
+            ReturnResult<List<MonitorSysGenServerSetting>> enabledSettingsResult =
+                monitorSysGenServerSettingService.getMonitorEnabledSettings();
+            long monitoringEnabled = enabledSettingsResult.isOk() ? enabledSettingsResult.getData().size() : 0;
             statistics.put("monitoringEnabled", monitoringEnabled);
 
             // 按协议分组统计
@@ -927,13 +1002,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             clonedServer.setMonitorSysGenServerUsername(sourceServer.getMonitorSysGenServerUsername());
             clonedServer.setMonitorSysGenServerPassword(sourceServer.getMonitorSysGenServerPassword());
             clonedServer.setMonitorSysGenServerPrivateKey(sourceServer.getMonitorSysGenServerPrivateKey());
-            clonedServer.setMonitorSysGenServerMetricsRetentionDays(sourceServer.getMonitorSysGenServerMetricsRetentionDays());
-            clonedServer.setMonitorSysGenServerMonitorInterval(sourceServer.getMonitorSysGenServerMonitorInterval());
             clonedServer.setMonitorSysGenServerTimeout(sourceServer.getMonitorSysGenServerTimeout());
             clonedServer.setMonitorSysGenServerDesc(sourceServer.getMonitorSysGenServerDesc() + " (克隆)");
             clonedServer.setMonitorSysGenServerStatus(0); // 默认停用
-            clonedServer.setMonitorSysGenServerMonitorEnabled(0); // 默认不启用监控
             clonedServer.setMonitorSysGenServerTags(sourceServer.getMonitorSysGenServerTags());
+
+            // 监控相关配置已迁移到MonitorSysGenServerSetting表，不在这里设置
 
             // 创建时间和更新时间由SysBase自动处理
 
@@ -1079,7 +1153,11 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 status.put("statusDesc", getStatusDesc(server.getMonitorSysGenServerConnectionStatus()));
                 status.put("lastConnectTime", server.getMonitorSysGenServerLastConnectTime());
                 status.put("connectionError", server.getMonitorSysGenServerConnectionError());
-                status.put("monitorEnabled", server.getMonitorSysGenServerMonitorEnabled());
+                // 从配置表获取监控状态
+                ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+                MonitorSysGenServerSetting setting = settingResult.isOk() ? settingResult.getData() : null;
+                status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
                 status.put("tags", server.getMonitorSysGenServerTags());
                 statusList.add(status);
             }
@@ -1094,11 +1172,25 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Override
     public void scheduleConnectionCheck() {
         try {
-            List<MonitorSysGenServer> servers = this.list(
+            // 获取启用状态的服务器
+            List<MonitorSysGenServer> allServers = this.list(
                 Wrappers.lambdaQuery(MonitorSysGenServer.class)
                     .eq(MonitorSysGenServer::getMonitorSysGenServerStatus, 1)
-                    .eq(MonitorSysGenServer::getMonitorSysGenServerMonitorEnabled, 1)
             );
+
+            // 过滤出启用监控的服务器
+            List<MonitorSysGenServer> servers = new ArrayList<>();
+            for (MonitorSysGenServer server : allServers) {
+                ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+                if (settingResult.isOk() && settingResult.getData() != null) {
+                    MonitorSysGenServerSetting setting = settingResult.getData();
+                    if (setting.getMonitorSysGenServerSettingMonitorEnabled() != null &&
+                        setting.getMonitorSysGenServerSettingMonitorEnabled() == 1) {
+                        servers.add(server);
+                    }
+                }
+            }
 
             log.info("开始定时检查服务器连接状态，共{}台服务器", servers.size());
 
@@ -1255,22 +1347,33 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             List<String> supportedMethods = new ArrayList<>();
             supportedMethods.add("NONE"); // 不支持上报
 
-            // 根据服务器配置判断支持的上报方式
-            if (server.getMonitorSysGenServerReportEnabled() != null && server.getMonitorSysGenServerReportEnabled() == 1) {
-                // 判断是否为本地服务器
-                boolean isLocal = server.getMonitorSysGenServerIsLocal() != null && server.getMonitorSysGenServerIsLocal() == 1;
+            // 获取服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
 
-                if (isLocal) {
-                    // 本地服务器支持本地上报，不支持接口上报
-                    supportedMethods.add("LOCAL"); // 本地上报
-                } else {
-                    // 远程服务器支持接口上报，不支持本地上报
-                    supportedMethods.add("API"); // 接口上报
-                }
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
 
-                // 如果配置了Prometheus服务器，则支持Prometheus上报
-                if (server.getMonitorSysGenServerPrometheusHost() != null && server.getMonitorSysGenServerPrometheusPort() != null) {
-                    supportedMethods.add("PROMETHEUS");
+                // 根据服务器配置判断支持的上报方式
+                if (setting.getMonitorSysGenServerSettingReportEnabled() != null &&
+                    setting.getMonitorSysGenServerSettingReportEnabled() == 1) {
+
+                    // 判断是否为本地服务器
+                    boolean isLocal = server.getMonitorSysGenServerIsLocal() != null && server.getMonitorSysGenServerIsLocal() == 1;
+
+                    if (isLocal) {
+                        // 本地服务器支持本地上报，不支持接口上报
+                        supportedMethods.add("LOCAL"); // 本地上报
+                    } else {
+                        // 远程服务器支持接口上报，不支持本地上报
+                        supportedMethods.add("API"); // 接口上报
+                    }
+
+                    // 如果配置了Prometheus服务器，则支持Prometheus上报
+                    if (setting.getMonitorSysGenServerSettingPrometheusHost() != null &&
+                        setting.getMonitorSysGenServerSettingPrometheusPort() != null) {
+                        supportedMethods.add("PROMETHEUS");
+                    }
                 }
             }
 
@@ -1334,10 +1437,34 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             }
 
             Map<String, Object> config = new HashMap<>();
-            config.put("reportEnabled", server.getMonitorSysGenServerReportEnabled());
-            config.put("dataReportMethod", server.getMonitorSysGenServerDataReportMethod());
-            config.put("prometheusHost", server.getMonitorSysGenServerPrometheusHost());
-            config.put("prometheusPort", server.getMonitorSysGenServerPrometheusPort());
+
+            // 从配置表获取上报配置
+            try {
+                ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+                if (settingResult.isOk() && settingResult.getData() != null) {
+                    MonitorSysGenServerSetting setting = settingResult.getData();
+                    config.put("reportEnabled", setting.getMonitorSysGenServerSettingReportEnabled());
+                    config.put("dataReportMethod", setting.getMonitorSysGenServerSettingDataReportMethod());
+                    config.put("prometheusHost", setting.getMonitorSysGenServerSettingPrometheusHost());
+                    config.put("prometheusPort", setting.getMonitorSysGenServerSettingPrometheusPort());
+                } else {
+                    // 默认配置
+                    config.put("reportEnabled", 0);
+                    config.put("dataReportMethod", "NONE");
+                    config.put("prometheusHost", null);
+                    config.put("prometheusPort", null);
+                }
+            } catch (Exception e) {
+                log.warn("获取服务器配置失败: serverId={}, error={}",
+                    server.getMonitorSysGenServerId(), e.getMessage());
+                // 默认配置
+                config.put("reportEnabled", 0);
+                config.put("dataReportMethod", "NONE");
+                config.put("prometheusHost", null);
+                config.put("prometheusPort", null);
+            }
 
             // 获取代理配置
             String proxyType = null;
@@ -1419,9 +1546,10 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 result.put("osType", server.getMonitorSysGenServerOsType());
                 result.put("osVersion", server.getMonitorSysGenServerOsVersion());
                 result.put("osArch", server.getMonitorSysGenServerOsArch());
-                result.put("dockerEnabled", server.getMonitorSysGenServerDockerEnabled());
-                result.put("dockerConnectionType", server.getMonitorSysGenServerDockerConnectionType());
-                result.put("dockerPort", server.getMonitorSysGenServerDockerPort());
+                // Docker相关信息已迁移到配置表，这里设置默认值
+                result.put("dockerEnabled", 0);
+                result.put("dockerConnectionType", null);
+                result.put("dockerPort", null);
                 result.put("detectedAt", LocalDateTime.now());
 
                 log.info("服务器信息检测完成: {}", server.getMonitorSysGenServerName());
@@ -1455,7 +1583,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     serverResult.put("host", server.getMonitorSysGenServerHost());
                     serverResult.put("isLocal", server.getMonitorSysGenServerIsLocal());
                     serverResult.put("osType", server.getMonitorSysGenServerOsType());
-                    serverResult.put("dockerEnabled", server.getMonitorSysGenServerDockerEnabled());
+                    // Docker相关信息已迁移到配置表
+                    serverResult.put("dockerEnabled", 0);
 
                     if (updated) {
                         successList.add(serverResult);
@@ -1527,35 +1656,16 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     log.info("保留用户设置的IP地址: {}", server.getMonitorSysGenServerIpAddresses());
                 }
 
-                // 设置Docker支持（优先保留用户设置，只在未设置时自动检测）
+                // Docker配置已迁移到配置表，这里只记录检测结果到日志
                 Integer detectedDockerEnabled = (Integer) serverInfo.get("dockerEnabled");
                 String detectedDockerConnectionType = (String) serverInfo.get("dockerConnectionType");
                 Integer detectedDockerPort = (Integer) serverInfo.get("dockerPort");
 
-                // 记录用户原始设置
-                Integer userDockerEnabled = server.getMonitorSysGenServerDockerEnabled();
-                String userDockerConnectionType = server.getMonitorSysGenServerDockerConnectionType();
+                log.info("检测到Docker配置: enabled={}, type={}, port={}",
+                        detectedDockerEnabled, detectedDockerConnectionType, detectedDockerPort);
 
-                // 如果用户明确设置了Docker配置（不为null且不为默认值），则保留用户设置
-                boolean userHasSetDocker = userDockerEnabled != null && userDockerEnabled == 1;
-
-                if (!userHasSetDocker) {
-                    // 用户未设置Docker，使用自动检测结果
-                    server.setMonitorSysGenServerDockerEnabled(detectedDockerEnabled);
-                    server.setMonitorSysGenServerDockerConnectionType(detectedDockerConnectionType);
-                    if (detectedDockerPort != null) {
-                        server.setMonitorSysGenServerDockerPort(detectedDockerPort);
-                    }
-                    log.info("自动设置Docker配置: enabled={}, type={}", detectedDockerEnabled, detectedDockerConnectionType);
-                } else {
-                    // 保留用户设置的Docker配置
-                    log.info("保留用户设置的Docker配置: enabled={}, type={}",
-                            userDockerEnabled, userDockerConnectionType);
-                }
-
-                log.info("自动检测本地服务器信息完成: {} - OS: {} {}, Docker: {}",
-                        server.getMonitorSysGenServerName(), osType, osVersion,
-                        server.getMonitorSysGenServerDockerEnabled() == 1 ? "支持" : "不支持");
+                log.info("自动检测本地服务器信息完成: {} - OS: {} {}",
+                        server.getMonitorSysGenServerName(), osType, osVersion);
             } else {
                 // 非本地服务器，只清空自动检测的系统信息字段，保留用户手动设置的配置
                 server.setMonitorSysGenServerOsType(null);
@@ -1577,22 +1687,43 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             // 检测失败时设置默认值
             server.setMonitorSysGenServerIsLocal(0);
             server.setMonitorSysGenServerIpAddresses("[]");
-            server.setMonitorSysGenServerDockerEnabled(0);
+            // Docker配置已迁移到配置表，不再在这里设置
         }
     }
 
     @Override
     public List<MonitorSysGenServer> getLocalReportServers() {
         try {
+            // 获取所有本地服务器
             LambdaQueryWrapper<MonitorSysGenServer> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(MonitorSysGenServer::getMonitorSysGenServerIsLocal, 1)
-                    .eq(MonitorSysGenServer::getMonitorSysGenServerReportEnabled, 1)
-                    .eq(MonitorSysGenServer::getMonitorSysGenServerDataReportMethod, "LOCAL")
                     .eq(MonitorSysGenServer::getMonitorSysGenServerStatus, 1);
 
-            List<MonitorSysGenServer> servers = this.list(queryWrapper);
-            log.debug("查询到 {} 个启用本地上报的服务器", servers.size());
-            return servers;
+            List<MonitorSysGenServer> allLocalServers = this.list(queryWrapper);
+
+            // 过滤出启用本地上报的服务器
+            List<MonitorSysGenServer> localReportServers = new ArrayList<>();
+            for (MonitorSysGenServer server : allLocalServers) {
+                try {
+                    ReturnResult<MonitorSysGenServerSetting> settingResult =
+                        monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+                    if (settingResult.isOk() && settingResult.getData() != null) {
+                        MonitorSysGenServerSetting setting = settingResult.getData();
+                        if (setting.getMonitorSysGenServerSettingReportEnabled() != null &&
+                            setting.getMonitorSysGenServerSettingReportEnabled() == 1 &&
+                            "LOCAL".equals(setting.getMonitorSysGenServerSettingDataReportMethod())) {
+                            localReportServers.add(server);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("获取服务器配置失败，跳过: serverId={}, error={}",
+                        server.getMonitorSysGenServerId(), e.getMessage());
+                }
+            }
+
+            log.debug("查询到 {} 个启用本地上报的服务器", localReportServers.size());
+            return localReportServers;
 
         } catch (Exception e) {
             log.error("查询本地上报服务器失败", e);
@@ -1734,41 +1865,17 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     monitorSysGenServer.getMonitorSysGenServerHost(),
                     monitorSysGenServer.getMonitorSysGenServerPort());
             log.info("多IP地址: {}", monitorSysGenServer.getMonitorSysGenServerIpAddresses());
-            log.info("Docker配置 - 启用: {}, 连接方式: {}, 主机: {}, 端口: {}",
-                    monitorSysGenServer.getMonitorSysGenServerDockerEnabled(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerConnectionType(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerHost(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerPort());
+            // Docker配置已迁移到配置表，这里不再记录
+            log.info("Docker配置已迁移到配置表");
 
             // 设置默认值
             if (null == monitorSysGenServer.getMonitorSysGenServerStatus()) {
                 monitorSysGenServer.setMonitorSysGenServerStatus(0);
             }
-            if (null == monitorSysGenServer.getMonitorSysGenServerMonitorEnabled()) {
-                monitorSysGenServer.setMonitorSysGenServerMonitorEnabled(0);
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerMetricsRetentionDays()) {
-                monitorSysGenServer.setMonitorSysGenServerMetricsRetentionDays(30);
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerMonitorInterval()) {
-                monitorSysGenServer.setMonitorSysGenServerMonitorInterval(60);
-            }
             if (null == monitorSysGenServer.getMonitorSysGenServerTimeout()) {
                 monitorSysGenServer.setMonitorSysGenServerTimeout(30000);
             }
-            // 设置新增字段的默认值
-            if (null == monitorSysGenServer.getMonitorSysGenServerReportEnabled()) {
-                monitorSysGenServer.setMonitorSysGenServerReportEnabled(1); // 默认上报
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDataReportMethod()) {
-                monitorSysGenServer.setMonitorSysGenServerDataReportMethod("NONE"); // 默认不支持上报
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDockerEnabled()) {
-                monitorSysGenServer.setMonitorSysGenServerDockerEnabled(0); // 默认不支持Docker
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDockerConnectionType()) {
-                monitorSysGenServer.setMonitorSysGenServerDockerConnectionType("SHELL"); // 默认Shell连接
-            }
+            // Docker相关配置已迁移到配置表，不再在这里设置默认值
 
             boolean result = this.save(monitorSysGenServer);
             if (result) {
@@ -1792,25 +1899,10 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     monitorSysGenServer.getMonitorSysGenServerHost(),
                     monitorSysGenServer.getMonitorSysGenServerPort());
             log.info("多IP地址: {}", monitorSysGenServer.getMonitorSysGenServerIpAddresses());
-            log.info("Docker配置 - 启用: {}, 连接方式: {}, 主机: {}, 端口: {}",
-                    monitorSysGenServer.getMonitorSysGenServerDockerEnabled(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerConnectionType(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerHost(),
-                    monitorSysGenServer.getMonitorSysGenServerDockerPort());
+            // Docker配置已迁移到配置表，这里不再记录
+            log.info("Docker配置已迁移到配置表");
 
-            // 设置默认值（更新时也需要确保字段有值）
-            if (null == monitorSysGenServer.getMonitorSysGenServerReportEnabled()) {
-                monitorSysGenServer.setMonitorSysGenServerReportEnabled(1); // 默认上报
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDataReportMethod()) {
-                monitorSysGenServer.setMonitorSysGenServerDataReportMethod("NONE"); // 默认不支持上报
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDockerEnabled()) {
-                monitorSysGenServer.setMonitorSysGenServerDockerEnabled(0); // 默认不支持Docker
-            }
-            if (null == monitorSysGenServer.getMonitorSysGenServerDockerConnectionType()) {
-                monitorSysGenServer.setMonitorSysGenServerDockerConnectionType("SHELL"); // 默认Shell连接
-            }
+            // Docker相关配置已迁移到配置表，不再在这里设置默认值
 
             boolean result = this.updateById(monitorSysGenServer);
             return ReturnResult.of(result);
@@ -1851,7 +1943,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             }
 
             // 调用检测方法
-            Map<String, Object> serverInfo = com.chua.starter.monitor.starter.utils.ServerInfoDetector.detectServerInfo(host);
+            Map<String, Object> serverInfo = ServerInfoDetector.detectServerInfo(host);
 
             result.put("testHost", host);
             result.put("detectionResult", serverInfo);
@@ -1998,6 +2090,20 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         } catch (Exception e) {
             log.error("内存使用检查失败", e);
             return ReturnResult.error("内存使用检查失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取服务器配置信息的辅助方法
+     */
+    private MonitorSysGenServerSetting getServerSetting(Integer serverId) {
+        try {
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                monitorSysGenServerSettingService.getOrCreateSetting(serverId);
+            return settingResult.isOk() ? settingResult.getData() : null;
+        } catch (Exception e) {
+            log.warn("获取服务器配置失败: serverId={}, error={}", serverId, e.getMessage());
+            return null;
         }
     }
 }

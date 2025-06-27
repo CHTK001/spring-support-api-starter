@@ -1,7 +1,9 @@
 package com.chua.starter.monitor.starter.websocket;
 
 import com.chua.common.support.json.Json;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class RdpWebSocketHandler implements WebSocketHandler {
 
     private final List<ServerConnectionService> serverConnectionServices;
     private final MonitorSysGenServerService serverService;
+    private final SocketSessionTemplate socketSessionTemplate;
 
     /**
      * WebSocket会话映射
@@ -37,6 +40,11 @@ public class RdpWebSocketHandler implements WebSocketHandler {
      * 会话与服务器ID映射
      */
     private final Map<String, Integer> sessionServerMap = new ConcurrentHashMap<>();
+
+    /**
+     * 服务器与会话映射
+     */
+    private final Map<Integer, WebSocketSession> serverSessionMap = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -143,17 +151,30 @@ public class RdpWebSocketHandler implements WebSocketHandler {
             boolean connected = rdpService.connect(server);
             if (connected) {
                 sessionServerMap.put(session.getId(), serverId);
+                serverSessionMap.put(serverId, session);
+
+                // 发送WebSocket消息
                 sendMessage(session, "connect-result", Map.of(
                     "success", true,
                     "serverId", serverId,
                     "message", "RDP连接成功"
                 ));
+
+                // 通过Socket.IO广播RDP连接状态
+                broadcastRdpConnectionStatus(serverId, server.getMonitorSysGenServerName(), "connected");
+
+                // 设置数据回调监听
+                setupRdpDataListener(serverId, session);
+
             } else {
                 sendMessage(session, "connect-result", Map.of(
                     "success", false,
                     "serverId", serverId,
                     "message", "RDP连接失败"
                 ));
+
+                // 广播连接失败状态
+                broadcastRdpConnectionStatus(serverId, server.getMonitorSysGenServerName(), "failed");
             }
         } catch (Exception e) {
             log.error("处理RDP连接请求失败: {}", e.getMessage(), e);
@@ -178,11 +199,19 @@ public class RdpWebSocketHandler implements WebSocketHandler {
             }
 
             sessionServerMap.remove(session.getId());
+            serverSessionMap.remove(serverId);
+
             sendMessage(session, "disconnect-result", Map.of(
                 "success", true,
                 "serverId", serverId,
                 "message", "RDP连接已断开"
             ));
+
+            // 广播断开连接状态
+            MonitorSysGenServer server = serverService.getById(serverId);
+            String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
+            broadcastRdpConnectionStatus(serverId, serverName, "disconnected");
+
         } catch (Exception e) {
             log.error("处理RDP断开连接失败: {}", e.getMessage(), e);
             sendErrorMessage(session, "断开连接失败: " + e.getMessage());
@@ -387,5 +416,71 @@ public class RdpWebSocketHandler implements WebSocketHandler {
      */
     private void sendErrorMessage(WebSocketSession session, String error) {
         sendMessage(session, "error", Map.of("message", error));
+    }
+
+    /**
+     * 广播RDP连接状态
+     */
+    private void broadcastRdpConnectionStatus(Integer serverId, String serverName, String status) {
+        try {
+            ServerWebSocketMessage message = ServerWebSocketMessage.createRdpConnectionMessage(
+                serverId, serverName, status
+            );
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            log.debug("广播RDP连接状态: serverId={}, status={}", serverId, status);
+        } catch (Exception e) {
+            log.error("广播RDP连接状态失败: serverId={}", serverId, e);
+        }
+    }
+
+    /**
+     * 设置RDP数据监听
+     */
+    private void setupRdpDataListener(Integer serverId, WebSocketSession session) {
+        ServerConnectionService rdpService = getRdpConnectionService();
+        if (rdpService != null) {
+            rdpService.setDataCallback(serverId, (data) -> {
+                try {
+                    // 发送到WebSocket客户端
+                    sendMessage(session, "rdp-data", Map.of("data", data));
+
+                    // 通过Socket.IO广播RDP数据
+                    MonitorSysGenServer server = serverService.getById(serverId);
+                    String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
+
+                    ServerWebSocketMessage message = ServerWebSocketMessage.createRdpDataMessage(
+                        serverId, serverName, data
+                    );
+                    socketSessionTemplate.send("gen/server", Json.toJson(message));
+
+                } catch (Exception e) {
+                    log.error("发送RDP数据失败: serverId={}", serverId, e);
+                }
+            });
+        }
+    }
+
+    /**
+     * 发送RDP数据到前端
+     */
+    public void sendRdpDataToClient(Integer serverId, Object data) {
+        try {
+            WebSocketSession session = serverSessionMap.get(serverId);
+            if (session != null && session.isOpen()) {
+                sendMessage(session, "rdp-data", Map.of("data", data));
+            }
+
+            // 同时通过Socket.IO广播
+            MonitorSysGenServer server = serverService.getById(serverId);
+            String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.createRdpDataMessage(
+                serverId, serverName, data
+            );
+            socketSessionTemplate.send("gen/server", Json.toJson(message));
+
+        } catch (Exception e) {
+            log.error("发送RDP数据到前端失败: serverId={}", serverId, e);
+        }
     }
 }

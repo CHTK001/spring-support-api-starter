@@ -107,21 +107,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @Size(max = 500, message = "私钥文件路径最大长度要小于 500")
     private String monitorSysGenServerPrivateKey;
 
-    /**
-     * 指标存储时间(天)
-     */
-    @TableField(value = "monitor_sys_gen_server_metrics_retention_days")
-    @ApiModelProperty(value = "指标存储时间(天)")
-    @Schema(description = "指标存储时间(天)")
-    private Integer monitorSysGenServerMetricsRetentionDays;
 
-    /**
-     * 监控间隔(秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_monitor_interval")
-    @ApiModelProperty(value = "监控间隔(秒)")
-    @Schema(description = "监控间隔(秒)")
-    private Integer monitorSysGenServerMonitorInterval;
 
     /**
      * 连接超时时间(毫秒)
@@ -148,13 +134,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @Schema(description = "服务器状态")
     private Integer monitorSysGenServerStatus;
 
-    /**
-     * 是否启用监控 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_monitor_enabled")
-    @ApiModelProperty(value = "是否启用监控")
-    @Schema(description = "是否启用监控")
-    private Integer monitorSysGenServerMonitorEnabled;
+
 
     /**
      * 服务器标签 (用于分组)
@@ -194,41 +174,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
 
 
 
-    /**
-     * 是否需要上报 0:否 1:是 (默认上报)
-     */
-    @TableField(value = "monitor_sys_gen_server_report_enabled")
-    @ApiModelProperty(value = "是否需要上报")
-    @Schema(description = "是否需要上报")
-    private Integer monitorSysGenServerReportEnabled;
 
-
-
-    /**
-     * 数据上报方式 (NONE:不支持上报, LOCAL:本地上报, API:接口上报, PROMETHEUS:prometheus)
-     */
-    @TableField(value = "monitor_sys_gen_server_data_report_method")
-    @ApiModelProperty(value = "数据上报方式")
-    @Schema(description = "数据上报方式")
-    @Size(max = 20, message = "数据上报方式最大长度要小于 20")
-    private String monitorSysGenServerDataReportMethod;
-
-    /**
-     * Prometheus服务器地址
-     */
-    @TableField(value = "monitor_sys_gen_server_prometheus_host")
-    @ApiModelProperty(value = "Prometheus服务器地址")
-    @Schema(description = "Prometheus服务器地址")
-    @Size(max = 255, message = "Prometheus服务器地址最大长度要小于 255")
-    private String monitorSysGenServerPrometheusHost;
-
-    /**
-     * Prometheus服务器端口
-     */
-    @TableField(value = "monitor_sys_gen_server_prometheus_port")
-    @ApiModelProperty(value = "Prometheus服务器端口")
-    @Schema(description = "Prometheus服务器端口")
-    private Integer monitorSysGenServerPrometheusPort;
 
     /**
      * 代理ID (关联MonitorProxy表)
@@ -255,39 +201,7 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     @Size(max = 1000, message = "服务器IP地址列表最大长度要小于 1000")
     private String monitorSysGenServerIpAddresses;
 
-    /**
-     * 是否支持Docker 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_docker_enabled")
-    @ApiModelProperty(value = "是否支持Docker")
-    @Schema(description = "是否支持Docker")
-    private Integer monitorSysGenServerDockerEnabled;
-
-    /**
-     * Docker连接方式 (SHELL:命令行, TCP:TCP连接)
-     */
-    @TableField(value = "monitor_sys_gen_server_docker_connection_type")
-    @ApiModelProperty(value = "Docker连接方式")
-    @Schema(description = "Docker连接方式")
-    @Size(max = 20, message = "Docker连接方式最大长度要小于 20")
-    private String monitorSysGenServerDockerConnectionType;
-
-    /**
-     * Docker TCP连接地址
-     */
-    @TableField(value = "monitor_sys_gen_server_docker_host")
-    @ApiModelProperty(value = "Docker TCP连接地址")
-    @Schema(description = "Docker TCP连接地址")
-    @Size(max = 255, message = "Docker TCP连接地址最大长度要小于 255")
-    private String monitorSysGenServerDockerHost;
-
-    /**
-     * Docker TCP连接端口
-     */
-    @TableField(value = "monitor_sys_gen_server_docker_port")
-    @ApiModelProperty(value = "Docker TCP连接端口")
-    @Schema(description = "Docker TCP连接端口")
-    private Integer monitorSysGenServerDockerPort;
+    // Docker相关配置已迁移到 MonitorSysGenServerSetting 表
 
     /**
      * 操作系统类型 (自动检测)
@@ -325,107 +239,6 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
     private Long monitorSysGenServerLatency;
 
     /**
-     * 延迟检测状态 0:未检测 1:正常 2:延迟较高 3:检测失败
-     */
-    @TableField(value = "monitor_sys_gen_server_latency_status")
-    @ApiModelProperty(value = "延迟检测状态")
-    @Schema(description = "延迟检测状态 0:未检测 1:正常 2:延迟较高 3:检测失败")
-    private Integer monitorSysGenServerLatencyStatus;
-
-    /**
-     * 最后延迟检测时间
-     */
-    @TableField(value = "monitor_sys_gen_server_last_latency_check_time")
-    @ApiModelProperty(value = "最后延迟检测时间")
-    @Schema(description = "最后延迟检测时间")
-    private LocalDateTime monitorSysGenServerLastLatencyCheckTime;
-
-    /**
-     * 平均延迟(毫秒) - 最近10次检测的平均值
-     */
-    @TableField(value = "monitor_sys_gen_server_avg_latency")
-    @ApiModelProperty(value = "平均延迟(毫秒)")
-    @Schema(description = "平均延迟(毫秒) - 最近10次检测的平均值")
-    private Long monitorSysGenServerAvgLatency;
-
-    /**
-     * 最大延迟(毫秒) - 最近10次检测的最大值
-     */
-    @TableField(value = "monitor_sys_gen_server_max_latency")
-    @ApiModelProperty(value = "最大延迟(毫秒)")
-    @Schema(description = "最大延迟(毫秒) - 最近10次检测的最大值")
-    private Long monitorSysGenServerMaxLatency;
-
-    /**
-     * 最小延迟(毫秒) - 最近10次检测的最小值
-     */
-    @TableField(value = "monitor_sys_gen_server_min_latency")
-    @ApiModelProperty(value = "最小延迟(毫秒)")
-    @Schema(description = "最小延迟(毫秒) - 最近10次检测的最小值")
-    private Long monitorSysGenServerMinLatency;
-
-    /**
-     * 延迟检测失败次数
-     */
-    @TableField(value = "monitor_sys_gen_server_latency_fail_count")
-    @ApiModelProperty(value = "延迟检测失败次数")
-    @Schema(description = "延迟检测失败次数")
-    private Integer monitorSysGenServerLatencyFailCount;
-
-    /**
-     * 延迟检测总次数
-     */
-    @TableField(value = "monitor_sys_gen_server_latency_total_count")
-    @ApiModelProperty(value = "延迟检测总次数")
-    @Schema(description = "延迟检测总次数")
-    private Integer monitorSysGenServerLatencyTotalCount;
-
-    /**
-     * 延迟状态枚举
-     */
-    public enum LatencyStatus {
-        NOT_CHECKED(0, "未检测"),
-        NORMAL(1, "正常"),
-        HIGH_LATENCY(2, "延迟较高"),
-        CHECK_FAILED(3, "检测失败");
-
-        private final int code;
-        private final String desc;
-
-        LatencyStatus(int code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public static LatencyStatus fromCode(int code) {
-            for (LatencyStatus status : values()) {
-                if (status.code == code) {
-                    return status;
-                }
-            }
-            return NOT_CHECKED;
-        }
-    }
-
-    /**
-     * 获取延迟状态描述
-     */
-    public String getLatencyStatusDesc() {
-        if (this.monitorSysGenServerLatencyStatus == null) {
-            return LatencyStatus.NOT_CHECKED.getDesc();
-        }
-        return LatencyStatus.fromCode(this.monitorSysGenServerLatencyStatus).getDesc();
-    }
-
-    /**
      * 判断延迟是否正常
      * 延迟小于100ms认为正常
      */
@@ -449,17 +262,5 @@ public class MonitorSysGenServer extends SysBase implements Serializable {
      */
     public boolean isLatencyAbnormal() {
         return this.monitorSysGenServerLatency != null && this.monitorSysGenServerLatency >= 500;
-    }
-
-    /**
-     * 获取延迟成功率
-     */
-    public double getLatencySuccessRate() {
-        if (this.monitorSysGenServerLatencyTotalCount == null || this.monitorSysGenServerLatencyTotalCount == 0) {
-            return 0.0;
-        }
-        int successCount = this.monitorSysGenServerLatencyTotalCount -
-                (this.monitorSysGenServerLatencyFailCount != null ? this.monitorSysGenServerLatencyFailCount : 0);
-        return (double) successCount / this.monitorSysGenServerLatencyTotalCount * 100;
     }
 }

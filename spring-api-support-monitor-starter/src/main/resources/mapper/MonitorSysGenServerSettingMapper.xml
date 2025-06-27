@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper">
+
+    <!-- 根据服务器ID获取配置 -->
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+        SELECT * FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_setting_status = 1
+    </select>
+
+    <!-- 根据服务器ID列表批量获取配置 -->
+    <select id="selectByServerIds" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+        SELECT * FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_id IN 
+        <foreach item='serverId' collection='serverIds' open='(' separator=',' close=')'>
+            #{serverId}
+        </foreach>
+        AND monitor_sys_gen_server_setting_status = 1
+    </select>
+
+    <!-- 获取启用监控的服务器配置 -->
+    <select id="selectMonitorEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+        SELECT * FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_setting_monitor_enabled = 1
+        AND monitor_sys_gen_server_setting_status = 1
+    </select>
+
+    <!-- 获取启用告警的服务器配置 -->
+    <select id="selectAlertEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+        SELECT * FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_setting_alert_enabled = 1
+        AND monitor_sys_gen_server_setting_status = 1
+    </select>
+
+    <!-- 获取启用上报的服务器配置 -->
+    <select id="selectReportEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+        SELECT * FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_setting_report_enabled = 1
+        AND monitor_sys_gen_server_setting_status = 1
+        <if test="reportMethod != null and reportMethod != ''">
+            AND monitor_sys_gen_server_setting_data_report_method = #{reportMethod}
+        </if>
+    </select>
+
+    <!-- 根据服务器ID删除配置 -->
+    <delete id="deleteByServerId">
+        DELETE FROM monitor_sys_gen_server_setting
+        WHERE monitor_sys_gen_server_id = #{serverId}
+    </delete>
+
+    <!-- 批量插入或更新配置 -->
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO monitor_sys_gen_server_setting (
+            monitor_sys_gen_server_id,
+            monitor_sys_gen_server_setting_report_enabled,
+            monitor_sys_gen_server_setting_data_report_method,
+            monitor_sys_gen_server_setting_prometheus_host,
+            monitor_sys_gen_server_setting_prometheus_port,
+            monitor_sys_gen_server_setting_metrics_retention_days,
+            monitor_sys_gen_server_setting_monitor_interval,
+            monitor_sys_gen_server_setting_monitor_enabled,
+            monitor_sys_gen_server_setting_cpu_alert_threshold,
+            monitor_sys_gen_server_setting_memory_alert_threshold,
+            monitor_sys_gen_server_setting_disk_alert_threshold,
+            monitor_sys_gen_server_setting_network_alert_threshold,
+            monitor_sys_gen_server_setting_response_time_alert_threshold,
+            monitor_sys_gen_server_setting_alert_enabled,
+            monitor_sys_gen_server_setting_alert_notification_method,
+            monitor_sys_gen_server_setting_alert_notification_address,
+            monitor_sys_gen_server_setting_alert_silence_duration,
+            monitor_sys_gen_server_setting_auto_recovery_enabled,
+            monitor_sys_gen_server_setting_data_collection_frequency,
+            monitor_sys_gen_server_setting_performance_suggestion_enabled,
+            monitor_sys_gen_server_setting_custom_tags,
+            monitor_sys_gen_server_setting_description,
+            monitor_sys_gen_server_setting_status,
+            create_time,
+            update_time
+        ) VALUES
+        <foreach collection="settings" item="setting" separator=",">
+            (
+                #{setting.monitorSysGenServerId},
+                #{setting.monitorSysGenServerSettingReportEnabled},
+                #{setting.monitorSysGenServerSettingDataReportMethod},
+                #{setting.monitorSysGenServerSettingPrometheusHost},
+                #{setting.monitorSysGenServerSettingPrometheusPort},
+                #{setting.monitorSysGenServerSettingMetricsRetentionDays},
+                #{setting.monitorSysGenServerSettingMonitorInterval},
+                #{setting.monitorSysGenServerSettingMonitorEnabled},
+                #{setting.monitorSysGenServerSettingCpuAlertThreshold},
+                #{setting.monitorSysGenServerSettingMemoryAlertThreshold},
+                #{setting.monitorSysGenServerSettingDiskAlertThreshold},
+                #{setting.monitorSysGenServerSettingNetworkAlertThreshold},
+                #{setting.monitorSysGenServerSettingResponseTimeAlertThreshold},
+                #{setting.monitorSysGenServerSettingAlertEnabled},
+                #{setting.monitorSysGenServerSettingAlertNotificationMethod},
+                #{setting.monitorSysGenServerSettingAlertNotificationAddress},
+                #{setting.monitorSysGenServerSettingAlertSilenceDuration},
+                #{setting.monitorSysGenServerSettingAutoRecoveryNotificationEnabled},
+                #{setting.monitorSysGenServerSettingDataCollectionFrequency},
+                #{setting.monitorSysGenServerSettingPerformanceSuggestionEnabled},
+                #{setting.monitorSysGenServerSettingCustomTags},
+                #{setting.monitorSysGenServerSettingDescription},
+                #{setting.monitorSysGenServerSettingStatus},
+                NOW(),
+                NOW()
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            monitor_sys_gen_server_setting_report_enabled = VALUES(monitor_sys_gen_server_setting_report_enabled),
+            monitor_sys_gen_server_setting_data_report_method = VALUES(monitor_sys_gen_server_setting_data_report_method),
+            monitor_sys_gen_server_setting_prometheus_host = VALUES(monitor_sys_gen_server_setting_prometheus_host),
+            monitor_sys_gen_server_setting_prometheus_port = VALUES(monitor_sys_gen_server_setting_prometheus_port),
+            monitor_sys_gen_server_setting_metrics_retention_days = VALUES(monitor_sys_gen_server_setting_metrics_retention_days),
+            monitor_sys_gen_server_setting_monitor_interval = VALUES(monitor_sys_gen_server_setting_monitor_interval),
+            monitor_sys_gen_server_setting_monitor_enabled = VALUES(monitor_sys_gen_server_setting_monitor_enabled),
+            monitor_sys_gen_server_setting_cpu_alert_threshold = VALUES(monitor_sys_gen_server_setting_cpu_alert_threshold),
+            monitor_sys_gen_server_setting_memory_alert_threshold = VALUES(monitor_sys_gen_server_setting_memory_alert_threshold),
+            monitor_sys_gen_server_setting_disk_alert_threshold = VALUES(monitor_sys_gen_server_setting_disk_alert_threshold),
+            monitor_sys_gen_server_setting_network_alert_threshold = VALUES(monitor_sys_gen_server_setting_network_alert_threshold),
+            monitor_sys_gen_server_setting_response_time_alert_threshold = VALUES(monitor_sys_gen_server_setting_response_time_alert_threshold),
+            monitor_sys_gen_server_setting_alert_enabled = VALUES(monitor_sys_gen_server_setting_alert_enabled),
+            monitor_sys_gen_server_setting_alert_notification_method = VALUES(monitor_sys_gen_server_setting_alert_notification_method),
+            monitor_sys_gen_server_setting_alert_notification_address = VALUES(monitor_sys_gen_server_setting_alert_notification_address),
+            monitor_sys_gen_server_setting_alert_silence_duration = VALUES(monitor_sys_gen_server_setting_alert_silence_duration),
+            monitor_sys_gen_server_setting_auto_recovery_enabled = VALUES(monitor_sys_gen_server_setting_auto_recovery_enabled),
+            monitor_sys_gen_server_setting_data_collection_frequency = VALUES(monitor_sys_gen_server_setting_data_collection_frequency),
+            monitor_sys_gen_server_setting_performance_suggestion_enabled = VALUES(monitor_sys_gen_server_setting_performance_suggestion_enabled),
+            monitor_sys_gen_server_setting_custom_tags = VALUES(monitor_sys_gen_server_setting_custom_tags),
+            monitor_sys_gen_server_setting_description = VALUES(monitor_sys_gen_server_setting_description),
+            monitor_sys_gen_server_setting_status = VALUES(monitor_sys_gen_server_setting_status),
+            update_time = NOW()
+    </insert>
+
+    <!-- 更新服务器配置状态 -->
+    <update id="updateStatusByServerId">
+        UPDATE monitor_sys_gen_server_setting 
+        SET monitor_sys_gen_server_setting_status = #{status}, update_time = NOW()
+        WHERE monitor_sys_gen_server_id = #{serverId}
+    </update>
+
+    <!-- 获取配置统计信息 -->
+    <select id="getSettingsStatistics" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            COUNT(*) as total_settings,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_monitor_enabled = 1 THEN 1 ELSE 0 END) as monitor_enabled_count,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_alert_enabled = 1 THEN 1 ELSE 0 END) as alert_enabled_count,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_report_enabled = 1 THEN 1 ELSE 0 END) as report_enabled_count,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_data_report_method = 'PROMETHEUS' THEN 1 ELSE 0 END) as prometheus_count,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_data_report_method = 'API' THEN 1 ELSE 0 END) as api_count,
+            SUM(CASE WHEN monitor_sys_gen_server_setting_data_report_method = 'LOCAL' THEN 1 ELSE 0 END) as local_count,
+            AVG(monitor_sys_gen_server_setting_cpu_alert_threshold) as avg_cpu_threshold,
+            AVG(monitor_sys_gen_server_setting_memory_alert_threshold) as avg_memory_threshold,
+            AVG(monitor_sys_gen_server_setting_disk_alert_threshold) as avg_disk_threshold
+        FROM monitor_sys_gen_server_setting 
+        WHERE monitor_sys_gen_server_setting_status = 1
+        ]]>
+    </select>
+
+</mapper>

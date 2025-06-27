@@ -3,8 +3,10 @@ package com.chua.starter.monitor.starter.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerDataReportService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,6 +32,7 @@ public class DataReportController {
 
     private final MonitorSysGenServerDataReportService dataReportService;
     private final MonitorSysGenServerService serverService;
+    private final MonitorSysGenServerSettingService serverSettingService;
 
     /**
      * 客户端数据上报接口
@@ -54,8 +57,21 @@ public class DataReportController {
             }
             
             // 检查服务器是否启用API上报
-            if (!"API".equals(server.getMonitorSysGenServerDataReportMethod())) {
-                return ReturnResult.error("服务器未启用API上报模式");
+            try {
+                ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+                if (!settingResult.isOk() || settingResult.getData() == null) {
+                    return ReturnResult.error("获取服务器配置失败");
+                }
+
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                if (!"API".equals(setting.getMonitorSysGenServerSettingDataReportMethod())) {
+                    return ReturnResult.error("服务器未启用API上报模式");
+                }
+            } catch (Exception e) {
+                log.error("获取服务器配置失败: serverId={}", serverId, e);
+                return ReturnResult.error("获取服务器配置失败");
             }
             
             // 处理API上报数据
@@ -154,7 +170,9 @@ public class DataReportController {
                 return ReturnResult.error("服务器配置不存在");
             }
             
-            if (!"LOCAL".equals(server.getMonitorSysGenServerDataReportMethod())) {
+            // 检查服务器是否启用本地收集模式
+            String reportMethod = getServerReportMethod(server);
+            if (!"LOCAL".equals(reportMethod)) {
                 return ReturnResult.error("服务器未启用本地收集模式");
             }
             
@@ -183,7 +201,9 @@ public class DataReportController {
                 return ReturnResult.error("服务器配置不存在");
             }
             
-            if (!"PROMETHEUS".equals(server.getMonitorSysGenServerDataReportMethod())) {
+            // 检查服务器是否启用Prometheus查询模式
+            String reportMethod = getServerReportMethod(server);
+            if (!"PROMETHEUS".equals(reportMethod)) {
                 return ReturnResult.error("服务器未启用Prometheus查询模式");
             }
             
@@ -193,5 +213,30 @@ public class DataReportController {
             log.error("查询Prometheus数据失败: serverId={}", serverId, e);
             return ReturnResult.error("查询失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 获取服务器的数据上报方式
+     */
+    private String getServerReportMethod(MonitorSysGenServer server) {
+        try {
+            // 从配置表获取上报方式
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                String reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+                if (reportMethod != null && !reportMethod.trim().isEmpty()) {
+                    return reportMethod;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器上报配置失败: serverId={}, error={}",
+                server.getMonitorSysGenServerId(), e.getMessage());
+        }
+
+        // 默认返回NONE
+        return "NONE";
     }
 }

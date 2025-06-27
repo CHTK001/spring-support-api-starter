@@ -1,22 +1,19 @@
-package com.chua.starter.monitor.starter.websocket;
+package com.chua.starter.monitor.starter.service;
 
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerConnectionStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 服务器连接状态WebSocket服务
@@ -44,15 +41,7 @@ public class ServerConnectionWebSocketService {
      */
     public void start() {
         log.info("启动服务器连接状态WebSocket服务");
-        
-        // 定时推送连接状态统计信息 (每30秒)
-        scheduledExecutorService.scheduleAtFixedRate(this::broadcastConnectionStatistics, 0, 30, TimeUnit.SECONDS);
-        
-        // 定时检查连接健康状态 (每5分钟)
-        scheduledExecutorService.scheduleAtFixedRate(this::broadcastHealthStatus, 60, 300, TimeUnit.SECONDS);
-        
-        // 定时检查连接告警 (每分钟)
-        scheduledExecutorService.scheduleAtFixedRate(this::checkConnectionAlerts, 30, 60, TimeUnit.SECONDS);
+        // WebSocket服务启动，定时任务由task包中的类负责
     }
 
     /**
@@ -187,8 +176,6 @@ public class ServerConnectionWebSocketService {
                         .build();
 
                 socketSessionTemplate.send("gen/server", Json.toJson(message));
-
-                log.warn("发现长时间未连接的服务器: count={}", longTimeNoConnectResult.getData().size());
             }
 
             // 检查连接失败的服务器
@@ -208,8 +195,6 @@ public class ServerConnectionWebSocketService {
                         .build();
 
                 socketSessionTemplate.send("gen/server", Json.toJson(message));
-
-                log.warn("发现连接失败的服务器: count={}", failedServersResult.getData().size());
             }
 
         } catch (Exception e) {
@@ -224,64 +209,32 @@ public class ServerConnectionWebSocketService {
         if (status == null) {
             return "未知";
         }
-        return MonitorSysGenServerConnectionStatus.ConnectionStatus.fromCode(status).getDesc();
-    }
-
-    /**
-     * 广播连接状态变化事件
-     *
-     * @param serverId    服务器ID
-     * @param oldStatus   旧状态
-     * @param newStatus   新状态
-     * @param changeTime  变化时间
-     */
-    public void broadcastConnectionStatusChange(Integer serverId, Integer oldStatus, Integer newStatus, LocalDateTime changeTime) {
-        try {
-            Map<String, Object> changeData = new HashMap<>();
-            changeData.put("serverId", serverId);
-            changeData.put("oldStatus", oldStatus);
-            changeData.put("newStatus", newStatus);
-            changeData.put("changeTime", changeTime);
-
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("connection_status_change")
-                    .serverId(serverId)
-                    .data(changeData)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-
-            socketSessionTemplate.send("gen/server", Json.toJson(message));
-
-            log.debug("广播连接状态变化: serverId={}, {} -> {}", serverId, oldStatus, newStatus);
-
-        } catch (Exception e) {
-            log.error("广播连接状态变化失败: serverId={}", serverId, e);
-        }
+        
+        return switch (status) {
+            case 1 -> "在线";
+            case 0 -> "离线";
+            case -1 -> "连接失败";
+            default -> "未知状态";
+        };
     }
 
     /**
      * 发送连接测试进度
-     *
-     * @param taskId      任务ID
-     * @param progress    进度百分比
-     * @param currentItem 当前处理项
-     * @param totalItems  总项数
      */
-    public void sendTestProgress(String taskId, int progress, int currentItem, int totalItems) {
+    public void sendConnectionTestProgress(String taskId, Integer progress, String message) {
         try {
             Map<String, Object> progressData = new HashMap<>();
             progressData.put("taskId", taskId);
             progressData.put("progress", progress);
-            progressData.put("currentItem", currentItem);
-            progressData.put("totalItems", totalItems);
+            progressData.put("message", message);
 
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("test_progress")
+            ServerWebSocketMessage wsMessage = ServerWebSocketMessage.builder()
+                    .messageType("connection_test_progress")
                     .data(progressData)
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
 
             log.debug("发送连接测试进度: taskId={}, progress={}%", taskId, progress);
 

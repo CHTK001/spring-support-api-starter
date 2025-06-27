@@ -1,6 +1,6 @@
 /**
  * 服务器相关API接口统一导出
- * 
+ *
  * @author CH
  * @since 2024/12/25
  */
@@ -28,3 +28,6 @@ export * from './script'
 
 // 导出服务器详情组件接口
 export * from './detail-component'
+
+// 导出服务器设置接口
+export * from './setting'

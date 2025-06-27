@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +29,14 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @return 分页结果
      */
     IPage<MonitorSysGenServer> pageFor(Page<MonitorSysGenServer> page, MonitorSysGenServer entity);
+
+    /**
+     * 根据ID获取服务器信息和配置信息
+     *
+     * @param id 服务器ID
+     * @return 包含服务器信息和配置信息的DTO
+     */
+    ReturnResult<ServerWithConfigDto> getByIdAndConfig(String id);
 
     /**
      * 测试服务器连接
