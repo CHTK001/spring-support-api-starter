@@ -10,6 +10,7 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerDeviceReportS
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerDataReportService;
+import com.chua.starter.monitor.starter.service.ServerMetricsWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerMetricsService metricsService;
     private final MonitorSysGenServerDataReportService dataReportService;
+    private final ServerMetricsWebSocketService webSocketService;
 
     // 设备上报统计缓存
     private final Map<String, AtomicLong> deviceReportCount = new ConcurrentHashMap<>();
@@ -73,8 +75,16 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
             for (MonitorSysGenServer server : matchedServers) {
                 try {
                     MonitorSysGenServerMetrics serverMetrics = convertDeviceMetricsToServerMetrics(metrics, server);
-                    metricsService.saveMetrics(serverMetrics);
-                    log.debug("设备指标数据已关联到服务器: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId());
+
+                    // 保存到Redis
+                    var saveResult = metricsService.saveMetrics(serverMetrics);
+                    if (saveResult.isOk()) {
+                        // 通过WebSocket推送到前端
+                        broadcastServerMetrics(server.getMonitorSysGenServerId(), serverMetrics);
+                        log.debug("设备指标数据已关联到服务器并推送到前端: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId());
+                    } else {
+                        log.warn("保存服务器指标数据失败: deviceIp={}, serverId={}, error={}", deviceIp, server.getMonitorSysGenServerId(), saveResult.getMsg());
+                    }
                 } catch (Exception e) {
                     log.error("保存服务器指标数据失败: deviceIp={}, serverId={}", deviceIp, server.getMonitorSysGenServerId(), e);
                     updateDeviceReportStats(deviceIp, false);
@@ -511,6 +521,25 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
 
         if (!success) {
             deviceErrorCount.computeIfAbsent(deviceIp, k -> new AtomicLong(0)).incrementAndGet();
+        }
+    }
+
+    /**
+     * 广播服务器指标数据到前端
+     */
+    private void broadcastServerMetrics(Integer serverId, MonitorSysGenServerMetrics metrics) {
+        try {
+            // 获取服务器对象
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server != null) {
+                // 使用WebSocket服务推送服务器指标数据
+                webSocketService.pushSingleServerMetrics(server, metrics);
+                log.debug("服务器指标数据已通过WebSocket推送: serverId={}", serverId);
+            } else {
+                log.warn("服务器不存在，无法推送指标数据: serverId={}", serverId);
+            }
+        } catch (Exception e) {
+            log.error("推送服务器指标数据失败: serverId={}", serverId, e);
         }
     }
 }
