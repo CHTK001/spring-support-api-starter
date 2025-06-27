@@ -14,56 +14,44 @@
         <span class="form-tip">开启后将收集服务器性能指标</span>
       </el-form-item>
 
-      <el-form-item label="数据收集频率" prop="monitorSysGenServerSettingDataCollectionFrequency">
+      <el-form-item label="监控间隔" prop="monitorSysGenServerSettingMonitorInterval">
         <el-input-number
-          v-model="formData.monitorSysGenServerSettingDataCollectionFrequency"
-          :min="10"
+          v-model="formData.monitorSysGenServerSettingMonitorInterval"
+          :min="30"
           :max="3600"
-          :step="10"
-          placeholder="数据收集频率(秒)"
+          :step="30"
+          placeholder="监控间隔(秒)"
           style="width: 200px"
           @change="handleChange"
         />
-        <span class="form-tip">秒，建议值：30</span>
+        <span class="form-tip">秒，建议值：60</span>
       </el-form-item>
 
-      <el-form-item label="CPU阈值" prop="monitorSysGenServerSettingCpuThreshold">
+      <el-form-item label="数据保留天数" prop="monitorSysGenServerSettingMetricsRetentionDays">
         <el-input-number
-          v-model="formData.monitorSysGenServerSettingCpuThreshold"
+          v-model="formData.monitorSysGenServerSettingMetricsRetentionDays"
           :min="1"
-          :max="100"
+          :max="365"
           :step="1"
-          placeholder="CPU使用率阈值(%)"
+          placeholder="数据保留天数"
           style="width: 200px"
           @change="handleChange"
         />
-        <span class="form-tip">%，超过此值将触发告警</span>
+        <span class="form-tip">天，超过此时间的历史数据将被清理</span>
       </el-form-item>
 
-      <el-form-item label="内存阈值" prop="monitorSysGenServerSettingMemoryThreshold">
-        <el-input-number
-          v-model="formData.monitorSysGenServerSettingMemoryThreshold"
-          :min="1"
-          :max="100"
-          :step="1"
-          placeholder="内存使用率阈值(%)"
+      <el-form-item label="数据上报方式" prop="monitorSysGenServerSettingDataReportMethod">
+        <el-select
+          v-model="formData.monitorSysGenServerSettingDataReportMethod"
+          placeholder="请选择数据上报方式"
           style="width: 200px"
           @change="handleChange"
-        />
-        <span class="form-tip">%，超过此值将触发告警</span>
-      </el-form-item>
-
-      <el-form-item label="磁盘阈值" prop="monitorSysGenServerSettingDiskThreshold">
-        <el-input-number
-          v-model="formData.monitorSysGenServerSettingDiskThreshold"
-          :min="1"
-          :max="100"
-          :step="1"
-          placeholder="磁盘使用率阈值(%)"
-          style="width: 200px"
-          @change="handleChange"
-        />
-        <span class="form-tip">%，超过此值将触发告警</span>
+        >
+          <el-option label="本地收集" value="LOCAL" />
+          <el-option label="API上报" value="API" />
+          <el-option label="Prometheus" value="PROMETHEUS" />
+        </el-select>
+        <span class="form-tip">选择指标数据的收集方式</span>
       </el-form-item>
     </div>
 
@@ -81,9 +69,80 @@
         <span class="form-tip">开启后将发送告警通知</span>
       </el-form-item>
 
-      <el-form-item label="告警方式" prop="monitorSysGenServerSettingAlertType">
+      <!-- 告警阈值配置 -->
+      <el-divider content-position="left">告警阈值</el-divider>
+
+      <el-form-item label="CPU告警阈值" prop="monitorSysGenServerSettingCpuAlertThreshold">
+        <el-input-number
+          v-model="formData.monitorSysGenServerSettingCpuAlertThreshold"
+          :min="1"
+          :max="100"
+          :step="1"
+          placeholder="CPU使用率阈值(%)"
+          style="width: 200px"
+          @change="handleChange"
+        />
+        <span class="form-tip">%，超过此值将触发告警</span>
+      </el-form-item>
+
+      <el-form-item label="内存告警阈值" prop="monitorSysGenServerSettingMemoryAlertThreshold">
+        <el-input-number
+          v-model="formData.monitorSysGenServerSettingMemoryAlertThreshold"
+          :min="1"
+          :max="100"
+          :step="1"
+          placeholder="内存使用率阈值(%)"
+          style="width: 200px"
+          @change="handleChange"
+        />
+        <span class="form-tip">%，超过此值将触发告警</span>
+      </el-form-item>
+
+      <el-form-item label="磁盘告警阈值" prop="monitorSysGenServerSettingDiskAlertThreshold">
+        <el-input-number
+          v-model="formData.monitorSysGenServerSettingDiskAlertThreshold"
+          :min="1"
+          :max="100"
+          :step="1"
+          placeholder="磁盘使用率阈值(%)"
+          style="width: 200px"
+          @change="handleChange"
+        />
+        <span class="form-tip">%，超过此值将触发告警</span>
+      </el-form-item>
+
+      <el-form-item label="网络告警阈值" prop="monitorSysGenServerSettingNetworkAlertThreshold">
+        <el-input-number
+          v-model="formData.monitorSysGenServerSettingNetworkAlertThreshold"
+          :min="1"
+          :max="1000"
+          :step="10"
+          placeholder="网络使用率阈值(Mbps)"
+          style="width: 200px"
+          @change="handleChange"
+        />
+        <span class="form-tip">Mbps，超过此值将触发告警</span>
+      </el-form-item>
+
+      <el-form-item label="响应时间阈值" prop="monitorSysGenServerSettingResponseTimeAlertThreshold">
+        <el-input-number
+          v-model="formData.monitorSysGenServerSettingResponseTimeAlertThreshold"
+          :min="100"
+          :max="60000"
+          :step="100"
+          placeholder="响应时间阈值(毫秒)"
+          style="width: 200px"
+          @change="handleChange"
+        />
+        <span class="form-tip">毫秒，超过此值将触发告警</span>
+      </el-form-item>
+
+      <!-- 通知配置 -->
+      <el-divider content-position="left">通知配置</el-divider>
+
+      <el-form-item label="告警方式" prop="monitorSysGenServerSettingAlertNotificationMethod">
         <el-select
-          v-model="formData.monitorSysGenServerSettingAlertType"
+          v-model="formData.monitorSysGenServerSettingAlertNotificationMethod"
           placeholder="请选择告警方式"
           style="width: 200px"
           @change="handleChange"
@@ -96,39 +155,65 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item 
-        v-if="formData.monitorSysGenServerSettingAlertType === 'EMAIL'"
-        label="邮件地址" 
-        prop="monitorSysGenServerSettingAlertEmail"
+      <el-form-item
+        v-if="formData.monitorSysGenServerSettingAlertNotificationMethod === 'EMAIL'"
+        label="邮件地址"
+        prop="monitorSysGenServerSettingAlertNotificationAddress"
       >
         <el-input
-          v-model="formData.monitorSysGenServerSettingAlertEmail"
-          placeholder="请输入邮件地址"
-          maxlength="200"
+          v-model="formData.monitorSysGenServerSettingAlertNotificationAddress"
+          placeholder="请输入邮件地址，多个用逗号分隔"
+          maxlength="500"
           @change="handleChange"
         />
       </el-form-item>
 
-      <el-form-item 
-        v-if="formData.monitorSysGenServerSettingAlertType === 'SMS'"
-        label="手机号码" 
-        prop="monitorSysGenServerSettingAlertPhone"
+      <el-form-item
+        v-if="formData.monitorSysGenServerSettingAlertNotificationMethod === 'SMS'"
+        label="手机号码"
+        prop="monitorSysGenServerSettingAlertNotificationAddress"
       >
         <el-input
-          v-model="formData.monitorSysGenServerSettingAlertPhone"
-          placeholder="请输入手机号码"
-          maxlength="20"
+          v-model="formData.monitorSysGenServerSettingAlertNotificationAddress"
+          placeholder="请输入手机号码，多个用逗号分隔"
+          maxlength="500"
           @change="handleChange"
         />
       </el-form-item>
 
-      <el-form-item 
-        v-if="formData.monitorSysGenServerSettingAlertType === 'WEBHOOK'"
-        label="Webhook URL" 
-        prop="monitorSysGenServerSettingAlertWebhookUrl"
+      <el-form-item
+        v-if="formData.monitorSysGenServerSettingAlertNotificationMethod === 'DINGTALK'"
+        label="钉钉机器人Token"
+        prop="monitorSysGenServerSettingAlertNotificationAddress"
       >
         <el-input
-          v-model="formData.monitorSysGenServerSettingAlertWebhookUrl"
+          v-model="formData.monitorSysGenServerSettingAlertNotificationAddress"
+          placeholder="请输入钉钉机器人Token"
+          maxlength="500"
+          @change="handleChange"
+        />
+      </el-form-item>
+
+      <el-form-item
+        v-if="formData.monitorSysGenServerSettingAlertNotificationMethod === 'WECHAT'"
+        label="企业微信Webhook"
+        prop="monitorSysGenServerSettingAlertNotificationAddress"
+      >
+        <el-input
+          v-model="formData.monitorSysGenServerSettingAlertNotificationAddress"
+          placeholder="请输入企业微信Webhook地址"
+          maxlength="500"
+          @change="handleChange"
+        />
+      </el-form-item>
+
+      <el-form-item
+        v-if="formData.monitorSysGenServerSettingAlertNotificationMethod === 'WEBHOOK'"
+        label="Webhook URL"
+        prop="monitorSysGenServerSettingAlertNotificationAddress"
+      >
+        <el-input
+          v-model="formData.monitorSysGenServerSettingAlertNotificationAddress"
           placeholder="请输入Webhook URL"
           maxlength="500"
           @change="handleChange"
@@ -146,6 +231,18 @@
           @change="handleChange"
         />
         <span class="form-tip">分钟，同类型告警在此时间内不重复发送</span>
+      </el-form-item>
+
+      <el-form-item label="自动恢复通知" prop="monitorSysGenServerSettingAutoRecoveryNotificationEnabled">
+        <el-switch
+          v-model="formData.monitorSysGenServerSettingAutoRecoveryNotificationEnabled"
+          :active-value="1"
+          :inactive-value="0"
+          active-text="开启"
+          inactive-text="关闭"
+          @change="handleChange"
+        />
+        <span class="form-tip">告警恢复时是否发送通知</span>
       </el-form-item>
     </div>
 
@@ -382,32 +479,37 @@ const emit = defineEmits<{
 const formData = reactive<Partial<ServerSetting>>({
   // 监控配置默认值
   monitorSysGenServerSettingMonitorEnabled: 0,
-  monitorSysGenServerSettingDataCollectionFrequency: 30,
-  monitorSysGenServerSettingCpuThreshold: 80,
-  monitorSysGenServerSettingMemoryThreshold: 80,
-  monitorSysGenServerSettingDiskThreshold: 90,
-  
+  monitorSysGenServerSettingMonitorInterval: 60,
+  monitorSysGenServerSettingMetricsRetentionDays: 30,
+  monitorSysGenServerSettingDataReportMethod: "API",
+
   // 告警配置默认值
   monitorSysGenServerSettingAlertEnabled: 0,
-  monitorSysGenServerSettingAlertType: "EMAIL",
-  monitorSysGenServerSettingAlertSilenceDuration: 60,
-  
+  monitorSysGenServerSettingCpuAlertThreshold: 80,
+  monitorSysGenServerSettingMemoryAlertThreshold: 80,
+  monitorSysGenServerSettingDiskAlertThreshold: 90,
+  monitorSysGenServerSettingNetworkAlertThreshold: 100,
+  monitorSysGenServerSettingResponseTimeAlertThreshold: 5000,
+  monitorSysGenServerSettingAlertNotificationMethod: "EMAIL",
+  monitorSysGenServerSettingAlertSilenceDuration: 30,
+  monitorSysGenServerSettingAutoRecoveryNotificationEnabled: 1,
+
   // Docker配置默认值
   monitorSysGenServerSettingDockerEnabled: 0,
   monitorSysGenServerSettingDockerConnectionType: "SHELL",
   monitorSysGenServerSettingDockerPort: 2376,
   monitorSysGenServerSettingDockerTlsEnabled: 0,
-  
+
   // 代理配置默认值
   monitorSysGenServerSettingProxyEnabled: 0,
   monitorSysGenServerSettingProxyType: "HTTP",
-  
+
   // 高级配置默认值
   monitorSysGenServerSettingProcessMonitorEnabled: 0,
   monitorSysGenServerSettingServiceMonitorEnabled: 0,
   monitorSysGenServerSettingPortMonitorEnabled: 0,
   monitorSysGenServerSettingLogMonitorEnabled: 0,
-  monitorSysGenServerSettingConnectionTimeout: 30,
+  monitorSysGenServerSettingConnectionTimeout: 0,
   monitorSysGenServerSettingReadTimeout: 60,
 });
 

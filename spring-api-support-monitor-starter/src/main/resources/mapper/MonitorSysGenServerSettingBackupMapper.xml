@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingBackupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingBackup">
+        <id column="monitor_sys_gen_server_setting_backup_id" property="monitorSysGenServerSettingBackupId" />
+        <result column="backup_name" property="backupName" />
+        <result column="backup_description" property="backupDescription" />
+        <result column="backup_type" property="backupType" />
+        <result column="server_ids" property="serverIds" />
+        <result column="backup_scope" property="backupScope" />
+        <result column="backup_data" property="backupData" />
+        <result column="backup_format" property="backupFormat" />
+        <result column="server_count" property="serverCount" />
+        <result column="backup_size" property="backupSize" />
+        <result column="backup_status" property="backupStatus" />
+        <result column="backup_error" property="backupError" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_setting_backup_id,
+        backup_name,
+        backup_description,
+        backup_type,
+        server_ids,
+        backup_scope,
+        backup_data,
+        backup_format,
+        server_count,
+        backup_size,
+        backup_status,
+        backup_error,
+        create_user,
+        create_time,
+        update_time
+    </sql>
+
+    <!-- 根据备份名称查询备份 -->
+    <select id="selectByBackupName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE backup_name = #{backupName}
+        LIMIT 1
+    </select>
+
+    <!-- 根据备份类型查询备份列表 -->
+    <select id="selectByBackupType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE backup_type = #{backupType}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据创建用户查询备份列表 -->
+    <select id="selectByCreateUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE create_user = #{createUser}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据时间范围查询备份列表 -->
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE 1=1
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 获取备份统计信息 -->
+    <select id="getBackupStatistics" resultType="map">
+        SELECT 
+            COUNT(*) as total_count,
+            COUNT(CASE WHEN backup_type = 'MANUAL' THEN 1 END) as manual_count,
+            COUNT(CASE WHEN backup_type = 'AUTO' THEN 1 END) as auto_count,
+            COUNT(CASE WHEN backup_type = 'SCHEDULED' THEN 1 END) as scheduled_count,
+            COUNT(CASE WHEN backup_status = 'SUCCESS' THEN 1 END) as success_count,
+            COUNT(CASE WHEN backup_status = 'FAILED' THEN 1 END) as failed_count,
+            COUNT(CASE WHEN backup_status = 'PARTIAL' THEN 1 END) as partial_count,
+            SUM(backup_size) as total_size,
+            AVG(backup_size) as avg_size,
+            MAX(create_time) as latest_backup_time,
+            MIN(create_time) as earliest_backup_time
+        FROM monitor_sys_gen_server_setting_backup
+    </select>
+
+    <!-- 删除指定时间之前的备份 -->
+    <delete id="deleteBeforeTime">
+        DELETE FROM monitor_sys_gen_server_setting_backup
+        WHERE create_time &lt; #{beforeTime}
+    </delete>
+
+    <!-- 获取最新的自动备份 -->
+    <select id="selectLatestAutoBackup" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE backup_type = 'AUTO'
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据备份状态查询备份列表 -->
+    <select id="selectByBackupStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_setting_backup
+        WHERE backup_status = #{backupStatus}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

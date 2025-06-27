@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.protocol.channel.Channel;
 import com.chua.common.support.protocol.session.ChannelSession;
@@ -9,9 +10,9 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.ssh.support.ssh.SshClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerProxy;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
 public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final MonitorSysGenServerProxyService monitorSysGenServerProxyService;
+    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
 
     /**
      * SSH客户端连接池
@@ -437,23 +438,23 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         config.username(server.getMonitorSysGenServerUsername());
         config.password(server.getMonitorSysGenServerPassword());
 
-        // 检查是否配置了代理
-        if (server.getMonitorSysGenServerProxyId() != null) {
-            try {
-                // 根据服务器ID获取代理配置
-                var proxyResult = monitorSysGenServerProxyService.getByServerId(server.getMonitorSysGenServerId());
-                if (proxyResult.isOk() && !proxyResult.getData().isEmpty()) {
-                    MonitorSysGenServerProxy proxy = proxyResult.getData().get(0);
-                    // 使用代理Host和Port
-                    String proxyHost = proxy.getMonitorSysGenServerProxyHost();
-                    Integer proxyPort = proxy.getMonitorSysGenServerProxyPort();
+        // 检查是否配置了代理 - 代理配置已迁移到服务器设置中
+        try {
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                if (setting.getMonitorSysGenServerSettingProxyEnabled() == 1) {
+                    String proxyHost = setting.getMonitorSysGenServerSettingProxyHost();
+                    Integer proxyPort = setting.getMonitorSysGenServerSettingProxyPort();
                     if (proxyHost != null && proxyPort != null) {
                         log.info("SSH客户端使用代理: {}:{}", proxyHost, proxyPort);
+                        // TODO: 实现SSH代理连接逻辑
                     }
                 }
-            } catch (Exception e) {
-                log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
             }
+        } catch (Exception e) {
+            log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
         }
 
 //        if (StringUtils.isNotEmpty(server.getMonitorSysGenServerPrivateKey())) {

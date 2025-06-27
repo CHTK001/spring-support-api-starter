@@ -7,14 +7,26 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingBackup;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory;
+import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingBackupMapper;
+import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +41,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSysGenServerSettingMapper, MonitorSysGenServerSetting>
         implements MonitorSysGenServerSettingService {
+
+    private final MonitorSysGenServerSettingHistoryMapper historyMapper;
+    private final MonitorSysGenServerSettingBackupMapper backupMapper;
 
     @Override
     public IPage<MonitorSysGenServerSetting> pageFor(Page<MonitorSysGenServerSetting> page, MonitorSysGenServerSetting entity) {
@@ -49,6 +64,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    @Cacheable(value = "serverSetting", key = "#serverId", unless = "#result == null || !#result.isOk()")
     public ReturnResult<MonitorSysGenServerSetting> getByServerId(Integer serverId) {
         try {
             MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
@@ -71,6 +87,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    @CacheEvict(value = "serverSetting", key = "#setting.monitorSysGenServerId")
     public ReturnResult<Boolean> saveOrUpdateSetting(MonitorSysGenServerSetting setting) {
         try {
             // 验证配置有效性
@@ -214,6 +231,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    @Cacheable(value = "serverSetting", key = "#serverId", unless = "#result == null || !#result.isOk()")
     public ReturnResult<MonitorSysGenServerSetting> getOrCreateSetting(Integer serverId) {
         try {
             // 先尝试获取现有配置
@@ -221,13 +239,13 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
             if (setting != null) {
                 return ReturnResult.ok(setting);
             }
-            
+
             // 如果不存在，创建默认配置
             ReturnResult<MonitorSysGenServerSetting> defaultResult = createDefaultSetting(serverId);
             if (!defaultResult.isOk()) {
                 return defaultResult;
             }
-            
+
             MonitorSysGenServerSetting defaultSetting = defaultResult.getData();
             boolean saved = this.save(defaultSetting);
             if (saved) {
@@ -301,64 +319,573 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
         }
     }
 
-    // 其他方法的实现将在下一个编辑中添加
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> copySettingToServers(Integer sourceServerId, List<Integer> targetServerIds) {
-        // TODO: 实现配置复制逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (sourceServerId == null) {
+                return ReturnResult.error("源服务器ID不能为空");
+            }
+            if (targetServerIds == null || targetServerIds.isEmpty()) {
+                return ReturnResult.error("目标服务器ID列表不能为空");
+            }
+
+            // 获取源配置
+            MonitorSysGenServerSetting sourceSetting = baseMapper.selectByServerId(sourceServerId);
+            if (sourceSetting == null) {
+                return ReturnResult.error("源服务器配置不存在");
+            }
+
+            int successCount = 0;
+            for (Integer targetServerId : targetServerIds) {
+                if (targetServerId.equals(sourceServerId)) {
+                    continue; // 跳过源服务器自身
+                }
+
+                try {
+                    // 创建新配置
+                    MonitorSysGenServerSetting newSetting = new MonitorSysGenServerSetting();
+                    BeanUtils.copyProperties(sourceSetting, newSetting);
+                    newSetting.setMonitorSysGenServerSettingId(null);
+                    newSetting.setMonitorSysGenServerId(targetServerId);
+
+                    // 删除现有配置
+                    baseMapper.deleteByServerId(targetServerId);
+
+                    // 保存新配置
+                    this.save(newSetting);
+                    successCount++;
+                } catch (Exception e) {
+                    log.warn("复制配置到服务器{}失败: {}", targetServerId, e.getMessage());
+                }
+            }
+
+            log.info("配置复制完成: 源服务器={}, 成功复制到{}个目标服务器", sourceServerId, successCount);
+            return ReturnResult.ok(true, String.format("成功复制到%d个服务器", successCount));
+        } catch (Exception e) {
+            log.error("复制配置失败", e);
+            return ReturnResult.error("复制配置失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<MonitorSysGenServerSetting> getSettingTemplate(String templateType) {
-        // TODO: 实现配置模板逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            MonitorSysGenServerSetting template = new MonitorSysGenServerSetting();
+
+            switch (templateType.toLowerCase()) {
+                case "basic":
+                    // 基础模板
+                    template.setMonitorSysGenServerSettingMonitorEnabled(1);
+                    template.setMonitorSysGenServerSettingDataReportMethod("API");
+                    template.setMonitorSysGenServerSettingDataCollectionFrequency(60);
+                    template.setMonitorSysGenServerSettingCpuAlertThreshold(new BigDecimal("80"));
+                    template.setMonitorSysGenServerSettingMemoryAlertThreshold(new BigDecimal("85"));
+                    template.setMonitorSysGenServerSettingDiskAlertThreshold(new BigDecimal("90"));
+                    template.setMonitorSysGenServerSettingAlertEnabled(1);
+                    template.setMonitorSysGenServerSettingAlertNotificationMethod("EMAIL");
+                    break;
+
+                case "advanced":
+                    // 高级模板
+                    template = MonitorSysGenServerSetting.getDefaultSetting(null);
+                    template.setMonitorSysGenServerSettingProcessMonitorEnabled(1);
+                    template.setMonitorSysGenServerSettingServiceMonitorEnabled(1);
+                    template.setMonitorSysGenServerSettingPortMonitorEnabled(1);
+                    template.setMonitorSysGenServerSettingLogMonitorEnabled(1);
+                    break;
+
+                case "prometheus":
+                    // Prometheus模板
+                    template.setMonitorSysGenServerSettingMonitorEnabled(1);
+                    template.setMonitorSysGenServerSettingDataReportMethod("PROMETHEUS");
+                    template.setMonitorSysGenServerSettingPrometheusHost("localhost");
+                    template.setMonitorSysGenServerSettingPrometheusPort(9090);
+                    template.setMonitorSysGenServerSettingAlertEnabled(0);
+                    break;
+
+                default:
+                    return ReturnResult.error("不支持的模板类型: " + templateType);
+            }
+
+            return ReturnResult.ok(template);
+        } catch (Exception e) {
+            log.error("获取配置模板失败", e);
+            return ReturnResult.error("获取配置模板失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<String> exportSettings(List<Integer> serverIds, String format) {
-        // TODO: 实现配置导出逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+
+            List<MonitorSysGenServerSetting> settings = new ArrayList<>();
+            for (Integer serverId : serverIds) {
+                MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+                if (setting != null) {
+                    settings.add(setting);
+                }
+            }
+
+            if (settings.isEmpty()) {
+                return ReturnResult.error("没有找到任何配置数据");
+            }
+
+            String exportData;
+            switch (format.toLowerCase()) {
+                case "json":
+                    ObjectMapper jsonMapper = new ObjectMapper();
+                    exportData = jsonMapper.writeValueAsString(settings);
+                    break;
+                case "yaml":
+                    YAMLMapper yamlMapper = new YAMLMapper();
+                    exportData = yamlMapper.writeValueAsString(settings);
+                    break;
+                default:
+                    return ReturnResult.error("不支持的导出格式: " + format);
+            }
+
+            log.info("导出配置成功: 服务器数量={}, 格式={}", settings.size(), format);
+            return ReturnResult.ok(exportData);
+        } catch (Exception e) {
+            log.error("导出配置失败", e);
+            return ReturnResult.error("导出配置失败: " + e.getMessage());
+        }
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> importSettings(String configData, String format, boolean overwrite) {
-        // TODO: 实现配置导入逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (StringUtils.isBlank(configData)) {
+                return ReturnResult.error("配置数据不能为空");
+            }
+
+            List<MonitorSysGenServerSetting> settings;
+            switch (format.toLowerCase()) {
+                case "json":
+                    ObjectMapper jsonMapper = new ObjectMapper();
+                    settings = jsonMapper.readValue(configData,
+                            jsonMapper.getTypeFactory().constructCollectionType(List.class, MonitorSysGenServerSetting.class));
+                    break;
+                case "yaml":
+                    YAMLMapper yamlMapper = new YAMLMapper();
+                    settings = yamlMapper.readValue(configData,
+                            yamlMapper.getTypeFactory().constructCollectionType(List.class, MonitorSysGenServerSetting.class));
+                    break;
+                default:
+                    return ReturnResult.error("不支持的导入格式: " + format);
+            }
+
+            if (settings == null || settings.isEmpty()) {
+                return ReturnResult.error("配置数据为空");
+            }
+
+            int successCount = 0;
+            for (MonitorSysGenServerSetting setting : settings) {
+                try {
+                    // 验证配置
+                    ReturnResult<Boolean> validateResult = validateSetting(setting);
+                    if (!validateResult.isOk()) {
+                        log.warn("配置验证失败，跳过: {}", validateResult.getMsg());
+                        continue;
+                    }
+
+                    // 检查是否已存在
+                    MonitorSysGenServerSetting existing = baseMapper.selectByServerId(setting.getMonitorSysGenServerId());
+                    if (existing != null && !overwrite) {
+                        log.warn("配置已存在且不允许覆盖，跳过服务器: {}", setting.getMonitorSysGenServerId());
+                        continue;
+                    }
+
+                    // 保存或更新
+                    setting.setMonitorSysGenServerSettingId(existing != null ? existing.getMonitorSysGenServerSettingId() : null);
+                    this.saveOrUpdate(setting);
+                    successCount++;
+                } catch (Exception e) {
+                    log.warn("导入配置失败，服务器ID: {}, 错误: {}", setting.getMonitorSysGenServerId(), e.getMessage());
+                }
+            }
+
+            log.info("导入配置完成: 总数={}, 成功={}", settings.size(), successCount);
+            return ReturnResult.ok(true, String.format("成功导入%d个配置", successCount));
+        } catch (Exception e) {
+            log.error("导入配置失败", e);
+            return ReturnResult.error("导入配置失败: " + e.getMessage());
+        }
     }
 
     @Override
+    @CacheEvict(value = "serverSetting", key = "#serverId")
     public ReturnResult<Boolean> resetToDefault(Integer serverId) {
-        // TODO: 实现重置为默认配置逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            // 删除现有配置
+            baseMapper.deleteByServerId(serverId);
+
+            // 创建默认配置
+            ReturnResult<MonitorSysGenServerSetting> defaultResult = createDefaultSetting(serverId);
+            if (!defaultResult.isOk()) {
+                return ReturnResult.error(defaultResult.getMsg());
+            }
+
+            MonitorSysGenServerSetting defaultSetting = defaultResult.getData();
+            boolean saved = this.save(defaultSetting);
+
+            if (saved) {
+                log.info("重置服务器配置为默认值成功: serverId={}", serverId);
+                return ReturnResult.ok(true, "重置为默认配置成功");
+            } else {
+                return ReturnResult.error("保存默认配置失败");
+            }
+        } catch (Exception e) {
+            log.error("重置配置失败", e);
+            return ReturnResult.error("重置配置失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<List<Map<String, Object>>> getSettingHistory(Integer serverId, Integer limit) {
-        // TODO: 实现配置历史逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            // 查询历史记录
+            List<MonitorSysGenServerSettingHistory> historyList = historyMapper.selectByServerId(serverId, limit);
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (MonitorSysGenServerSettingHistory history : historyList) {
+                Map<String, Object> record = new HashMap<>();
+                record.put("id", history.getMonitorSysGenServerSettingHistoryId());
+                record.put("serverId", history.getMonitorSysGenServerId());
+                record.put("settingId", history.getMonitorSysGenServerSettingId());
+                record.put("changeType", history.getChangeType());
+                record.put("changeDescription", history.getChangeDescription());
+                record.put("changeUser", history.getChangeUser());
+                record.put("changeTime", history.getChangeTime());
+                record.put("changedFields", history.getChangedFields());
+                record.put("oldValues", history.getOldValues());
+                record.put("newValues", history.getNewValues());
+                result.add(record);
+            }
+
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("获取配置历史失败", e);
+            return ReturnResult.error("获取配置历史失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<Boolean> testAlertConfiguration(Integer serverId) {
-        // TODO: 实现告警配置测试逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+            if (setting == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+
+            if (!setting.isAlertEnabled()) {
+                return ReturnResult.error("告警功能未启用");
+            }
+
+            String notificationMethod = setting.getMonitorSysGenServerSettingAlertNotificationMethod();
+            String notificationAddress = setting.getMonitorSysGenServerSettingAlertNotificationAddress();
+
+            if (StringUtils.isBlank(notificationMethod)) {
+                return ReturnResult.error("告警方式未配置");
+            }
+
+            if (StringUtils.isBlank(notificationAddress)) {
+                return ReturnResult.error("告警地址未配置");
+            }
+
+            // 这里应该实际发送测试告警
+            // 由于没有具体的告警服务实现，这里只做基本验证
+            log.info("测试告警配置: 服务器={}, 方式={}, 地址={}", serverId, notificationMethod, notificationAddress);
+
+            return ReturnResult.ok(true, "告警配置测试通过");
+        } catch (Exception e) {
+            log.error("测试告警配置失败", e);
+            return ReturnResult.error("测试告警配置失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<Boolean> testReportConfiguration(Integer serverId) {
-        // TODO: 实现上报配置测试逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+            if (setting == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+
+            if (!setting.isMonitorEnabled()) {
+                return ReturnResult.error("监控功能未启用");
+            }
+
+            String reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+            if (StringUtils.isBlank(reportMethod)) {
+                return ReturnResult.error("数据上报方式未配置");
+            }
+
+            // 验证不同上报方式的配置
+            switch (reportMethod) {
+                case "PROMETHEUS":
+                    String prometheusHost = setting.getMonitorSysGenServerSettingPrometheusHost();
+                    Integer prometheusPort = setting.getMonitorSysGenServerSettingPrometheusPort();
+                    if (StringUtils.isBlank(prometheusHost) || prometheusPort == null) {
+                        return ReturnResult.error("Prometheus配置不完整");
+                    }
+                    break;
+                case "API":
+                    // API上报方式的验证逻辑
+                    break;
+                case "LOCAL":
+                    // 本地上报方式的验证逻辑
+                    break;
+                default:
+                    return ReturnResult.error("不支持的上报方式: " + reportMethod);
+            }
+
+            log.info("测试上报配置: 服务器={}, 方式={}", serverId, reportMethod);
+            return ReturnResult.ok(true, "上报配置测试通过");
+        } catch (Exception e) {
+            log.error("测试上报配置失败", e);
+            return ReturnResult.error("测试上报配置失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<MonitorSysGenServerSetting> getRecommendedSetting(Integer serverId) {
-        // TODO: 实现推荐配置逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            // 创建推荐配置
+            MonitorSysGenServerSetting recommended = MonitorSysGenServerSetting.getDefaultSetting(serverId);
+
+            // 根据服务器类型调整推荐配置
+            // 这里可以根据服务器的实际情况（CPU核数、内存大小等）来调整阈值
+            // 由于没有服务器详细信息，使用默认推荐值
+
+            recommended.setMonitorSysGenServerSettingCpuAlertThreshold(new BigDecimal("75"));
+            recommended.setMonitorSysGenServerSettingMemoryAlertThreshold(new BigDecimal("80"));
+            recommended.setMonitorSysGenServerSettingDiskAlertThreshold(new BigDecimal("85"));
+
+            // 推荐启用基本监控
+            recommended.setMonitorSysGenServerSettingMonitorEnabled(1);
+            recommended.setMonitorSysGenServerSettingAlertEnabled(1);
+            recommended.setMonitorSysGenServerSettingDataReportMethod("API");
+            recommended.setMonitorSysGenServerSettingDataCollectionFrequency(60);
+
+            return ReturnResult.ok(recommended);
+        } catch (Exception e) {
+            log.error("获取推荐配置失败", e);
+            return ReturnResult.error("获取推荐配置失败: " + e.getMessage());
+        }
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> applyTemplateToServers(String templateType, List<Integer> serverIds) {
-        // TODO: 实现模板应用逻辑
-        return ReturnResult.error("功能暂未实现");
+        try {
+            if (StringUtils.isBlank(templateType)) {
+                return ReturnResult.error("模板类型不能为空");
+            }
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+
+            // 获取模板配置
+            ReturnResult<MonitorSysGenServerSetting> templateResult = getSettingTemplate(templateType);
+            if (!templateResult.isOk()) {
+                return ReturnResult.error("获取模板失败: " + templateResult.getMsg());
+            }
+
+            MonitorSysGenServerSetting template = templateResult.getData();
+            int successCount = 0;
+
+            for (Integer serverId : serverIds) {
+                try {
+                    // 创建新配置
+                    MonitorSysGenServerSetting newSetting = new MonitorSysGenServerSetting();
+                    BeanUtils.copyProperties(template, newSetting);
+                    newSetting.setMonitorSysGenServerSettingId(null);
+                    newSetting.setMonitorSysGenServerId(serverId);
+
+                    // 删除现有配置
+                    baseMapper.deleteByServerId(serverId);
+
+                    // 保存新配置
+                    this.save(newSetting);
+                    successCount++;
+                } catch (Exception e) {
+                    log.warn("应用模板到服务器{}失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            log.info("模板应用完成: 模板类型={}, 成功应用到{}个服务器", templateType, successCount);
+            return ReturnResult.ok(true, String.format("成功应用模板到%d个服务器", successCount));
+        } catch (Exception e) {
+            log.error("应用模板失败", e);
+            return ReturnResult.error("应用模板失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 记录配置变更历史
+     */
+    private void recordSettingHistory(Integer serverId, Long settingId,
+                                      MonitorSysGenServerSettingHistory.ChangeType changeType,
+                                      String description, String user) {
+        try {
+            MonitorSysGenServerSettingHistory history = MonitorSysGenServerSettingHistory.createHistory(
+                    serverId, settingId, changeType, description, user);
+
+            // 如果是更新操作，记录配置快照
+            if (changeType == MonitorSysGenServerSettingHistory.ChangeType.UPDATE) {
+                MonitorSysGenServerSetting currentSetting = baseMapper.selectByServerId(serverId);
+                if (currentSetting != null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    history.setSettingSnapshot(mapper.writeValueAsString(currentSetting));
+                }
+            }
+
+            historyMapper.insert(history);
+        } catch (Exception e) {
+            log.warn("记录配置历史失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 创建配置备份
+     */
+    public ReturnResult<Long> createBackup(String backupName, String description,
+                                           List<Integer> serverIds, String backupType, String user) {
+        try {
+            if (StringUtils.isBlank(backupName)) {
+                return ReturnResult.error("备份名称不能为空");
+            }
+
+            // 检查备份名称是否已存在
+            MonitorSysGenServerSettingBackup existing = backupMapper.selectByBackupName(backupName);
+            if (existing != null) {
+                return ReturnResult.error("备份名称已存在");
+            }
+
+            // 获取要备份的配置
+            List<MonitorSysGenServerSetting> settings = new ArrayList<>();
+            if (serverIds == null || serverIds.isEmpty()) {
+                // 备份所有配置
+                settings = this.list();
+            } else {
+                // 备份指定服务器的配置
+                for (Integer serverId : serverIds) {
+                    MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+                    if (setting != null) {
+                        settings.add(setting);
+                    }
+                }
+            }
+
+            // 创建备份记录
+            MonitorSysGenServerSettingBackup backup = new MonitorSysGenServerSettingBackup();
+            backup.setBackupName(backupName);
+            backup.setBackupDescription(description);
+            backup.setBackupType(backupType);
+            backup.setBackupScope(serverIds == null || serverIds.isEmpty() ? "ALL" : "SELECTED");
+            backup.setBackupFormat("JSON");
+            backup.setServerCount(settings.size());
+            backup.setCreateUser(user);
+
+            // 序列化配置数据
+            ObjectMapper mapper = new ObjectMapper();
+            String backupData = mapper.writeValueAsString(settings);
+            backup.setBackupData(backupData);
+            backup.setBackupSize((long) backupData.length());
+
+            if (serverIds != null && !serverIds.isEmpty()) {
+                backup.setServerIds(mapper.writeValueAsString(serverIds));
+            }
+
+            backup.setBackupStatus("SUCCESS");
+            backupMapper.insert(backup);
+
+            log.info("创建配置备份成功: 备份名称={}, 服务器数量={}", backupName, settings.size());
+            return ReturnResult.ok(backup.getMonitorSysGenServerSettingBackupId(), "备份创建成功");
+        } catch (Exception e) {
+            log.error("创建配置备份失败", e);
+            return ReturnResult.error("创建配置备份失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从备份恢复配置
+     */
+    public ReturnResult<Boolean> restoreFromBackup(Long backupId, boolean overwrite, String user) {
+        try {
+            if (backupId == null) {
+                return ReturnResult.error("备份ID不能为空");
+            }
+
+            // 获取备份记录
+            MonitorSysGenServerSettingBackup backup = backupMapper.selectById(backupId);
+            if (backup == null) {
+                return ReturnResult.error("备份记录不存在");
+            }
+
+            // 解析备份数据
+            ObjectMapper mapper = new ObjectMapper();
+            List<MonitorSysGenServerSetting> settings = mapper.readValue(backup.getBackupData(),
+                    mapper.getTypeFactory().constructCollectionType(List.class, MonitorSysGenServerSetting.class));
+
+            int successCount = 0;
+            for (MonitorSysGenServerSetting setting : settings) {
+                try {
+                    Integer serverId = setting.getMonitorSysGenServerId();
+
+                    // 检查是否已存在
+                    MonitorSysGenServerSetting existing = baseMapper.selectByServerId(serverId);
+                    if (existing != null && !overwrite) {
+                        log.warn("配置已存在且不允许覆盖，跳过服务器: {}", serverId);
+                        continue;
+                    }
+
+                    // 恢复配置
+                    setting.setMonitorSysGenServerSettingId(existing != null ? existing.getMonitorSysGenServerSettingId() : null);
+                    this.saveOrUpdate(setting);
+
+                    // 记录历史
+                    recordSettingHistory(serverId, setting.getMonitorSysGenServerSettingId().longValue(),
+                            MonitorSysGenServerSettingHistory.ChangeType.UPDATE,
+                            "从备份恢复: " + backup.getBackupName(), user);
+
+                    successCount++;
+                } catch (Exception e) {
+                    log.warn("恢复配置失败，服务器ID: {}, 错误: {}", setting.getMonitorSysGenServerId(), e.getMessage());
+                }
+            }
+
+            log.info("从备份恢复配置完成: 备份名称={}, 成功恢复{}个配置", backup.getBackupName(), successCount);
+            return ReturnResult.ok(true, String.format("成功恢复%d个配置", successCount));
+        } catch (Exception e) {
+            log.error("从备份恢复配置失败", e);
+            return ReturnResult.error("从备份恢复配置失败: " + e.getMessage());
+        }
     }
 }

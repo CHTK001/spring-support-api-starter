@@ -1,13 +1,15 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerProxyService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RdpServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final MonitorSysGenServerProxyService monitorSysGenServerProxyService;
+    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
     /**
      * RDP连接池 (使用GuacamoleClient)
      */
@@ -53,13 +55,52 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         return "RDP";
     }
 
+    /**
+     * 创建GuacamoleClient
+     */
+    protected static GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, MonitorSysGenServerSettingService monitorSysGenServerSettingService) {
+        ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
+        config.host(server.getMonitorSysGenServerHost());
+        config.port(server.getMonitorSysGenServerPort() != null ?
+                server.getMonitorSysGenServerPort() : 22);
+        config.username(server.getMonitorSysGenServerUsername());
+        config.password(server.getMonitorSysGenServerPassword());
+        config.protocol(server.getMonitorSysGenServerProtocol().toLowerCase());
+
+        // 检查是否配置了代理 - 代理配置已迁移到服务器设置中
+        try {
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
+            if (settingResult.isOk() && settingResult.getData() != null) {
+                MonitorSysGenServerSetting setting = settingResult.getData();
+                if (setting.getMonitorSysGenServerSettingProxyEnabled() == 1) {
+                    String proxyHost = setting.getMonitorSysGenServerSettingProxyHost();
+                    Integer proxyPort = setting.getMonitorSysGenServerSettingProxyPort();
+                    if (proxyHost != null && proxyPort != null) {
+                        log.info("RDP客户端使用代理: {}:{}", proxyHost, proxyPort);
+                        config.proxyHost(proxyHost);
+                        config.proxyPort(proxyPort);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
+        }
+
+        if (server.getMonitorSysGenServerTimeout() != null) {
+            config.timeoutMillis(server.getMonitorSysGenServerTimeout());
+        }
+
+        return new GuacamoleClient(config.build());
+    }
+
     @Override
     public boolean testConnection(MonitorSysGenServer server) {
         try {
             log.info("测试RDP连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
 
             // 使用GuacamoleClient创建RDP连接进行测试
-            GuacamoleClient client = createGuacamoleClient(server, monitorSysGenServerProxyService);
+            GuacamoleClient client = createGuacamoleClient(server, monitorSysGenServerSettingService);
             client.connect();
 
             boolean connected = client.isConnected();
@@ -75,48 +116,6 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         }
     }
 
-    /**
-     * 创建GuacamoleClient
-     */
-    protected static GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, MonitorSysGenServerProxyService  monitorSysGenServerProxyService) {
-        ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
-        config.host(server.getMonitorSysGenServerHost());
-        config.port(server.getMonitorSysGenServerPort() != null ?
-                server.getMonitorSysGenServerPort() : 22);
-        config.username(server.getMonitorSysGenServerUsername());
-        config.password(server.getMonitorSysGenServerPassword());
-        config.protocol(server.getMonitorSysGenServerProtocol().toLowerCase());
-
-        // 检查是否配置了代理
-        if (server.getMonitorSysGenServerProxyId() != null) {
-            try {
-                // 根据服务器ID获取代理配置
-                var proxy = monitorSysGenServerProxyService.getById(server.getMonitorSysGenServerProxyId());
-                if (null != proxy) {
-                    // 使用代理Host和Port
-                    String proxyHost = proxy.getMonitorSysGenServerProxyHost();
-                    Integer proxyPort = proxy.getMonitorSysGenServerProxyPort();
-                    if (proxyHost != null && proxyPort != null) {
-                        log.info("RDP客户端使用代理: {}:{}", proxyHost, proxyPort);
-                    }
-                    config.proxyHost(proxyHost);
-                    config.proxyPort(proxyPort);
-                }
-            } catch (Exception e) {
-                log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
-            }
-        }
-//        if (StringUtils.isNotEmpty(server.getMonitorSysGenServerPrivateKey())) {
-//            config.setPrivateKey(server.getMonitorSysGenServerPrivateKey());
-//        }
-
-        if (server.getMonitorSysGenServerTimeout() != null) {
-            config.timeoutMillis(server.getMonitorSysGenServerTimeout());
-        }
-
-        return new GuacamoleClient(config.build());
-    }
-
     @Override
     public boolean connect(MonitorSysGenServer server) {
         try {
@@ -128,7 +127,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
             }
 
             // 使用GuacamoleClient创建RDP连接
-            GuacamoleClient client = createGuacamoleClient(server, monitorSysGenServerProxyService);
+            GuacamoleClient client = createGuacamoleClient(server, monitorSysGenServerSettingService);
             if (client == null) {
                 sendConnectionMessage(server, "connect_failed", false, "创建客户端失败");
                 return false;
