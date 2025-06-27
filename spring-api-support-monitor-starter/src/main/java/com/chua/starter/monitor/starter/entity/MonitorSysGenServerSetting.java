@@ -273,6 +273,23 @@ public class MonitorSysGenServerSetting extends SysBase implements Serializable 
     private Integer monitorSysGenServerSettingDockerEnabled;
 
     /**
+     * 是否启用Docker监控 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_monitor_enabled")
+    @ApiModelProperty(value = "是否启用Docker监控")
+    @Schema(description = "是否启用Docker监控")
+    private Integer monitorSysGenServerSettingDockerMonitorEnabled;
+
+    /**
+     * Docker API版本
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_api_version")
+    @ApiModelProperty(value = "Docker API版本")
+    @Schema(description = "Docker API版本")
+    @Size(max = 20, message = "Docker API版本最大长度要小于 20")
+    private String monitorSysGenServerSettingDockerApiVersion;
+
+    /**
      * Docker连接方式 (SHELL:命令行, TCP:TCP连接, SOCKET:Unix Socket)
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_connection_type")
@@ -692,6 +709,66 @@ public class MonitorSysGenServerSetting extends SysBase implements Serializable 
     }
 
     /**
+     * 获取默认配置
+     */
+    public static MonitorSysGenServerSetting getDefaultSetting(Integer serverId) {
+        MonitorSysGenServerSetting setting = new MonitorSysGenServerSetting();
+        setting.setMonitorSysGenServerId(serverId);
+
+        // 基础监控配置
+        setting.setMonitorSysGenServerSettingMonitorEnabled(1);
+        setting.setMonitorSysGenServerSettingReportEnabled(1);
+        setting.setMonitorSysGenServerSettingDataReportMethod(DataReportMethod.API.getCode());
+        setting.setMonitorSysGenServerSettingMonitorInterval(60);
+        setting.setMonitorSysGenServerSettingDataCollectionFrequency(30);
+        setting.setMonitorSysGenServerSettingMetricsRetentionDays(30);
+
+        // 各类指标存储时间配置（默认30天）
+        setting.setMonitorSysGenServerSettingCpuRetentionDays(30);
+        setting.setMonitorSysGenServerSettingMemoryRetentionDays(30);
+        setting.setMonitorSysGenServerSettingDiskRetentionDays(30);
+        setting.setMonitorSysGenServerSettingNetworkRetentionDays(30);
+
+        // 告警配置
+        setting.setMonitorSysGenServerSettingAlertEnabled(1);
+        setting.setMonitorSysGenServerSettingCpuAlertThreshold(new java.math.BigDecimal("80"));
+        setting.setMonitorSysGenServerSettingMemoryAlertThreshold(new java.math.BigDecimal("85"));
+        setting.setMonitorSysGenServerSettingDiskAlertThreshold(new java.math.BigDecimal("90"));
+        setting.setMonitorSysGenServerSettingNetworkAlertThreshold(new java.math.BigDecimal("100"));
+        setting.setMonitorSysGenServerSettingResponseTimeAlertThreshold(5000L);
+        setting.setMonitorSysGenServerSettingAlertNotificationMethod(AlertNotificationMethod.EMAIL.getCode());
+        setting.setMonitorSysGenServerSettingAlertSilenceDuration(30);
+        setting.setMonitorSysGenServerSettingAutoRecoveryNotificationEnabled(1);
+
+        // Docker配置
+        setting.setMonitorSysGenServerSettingDockerEnabled(0);
+        setting.setMonitorSysGenServerSettingDockerMonitorEnabled(0);
+        setting.setMonitorSysGenServerSettingDockerConnectionType(DockerConnectionType.SHELL.getCode());
+        setting.setMonitorSysGenServerSettingDockerApiVersion("1.40");
+        setting.setMonitorSysGenServerSettingDockerTlsEnabled(0);
+
+        // 代理配置
+        setting.setMonitorSysGenServerSettingProxyEnabled(0);
+        setting.setMonitorSysGenServerSettingProxyType(ProxyType.HTTP.getCode());
+
+        // 高级监控配置
+        setting.setMonitorSysGenServerSettingProcessMonitorEnabled(0);
+        setting.setMonitorSysGenServerSettingServiceMonitorEnabled(0);
+        setting.setMonitorSysGenServerSettingPortMonitorEnabled(0);
+        setting.setMonitorSysGenServerSettingLogMonitorEnabled(0);
+
+        // 超时配置
+        setting.setMonitorSysGenServerSettingConnectionTimeout(0);
+        setting.setMonitorSysGenServerSettingReadTimeout(60);
+
+        // 其他配置
+        setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);
+        setting.setMonitorSysGenServerSettingStatus(1);
+
+        return setting;
+    }
+
+    /**
      * 获取Docker连接方式描述
      */
     public String getDockerConnectionTypeDesc() {
@@ -745,60 +822,9 @@ public class MonitorSysGenServerSetting extends SysBase implements Serializable 
     }
 
     /**
-     * 获取默认配置
+     * 是否启用Docker监控
      */
-    public static MonitorSysGenServerSetting getDefaultSetting(Integer serverId) {
-        MonitorSysGenServerSetting setting = new MonitorSysGenServerSetting();
-        setting.setMonitorSysGenServerId(serverId);
-
-        // 基础监控配置
-        setting.setMonitorSysGenServerSettingMonitorEnabled(1);
-        setting.setMonitorSysGenServerSettingReportEnabled(1);
-        setting.setMonitorSysGenServerSettingDataReportMethod(DataReportMethod.API.getCode());
-        setting.setMonitorSysGenServerSettingMonitorInterval(60);
-        setting.setMonitorSysGenServerSettingDataCollectionFrequency(30);
-        setting.setMonitorSysGenServerSettingMetricsRetentionDays(30);
-
-        // 各类指标存储时间配置（默认30天）
-        setting.setMonitorSysGenServerSettingCpuRetentionDays(30);
-        setting.setMonitorSysGenServerSettingMemoryRetentionDays(30);
-        setting.setMonitorSysGenServerSettingDiskRetentionDays(30);
-        setting.setMonitorSysGenServerSettingNetworkRetentionDays(30);
-
-        // 告警配置
-        setting.setMonitorSysGenServerSettingAlertEnabled(1);
-        setting.setMonitorSysGenServerSettingCpuAlertThreshold(new java.math.BigDecimal("80"));
-        setting.setMonitorSysGenServerSettingMemoryAlertThreshold(new java.math.BigDecimal("85"));
-        setting.setMonitorSysGenServerSettingDiskAlertThreshold(new java.math.BigDecimal("90"));
-        setting.setMonitorSysGenServerSettingNetworkAlertThreshold(new java.math.BigDecimal("100"));
-        setting.setMonitorSysGenServerSettingResponseTimeAlertThreshold(5000L);
-        setting.setMonitorSysGenServerSettingAlertNotificationMethod(AlertNotificationMethod.EMAIL.getCode());
-        setting.setMonitorSysGenServerSettingAlertSilenceDuration(30);
-        setting.setMonitorSysGenServerSettingAutoRecoveryNotificationEnabled(1);
-
-        // Docker配置
-        setting.setMonitorSysGenServerSettingDockerEnabled(0);
-        setting.setMonitorSysGenServerSettingDockerConnectionType(DockerConnectionType.SHELL.getCode());
-        setting.setMonitorSysGenServerSettingDockerTlsEnabled(0);
-
-        // 代理配置
-        setting.setMonitorSysGenServerSettingProxyEnabled(0);
-        setting.setMonitorSysGenServerSettingProxyType(ProxyType.HTTP.getCode());
-
-        // 高级监控配置
-        setting.setMonitorSysGenServerSettingProcessMonitorEnabled(0);
-        setting.setMonitorSysGenServerSettingServiceMonitorEnabled(0);
-        setting.setMonitorSysGenServerSettingPortMonitorEnabled(0);
-        setting.setMonitorSysGenServerSettingLogMonitorEnabled(0);
-
-        // 超时配置
-        setting.setMonitorSysGenServerSettingConnectionTimeout(30);
-        setting.setMonitorSysGenServerSettingReadTimeout(60);
-
-        // 其他配置
-        setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);
-        setting.setMonitorSysGenServerSettingStatus(1);
-
-        return setting;
+    public boolean isDockerMonitorEnabled() {
+        return this.monitorSysGenServerSettingDockerMonitorEnabled != null && this.monitorSysGenServerSettingDockerMonitorEnabled == 1;
     }
 }
