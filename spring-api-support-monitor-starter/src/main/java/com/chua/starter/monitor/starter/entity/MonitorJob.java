@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -24,7 +23,7 @@ import java.util.Date;
 @Schema(description = "任务")
 @Data
 @TableName(value = "monitor_job")
-public class MonitorJob extends SysBase implements Serializable {
+public class MonitorJob extends SysBase {
     @TableId(value = "job_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")

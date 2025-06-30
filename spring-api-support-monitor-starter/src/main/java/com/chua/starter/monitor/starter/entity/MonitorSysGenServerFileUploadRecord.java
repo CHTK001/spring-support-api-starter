@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -27,9 +26,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器文件上传记录")
 @Data
 @TableName(value = "monitor_sys_gen_server_file_upload_records")
-public class MonitorSysGenServerFileUploadRecord extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerFileUploadRecord extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_file_upload_record_id", type = IdType.AUTO)
     @ApiModelProperty(value = "记录ID")

@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
+
 
 /**
  *
@@ -29,7 +29,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "monitor_nginx_upstream")
-public class MonitorNginxUpstream extends SysBase implements Serializable {
+public class MonitorNginxUpstream extends SysBase {
     @TableId(value = "monitor_nginx_upstream_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")

@@ -1,7 +1,6 @@
 package com.chua.starter.monitor.starter.task;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 

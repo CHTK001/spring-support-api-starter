@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerAlertHistoryMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory">
+        <id column="monitor_sys_gen_server_alert_history_id" property="monitorSysGenServerAlertHistoryId" />
+        <result column="monitor_sys_gen_server_alert_history_server_id" property="monitorSysGenServerAlertHistoryServerId" />
+        <result column="monitor_sys_gen_server_alert_history_type" property="monitorSysGenServerAlertHistoryType" />
+        <result column="monitor_sys_gen_server_alert_history_level" property="monitorSysGenServerAlertHistoryLevel" />
+        <result column="monitor_sys_gen_server_alert_history_status" property="monitorSysGenServerAlertHistoryStatus" />
+        <result column="monitor_sys_gen_server_alert_history_title" property="monitorSysGenServerAlertHistoryTitle" />
+        <result column="monitor_sys_gen_server_alert_history_content" property="monitorSysGenServerAlertHistoryContent" />
+        <result column="monitor_sys_gen_server_alert_history_fingerprint" property="monitorSysGenServerAlertHistoryFingerprint" />
+        <result column="monitor_sys_gen_server_alert_history_trigger_time" property="monitorSysGenServerAlertHistoryTriggerTime" />
+        <result column="monitor_sys_gen_server_alert_history_recovery_time" property="monitorSysGenServerAlertHistoryRecoveryTime" />
+        <result column="monitor_sys_gen_server_alert_history_duration" property="monitorSysGenServerAlertHistoryDuration" />
+        <result column="monitor_sys_gen_server_alert_history_silence_until" property="monitorSysGenServerAlertHistorySilenceUntil" />
+        <result column="monitor_sys_gen_server_alert_history_notification_sent" property="monitorSysGenServerAlertHistoryNotificationSent" />
+        <result column="monitor_sys_gen_server_alert_history_notification_method" property="monitorSysGenServerAlertHistoryNotificationMethod" />
+        <result column="monitor_sys_gen_server_alert_history_notification_address" property="monitorSysGenServerAlertHistoryNotificationAddress" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 获取未发送通知的告警 -->
+    <select id="getUnsentNotificationAlerts" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_server_alert_history 
+        WHERE monitor_sys_gen_server_alert_history_notification_sent = 0
+        AND monitor_sys_gen_server_alert_history_status IN ('TRIGGERED', 'ACTIVE')
+        ORDER BY monitor_sys_gen_server_alert_history_trigger_time ASC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 自动恢复过期的活跃告警 -->
+    <update id="autoRecoverExpiredAlerts">
+        <![CDATA[
+        UPDATE monitor_sys_gen_server_alert_history
+        SET monitor_sys_gen_server_alert_history_status = 'RECOVERED',
+            monitor_sys_gen_server_alert_history_recovery_time = NOW(),
+            update_time = NOW()
+        WHERE del_flag = 0
+        AND monitor_sys_gen_server_alert_history_status = 'ACTIVE'
+        AND monitor_sys_gen_server_alert_history_trigger_time < #{expireTime}
+        ]]>
+    </update>
+
+    <!-- 清理过期告警记录 -->
+    <delete id="cleanupExpiredAlerts">
+        <![CDATA[
+        DELETE FROM monitor_sys_gen_server_alert_history
+        WHERE del_flag = 0
+        AND monitor_sys_gen_server_alert_history_trigger_time < #{expireTime}
+        AND monitor_sys_gen_server_alert_history_status IN ('RECOVERED', 'IGNORED')
+        ]]>
+    </delete>
+
+    <!-- 批量更新通知状态 -->
+    <update id="batchUpdateNotificationStatus">
+        UPDATE monitor_sys_gen_server_alert_history 
+        SET monitor_sys_gen_server_alert_history_notification_sent = #{sent},
+            monitor_sys_gen_server_alert_history_notification_method = #{method},
+            monitor_sys_gen_server_alert_history_notification_address = #{address},
+            update_time = NOW()
+        WHERE del_flag = 0 
+        AND monitor_sys_gen_server_alert_history_id IN
+        <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
+            #{alertId}
+        </foreach>
+    </update>
+
+    <!-- 获取服务器告警统计 -->
+    <select id="getServerAlertStatistics" resultType="map">
+        <![CDATA[
+        SELECT 
+            monitor_sys_gen_server_alert_history_level as level,
+            monitor_sys_gen_server_alert_history_status as status,
+            COUNT(*) as count
+        FROM monitor_sys_gen_server_alert_history 
+        WHERE del_flag = 0
+        ]]>
+        <if test="serverId != null">
+            AND monitor_sys_gen_server_alert_history_server_id = #{serverId}
+        </if>
+        <if test="startTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+            ]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time <= #{endTime}
+            ]]>
+        </if>
+        GROUP BY monitor_sys_gen_server_alert_history_level, monitor_sys_gen_server_alert_history_status
+        ORDER BY level, status
+    </select>
+
+    <!-- 获取告警热点数据 -->
+    <select id="getAlertHotspots" resultType="map">
+        <![CDATA[
+        SELECT 
+            monitor_sys_gen_server_alert_history_server_id as serverId,
+            monitor_sys_gen_server_alert_history_type as alertType,
+            COUNT(*) as alertCount,
+            MAX(monitor_sys_gen_server_alert_history_trigger_time) as lastAlertTime
+        FROM monitor_sys_gen_server_alert_history 
+        WHERE del_flag = 0
+        AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+        AND monitor_sys_gen_server_alert_history_trigger_time <= #{endTime}
+        GROUP BY monitor_sys_gen_server_alert_history_server_id, monitor_sys_gen_server_alert_history_type
+        ORDER BY alertCount DESC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 批量恢复告警 -->
+    <update id="batchRecoverAlerts">
+        UPDATE monitor_sys_gen_server_alert_history 
+        SET monitor_sys_gen_server_alert_history_status = 'RECOVERED',
+            monitor_sys_gen_server_alert_history_recovery_time = NOW(),
+            update_time = NOW()
+        WHERE del_flag = 0 
+        AND monitor_sys_gen_server_alert_history_id IN
+        <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
+            #{alertId}
+        </foreach>
+    </update>
+
+    <!-- 批量忽略告警 -->
+    <update id="batchIgnoreAlerts">
+        UPDATE monitor_sys_gen_server_alert_history 
+        SET monitor_sys_gen_server_alert_history_status = 'IGNORED',
+            update_time = NOW()
+        WHERE del_flag = 0 
+        AND monitor_sys_gen_server_alert_history_id IN
+        <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
+            #{alertId}
+        </foreach>
+    </update>
+
+    <!-- 根据指纹和时间范围查询告警 -->
+    <select id="getAlertsByFingerprintInTimeRange" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_server_alert_history 
+        WHERE del_flag = 0 
+        AND monitor_sys_gen_server_alert_history_fingerprint = #{fingerprint}
+        AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+        ORDER BY monitor_sys_gen_server_alert_history_trigger_time DESC
+        ]]>
+    </select>
+
+    <!-- 获取告警统计信息 -->
+    <select id="getAlertStatistics" resultType="map">
+        <![CDATA[
+        SELECT
+            DATE(monitor_sys_gen_server_alert_history_trigger_time) as alertDate,
+            monitor_sys_gen_server_alert_history_level as level,
+            monitor_sys_gen_server_alert_history_type as type,
+            monitor_sys_gen_server_alert_history_status as status,
+            COUNT(*) as count
+        FROM monitor_sys_gen_server_alert_history
+        WHERE del_flag = 0
+        ]]>
+        <if test="serverId != null">
+            AND monitor_sys_gen_server_alert_history_server_id = #{serverId}
+        </if>
+        <if test="startTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+            ]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time <= #{endTime}
+            ]]>
+        </if>
+        GROUP BY DATE(monitor_sys_gen_server_alert_history_trigger_time),
+                 monitor_sys_gen_server_alert_history_level,
+                 monitor_sys_gen_server_alert_history_type,
+                 monitor_sys_gen_server_alert_history_status
+        ORDER BY alertDate DESC, level, type, status
+    </select>
+
+    <!-- 获取告警趋势数据 -->
+    <select id="getAlertTrends" resultType="map">
+        <![CDATA[
+        SELECT
+            DATE(monitor_sys_gen_server_alert_history_trigger_time) as trendDate,
+            HOUR(monitor_sys_gen_server_alert_history_trigger_time) as trendHour,
+            monitor_sys_gen_server_alert_history_level as level,
+            COUNT(*) as alertCount,
+            COUNT(CASE WHEN monitor_sys_gen_server_alert_history_status = 'TRIGGERED' THEN 1 END) as triggeredCount,
+            COUNT(CASE WHEN monitor_sys_gen_server_alert_history_status = 'RECOVERED' THEN 1 END) as recoveredCount,
+            COUNT(CASE WHEN monitor_sys_gen_server_alert_history_status = 'IGNORED' THEN 1 END) as ignoredCount
+        FROM monitor_sys_gen_server_alert_history
+        WHERE del_flag = 0
+        ]]>
+        <if test="serverId != null">
+            AND monitor_sys_gen_server_alert_history_server_id = #{serverId}
+        </if>
+        <if test="startTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+            ]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[
+            AND monitor_sys_gen_server_alert_history_trigger_time <= #{endTime}
+            ]]>
+        </if>
+        GROUP BY DATE(monitor_sys_gen_server_alert_history_trigger_time),
+                 HOUR(monitor_sys_gen_server_alert_history_trigger_time),
+                 monitor_sys_gen_server_alert_history_level
+        ORDER BY trendDate DESC, trendHour DESC, level
+    </select>
+
+</mapper>

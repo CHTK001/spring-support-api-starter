@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -29,9 +28,7 @@ import java.math.BigDecimal;
 @Schema(description = "服务器配置设置")
 @Data
 @TableName(value = "monitor_sys_gen_server_setting")
-public class MonitorSysGenServerSetting extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerSetting extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_setting_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置设置ID")

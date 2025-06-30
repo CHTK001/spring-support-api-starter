@@ -7,7 +7,6 @@ import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionHealth
 import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerConnectionStatistics;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 服务器连接状态管理服务接口
