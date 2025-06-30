@@ -21,7 +21,6 @@
         <result column="monitor_sys_gen_server_alert_history_notification_address" property="monitorSysGenServerAlertHistoryNotificationAddress" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
     </resultMap>
 
     <!-- 获取未发送通知的告警 -->
@@ -44,8 +43,7 @@
         SET monitor_sys_gen_server_alert_history_status = 'RECOVERED',
             monitor_sys_gen_server_alert_history_recovery_time = NOW(),
             update_time = NOW()
-        WHERE del_flag = 0
-        AND monitor_sys_gen_server_alert_history_status = 'ACTIVE'
+        WHERE monitor_sys_gen_server_alert_history_status = 'ACTIVE'
         AND monitor_sys_gen_server_alert_history_trigger_time < #{expireTime}
         ]]>
     </update>
@@ -54,21 +52,19 @@
     <delete id="cleanupExpiredAlerts">
         <![CDATA[
         DELETE FROM monitor_sys_gen_server_alert_history
-        WHERE del_flag = 0
-        AND monitor_sys_gen_server_alert_history_trigger_time < #{expireTime}
+        WHERE monitor_sys_gen_server_alert_history_trigger_time < #{expireTime}
         AND monitor_sys_gen_server_alert_history_status IN ('RECOVERED', 'IGNORED')
         ]]>
     </delete>
 
     <!-- 批量更新通知状态 -->
     <update id="batchUpdateNotificationStatus">
-        UPDATE monitor_sys_gen_server_alert_history 
+        UPDATE monitor_sys_gen_server_alert_history
         SET monitor_sys_gen_server_alert_history_notification_sent = #{sent},
             monitor_sys_gen_server_alert_history_notification_method = #{method},
             monitor_sys_gen_server_alert_history_notification_address = #{address},
             update_time = NOW()
-        WHERE del_flag = 0 
-        AND monitor_sys_gen_server_alert_history_id IN
+        WHERE monitor_sys_gen_server_alert_history_id IN
         <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
             #{alertId}
         </foreach>
@@ -77,12 +73,12 @@
     <!-- 获取服务器告警统计 -->
     <select id="getServerAlertStatistics" resultType="map">
         <![CDATA[
-        SELECT 
+        SELECT
             monitor_sys_gen_server_alert_history_level as level,
             monitor_sys_gen_server_alert_history_status as status,
             COUNT(*) as count
-        FROM monitor_sys_gen_server_alert_history 
-        WHERE del_flag = 0
+        FROM monitor_sys_gen_server_alert_history
+        WHERE 1=1
         ]]>
         <if test="serverId != null">
             AND monitor_sys_gen_server_alert_history_server_id = #{serverId}
@@ -104,14 +100,13 @@
     <!-- 获取告警热点数据 -->
     <select id="getAlertHotspots" resultType="map">
         <![CDATA[
-        SELECT 
+        SELECT
             monitor_sys_gen_server_alert_history_server_id as serverId,
             monitor_sys_gen_server_alert_history_type as alertType,
             COUNT(*) as alertCount,
             MAX(monitor_sys_gen_server_alert_history_trigger_time) as lastAlertTime
-        FROM monitor_sys_gen_server_alert_history 
-        WHERE del_flag = 0
-        AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
+        FROM monitor_sys_gen_server_alert_history
+        WHERE monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
         AND monitor_sys_gen_server_alert_history_trigger_time <= #{endTime}
         GROUP BY monitor_sys_gen_server_alert_history_server_id, monitor_sys_gen_server_alert_history_type
         ORDER BY alertCount DESC
@@ -123,12 +118,11 @@
 
     <!-- 批量恢复告警 -->
     <update id="batchRecoverAlerts">
-        UPDATE monitor_sys_gen_server_alert_history 
+        UPDATE monitor_sys_gen_server_alert_history
         SET monitor_sys_gen_server_alert_history_status = 'RECOVERED',
             monitor_sys_gen_server_alert_history_recovery_time = NOW(),
             update_time = NOW()
-        WHERE del_flag = 0 
-        AND monitor_sys_gen_server_alert_history_id IN
+        WHERE monitor_sys_gen_server_alert_history_id IN
         <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
             #{alertId}
         </foreach>
@@ -136,11 +130,10 @@
 
     <!-- 批量忽略告警 -->
     <update id="batchIgnoreAlerts">
-        UPDATE monitor_sys_gen_server_alert_history 
+        UPDATE monitor_sys_gen_server_alert_history
         SET monitor_sys_gen_server_alert_history_status = 'IGNORED',
             update_time = NOW()
-        WHERE del_flag = 0 
-        AND monitor_sys_gen_server_alert_history_id IN
+        WHERE monitor_sys_gen_server_alert_history_id IN
         <foreach collection="alertIds" item="alertId" open="(" separator="," close=")">
             #{alertId}
         </foreach>
@@ -149,9 +142,8 @@
     <!-- 根据指纹和时间范围查询告警 -->
     <select id="getAlertsByFingerprintInTimeRange" resultMap="BaseResultMap">
         <![CDATA[
-        SELECT * FROM monitor_sys_gen_server_alert_history 
-        WHERE del_flag = 0 
-        AND monitor_sys_gen_server_alert_history_fingerprint = #{fingerprint}
+        SELECT * FROM monitor_sys_gen_server_alert_history
+        WHERE monitor_sys_gen_server_alert_history_fingerprint = #{fingerprint}
         AND monitor_sys_gen_server_alert_history_trigger_time >= #{startTime}
         ORDER BY monitor_sys_gen_server_alert_history_trigger_time DESC
         ]]>
@@ -167,7 +159,7 @@
             monitor_sys_gen_server_alert_history_status as status,
             COUNT(*) as count
         FROM monitor_sys_gen_server_alert_history
-        WHERE del_flag = 0
+        WHERE 1=1
         ]]>
         <if test="serverId != null">
             AND monitor_sys_gen_server_alert_history_server_id = #{serverId}
@@ -201,7 +193,7 @@
             COUNT(CASE WHEN monitor_sys_gen_server_alert_history_status = 'RECOVERED' THEN 1 END) as recoveredCount,
             COUNT(CASE WHEN monitor_sys_gen_server_alert_history_status = 'IGNORED' THEN 1 END) as ignoredCount
         FROM monitor_sys_gen_server_alert_history
-        WHERE del_flag = 0
+        WHERE 1=1
         ]]>
         <if test="serverId != null">
             AND monitor_sys_gen_server_alert_history_server_id = #{serverId}

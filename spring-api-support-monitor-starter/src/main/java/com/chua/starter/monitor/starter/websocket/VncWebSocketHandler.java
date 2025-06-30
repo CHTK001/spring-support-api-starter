@@ -1,11 +1,20 @@
 package com.chua.starter.monitor.starter.websocket;
 
 import com.chua.common.support.json.Json;
+import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import com.chua.starter.monitor.starter.service.impl.RdpServerConnectionServiceImpl;
+
+import org.apache.guacamole.GuacamoleException;
+import org.apache.guacamole.io.GuacamoleReader;
+import org.apache.guacamole.io.GuacamoleWriter;
+import org.apache.guacamole.net.SimpleGuacamoleTunnel;
+import org.apache.guacamole.protocol.GuacamoleInstruction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,6 +38,7 @@ public class VncWebSocketHandler implements WebSocketHandler {
 
     private final List<ServerConnectionService> serverConnectionServices;
     private final MonitorSysGenServerService serverService;
+    private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
 
     /**
@@ -46,12 +56,40 @@ public class VncWebSocketHandler implements WebSocketHandler {
      */
     private final Map<Integer, WebSocketSession> serverSessionMap = new ConcurrentHashMap<>();
 
+    /**
+     * 服务器与Guacamole隧道映射
+     */
+    private final Map<Integer, SimpleGuacamoleTunnel> serverTunnelMap = new ConcurrentHashMap<>();
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String sessionId = session.getId();
         sessions.put(sessionId, session);
         log.info("VNC WebSocket连接建立: sessionId={}", sessionId);
-        
+
+        // 从URL参数获取服务器ID
+        String serverId = getServerIdFromSession(session);
+        if (serverId != null) {
+            try {
+                Integer serverIdInt = Integer.valueOf(serverId);
+
+                // 获取服务器信息
+                MonitorSysGenServer server = serverService.getById(serverIdInt);
+                if (server != null) {
+                    // 创建Guacamole连接
+                    createGuacamoleConnection(session, server);
+                } else {
+                    log.warn("服务器不存在: serverId={}", serverId);
+                    sendErrorMessage(session, "服务器不存在");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                log.warn("无效的服务器ID: {}", serverId);
+                sendErrorMessage(session, "无效的服务器ID");
+                return;
+            }
+        }
+
         // 发送连接成功消息
         sendMessage(session, "connection", Map.of(
             "type", "connected",
@@ -108,18 +146,22 @@ public class VncWebSocketHandler implements WebSocketHandler {
         try {
             String sessionId = session.getId();
             Integer serverId = sessionServerMap.get(sessionId);
-            
+
             if (serverId == null) {
                 log.warn("会话未关联服务器: sessionId={}", sessionId);
                 return;
             }
 
-            ServerConnectionService vncService = getVncConnectionService();
-            if (vncService != null) {
-                // 将二进制数据转换为字符串发送
-                byte[] payload = message.getPayload().array();
-                String data = new String(payload);
-                vncService.sendData(serverId, data);
+            SimpleGuacamoleTunnel tunnel = serverTunnelMap.get(serverId);
+            if (tunnel != null) {
+                try {
+                    // 将二进制数据发送到 Guacamole 隧道
+                    byte[] payload = message.getPayload().array();
+                    GuacamoleWriter writer = tunnel.acquireWriter();
+                    writer.write(new String(payload).toCharArray());
+                } catch (GuacamoleException e) {
+                    log.error("发送二进制数据到 Guacamole 隧道失败: {}", e.getMessage());
+                }
             }
         } catch (Exception e) {
             log.error("处理VNC二进制消息失败: {}", e.getMessage(), e);
@@ -135,6 +177,26 @@ public class VncWebSocketHandler implements WebSocketHandler {
             if (serverId == null) {
                 sendErrorMessage(session, "服务器ID不能为空");
                 return;
+            }
+
+            // 检查是否已经存在连接
+            if (sessionServerMap.containsKey(session.getId())) {
+                Integer existingServerId = sessionServerMap.get(session.getId());
+                log.warn("会话已存在连接: sessionId={}, existingServerId={}, newServerId={}",
+                    session.getId(), existingServerId, serverId);
+                sendErrorMessage(session, "会话已存在连接，请先断开现有连接");
+                return;
+            }
+
+            // 检查服务器是否已被其他会话连接
+            if (serverSessionMap.containsKey(serverId)) {
+                WebSocketSession existingSession = serverSessionMap.get(serverId);
+                if (existingSession != null && existingSession.isOpen() && !existingSession.getId().equals(session.getId())) {
+                    log.warn("服务器已被其他会话连接: serverId={}, existingSessionId={}, newSessionId={}",
+                        serverId, existingSession.getId(), session.getId());
+                    sendErrorMessage(session, "服务器已被其他会话连接");
+                    return;
+                }
             }
 
             MonitorSysGenServer server = serverService.getById(serverId);
@@ -398,17 +460,23 @@ public class VncWebSocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         String sessionId = session.getId();
         log.info("VNC WebSocket连接关闭: sessionId={}, status={}", sessionId, closeStatus);
-        
+
         // 清理会话
         sessions.remove(sessionId);
         Integer serverId = sessionServerMap.remove(sessionId);
-        
+
         // 断开服务器连接
         if (serverId != null) {
-            ServerConnectionService vncService = getVncConnectionService();
-            if (vncService != null) {
-                vncService.disconnect(serverId);
+            // 关闭 Guacamole 隧道
+            SimpleGuacamoleTunnel tunnel = serverTunnelMap.remove(serverId);
+            if (tunnel != null) {
+                try {
+                    tunnel.close();
+                } catch (GuacamoleException e) {
+                    log.warn("关闭 Guacamole 隧道失败: {}", e.getMessage());
+                }
             }
+            serverSessionMap.remove(serverId);
         }
     }
 
@@ -515,4 +583,109 @@ public class VncWebSocketHandler implements WebSocketHandler {
             log.error("发送VNC数据到前端失败: serverId={}", serverId, e);
         }
     }
+
+    /**
+     * 从WebSocket会话中获取服务器ID
+     */
+    private String getServerIdFromSession(WebSocketSession session) {
+        try {
+            String query = session.getUri().getQuery();
+            if (query != null) {
+                String[] params = query.split("&");
+                for (String param : params) {
+                    String[] keyValue = param.split("=");
+                    if (keyValue.length == 2 && "serverId".equals(keyValue[0])) {
+                        return keyValue[1];
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取服务器ID失败: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * 创建Guacamole连接
+     */
+    private void createGuacamoleConnection(WebSocketSession session, MonitorSysGenServer server) {
+        try {
+            Integer serverId = server.getMonitorSysGenServerId();
+
+            // 创建GuacamoleClient
+            GuacamoleClient guacamoleClient = RdpServerConnectionServiceImpl.createGuacamoleClient(server, serverSettingService);
+            if (guacamoleClient == null) {
+                log.error("创建GuacamoleClient失败: serverId={}", serverId);
+                sendErrorMessage(session, "创建Guacamole客户端失败");
+                return;
+            }
+
+            // 连接到服务器
+            guacamoleClient.connect();
+
+            // 创建SimpleGuacamoleTunnel
+            SimpleGuacamoleTunnel tunnel = guacamoleClient.createSession().getTunnel();
+            if (tunnel != null) {
+                // 保存映射关系
+                sessionServerMap.put(session.getId(), serverId);
+                serverSessionMap.put(serverId, session);
+                serverTunnelMap.put(serverId, tunnel);
+
+                // 启动数据监听线程
+                setupGuacamoleDataListener(serverId, session, tunnel);
+
+                log.info("VNC Guacamole连接创建成功: serverId={}, sessionId={}", serverId, session.getId());
+
+                // 广播连接状态
+                broadcastVncConnectionStatus(serverId, server.getMonitorSysGenServerName(), "connected");
+            } else {
+                log.error("创建SimpleGuacamoleTunnel失败: serverId={}", serverId);
+                sendErrorMessage(session, "创建Guacamole隧道失败");
+            }
+        } catch (Exception e) {
+            log.error("创建Guacamole连接异常: serverId={}, error={}", server.getMonitorSysGenServerId(), e.getMessage(), e);
+            sendErrorMessage(session, "创建Guacamole连接失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 设置Guacamole数据监听
+     */
+    private void setupGuacamoleDataListener(Integer serverId, WebSocketSession session, SimpleGuacamoleTunnel tunnel) {
+        try {
+            // 启动读取线程
+            new Thread(() -> {
+                try {
+                    GuacamoleReader reader = tunnel.acquireReader();
+                    GuacamoleInstruction instruction;
+
+                    while (session.isOpen() && (instruction = reader.readInstruction()) != null) {
+                        // 将Guacamole指令发送到WebSocket客户端
+                        String instructionStr = instruction.toString();
+                        sendMessage(session, "vnc-data", Map.of("data", instructionStr));
+
+                        // 同时广播到Socket.IO
+                        MonitorSysGenServer server = serverService.getById(serverId);
+                        String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
+
+                        ServerWebSocketMessage message = ServerWebSocketMessage.createVncDataMessage(
+                            serverId, serverName, instructionStr
+                        );
+                        socketSessionTemplate.send("gen/server", Json.toJson(message));
+                    }
+                } catch (GuacamoleException e) {
+                    log.error("读取Guacamole数据失败: serverId={}, error={}", serverId, e.getMessage());
+                } finally {
+                    // 清理连接
+                    serverTunnelMap.remove(serverId);
+                    sessionServerMap.remove(session.getId());
+                    serverSessionMap.remove(serverId);
+                }
+            }, "VNC-DataListener-" + serverId).start();
+
+        } catch (Exception e) {
+            log.error("设置Guacamole数据监听失败: serverId={}, error={}", serverId, e.getMessage(), e);
+        }
+    }
+
 }

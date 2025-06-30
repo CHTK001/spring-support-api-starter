@@ -58,7 +58,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
     /**
      * 创建GuacamoleClient
      */
-    protected static GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, MonitorSysGenServerSettingService monitorSysGenServerSettingService) {
+    public static GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, MonitorSysGenServerSettingService monitorSysGenServerSettingService) {
         ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
         config.host(server.getMonitorSysGenServerHost());
         config.port(server.getMonitorSysGenServerPort() != null ?
@@ -134,6 +134,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
             }
 
             client.connect();
+            //SimpleGuacamoleTunnel tunnel = client.createSession().getTunnel();
 
             // 简化连接状态检查
             boolean connected = true; // 假设连接成功
