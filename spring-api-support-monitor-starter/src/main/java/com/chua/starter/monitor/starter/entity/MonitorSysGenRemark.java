@@ -11,12 +11,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "monitor_sys_gen_remark")
-public class MonitorSysGenRemark extends SysBase implements Serializable {
+public class MonitorSysGenRemark extends SysBase {
     /**
      * ID
      */

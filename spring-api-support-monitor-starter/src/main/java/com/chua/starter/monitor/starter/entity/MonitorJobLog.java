@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +27,7 @@ import java.util.Date;
 @Schema(description="任务日志")
 @Data
 @TableName(value = "monitor_job_log")
-public class MonitorJobLog extends SysBase implements Serializable {
+public class MonitorJobLog extends SysBase {
     @TableId(value = "job_log_id", type = IdType.AUTO)
     @ApiModelProperty(value="")
     @Schema(description="")

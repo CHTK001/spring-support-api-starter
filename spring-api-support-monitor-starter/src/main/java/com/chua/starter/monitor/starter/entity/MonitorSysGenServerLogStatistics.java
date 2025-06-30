@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -27,9 +26,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器日志统计")
 @Data
 @TableName(value = "monitor_sys_gen_server_log_statistics")
-public class MonitorSysGenServerLogStatistics extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerLogStatistics extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_log_stat_id", type = IdType.AUTO)
     @ApiModelProperty(value = "统计ID")

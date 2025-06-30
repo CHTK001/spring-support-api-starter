@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -27,9 +26,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器详情页组件配置")
 @Data
 @TableName(value = "monitor_sys_gen_server_detail_component")
-public class MonitorSysGenServerDetailComponent extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerDetailComponent extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_detail_component_id", type = IdType.AUTO)
     @ApiModelProperty(value = "组件配置ID")

@@ -52,7 +52,7 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "根据服务器ID获取配置")
-    @GetMapping("server/{serverId}")
+    @GetMapping({"server/{serverId}", "server/{serverId}/or-create"})
     public ReturnResult<MonitorSysGenServerSetting> getByServerId(@PathVariable Integer serverId) {
         return monitorSysGenServerSettingService.getOrCreateSetting(serverId);
     }
@@ -79,8 +79,25 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "保存或更新服务器配置")
-    @PostMapping("save")
+    @PostMapping({"save", "save-or-update"})
     public ReturnResult<Boolean> saveOrUpdate(@Validated @RequestBody MonitorSysGenServerSetting setting, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ReturnResult.error(bindingResult.getFieldError().getDefaultMessage());
+        }
+        return monitorSysGenServerSettingService.saveOrUpdateSetting(setting);
+    }
+
+    /**
+     * 更新服务器配置
+     *
+     * @param setting 服务器配置
+     * @param bindingResult 验证结果
+     * @return 操作结果
+     */
+    @ResponseBody
+    @Operation(summary = "更新服务器配置")
+    @PutMapping("update")
+    public ReturnResult<Boolean> update(@Validated @RequestBody MonitorSysGenServerSetting setting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(bindingResult.getFieldError().getDefaultMessage());
         }
@@ -95,7 +112,7 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "批量保存或更新服务器配置")
-    @PostMapping("batch/save")
+    @PostMapping({"batch/save", "batch-save-or-update"})
     public ReturnResult<Boolean> batchSaveOrUpdate(@RequestBody List<MonitorSysGenServerSetting> settings) {
         return monitorSysGenServerSettingService.batchSaveOrUpdateSettings(settings);
     }
@@ -111,6 +128,32 @@ public class MonitorSysGenServerSettingController {
     @DeleteMapping("server/{serverId}")
     public ReturnResult<Boolean> deleteByServerId(@PathVariable Integer serverId) {
         return monitorSysGenServerSettingService.deleteByServerId(serverId);
+    }
+
+    /**
+     * 根据ID删除配置
+     *
+     * @param id 配置ID
+     * @return 操作结果
+     */
+    @ResponseBody
+    @Operation(summary = "根据ID删除配置")
+    @DeleteMapping("delete")
+    public ReturnResult<Boolean> deleteById(@RequestParam Integer id) {
+        return monitorSysGenServerSettingService.deleteById(id);
+    }
+
+    /**
+     * 批量删除配置
+     *
+     * @param ids 配置ID列表
+     * @return 操作结果
+     */
+    @ResponseBody
+    @Operation(summary = "批量删除配置")
+    @DeleteMapping("batch-delete")
+    public ReturnResult<Boolean> batchDelete(@RequestBody List<Integer> ids) {
+        return monitorSysGenServerSettingService.batchDeleteByIds(ids);
     }
 
     /**
@@ -162,6 +205,31 @@ public class MonitorSysGenServerSettingController {
     @PutMapping("server/{serverId}/status/{status}")
     public ReturnResult<Boolean> updateStatus(@PathVariable Integer serverId, @PathVariable Integer status) {
         return monitorSysGenServerSettingService.updateStatusByServerId(serverId, status);
+    }
+
+    /**
+     * 批量更新监控启用状态
+     *
+     * @param requestBody 请求体，包含serverIds和enabled
+     * @return 操作结果
+     */
+    @ResponseBody
+    @Operation(summary = "批量更新监控启用状态")
+    @PutMapping("batch-update-monitor-enabled")
+    public ReturnResult<Boolean> batchUpdateMonitorEnabled(@RequestBody Map<String, Object> requestBody) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Integer> serverIds = (List<Integer>) requestBody.get("serverIds");
+            Boolean enabled = (Boolean) requestBody.get("enabled");
+
+            if (serverIds == null || enabled == null) {
+                return ReturnResult.error("serverIds和enabled参数不能为空");
+            }
+
+            return monitorSysGenServerSettingService.batchUpdateMonitorEnabled(serverIds, enabled);
+        } catch (Exception e) {
+            return ReturnResult.error("参数格式错误: " + e.getMessage());
+        }
     }
 
     /**
@@ -224,9 +292,14 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "获取配置模板")
-    @GetMapping("template/{templateType}")
-    public ReturnResult<MonitorSysGenServerSetting> getTemplate(@PathVariable String templateType) {
-        return monitorSysGenServerSettingService.getSettingTemplate(templateType);
+    @GetMapping({"template/{templateType}", "template"})
+    public ReturnResult<MonitorSysGenServerSetting> getTemplate(@PathVariable(required = false) String templateType,
+                                                                @RequestParam(required = false) String templateTypeParam) {
+        String type = templateType != null ? templateType : templateTypeParam;
+        if (type == null) {
+            type = "default";
+        }
+        return monitorSysGenServerSettingService.getSettingTemplate(type);
     }
 
     /**
@@ -295,7 +368,7 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "测试告警配置")
-    @PostMapping("server/{serverId}/test/alert")
+    @PostMapping({"server/{serverId}/test/alert", "test-alert/{serverId}"})
     public ReturnResult<Boolean> testAlert(@PathVariable Integer serverId) {
         return monitorSysGenServerSettingService.testAlertConfiguration(serverId);
     }
@@ -308,7 +381,7 @@ public class MonitorSysGenServerSettingController {
      */
     @ResponseBody
     @Operation(summary = "测试上报配置")
-    @PostMapping("server/{serverId}/test/report")
+    @PostMapping({"server/{serverId}/test/report", "test-report/{serverId}"})
     public ReturnResult<Boolean> testReport(@PathVariable Integer serverId) {
         return monitorSysGenServerSettingService.testReportConfiguration(serverId);
     }
@@ -338,5 +411,30 @@ public class MonitorSysGenServerSettingController {
     @PostMapping("template/{templateType}/apply")
     public ReturnResult<Boolean> applyTemplate(@PathVariable String templateType, @RequestBody List<Integer> serverIds) {
         return monitorSysGenServerSettingService.applyTemplateToServers(templateType, serverIds);
+    }
+
+    /**
+     * 应用配置模板到多个服务器（通用接口）
+     *
+     * @param requestBody 请求体，包含templateType和serverIds
+     * @return 操作结果
+     */
+    @ResponseBody
+    @Operation(summary = "应用配置模板到多个服务器")
+    @PostMapping("apply-template")
+    public ReturnResult<Boolean> applyTemplateGeneric(@RequestBody Map<String, Object> requestBody) {
+        try {
+            String templateType = (String) requestBody.get("templateType");
+            @SuppressWarnings("unchecked")
+            List<Integer> serverIds = (List<Integer>) requestBody.get("serverIds");
+
+            if (templateType == null || serverIds == null) {
+                return ReturnResult.error("templateType和serverIds参数不能为空");
+            }
+
+            return monitorSysGenServerSettingService.applyTemplateToServers(templateType, serverIds);
+        } catch (Exception e) {
+            return ReturnResult.error("参数格式错误: " + e.getMessage());
+        }
     }
 }

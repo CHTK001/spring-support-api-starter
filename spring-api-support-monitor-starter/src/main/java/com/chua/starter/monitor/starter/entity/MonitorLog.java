@@ -14,14 +14,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
+
 
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "monitor_log")
 @Schema
 @Data
 @TableName(value = "monitor_log")
-public class MonitorLog extends SysTenantBase implements Serializable {
+public class MonitorLog extends SysTenantBase {
     @TableId(value = "log_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")

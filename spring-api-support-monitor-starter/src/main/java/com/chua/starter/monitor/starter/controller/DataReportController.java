@@ -7,6 +7,8 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerDataReportService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.starter.service.AlertDetectionService;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * 数据上报控制器
@@ -33,6 +36,7 @@ public class DataReportController {
     private final MonitorSysGenServerDataReportService dataReportService;
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
+    private final AlertDetectionService alertDetectionService;
 
     /**
      * 客户端数据上报接口
@@ -75,7 +79,35 @@ public class DataReportController {
             }
             
             // 处理API上报数据
-            return dataReportService.handleApiReport(server, reportData);
+            ReturnResult<MonitorSysGenServerMetrics> result = dataReportService.handleApiReport(server, reportData);
+
+            // 如果数据处理成功，进行告警检测
+            if (result.isOk() && result.getData() != null) {
+                try {
+                    // 检测API上报数据的告警
+                    ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
+                        alertDetectionService.detectApiReportAlerts(serverId, reportData);
+
+                    if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
+                        log.info("API上报数据检测到 {} 个告警: serverId={}",
+                            alertResult.getData().size(), serverId);
+
+                        // 这里可以添加告警通知逻辑
+                        for (MonitorSysGenServerAlertHistory alert : alertResult.getData()) {
+                            log.warn("触发告警: serverId={}, type={}, level={}, currentValue={}, threshold={}",
+                                serverId, alert.getMonitorSysGenServerAlertHistoryType(),
+                                alert.getMonitorSysGenServerAlertHistoryLevel(),
+                                alert.getMonitorSysGenServerAlertHistoryCurrentValue(),
+                                alert.getMonitorSysGenServerAlertHistoryThresholdValue());
+                        }
+                    }
+                } catch (Exception e) {
+                    // 告警检测失败不影响数据上报的成功
+                    log.error("API上报数据告警检测失败: serverId={}", serverId, e);
+                }
+            }
+
+            return result;
             
         } catch (Exception e) {
             log.error("处理数据上报请求失败: serverId={}", serverId, e);

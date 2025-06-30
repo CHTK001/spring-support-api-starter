@@ -1,18 +1,22 @@
 package com.chua.starter.monitor.starter.service.report.impl;
 
+import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.service.AlertDetectionService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.report.ReportHandler;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
-import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.common.support.json.Json;
-import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.common.support.lang.code.ReturnResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -36,6 +40,9 @@ public class LocalReportHandler implements ReportHandler {
     private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
     private final LocalSystemDataCollector dataCollector;
+    @Autowired
+    @Lazy
+    private  AlertDetectionService alertDetectionService;
     
     // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
@@ -71,13 +78,46 @@ public class LocalReportHandler implements ReportHandler {
             
             // 收集本地系统指标
             MonitorSysGenServerMetrics metrics = collectLocalMetrics(server);
-            
+
             // 保存到数据库
             metricsService.saveMetrics(metrics);
-            
+
+            // 进行告警检测
+            try {
+                // 获取服务器配置
+                ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    serverSettingService.getByServerId(server.getMonitorSysGenServerId());
+
+                if (settingResult.isOk() && settingResult.getData() != null) {
+                    MonitorSysGenServerSetting setting = settingResult.getData();
+
+                    // 检测本地采集数据的告警
+                    ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
+                        alertDetectionService.detectMetricsAlerts(server, setting, metrics);
+
+                    if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
+                        log.info("本地采集数据检测到 {} 个告警: serverId={}",
+                            alertResult.getData().size(), server.getMonitorSysGenServerId());
+
+                        // 记录告警信息
+                        for (MonitorSysGenServerAlertHistory alert : alertResult.getData()) {
+                            log.warn("触发告警: serverId={}, type={}, level={}, currentValue={}, threshold={}",
+                                server.getMonitorSysGenServerId(),
+                                alert.getMonitorSysGenServerAlertHistoryType(),
+                                alert.getMonitorSysGenServerAlertHistoryLevel(),
+                                alert.getMonitorSysGenServerAlertHistoryCurrentValue(),
+                                alert.getMonitorSysGenServerAlertHistoryThresholdValue());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // 告警检测失败不影响数据收集的成功
+                log.error("本地采集数据告警检测失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            }
+
             // 通过WebSocket推送到前端
             broadcastServerMetrics(server.getMonitorSysGenServerId(), metrics);
-            
+
             log.debug("本地服务器数据上报处理完成: serverId={}", server.getMonitorSysGenServerId());
             return ReturnResult.success(metrics);
             

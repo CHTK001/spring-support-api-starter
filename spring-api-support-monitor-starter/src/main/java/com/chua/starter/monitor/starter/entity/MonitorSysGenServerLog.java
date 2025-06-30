@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -27,9 +26,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器日志")
 @Data
 @TableName(value = "monitor_sys_gen_server_logs")
-public class MonitorSysGenServerLog extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerLog extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_log_id", type = IdType.AUTO)
     @ApiModelProperty(value = "日志ID")
