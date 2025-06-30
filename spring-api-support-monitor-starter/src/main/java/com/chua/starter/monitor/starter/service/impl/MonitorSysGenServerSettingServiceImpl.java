@@ -135,6 +135,63 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    public ReturnResult<Boolean> deleteById(Integer id) {
+        try {
+            boolean result = this.removeById(id);
+            return ReturnResult.of(result, result ? "删除成功" : "删除失败");
+        } catch (Exception e) {
+            log.error("删除配置失败: id={}", id, e);
+            return ReturnResult.error("删除失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> batchDeleteByIds(List<Integer> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                return ReturnResult.error("ID列表不能为空");
+            }
+            boolean result = this.removeByIds(ids);
+            return ReturnResult.of(result, result ? "批量删除成功" : "批量删除失败");
+        } catch (Exception e) {
+            log.error("批量删除配置失败: ids={}", ids, e);
+            return ReturnResult.error("批量删除失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> batchUpdateMonitorEnabled(List<Integer> serverIds, Boolean enabled) {
+        try {
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+
+            int successCount = 0;
+            for (Integer serverId : serverIds) {
+                try {
+                    ReturnResult<MonitorSysGenServerSetting> settingResult = getOrCreateSetting(serverId);
+                    if (settingResult.isOk() && settingResult.getData() != null) {
+                        MonitorSysGenServerSetting setting = settingResult.getData();
+                        setting.setMonitorSysGenServerSettingMonitorEnabled(enabled ? 1 : 0);
+                        this.updateById(setting);
+                        successCount++;
+                    }
+                } catch (Exception e) {
+                    log.error("更新服务器监控状态失败: serverId={}", serverId, e);
+                }
+            }
+
+            boolean allSuccess = successCount == serverIds.size();
+            String message = String.format("批量更新完成，成功: %d，失败: %d", successCount, serverIds.size() - successCount);
+            return ReturnResult.of(allSuccess, message);
+
+        } catch (Exception e) {
+            log.error("批量更新监控启用状态失败: serverIds={}, enabled={}", serverIds, enabled, e);
+            return ReturnResult.error("批量更新失败: " + e.getMessage());
+        }
+    }
+
+    @Override
     public ReturnResult<List<MonitorSysGenServerSetting>> getMonitorEnabledSettings() {
         try {
             List<MonitorSysGenServerSetting> settings = baseMapper.selectMonitorEnabledSettings();
@@ -311,7 +368,37 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
                     return ReturnResult.error("无效的数据上报方式");
                 }
             }
-            
+
+            // 验证代理配置（仅在启用代理时验证）
+            if (setting.getMonitorSysGenServerSettingProxyEnabled() != null &&
+                setting.getMonitorSysGenServerSettingProxyEnabled() == 1) {
+
+                // 代理类型验证
+                if (StringUtils.isBlank(setting.getMonitorSysGenServerSettingProxyType())) {
+                    return ReturnResult.error("启用代理时必须选择代理类型");
+                }
+
+                String proxyType = setting.getMonitorSysGenServerSettingProxyType();
+                if (!List.of("HTTP", "SOCKS4", "SOCKS5", "SSH_TUNNEL", "GUACAMOLE").contains(proxyType)) {
+                    return ReturnResult.error("无效的代理类型");
+                }
+
+                // 代理地址验证
+                if (StringUtils.isBlank(setting.getMonitorSysGenServerSettingProxyHost())) {
+                    return ReturnResult.error("启用代理时必须输入代理服务器地址");
+                }
+
+                // 代理端口验证
+                if (setting.getMonitorSysGenServerSettingProxyPort() == null) {
+                    return ReturnResult.error("启用代理时必须输入代理端口");
+                }
+
+                Integer proxyPort = setting.getMonitorSysGenServerSettingProxyPort();
+                if (proxyPort <= 0 || proxyPort > 65535) {
+                    return ReturnResult.error("代理端口必须在1-65535之间");
+                }
+            }
+
             return ReturnResult.ok(true, "配置验证通过");
         } catch (Exception e) {
             log.error("验证配置失败", e);

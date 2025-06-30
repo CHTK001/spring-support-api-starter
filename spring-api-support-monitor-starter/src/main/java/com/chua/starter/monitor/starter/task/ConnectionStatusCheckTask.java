@@ -9,6 +9,8 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 
 import com.chua.starter.monitor.starter.service.ServerLatencyService;
+import com.chua.starter.monitor.starter.service.AlertDetectionService;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,6 +40,7 @@ public class ConnectionStatusCheckTask {
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final ServerLatencyService serverLatencyService;
+    private final AlertDetectionService alertDetectionService;
 
     /**
      * 检查服务器连接状态
@@ -133,7 +136,40 @@ public class ConnectionStatusCheckTask {
     public void checkConnectionAlerts() {
         try {
             log.debug("开始检查连接告警");
-            // 这里可以根据需要实现具体的连接告警检查逻辑
+
+            List<MonitorSysGenServer> servers = serverService.list();
+            for (MonitorSysGenServer server : servers) {
+                try {
+                    // 检查服务器是否启用监控
+                    ReturnResult<MonitorSysGenServerSetting> settingResult =
+                        serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+                    if (settingResult.isOk() && settingResult.getData() != null) {
+                        MonitorSysGenServerSetting setting = settingResult.getData();
+                        boolean monitorEnabled = setting.getMonitorSysGenServerSettingMonitorEnabled() != null &&
+                                               setting.getMonitorSysGenServerSettingMonitorEnabled() == 1;
+
+                        if (monitorEnabled) {
+                            // 获取服务器当前延迟
+                            Long latency = getServerLatency(server.getMonitorSysGenServerId());
+                            boolean isOnline = latency != null && latency >= 0;
+
+                            // 检测连接状态告警
+                            ReturnResult<MonitorSysGenServerAlertHistory> alertResult =
+                                alertDetectionService.detectConnectionAlert(
+                                    server.getMonitorSysGenServerId(), isOnline, latency);
+
+                            if (alertResult.isOk() && alertResult.getData() != null) {
+                                log.warn("检测到连接告警: serverId={}, isOnline={}, latency={}ms",
+                                    server.getMonitorSysGenServerId(), isOnline, latency);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("检查服务器连接告警失败: serverId={}", server.getMonitorSysGenServerId(), e);
+                }
+            }
+
         } catch (Exception e) {
             log.error("检查连接告警失败", e);
         }

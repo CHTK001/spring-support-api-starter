@@ -67,6 +67,31 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
     ReturnResult<Boolean> deleteByServerId(Integer serverId);
 
     /**
+     * 根据ID删除配置
+     *
+     * @param id 配置ID
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> deleteById(Integer id);
+
+    /**
+     * 批量删除配置
+     *
+     * @param ids 配置ID列表
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> batchDeleteByIds(List<Integer> ids);
+
+    /**
+     * 批量更新监控启用状态
+     *
+     * @param serverIds 服务器ID列表
+     * @param enabled 是否启用
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> batchUpdateMonitorEnabled(List<Integer> serverIds, Boolean enabled);
+
+    /**
      * 获取启用监控的服务器配置
      *
      * @return 启用监控的服务器配置列表

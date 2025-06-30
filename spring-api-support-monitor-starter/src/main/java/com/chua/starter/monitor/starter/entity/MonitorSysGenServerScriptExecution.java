@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -27,9 +26,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器脚本执行记录")
 @Data
 @TableName(value = "monitor_sys_gen_server_script_executions")
-public class MonitorSysGenServerScriptExecution extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServerScriptExecution extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_script_execution_id", type = IdType.AUTO)
     @ApiModelProperty(value = "执行记录ID")

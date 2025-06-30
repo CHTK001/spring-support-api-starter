@@ -11,12 +11,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "monitor_sys_gen_template")
-public class MonitorSysGenTemplate extends SysBase implements Serializable {
+public class MonitorSysGenTemplate extends SysBase {
     @TableId(value = "template_id", type = IdType.AUTO)
     @NotNull(message = "不能为null")
     private Integer templateId;

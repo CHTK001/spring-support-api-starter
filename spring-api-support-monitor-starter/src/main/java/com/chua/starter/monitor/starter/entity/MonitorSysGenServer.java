@@ -16,7 +16,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -30,9 +29,7 @@ import java.time.LocalDateTime;
 @Schema(description = "服务器配置")
 @Data
 @TableName(value = "monitor_sys_gen_server")
-public class MonitorSysGenServer extends SysBase implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class MonitorSysGenServer extends SysBase {
 
     @TableId(value = "monitor_sys_gen_server_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置ID")
