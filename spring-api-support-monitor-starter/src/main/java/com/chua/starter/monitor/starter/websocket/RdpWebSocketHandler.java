@@ -1,9 +1,11 @@
 package com.chua.starter.monitor.starter.websocket;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import lombok.RequiredArgsConstructor;
@@ -119,10 +121,21 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
     private GuacamoleTunnel createGuacamoleTunnel(MonitorSysGenServer server, WebSocketSession session) {
         try {
             // 创建Guacamole配置
-            GuacamoleConfiguration config = createGuacamoleConfiguration(server, session);
-
+            ReturnResult<MonitorSysGenServerSetting> byServerId = serverSettingService.getByServerId(server.getMonitorSysGenServerId());
+            if (!byServerId.isOk()) {
+                try {
+                    afterConnectionClosed(session, CloseStatus.SERVER_ERROR);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
+            }
+            MonitorSysGenServerSetting sysGenServerSetting = byServerId.getData();
+            GuacamoleConfiguration config = createGuacamoleConfiguration(server, session, sysGenServerSetting);
             // 创建Guacamole Socket
-            InetGuacamoleSocket socket = new InetGuacamoleSocket("localhost", 4822);
+            InetGuacamoleSocket socket = new InetGuacamoleSocket(
+                    sysGenServerSetting.getMonitorSysGenServerSettingProxyHost(),
+                    sysGenServerSetting.getMonitorSysGenServerSettingProxyPort());
             ConfiguredGuacamoleSocket configuredSocket = new ConfiguredGuacamoleSocket(socket, config);
 
             // 创建隧道
@@ -143,7 +156,7 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
     /**
      * 创建Guacamole配置
      */
-    private GuacamoleConfiguration createGuacamoleConfiguration(MonitorSysGenServer server, WebSocketSession session) {
+    private GuacamoleConfiguration createGuacamoleConfiguration(MonitorSysGenServer server, WebSocketSession session, MonitorSysGenServerSetting sysGenServerSetting) {
         GuacamoleConfiguration config = new GuacamoleConfiguration();
 
         String protocol = server.getMonitorSysGenServerProtocol().toLowerCase();
@@ -429,6 +442,7 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
         }
         return params;
     }
+
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         String serverId = sessionServerMap.get(session.getId());
