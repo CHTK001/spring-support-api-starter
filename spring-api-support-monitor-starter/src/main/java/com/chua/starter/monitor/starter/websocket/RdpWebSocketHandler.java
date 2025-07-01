@@ -259,11 +259,12 @@ public class RdpWebSocketHandler extends TextWebSocketHandler {
                 return;
             }
 
+            String clientId = "server-" + server.getMonitorSysGenServerId();
             // 连接到服务器
-            guacamoleClient.connect();
+            guacamoleClient.connect(clientId);
 
             // 创建SimpleGuacamoleTunnel
-            GuacamoleChannelSession guacamoleClientSession = (GuacamoleChannelSession) guacamoleClient.createSession("server-" + server.getMonitorSysGenServerId());
+            GuacamoleChannelSession guacamoleClientSession = (GuacamoleChannelSession) guacamoleClient.createSession(clientId);
             SimpleGuacamoleTunnel tunnel = guacamoleClientSession.getTunnel();
             if (tunnel != null &&  tunnel.isOpen()) {
                 // 保存映射关系
