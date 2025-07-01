@@ -5,6 +5,8 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
+import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class ServerMetricsWebSocketService {
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerMetricsService metricsService;
     private final List<ServerConnectionService> serverConnectionServices;
+    private final LocalSystemDataCollector localSystemDataCollector;
+    private final UnifiedAlertService unifiedAlertService;
 
     /**
      * WebSocket主题常量
@@ -43,19 +47,24 @@ public class ServerMetricsWebSocketService {
      */
     public void pushRealTimeMetrics() {
         try {
-            List<MonitorSysGenServer> servers = serverService.list().stream()
-                    .filter(server -> server.getMonitorSysGenServerMonitorEnabled() != null &&
-                            server.getMonitorSysGenServerMonitorEnabled() == 1)
-                    .toList();
+            List<MonitorSysGenServer> allServers = serverService.list();
 
-            for (MonitorSysGenServer server : servers) {
+            // 过滤出启用监控的服务器
+            List<MonitorSysGenServer> enabledServers = new ArrayList<>();
+            for (MonitorSysGenServer server : allServers) {
+                if (isServerMonitoringEnabled(server)) {
+                    enabledServers.add(server);
+                }
+            }
+
+            for (MonitorSysGenServer server : enabledServers) {
                 try {
                     MonitorSysGenServerMetrics metrics = collectLatestMetrics(server);
                     if (metrics != null) {
                         pushServerMetrics(server, metrics);
                     }
                 } catch (Exception e) {
-                    log.error("推送服务器 {} 指标数据失败: {}", 
+                    log.error("推送服务器 {} 指标数据失败: {}",
                             server.getMonitorSysGenServerName(), e.getMessage(), e);
                 }
             }
@@ -112,33 +121,14 @@ public class ServerMetricsWebSocketService {
     /**
      * 推送告警信息
      * 由task包中的定时任务调用
+     * 使用统一告警服务，只推送启用告警功能的服务器的告警信息
      */
     public void pushAlertMessages() {
         try {
-            List<MonitorSysGenServer> servers = serverService.list();
-
-            for (MonitorSysGenServer server : servers) {
-                try {
-                    List<Map<String, Object>> alerts = checkServerAlerts(server);
-
-                    if (!alerts.isEmpty()) {
-                        ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                                .messageType("server_alerts")
-                                .serverId(server.getMonitorSysGenServerId())
-                                .serverName(server.getMonitorSysGenServerName())
-                                .data(Map.of("alerts", alerts))
-                                .timestamp(System.currentTimeMillis())
-                                .build();
-
-                        socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
-                    }
-
-                } catch (Exception e) {
-                    log.error("推送服务器 {} 告警信息失败: {}",
-                            server.getMonitorSysGenServerName(), e.getMessage(), e);
-                }
-            }
-
+            log.debug("开始推送告警信息，使用统一告警服务");
+            // 委托给统一告警服务处理
+            unifiedAlertService.pushAllServerAlerts();
+            log.debug("告警信息推送完成");
         } catch (Exception e) {
             log.error("推送告警信息失败: {}", e.getMessage(), e);
         }
@@ -437,3 +427,173 @@ public class ServerMetricsWebSocketService {
 
         return data;
     }
+
+    /**
+     * 从本地系统直接收集指标数据（本地采集方式）
+     * 不需要连接判断，直接调用oshi采集配置并保存数据
+     */
+    private MonitorSysGenServerMetrics collectMetricsFromLocal(MonitorSysGenServer server) {
+        try {
+            log.debug("开始本地采集服务器 {} 指标数据", server.getMonitorSysGenServerName());
+
+            // 检查是否为本机服务器
+            if (server.getMonitorSysGenServerIsLocal() == null || server.getMonitorSysGenServerIsLocal() != 1) {
+                log.warn("服务器 {} 不是本机服务器，无法进行本地采集", server.getMonitorSysGenServerName());
+                return null;
+            }
+
+            MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
+            metrics.setMonitorSysGenServerId(server.getMonitorSysGenServerId());
+            metrics.setMonitorSysGenServerMetricsCollectTime(LocalDateTime.now());
+            metrics.setMonitorSysGenServerMetricsStatus(1); // 本机默认在线
+
+            // 直接使用LocalSystemDataCollector收集系统数据
+            Map<String, Object> systemData = localSystemDataCollector.collectSystemData();
+
+            // 转换系统数据为指标对象
+            convertSystemDataToMetrics(systemData, metrics);
+
+            log.debug("本地采集服务器 {} 指标数据完成", server.getMonitorSysGenServerName());
+            return metrics;
+
+        } catch (Exception e) {
+            log.error("本地采集服务器 {} 指标数据失败: {}",
+                    server.getMonitorSysGenServerName(), e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 将系统数据转换为指标对象
+     */
+    private void convertSystemDataToMetrics(Map<String, Object> systemData, MonitorSysGenServerMetrics metrics) {
+        try {
+            // CPU信息
+            if (systemData.containsKey("cpuUsage")) {
+                Double cpuUsage = (Double) systemData.get("cpuUsage");
+                metrics.setMonitorSysGenServerMetricsCpuUsage(java.math.BigDecimal.valueOf(cpuUsage));
+            }
+
+            if (systemData.containsKey("cpuLogicalProcessors")) {
+                Integer cpuCores = (Integer) systemData.get("cpuLogicalProcessors");
+                metrics.setMonitorSysGenServerMetricsCpuCores(cpuCores);
+            }
+
+            // 内存信息
+            if (systemData.containsKey("memoryUsagePercent")) {
+                Double memoryUsage = (Double) systemData.get("memoryUsagePercent");
+                metrics.setMonitorSysGenServerMetricsMemoryUsage(java.math.BigDecimal.valueOf(memoryUsage));
+            }
+
+            if (systemData.containsKey("totalMemory")) {
+                Long totalMemory = (Long) systemData.get("totalMemory");
+                metrics.setMonitorSysGenServerMetricsMemoryTotal(totalMemory);
+            }
+
+            if (systemData.containsKey("usedMemory")) {
+                Long usedMemory = (Long) systemData.get("usedMemory");
+                metrics.setMonitorSysGenServerMetricsMemoryUsed(usedMemory);
+            }
+
+            // 磁盘信息 - 计算总体磁盘使用率
+            if (systemData.containsKey("fileSystems")) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> fileSystems = (List<Map<String, Object>>) systemData.get("fileSystems");
+
+                long totalDiskSpace = 0;
+                long usedDiskSpace = 0;
+
+                for (Map<String, Object> fs : fileSystems) {
+                    if (fs.containsKey("totalSpace") && fs.containsKey("freeSpace")) {
+                        Long totalSpace = (Long) fs.get("totalSpace");
+                        Long freeSpace = (Long) fs.get("freeSpace");
+                        totalDiskSpace += totalSpace;
+                        usedDiskSpace += (totalSpace - freeSpace);
+                    }
+                }
+
+                if (totalDiskSpace > 0) {
+                    double diskUsage = (double) usedDiskSpace / totalDiskSpace * 100;
+                    metrics.setMonitorSysGenServerMetricsDiskUsage(java.math.BigDecimal.valueOf(diskUsage));
+                    metrics.setMonitorSysGenServerMetricsDiskTotal(totalDiskSpace);
+                    metrics.setMonitorSysGenServerMetricsDiskUsed(usedDiskSpace);
+                }
+            }
+
+            // 网络信息 - 计算总体网络流量
+            if (systemData.containsKey("networks")) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> networks = (List<Map<String, Object>>) systemData.get("networks");
+
+                long totalBytesReceived = 0;
+                long totalBytesSent = 0;
+
+                for (Map<String, Object> net : networks) {
+                    if (net.containsKey("bytesReceived") && net.containsKey("bytesSent")) {
+                        Long bytesReceived = (Long) net.get("bytesReceived");
+                        Long bytesSent = (Long) net.get("bytesSent");
+                        totalBytesReceived += bytesReceived;
+                        totalBytesSent += bytesSent;
+                    }
+                }
+
+                metrics.setMonitorSysGenServerMetricsNetworkIn(totalBytesReceived);
+                metrics.setMonitorSysGenServerMetricsNetworkOut(totalBytesSent);
+            }
+
+            // 系统信息
+            if (systemData.containsKey("osName")) {
+                String osInfo = systemData.get("osName") + " " +
+                               systemData.getOrDefault("osVersion", "");
+                metrics.setMonitorSysGenServerMetricsOsInfo(osInfo);
+            }
+
+            // 响应时间设为0（本地采集）
+            metrics.setMonitorSysGenServerMetricsResponseTime(java.math.BigDecimal.ZERO);
+
+        } catch (Exception e) {
+            log.error("转换系统数据为指标对象失败", e);
+        }
+    }
+
+    /**
+     * 检查服务器是否启用监控
+     */
+    private boolean isServerMonitoringEnabled(MonitorSysGenServer server) {
+        try {
+            // 检查服务器状态
+            if (server.getMonitorSysGenServerStatus() == null || server.getMonitorSysGenServerStatus() != 1) {
+                return false;
+            }
+
+            // 检查基础监控启用状态
+            if (server.getMonitorSysGenServerMonitorEnabled() == null || server.getMonitorSysGenServerMonitorEnabled() != 1) {
+                return false;
+            }
+
+            // 获取服务器设置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                    serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                log.warn("获取服务器 {} 配置失败，跳过指标推送", server.getMonitorSysGenServerName());
+                return false;
+            }
+
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 检查配置中是否启用监控
+            if (setting.getMonitorSysGenServerSettingMonitorEnabled() == null ||
+                setting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
+                return false;
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("检查服务器 {} 监控状态失败: {}",
+                    server.getMonitorSysGenServerName(), e.getMessage(), e);
+            return false;
+        }
+    }
+}

@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
 
 import java.time.LocalDateTime;
@@ -85,7 +84,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param id 服务器ID
      * @return 服务器信息
      */
-    ReturnResult<Map<String, Object>> getServerInfo(String id);
+    ReturnResult<MonitorSysGenServer> getServerInfo(String id);
 
     /**
      * 发送数据到服务器
