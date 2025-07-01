@@ -51,6 +51,24 @@ public interface MonitorSysGenServerMetricsService {
     ReturnResult<MonitorSysGenServerMetrics> getLatestMetrics(Integer serverId);
 
     /**
+     * 获取服务器最新指标数据（直接返回对象）
+     *
+     * @param serverId 服务器ID
+     * @return 最新指标数据，如果不存在返回null
+     */
+    MonitorSysGenServerMetrics getLatestMetricsDirectly(Integer serverId);
+
+    /**
+     * 获取指定时间范围内的指标数据
+     *
+     * @param serverId 服务器ID
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @return 指标数据列表
+     */
+    List<MonitorSysGenServerMetrics> getMetricsByTimeRange(Integer serverId, LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
      * 获取服务器指标历史数据
      *
      * @param serverId 服务器ID

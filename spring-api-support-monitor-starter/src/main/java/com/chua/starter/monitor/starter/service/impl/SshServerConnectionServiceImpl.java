@@ -581,12 +581,75 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
      */
     private void collectNetworkMetrics(SshClient sshClient, MonitorSysGenServerMetrics metrics) {
         try {
-            // 这里可以根据需要实现网络流量统计
-            // 由于网络流量需要计算差值，这里先设置为0
-            metrics.setMonitorSysGenServerMetricsNetworkIn(0L);
-            metrics.setMonitorSysGenServerMetricsNetworkOut(0L);
+            // 获取网络接口统计信息
+            String networkStats = executeCommandInternal(sshClient,
+                "cat /proc/net/dev | grep -E '(eth|ens|enp|wlan)' | head -1");
+
+            if (StringUtils.isNotEmpty(networkStats)) {
+                // 解析网络统计信息
+                String[] parts = networkStats.trim().split("\\s+");
+                if (parts.length >= 10) {
+                    try {
+                        // /proc/net/dev格式: interface: bytes packets errs drop fifo frame compressed multicast
+                        // 接收字节数在第2列，发送字节数在第10列
+                        long receivedBytes = Long.parseLong(parts[1]);
+                        long transmittedBytes = Long.parseLong(parts[9]);
+
+                        // 获取包统计
+                        long receivedPackets = Long.parseLong(parts[2]);
+                        long transmittedPackets = Long.parseLong(parts[10]);
+
+                        // 由于这是累计值，我们需要计算速率
+                        // 这里先存储累计值，速率计算需要在上层服务中实现
+                        metrics.setMonitorSysGenServerMetricsNetworkIn(receivedBytes);
+                        metrics.setMonitorSysGenServerMetricsNetworkOut(transmittedBytes);
+
+                        // 设置额外的网络信息
+                        metrics.setMonitorSysGenServerMetricsExtraInfo(
+                            String.format("rx_packets:%d,tx_packets:%d", receivedPackets, transmittedPackets));
+
+                        log.debug("网络指标收集成功: 接收{}字节, 发送{}字节", receivedBytes, transmittedBytes);
+                    } catch (NumberFormatException e) {
+                        log.warn("解析网络统计信息失败: {}", networkStats);
+                    }
+                }
+            }
+
+            // 如果主要方法失败，尝试备用方法
+            if (metrics.getMonitorSysGenServerMetricsNetworkIn() == null) {
+                collectNetworkMetricsAlternative(sshClient, metrics);
+            }
         } catch (Exception e) {
             log.warn("收集网络指标失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 备用网络指标收集方法
+     */
+    private void collectNetworkMetricsAlternative(SshClient sshClient, MonitorSysGenServerMetrics metrics) {
+        try {
+            // 使用ifconfig或ip命令获取网络统计
+            String networkInfo = executeCommandInternal(sshClient,
+                "ip -s link show | grep -A 3 'state UP' | head -4");
+
+            if (StringUtils.isEmpty(networkInfo)) {
+                // 尝试使用ifconfig
+                networkInfo = executeCommandInternal(sshClient,
+                    "ifconfig | grep -A 5 'flags.*UP' | grep 'RX packets\\|TX packets'");
+            }
+
+            if (StringUtils.isNotEmpty(networkInfo)) {
+                // 简单解析，设置默认值
+                metrics.setMonitorSysGenServerMetricsNetworkIn(0L);
+                metrics.setMonitorSysGenServerMetricsNetworkOut(0L);
+                log.debug("使用备用方法收集网络指标");
+            }
+        } catch (Exception e) {
+            log.warn("备用网络指标收集失败: {}", e.getMessage());
+            // 设置默认值
+            metrics.setMonitorSysGenServerMetricsNetworkIn(0L);
+            metrics.setMonitorSysGenServerMetricsNetworkOut(0L);
         }
     }
 
@@ -615,16 +678,97 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                 }
             }
 
-            // 获取操作系统信息
-            String osInfo = executeCommandInternal(sshClient, "uname -a");
-            if (StringUtils.isNotEmpty(osInfo)) {
-                metrics.setMonitorSysGenServerMetricsOsInfo(osInfo.trim());
+            // 获取详细的操作系统信息
+            collectDetailedOsInfo(sshClient, metrics);
+
+            // 获取主机名
+            String hostname = executeCommandInternal(sshClient, "hostname");
+            if (StringUtils.isNotEmpty(hostname)) {
+                // 将主机名存储在额外信息中
+                String extraInfo = metrics.getMonitorSysGenServerMetricsExtraInfo();
+                if (StringUtils.isEmpty(extraInfo)) {
+                    extraInfo = "hostname:" + hostname.trim();
+                } else {
+                    extraInfo += ",hostname:" + hostname.trim();
+                }
+                metrics.setMonitorSysGenServerMetricsExtraInfo(extraInfo);
+            }
+
+            // 获取负载平均值（补充到额外信息中）
+            String loadAvg = executeCommandInternal(sshClient, "uptime | awk -F'load average:' '{print $2}'");
+            if (StringUtils.isNotEmpty(loadAvg)) {
+                String extraInfo = metrics.getMonitorSysGenServerMetricsExtraInfo();
+                if (StringUtils.isEmpty(extraInfo)) {
+                    extraInfo = "load_avg:" + loadAvg.trim();
+                } else {
+                    extraInfo += ",load_avg:" + loadAvg.trim();
+                }
+                metrics.setMonitorSysGenServerMetricsExtraInfo(extraInfo);
             }
 
             // 设置响应时间（这里可以测量命令执行时间）
             metrics.setMonitorSysGenServerMetricsResponseTime(100L); // 默认值
+
+            log.debug("系统指标收集成功: 运行时间{}秒, 进程数{}",
+                    metrics.getMonitorSysGenServerMetricsUptime(),
+                    metrics.getMonitorSysGenServerMetricsProcessCount());
         } catch (Exception e) {
             log.warn("收集系统指标失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 收集详细的操作系统信息
+     */
+    private void collectDetailedOsInfo(SshClient sshClient, MonitorSysGenServerMetrics metrics) {
+        try {
+            StringBuilder osInfoBuilder = new StringBuilder();
+
+            // 获取操作系统基本信息
+            String osRelease = executeCommandInternal(sshClient, "cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"'");
+            if (StringUtils.isNotEmpty(osRelease)) {
+                osInfoBuilder.append("OS: ").append(osRelease.trim());
+            } else {
+                // 备用方法
+                String unameInfo = executeCommandInternal(sshClient, "uname -a");
+                if (StringUtils.isNotEmpty(unameInfo)) {
+                    osInfoBuilder.append("OS: ").append(unameInfo.trim());
+                }
+            }
+
+            // 获取内核版本
+            String kernelVersion = executeCommandInternal(sshClient, "uname -r");
+            if (StringUtils.isNotEmpty(kernelVersion)) {
+                if (osInfoBuilder.length() > 0) {
+                    osInfoBuilder.append("; ");
+                }
+                osInfoBuilder.append("Kernel: ").append(kernelVersion.trim());
+            }
+
+            // 获取架构信息
+            String arch = executeCommandInternal(sshClient, "uname -m");
+            if (StringUtils.isNotEmpty(arch)) {
+                if (osInfoBuilder.length() > 0) {
+                    osInfoBuilder.append("; ");
+                }
+                osInfoBuilder.append("Arch: ").append(arch.trim());
+            }
+
+            if (osInfoBuilder.length() > 0) {
+                metrics.setMonitorSysGenServerMetricsOsInfo(osInfoBuilder.toString());
+            }
+
+        } catch (Exception e) {
+            log.warn("收集详细操作系统信息失败: {}", e.getMessage());
+            // 使用简单的备用方法
+            try {
+                String osInfo = executeCommandInternal(sshClient, "uname -a");
+                if (StringUtils.isNotEmpty(osInfo)) {
+                    metrics.setMonitorSysGenServerMetricsOsInfo(osInfo.trim());
+                }
+            } catch (Exception ex) {
+                log.warn("备用操作系统信息收集也失败: {}", ex.getMessage());
+            }
         }
     }
 

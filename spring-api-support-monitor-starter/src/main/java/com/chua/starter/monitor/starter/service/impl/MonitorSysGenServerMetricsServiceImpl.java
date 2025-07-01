@@ -976,4 +976,27 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             log.debug("暂时跳过设置默认过期时间，需要实现Redis过期功能: key={}", redisKey);
         }
     }
+
+    @Override
+    public MonitorSysGenServerMetrics getLatestMetricsDirectly(Integer serverId) {
+        try {
+            ReturnResult<MonitorSysGenServerMetrics> result = getLatestMetrics(serverId);
+            return result.isOk() ? result.getData() : null;
+        } catch (Exception e) {
+            log.error("获取最新指标数据失败: serverId={}, error={}", serverId, e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public List<MonitorSysGenServerMetrics> getMetricsByTimeRange(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
+        try {
+            ReturnResult<List<MonitorSysGenServerMetrics>> result = getHistoryMetrics(serverId, startTime, endTime);
+            return result.isOk() && result.getData() != null ? result.getData() : new ArrayList<>();
+        } catch (Exception e) {
+            log.error("获取时间范围内指标数据失败: serverId={}, startTime={}, endTime={}, error={}",
+                    serverId, startTime, endTime, e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 }
