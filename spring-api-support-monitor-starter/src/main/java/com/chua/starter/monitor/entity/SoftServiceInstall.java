@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Lob;
 
+
 /**
  * 软件服务安装记录
  *
