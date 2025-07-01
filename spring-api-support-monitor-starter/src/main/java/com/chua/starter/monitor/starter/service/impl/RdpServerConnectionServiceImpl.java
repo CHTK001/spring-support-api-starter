@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,24 +108,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
 
     @Override
     public boolean testConnection(MonitorSysGenServer server) {
-        try {
-            log.info("测试RDP连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
-
-            // 使用GuacamoleClient创建RDP连接进行测试
-            GuacamoleClient client = createGuacamoleClient(server, monitorSysGenServerSettingService, Collections.emptyMap());
-            client.connect();
-
-            boolean connected = client.isConnected();
-
-            if (connected) {
-                client.disconnect();
-            }
-
-            return connected;
-        } catch (Exception e) {
-            log.error("RDP连接测试失败: {}", e.getMessage(), e);
-            return false;
-        }
+        return connect(server);
     }
 
     @Override

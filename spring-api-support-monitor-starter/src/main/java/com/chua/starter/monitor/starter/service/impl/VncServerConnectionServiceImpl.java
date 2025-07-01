@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,29 +58,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
 
     @Override
     public boolean testConnection(MonitorSysGenServer server) {
-        try {
-            log.info("测试VNC连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
-
-            // 使用GuacamoleClient创建VNC连接进行测试
-            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService,  Collections.emptyMap());
-            if (client == null) {
-                return false;
-            }
-
-            client.connect();
-
-            // 简化连接状态检查
-            boolean connected = true; // 假设连接成功
-
-            if (connected) {
-                client.close();
-            }
-
-            return connected;
-        } catch (Exception e) {
-            log.error("VNC连接测试失败: {}", e.getMessage(), e);
-            return false;
-        }
+        return connect(server);
     }
 
     @Override
