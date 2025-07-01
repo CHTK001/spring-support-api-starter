@@ -220,6 +220,14 @@
             <version>3.21.9</version>
         </dependency>
 
+        <!-- Guacamole 依赖 -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.guacamole</groupId>-->
+<!--            <artifactId>guacamole-common</artifactId>-->
+<!--            <version>1.5.4</version>-->
+<!--        </dependency>-->
+
+        <!-- JPA 依赖 (Spring Boot 3) -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

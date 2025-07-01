@@ -2,6 +2,7 @@ package com.chua.starter.monitor.starter.configuration;
 
 import com.chua.starter.monitor.starter.websocket.GuacamoleWebSocketInterceptor;
 import com.chua.starter.monitor.starter.websocket.RdpWebSocketHandler;
+import com.chua.starter.monitor.starter.websocket.TestWebSocketHandler;
 import com.chua.starter.monitor.starter.websocket.VncWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
 
     private final RdpWebSocketHandler rdpWebSocketHandler;
     private final VncWebSocketHandler vncWebSocketHandler;
+    private final TestWebSocketHandler testWebSocketHandler;
     private final GuacamoleWebSocketInterceptor webSocketInterceptor;
 
     @Override
@@ -33,6 +35,11 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
 
         // VNC WebSocket端点
         registry.addHandler(vncWebSocketHandler, "/websocket/vnc")
+                .addInterceptors(webSocketInterceptor)
+                .setAllowedOrigins("*");
+
+        // 测试 WebSocket端点
+        registry.addHandler(testWebSocketHandler, "/websocket/test")
                 .addInterceptors(webSocketInterceptor)
                 .setAllowedOrigins("*");
     }

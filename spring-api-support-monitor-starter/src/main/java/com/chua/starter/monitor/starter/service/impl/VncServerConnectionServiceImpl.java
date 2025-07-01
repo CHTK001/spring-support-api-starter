@@ -1,10 +1,13 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.net.NetUtils;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +63,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
             log.info("测试VNC连接: {}:{}", server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
 
             // 使用GuacamoleClient创建VNC连接进行测试
-            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService);
+            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService,  Collections.emptyMap());
             if (client == null) {
                 return false;
             }
@@ -83,41 +87,16 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
     @Override
     public boolean connect(MonitorSysGenServer server) {
         try {
-            Integer serverId = server.getMonitorSysGenServerId();
-
-            // 如果已经连接，先断开
-            if (vncConnectionPool.containsKey(serverId)) {
-                disconnect(serverId);
+            Integer monitorSysGenServerProxyId = server.getMonitorSysGenServerProxyId();
+            if(null == monitorSysGenServerProxyId) {
+                return NetUtils.isConnectable(server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
             }
-
-            // 使用GuacamoleClient创建VNC连接
-            GuacamoleClient client = RdpServerConnectionServiceImpl.createGuacamoleClient(server, monitorSysGenServerSettingService);
-            if (client == null) {
-                sendConnectionMessage(server, "connect_failed", false, "创建客户端失败");
+            ReturnResult<MonitorSysGenServerSetting> serverConfigResult = monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
+            if(!serverConfigResult.isOk()) {
                 return false;
             }
-
-            client.connect();
-
-            // 简化连接状态检查
-            boolean connected = true; // 假设连接成功
-
-            if (connected) {
-                vncConnectionPool.put(serverId, client);
-                serverConfigCache.put(serverId, server); // 缓存服务器配置
-                String sessionId = "vnc_" + serverId + "_" + System.currentTimeMillis();
-                sessionIdMap.put(serverId, sessionId);
-
-                // 发送连接成功消息
-                sendConnectionMessage(server, "connected", true, null);
-
-                log.info("VNC连接成功: {}@{}:{}", server.getMonitorSysGenServerUsername(),
-                        server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
-                return true;
-            } else {
-                sendConnectionMessage(server, "connect_failed", false, "连接失败");
-                return false;
-            }
+            MonitorSysGenServerSetting serverConfig = serverConfigResult.getData();
+            return NetUtils.isConnectable(serverConfig.getMonitorSysGenServerSettingProxyHost(), serverConfig.getMonitorSysGenServerSettingProxyPort());
         } catch (Exception e) {
             log.error("VNC连接失败: {}", e.getMessage(), e);
             sendConnectionMessage(server, "connect_error", false, e.getMessage());
