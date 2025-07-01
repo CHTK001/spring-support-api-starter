@@ -1,0 +1,158 @@
+# 指标阈值配置
+monitor:
+  metrics:
+    threshold:
+      # CPU使用率阈值配置
+      cpu:
+        normal: 50.0    # 正常阈值（绿色）- 低于此值显示绿色
+        warning: 80.0   # 警告阈值（黄色）- 介于normal和critical之间显示黄色
+        critical: 90.0  # 危险阈值（红色）- 高于此值显示红色
+      
+      # 内存使用率阈值配置
+      memory:
+        normal: 60.0
+        warning: 80.0
+        critical: 90.0
+      
+      # 磁盘使用率阈值配置
+      disk:
+        normal: 70.0
+        warning: 85.0
+        critical: 95.0
+      
+      # 温度阈值配置（摄氏度）
+      temperature:
+        normal: 50.0
+        warning: 70.0
+        critical: 85.0
+      
+      # 网络使用率阈值配置（基于带宽百分比）
+      network:
+        normal: 60.0
+        warning: 80.0
+        critical: 90.0
+
+# 服务器监控配置
+server:
+  monitor:
+    # 默认数据收集频率（秒）
+    default-collection-frequency: 30
+    
+    # 默认数据保留时间（天）
+    default-retention-days: 30
+    
+    # 网络速率计算配置
+    network:
+      # 速率计算窗口大小（秒）
+      calculation-window: 60
+      # 最大历史记录数
+      max-history-size: 100
+    
+    # 告警配置
+    alert:
+      # 默认告警检测频率（秒）
+      detection-frequency: 120
+      # 告警恢复检测频率（秒）
+      recovery-frequency: 300
+      # 告警静默时间（秒）
+      silence-duration: 1800
+    
+    # WebSocket推送配置
+    websocket:
+      # 实时数据推送频率（秒）
+      realtime-push-frequency: 30
+      # 状态汇总推送频率（秒）
+      status-summary-frequency: 60
+      # 性能趋势推送频率（秒）
+      performance-trends-frequency: 300
+      # 连接统计推送频率（秒）
+      connection-stats-frequency: 30
+      # 健康状态推送频率（秒）
+      health-status-frequency: 300
+    
+    # 数据清理配置
+    cleanup:
+      # 清理任务执行频率（秒）
+      frequency: 3600
+      # 过期数据清理阈值（天）
+      expired-data-threshold: 7
+      # 错误日志清理阈值（天）
+      error-log-threshold: 30
+
+# 颜色配置
+colors:
+  # 状态颜色
+  status:
+    normal: "#67c23a"    # 绿色
+    warning: "#e6a23c"   # 黄色
+    critical: "#f56c6c"  # 红色
+    info: "#409eff"      # 蓝色
+    offline: "#909399"   # 灰色
+  
+  # 进度条颜色
+  progress:
+    # CPU进度条颜色
+    cpu:
+      - color: "#67c23a"
+        percentage: 50
+      - color: "#e6a23c"
+        percentage: 80
+      - color: "#f56c6c"
+        percentage: 100
+    
+    # 内存进度条颜色
+    memory:
+      - color: "#67c23a"
+        percentage: 60
+      - color: "#e6a23c"
+        percentage: 80
+      - color: "#f56c6c"
+        percentage: 100
+    
+    # 磁盘进度条颜色
+    disk:
+      - color: "#67c23a"
+        percentage: 70
+      - color: "#e6a23c"
+        percentage: 85
+      - color: "#f56c6c"
+        percentage: 100
+    
+    # 温度进度条颜色
+    temperature:
+      - color: "#67c23a"
+        percentage: 50
+      - color: "#e6a23c"
+        percentage: 70
+      - color: "#f56c6c"
+        percentage: 100
+
+# 格式化配置
+format:
+  # 数字格式化
+  number:
+    # 小数位数
+    decimal-places: 2
+    # 千分位分隔符
+    thousands-separator: ","
+  
+  # 字节格式化
+  bytes:
+    # 单位
+    units: ["B", "KB", "MB", "GB", "TB", "PB"]
+    # 进制（1024 或 1000）
+    base: 1024
+  
+  # 时间格式化
+  time:
+    # 日期时间格式
+    datetime-format: "yyyy-MM-dd HH:mm:ss"
+    # 运行时间格式
+    uptime-format: "d天 H小时 m分钟"
+  
+  # 网络速率格式化
+  network-speed:
+    # 单位
+    units: ["B/s", "KB/s", "MB/s", "GB/s"]
+    # 包速率单位
+    packet-units: ["pps", "Kpps", "Mpps"]
