@@ -1,18 +1,10 @@
 package com.chua.starter.monitor.starter.task;
 
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 数据清理定时任务
@@ -23,95 +15,20 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class DataCleanupTask {
-
-    private final MonitorSysGenServerService serverService;
-    private final MonitorSysGenServerMetricsService metricsService;
-    private final MonitorSysGenServerSettingService serverSettingService;
 
     /**
      * 清理过期指标数据
-     * 每小时执行一次，根据服务器配置的数据保留天数清理过期数据
+     * 由于指标保存到Redis中，此任务已禁用
+     * Redis数据会根据TTL自动过期，无需手动清理
      */
-    @Scheduled(fixedRate = 3600000) // 1小时
+    // @Scheduled(fixedRate = 3600000) // 已禁用：指标数据保存到Redis中，自动过期
     public void cleanupExpiredMetrics() {
-        try {
-            log.debug("开始清理过期的服务器指标数据");
-
-            // 获取启用监控的服务器配置，根据各自的数据保留天数进行清理
-            ReturnResult<List<MonitorSysGenServerSetting>> settingsResult = serverSettingService.getMonitorEnabledSettings();
-            if (!settingsResult.isOk() || settingsResult.getData() == null) {
-                log.warn("获取服务器配置失败，使用默认保留天数进行清理");
-                cleanupMetricsWithRetentionDays(30); // 默认30天
-                return;
-            }
-
-            List<MonitorSysGenServerSetting> settings = settingsResult.getData();
-            int totalCleanedCount = 0;
-
-            for (MonitorSysGenServerSetting setting : settings) {
-                Integer retentionDays = setting.getMonitorSysGenServerSettingMetricsRetentionDays();
-                if (retentionDays == null || retentionDays <= 0) {
-                    retentionDays = 30; // 默认30天
-                }
-
-                // 为每个服务器清理过期数据
-                int cleanedCount = cleanupMetricsForServer(setting.getMonitorSysGenServerId(), retentionDays);
-                totalCleanedCount += cleanedCount;
-            }
-
-            if (totalCleanedCount > 0) {
-                log.info("过期指标数据清理完成，总共清理了 {} 条记录", totalCleanedCount);
-            } else {
-                log.debug("没有找到需要清理的过期指标数据");
-            }
-
-        } catch (Exception e) {
-            log.error("清理过期指标数据失败", e);
-        }
+        // 此方法已禁用，因为指标数据保存到Redis中，会根据TTL自动过期
+        log.debug("指标数据清理任务已禁用，Redis数据会自动过期");
     }
 
-    /**
-     * 为指定服务器清理过期指标数据
-     */
-    private int cleanupMetricsForServer(Integer serverId, Integer retentionDays) {
-        try {
-            ReturnResult<Integer> cleanResult = metricsService.deleteExpiredMetrics(serverId, retentionDays);
-            if (cleanResult.isOk()) {
-                int cleanedCount = cleanResult.getData();
-                if (cleanedCount > 0) {
-                    log.debug("服务器 {} 清理了 {} 条过期指标数据，保留天数: {}", serverId, cleanedCount, retentionDays);
-                }
-                return cleanedCount;
-            } else {
-                log.warn("服务器 {} 清理过期指标数据失败: {}", serverId, cleanResult.getMsg());
-                return 0;
-            }
-        } catch (Exception e) {
-            log.error("服务器 {} 清理过期指标数据失败", serverId, e);
-            return 0;
-        }
-    }
 
-    /**
-     * 使用指定保留天数清理所有服务器的指标数据
-     */
-    private void cleanupMetricsWithRetentionDays(Integer retentionDays) {
-        try {
-            ReturnResult<Integer> cleanResult = metricsService.deleteExpiredMetrics(null, retentionDays);
-            if (cleanResult.isOk()) {
-                int cleanedCount = cleanResult.getData();
-                if (cleanedCount > 0) {
-                    log.info("使用默认保留天数 {} 清理了 {} 条过期指标数据", retentionDays, cleanedCount);
-                }
-            } else {
-                log.warn("使用默认保留天数清理过期指标数据失败: {}", cleanResult.getMsg());
-            }
-        } catch (Exception e) {
-            log.error("使用默认保留天数清理过期指标数据失败", e);
-        }
-    }
 
     /**
      * 清理过期日志数据

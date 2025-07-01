@@ -235,6 +235,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.cloudsoft.windows</groupId>
+            <artifactId>winrm4j</artifactId>
+            <version>0.12.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>1.25.0</version>

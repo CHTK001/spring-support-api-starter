@@ -4,13 +4,13 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
+
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.AlertDetectionService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.starter.service.UnifiedAlertService;
 import com.chua.starter.monitor.starter.service.report.ReportHandler;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class LocalReportHandler implements ReportHandler {
     private final LocalSystemDataCollector dataCollector;
     @Autowired
     @Lazy
-    private  AlertDetectionService alertDetectionService;
+    private UnifiedAlertService unifiedAlertService;
     
     // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
@@ -84,31 +84,12 @@ public class LocalReportHandler implements ReportHandler {
 
             // 进行告警检测
             try {
-                // 获取服务器配置
-                ReturnResult<MonitorSysGenServerSetting> settingResult =
-                    serverSettingService.getByServerId(server.getMonitorSysGenServerId());
+                // 使用统一告警服务检测和推送告警
+                ReturnResult<Boolean> alertResult =
+                    unifiedAlertService.checkAndPushServerAlerts(server, metrics);
 
-                if (settingResult.isOk() && settingResult.getData() != null) {
-                    MonitorSysGenServerSetting setting = settingResult.getData();
-
-                    // 检测本地采集数据的告警
-                    ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
-                        alertDetectionService.detectMetricsAlerts(server, setting, metrics);
-
-                    if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
-                        log.info("本地采集数据检测到 {} 个告警: serverId={}",
-                            alertResult.getData().size(), server.getMonitorSysGenServerId());
-
-                        // 记录告警信息
-                        for (MonitorSysGenServerAlertHistory alert : alertResult.getData()) {
-                            log.warn("触发告警: serverId={}, type={}, level={}, currentValue={}, threshold={}",
-                                server.getMonitorSysGenServerId(),
-                                alert.getMonitorSysGenServerAlertHistoryType(),
-                                alert.getMonitorSysGenServerAlertHistoryLevel(),
-                                alert.getMonitorSysGenServerAlertHistoryCurrentValue(),
-                                alert.getMonitorSysGenServerAlertHistoryThresholdValue());
-                        }
-                    }
+                if (alertResult.isOk() && alertResult.getData() != null && alertResult.getData()) {
+                    log.info("本地采集数据检测到告警并已推送: serverId={}", server.getMonitorSysGenServerId());
                 }
             } catch (Exception e) {
                 // 告警检测失败不影响数据收集的成功
@@ -160,17 +141,7 @@ public class LocalReportHandler implements ReportHandler {
                 return ReturnResult.error("服务器不是本地服务器，无法使用本地上报方式");
             }
             
-            // 检查监控间隔 - 从配置表获取
-            ReturnResult<MonitorSysGenServerSetting> settingResult =
-                serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
 
-            if (settingResult.isOk() && settingResult.getData() != null) {
-                MonitorSysGenServerSetting setting = settingResult.getData();
-                if (setting.getMonitorSysGenServerSettingMonitorInterval() != null &&
-                    setting.getMonitorSysGenServerSettingMonitorInterval() < 5) {
-                    return ReturnResult.error("监控间隔不能小于5秒");
-                }
-            }
             
             return ReturnResult.success(true);
             
