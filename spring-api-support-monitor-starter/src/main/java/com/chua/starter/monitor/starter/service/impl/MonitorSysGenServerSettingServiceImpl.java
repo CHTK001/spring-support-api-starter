@@ -13,13 +13,16 @@ import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingBackupM
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,10 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
 
     private final MonitorSysGenServerSettingHistoryMapper historyMapper;
     private final MonitorSysGenServerSettingBackupMapper backupMapper;
+
+    @Autowired
+    @Lazy
+    private ServerTaskManagementService serverTaskManagementService;
 
     @Override
     public IPage<MonitorSysGenServerSetting> pageFor(Page<MonitorSysGenServerSetting> page, MonitorSysGenServerSetting entity) {
@@ -97,6 +104,18 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
             }
 
             boolean result = this.saveOrUpdate(setting);
+
+            // 如果保存成功，更新相关任务配置
+            if (result && setting.getMonitorSysGenServerId() != null) {
+                try {
+                    serverTaskManagementService.updateServerTasks(setting.getMonitorSysGenServerId());
+                    log.debug("更新服务器 {} 任务配置成功", setting.getMonitorSysGenServerId());
+                } catch (Exception e) {
+                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
+                    // 不影响配置保存的结果
+                }
+            }
+
             return ReturnResult.of(result, result ? "保存成功" : "保存失败");
         } catch (Exception e) {
             log.error("保存服务器配置失败: {}", e.getMessage(), e);
@@ -259,7 +278,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
             setting.setMonitorSysGenServerSettingReportEnabled(1); // 默认启用上报
             setting.setMonitorSysGenServerSettingDataReportMethod("API"); // 默认API上报
             setting.setMonitorSysGenServerSettingMetricsRetentionDays(30); // 默认保留30天
-            setting.setMonitorSysGenServerSettingMonitorInterval(60); // 默认60秒监控间隔
+
             setting.setMonitorSysGenServerSettingMonitorEnabled(1); // 默认启用监控
             
             // 设置默认告警阈值
@@ -350,13 +369,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
                 }
             }
             
-            // 验证监控间隔
-            if (setting.getMonitorSysGenServerSettingMonitorInterval() != null) {
-                Integer interval = setting.getMonitorSysGenServerSettingMonitorInterval();
-                if (interval <= 0 || interval > 3600) {
-                    return ReturnResult.error("监控间隔必须在1-3600秒之间");
-                }
-            }
+
             
             // 验证数据收集频率
             if (setting.getMonitorSysGenServerSettingDataCollectionFrequency() != null) {

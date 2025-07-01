@@ -716,7 +716,7 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingMonitorEnabled(1);
         setting.setMonitorSysGenServerSettingReportEnabled(1);
         setting.setMonitorSysGenServerSettingDataReportMethod(DataReportMethod.API.getCode());
-        setting.setMonitorSysGenServerSettingMonitorInterval(60);
+
         setting.setMonitorSysGenServerSettingDataCollectionFrequency(30);
         setting.setMonitorSysGenServerSettingMetricsRetentionDays(30);
 

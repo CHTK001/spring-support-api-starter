@@ -22,6 +22,7 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import com.chua.starter.monitor.starter.service.report.ReportManager;
+import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
 import com.chua.starter.monitor.starter.service.ServerConnectionWebSocketService;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,9 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Autowired
     @Lazy
     private MonitorSysGenServerSettingService monitorSysGenServerSettingService;
+    @Autowired
+    @Lazy
+    private ServerTaskManagementService serverTaskManagementService;
 
     /**
      * 重写save方法，自动检测服务器信息
@@ -92,6 +96,15 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
             if (result) {
                 log.info("服务器配置保存成功: {}", entity.getMonitorSysGenServerName());
+
+                // 创建服务器任务
+                try {
+                    serverTaskManagementService.createServerTasks(entity.getMonitorSysGenServerId());
+                    log.info("为新服务器 {} 创建任务成功", entity.getMonitorSysGenServerName());
+                } catch (Exception e) {
+                    log.error("为新服务器创建任务失败: {}", entity.getMonitorSysGenServerName(), e);
+                }
+
                 // 发送服务器创建消息
                 sendServerMessage(entity, "server_created", true, null);
             }
@@ -153,6 +166,14 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             boolean result = super.updateById(entity);
 
             if (result) {
+                // 更新服务器任务配置
+                try {
+                    serverTaskManagementService.updateServerTasks(entity.getMonitorSysGenServerId());
+                    log.info("更新服务器 {} 任务配置成功", entity.getMonitorSysGenServerName());
+                } catch (Exception e) {
+                    log.error("更新服务器任务配置失败: {}", entity.getMonitorSysGenServerName(), e);
+                }
+
                 // 发送服务器更新消息
                 sendServerMessage(entity, "server_updated", true, needDisconnect ? "连接配置已变更，已断开现有连接" : null);
                 log.info("服务器配置更新成功: {}", entity.getMonitorSysGenServerName());
@@ -497,7 +518,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getServerInfo(String id) {
+    public ReturnResult<MonitorSysGenServer> getServerInfo(String id) {
         if (StringUtils.isEmpty(id)) {
             return ReturnResult.error("服务器ID不能为空");
         }
@@ -508,17 +529,17 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         }
 
         try {
-            ServerConnectionService connectionService = getConnectionService(server.getMonitorSysGenServerProtocol());
-            if (connectionService == null) {
-                return ReturnResult.error("不支持的协议类型: " + server.getMonitorSysGenServerProtocol());
-            }
+//            ServerConnectionService connectionService = getConnectionService(server.getMonitorSysGenServerProtocol());
+//            if (connectionService == null) {
+//                return ReturnResult.error("不支持的协议类型: " + server.getMonitorSysGenServerProtocol());
+//            }
 
-            Map<String, Object> serverInfo = connectionService.getServerInfo(server.getMonitorSysGenServerId());
+//            Map<String, Object> serverInfo = connectionService.getServerInfo(server.getMonitorSysGenServerId());
 
             // 添加配置信息
-            serverInfo.put("config", server);
+//            serverInfo.put("config", server);
 
-            return ReturnResult.ok(serverInfo);
+            return ReturnResult.ok(server);
         } catch (Exception e) {
             log.error("获取服务器信息失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取服务器信息失败: " + e.getMessage());
@@ -765,7 +786,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             status.put("serverName", server.getMonitorSysGenServerName());
             // 从配置表获取监控相关信息
             status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
-            status.put("monitorInterval", setting != null ? setting.getMonitorSysGenServerSettingMonitorInterval() : 60);
+
             status.put("retentionDays", setting != null ? setting.getMonitorSysGenServerSettingMetricsRetentionDays() : 7);
             status.put("lastUpdateTime", server.getUpdateTime());
 
@@ -1922,6 +1943,17 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             Set<String> ids = Splitter.on(",").trimResults().omitEmptyStrings().splitToSet(id);
             if (ids.isEmpty()) {
                 return ReturnResult.ok();
+            }
+
+            // 在删除服务器前，先移除相关任务
+            for (String serverId : ids) {
+                try {
+                    Integer serverIdInt = Integer.valueOf(serverId);
+                    serverTaskManagementService.removeServerTasks(serverIdInt);
+                    log.info("移除服务器 {} 的任务成功", serverIdInt);
+                } catch (Exception e) {
+                    log.error("移除服务器 {} 任务失败: {}", serverId, e.getMessage());
+                }
             }
 
             boolean result = this.removeBatchByIds(ids);

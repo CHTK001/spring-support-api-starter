@@ -1,19 +1,16 @@
 package com.chua.starter.monitor.starter.task;
 
 
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-
-import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.starter.service.AlertDetectionService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-
 import com.chua.starter.monitor.starter.service.ServerLatencyService;
-import com.chua.starter.monitor.starter.service.AlertDetectionService;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
+import com.chua.starter.monitor.starter.websocket.RdpWebSocketHandler;
 import com.chua.starter.monitor.starter.websocket.SshWebSocketHandler;
 import com.chua.starter.monitor.starter.websocket.VncWebSocketHandler;
-import com.chua.starter.monitor.starter.websocket.RdpWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +22,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Iterator;
 
 
 /**
@@ -57,20 +54,6 @@ public class ConnectionStatusCheckTask {
 
     @Autowired(required = false)
     private RdpWebSocketHandler rdpWebSocketHandler;
-
-    /**
-     * 检查服务器连接状态
-     * 每5分钟执行一次
-     */
-    @Scheduled(fixedRate = 300000) // 5分钟
-    public void checkServerConnectionStatus() {
-        try {
-            log.debug("开始检查服务器连接状态");
-            // 这里可以根据需要实现具体的连接状态检查逻辑
-        } catch (Exception e) {
-            log.error("检查服务器连接状态失败", e);
-        }
-    }
 
     /**
      * 检测网络延迟
@@ -130,66 +113,6 @@ public class ConnectionStatusCheckTask {
         }
     }
 
-    /**
-     * 更新服务器在线状态
-     * 每30秒执行一次
-     */
-    @Scheduled(fixedRate = 30000) // 30秒
-    public void updateServerOnlineStatus() {
-        try {
-            log.debug("开始更新服务器在线状态");
-            // 这里可以根据需要实现具体的在线状态更新逻辑
-        } catch (Exception e) {
-            log.error("更新服务器在线状态失败", e);
-        }
-    }
-
-    /**
-     * 检查连接告警
-     * 每分钟执行一次
-     */
-    @Scheduled(fixedRate = 60000) // 1分钟
-    public void checkConnectionAlerts() {
-        try {
-            log.debug("开始检查连接告警");
-
-            List<MonitorSysGenServer> servers = serverService.list();
-            for (MonitorSysGenServer server : servers) {
-                try {
-                    // 检查服务器是否启用监控
-                    ReturnResult<MonitorSysGenServerSetting> settingResult =
-                        serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
-
-                    if (settingResult.isOk() && settingResult.getData() != null) {
-                        MonitorSysGenServerSetting setting = settingResult.getData();
-                        boolean monitorEnabled = setting.getMonitorSysGenServerSettingMonitorEnabled() != null &&
-                                               setting.getMonitorSysGenServerSettingMonitorEnabled() == 1;
-
-                        if (monitorEnabled) {
-                            // 获取服务器当前延迟
-                            Long latency = getServerLatency(server.getMonitorSysGenServerId());
-                            boolean isOnline = latency != null && latency >= 0;
-
-                            // 检测连接状态告警
-                            ReturnResult<MonitorSysGenServerAlertHistory> alertResult =
-                                alertDetectionService.detectConnectionAlert(
-                                    server.getMonitorSysGenServerId(), isOnline, latency);
-
-                            if (alertResult.isOk() && alertResult.getData() != null) {
-                                log.warn("检测到连接告警: serverId={}, isOnline={}, latency={}ms",
-                                    server.getMonitorSysGenServerId(), isOnline, latency);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("检查服务器连接告警失败: serverId={}", server.getMonitorSysGenServerId(), e);
-                }
-            }
-
-        } catch (Exception e) {
-            log.error("检查连接告警失败", e);
-        }
-    }
 
     /**
      * 保存延迟数据到数据库

@@ -183,7 +183,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器信息")
     @GetMapping("info")
-    public ReturnResult<Map<String, Object>> getServerInfo(@Parameter(name = "服务器ID") String id) {
+    public ReturnResult<MonitorSysGenServer> getServerInfo(@Parameter(name = "服务器ID") String id) {
         return monitorSysGenServerService.getServerInfo(id);
     }
 
