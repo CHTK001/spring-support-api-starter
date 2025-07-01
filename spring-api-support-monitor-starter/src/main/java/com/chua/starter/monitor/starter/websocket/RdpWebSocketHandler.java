@@ -73,16 +73,19 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String sessionId = session.getId();
-        log.info("Guacamole WebSocket连接建立: sessionId={}", sessionId);
+        URI uri = session.getUri();
+        log.info("Guacamole WebSocket连接建立: sessionId={}, uri={}", sessionId, uri);
 
         try {
             // 从URL参数获取服务器配置
             String serverId = getServerIdFromSession(session);
             if (serverId == null) {
-                log.error("无法获取服务器ID: sessionId={}", sessionId);
+                log.error("无法获取服务器ID: sessionId={}, uri={}", sessionId, uri);
                 session.close(CloseStatus.BAD_DATA.withReason("Missing serverId"));
                 return;
             }
+
+            log.info("获取到服务器ID: serverId={}", serverId);
 
             // 获取服务器信息
             MonitorSysGenServer server = serverService.getById(serverId);
@@ -91,6 +94,10 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
                 session.close(CloseStatus.BAD_DATA.withReason("Server not found"));
                 return;
             }
+
+            log.info("获取到服务器信息: serverId={}, host={}, port={}, protocol={}",
+                    serverId, server.getMonitorSysGenServerHost(),
+                    server.getMonitorSysGenServerPort(), server.getMonitorSysGenServerProtocol());
 
             // 创建Guacamole隧道
             GuacamoleTunnel tunnel = createGuacamoleTunnel(server, session);
@@ -120,9 +127,13 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
      */
     private GuacamoleTunnel createGuacamoleTunnel(MonitorSysGenServer server, WebSocketSession session) {
         try {
-            // 创建Guacamole配置
-            ReturnResult<MonitorSysGenServerSetting> byServerId = serverSettingService.getByServerId(server.getMonitorSysGenServerId());
+            log.info("开始创建Guacamole隧道: serverId={}", server.getMonitorSysGenServerId());
+
+            // 创建Guacamole配置，如果不存在则创建默认配置
+            ReturnResult<MonitorSysGenServerSetting> byServerId = serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
             if (!byServerId.isOk()) {
+                log.error("获取服务器设置失败: serverId={}, result={}",
+                        server.getMonitorSysGenServerId(), byServerId);
                 try {
                     afterConnectionClosed(session, CloseStatus.SERVER_ERROR);
                 } catch (Exception e) {
@@ -130,16 +141,39 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
                 }
                 return null;
             }
+
             MonitorSysGenServerSetting sysGenServerSetting = byServerId.getData();
-            GuacamoleConfiguration config = createGuacamoleConfiguration(server, session, sysGenServerSetting);
-            // 创建Guacamole Socket
-            InetGuacamoleSocket socket = new InetGuacamoleSocket(
+            log.info("获取到服务器设置: proxyHost={}, proxyPort={}",
                     sysGenServerSetting.getMonitorSysGenServerSettingProxyHost(),
                     sysGenServerSetting.getMonitorSysGenServerSettingProxyPort());
+
+            GuacamoleConfiguration config = createGuacamoleConfiguration(server, session, sysGenServerSetting);
+            log.info("创建Guacamole配置完成: protocol={}, hostname={}, port={}",
+                    config.getProtocol(), config.getParameter("hostname"), config.getParameter("port"));
+
+            // 检查代理服务是否可用
+            String proxyHost = sysGenServerSetting.getMonitorSysGenServerSettingProxyHost();
+            Integer proxyPort = sysGenServerSetting.getMonitorSysGenServerSettingProxyPort();
+
+            log.info("尝试连接到Guacamole代理: {}:{}", proxyHost, proxyPort);
+
+            // 创建Guacamole Socket
+            InetGuacamoleSocket socket;
+            try {
+                socket = new InetGuacamoleSocket(proxyHost, proxyPort);
+                log.info("创建InetGuacamoleSocket完成");
+            } catch (Exception e) {
+                log.error("无法连接到Guacamole代理 {}:{}, 错误: {}", proxyHost, proxyPort, e.getMessage());
+                // 如果无法连接到guacd，返回一个提示性的错误
+                throw new GuacamoleException("无法连接到Guacamole代理服务。请确保guacd服务正在运行在 " + proxyHost + ":" + proxyPort);
+            }
+
             ConfiguredGuacamoleSocket configuredSocket = new ConfiguredGuacamoleSocket(socket, config);
+            log.info("创建ConfiguredGuacamoleSocket完成");
 
             // 创建隧道
             SimpleGuacamoleTunnel tunnel = new SimpleGuacamoleTunnel(configuredSocket);
+            log.info("创建SimpleGuacamoleTunnel完成");
 
             log.info("Guacamole隧道创建成功: serverId={}, protocol={}",
                     server.getMonitorSysGenServerId(), server.getMonitorSysGenServerProtocol());
@@ -148,6 +182,10 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
 
         } catch (GuacamoleException e) {
             log.error("创建Guacamole隧道失败: serverId={}, error={}",
+                    server.getMonitorSysGenServerId(), e.getMessage(), e);
+            return null;
+        } catch (Exception e) {
+            log.error("创建Guacamole隧道异常: serverId={}, error={}",
                     server.getMonitorSysGenServerId(), e.getMessage(), e);
             return null;
         }
@@ -546,18 +584,25 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
     private String getServerIdFromSession(WebSocketSession session) {
         try {
             String query = session.getUri().getQuery();
-            if (query != null) {
-                query = query.replace("?", "&");
+            log.debug("原始查询字符串: {}", query);
+
+            if (query != null && !query.isEmpty()) {
+                // 直接解析查询参数，不需要替换?为&
                 String[] params = query.split("&");
                 for (String param : params) {
-                    String[] keyValue = param.split("=");
-                    if (keyValue.length == 2 && "serverId".equals(keyValue[0])) {
-                        return keyValue[1];
+                    if (param.contains("=")) {
+                        String[] keyValue = param.split("=", 2);
+                        if (keyValue.length == 2 && "serverId".equals(keyValue[0].trim())) {
+                            String serverId = keyValue[1].trim();
+                            log.debug("解析到服务器ID: {}", serverId);
+                            return serverId;
+                        }
                     }
                 }
             }
+            log.warn("未找到serverId参数，查询字符串: {}", query);
         } catch (Exception e) {
-            log.warn("获取服务器ID失败: {}", e.getMessage());
+            log.error("获取服务器ID失败: {}", e.getMessage(), e);
         }
         return null;
     }

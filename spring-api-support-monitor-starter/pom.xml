@@ -220,13 +220,6 @@
             <version>3.21.9</version>
         </dependency>
 
-        <!-- Guacamole 依赖 -->
-        <dependency>
-            <groupId>org.apache.guacamole</groupId>
-            <artifactId>guacamole-common</artifactId>
-            <version>1.5.5</version>
-        </dependency>
-
 
         <!-- JPA 依赖 (Spring Boot 3) -->
         <dependency>
@@ -287,6 +280,13 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-guacamole-starter</artifactId>
+        </dependency>
+
+        <!-- Apache Guacamole Common -->
+        <dependency>
+            <groupId>org.apache.guacamole</groupId>
+            <artifactId>guacamole-common</artifactId>
+            <version>1.6.0</version>
         </dependency>
 
         <dependency>

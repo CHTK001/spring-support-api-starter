@@ -276,7 +276,12 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
             setting.setMonitorSysGenServerSettingDataCollectionFrequency(30); // 默认30秒收集频率
             setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1); // 默认启用性能建议
             setting.setMonitorSysGenServerSettingStatus(1); // 默认启用状态
-            
+
+            // 设置默认代理配置（用于Guacamole连接）
+            setting.setMonitorSysGenServerSettingProxyEnabled(1); // 默认启用代理
+            setting.setMonitorSysGenServerSettingProxyHost("localhost"); // 默认代理主机
+            setting.setMonitorSysGenServerSettingProxyPort(4822); // 默认Guacamole代理端口
+
             setting.setCreateTime(LocalDateTime.now());
             setting.setUpdateTime(LocalDateTime.now());
             
