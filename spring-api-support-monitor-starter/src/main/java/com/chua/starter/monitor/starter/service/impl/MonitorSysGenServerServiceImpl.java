@@ -2138,4 +2138,30 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             return null;
         }
     }
+
+    @Override
+    public List<Integer> getAllOnlineServerIds() {
+        try {
+            return this.lambdaQuery()
+                    .eq(MonitorSysGenServer::getMonitorSysGenServerStatus, 1) // 1表示在线
+                    .list()
+                    .stream()
+                    .map(MonitorSysGenServer::getMonitorSysGenServerId)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("获取在线服务器ID列表失败: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public String getServerName(Integer serverId) {
+        try {
+            MonitorSysGenServer server = this.getById(serverId);
+            return server != null ? server.getMonitorSysGenServerName() : "未知服务器";
+        } catch (Exception e) {
+            log.error("获取服务器名称失败: serverId={}, error={}", serverId, e.getMessage());
+            return "未知服务器";
+        }
+    }
 }

@@ -38,6 +38,7 @@ public class ServerMetricsWebSocketService {
     private final MonitorSysGenServerMetricsService metricsService;
     private final List<ServerConnectionService> serverConnectionServices;
     private final LocalSystemDataCollector localSystemDataCollector;
+    private final NetworkSpeedCalculatorService networkSpeedCalculatorService;
 
     /**
      * WebSocket主题常量
@@ -597,17 +598,97 @@ public class ServerMetricsWebSocketService {
         data.put("serverId", metrics.getMonitorSysGenServerId());
         data.put("collectTime", metrics.getMonitorSysGenServerMetricsCollectTime());
         data.put("status", metrics.getMonitorSysGenServerMetricsStatus());
-        data.put("cpuUsage", metrics.getMonitorSysGenServerMetricsCpuUsage());
-        data.put("memoryUsage", metrics.getMonitorSysGenServerMetricsMemoryUsage());
-        data.put("memoryTotal", metrics.getMonitorSysGenServerMetricsMemoryTotal());
-        data.put("memoryUsed", metrics.getMonitorSysGenServerMetricsMemoryUsed());
-        data.put("diskUsage", metrics.getMonitorSysGenServerMetricsDiskUsage());
-        data.put("diskTotal", metrics.getMonitorSysGenServerMetricsDiskTotal());
-        data.put("diskUsed", metrics.getMonitorSysGenServerMetricsDiskUsed());
-        data.put("networkIn", metrics.getMonitorSysGenServerMetricsNetworkIn());
-        data.put("networkOut", metrics.getMonitorSysGenServerMetricsNetworkOut());
         data.put("responseTime", metrics.getMonitorSysGenServerMetricsResponseTime());
+
+        // CPU指标
+        Map<String, Object> cpu = new HashMap<>();
+        cpu.put("usage", metrics.getMonitorSysGenServerMetricsCpuUsage());
+        cpu.put("cores", metrics.getMonitorSysGenServerMetricsCpuCores());
+        cpu.put("load1m", metrics.getMonitorSysGenServerMetricsCpuLoad1m());
+        cpu.put("load5m", metrics.getMonitorSysGenServerMetricsCpuLoad5m());
+        cpu.put("load15m", metrics.getMonitorSysGenServerMetricsCpuLoad15m());
+        data.put("cpu", cpu);
+
+        // 内存指标
+        Map<String, Object> memory = new HashMap<>();
+        memory.put("usage", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+        memory.put("total", metrics.getMonitorSysGenServerMetricsMemoryTotal());
+        memory.put("used", metrics.getMonitorSysGenServerMetricsMemoryUsed());
+        memory.put("free", metrics.getMonitorSysGenServerMetricsMemoryFree());
+        data.put("memory", memory);
+
+        // 磁盘指标
+        Map<String, Object> disk = new HashMap<>();
+        disk.put("usage", metrics.getMonitorSysGenServerMetricsDiskUsage());
+        disk.put("total", metrics.getMonitorSysGenServerMetricsDiskTotal());
+        disk.put("used", metrics.getMonitorSysGenServerMetricsDiskUsed());
+        disk.put("free", metrics.getMonitorSysGenServerMetricsDiskFree());
+        data.put("disk", disk);
+
+        // 网络指标（包含速率计算）
+        Map<String, Object> network = new HashMap<>();
+        Long networkIn = metrics.getMonitorSysGenServerMetricsNetworkIn();
+        Long networkOut = metrics.getMonitorSysGenServerMetricsNetworkOut();
+
+        if (networkIn != null && networkOut != null) {
+            // 解析额外信息中的包统计
+            long inPackets = 0;
+            long outPackets = 0;
+            String extraInfo = metrics.getMonitorSysGenServerMetricsExtraInfo();
+            if (extraInfo != null) {
+                try {
+                    String[] parts = extraInfo.split(",");
+                    for (String part : parts) {
+                        if (part.startsWith("rx_packets:")) {
+                            inPackets = Long.parseLong(part.substring("rx_packets:".length()));
+                        } else if (part.startsWith("tx_packets:")) {
+                            outPackets = Long.parseLong(part.substring("tx_packets:".length()));
+                        }
+                    }
+                } catch (Exception e) {
+                    log.debug("解析网络包统计失败: {}", extraInfo);
+                }
+            }
+
+            // 计算网络速率
+            NetworkSpeedCalculatorService.NetworkSpeedResult speedResult =
+                networkSpeedCalculatorService.calculateSpeed(
+                    metrics.getMonitorSysGenServerId(),
+                    networkIn, networkOut, inPackets, outPackets);
+
+            network.put("in", speedResult.getInSpeed());
+            network.put("out", speedResult.getOutSpeed());
+            network.put("totalInBytes", speedResult.getTotalInBytes());
+            network.put("totalOutBytes", speedResult.getTotalOutBytes());
+            network.put("inPacketRate", speedResult.getInPacketRate());
+            network.put("outPacketRate", speedResult.getOutPacketRate());
+        } else {
+            network.put("in", 0);
+            network.put("out", 0);
+            network.put("totalInBytes", 0);
+            network.put("totalOutBytes", 0);
+            network.put("inPacketRate", 0);
+            network.put("outPacketRate", 0);
+        }
+        data.put("network", network);
+
+        // 系统信息
         data.put("osInfo", metrics.getMonitorSysGenServerMetricsOsInfo());
+        data.put("uptime", metrics.getMonitorSysGenServerMetricsUptime());
+        data.put("processCount", metrics.getMonitorSysGenServerMetricsProcessCount());
+
+        // 解析额外信息中的其他系统信息
+        String extraInfo = metrics.getMonitorSysGenServerMetricsExtraInfo();
+        if (extraInfo != null) {
+            String[] parts = extraInfo.split(",");
+            for (String part : parts) {
+                if (part.startsWith("hostname:")) {
+                    data.put("hostname", part.substring("hostname:".length()));
+                } else if (part.startsWith("load_avg:")) {
+                    data.put("loadAverage", part.substring("load_avg:".length()));
+                }
+            }
+        }
 
         return data;
     }

@@ -443,4 +443,19 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      */
     ReturnResult<Void> checkMemoryUsage();
 
+    /**
+     * 获取所有在线服务器ID
+     *
+     * @return 在线服务器ID列表
+     */
+    List<Integer> getAllOnlineServerIds();
+
+    /**
+     * 获取服务器名称
+     *
+     * @param serverId 服务器ID
+     * @return 服务器名称
+     */
+    String getServerName(Integer serverId);
+
 }
