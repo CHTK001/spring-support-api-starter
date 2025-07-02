@@ -4,19 +4,26 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.starter.service.ServerMetricsWebSocketService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +39,18 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
 
     private final TimeSeriesService timeSeriesService;
     private final MonitorSysGenServerSettingService serverSettingService;
+    private final MonitorSysGenServerService serverService;
+    @Autowired
+    @Lazy
+    private ServerMetricsWebSocketService serverMetricsWebSocketService;
 
     private static final String REDIS_METRICS_PREFIX = "SERVER:server:metrics:";
     private static final String REDIS_LATEST_PREFIX = "SERVER:server:latest:";
+
+    // 防重复触发推送的缓存，记录最近触发推送的服务器ID和时间
+    private final Map<Integer, Long> recentTriggerCache = new ConcurrentHashMap<>();
+    // 触发推送的最小间隔时间（毫秒），默认30秒
+    private static final long TRIGGER_INTERVAL_MS = 30 * 1000;
 
     @Override
     public IPage<MonitorSysGenServerMetrics> pageFor(Page<MonitorSysGenServerMetrics> page, MonitorSysGenServerMetrics entity) {
@@ -167,6 +183,8 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             Map<String, String> latestData = timeSeriesService.hGet(key);
 
             if (latestData == null || latestData.isEmpty()) {
+                // 当指标数据为空时，触发指标推送
+                triggerMetricsPushForEmptyData(serverId);
                 return ReturnResult.ok(null);
             }
 
@@ -985,6 +1003,137 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
         } catch (Exception e) {
             log.error("获取最新指标数据失败: serverId={}, error={}", serverId, e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * 获取最新指标数据（不触发推送版本）
+     * 用于定时任务等内部调用，避免循环触发推送
+     *
+     * @param serverId 服务器ID
+     * @return 最新指标数据
+     */
+    public ReturnResult<MonitorSysGenServerMetrics> getLatestMetricsWithoutTrigger(Integer serverId) {
+        try {
+            String key = REDIS_LATEST_PREFIX + serverId;
+            Map<String, String> latestData = timeSeriesService.hGet(key);
+
+            if (latestData == null || latestData.isEmpty()) {
+                // 不触发推送，直接返回空数据
+                return ReturnResult.ok(null);
+            }
+
+            MonitorSysGenServerMetrics metrics = convertHashToMetrics(latestData, serverId);
+            return ReturnResult.ok(metrics);
+        } catch (Exception e) {
+            log.error("获取最新指标数据失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取最新指标数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取最新指标数据（不触发推送版本，直接返回对象）
+     * 用于定时任务等内部调用，避免循环触发推送
+     *
+     * @param serverId 服务器ID
+     * @return 最新指标数据，如果不存在返回null
+     */
+    public MonitorSysGenServerMetrics getLatestMetricsDirectlyWithoutTrigger(Integer serverId) {
+        try {
+            ReturnResult<MonitorSysGenServerMetrics> result = getLatestMetricsWithoutTrigger(serverId);
+            return result.isOk() ? result.getData() : null;
+        } catch (Exception e) {
+            log.error("获取最新指标数据失败: serverId={}, error={}", serverId, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 当指标数据为空时触发指标推送
+     *
+     * @param serverId 服务器ID
+     */
+    private void triggerMetricsPushForEmptyData(Integer serverId) {
+        try {
+            // 检查是否在最小间隔时间内已经触发过
+            long currentTime = System.currentTimeMillis();
+            Long lastTriggerTime = recentTriggerCache.get(serverId);
+
+            if (lastTriggerTime != null && (currentTime - lastTriggerTime) < TRIGGER_INTERVAL_MS) {
+                log.debug("服务器 {} 在 {}ms 内已触发过指标推送，跳过本次触发",
+                    serverId, currentTime - lastTriggerTime);
+                return;
+            }
+
+            log.info("服务器 {} 指标数据为空，触发指标推送", serverId);
+
+            // 获取服务器信息
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server == null) {
+                log.warn("服务器不存在，无法触发指标推送: serverId={}", serverId);
+                return;
+            }
+
+            // 获取服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                log.warn("获取服务器配置失败，无法触发指标推送: serverId={}", serverId);
+                return;
+            }
+
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 检查监控是否启用
+            if (setting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
+                log.debug("服务器 {} 监控未启用，跳过指标推送", serverId);
+                return;
+            }
+
+            // 记录触发时间，防止重复触发
+            recentTriggerCache.put(serverId, currentTime);
+
+            // 异步触发指标推送，避免阻塞当前请求
+            CompletableFuture.runAsync(() -> {
+                try {
+                    // 使用WebSocket服务推送指标数据
+                    serverMetricsWebSocketService.pushSingleServerMetricsByConfig(server, setting);
+                    log.info("成功触发服务器 {} 指标推送", serverId);
+                } catch (Exception e) {
+                    log.error("触发服务器 {} 指标推送失败: {}", serverId, e.getMessage(), e);
+                    // 推送失败时移除缓存记录，允许下次重试
+                    recentTriggerCache.remove(serverId);
+                }
+            });
+
+        } catch (Exception e) {
+            log.error("触发指标推送时发生异常: serverId={}", serverId, e);
+        }
+    }
+
+    /**
+     * 清理过期的触发缓存记录
+     * 定期调用此方法清理超过间隔时间的缓存记录
+     */
+    public void cleanupExpiredTriggerCache() {
+        try {
+            long currentTime = System.currentTimeMillis();
+            int removedCount = 0;
+
+            Iterator<Map.Entry<Integer, Long>> iterator = recentTriggerCache.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Integer, Long> entry = iterator.next();
+                if (currentTime - entry.getValue() > TRIGGER_INTERVAL_MS) {
+                    iterator.remove();
+                    removedCount++;
+                }
+            }
+
+            if (removedCount > 0) {
+                log.debug("清理了 {} 个过期的触发缓存记录", removedCount);
+            }
+        } catch (Exception e) {
+            log.error("清理触发缓存时发生异常", e);
         }
     }
 

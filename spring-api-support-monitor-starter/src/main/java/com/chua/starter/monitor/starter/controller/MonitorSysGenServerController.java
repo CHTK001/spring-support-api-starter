@@ -7,6 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -38,6 +39,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 public class MonitorSysGenServerController {
 
     private final MonitorSysGenServerService monitorSysGenServerService;
+    private final MonitorSysGenServerMetricsService metricsService;
 
     /**
      * 根据主键删除数据
@@ -111,6 +113,34 @@ public class MonitorSysGenServerController {
     @GetMapping("detail/{id}")
     public ReturnResult<ServerWithConfigDto> getByIdAndConfig(@Parameter(name = "服务器ID") @PathVariable String id) {
         return monitorSysGenServerService.getByIdAndConfig(id);
+    }
+
+    /**
+     * 获取服务器详情页指标数据
+     * 当指标数据为空时自动触发指标推送
+     *
+     * @param serverId 服务器ID
+     * @return 指标数据
+     */
+    @ResponseBody
+    @Operation(summary = "获取服务器详情页指标数据")
+    @GetMapping("detail/{serverId}/metrics")
+    public ReturnResult<MonitorSysGenServerMetrics> getServerDetailMetrics(
+            @Parameter(name = "服务器ID") @PathVariable Integer serverId) {
+        try {
+            // 获取最新指标数据，如果为空会自动触发推送
+            ReturnResult<MonitorSysGenServerMetrics> result = metricsService.getLatestMetrics(serverId);
+
+            if (result.isOk() && result.getData() == null) {
+                log.info("服务器 {} 详情页请求指标数据为空，已触发指标推送", serverId);
+                return ReturnResult.ok(null, "指标数据为空，已触发数据收集");
+            }
+
+            return result;
+        } catch (Exception e) {
+            log.error("获取服务器详情页指标数据失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取指标数据失败: " + e.getMessage());
+        }
     }
 
     /**

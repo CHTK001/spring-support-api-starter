@@ -51,7 +51,9 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         implements MonitorSysGenServerService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final ReportManager reportManager;
+    @Autowired
+    @Lazy
+    private ReportManager reportManager;
     private final List<ServerConnectionService> connectionServices;
     @Autowired
     @Lazy
