@@ -130,6 +130,11 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String SERVER_UPDATE = "server_update";
         public static final String SERVER_DELETE = "server_delete";
         public static final String SERVER_ADD = "server_add";
+        public static final String SERVER_CREATED = "server_created";
+        public static final String SERVER_UPDATED = "server_updated";
+        public static final String SERVER_HEALTH = "server_health";
+        public static final String SERVER_LATENCY = "server_latency";
+        public static final String BATCH_SERVER_LATENCY = "batch_server_latency";
         public static final String SERVER_METRICS = "server_metrics";
         public static final String CONNECTION_TEST_RESULT = "connection_test_result";
         public static final String SSH_DATA = "ssh_data";

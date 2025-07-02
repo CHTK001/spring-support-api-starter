@@ -108,7 +108,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 }
 
                 // 发送服务器创建消息
-                sendServerMessage(entity, "server_created", true, null);
+                sendServerMessage(entity, ServerWebSocketMessage.MessageType.SERVER_CREATED, true, null);
             }
 
             return result;
@@ -177,7 +177,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 }
 
                 // 发送服务器更新消息
-                sendServerMessage(entity, "server_updated", true, needDisconnect ? "连接配置已变更，已断开现有连接" : null);
+                sendServerMessage(entity, ServerWebSocketMessage.MessageType.SERVER_UPDATED, true, needDisconnect ? "连接配置已变更，已断开现有连接" : null);
                 log.info("服务器配置更新成功: {}", entity.getMonitorSysGenServerName());
             }
 
@@ -1057,17 +1057,17 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     /**
      * 发送服务器消息
      */
-    private void sendServerMessage(MonitorSysGenServer server, String action, boolean success, String error) {
+    private void sendServerMessage(MonitorSysGenServer server, String messageType, boolean success, String error) {
         try {
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("server_" + action)
+                    .messageType(messageType)
                     .serverId(server.getMonitorSysGenServerId())
                     .serverName(server.getMonitorSysGenServerName())
                     .serverHost(server.getMonitorSysGenServerHost())
                     .serverPort(server.getMonitorSysGenServerPort())
                     .serverProtocol(server.getMonitorSysGenServerProtocol())
                     .errorMessage(error)
-                    .data(Map.of("action", action, "success", success))
+                    .data(Map.of("messageType", messageType, "success", success))
                     .timestamp(System.currentTimeMillis())
                     .build();
 
@@ -1859,7 +1859,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 healthData.put("checkTime", System.currentTimeMillis());
 
                 ServerWebSocketMessage wsMessage = ServerWebSocketMessage.builder()
-                    .messageType("server_health")
+                    .messageType(ServerWebSocketMessage.MessageType.SERVER_HEALTH)
                     .serverId(serverId)
                     .serverName(server.getMonitorSysGenServerName())
                     .data(healthData)
