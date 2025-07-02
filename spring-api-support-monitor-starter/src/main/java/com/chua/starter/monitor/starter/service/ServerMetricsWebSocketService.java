@@ -7,6 +7,7 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.starter.service.impl.MonitorSysGenServerMetricsServiceImpl;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,54 +44,6 @@ public class ServerMetricsWebSocketService {
      * WebSocket主题常量
      */
     private static final String TOPIC_SERVER_METRICS = "gen/server";
-
-    /**
-     * 推送实时指标数据
-     * 由task包中的定时任务调用
-     */
-    public void pushRealTimeMetrics() {
-        try {
-            // 获取所有启用状态的服务器
-            List<MonitorSysGenServer> allServers = serverService.list().stream()
-                    .filter(server -> server.getMonitorSysGenServerStatus() != null &&
-                            server.getMonitorSysGenServerStatus() == 1)
-                    .toList();
-
-            // 过滤出启用监控的服务器
-            List<MonitorSysGenServer> servers = new ArrayList<>();
-            for (MonitorSysGenServer server : allServers) {
-                try {
-                    ReturnResult<MonitorSysGenServerSetting> settingResult =
-                        serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
-                    if (settingResult.isOk() && settingResult.getData() != null) {
-                        MonitorSysGenServerSetting setting = settingResult.getData();
-                        if (setting.getMonitorSysGenServerSettingMonitorEnabled() != null &&
-                            setting.getMonitorSysGenServerSettingMonitorEnabled() == 1) {
-                            servers.add(server);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.warn("获取服务器配置失败，跳过: serverId={}, error={}",
-                        server.getMonitorSysGenServerId(), e.getMessage());
-                }
-            }
-
-            for (MonitorSysGenServer server : servers) {
-                try {
-                    MonitorSysGenServerMetrics metrics = collectLatestMetrics(server);
-                    if (metrics != null) {
-                        pushServerMetrics(server, metrics);
-                    }
-                } catch (Exception e) {
-                    log.error("推送服务器 {} 指标数据失败: {}", 
-                            server.getMonitorSysGenServerName(), e.getMessage(), e);
-                }
-            }
-
-        } catch (Exception e) {
-            log.error("推送实时指标数据失败", e);
-        }
-    }
 
     /**
      * 推送服务器状态汇总
@@ -436,10 +388,12 @@ public class ServerMetricsWebSocketService {
     private MonitorSysGenServerMetrics collectMetricsFromDatabase(MonitorSysGenServer server) {
         try {
             // 获取最新的指标数据（客户端推送的数据已存储在数据库中）
-            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
-            if (latestMetrics != null && latestMetrics.getData() != null) {
+            // 使用不触发推送的版本，避免循环调用
+            MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
+                .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
+            if (metrics != null) {
                 log.debug("从数据库获取服务器 {} 最新指标数据", server.getMonitorSysGenServerName());
-                return latestMetrics.getData();
+                return metrics;
             }
 
             log.warn("服务器 {} 没有找到最新的指标数据", server.getMonitorSysGenServerName());
@@ -710,9 +664,10 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
-                    if (latestMetrics != null && latestMetrics.getData() != null) {
-                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
+                    // 使用不触发推送的版本，避免循环调用
+                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
+                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
+                    if (metrics != null) {
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
                             onlineServers++;
 
@@ -753,9 +708,10 @@ public class ServerMetricsWebSocketService {
         List<Map<String, Object>> alerts = new java.util.ArrayList<>();
 
         try {
-            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
-            if (latestMetrics != null && latestMetrics.getData() != null) {
-                MonitorSysGenServerMetrics metrics = latestMetrics.getData();
+            // 使用不触发推送的版本，避免循环调用
+            MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
+                .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
+            if (metrics != null) {
 
                 // 检查CPU告警
                 if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null &&
@@ -862,9 +818,10 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
-                    if (latestMetrics != null && latestMetrics.getData() != null) {
-                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
+                    // 使用不触发推送的版本，避免循环调用
+                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
+                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
+                    if (metrics != null) {
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
                             onlineServers++;
                         } else {
@@ -906,9 +863,10 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
-                    if (latestMetrics != null && latestMetrics.getData() != null) {
-                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
+                    // 使用不触发推送的版本，避免循环调用
+                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
+                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
+                    if (metrics != null) {
 
                         if (isCriticalState(metrics)) {
                             criticalServers++;
