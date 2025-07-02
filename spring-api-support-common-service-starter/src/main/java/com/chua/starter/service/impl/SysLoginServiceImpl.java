@@ -71,6 +71,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+        log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }

@@ -166,7 +166,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
             // 构建WebSocket消息
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("server_latency")
+                    .messageType(ServerWebSocketMessage.MessageType.SERVER_LATENCY)
                     .serverId(serverId)
                     .serverName(server.getMonitorSysGenServerName())
                     .data(latencyData)
