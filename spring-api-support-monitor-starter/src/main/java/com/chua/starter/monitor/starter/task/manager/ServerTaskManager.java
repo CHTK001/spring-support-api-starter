@@ -3,20 +3,24 @@ package com.chua.starter.monitor.starter.task.manager;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerMetricsWebSocketService;
 import com.chua.starter.monitor.starter.service.UnifiedAlertService;
+import com.chua.starter.monitor.starter.service.impl.MonitorSysGenServerMetricsServiceImpl;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -36,6 +40,7 @@ public class ServerTaskManager {
     private final MonitorSysGenServerSettingService serverSettingService;
     private final ServerMetricsWebSocketService serverMetricsWebSocketService;
     private final UnifiedAlertService unifiedAlertService;
+    private final MonitorSysGenServerMetricsService metricsService;
 
     // 定时任务执行器
     private ScheduledExecutorService scheduledExecutorService;
@@ -167,6 +172,11 @@ public class ServerTaskManager {
             this::cleanupInvalidTasks, 3600, 3600, TimeUnit.SECONDS);
         globalTasks.put("cleanup", cleanupTask);
 
+        // 清理指标推送触发缓存 - 每10分钟
+        ScheduledFuture<?> cacheCleanupTask = scheduledExecutorService.scheduleAtFixedRate(
+            this::cleanupMetricsTriggerCache, 600, 600, TimeUnit.SECONDS);
+        globalTasks.put("cacheCleanup", cacheCleanupTask);
+
         log.info("全局任务启动完成");
     }
 
@@ -181,7 +191,7 @@ public class ServerTaskManager {
     /**
      * 初始化所有服务器的任务
      */
-    private void initializeServerTasks() {
+    public void initializeServerTasks() {
         try {
             List<MonitorSysGenServer> servers = serverService.list().stream()
                 .filter(server -> server.getMonitorSysGenServerStatus() != null &&
@@ -254,10 +264,7 @@ public class ServerTaskManager {
             return;
         }
 
-        Integer frequency = setting.getMonitorSysGenServerSettingDataCollectionFrequency();
-        if (frequency == null || frequency <= 0) {
-            frequency = 30; // 默认30秒
-        }
+        Integer frequency = getEffectiveCollectionFrequency(setting);
 
         ScheduledFuture<?> task = scheduledExecutorService.scheduleAtFixedRate(
             () -> collectAndPushMetrics(server, setting),
@@ -460,5 +467,221 @@ public class ServerTaskManager {
         stats.put("activeGlobalTasks", activeGlobalTasks);
 
         return stats;
+    }
+
+    /**
+     * 获取有效的数据收集频率
+     */
+    private Integer getEffectiveCollectionFrequency(MonitorSysGenServerSetting setting) {
+        Integer frequency = setting.getMonitorSysGenServerSettingDataCollectionFrequency();
+        if (frequency == null || frequency <= 0) {
+            frequency = 30; // 默认30秒
+        }
+
+        // 确保频率在合理范围内
+        if (frequency < 10) {
+            frequency = 10; // 最小10秒
+        } else if (frequency > 3600) {
+            frequency = 3600; // 最大1小时
+        }
+
+        return frequency;
+    }
+
+    /**
+     * 获取有效的监控间隔
+     */
+    private Integer getEffectiveMonitorInterval(MonitorSysGenServerSetting setting) {
+        Integer interval = setting.getMonitorSysGenServerSettingMonitorInterval();
+        if (interval == null || interval <= 0) {
+            interval = 120; // 默认2分钟
+        }
+
+        // 确保间隔在合理范围内
+        if (interval < 30) {
+            interval = 30; // 最小30秒
+        } else if (interval > 3600) {
+            interval = 3600; // 最大1小时
+        }
+
+        return interval;
+    }
+
+    /**
+     * 检查任务配置是否需要更新
+     */
+    private boolean needsTaskUpdate(ServerTaskInfo taskInfo, MonitorSysGenServerSetting newSetting) {
+        if (taskInfo.getCurrentSetting() == null) {
+            return true;
+        }
+
+        MonitorSysGenServerSetting currentSetting = taskInfo.getCurrentSetting();
+
+        // 检查数据收集频率是否变化
+        Integer currentFreq = getEffectiveCollectionFrequency(currentSetting);
+        Integer newFreq = getEffectiveCollectionFrequency(newSetting);
+        if (!currentFreq.equals(newFreq)) {
+            return true;
+        }
+
+        // 检查监控间隔是否变化
+        Integer currentInterval = getEffectiveMonitorInterval(currentSetting);
+        Integer newInterval = getEffectiveMonitorInterval(newSetting);
+        if (!currentInterval.equals(newInterval)) {
+            return true;
+        }
+
+        // 检查监控启用状态是否变化
+        if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingMonitorEnabled(),
+                newSetting.getMonitorSysGenServerSettingMonitorEnabled())) {
+            return true;
+        }
+
+        // 检查告警启用状态是否变化
+        if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
+                newSetting.getMonitorSysGenServerSettingAlertEnabled())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 智能更新服务器任务
+     * 只有当配置真正发生变化时才重新创建任务
+     */
+    public void smartUpdateServerTasks(Integer serverId) {
+        try {
+            ServerTaskInfo taskInfo = serverTasks.get(serverId);
+            if (taskInfo == null) {
+                // 如果任务不存在，直接创建
+                createServerTasks(serverId);
+                return;
+            }
+
+            // 获取最新的服务器设置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getOrCreateSetting(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                log.warn("无法获取服务器设置，跳过任务更新: serverId={}", serverId);
+                return;
+            }
+
+            MonitorSysGenServerSetting newSetting = settingResult.getData();
+
+            // 检查是否需要更新
+            if (needsTaskUpdate(taskInfo, newSetting)) {
+                log.info("检测到服务器 {} 配置变化，重新创建任务", serverId);
+                createServerTasks(serverId);
+            } else {
+                log.debug("服务器 {} 配置未变化，跳过任务更新", serverId);
+            }
+        } catch (Exception e) {
+            log.error("智能更新服务器任务失败: serverId={}", serverId, e);
+        }
+    }
+
+    /**
+     * 获取服务器任务状态信息
+     */
+    public Map<String, Object> getServerTaskStatus(Integer serverId) {
+        Map<String, Object> status = new HashMap<>();
+
+        ServerTaskInfo taskInfo = serverTasks.get(serverId);
+        if (taskInfo == null) {
+            status.put("exists", false);
+            status.put("message", "任务不存在");
+            return status;
+        }
+
+        status.put("exists", true);
+        status.put("serverId", serverId);
+
+        // 检查各个任务的状态
+        Map<String, Object> taskStatus = new HashMap<>();
+        taskStatus.put("metricsCollection", getTaskStatus(taskInfo.getMetricsCollectionTask()));
+        taskStatus.put("alertDetection", getTaskStatus(taskInfo.getAlertDetectionTask()));
+        taskStatus.put("healthCheck", getTaskStatus(taskInfo.getHealthCheckTask()));
+
+        status.put("tasks", taskStatus);
+
+        // 添加当前配置信息
+        if (taskInfo.getCurrentSetting() != null) {
+            Map<String, Object> config = new HashMap<>();
+            config.put("collectionFrequency", getEffectiveCollectionFrequency(taskInfo.getCurrentSetting()));
+            config.put("monitorInterval", getEffectiveMonitorInterval(taskInfo.getCurrentSetting()));
+            config.put("monitorEnabled", taskInfo.getCurrentSetting().getMonitorSysGenServerSettingMonitorEnabled());
+            config.put("alertEnabled", taskInfo.getCurrentSetting().getMonitorSysGenServerSettingAlertEnabled());
+            status.put("config", config);
+        }
+
+        return status;
+    }
+
+    /**
+     * 获取单个任务的状态
+     */
+    private Map<String, Object> getTaskStatus(ScheduledFuture<?> task) {
+        Map<String, Object> status = new HashMap<>();
+        if (task == null) {
+            status.put("exists", false);
+            status.put("status", "not_created");
+        } else {
+            status.put("exists", true);
+            status.put("cancelled", task.isCancelled());
+            status.put("done", task.isDone());
+            status.put("status", task.isCancelled() ? "cancelled" :
+                              task.isDone() ? "completed" : "running");
+        }
+        return status;
+    }
+
+    /**
+     * 获取所有任务的概览信息
+     */
+    public Map<String, Object> getAllTasksOverview() {
+        Map<String, Object> overview = new HashMap<>();
+
+        overview.put("totalServers", serverTasks.size());
+        overview.put("globalTasks", globalTasks.size());
+
+        // 统计各种状态的任务数量
+        int activeServers = 0;
+        int inactiveServers = 0;
+
+        for (ServerTaskInfo taskInfo : serverTasks.values()) {
+            boolean hasActiveTasks = false;
+
+            if (taskInfo.getMetricsCollectionTask() != null &&
+                !taskInfo.getMetricsCollectionTask().isCancelled() &&
+                !taskInfo.getMetricsCollectionTask().isDone()) {
+                hasActiveTasks = true;
+            }
+
+            if (hasActiveTasks) {
+                activeServers++;
+            } else {
+                inactiveServers++;
+            }
+        }
+
+        overview.put("activeServers", activeServers);
+        overview.put("inactiveServers", inactiveServers);
+
+        return overview;
+    }
+
+    /**
+     * 清理指标推送触发缓存
+     */
+    private void cleanupMetricsTriggerCache() {
+        try {
+            if (metricsService instanceof MonitorSysGenServerMetricsServiceImpl) {
+                ((MonitorSysGenServerMetricsServiceImpl) metricsService).cleanupExpiredTriggerCache();
+                log.debug("清理指标推送触发缓存完成");
+            }
+        } catch (Exception e) {
+            log.error("清理指标推送触发缓存失败", e);
+        }
     }
 }
