@@ -28,7 +28,23 @@ public class PrometheusDataCollectorService {
     private final Map<Integer, PrometheusConnection> connectionCache = new ConcurrentHashMap<>();
 
     public PrometheusDataCollectorService() {
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = createRestTemplate();
+    }
+
+    /**
+     * 创建配置好的RestTemplate
+     */
+    private RestTemplate createRestTemplate() {
+        RestTemplate template = new RestTemplate();
+
+        // 设置超时时间
+        org.springframework.http.client.HttpComponentsClientHttpRequestFactory factory =
+            new org.springframework.http.client.HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(10000); // 10秒连接超时
+        factory.setReadTimeout(30000);    // 30秒读取超时
+        template.setRequestFactory(factory);
+
+        return template;
     }
 
     /**
@@ -60,11 +76,16 @@ public class PrometheusDataCollectorService {
      * @return 指标数据
      */
     public ServerMetricsData collectMetrics(Integer serverId, MonitorSysGenServerSetting setting) {
+        if (serverId == null || setting == null) {
+            log.warn("参数不能为空: serverId={}, setting={}", serverId, setting);
+            return null;
+        }
+
         try {
             PrometheusConnection connection = getOrCreateConnection(serverId, setting);
             if (!connection.isConnected()) {
-                log.warn("Prometheus连接未建立，服务器ID: {}", serverId);
-                return null;
+                log.warn("Prometheus连接未建立，服务器ID: {}, 错误: {}", serverId, connection.getErrorMessage());
+                return createDefaultMetrics(serverId);
             }
 
             ServerMetricsData metricsData = new ServerMetricsData();
@@ -78,11 +99,30 @@ public class PrometheusDataCollectorService {
             collectNetworkMetrics(connection, metricsData);
             collectSystemMetrics(connection, metricsData);
 
+            // 设置服务器状态
+            metricsData.setStatus(1); // 在线状态
+
+            // 验证数据完整性
+            if (!metricsData.isValid()) {
+                log.warn("收集到的指标数据无效: serverId={}", serverId);
+                return createDefaultMetrics(serverId);
+            }
+
+            log.debug("成功收集Prometheus指标数据: serverId={}", serverId);
             return metricsData;
         } catch (Exception e) {
             log.error("从Prometheus收集指标数据失败，服务器ID: {}", serverId, e);
-            return null;
+            return createDefaultMetrics(serverId);
         }
+    }
+
+    /**
+     * 创建默认指标数据
+     */
+    private ServerMetricsData createDefaultMetrics(Integer serverId) {
+        ServerMetricsData defaultData = ServerMetricsData.createDefault(serverId);
+        defaultData.setStatus(0); // 离线状态
+        return defaultData;
     }
 
     /**
@@ -104,26 +144,50 @@ public class PrometheusDataCollectorService {
      */
     private PrometheusConnection createConnection(MonitorSysGenServerSetting setting) {
         PrometheusConnection connection = new PrometheusConnection();
-        
-        connection.setBaseUrl(setting.getMonitorSysGenServerSettingPrometheusUrl());
-        connection.setQueryPath(setting.getMonitorSysGenServerSettingPrometheusQueryPath());
-        connection.setAuthEnabled(setting.getMonitorSysGenServerSettingPrometheusAuthEnabled() == 1);
-        connection.setUsername(setting.getMonitorSysGenServerSettingPrometheusUsername());
-        connection.setPassword(setting.getMonitorSysGenServerSettingPrometheusPassword());
-        connection.setTimeout(setting.getMonitorSysGenServerSettingPrometheusTimeout());
-        connection.setLabels(parseLabels(setting.getMonitorSysGenServerSettingPrometheusLabels()));
-        
-        // 测试连接
-        boolean connected = testConnection(connection);
-        connection.setConnected(connected);
-        connection.setLastConnectTime(LocalDateTime.now());
-        
-        if (connected) {
-            log.info("Prometheus连接建立成功: {}", connection.getBaseUrl());
-        } else {
-            log.warn("Prometheus连接建立失败: {}", connection.getBaseUrl());
+
+        try {
+            // 设置连接参数
+            String baseUrl = setting.getMonitorSysGenServerSettingPrometheusUrl();
+            String queryPath = setting.getMonitorSysGenServerSettingPrometheusQueryPath();
+
+            // 验证必要参数
+            if (!org.springframework.util.StringUtils.hasText(baseUrl)) {
+                connection.setErrorMessage("Prometheus服务器地址不能为空");
+                connection.setConnected(false);
+                return connection;
+            }
+
+            if (!org.springframework.util.StringUtils.hasText(queryPath)) {
+                queryPath = "/api/v1/query"; // 默认查询路径
+            }
+
+            connection.setBaseUrl(baseUrl);
+            connection.setQueryPath(queryPath);
+            connection.setAuthEnabled(setting.getMonitorSysGenServerSettingPrometheusAuthEnabled() == 1);
+            connection.setUsername(setting.getMonitorSysGenServerSettingPrometheusUsername());
+            connection.setPassword(setting.getMonitorSysGenServerSettingPrometheusPassword());
+            connection.setTimeout(setting.getMonitorSysGenServerSettingPrometheusTimeout() != null ?
+                setting.getMonitorSysGenServerSettingPrometheusTimeout() : 30);
+            connection.setLabels(parseLabels(setting.getMonitorSysGenServerSettingPrometheusLabels()));
+
+            // 测试连接
+            boolean connected = testConnection(connection);
+            connection.setConnected(connected);
+            connection.setLastConnectTime(LocalDateTime.now());
+
+            if (connected) {
+                log.info("Prometheus连接建立成功: {}", connection.getBaseUrl());
+                connection.setErrorMessage(null);
+            } else {
+                log.warn("Prometheus连接建立失败: {}, 错误: {}", connection.getBaseUrl(), connection.getErrorMessage());
+            }
+
+        } catch (Exception e) {
+            log.error("创建Prometheus连接失败", e);
+            connection.setConnected(false);
+            connection.setErrorMessage("创建连接异常: " + e.getMessage());
         }
-        
+
         return connection;
     }
 
@@ -145,11 +209,29 @@ public class PrometheusDataCollectorService {
             }
             
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            
-            return response.getStatusCode() == HttpStatus.OK;
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity,
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+
+            boolean isSuccess = response.getStatusCode() == HttpStatus.OK;
+            if (!isSuccess) {
+                connection.setErrorMessage("HTTP状态码: " + response.getStatusCode());
+            }
+            return isSuccess;
         } catch (Exception e) {
-            log.error("测试Prometheus连接失败", e);
+            String errorMsg;
+            if (e.getCause() instanceof java.net.ConnectException) {
+                errorMsg = "连接被拒绝: " + e.getMessage();
+                log.warn("Prometheus连接测试失败: {}, {}", connection.getBaseUrl(), errorMsg);
+            } else if (e.getCause() instanceof java.net.SocketTimeoutException) {
+                errorMsg = "连接超时: " + e.getMessage();
+                log.warn("Prometheus连接测试失败: {}, {}", connection.getBaseUrl(), errorMsg);
+            } else {
+                errorMsg = "连接异常: " + e.getMessage();
+                log.error("测试Prometheus连接失败: {}, {}", connection.getBaseUrl(), errorMsg, e);
+            }
+            connection.setErrorMessage(errorMsg);
             return false;
         }
     }
@@ -264,14 +346,28 @@ public class PrometheusDataCollectorService {
             String rxQuery = "sum(rate(node_network_receive_bytes_total[5m]))";
             Double networkIn = executeQuery(connection, rxQuery);
             if (networkIn != null) {
-                metricsData.setNetworkIn(networkIn.longValue());
+                metricsData.setNetworkInBytes(networkIn);
             }
 
             // 网络发送字节数
             String txQuery = "sum(rate(node_network_transmit_bytes_total[5m]))";
             Double networkOut = executeQuery(connection, txQuery);
             if (networkOut != null) {
-                metricsData.setNetworkOut(networkOut.longValue());
+                metricsData.setNetworkOutBytes(networkOut);
+            }
+
+            // 网络接收包数
+            String rxPacketsQuery = "sum(rate(node_network_receive_packets_total[5m]))";
+            Double networkInPackets = executeQuery(connection, rxPacketsQuery);
+            if (networkInPackets != null) {
+                metricsData.setNetworkInPackets(networkInPackets);
+            }
+
+            // 网络发送包数
+            String txPacketsQuery = "sum(rate(node_network_transmit_packets_total[5m]))";
+            Double networkOutPackets = executeQuery(connection, txPacketsQuery);
+            if (networkOutPackets != null) {
+                metricsData.setNetworkOutPackets(networkOutPackets);
             }
 
         } catch (Exception e) {
@@ -306,10 +402,12 @@ public class PrometheusDataCollectorService {
     /**
      * 执行Prometheus查询
      */
+    @SuppressWarnings("unchecked")
     private Double executeQuery(PrometheusConnection connection, String query) {
         try {
-            String url = connection.getFullUrl() + "?query=" + query;
-            
+            String url = connection.getFullUrl() + "?query=" +
+                java.net.URLEncoder.encode(query, "UTF-8");
+
             // 添加标签过滤
             if (connection.getLabels() != null && !connection.getLabels().isEmpty()) {
                 StringBuilder labelFilter = new StringBuilder();
@@ -320,40 +418,51 @@ public class PrometheusDataCollectorService {
                     labelFilter.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
                 }
                 query = query.replace("}", "," + labelFilter + "}");
-                url = connection.getFullUrl() + "?query=" + query;
+                url = connection.getFullUrl() + "?query=" +
+                    java.net.URLEncoder.encode(query, "UTF-8");
             }
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            
+
             if (connection.isAuthEnabled() && StringUtils.hasText(connection.getUsername())) {
                 String auth = connection.getUsername() + ":" + connection.getPassword();
                 String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
                 headers.set("Authorization", "Basic " + encodedAuth);
             }
-            
+
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity,
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 Map<String, Object> body = response.getBody();
-                Map<String, Object> data = (Map<String, Object>) body.get("data");
-                if (data != null) {
-                    List<Map<String, Object>> result = (List<Map<String, Object>>) data.get("result");
-                    if (result != null && !result.isEmpty()) {
-                        Map<String, Object> firstResult = result.get(0);
-                        List<Object> value = (List<Object>) firstResult.get("value");
-                        if (value != null && value.size() > 1) {
-                            return Double.parseDouble(value.get(1).toString());
+                Object dataObj = body.get("data");
+                if (dataObj instanceof Map) {
+                    Map<String, Object> data = (Map<String, Object>) dataObj;
+                    Object resultObj = data.get("result");
+                    if (resultObj instanceof List) {
+                        List<Map<String, Object>> result = (List<Map<String, Object>>) resultObj;
+                        if (!result.isEmpty()) {
+                            Map<String, Object> firstResult = result.get(0);
+                            Object valueObj = firstResult.get("value");
+                            if (valueObj instanceof List) {
+                                List<Object> value = (List<Object>) valueObj;
+                                if (value.size() > 1) {
+                                    return Double.parseDouble(value.get(1).toString());
+                                }
+                            }
                         }
                     }
                 }
             }
-            
+
         } catch (Exception e) {
-            log.error("执行Prometheus查询失败: {}", query, e);
+            log.error("执行Prometheus查询失败: query={}", query, e);
         }
-        
+
         return null;
     }
 
@@ -396,5 +505,56 @@ public class PrometheusDataCollectorService {
      */
     public void clearAllConnectionCache() {
         connectionCache.clear();
+    }
+
+    /**
+     * 测试Prometheus连接（供外部调用）
+     *
+     * @param serverId 服务器ID
+     * @param setting  服务器配置
+     * @return 连接测试结果
+     */
+    public boolean testPrometheusConnection(Integer serverId, MonitorSysGenServerSetting setting) {
+        try {
+            PrometheusConnection connection = createConnection(setting);
+            boolean result = connection.isConnected();
+
+            if (result) {
+                // 如果连接成功，缓存连接
+                connectionCache.put(serverId, connection);
+                log.info("Prometheus连接测试成功: serverId={}, url={}", serverId, connection.getBaseUrl());
+            } else {
+                log.warn("Prometheus连接测试失败: serverId={}, url={}, error={}",
+                    serverId, connection.getBaseUrl(), connection.getErrorMessage());
+            }
+
+            return result;
+        } catch (Exception e) {
+            log.error("Prometheus连接测试异常: serverId={}", serverId, e);
+            return false;
+        }
+    }
+
+    /**
+     * 获取连接状态信息
+     *
+     * @param serverId 服务器ID
+     * @return 连接状态信息
+     */
+    public Map<String, Object> getConnectionStatus(Integer serverId) {
+        Map<String, Object> status = new HashMap<>();
+        PrometheusConnection connection = connectionCache.get(serverId);
+
+        if (connection != null) {
+            status.put("connected", connection.isConnected());
+            status.put("baseUrl", connection.getBaseUrl());
+            status.put("lastConnectTime", connection.getLastConnectTime());
+            status.put("errorMessage", connection.getErrorMessage());
+        } else {
+            status.put("connected", false);
+            status.put("errorMessage", "连接未建立");
+        }
+
+        return status;
     }
 }
