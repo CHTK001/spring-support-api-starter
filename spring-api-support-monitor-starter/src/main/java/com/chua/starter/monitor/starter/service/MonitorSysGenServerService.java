@@ -458,4 +458,23 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      */
     String getServerName(Integer serverId);
 
+    /**
+     * 根据时间范围查询服务器指标数据
+     *
+     * @param serverId  服务器ID
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @param interval  数据间隔（分钟）
+     * @return 指标数据列表
+     */
+    ReturnResult<List<Map<String, Object>>> getMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval);
+
+    /**
+     * 测试Prometheus连接
+     *
+     * @param serverId 服务器ID
+     * @return 测试结果
+     */
+    ReturnResult<Boolean> testPrometheusConnection(Integer serverId);
+
 }

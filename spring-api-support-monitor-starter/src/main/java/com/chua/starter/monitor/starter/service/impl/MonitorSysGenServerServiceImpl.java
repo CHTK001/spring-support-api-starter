@@ -23,13 +23,16 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingServic
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import com.chua.starter.monitor.starter.service.report.ReportManager;
 import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
+
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
 import com.chua.starter.monitor.starter.service.ServerConnectionWebSocketService;
+import com.chua.starter.monitor.starter.service.PrometheusDataCollectorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -67,6 +70,10 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Autowired
     @Lazy
     private ServerTaskManagementService serverTaskManagementService;
+    @Autowired
+    @Lazy
+    private PrometheusDataCollectorService prometheusDataCollectorService;
+
 
     /**
      * 重写save方法，自动检测服务器信息
@@ -1936,6 +1943,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> deleteServer(String id) {
         try {
             if (null == id) {
@@ -1947,19 +1955,100 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 return ReturnResult.ok();
             }
 
-            // 在删除服务器前，先移除相关任务
+            List<Integer> serverIds = new ArrayList<>();
+            List<String> serverNames = new ArrayList<>();
+
+            // 收集服务器信息用于日志记录
             for (String serverId : ids) {
                 try {
                     Integer serverIdInt = Integer.valueOf(serverId);
-                    serverTaskManagementService.removeServerTasks(serverIdInt);
-                    log.info("移除服务器 {} 的任务成功", serverIdInt);
-                } catch (Exception e) {
-                    log.error("移除服务器 {} 任务失败: {}", serverId, e.getMessage());
+                    MonitorSysGenServer server = this.getById(serverIdInt);
+                    if (server != null) {
+                        serverIds.add(serverIdInt);
+                        serverNames.add(server.getMonitorSysGenServerName());
+                    }
+                } catch (NumberFormatException e) {
+                    log.warn("无效的服务器ID: {}", serverId);
                 }
             }
 
+            if (serverIds.isEmpty()) {
+                return ReturnResult.error("没有找到有效的服务器");
+            }
+
+            // 1. 断开所有连接
+            for (Integer serverId : serverIds) {
+                try {
+                    disconnect(String.valueOf(serverId));
+                    log.debug("断开服务器 {} 连接成功", serverId);
+                } catch (Exception e) {
+                    log.warn("断开服务器 {} 连接失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            // 2. 停止监控和数据推送
+            for (Integer serverId : serverIds) {
+                try {
+                    // 停止监控
+                    disableMonitoring(String.valueOf(serverId));
+                    log.debug("停止服务器 {} 监控成功", serverId);
+                } catch (Exception e) {
+                    log.warn("停止服务器 {} 监控失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            // 3. 移除相关任务
+            for (Integer serverId : serverIds) {
+                try {
+                    serverTaskManagementService.removeServerTasks(serverId);
+                    log.debug("移除服务器 {} 任务成功", serverId);
+                } catch (Exception e) {
+                    log.warn("移除服务器 {} 任务失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            // 4. 删除相关配置和历史记录
+            for (Integer serverId : serverIds) {
+                try {
+                    // 删除服务器配置
+                    monitorSysGenServerSettingService.deleteByServerId(serverId);
+                    log.debug("删除服务器 {} 配置成功", serverId);
+                } catch (Exception e) {
+                    log.warn("删除服务器 {} 配置失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            // 5. 停止数据推送服务
+            for (Integer serverId : serverIds) {
+                try {
+                    // 通过任务管理器停止数据推送任务
+                    serverTaskManagementService.removeServerTasks(serverId);
+                    log.debug("停止服务器 {} 数据推送任务成功", serverId);
+                } catch (Exception e) {
+                    log.warn("停止服务器 {} 数据推送任务失败: {}", serverId, e.getMessage());
+                }
+            }
+
+            // 6. 删除服务器记录
             boolean result = this.removeBatchByIds(ids);
-            return ReturnResult.of(result);
+
+            if (result) {
+                // 7. 发送删除消息通知
+                for (int i = 0; i < serverIds.size(); i++) {
+                    try {
+                        MonitorSysGenServer deletedServer = new MonitorSysGenServer();
+                        deletedServer.setMonitorSysGenServerId(serverIds.get(i));
+                        deletedServer.setMonitorSysGenServerName(i < serverNames.size() ? serverNames.get(i) : "未知服务器");
+                        sendServerMessage(deletedServer, ServerWebSocketMessage.MessageType.SERVER_DELETE, true, null);
+                    } catch (Exception e) {
+                        log.warn("发送服务器删除消息失败: serverId={}", serverIds.get(i), e);
+                    }
+                }
+
+                log.info("成功删除 {} 台服务器: {}", serverIds.size(), serverNames);
+            }
+
+            return ReturnResult.of(result, result ? "删除成功" : "删除失败");
         } catch (Exception e) {
             log.error("删除服务器配置失败: {}", e.getMessage(), e);
             return ReturnResult.error("删除服务器配置失败: " + e.getMessage());
@@ -2165,5 +2254,125 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.error("获取服务器名称失败: serverId={}, error={}", serverId, e.getMessage());
             return "未知服务器";
         }
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval) {
+        try {
+            log.info("查询服务器指标历史数据: serverId={}, startTime={}, endTime={}, interval={}分钟",
+                    serverId, startTime, endTime, interval);
+
+            // 获取服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult = monitorSysGenServerSettingService.getOrCreateSetting(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            String reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+            List<Map<String, Object>> metricsData = new ArrayList<>();
+
+            // 根据不同的上报方式获取数据
+            switch (reportMethod) {
+                case "PROMETHEUS":
+                    metricsData = getPrometheusMetricsHistory(serverId, setting, startTime, endTime, interval);
+                    break;
+                case "API":
+                    metricsData = getApiMetricsHistory(serverId, startTime, endTime, interval);
+                    break;
+                case "LOCAL":
+                    metricsData = getLocalMetricsHistory(serverId, startTime, endTime, interval);
+                    break;
+                default:
+                    return ReturnResult.error("不支持的数据上报方式: " + reportMethod);
+            }
+
+            log.info("查询到 {} 条指标数据", metricsData.size());
+            return ReturnResult.ok(metricsData);
+
+        } catch (Exception e) {
+            log.error("查询服务器指标历史数据失败: serverId={}", serverId, e);
+            return ReturnResult.error("查询失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> testPrometheusConnection(Integer serverId) {
+        try {
+            log.info("测试Prometheus连接: serverId={}", serverId);
+
+            // 获取服务器配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult = monitorSysGenServerSettingService.getOrCreateSetting(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 检查是否为Prometheus上报方式
+            if (!"PROMETHEUS".equals(setting.getMonitorSysGenServerSettingDataReportMethod())) {
+                return ReturnResult.error("服务器不是Prometheus上报方式");
+            }
+
+            // 使用PrometheusDataCollectorService测试连接
+            try {
+                // 尝试收集一次数据来测试连接
+                var metricsData = prometheusDataCollectorService.collectMetrics(serverId, setting);
+                boolean connected = metricsData != null;
+
+                if (connected) {
+                    log.info("Prometheus连接测试成功: serverId={}", serverId);
+                    return ReturnResult.ok(true, "连接测试成功");
+                } else {
+                    log.warn("Prometheus连接测试失败: serverId={}", serverId);
+                    return ReturnResult.ok(false, "连接测试失败");
+                }
+            } catch (Exception e) {
+                log.warn("Prometheus连接测试异常: serverId={}, error={}", serverId, e.getMessage());
+                return ReturnResult.ok(false, "连接测试失败: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            log.error("测试Prometheus连接失败: serverId={}", serverId, e);
+            return ReturnResult.error("测试失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取Prometheus指标历史数据
+     */
+    private List<Map<String, Object>> getPrometheusMetricsHistory(Integer serverId, MonitorSysGenServerSetting setting,
+                                                                  String startTime, String endTime, Integer interval) {
+        // TODO: 实现Prometheus历史数据查询
+        // 这里需要调用Prometheus的range query API
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 模拟数据，实际实现需要调用Prometheus API
+        log.info("从Prometheus查询历史数据: serverId={}", serverId);
+
+        return result;
+    }
+
+    /**
+     * 获取API上报的指标历史数据
+     */
+    private List<Map<String, Object>> getApiMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval) {
+        // TODO: 从Redis或数据库查询API上报的历史数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        log.info("从Redis/数据库查询API上报历史数据: serverId={}", serverId);
+
+        return result;
+    }
+
+    /**
+     * 获取本地收集的指标历史数据
+     */
+    private List<Map<String, Object>> getLocalMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval) {
+        // TODO: 从Redis或数据库查询本地收集的历史数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        log.info("从Redis/数据库查询本地收集历史数据: serverId={}", serverId);
+
+        return result;
     }
 }

@@ -8,6 +8,7 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+
 import com.chua.starter.monitor.starter.enums.AlertLevel;
 import com.chua.starter.monitor.starter.enums.AlertStatus;
 import com.chua.starter.monitor.starter.enums.AlertType;
@@ -15,6 +16,7 @@ import com.chua.starter.monitor.starter.service.AlertDetectionService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerAlertHistoryService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,27 +44,34 @@ public class AlertDetectionServiceImpl implements AlertDetectionService {
     private final MonitorSysGenServerSettingService serverSettingService;
     private final TimeSeriesService timeSeriesService;
 
+
     // 告警时间窗口(分钟)
     private static final int DEFAULT_ALERT_WINDOW_MINUTES = 5;
 
 
     @Override
     public ReturnResult<List<MonitorSysGenServerAlertHistory>> detectMetricsAlerts(
-            MonitorSysGenServer server, 
-            MonitorSysGenServerSetting setting, 
+            MonitorSysGenServer server,
+            MonitorSysGenServerSetting setting,
             MonitorSysGenServerMetrics metrics) {
-        
+
+        if(null == metrics) {
+            return ReturnResult.success(Collections.emptyList());
+        }
+
         try {
+            // 直接使用服务器设置中的告警配置
+            log.debug("使用服务器设置进行告警检测: serverId={}", server.getMonitorSysGenServerId());
+
             List<MonitorSysGenServerAlertHistory> alerts = new ArrayList<>();
             Integer serverId = server.getMonitorSysGenServerId();
 
             // 检测CPU告警
-            if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null && 
-                setting.getMonitorSysGenServerSettingCpuAlertThreshold() != null) {
-                
+            BigDecimal cpuThreshold = setting.getMonitorSysGenServerSettingCpuAlertThreshold();
+
+            if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null && cpuThreshold != null) {
                 BigDecimal cpuUsage = metrics.getMonitorSysGenServerMetricsCpuUsage();
-                BigDecimal cpuThreshold = setting.getMonitorSysGenServerSettingCpuAlertThreshold();
-                
+
                 if (cpuUsage.compareTo(cpuThreshold) > 0) {
                     ReturnResult<MonitorSysGenServerAlertHistory> alertResult = detectSingleAlert(
                         serverId, AlertType.CPU, cpuUsage, cpuThreshold, "%");
@@ -73,12 +82,11 @@ public class AlertDetectionServiceImpl implements AlertDetectionService {
             }
 
             // 检测内存告警
-            if (metrics.getMonitorSysGenServerMetricsMemoryUsage() != null && 
-                setting.getMonitorSysGenServerSettingMemoryAlertThreshold() != null) {
-                
+            BigDecimal memoryThreshold = setting.getMonitorSysGenServerSettingMemoryAlertThreshold();
+
+            if (metrics.getMonitorSysGenServerMetricsMemoryUsage() != null && memoryThreshold != null) {
                 BigDecimal memoryUsage = metrics.getMonitorSysGenServerMetricsMemoryUsage();
-                BigDecimal memoryThreshold = setting.getMonitorSysGenServerSettingMemoryAlertThreshold();
-                
+
                 if (memoryUsage.compareTo(memoryThreshold) > 0) {
                     ReturnResult<MonitorSysGenServerAlertHistory> alertResult = detectSingleAlert(
                         serverId, AlertType.MEMORY, memoryUsage, memoryThreshold, "%");
@@ -89,15 +97,39 @@ public class AlertDetectionServiceImpl implements AlertDetectionService {
             }
 
             // 检测磁盘告警
-            if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null && 
-                setting.getMonitorSysGenServerSettingDiskAlertThreshold() != null) {
-                
+            BigDecimal diskThreshold = setting.getMonitorSysGenServerSettingDiskAlertThreshold();
+
+            if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null && diskThreshold != null) {
                 BigDecimal diskUsage = metrics.getMonitorSysGenServerMetricsDiskUsage();
-                BigDecimal diskThreshold = setting.getMonitorSysGenServerSettingDiskAlertThreshold();
-                
+
                 if (diskUsage.compareTo(diskThreshold) > 0) {
                     ReturnResult<MonitorSysGenServerAlertHistory> alertResult = detectSingleAlert(
                         serverId, AlertType.DISK, diskUsage, diskThreshold, "%");
+                    if (alertResult.isOk() && alertResult.getData() != null) {
+                        alerts.add(alertResult.getData());
+                    }
+                }
+            }
+
+            // 检测网络告警（新增）
+            BigDecimal networkThreshold = setting.getMonitorSysGenServerSettingNetworkAlertThreshold();
+
+            if (networkThreshold != null &&
+                (metrics.getMonitorSysGenServerMetricsNetworkIn() != null ||
+                 metrics.getMonitorSysGenServerMetricsNetworkOut() != null)) {
+
+                // 计算网络总流量（入流量 + 出流量），转换为Mbps
+                long networkIn = metrics.getMonitorSysGenServerMetricsNetworkIn() != null ?
+                    metrics.getMonitorSysGenServerMetricsNetworkIn() : 0L;
+                long networkOut = metrics.getMonitorSysGenServerMetricsNetworkOut() != null ?
+                    metrics.getMonitorSysGenServerMetricsNetworkOut() : 0L;
+
+                // 假设这是每秒的流量，转换为Mbps (bytes/s -> Mbps)
+                BigDecimal totalNetworkMbps = new BigDecimal((networkIn + networkOut) * 8.0 / 1024 / 1024);
+
+                if (totalNetworkMbps.compareTo(networkThreshold) > 0) {
+                    ReturnResult<MonitorSysGenServerAlertHistory> alertResult = detectSingleAlert(
+                        serverId, AlertType.NETWORK, totalNetworkMbps, networkThreshold, "Mbps");
                     if (alertResult.isOk() && alertResult.getData() != null) {
                         alerts.add(alertResult.getData());
                     }
@@ -245,17 +277,25 @@ public class AlertDetectionServiceImpl implements AlertDetectionService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 直接使用服务器设置中的告警配置
             List<MonitorSysGenServerAlertHistory> alerts = new ArrayList<>();
 
-            // 检测各项指标
-            checkMetricAlert(serverId, metricsData, "cpuUsage", AlertType.CPU,
-                setting.getMonitorSysGenServerSettingCpuAlertThreshold(), "%", alerts);
+            // 检测各项指标，使用服务器设置中的告警阈值
+            BigDecimal cpuThreshold = setting.getMonitorSysGenServerSettingCpuAlertThreshold();
+            checkMetricAlert(serverId, metricsData, "cpuUsage", AlertType.CPU, cpuThreshold, "%", alerts);
 
-            checkMetricAlert(serverId, metricsData, "memoryUsage", AlertType.MEMORY,
-                setting.getMonitorSysGenServerSettingMemoryAlertThreshold(), "%", alerts);
+            BigDecimal memoryThreshold = setting.getMonitorSysGenServerSettingMemoryAlertThreshold();
+            checkMetricAlert(serverId, metricsData, "memoryUsage", AlertType.MEMORY, memoryThreshold, "%", alerts);
 
-            checkMetricAlert(serverId, metricsData, "diskUsage", AlertType.DISK,
-                setting.getMonitorSysGenServerSettingDiskAlertThreshold(), "%", alerts);
+            BigDecimal diskThreshold = setting.getMonitorSysGenServerSettingDiskAlertThreshold();
+            checkMetricAlert(serverId, metricsData, "diskUsage", AlertType.DISK, diskThreshold, "%", alerts);
+
+            // 新增网络告警检测
+            BigDecimal networkThreshold = setting.getMonitorSysGenServerSettingNetworkAlertThreshold();
+            if (networkThreshold != null) {
+                checkNetworkAlert(serverId, metricsData, networkThreshold, alerts);
+            }
 
             return ReturnResult.success(alerts);
 
@@ -526,6 +566,35 @@ public class AlertDetectionServiceImpl implements AlertDetectionService {
             } catch (NumberFormatException e) {
                 log.warn("指标值格式错误: serverId={}, metricKey={}, value={}", serverId, metricKey, valueStr);
             }
+        }
+    }
+
+    /**
+     * 检测网络告警
+     */
+    private void checkNetworkAlert(Integer serverId, Map<String, String> metricsData,
+                                  BigDecimal threshold, List<MonitorSysGenServerAlertHistory> alerts) {
+        try {
+            String networkInStr = metricsData.get("networkIn");
+            String networkOutStr = metricsData.get("networkOut");
+
+            if (StringUtils.isNotBlank(networkInStr) || StringUtils.isNotBlank(networkOutStr)) {
+                long networkIn = StringUtils.isNotBlank(networkInStr) ? Long.parseLong(networkInStr) : 0L;
+                long networkOut = StringUtils.isNotBlank(networkOutStr) ? Long.parseLong(networkOutStr) : 0L;
+
+                // 计算总网络流量并转换为Mbps (假设输入是bytes/s)
+                BigDecimal totalNetworkMbps = new BigDecimal((networkIn + networkOut) * 8.0 / 1024 / 1024);
+
+                if (totalNetworkMbps.compareTo(threshold) > 0) {
+                    ReturnResult<MonitorSysGenServerAlertHistory> alertResult = detectSingleAlert(
+                        serverId, AlertType.NETWORK, totalNetworkMbps, threshold, "Mbps");
+                    if (alertResult.isOk() && alertResult.getData() != null) {
+                        alerts.add(alertResult.getData());
+                    }
+                }
+            }
+        } catch (NumberFormatException e) {
+            log.warn("网络指标值格式错误: serverId={}", serverId, e);
         }
     }
 
