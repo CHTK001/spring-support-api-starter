@@ -7,13 +7,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingBackup;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory;
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingBackupMapper;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
+import com.chua.starter.monitor.starter.task.manager.ServerTaskManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务器配置设置服务实现类
@@ -46,11 +43,14 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
         implements MonitorSysGenServerSettingService {
 
     private final MonitorSysGenServerSettingHistoryMapper historyMapper;
-    private final MonitorSysGenServerSettingBackupMapper backupMapper;
 
     @Autowired
     @Lazy
     private ServerTaskManagementService serverTaskManagementService;
+
+    @Autowired
+    @Lazy
+    private ServerTaskManager serverTaskManager;
 
     @Override
     public IPage<MonitorSysGenServerSetting> pageFor(Page<MonitorSysGenServerSetting> page, MonitorSysGenServerSetting entity) {
@@ -114,6 +114,30 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
                     log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
                     // 不影响配置保存的结果
                 }
+
+                // 通过任务管理器更新数据推送和监控配置
+                try {
+                    Integer serverId = setting.getMonitorSysGenServerId();
+                    // 任务管理器会根据配置自动启动或停止相应的任务
+                    serverTaskManager.updateServerTasks(serverId);
+                    log.debug("更新服务器 {} 任务配置成功", serverId);
+                } catch (Exception e) {
+                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
+                    // 不影响配置保存的结果
+                }
+
+                // 根据配置更新服务器任务
+                try {
+                    Integer serverId = setting.getMonitorSysGenServerId();
+
+                    // 更新服务器任务配置（会自动根据配置启动或停止相应任务）
+                    serverTaskManager.updateServerTasks(serverId);
+                    log.debug("更新服务器 {} 的任务配置", serverId);
+
+                } catch (Exception e) {
+                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
+                    // 不影响配置保存的结果
+                }
             }
 
             return ReturnResult.of(result, result ? "保存成功" : "保存失败");
@@ -143,9 +167,39 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = "serverSetting", key = "#serverId")
     public ReturnResult<Boolean> deleteByServerId(Integer serverId) {
         try {
+            if (serverId == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
+            // 1. 删除配置历史记录
+            try {
+                historyMapper.deleteByServerId(serverId);
+                log.debug("删除服务器 {} 配置历史记录成功", serverId);
+            } catch (Exception e) {
+                log.warn("删除服务器 {} 配置历史记录失败: {}", serverId, e.getMessage());
+            }
+
+            // 2. 通过任务管理器停止相关服务
+            try {
+                if (serverTaskManager != null) {
+                    serverTaskManager.removeServerTasks(serverId);
+                    log.debug("停止服务器 {} 相关任务成功", serverId);
+                }
+            } catch (Exception e) {
+                log.warn("停止服务器 {} 相关任务失败: {}", serverId, e.getMessage());
+            }
+
+            // 3. 删除服务器配置
             int result = baseMapper.deleteByServerId(serverId);
+
+            if (result > 0) {
+                log.info("删除服务器 {} 配置成功", serverId);
+            }
+
             return ReturnResult.of(result > 0, result > 0 ? "删除成功" : "删除失败");
         } catch (Exception e) {
             log.error("删除服务器配置失败: serverId={}", serverId, e);
@@ -154,9 +208,29 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> deleteById(Integer id) {
         try {
+            if (id == null) {
+                return ReturnResult.error("配置ID不能为空");
+            }
+
+            // 获取配置信息用于清理缓存
+            MonitorSysGenServerSetting setting = this.getById(id);
+            Integer serverId = setting != null ? setting.getMonitorSysGenServerId() : null;
+
             boolean result = this.removeById(id);
+
+            // 如果删除成功且有serverId，手动清理缓存
+            if (result && serverId != null) {
+                try {
+                    // 通过调用带缓存清理注解的方法来清理缓存
+                    clearCacheForServer(serverId);
+                } catch (Exception e) {
+                    log.warn("清理缓存失败: serverId={}", serverId, e);
+                }
+            }
+
             return ReturnResult.of(result, result ? "删除成功" : "删除失败");
         } catch (Exception e) {
             log.error("删除配置失败: id={}", id, e);
@@ -164,13 +238,43 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
         }
     }
 
+    /**
+     * 清理指定服务器的缓存
+     */
+    @CacheEvict(value = "serverSetting", key = "#serverId")
+    private void clearCacheForServer(Integer serverId) {
+        // 这个方法只是为了触发缓存清理
+        log.debug("清理服务器 {} 的缓存", serverId);
+    }
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> batchDeleteByIds(List<Integer> ids) {
         try {
             if (ids == null || ids.isEmpty()) {
                 return ReturnResult.error("ID列表不能为空");
             }
+
+            // 获取要删除的配置信息用于清理缓存
+            List<MonitorSysGenServerSetting> settings = this.listByIds(ids);
+            List<Integer> serverIds = settings.stream()
+                .map(MonitorSysGenServerSetting::getMonitorSysGenServerId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
             boolean result = this.removeByIds(ids);
+
+            // 如果删除成功，清理相关缓存
+            if (result && !serverIds.isEmpty()) {
+                for (Integer serverId : serverIds) {
+                    try {
+                        clearCacheForServer(serverId);
+                    } catch (Exception e) {
+                        log.warn("清理缓存失败: serverId={}", serverId, e);
+                    }
+                }
+            }
+
             return ReturnResult.of(result, result ? "批量删除成功" : "批量删除失败");
         } catch (Exception e) {
             log.error("批量删除配置失败: ids={}", ids, e);
@@ -297,7 +401,7 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
             setting.setMonitorSysGenServerSettingStatus(1); // 默认启用状态
 
             // 设置默认代理配置（用于Guacamole连接）
-            setting.setMonitorSysGenServerSettingProxyEnabled(1); // 默认启用代理
+            setting.setMonitorSysGenServerSettingProxyEnabled(0); // 默认不启用代理
             setting.setMonitorSysGenServerSettingProxyHost("localhost"); // 默认代理主机
             setting.setMonitorSysGenServerSettingProxyPort(4822); // 默认Guacamole代理端口
 
@@ -877,120 +981,5 @@ public class MonitorSysGenServerSettingServiceImpl extends ServiceImpl<MonitorSy
         }
     }
 
-    /**
-     * 创建配置备份
-     */
-    public ReturnResult<Long> createBackup(String backupName, String description,
-                                           List<Integer> serverIds, String backupType, String user) {
-        try {
-            if (StringUtils.isBlank(backupName)) {
-                return ReturnResult.error("备份名称不能为空");
-            }
 
-            // 检查备份名称是否已存在
-            MonitorSysGenServerSettingBackup existing = backupMapper.selectByBackupName(backupName);
-            if (existing != null) {
-                return ReturnResult.error("备份名称已存在");
-            }
-
-            // 获取要备份的配置
-            List<MonitorSysGenServerSetting> settings = new ArrayList<>();
-            if (serverIds == null || serverIds.isEmpty()) {
-                // 备份所有配置
-                settings = this.list();
-            } else {
-                // 备份指定服务器的配置
-                for (Integer serverId : serverIds) {
-                    MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
-                    if (setting != null) {
-                        settings.add(setting);
-                    }
-                }
-            }
-
-            // 创建备份记录
-            MonitorSysGenServerSettingBackup backup = new MonitorSysGenServerSettingBackup();
-            backup.setBackupName(backupName);
-            backup.setBackupDescription(description);
-            backup.setBackupType(backupType);
-            backup.setBackupScope(serverIds == null || serverIds.isEmpty() ? "ALL" : "SELECTED");
-            backup.setBackupFormat("JSON");
-            backup.setServerCount(settings.size());
-            backup.setCreateUser(user);
-
-            // 序列化配置数据
-            ObjectMapper mapper = new ObjectMapper();
-            String backupData = mapper.writeValueAsString(settings);
-            backup.setBackupData(backupData);
-            backup.setBackupSize((long) backupData.length());
-
-            if (serverIds != null && !serverIds.isEmpty()) {
-                backup.setServerIds(mapper.writeValueAsString(serverIds));
-            }
-
-            backup.setBackupStatus("SUCCESS");
-            backupMapper.insert(backup);
-
-            log.info("创建配置备份成功: 备份名称={}, 服务器数量={}", backupName, settings.size());
-            return ReturnResult.ok(backup.getMonitorSysGenServerSettingBackupId(), "备份创建成功");
-        } catch (Exception e) {
-            log.error("创建配置备份失败", e);
-            return ReturnResult.error("创建配置备份失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 从备份恢复配置
-     */
-    public ReturnResult<Boolean> restoreFromBackup(Long backupId, boolean overwrite, String user) {
-        try {
-            if (backupId == null) {
-                return ReturnResult.error("备份ID不能为空");
-            }
-
-            // 获取备份记录
-            MonitorSysGenServerSettingBackup backup = backupMapper.selectById(backupId);
-            if (backup == null) {
-                return ReturnResult.error("备份记录不存在");
-            }
-
-            // 解析备份数据
-            ObjectMapper mapper = new ObjectMapper();
-            List<MonitorSysGenServerSetting> settings = mapper.readValue(backup.getBackupData(),
-                    mapper.getTypeFactory().constructCollectionType(List.class, MonitorSysGenServerSetting.class));
-
-            int successCount = 0;
-            for (MonitorSysGenServerSetting setting : settings) {
-                try {
-                    Integer serverId = setting.getMonitorSysGenServerId();
-
-                    // 检查是否已存在
-                    MonitorSysGenServerSetting existing = baseMapper.selectByServerId(serverId);
-                    if (existing != null && !overwrite) {
-                        log.warn("配置已存在且不允许覆盖，跳过服务器: {}", serverId);
-                        continue;
-                    }
-
-                    // 恢复配置
-                    setting.setMonitorSysGenServerSettingId(existing != null ? existing.getMonitorSysGenServerSettingId() : null);
-                    this.saveOrUpdate(setting);
-
-                    // 记录历史
-                    recordSettingHistory(serverId, setting.getMonitorSysGenServerSettingId().longValue(),
-                            MonitorSysGenServerSettingHistory.ChangeType.UPDATE,
-                            "从备份恢复: " + backup.getBackupName(), user);
-
-                    successCount++;
-                } catch (Exception e) {
-                    log.warn("恢复配置失败，服务器ID: {}, 错误: {}", setting.getMonitorSysGenServerId(), e.getMessage());
-                }
-            }
-
-            log.info("从备份恢复配置完成: 备份名称={}, 成功恢复{}个配置", backup.getBackupName(), successCount);
-            return ReturnResult.ok(true, String.format("成功恢复%d个配置", successCount));
-        } catch (Exception e) {
-            log.error("从备份恢复配置失败", e);
-            return ReturnResult.error("从备份恢复配置失败: " + e.getMessage());
-        }
-    }
 }

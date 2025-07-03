@@ -184,22 +184,48 @@ public class ApiReportHandler implements ReportHandler {
                 metrics.setMonitorSysGenServerMetricsMemoryUsage(parseBigDecimal(memoryUsage));
             }
             
-            // 解析磁盘使用率
+            // 解析磁盘信息
             Object diskUsage = reportData.get("diskUsage");
             if (diskUsage != null) {
                 metrics.setMonitorSysGenServerMetricsDiskUsage(parseBigDecimal(diskUsage));
             }
 
-            // 解析网络入流量
+            Object diskTotal = reportData.get("diskTotal");
+            if (diskTotal != null) {
+                metrics.setMonitorSysGenServerMetricsDiskTotal(parseLong(diskTotal));
+            }
+
+            Object diskUsed = reportData.get("diskUsed");
+            if (diskUsed != null) {
+                metrics.setMonitorSysGenServerMetricsDiskUsed(parseLong(diskUsed));
+            }
+
+            Object diskFree = reportData.get("diskFree");
+            if (diskFree != null) {
+                metrics.setMonitorSysGenServerMetricsDiskFree(parseLong(diskFree));
+            }
+
+            // 解析网络信息
             Object networkIn = reportData.get("networkIn");
             if (networkIn != null) {
                 metrics.setMonitorSysGenServerMetricsNetworkIn(parseLong(networkIn));
             }
 
-            // 解析网络出流量
             Object networkOut = reportData.get("networkOut");
             if (networkOut != null) {
                 metrics.setMonitorSysGenServerMetricsNetworkOut(parseLong(networkOut));
+            }
+
+            // 解析CPU核心数
+            Object cpuCores = reportData.get("cpuCores");
+            if (cpuCores != null) {
+                metrics.setMonitorSysGenServerMetricsCpuCores(parseInteger(cpuCores));
+            }
+
+            // 解析内存空闲量
+            Object memoryFree = reportData.get("memoryFree");
+            if (memoryFree != null) {
+                metrics.setMonitorSysGenServerMetricsMemoryFree(parseLong(memoryFree));
             }
 
             // 解析系统负载
@@ -252,10 +278,66 @@ public class ApiReportHandler implements ReportHandler {
                 metrics.setMonitorSysGenServerMetricsProcessCount(parseInteger(processCount));
             }
 
-            log.debug("API上报数据解析完成: CPU={}%, Memory={}%, Load={}",
+            // 解析操作系统信息
+            Object osInfo = reportData.get("osInfo");
+            if (osInfo != null) {
+                metrics.setMonitorSysGenServerMetricsOsInfo(osInfo.toString());
+            }
+
+            // 解析响应时间
+            Object responseTime = reportData.get("responseTime");
+            if (responseTime != null) {
+                metrics.setMonitorSysGenServerMetricsResponseTime(parseLong(responseTime));
+            }
+
+            // 解析状态
+            Object status = reportData.get("status");
+            if (status != null) {
+                metrics.setMonitorSysGenServerMetricsStatus(parseInteger(status));
+            } else {
+                // 默认状态为在线
+                metrics.setMonitorSysGenServerMetricsStatus(1);
+            }
+
+            // 构建额外信息字符串
+            StringBuilder extraInfo = new StringBuilder();
+
+            // 添加网络包统计信息
+            Object rxPackets = reportData.get("rxPackets");
+            Object txPackets = reportData.get("txPackets");
+            if (rxPackets != null) {
+                extraInfo.append("rx_packets:").append(rxPackets);
+            }
+            if (txPackets != null) {
+                if (extraInfo.length() > 0) extraInfo.append(",");
+                extraInfo.append("tx_packets:").append(txPackets);
+            }
+
+            // 添加主机名
+            Object hostname = reportData.get("hostname");
+            if (hostname != null) {
+                if (extraInfo.length() > 0) extraInfo.append(",");
+                extraInfo.append("hostname:").append(hostname);
+            }
+
+            // 添加负载平均值到额外信息
+            if (loadAverage != null) {
+                if (extraInfo.length() > 0) extraInfo.append(",");
+                extraInfo.append("load_avg:").append(loadAverage);
+            }
+
+            // 设置额外信息
+            if (extraInfo.length() > 0) {
+                metrics.setMonitorSysGenServerMetricsExtraInfo(extraInfo.toString());
+            }
+
+            log.debug("API上报数据解析完成: CPU={}%, Memory={}%, Disk={}%, Load={}, Network={}B/{}B",
                     metrics.getMonitorSysGenServerMetricsCpuUsage(),
                     metrics.getMonitorSysGenServerMetricsMemoryUsage(),
-                    metrics.getMonitorSysGenServerMetricsCpuLoad1m());
+                    metrics.getMonitorSysGenServerMetricsDiskUsage(),
+                    metrics.getMonitorSysGenServerMetricsCpuLoad1m(),
+                    metrics.getMonitorSysGenServerMetricsNetworkIn(),
+                    metrics.getMonitorSysGenServerMetricsNetworkOut());
             
         } catch (Exception e) {
             log.error("解析API上报数据失败", e);

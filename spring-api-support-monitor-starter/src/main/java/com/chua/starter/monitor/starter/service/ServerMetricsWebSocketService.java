@@ -7,7 +7,7 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.impl.MonitorSysGenServerMetricsServiceImpl;
+import com.chua.starter.monitor.starter.pojo.ServerMetricsData;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -388,12 +388,10 @@ public class ServerMetricsWebSocketService {
     private MonitorSysGenServerMetrics collectMetricsFromDatabase(MonitorSysGenServer server) {
         try {
             // 获取最新的指标数据（客户端推送的数据已存储在数据库中）
-            // 使用不触发推送的版本，避免循环调用
-            MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
-                .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
-            if (metrics != null) {
+            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+            if (latestMetrics != null && latestMetrics.getData() != null) {
                 log.debug("从数据库获取服务器 {} 最新指标数据", server.getMonitorSysGenServerName());
-                return metrics;
+                return latestMetrics.getData();
             }
 
             log.warn("服务器 {} 没有找到最新的指标数据", server.getMonitorSysGenServerName());
@@ -664,10 +662,9 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    // 使用不触发推送的版本，避免循环调用
-                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
-                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
-                    if (metrics != null) {
+                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    if (latestMetrics != null && latestMetrics.getData() != null) {
+                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
                             onlineServers++;
 
@@ -708,10 +705,9 @@ public class ServerMetricsWebSocketService {
         List<Map<String, Object>> alerts = new java.util.ArrayList<>();
 
         try {
-            // 使用不触发推送的版本，避免循环调用
-            MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
-                .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
-            if (metrics != null) {
+            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+            if (latestMetrics != null && latestMetrics.getData() != null) {
+                MonitorSysGenServerMetrics metrics = latestMetrics.getData();
 
                 // 检查CPU告警
                 if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null &&
@@ -818,10 +814,9 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    // 使用不触发推送的版本，避免循环调用
-                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
-                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
-                    if (metrics != null) {
+                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    if (latestMetrics != null && latestMetrics.getData() != null) {
+                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
                             onlineServers++;
                         } else {
@@ -863,10 +858,9 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    // 使用不触发推送的版本，避免循环调用
-                    MonitorSysGenServerMetrics metrics = ((MonitorSysGenServerMetricsServiceImpl) metricsService)
-                        .getLatestMetricsDirectlyWithoutTrigger(server.getMonitorSysGenServerId());
-                    if (metrics != null) {
+                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    if (latestMetrics != null && latestMetrics.getData() != null) {
+                        MonitorSysGenServerMetrics metrics = latestMetrics.getData();
 
                         if (isCriticalState(metrics)) {
                             criticalServers++;
@@ -1031,5 +1025,115 @@ public class ServerMetricsWebSocketService {
         }
 
         return networkTrend;
+    }
+
+    /**
+     * 推送 Prometheus 指标数据
+     * 专门用于处理从 Prometheus 收集的指标数据
+     *
+     * @param server      服务器信息
+     * @param metricsData Prometheus 指标数据
+     */
+    public void pushPrometheusMetrics(MonitorSysGenServer server, ServerMetricsData metricsData) {
+        try {
+            Map<String, Object> data = convertPrometheusMetricsToMap(metricsData);
+            data.put("serverName", server.getMonitorSysGenServerName());
+            data.put("serverHost", server.getMonitorSysGenServerHost());
+            data.put("serverPort", server.getMonitorSysGenServerPort());
+
+            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
+                    .messageType("server_metrics")
+                    .serverId(server.getMonitorSysGenServerId())
+                    .serverName(server.getMonitorSysGenServerName())
+                    .data(data)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            log.debug("推送服务器 {} Prometheus指标数据完成", server.getMonitorSysGenServerName());
+
+        } catch (Exception e) {
+            log.error("推送Prometheus指标数据失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 推送自定义消息到WebSocket
+     *
+     * @param serverId 服务器ID
+     * @param message  自定义消息
+     */
+    public void pushCustomMessage(Integer serverId, Map<String, Object> message) {
+        try {
+            // 创建WebSocket消息
+            ServerWebSocketMessage wsMessage = ServerWebSocketMessage.createCustomMessage(
+                serverId, "Server-" + serverId, message);
+
+            // 发送到WebSocket
+            socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
+
+            log.debug("自定义消息已推送到WebSocket: serverId={}, type={}",
+                serverId, message.get("type"));
+
+        } catch (Exception e) {
+            log.error("推送自定义消息到WebSocket失败: serverId={}", serverId, e);
+        }
+    }
+
+    /**
+     * 将 Prometheus 指标数据转换为 Map
+     */
+    private Map<String, Object> convertPrometheusMetricsToMap(ServerMetricsData metricsData) {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("serverId", metricsData.getServerId());
+        data.put("collectTime", metricsData.getCollectTime());
+        data.put("status", metricsData.getStatus() != null ? metricsData.getStatus() : 1);
+        data.put("responseTime", metricsData.getResponseTime() != null ? metricsData.getResponseTime() : 0);
+
+        // CPU指标
+        Map<String, Object> cpu = new HashMap<>();
+        cpu.put("usage", metricsData.getCpuUsage() != null ? metricsData.getCpuUsage() : 0.0);
+        cpu.put("cores", metricsData.getCpuCores() != null ? metricsData.getCpuCores() : 1);
+        cpu.put("load1m", metricsData.getLoad1m() != null ? metricsData.getLoad1m() : 0.0);
+        cpu.put("load5m", metricsData.getLoad5m() != null ? metricsData.getLoad5m() : 0.0);
+        cpu.put("load15m", metricsData.getLoad15m() != null ? metricsData.getLoad15m() : 0.0);
+        data.put("cpu", cpu);
+
+        // 内存指标
+        Map<String, Object> memory = new HashMap<>();
+        memory.put("usage", metricsData.getMemoryUsage() != null ? metricsData.getMemoryUsage() : 0.0);
+        memory.put("total", metricsData.getMemoryTotal() != null ? metricsData.getMemoryTotal() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        memory.put("used", metricsData.getMemoryUsed() != null ? metricsData.getMemoryUsed() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        memory.put("free", metricsData.getMemoryFree() != null ? metricsData.getMemoryFree() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        data.put("memory", memory);
+
+        // 磁盘指标
+        Map<String, Object> disk = new HashMap<>();
+        disk.put("usage", metricsData.getDiskUsage() != null ? metricsData.getDiskUsage() : 0.0);
+        disk.put("total", metricsData.getDiskTotal() != null ? metricsData.getDiskTotal() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        disk.put("used", metricsData.getDiskUsed() != null ? metricsData.getDiskUsed() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        disk.put("free", metricsData.getDiskFree() != null ? metricsData.getDiskFree() / (1024 * 1024 * 1024) : 0); // 转换为GB
+        data.put("disk", disk);
+
+        // 网络指标
+        Map<String, Object> network = new HashMap<>();
+        network.put("in", metricsData.getNetworkInBytes() != null ? metricsData.getNetworkInBytes() / 1024.0 : 0.0); // 转换为KB/s
+        network.put("out", metricsData.getNetworkOutBytes() != null ? metricsData.getNetworkOutBytes() / 1024.0 : 0.0); // 转换为KB/s
+        network.put("totalInBytes", metricsData.getNetworkInBytes() != null ? metricsData.getNetworkInBytes() : 0);
+        network.put("totalOutBytes", metricsData.getNetworkOutBytes() != null ? metricsData.getNetworkOutBytes() : 0);
+        network.put("inPacketRate", metricsData.getNetworkInPackets() != null ? metricsData.getNetworkInPackets() : 0.0);
+        network.put("outPacketRate", metricsData.getNetworkOutPackets() != null ? metricsData.getNetworkOutPackets() : 0.0);
+        data.put("network", network);
+
+        // 系统信息
+        data.put("osInfo", metricsData.getOsInfo() != null ? metricsData.getOsInfo() : "");
+        data.put("hostname", metricsData.getHostname() != null ? metricsData.getHostname() : "");
+        data.put("uptime", metricsData.getUptime() != null ? metricsData.getUptime() : 0);
+        data.put("processCount", metricsData.getProcessCount() != null ? metricsData.getProcessCount() : 0);
+        data.put("temperature", metricsData.getTemperature() != null ? metricsData.getTemperature() : 0.0);
+        data.put("extraInfo", metricsData.getExtraInfo() != null ? metricsData.getExtraInfo() : "");
+
+        return data;
     }
 }

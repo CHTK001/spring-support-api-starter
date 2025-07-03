@@ -35,11 +35,10 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
     private final MonitorSysGenServerService serverService;
 
     /**
-     * Redis键前缀
+     * Redis键前缀 - 只保留最新数据
      */
     private static final String REDIS_LATENCY_PREFIX = "server:latency:";
-    private static final String REDIS_LATENCY_HISTORY_PREFIX = "server:latency:history:";
-    
+
     /**
      * WebSocket主题
      */
@@ -49,11 +48,6 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
      * 延迟数据缓存，用于记录变化
      */
     private final Map<Integer, Long> latencyCache = new ConcurrentHashMap<>();
-    
-    /**
-     * 延迟数据时间戳缓存，用于5分钟保存机制
-     */
-    private final Map<Integer, Long> latencyTimestampCache = new ConcurrentHashMap<>();
 
     @Override
     public ReturnResult<Boolean> updateServerLatencyToRedis(Integer serverId, Long latency) {
@@ -71,9 +65,8 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
             // 更新缓存
             latencyCache.put(serverId, latency);
-            latencyTimestampCache.put(serverId, System.currentTimeMillis());
 
-            // 存储到Redis
+            // 只存储最新数据到Redis
             String key = REDIS_LATENCY_PREFIX + serverId;
             long currentTimestamp = System.currentTimeMillis();
 
@@ -81,12 +74,6 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
             timeSeriesService.hSet(key, "latency", String.valueOf(latency));
             timeSeriesService.hSet(key, "timestamp", String.valueOf(currentTimestamp));
             timeSeriesService.hSet(key, "serverId", String.valueOf(serverId));
-
-            // 存储历史数据到时序数据库
-            String historyKey = REDIS_LATENCY_HISTORY_PREFIX + serverId + ":" + currentTimestamp;
-            timeSeriesService.hSet(historyKey, "latency", String.valueOf(latency));
-            timeSeriesService.hSet(historyKey, "timestamp", String.valueOf(currentTimestamp));
-            timeSeriesService.hSet(historyKey, "serverId", String.valueOf(serverId));
 
             log.debug("服务器 {} 延迟已更新到Redis: {}ms", serverId, latency);
             return ReturnResult.ok(true, "延迟数据已更新");
@@ -211,7 +198,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
             if (!batchData.isEmpty()) {
                 ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                        .messageType("batch_server_latency")
+                        .messageType(ServerWebSocketMessage.MessageType.BATCH_SERVER_LATENCY)
                         .data(batchData)
                         .timestamp(System.currentTimeMillis())
                         .build();
@@ -231,31 +218,21 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
     @Override
     public ReturnResult<Integer> saveLatencyToDatabase() {
         try {
+            // 简化实现：只更新当前缓存中的延迟数据到数据库
             int savedCount = 0;
-            long currentTime = System.currentTimeMillis();
 
-            // 遍历缓存中的延迟数据
-            for (Map.Entry<Integer, Long> entry : latencyTimestampCache.entrySet()) {
+            for (Map.Entry<Integer, Long> entry : latencyCache.entrySet()) {
                 Integer serverId = entry.getKey();
-                Long timestamp = entry.getValue();
+                Long latency = entry.getValue();
 
-                // 检查是否需要保存（5分钟间隔）
-                if (currentTime - timestamp >= 5 * 60 * 1000) { // 5分钟
-                    Long latency = latencyCache.get(serverId);
-                    if (latency != null) {
-                        // 更新数据库中的延迟字段
-                        MonitorSysGenServer server = serverService.getById(serverId);
-                        if (server != null) {
-                            server.setMonitorSysGenServerLatency(latency);
-                            boolean updated = serverService.updateById(server);
-                            if (updated) {
-                                savedCount++;
-                                log.debug("保存服务器 {} 延迟到数据库: {}ms", serverId, latency);
-                            }
-                        }
-                        
-                        // 更新时间戳
-                        latencyTimestampCache.put(serverId, currentTime);
+                // 更新数据库中的延迟字段
+                MonitorSysGenServer server = serverService.getById(serverId);
+                if (server != null) {
+                    server.setMonitorSysGenServerLatency(latency);
+                    boolean updated = serverService.updateById(server);
+                    if (updated) {
+                        savedCount++;
+                        log.debug("保存服务器 {} 延迟到数据库: {}ms", serverId, latency);
                     }
                 }
             }
@@ -270,26 +247,15 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
     @Override
     public ReturnResult<List<Map<String, Object>>> getServerLatencyHistory(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
+        // 不再支持历史数据查询，只返回当前最新数据
         try {
             if (serverId == null) {
                 return ReturnResult.error("服务器ID不能为空");
             }
 
-            // 注意：由于存储方式改为Hash，这里简化实现
-            // 实际项目中可能需要更复杂的查询逻辑或使用专门的时序数据库
             List<Map<String, Object>> historyData = new ArrayList<>();
 
-            // 从当前缓存中获取最新的延迟数据作为历史数据的一部分
-            Long currentLatency = latencyCache.get(serverId);
-            if (currentLatency != null) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("timestamp", System.currentTimeMillis());
-                data.put("latency", currentLatency);
-                data.put("serverId", serverId);
-                historyData.add(data);
-            }
-
-            // 可以从Redis获取当前存储的延迟数据
+            // 只返回当前最新的延迟数据
             String currentKey = REDIS_LATENCY_PREFIX + serverId;
             Map<String, String> currentData = timeSeriesService.hGet(currentKey);
             if (currentData != null && currentData.containsKey("latency")) {
@@ -303,21 +269,20 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
             return ReturnResult.ok(historyData);
 
         } catch (Exception e) {
-            log.error("获取服务器延迟历史数据失败: serverId={}", serverId, e);
-            return ReturnResult.error("获取历史数据失败: " + e.getMessage());
+            log.error("获取服务器延迟数据失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取延迟数据失败: " + e.getMessage());
         }
     }
 
     @Override
     public ReturnResult<Integer> cleanupExpiredLatencyData(Integer expireDays) {
         try {
-            // 这里可以实现清理过期数据的逻辑
-            // 由于使用Redis时序数据，可以设置TTL自动过期
-            log.info("清理过期延迟数据: {}天前", expireDays);
-            return ReturnResult.ok(0, "清理完成");
+            // 由于只保留最新数据，不需要清理历史数据
+            log.info("延迟数据清理：只保留最新数据，无需清理历史数据");
+            return ReturnResult.ok(0, "无需清理，只保留最新数据");
 
         } catch (Exception e) {
-            log.error("清理过期延迟数据失败", e);
+            log.error("清理延迟数据失败", e);
             return ReturnResult.error("清理失败: " + e.getMessage());
         }
     }
