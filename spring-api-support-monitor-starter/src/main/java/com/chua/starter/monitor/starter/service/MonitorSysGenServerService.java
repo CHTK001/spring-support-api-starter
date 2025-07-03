@@ -67,7 +67,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param id 服务器ID
      * @return 连接状态
      */
-    ReturnResult<Map<String, Object>> getConnectionStatus(String id);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerConnectionStatusDTO> getConnectionStatus(String id);
 
     /**
      * 执行服务器命令

@@ -15,6 +15,9 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.starter.pojo.ServerConnectionStatusDTO;
+import com.chua.starter.monitor.starter.pojo.ServerMonitoringStatusDTO;
+import com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorProxyService;
@@ -27,6 +30,8 @@ import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
 import com.chua.starter.monitor.starter.service.ServerConnectionWebSocketService;
 import com.chua.starter.monitor.starter.service.PrometheusDataCollectorService;
+import com.chua.common.support.session.indicator.TimeIndicator;
+import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +79,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Lazy
     private PrometheusDataCollectorService prometheusDataCollectorService;
 
+    @Autowired
+    @Lazy
+    private TimeSeriesService timeSeriesService;
+
+    // Redis键前缀常量
+    private static final String REDIS_METRICS_PREFIX = "monitor:metrics:";
 
     /**
      * 重写save方法，自动检测服务器信息
@@ -452,7 +463,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getConnectionStatus(String id) {
+    public ReturnResult<ServerConnectionStatusDTO> getConnectionStatus(String id) {
         if (StringUtils.isEmpty(id)) {
             return ReturnResult.error("服务器ID不能为空");
         }
@@ -473,22 +484,22 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
             MonitorSysGenServerSetting setting = settingResult.isOk() ? settingResult.getData() : null;
 
-            Map<String, Object> status = new HashMap<>();
-            status.put("serverId", server.getMonitorSysGenServerId());
-            status.put("serverName", server.getMonitorSysGenServerName());
-            status.put("host", server.getMonitorSysGenServerHost());
-            status.put("port", server.getMonitorSysGenServerPort());
-            status.put("protocol", server.getMonitorSysGenServerProtocol());
-            status.put("connected", connectionService.isConnected(server.getMonitorSysGenServerId()));
-            status.put("sessionId", connectionService.getSessionId(server.getMonitorSysGenServerId()));
-            status.put("connectionStatus", server.getMonitorSysGenServerConnectionStatus());
-            status.put("statusDesc", getStatusDesc(server.getMonitorSysGenServerConnectionStatus()));
-            status.put("lastConnectTime", server.getMonitorSysGenServerLastConnectTime());
-            status.put("connectionError", server.getMonitorSysGenServerConnectionError());
-            // 从配置表获取监控状态
-            status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
-            status.put("tags", server.getMonitorSysGenServerTags());
-            status.put("timestamp", System.currentTimeMillis());
+            ServerConnectionStatusDTO status = ServerConnectionStatusDTO.builder()
+                .serverId(server.getMonitorSysGenServerId())
+                .serverName(server.getMonitorSysGenServerName())
+                .host(server.getMonitorSysGenServerHost())
+                .port(server.getMonitorSysGenServerPort())
+                .protocol(server.getMonitorSysGenServerProtocol())
+                .connected(connectionService.isConnected(server.getMonitorSysGenServerId()))
+                .sessionId(connectionService.getSessionId(server.getMonitorSysGenServerId()))
+                .connectionStatus(server.getMonitorSysGenServerConnectionStatus())
+                .statusDesc(getStatusDesc(server.getMonitorSysGenServerConnectionStatus()))
+                .lastConnectTime(server.getMonitorSysGenServerLastConnectTime())
+                .connectionError(server.getMonitorSysGenServerConnectionError())
+                .monitorEnabled(setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0)
+                .tags(server.getMonitorSysGenServerTags())
+                .timestamp(System.currentTimeMillis())
+                .build();
 
             return ReturnResult.ok(status);
         } catch (Exception e) {
@@ -774,7 +785,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getMonitoringStatus(String id) {
+    public ReturnResult<ServerMonitoringStatusDTO> getMonitoringStatus(String id) {
         if (StringUtils.isEmpty(id)) {
             return ReturnResult.error("服务器ID不能为空");
         }
@@ -790,14 +801,13 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 monitorSysGenServerSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
             MonitorSysGenServerSetting setting = settingResult.isOk() ? settingResult.getData() : null;
 
-            Map<String, Object> status = new HashMap<>();
-            status.put("serverId", server.getMonitorSysGenServerId());
-            status.put("serverName", server.getMonitorSysGenServerName());
-            // 从配置表获取监控相关信息
-            status.put("monitorEnabled", setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0);
-
-            status.put("retentionDays", setting != null ? setting.getMonitorSysGenServerSettingMetricsRetentionDays() : 7);
-            status.put("lastUpdateTime", server.getUpdateTime());
+            ServerMonitoringStatusDTO status = ServerMonitoringStatusDTO.builder()
+                .serverId(server.getMonitorSysGenServerId())
+                .serverName(server.getMonitorSysGenServerName())
+                .monitorEnabled(setting != null ? setting.getMonitorSysGenServerSettingMonitorEnabled() : 0)
+                .retentionDays(setting != null ? setting.getMonitorSysGenServerSettingMetricsRetentionDays() : 7)
+                .lastUpdateTime(server.getUpdateTime())
+                .build();
 
             return ReturnResult.ok(status);
         } catch (Exception e) {
@@ -2356,23 +2366,119 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      * 获取API上报的指标历史数据
      */
     private List<Map<String, Object>> getApiMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval) {
-        // TODO: 从Redis或数据库查询API上报的历史数据
-        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            log.info("从Redis时序数据库查询API上报历史数据: serverId={}", serverId);
 
-        log.info("从Redis/数据库查询API上报历史数据: serverId={}", serverId);
+            // 解析时间
+            long startTimestamp = parseTimeString(startTime);
+            long endTimestamp = parseTimeString(endTime);
 
-        return result;
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            // 查询各种指标
+            String[] metricTypes = {"cpu_usage", "memory_usage", "disk_usage", "network_in", "network_out"};
+
+            for (String metricType : metricTypes) {
+                String key = REDIS_METRICS_PREFIX + serverId + ":" + metricType;
+
+                // 使用timeSeriesService查询数据
+                ReturnResult<List<TimeIndicator>> queryResult = timeSeriesService.range(
+                    key,
+                    startTimestamp,
+                    endTimestamp,
+                    false,
+                    1000
+                );
+
+                if (queryResult.isSuccess() && queryResult.getData() != null) {
+                    for (TimeIndicator indicator : queryResult.getData()) {
+                        Map<String, Object> dataPoint = new HashMap<>();
+                        dataPoint.put("timestamp", indicator.getTimestamp());
+                        dataPoint.put("metricType", metricType);
+                        dataPoint.put("value", indicator.getValue());
+                        dataPoint.put("serverId", serverId);
+                        result.add(dataPoint);
+                    }
+                }
+            }
+
+            log.info("查询到API上报历史数据: {} 条", result.size());
+            return result;
+
+        } catch (Exception e) {
+            log.error("查询API上报历史数据失败: serverId={}", serverId, e);
+            return new ArrayList<>();
+        }
     }
 
     /**
      * 获取本地收集的指标历史数据
      */
     private List<Map<String, Object>> getLocalMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval) {
-        // TODO: 从Redis或数据库查询本地收集的历史数据
-        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            log.info("从Redis时序数据库查询本地收集历史数据: serverId={}", serverId);
 
-        log.info("从Redis/数据库查询本地收集历史数据: serverId={}", serverId);
+            // 解析时间
+            long startTimestamp = parseTimeString(startTime);
+            long endTimestamp = parseTimeString(endTime);
 
-        return result;
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            // 查询各种指标
+            String[] metricTypes = {"cpu_usage", "memory_usage", "disk_usage", "network_in", "network_out"};
+
+            for (String metricType : metricTypes) {
+                String key = REDIS_METRICS_PREFIX + serverId + ":" + metricType;
+
+                // 使用timeSeriesService查询数据
+                ReturnResult<List<TimeIndicator>> queryResult = timeSeriesService.range(
+                    key,
+                    startTimestamp,
+                    endTimestamp,
+                    false,
+                    1000
+                );
+
+                if (queryResult.isSuccess() && queryResult.getData() != null) {
+                    for (TimeIndicator indicator : queryResult.getData()) {
+                        Map<String, Object> dataPoint = new HashMap<>();
+                        dataPoint.put("timestamp", indicator.getTimestamp());
+                        dataPoint.put("metricType", metricType);
+                        dataPoint.put("value", indicator.getValue());
+                        dataPoint.put("serverId", serverId);
+                        result.add(dataPoint);
+                    }
+                }
+            }
+
+            log.info("查询到本地收集历史数据: {} 条", result.size());
+            return result;
+
+        } catch (Exception e) {
+            log.error("查询本地收集历史数据失败: serverId={}", serverId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 解析时间字符串为时间戳
+     */
+    private long parseTimeString(String timeStr) {
+        try {
+            // 假设时间格式为 "yyyy-MM-dd HH:mm:ss" 或 ISO格式
+            if (timeStr.contains("T")) {
+                // ISO格式: 2024-01-01T00:00:00Z
+                return java.time.Instant.parse(timeStr).toEpochMilli();
+            } else {
+                // 标准格式: 2024-01-01 00:00:00
+                java.time.LocalDateTime dateTime = java.time.LocalDateTime.parse(timeStr,
+                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                return dateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+            }
+        } catch (Exception e) {
+            log.error("解析时间字符串失败: {}", timeStr, e);
+            // 返回当前时间作为默认值
+            return System.currentTimeMillis();
+        }
     }
 }
