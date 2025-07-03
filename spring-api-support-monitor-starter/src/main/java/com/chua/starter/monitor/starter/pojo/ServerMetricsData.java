@@ -3,6 +3,7 @@ package com.chua.starter.monitor.starter.pojo;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 服务器指标数据传输对象
@@ -88,6 +89,11 @@ public class ServerMetricsData {
      * 磁盘使用率 (百分比)
      */
     private Double diskUsage;
+
+    /**
+     * 磁盘分区信息列表
+     */
+    private List<DiskPartitionInfo> diskPartitions;
 
     /**
      * 网络入流量 (字节/秒)

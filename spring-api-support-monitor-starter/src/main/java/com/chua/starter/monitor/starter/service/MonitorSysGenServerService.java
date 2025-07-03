@@ -156,7 +156,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param id 服务器ID
      * @return 监控状态
      */
-    ReturnResult<Map<String, Object>> getMonitoringStatus(String id);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(String id);
 
     /**
      * 手动收集服务器指标
@@ -180,14 +180,14 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param action 操作类型 (connect/disconnect/enable_monitoring/disable_monitoring)
      * @return 操作结果
      */
-    ReturnResult<Map<String, Object>> batchOperation(List<String> ids, String action);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO> batchOperation(List<String> ids, String action);
 
     /**
      * 获取服务器统计信息
      *
      * @return 统计信息
      */
-    ReturnResult<Map<String, Object>> getServerStatistics();
+    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerStatisticsDTO> getServerStatistics();
 
     /**
      * 导出服务器配置
@@ -203,7 +203,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param configData 配置数据
      * @return 导入结果
      */
-    ReturnResult<Map<String, Object>> importServerConfig(String configData);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.ImportServerConfigResultDTO> importServerConfig(String configData);
 
     /**
      * 克隆服务器配置

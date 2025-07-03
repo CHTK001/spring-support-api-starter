@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.starter.utils;
 
+import com.chua.starter.monitor.starter.pojo.DiskPartitionInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
@@ -176,7 +177,8 @@ public class LocalSystemDataCollector {
             // 文件系统信息
             List<oshi.software.os.OSFileStore> fileStores = operatingSystem.getFileSystem().getFileStores();
             List<Map<String, Object>> fileSystems = new ArrayList<>();
-            
+            List<DiskPartitionInfo> diskPartitions = new ArrayList<>();
+
             for (oshi.software.os.OSFileStore fs : fileStores) {
                 Map<String, Object> fsInfo = new HashMap<>();
                 fsInfo.put("name", fs.getName());
@@ -185,12 +187,28 @@ public class LocalSystemDataCollector {
                 fsInfo.put("totalSpace", fs.getTotalSpace());
                 fsInfo.put("usableSpace", fs.getUsableSpace());
                 fsInfo.put("freeSpace", fs.getFreeSpace());
-                fsInfo.put("usagePercent", fs.getTotalSpace() > 0 ? 
-                    (double)(fs.getTotalSpace() - fs.getFreeSpace()) / fs.getTotalSpace() * 100 : 0);
+                double usagePercent = fs.getTotalSpace() > 0 ?
+                    (double)(fs.getTotalSpace() - fs.getFreeSpace()) / fs.getTotalSpace() * 100 : 0;
+                fsInfo.put("usagePercent", usagePercent);
                 fileSystems.add(fsInfo);
+
+                // 创建磁盘分区信息对象
+                DiskPartitionInfo partitionInfo = DiskPartitionInfo.builder()
+                    .name(fs.getName())
+                    .mount(fs.getMount())
+                    .type(fs.getType())
+                    .totalSpace(fs.getTotalSpace())
+                    .freeSpace(fs.getFreeSpace())
+                    .usedSpace(fs.getTotalSpace() - fs.getFreeSpace())
+                    .usagePercent(usagePercent)
+                    .isPrimary(fs.getMount().equals("/") || fs.getMount().equals("C:\\"))
+                    .deviceName(fs.getName())
+                    .build();
+                diskPartitions.add(partitionInfo);
             }
-            
+
             data.put("fileSystems", fileSystems);
+            data.put("diskPartitions", diskPartitions);
             
         } catch (Exception e) {
             log.warn("收集磁盘信息失败", e);
