@@ -150,6 +150,7 @@ public class MonitorSysGenServerSettingHistory extends SysBase {
         COPY("COPY", "复制"),
         RESET("RESET", "重置"),
         IMPORT("IMPORT", "导入"),
+        RESTORE("RESTORE", "恢复"),
         TEMPLATE("TEMPLATE", "应用模板");
 
         private final String code;

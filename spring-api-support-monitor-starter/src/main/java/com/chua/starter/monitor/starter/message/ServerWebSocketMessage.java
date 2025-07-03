@@ -381,4 +381,20 @@ public class ServerWebSocketMessage implements Serializable {
                 .timestamp(System.currentTimeMillis())
                 .build();
     }
+
+    /**
+     * 创建自定义消息
+     */
+    public static ServerWebSocketMessage createCustomMessage(
+            Integer serverId, String serverName, Map<String, Object> customData) {
+        String messageType = (String) customData.getOrDefault("type", "custom");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(messageType)
+                .serverId(serverId)
+                .serverName(serverName)
+                .data(customData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
 }

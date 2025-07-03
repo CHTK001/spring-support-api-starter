@@ -527,6 +527,37 @@ public class MonitorSysGenServerController {
     }
 
     /**
+     * 根据时间范围查询服务器指标数据
+     *
+     * @param serverId  服务器ID
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @param interval  数据间隔（可选，默认5分钟）
+     * @return 指标数据列表
+     */
+    @Operation(summary = "根据时间范围查询服务器指标数据")
+    @GetMapping("metrics/history")
+    public ReturnResult<List<Map<String, Object>>> getMetricsHistory(
+            @Parameter(name = "服务器ID") @RequestParam Integer serverId,
+            @Parameter(name = "开始时间") @RequestParam String startTime,
+            @Parameter(name = "结束时间") @RequestParam String endTime,
+            @Parameter(name = "数据间隔(分钟)") @RequestParam(defaultValue = "5") Integer interval) {
+        return monitorSysGenServerService.getMetricsHistory(serverId, startTime, endTime, interval);
+    }
+
+    /**
+     * 测试Prometheus连接
+     *
+     * @param serverId 服务器ID
+     * @return 测试结果
+     */
+    @Operation(summary = "测试Prometheus连接")
+    @PostMapping("prometheus/test")
+    public ReturnResult<Boolean> testPrometheusConnection(@Parameter(name = "服务器ID") @RequestParam Integer serverId) {
+        return monitorSysGenServerService.testPrometheusConnection(serverId);
+    }
+
+    /**
      * 数据上报配置请求
      */
     public static class ReportConfigRequest {
