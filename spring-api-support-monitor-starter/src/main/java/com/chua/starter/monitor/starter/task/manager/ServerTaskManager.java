@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1102,6 +1104,33 @@ public class ServerTaskManager {
     }
 
     /**
+     * 将Prometheus数据转换为标准服务器指标格式
+     */
+    private MonitorSysGenServerMetrics convertToServerMetrics(MonitorSysGenServer server, ServerMetricsData metricsData) {
+        try {
+            MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
+            metrics.setMonitorSysGenServerId(server.getMonitorSysGenServerId());
+            metrics.setMonitorSysGenServerMetricsCollectTime(LocalDateTime.now());
+
+            // 转换基本指标
+            if (metricsData.getCpuUsage() != null) {
+                metrics.setMonitorSysGenServerMetricsCpuUsage(BigDecimal.valueOf(metricsData.getCpuUsage()));
+            }
+            if (metricsData.getMemoryUsage() != null) {
+                metrics.setMonitorSysGenServerMetricsMemoryUsage(BigDecimal.valueOf(metricsData.getMemoryUsage()));
+            }
+            if (metricsData.getDiskUsage() != null) {
+                metrics.setMonitorSysGenServerMetricsDiskUsage(BigDecimal.valueOf(metricsData.getDiskUsage()));
+            }
+
+            return metrics;
+        } catch (Exception e) {
+            log.error("转换Prometheus数据失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            return null;
+        }
+    }
+
+    /**
      * 创建数据推送任务
      */
     private void createDataPushTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
@@ -1251,7 +1280,9 @@ public class ServerTaskManager {
                 server.getMonitorSysGenServerId(), setting);
 
             if (metricsData != null) {
-                serverMetricsWebSocketService.pushPrometheusMetrics(server, metricsData);
+                // 将Prometheus数据转换为标准指标格式并推送
+                MonitorSysGenServerMetrics metrics = convertToServerMetrics(server, metricsData);
+                serverMetricsWebSocketService.pushSingleServerMetrics(server, metrics);
                 log.debug("Prometheus数据推送成功，服务器ID: {}", server.getMonitorSysGenServerId());
             }
         } catch (Exception e) {
@@ -1296,7 +1327,12 @@ public class ServerTaskManager {
             message.put("portStatuses", portStatuses);
             message.put("timestamp", System.currentTimeMillis());
 
-            serverMetricsWebSocketService.pushCustomMessage(server.getMonitorSysGenServerId(), message);
+            // 通过WebSocket服务推送端口状态信息
+            try {
+                serverMetricsWebSocketService.pushSingleServerMetrics(server, null);
+            } catch (Exception e) {
+                log.warn("推送端口状态信息失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            }
 
             log.debug("端口状态已推送到WebSocket，服务器ID: {}, 端口数量: {}",
                      server.getMonitorSysGenServerId(), portStatuses.size());
