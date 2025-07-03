@@ -115,25 +115,25 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             // 构建指标数据Map
             Map<String, Object> metricsData = buildMetricsDataMap(metrics);
 
-            // 使用简单的Redis存储方式，因为TimeSeriesService的API不明确
-            // 存储最新指标数据到Hash
+            // 1. 存储最新指标数据到Hash（用于快速获取最新数据）
             Map<String, String> hashData = new HashMap<>();
             for (Map.Entry<String, Object> entry : metricsData.entrySet()) {
                 hashData.put(entry.getKey(), String.valueOf(entry.getValue()));
             }
             hashData.put("timestamp", String.valueOf(timestamp));
 
-            // 使用hSet存储最新数据
-            Map<String, String> latestData = timeSeriesService.hGet(REDIS_LATEST_PREFIX + serverId);
-            if (latestData == null) {
-                latestData = new HashMap<>();
-            }
-            latestData.putAll(hashData);
-
             // 保存最新数据到Redis Hash - 逐个字段保存
             for (Map.Entry<String, String> entry : hashData.entrySet()) {
                 timeSeriesService.hSet(REDIS_LATEST_PREFIX + serverId, entry.getKey(), entry.getValue());
             }
+
+            // 2. 存储历史指标数据到时序数据库（用于历史查询）
+            saveMetricsToTimeSeries(serverId, timestamp, metrics);
+
+            log.info("保存服务器指标数据到Redis: serverId={}, timestamp={}", serverId, timestamp);
+            log.debug("CPU使用率: {}", metrics.getMonitorSysGenServerMetricsCpuUsage());
+            log.debug("内存使用率: {}", metrics.getMonitorSysGenServerMetricsMemoryUsage());
+            log.debug("磁盘使用率: {}", metrics.getMonitorSysGenServerMetricsDiskUsage());
 
             // 设置过期时间
             setMetricsExpireTime(metrics.getMonitorSysGenServerId(), REDIS_LATEST_PREFIX + serverId);
@@ -1146,6 +1146,77 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             log.error("获取时间范围内指标数据失败: serverId={}, startTime={}, endTime={}, error={}",
                     serverId, startTime, endTime, e.getMessage());
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 保存指标数据到时序数据库
+     */
+    private void saveMetricsToTimeSeries(String serverId, long timestamp, MonitorSysGenServerMetrics metrics) {
+        try {
+            // 获取保留时间配置（天数转换为秒）
+            long retentionPeriod = 30 * 24 * 60 * 60; // 默认30天
+
+            // 构建标签
+            LinkedHashMap<String, String> labels = new LinkedHashMap<>();
+            labels.put("serverId", serverId);
+            labels.put("serverName", "server_" + serverId); // 可以从数据库获取真实名称
+
+            // 保存各种指标到时序数据库
+            if (metrics.getMonitorSysGenServerMetricsCpuUsage() != null) {
+                timeSeriesService.save(
+                    REDIS_METRICS_PREFIX + serverId + ":cpu_usage",
+                    timestamp,
+                    metrics.getMonitorSysGenServerMetricsCpuUsage().doubleValue(),
+                    labels,
+                    retentionPeriod
+                );
+            }
+
+            if (metrics.getMonitorSysGenServerMetricsMemoryUsage() != null) {
+                timeSeriesService.save(
+                    REDIS_METRICS_PREFIX + serverId + ":memory_usage",
+                    timestamp,
+                    metrics.getMonitorSysGenServerMetricsMemoryUsage().doubleValue(),
+                    labels,
+                    retentionPeriod
+                );
+            }
+
+            if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null) {
+                timeSeriesService.save(
+                    REDIS_METRICS_PREFIX + serverId + ":disk_usage",
+                    timestamp,
+                    metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue(),
+                    labels,
+                    retentionPeriod
+                );
+            }
+
+            if (metrics.getMonitorSysGenServerMetricsNetworkOut() != null) {
+                timeSeriesService.save(
+                    REDIS_METRICS_PREFIX + serverId + ":network_out",
+                    timestamp,
+                    metrics.getMonitorSysGenServerMetricsNetworkOut().doubleValue(),
+                    labels,
+                    retentionPeriod
+                );
+            }
+
+            if (metrics.getMonitorSysGenServerMetricsNetworkIn() != null) {
+                timeSeriesService.save(
+                    REDIS_METRICS_PREFIX + serverId + ":network_in",
+                    timestamp,
+                    metrics.getMonitorSysGenServerMetricsNetworkIn().doubleValue(),
+                    labels,
+                    retentionPeriod
+                );
+            }
+
+            log.debug("指标数据已保存到时序数据库: serverId={}", serverId);
+
+        } catch (Exception e) {
+            log.error("保存指标数据到时序数据库失败: serverId={}, error={}", serverId, e.getMessage(), e);
         }
     }
 }
