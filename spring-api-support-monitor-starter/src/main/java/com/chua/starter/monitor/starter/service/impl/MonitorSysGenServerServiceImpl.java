@@ -8,29 +8,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.session.indicator.TimeIndicator;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorProxy;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
-import com.chua.starter.monitor.starter.pojo.ServerConnectionStatusDTO;
-import com.chua.starter.monitor.starter.pojo.ServerMonitoringStatusDTO;
-import com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorProxyService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import com.chua.starter.monitor.starter.pojo.*;
+import com.chua.starter.monitor.starter.service.*;
 import com.chua.starter.monitor.starter.service.report.ReportManager;
-import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
-
 import com.chua.starter.monitor.starter.utils.ServerInfoDetector;
-import com.chua.starter.monitor.starter.service.ServerConnectionWebSocketService;
-import com.chua.starter.monitor.starter.service.PrometheusDataCollectorService;
-import com.chua.common.support.session.indicator.TimeIndicator;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -858,7 +848,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> batchOperation(List<String> ids, String action) {
+    public ReturnResult<BatchOperationResultDTO> batchOperation(List<String> ids, String action) {
         if (ids == null || ids.isEmpty()) {
             return ReturnResult.error("服务器ID列表不能为空");
         }
@@ -867,7 +857,6 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             return ReturnResult.error("操作类型不能为空");
         }
 
-        Map<String, Object> result = new HashMap<>();
         List<String> successIds = new ArrayList<>();
         List<String> failedIds = new ArrayList<>();
 
@@ -903,24 +892,23 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             }
         }
 
-        result.put("action", action);
-        result.put("total", ids.size());
-        result.put("success", successIds.size());
-        result.put("failed", failedIds.size());
-        result.put("successIds", successIds);
-        result.put("failedIds", failedIds);
+        BatchOperationResultDTO result = BatchOperationResultDTO.builder()
+            .action(action)
+            .total(ids.size())
+            .success(successIds.size())
+            .failed(failedIds.size())
+            .successIds(successIds)
+            .failedIds(failedIds)
+            .build();
 
         return ReturnResult.ok(result);
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getServerStatistics() {
+    public ReturnResult<ServerStatisticsDTO> getServerStatistics() {
         try {
-            Map<String, Object> statistics = new HashMap<>();
-
             // 总服务器数
             long totalServers = this.count();
-            statistics.put("totalServers", totalServers);
 
             // 在线服务器数
             long onlineServers = connectionServices.stream()
@@ -929,27 +917,31 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                             .mapToLong(server -> service.isConnected(server.getMonitorSysGenServerId()) ? 1 : 0)
                             .sum())
                     .sum();
-            statistics.put("onlineServers", onlineServers);
 
             // 启用监控的服务器数 - 从配置表统计
             ReturnResult<List<MonitorSysGenServerSetting>> enabledSettingsResult =
                 monitorSysGenServerSettingService.getMonitorEnabledSettings();
             long monitoringEnabled = enabledSettingsResult.isOk() ? enabledSettingsResult.getData().size() : 0;
-            statistics.put("monitoringEnabled", monitoringEnabled);
 
             // 按协议分组统计
             Map<String, Long> protocolStats = this.list().stream()
                     .collect(Collectors.groupingBy(
                             MonitorSysGenServer::getMonitorSysGenServerProtocol,
                             Collectors.counting()));
-            statistics.put("protocolStats", protocolStats);
 
             // 按状态分组统计
             Map<String, Long> statusStats = this.list().stream()
                     .collect(Collectors.groupingBy(
                             server -> server.getMonitorSysGenServerStatus() == 1 ? "enabled" : "disabled",
                             Collectors.counting()));
-            statistics.put("statusStats", statusStats);
+
+            ServerStatisticsDTO statistics = ServerStatisticsDTO.builder()
+                .totalServers(totalServers)
+                .onlineServers(onlineServers)
+                .monitoringEnabled(monitoringEnabled)
+                .protocolStats(protocolStats)
+                .statusStats(statusStats)
+                .build();
 
             return ReturnResult.ok(statistics);
         } catch (Exception e) {
@@ -983,7 +975,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> importServerConfig(String configData) {
+    public ReturnResult<ImportServerConfigResultDTO> importServerConfig(String configData) {
         try {
             List<MonitorSysGenServer> servers = Json.fromJsonToList(configData, MonitorSysGenServer.class);
 
@@ -1004,11 +996,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 }
             }
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("total", servers.size());
-            result.put("success", successCount);
-            result.put("failed", failedCount);
-            result.put("errors", errors);
+            ImportServerConfigResultDTO result = ImportServerConfigResultDTO.builder()
+                .total(servers.size())
+                .success(successCount)
+                .failed(failedCount)
+                .errors(errors)
+                .build();
 
             return ReturnResult.ok(result);
         } catch (Exception e) {
