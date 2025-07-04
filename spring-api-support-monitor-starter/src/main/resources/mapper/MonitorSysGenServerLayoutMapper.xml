@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerLayoutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLayout">
+        <id column="monitor_sys_gen_server_layout_id" property="monitorSysGenServerLayoutId" />
+        <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" />
+        <result column="monitor_sys_gen_server_layout_name" property="monitorSysGenServerLayoutName" />
+        <result column="monitor_sys_gen_server_layout_config" property="monitorSysGenServerLayoutConfig" />
+        <result column="monitor_sys_gen_server_layout_type" property="monitorSysGenServerLayoutType" />
+        <result column="monitor_sys_gen_server_layout_default" property="monitorSysGenServerLayoutDefault" />
+        <result column="monitor_sys_gen_server_layout_status" property="monitorSysGenServerLayoutStatus" />
+        <result column="monitor_sys_gen_server_layout_description" property="monitorSysGenServerLayoutDescription" />
+        <result column="monitor_sys_gen_server_layout_version" property="monitorSysGenServerLayoutVersion" />
+        <result column="monitor_sys_gen_server_layout_sort" property="monitorSysGenServerLayoutSort" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_layout_id,
+        monitor_sys_gen_server_id,
+        monitor_sys_gen_server_layout_name,
+        monitor_sys_gen_server_layout_config,
+        monitor_sys_gen_server_layout_type,
+        monitor_sys_gen_server_layout_default,
+        monitor_sys_gen_server_layout_status,
+        monitor_sys_gen_server_layout_description,
+        monitor_sys_gen_server_layout_version,
+        monitor_sys_gen_server_layout_sort,
+        create_time,
+        update_time,
+        create_by,
+        update_by
+    </sql>
+
+    <!-- 根据服务器ID获取布局列表 -->
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_layout_status = 1
+        ORDER BY monitor_sys_gen_server_layout_default DESC, 
+                 monitor_sys_gen_server_layout_sort ASC, 
+                 monitor_sys_gen_server_layout_id ASC
+    </select>
+
+    <!-- 根据服务器ID获取默认布局 -->
+    <select id="selectDefaultByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_layout_default = 1
+          AND monitor_sys_gen_server_layout_status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 根据服务器ID和布局类型获取布局 -->
+    <select id="selectByServerIdAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_layout_type = #{layoutType}
+          AND monitor_sys_gen_server_layout_status = 1
+        ORDER BY monitor_sys_gen_server_layout_default DESC, 
+                 monitor_sys_gen_server_layout_sort ASC, 
+                 monitor_sys_gen_server_layout_id ASC
+        LIMIT 1
+    </select>
+
+    <!-- 根据布局类型获取布局列表 -->
+    <select id="selectByLayoutType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_layout
+        WHERE monitor_sys_gen_server_layout_type = #{layoutType}
+          AND monitor_sys_gen_server_layout_status = 1
+        ORDER BY monitor_sys_gen_server_layout_sort ASC, 
+                 monitor_sys_gen_server_layout_id ASC
+    </select>
+
+    <!-- 清除服务器的默认布局标记 -->
+    <update id="clearDefaultLayout">
+        UPDATE monitor_sys_gen_server_layout
+        SET monitor_sys_gen_server_layout_default = 0,
+            update_time = NOW()
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_layout_default = 1
+    </update>
+
+    <!-- 设置默认布局 -->
+    <update id="setDefaultLayout">
+        UPDATE monitor_sys_gen_server_layout
+        SET monitor_sys_gen_server_layout_default = 1,
+            update_time = NOW()
+        WHERE monitor_sys_gen_server_layout_id = #{layoutId}
+    </update>
+
+</mapper>

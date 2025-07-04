@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentMapper">
+
+    <!-- 根据服务器ID获取组件列表 -->
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+        SELECT * FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        ORDER BY monitor_sys_gen_server_detail_component_sort_order ASC, monitor_sys_gen_server_detail_component_create_time ASC
+    </select>
+
+    <!-- 根据服务器ID和组件类型获取组件列表 -->
+    <select id="selectByServerIdAndType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+        SELECT * FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = #{serverId} 
+        AND monitor_sys_gen_server_detail_component_type = #{componentType}
+        ORDER BY monitor_sys_gen_server_detail_component_sort_order ASC
+    </select>
+
+    <!-- 根据服务器ID和表达式类型获取组件列表 -->
+    <select id="selectByServerIdAndExpressionType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+        SELECT * FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = #{serverId} 
+        AND monitor_sys_gen_server_detail_component_expression_type = #{expressionType}
+        ORDER BY monitor_sys_gen_server_detail_component_sort_order ASC
+    </select>
+
+    <!-- 获取启用的组件列表 -->
+    <select id="selectEnabledByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+        SELECT * FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = #{serverId} 
+        AND monitor_sys_gen_server_detail_component_enabled = 1
+        ORDER BY monitor_sys_gen_server_detail_component_sort_order ASC
+    </select>
+
+    <!-- 批量更新组件位置信息 -->
+    <update id="batchUpdatePosition">
+        <foreach collection="components" item="component" separator=";">
+            UPDATE monitor_sys_gen_server_detail_component 
+            SET monitor_sys_gen_server_detail_component_position = #{component.monitorSysGenServerComponentPosition},
+                monitor_sys_gen_server_detail_component_update_time = #{component.monitorSysGenServerComponentUpdateTime}
+            WHERE monitor_sys_gen_server_detail_component_id = #{component.monitorSysGenServerComponentId}
+        </foreach>
+    </update>
+
+    <!-- 获取组件模板列表 -->
+    <select id="selectTemplates" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+        SELECT * FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = -1
+        ORDER BY monitor_sys_gen_server_detail_component_sort_order ASC
+    </select>
+
+    <!-- 复制模板组件到指定服务器 -->
+    <insert id="copyTemplatesForServer">
+        INSERT INTO monitor_sys_gen_server_detail_component (
+            monitor_sys_gen_server_id,
+            monitor_sys_gen_server_detail_component_name,
+            monitor_sys_gen_server_detail_component_title,
+            monitor_sys_gen_server_detail_component_type,
+            monitor_sys_gen_server_detail_component_expression_type,
+            monitor_sys_gen_server_detail_component_expression,
+            monitor_sys_gen_server_detail_component_position,
+            monitor_sys_gen_server_detail_component_chart_config,
+            monitor_sys_gen_server_detail_component_refresh_interval,
+            monitor_sys_gen_server_detail_component_sort_order,
+            monitor_sys_gen_server_detail_component_desc,
+            monitor_sys_gen_server_detail_component_create_time,
+            monitor_sys_gen_server_detail_component_update_time
+        )
+        SELECT 
+            #{serverId},
+            monitor_sys_gen_server_detail_component_name,
+            monitor_sys_gen_server_detail_component_title,
+            monitor_sys_gen_server_detail_component_type,
+            monitor_sys_gen_server_detail_component_expression_type,
+            monitor_sys_gen_server_detail_component_expression,
+            monitor_sys_gen_server_detail_component_position,
+            monitor_sys_gen_server_detail_component_chart_config,
+            monitor_sys_gen_server_detail_component_refresh_interval,
+            monitor_sys_gen_server_detail_component_sort_order,
+            monitor_sys_gen_server_detail_component_desc,
+            NOW(),
+            NOW()
+        FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_detail_component_id IN 
+        <foreach collection="templateIds" item="templateId" open="(" separator="," close=")">
+            #{templateId}
+        </foreach>
+    </insert>
+
+    <!-- 获取服务器组件统计信息 -->
+    <select id="getComponentStatistics" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            monitor_sys_gen_server_detail_component_type as componentType,
+            COUNT(*) as count,
+            SUM(CASE WHEN monitor_sys_gen_server_detail_component_enabled = 1 THEN 1 ELSE 0 END) as enabledCount
+        FROM monitor_sys_gen_server_detail_component 
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        GROUP BY monitor_sys_gen_server_detail_component_type
+        ]]>
+    </select>
+
+</mapper>

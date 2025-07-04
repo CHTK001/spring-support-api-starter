@@ -1,16 +1,12 @@
 package com.chua.starter.monitor.starter.task.manager;
 
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.pojo.ServerMetricsData;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.PrometheusDataCollectorService;
-import com.chua.starter.monitor.starter.service.ServerMetricsWebSocketService;
-import com.chua.starter.monitor.starter.service.UnifiedAlertService;
+import com.chua.starter.monitor.starter.service.*;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -21,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -1416,6 +1413,12 @@ public class ServerTaskManager {
             // 设置状态为在线
             metrics.setMonitorSysGenServerMetricsStatus(1);
 
+            Map<String, String> osInfo = new HashMap<>();
+            osInfo.put("osName", systemData.get("osName").toString());
+            osInfo.put("osArch", systemData.get("osArch").toString());
+            osInfo.put("osVersion", systemData.get("osVersion").toString());
+            osInfo.put("hostname", InetAddress.getByName(server.getMonitorSysGenServerHost()).getHostName());
+            metrics.setMonitorSysGenServerMetricsOsInfo(Json.toJson(osInfo));
             return metrics;
 
         } catch (Exception e) {
