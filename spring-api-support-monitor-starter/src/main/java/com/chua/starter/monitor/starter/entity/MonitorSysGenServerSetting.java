@@ -80,67 +80,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     private Integer monitorSysGenServerSettingPrometheusPort;
 
     /**
-     * Prometheus服务器完整URL
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_url")
-    @ApiModelProperty(value = "Prometheus服务器完整URL")
-    @Schema(description = "Prometheus服务器完整URL")
-    @Size(max = 500, message = "Prometheus服务器URL最大长度要小于 500")
-    private String monitorSysGenServerSettingPrometheusUrl;
-
-    /**
-     * Prometheus查询路径
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_query_path")
-    @ApiModelProperty(value = "Prometheus查询路径")
-    @Schema(description = "Prometheus查询路径")
-    @Size(max = 200, message = "Prometheus查询路径最大长度要小于 200")
-    private String monitorSysGenServerSettingPrometheusQueryPath;
-
-    /**
-     * Prometheus认证是否启用 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_auth_enabled")
-    @ApiModelProperty(value = "Prometheus认证是否启用")
-    @Schema(description = "Prometheus认证是否启用")
-    private Integer monitorSysGenServerSettingPrometheusAuthEnabled;
-
-    /**
-     * Prometheus认证用户名
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_username")
-    @ApiModelProperty(value = "Prometheus认证用户名")
-    @Schema(description = "Prometheus认证用户名")
-    @Size(max = 100, message = "Prometheus用户名最大长度要小于 100")
-    private String monitorSysGenServerSettingPrometheusUsername;
-
-    /**
-     * Prometheus认证密码
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_password")
-    @ApiModelProperty(value = "Prometheus认证密码")
-    @Schema(description = "Prometheus认证密码")
-    @Size(max = 200, message = "Prometheus密码最大长度要小于 200")
-    private String monitorSysGenServerSettingPrometheusPassword;
-
-    /**
-     * Prometheus查询超时时间(秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_timeout")
-    @ApiModelProperty(value = "Prometheus查询超时时间")
-    @Schema(description = "Prometheus查询超时时间(秒)")
-    private Integer monitorSysGenServerSettingPrometheusTimeout;
-
-    /**
-     * Prometheus标签过滤器
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_prometheus_labels")
-    @ApiModelProperty(value = "Prometheus标签过滤器")
-    @Schema(description = "Prometheus标签过滤器")
-    @Size(max = 1000, message = "Prometheus标签过滤器最大长度要小于 1000")
-    private String monitorSysGenServerSettingPrometheusLabels;
-
-    /**
      * 指标存储时间(天)
      */
     @TableField(value = "monitor_sys_gen_server_setting_metrics_retention_days")
@@ -521,6 +460,201 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Schema(description = "读取超时时间 (秒)")
     private Integer monitorSysGenServerSettingReadTimeout;
 
+    // ==================== 文件上传配置 ====================
+
+    /**
+     * 是否启用文件上传队列处理 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_enabled")
+    @ApiModelProperty(value = "是否启用文件上传队列处理")
+    @Schema(description = "是否启用文件上传队列处理")
+    private Integer monitorSysGenServerSettingFileUploadEnabled;
+
+    /**
+     * 文件上传队列处理间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_interval")
+    @ApiModelProperty(value = "文件上传队列处理间隔")
+    @Schema(description = "文件上传队列处理间隔 (秒)")
+    private Integer monitorSysGenServerSettingFileUploadInterval;
+
+    /**
+     * 文件上传状态检查间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_status_check_interval")
+    @ApiModelProperty(value = "文件上传状态检查间隔")
+    @Schema(description = "文件上传状态检查间隔 (秒)")
+    private Integer monitorSysGenServerSettingFileUploadStatusCheckInterval;
+
+    /**
+     * 文件上传临时文件清理间隔 (小时)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_cleanup_interval")
+    @ApiModelProperty(value = "文件上传临时文件清理间隔")
+    @Schema(description = "文件上传临时文件清理间隔 (小时)")
+    private Integer monitorSysGenServerSettingFileUploadCleanupInterval;
+
+    /**
+     * 文件上传超时时间 (分钟)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_timeout")
+    @ApiModelProperty(value = "文件上传超时时间")
+    @Schema(description = "文件上传超时时间 (分钟)")
+    private Integer monitorSysGenServerSettingFileUploadTimeout;
+
+    /**
+     * 文件上传最大重试次数
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_upload_max_retries")
+    @ApiModelProperty(value = "文件上传最大重试次数")
+    @Schema(description = "文件上传最大重试次数")
+    private Integer monitorSysGenServerSettingFileUploadMaxRetries;
+
+    // ==================== 任务调度配置 ====================
+
+    /**
+     * 端口检查间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_port_check_interval")
+    @ApiModelProperty(value = "端口检查间隔")
+    @Schema(description = "端口检查间隔 (秒)")
+    private Integer monitorSysGenServerSettingPortCheckInterval;
+
+    /**
+     * 是否启用在线状态检查 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_online_check_enabled")
+    @ApiModelProperty(value = "是否启用在线状态检查")
+    @Schema(description = "是否启用在线状态检查")
+    private Integer monitorSysGenServerSettingOnlineCheckEnabled;
+
+    /**
+     * 在线状态检查间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_online_check_interval")
+    @ApiModelProperty(value = "在线状态检查间隔")
+    @Schema(description = "在线状态检查间隔 (秒)")
+    private Integer monitorSysGenServerSettingOnlineCheckInterval;
+
+    /**
+     * 是否启用延迟检测 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
+    @ApiModelProperty(value = "是否启用延迟检测")
+    @Schema(description = "是否启用延迟检测")
+    private Integer monitorSysGenServerSettingLatencyCheckEnabled;
+
+    /**
+     * 延迟检测间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
+    @ApiModelProperty(value = "延迟检测间隔")
+    @Schema(description = "延迟检测间隔 (秒)")
+    private Integer monitorSysGenServerSettingLatencyCheckInterval;
+
+    /**
+     * 是否启用日志清理 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_log_cleanup_enabled")
+    @ApiModelProperty(value = "是否启用日志清理")
+    @Schema(description = "是否启用日志清理")
+    private Integer monitorSysGenServerSettingLogCleanupEnabled;
+
+    /**
+     * 是否启用临时文件清理 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_temp_file_cleanup_enabled")
+    @ApiModelProperty(value = "是否启用临时文件清理")
+    @Schema(description = "是否启用临时文件清理")
+    private Integer monitorSysGenServerSettingTempFileCleanupEnabled;
+
+    /**
+     * 临时文件保留时间 (小时)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_temp_file_retention_hours")
+    @ApiModelProperty(value = "临时文件保留时间")
+    @Schema(description = "临时文件保留时间 (小时)")
+    private Integer monitorSysGenServerSettingTempFileRetentionHours;
+
+    /**
+     * 是否启用WebSocket清理 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_enabled")
+    @ApiModelProperty(value = "是否启用WebSocket清理")
+    @Schema(description = "是否启用WebSocket清理")
+    private Integer monitorSysGenServerSettingWebSocketCleanupEnabled;
+
+    /**
+     * WebSocket清理间隔 (分钟)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_interval")
+    @ApiModelProperty(value = "WebSocket清理间隔")
+    @Schema(description = "WebSocket清理间隔 (分钟)")
+    private Integer monitorSysGenServerSettingWebSocketCleanupInterval;
+
+    // ==================== Prometheus 配置 ====================
+
+    /**
+     * Prometheus服务器URL
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_url")
+    @ApiModelProperty(value = "Prometheus服务器URL")
+    @Schema(description = "Prometheus服务器URL")
+    @Size(max = 500, message = "Prometheus服务器URL最大长度要小于 500")
+    private String monitorSysGenServerSettingPrometheusUrl;
+
+    /**
+     * Prometheus查询路径
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_query_path")
+    @ApiModelProperty(value = "Prometheus查询路径")
+    @Schema(description = "Prometheus查询路径")
+    @Size(max = 200, message = "Prometheus查询路径最大长度要小于 200")
+    private String monitorSysGenServerSettingPrometheusQueryPath;
+
+    /**
+     * 是否启用Prometheus认证 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_auth_enabled")
+    @ApiModelProperty(value = "是否启用Prometheus认证")
+    @Schema(description = "是否启用Prometheus认证")
+    private Integer monitorSysGenServerSettingPrometheusAuthEnabled;
+
+    /**
+     * Prometheus用户名
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_username")
+    @ApiModelProperty(value = "Prometheus用户名")
+    @Schema(description = "Prometheus用户名")
+    @Size(max = 100, message = "Prometheus用户名最大长度要小于 100")
+    private String monitorSysGenServerSettingPrometheusUsername;
+
+    /**
+     * Prometheus密码
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_password")
+    @ApiModelProperty(value = "Prometheus密码")
+    @Schema(description = "Prometheus密码")
+    @Size(max = 100, message = "Prometheus密码最大长度要小于 100")
+    private String monitorSysGenServerSettingPrometheusPassword;
+
+    /**
+     * Prometheus连接超时时间 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_timeout")
+    @ApiModelProperty(value = "Prometheus连接超时时间")
+    @Schema(description = "Prometheus连接超时时间 (秒)")
+    private Integer monitorSysGenServerSettingPrometheusTimeout;
+
+    /**
+     * Prometheus标签 (JSON格式)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_prometheus_labels")
+    @ApiModelProperty(value = "Prometheus标签")
+    @Schema(description = "Prometheus标签 (JSON格式)")
+    @Size(max = 1000, message = "Prometheus标签最大长度要小于 1000")
+    private String monitorSysGenServerSettingPrometheusLabels;
+
     /**
      * 数据上报方式枚举
      */
@@ -777,7 +911,7 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingMonitorEnabled(1);
         setting.setMonitorSysGenServerSettingReportEnabled(1);
         setting.setMonitorSysGenServerSettingDataReportMethod(DataReportMethod.API.getCode());
-
+        setting.setMonitorSysGenServerSettingMonitorInterval(60);
         setting.setMonitorSysGenServerSettingDataCollectionFrequency(30);
         setting.setMonitorSysGenServerSettingMetricsRetentionDays(30);
 
@@ -797,17 +931,6 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingAlertNotificationMethod(AlertNotificationMethod.EMAIL.getCode());
         setting.setMonitorSysGenServerSettingAlertSilenceDuration(30);
         setting.setMonitorSysGenServerSettingAutoRecoveryNotificationEnabled(1);
-
-        // Prometheus配置
-        setting.setMonitorSysGenServerSettingPrometheusHost("localhost");
-        setting.setMonitorSysGenServerSettingPrometheusPort(9090);
-        setting.setMonitorSysGenServerSettingPrometheusUrl("http://localhost:9090");
-        setting.setMonitorSysGenServerSettingPrometheusQueryPath("/api/v1/query");
-        setting.setMonitorSysGenServerSettingPrometheusAuthEnabled(0);
-        setting.setMonitorSysGenServerSettingPrometheusUsername("");
-        setting.setMonitorSysGenServerSettingPrometheusPassword("");
-        setting.setMonitorSysGenServerSettingPrometheusTimeout(30);
-        setting.setMonitorSysGenServerSettingPrometheusLabels("");
 
         // Docker配置
         setting.setMonitorSysGenServerSettingDockerEnabled(0);
@@ -829,19 +952,6 @@ public class MonitorSysGenServerSetting extends SysBase {
         // 超时配置
         setting.setMonitorSysGenServerSettingConnectionTimeout(0);
         setting.setMonitorSysGenServerSettingReadTimeout(60);
-
-        // 统一定时任务配置
-        setting.setMonitorSysGenServerSettingPortCheckInterval(60);
-        setting.setMonitorSysGenServerSettingOnlineCheckEnabled(1);
-        setting.setMonitorSysGenServerSettingOnlineCheckInterval(30);
-        setting.setMonitorSysGenServerSettingLatencyCheckEnabled(1);
-        setting.setMonitorSysGenServerSettingLatencyCheckInterval(60);
-        setting.setMonitorSysGenServerSettingLogCleanupEnabled(1);
-        setting.setMonitorSysGenServerSettingLogRetentionDays(7);
-        setting.setMonitorSysGenServerSettingTempFileCleanupEnabled(1);
-        setting.setMonitorSysGenServerSettingTempFileRetentionHours(24);
-        setting.setMonitorSysGenServerSettingWebSocketCleanupEnabled(1);
-        setting.setMonitorSysGenServerSettingWebSocketCleanupInterval(10);
 
         // 其他配置
         setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);
@@ -908,174 +1018,5 @@ public class MonitorSysGenServerSetting extends SysBase {
      */
     public boolean isDockerMonitorEnabled() {
         return this.monitorSysGenServerSettingDockerMonitorEnabled != null && this.monitorSysGenServerSettingDockerMonitorEnabled == 1;
-    }
-
-    // ==================== 统一定时任务配置 ====================
-
-    /**
-     * 端口检测间隔时间(秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_port_check_interval")
-    @ApiModelProperty(value = "端口检测间隔时间(秒)")
-    @Schema(description = "端口检测间隔时间(秒)")
-    private Integer monitorSysGenServerSettingPortCheckInterval;
-
-    /**
-     * 是否启用在线状态检测 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_online_check_enabled")
-    @ApiModelProperty(value = "是否启用在线状态检测")
-    @Schema(description = "是否启用在线状态检测")
-    private Integer monitorSysGenServerSettingOnlineCheckEnabled;
-
-    /**
-     * 在线状态检测间隔时间(秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_online_check_interval")
-    @ApiModelProperty(value = "在线状态检测间隔时间(秒)")
-    @Schema(description = "在线状态检测间隔时间(秒)")
-    private Integer monitorSysGenServerSettingOnlineCheckInterval;
-
-    /**
-     * 是否启用延迟检测 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
-    @ApiModelProperty(value = "是否启用延迟检测")
-    @Schema(description = "是否启用延迟检测")
-    private Integer monitorSysGenServerSettingLatencyCheckEnabled;
-
-    /**
-     * 延迟检测间隔时间(秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
-    @ApiModelProperty(value = "延迟检测间隔时间(秒)")
-    @Schema(description = "延迟检测间隔时间(秒)")
-    private Integer monitorSysGenServerSettingLatencyCheckInterval;
-
-    /**
-     * 是否启用日志清理 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_log_cleanup_enabled")
-    @ApiModelProperty(value = "是否启用日志清理")
-    @Schema(description = "是否启用日志清理")
-    private Integer monitorSysGenServerSettingLogCleanupEnabled;
-
-    /**
-     * 日志保留天数
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_log_retention_days")
-    @ApiModelProperty(value = "日志保留天数")
-    @Schema(description = "日志保留天数")
-    private Integer monitorSysGenServerSettingLogRetentionDays;
-
-    /**
-     * 是否启用临时文件清理 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_temp_file_cleanup_enabled")
-    @ApiModelProperty(value = "是否启用临时文件清理")
-    @Schema(description = "是否启用临时文件清理")
-    private Integer monitorSysGenServerSettingTempFileCleanupEnabled;
-
-    /**
-     * 临时文件保留小时数
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_temp_file_retention_hours")
-    @ApiModelProperty(value = "临时文件保留小时数")
-    @Schema(description = "临时文件保留小时数")
-    private Integer monitorSysGenServerSettingTempFileRetentionHours;
-
-    /**
-     * 是否启用WebSocket会话清理 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_enabled")
-    @ApiModelProperty(value = "是否启用WebSocket会话清理")
-    @Schema(description = "是否启用WebSocket会话清理")
-    private Integer monitorSysGenServerSettingWebSocketCleanupEnabled;
-
-    /**
-     * WebSocket会话清理间隔时间(分钟)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_interval")
-    @ApiModelProperty(value = "WebSocket会话清理间隔时间(分钟)")
-    @Schema(description = "WebSocket会话清理间隔时间(分钟)")
-    private Integer monitorSysGenServerSettingWebSocketCleanupInterval;
-
-    // ==================== 统一定时任务配置相关方法 ====================
-
-    /**
-     * 判断是否启用在线状态检测
-     */
-    public boolean isOnlineCheckEnabled() {
-        return this.monitorSysGenServerSettingOnlineCheckEnabled != null && this.monitorSysGenServerSettingOnlineCheckEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用延迟检测
-     */
-    public boolean isLatencyCheckEnabled() {
-        return this.monitorSysGenServerSettingLatencyCheckEnabled != null && this.monitorSysGenServerSettingLatencyCheckEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用日志清理
-     */
-    public boolean isLogCleanupEnabled() {
-        return this.monitorSysGenServerSettingLogCleanupEnabled != null && this.monitorSysGenServerSettingLogCleanupEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用临时文件清理
-     */
-    public boolean isTempFileCleanupEnabled() {
-        return this.monitorSysGenServerSettingTempFileCleanupEnabled != null && this.monitorSysGenServerSettingTempFileCleanupEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用WebSocket会话清理
-     */
-    public boolean isWebSocketCleanupEnabled() {
-        return this.monitorSysGenServerSettingWebSocketCleanupEnabled != null && this.monitorSysGenServerSettingWebSocketCleanupEnabled == 1;
-    }
-
-    /**
-     * 获取端口检测间隔时间，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingPortCheckInterval() {
-        return this.monitorSysGenServerSettingPortCheckInterval != null ? this.monitorSysGenServerSettingPortCheckInterval : 60;
-    }
-
-    /**
-     * 获取在线状态检测间隔时间，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingOnlineCheckInterval() {
-        return this.monitorSysGenServerSettingOnlineCheckInterval != null ? this.monitorSysGenServerSettingOnlineCheckInterval : 30;
-    }
-
-    /**
-     * 获取延迟检测间隔时间，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingLatencyCheckInterval() {
-        return this.monitorSysGenServerSettingLatencyCheckInterval != null ? this.monitorSysGenServerSettingLatencyCheckInterval : 60;
-    }
-
-    /**
-     * 获取日志保留天数，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingLogRetentionDays() {
-        return this.monitorSysGenServerSettingLogRetentionDays != null ? this.monitorSysGenServerSettingLogRetentionDays : 7;
-    }
-
-    /**
-     * 获取临时文件保留小时数，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingTempFileRetentionHours() {
-        return this.monitorSysGenServerSettingTempFileRetentionHours != null ? this.monitorSysGenServerSettingTempFileRetentionHours : 24;
-    }
-
-    /**
-     * 获取WebSocket会话清理间隔时间，如果未设置则返回默认值
-     */
-    public int getMonitorSysGenServerSettingWebSocketCleanupInterval() {
-        return this.monitorSysGenServerSettingWebSocketCleanupInterval != null ? this.monitorSysGenServerSettingWebSocketCleanupInterval : 10;
     }
 }
