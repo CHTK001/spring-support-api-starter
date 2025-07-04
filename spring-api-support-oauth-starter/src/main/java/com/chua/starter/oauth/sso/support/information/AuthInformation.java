@@ -11,7 +11,6 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
-import com.chua.starter.oauth.sso.support.authenticate.AkSkAuthenticator;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
 import com.chua.starter.oauth.sso.support.parser.InvalidAuthorization;
@@ -101,9 +100,6 @@ public class AuthInformation {
 
         // 检查AKSK认证
         if (authServerProperties.isOpenCheckAkSk()) {
-            if (!checkAkSk(accessKey, secretKey, clientIp)) {
-                return InvalidAuthorization.INSTANCE;
-            }
         }
 
         // 根据encipher标识决定是否解密oauthValue
@@ -183,36 +179,4 @@ public class AuthInformation {
         return Codec.build(encryption, oauthKey);
     }
 
-    /**
-     * 检查AKSK认证
-     */
-    private boolean checkAkSk(String accessKey, String secretKey, String clientIp) {
-        if (accessKey == null || secretKey == null) {
-            return false;
-        }
-
-        try {
-            // 获取AKSK认证器
-            String authenticateType = authServerProperties.getAuthenticate();
-            if (StringUtils.isEmpty(authenticateType)) {
-                authenticateType = "memory"; // 默认使用内存认证器
-            }
-
-            AkSkAuthenticator authenticator = ServiceProvider.of(AkSkAuthenticator.class).getExtension(authenticateType);
-            if (authenticator == null) {
-                log.warn("未找到AKSK认证器: {}", authenticateType);
-                return false;
-            }
-
-            // 验证AKSK和IP
-            if (StringUtils.isNotEmpty(clientIp)) {
-                return authenticator.authenticate(accessKey, secretKey, clientIp);
-            } else {
-                return authenticator.authenticate(accessKey, secretKey);
-            }
-        } catch (Exception e) {
-            log.error("AKSK认证失败: accessKey={}, clientIp={}", accessKey, clientIp, e);
-            return false;
-        }
-    }
 }
