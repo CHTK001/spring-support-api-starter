@@ -1,0 +1,25 @@
+-- 创建服务器布局配置表
+CREATE TABLE IF NOT EXISTS `monitor_sys_gen_server_layout` (
+    `monitor_sys_gen_server_layout_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '布局配置ID',
+    `monitor_sys_gen_server_id` int(11) NOT NULL COMMENT '关联服务器ID',
+    `monitor_sys_gen_server_layout_name` varchar(100) NOT NULL COMMENT '布局名称',
+    `monitor_sys_gen_server_layout_config` text COMMENT '布局配置 (JSON格式)',
+    `monitor_sys_gen_server_layout_type` varchar(20) DEFAULT 'custom' COMMENT '布局类型 (default: 默认布局, custom: 自定义布局, generated: 生成布局, copied: 复制布局)',
+    `monitor_sys_gen_server_layout_default` tinyint(1) DEFAULT '0' COMMENT '是否为默认布局 0:否 1:是',
+    `monitor_sys_gen_server_layout_status` tinyint(1) DEFAULT '1' COMMENT '布局状态 0:停用 1:启用',
+    `monitor_sys_gen_server_layout_description` varchar(500) COMMENT '布局描述',
+    `monitor_sys_gen_server_layout_version` int(11) DEFAULT '1' COMMENT '布局版本',
+    `monitor_sys_gen_server_layout_sort` int(11) DEFAULT '0' COMMENT '布局排序',
+    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(50) DEFAULT NULL COMMENT '创建人',
+    `update_by` varchar(50) DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`monitor_sys_gen_server_layout_id`),
+    KEY `idx_server_id` (`monitor_sys_gen_server_id`),
+    KEY `idx_layout_type` (`monitor_sys_gen_server_layout_type`),
+    KEY `idx_default` (`monitor_sys_gen_server_layout_default`),
+    KEY `idx_status` (`monitor_sys_gen_server_layout_status`),
+    KEY `idx_sort` (`monitor_sys_gen_server_layout_sort`),
+    UNIQUE KEY `uk_server_default` (`monitor_sys_gen_server_id`, `monitor_sys_gen_server_layout_default`),
+    CONSTRAINT `fk_server_layout_server_id` FOREIGN KEY (`monitor_sys_gen_server_id`) REFERENCES `monitor_sys_gen_server` (`monitor_sys_gen_server_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='服务器布局配置表';
