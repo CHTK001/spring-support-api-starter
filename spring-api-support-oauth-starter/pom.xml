@@ -25,7 +25,6 @@
             <artifactId>spring-support-oauth-client-starter</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-configcenter-starter</artifactId>
@@ -50,11 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -63,11 +57,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.12.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <dependency>
@@ -97,17 +86,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>validation-api</artifactId>
-                    <groupId>javax.validation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>2.0.48</version>
@@ -129,6 +107,17 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-datasource-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-entity-starter</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
     </dependencies>

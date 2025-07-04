@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.oauth.sso.mapper.SysUserLogMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysUserLog">
+    <!--@mbg.generated-->
+    <!--@Table sys_user_log-->
+    <id column="sys_log_id" jdbcType="INTEGER" property="sysLogId" />
+    <result column="sys_log_username" jdbcType="VARCHAR" property="sysLogUsername" />
+    <result column="sys_log_address" jdbcType="VARCHAR" property="sysLogAddress" />
+    <result column="sys_log_ip" jdbcType="VARCHAR" property="sysLogIp" />
+    <result column="sys_log_isp" jdbcType="VARCHAR" property="sysLogIsp" />
+    <result column="sys_log_system" jdbcType="VARCHAR" property="sysLogSystem" />
+    <result column="sys_log_ua" jdbcType="LONGVARCHAR" property="sysLogUa" />
+    <result column="sys_log_browser" jdbcType="VARCHAR" property="sysLogBrowser" />
+    <result column="sys_log_url" jdbcType="VARCHAR" property="sysLogUrl" />
+    <result column="sys_log_param" jdbcType="VARCHAR" property="sysLogParam" />
+    <result column="sys_log_cost" jdbcType="INTEGER" property="sysLogCost" />
+    <result column="sys_log_from" jdbcType="VARCHAR" property="sysLogFrom" />
+    <result column="sys_log_status" jdbcType="INTEGER" property="sysLogStatus" />
+    <result column="sys_log_fingerprint" jdbcType="VARCHAR" property="sysLogFingerprint" />
+    <result column="sys_log_login_type" jdbcType="VARCHAR" property="sysLogLoginType" />
+    <result column="sys_dept_id" jdbcType="INTEGER" property="sysDeptId" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    sys_log_id, sys_log_username, sys_log_address, sys_log_ip, sys_log_isp, sys_log_system, 
+    sys_log_ua, sys_log_browser, sys_log_url, sys_log_param, sys_log_cost, sys_log_from, 
+    sys_log_status, sys_log_fingerprint, sys_log_login_type, sys_dept_id, create_name, 
+    create_by, create_time, update_time, update_name, update_by
+  </sql>
+</mapper>

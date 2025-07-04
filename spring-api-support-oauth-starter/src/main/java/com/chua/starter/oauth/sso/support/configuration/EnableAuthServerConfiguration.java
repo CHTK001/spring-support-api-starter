@@ -11,8 +11,6 @@ import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
 import com.chua.starter.oauth.sso.support.protocol.Protocol;
-import com.chua.starter.oauth.sso.support.provider.LoginProvider;
-import com.chua.starter.oauth.sso.support.resolver.SimpleUserInfoResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -74,7 +72,6 @@ import java.util.*;
  * @since 2022/7/23 8:51
  * @see AuthServerProperties 认证服务器配置属性
  * @see LoginCheck 登录检查服务
- * @see LoginProvider 登录提供者
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -92,10 +89,8 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, LoginCheck.class);
-        BeanDefinitionRegistryUtils.registerBeanDefinition(registry, LoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
-        BeanDefinitionRegistryUtils.registerBeanDefinition(registry, SimpleUserInfoResolver.class);
 
         List<String> protocols = authServerProperties.getProtocols();
         if (protocols.isEmpty()) {
