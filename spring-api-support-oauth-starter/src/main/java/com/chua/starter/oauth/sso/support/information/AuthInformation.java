@@ -4,10 +4,14 @@ import com.chua.common.support.crypto.Codec;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonArray;
 import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.Md5Utils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.oauth.sso.support.authenticate.AkSkAuthenticator;
+import lombok.extern.slf4j.Slf4j;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
@@ -92,8 +96,24 @@ public class AuthInformation {
         this.accessKey = jsonObject.getString(ACCESS_KEY);
         this.secretKey = jsonObject.getString(SECRET_KEY);
         this.oauthKey = jsonObject.getString(OAUTH_KEY);
+        String clientIp = jsonObject.getString("clientIp");
 
-        JsonObject parseObject = Json.getJsonObject(oauthValue);
+        // 检查AKSK认证
+        if (authServerProperties.isOpenCheckAkSk()) {
+            if (!checkAkSk(accessKey, secretKey, clientIp)) {
+                return InvalidAuthorization.INSTANCE;
+            }
+        }
+
+        // 根据encipher标识决定是否解密oauthValue
+        String tokenCookieData;
+        if (encipher) {
+            tokenCookieData = Codec.build(encryption, oauthKey).decodeHex(oauthValue);
+        } else {
+            tokenCookieData = oauthValue;
+        }
+
+        JsonObject parseObject = Json.getJsonObject(tokenCookieData);
         this.token = parseObject.getString(authServerProperties.getTokenName());
         this.upgradeType = UpgradeType.getUpgradeType(parseObject.getString(OAUTH_UPGRADE_KEY));
         this.refreshToken = parseObject.getString(OAUTH_UPGRADE_KEY_TOKEN);
@@ -160,5 +180,38 @@ public class AuthInformation {
 
     public Codec getCodec() {
         return Codec.build(encryption, oauthKey);
+    }
+
+    /**
+     * 检查AKSK认证
+     */
+    private boolean checkAkSk(String accessKey, String secretKey, String clientIp) {
+        if (accessKey == null || secretKey == null) {
+            return false;
+        }
+
+        try {
+            // 获取AKSK认证器
+            String authenticateType = authServerProperties.getAuthenticate();
+            if (StringUtils.isEmpty(authenticateType)) {
+                authenticateType = "memory"; // 默认使用内存认证器
+            }
+
+            AkSkAuthenticator authenticator = ServiceProvider.of(AkSkAuthenticator.class).getExtension(authenticateType);
+            if (authenticator == null) {
+                log.warn("未找到AKSK认证器: {}", authenticateType);
+                return false;
+            }
+
+            // 验证AKSK和IP
+            if (StringUtils.isNotEmpty(clientIp)) {
+                return authenticator.authenticate(accessKey, secretKey, clientIp);
+            } else {
+                return authenticator.authenticate(accessKey, secretKey);
+            }
+        } catch (Exception e) {
+            log.error("AKSK认证失败: accessKey={}, clientIp={}", accessKey, clientIp, e);
+            return false;
+        }
     }
 }

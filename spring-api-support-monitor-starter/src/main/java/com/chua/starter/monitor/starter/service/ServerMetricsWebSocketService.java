@@ -312,15 +312,11 @@ public class ServerMetricsWebSocketService {
                 case "prometheus":
                     return collectMetricsFromPrometheus(server);
                 case "api":
-                case "push":
                     return collectMetricsFromDatabase(server); // 接口推送的数据已存储在数据库中
                 case "local":
                     return collectMetricsFromLocal(server); // 本地采集方式，直接调用oshi
-                case "ssh":
-                case "rdp":
-                case "vnc":
                 default:
-                    return collectMetricsFromConnection(server); // 连接方式
+                    return null;
             }
         } catch (Exception e) {
             log.error("收集服务器 {} 指标数据失败: {}",
@@ -776,12 +772,8 @@ public class ServerMetricsWebSocketService {
         }
 
         // 磁盘使用率超过90%
-        if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
-            metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > 90.0) {
-            return true;
-        }
-
-        return false;
+        return metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
+                metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > 90.0;
     }
 
     /**
@@ -801,12 +793,8 @@ public class ServerMetricsWebSocketService {
         }
 
         // 磁盘使用率超过95%
-        if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
-            metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > 95.0) {
-            return true;
-        }
-
-        return false;
+        return metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
+                metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > 95.0;
     }
 
     /**

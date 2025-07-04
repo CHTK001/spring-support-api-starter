@@ -7,7 +7,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.MapUtils;
-import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
@@ -332,7 +331,7 @@ public class LoginProvider implements InitializingBean {
      * @param resultReturnResult 结果
      * @param accessSecret       AK/SK
      */
-    private void doEncodeReturnValue(ReturnResult<LoginResult> resultReturnResult, AccessSecret accessSecret) {
+    private void doEncodeReturnValue(ReturnResult<Object> resultReturnResult, AccessSecret accessSecret) {
         if (!authServerProperties.isOpenReturnCheckAkSk()) {
             return;
         }
@@ -542,12 +541,12 @@ public class LoginProvider implements InitializingBean {
         boolean ifRem = "on".equals(ifRemember);
         ReturnResult<LoginResult> result = loginCheck.doLogin(address, username, passwd, type, null);
 
-        if (result.getCode().equals(500)) {
+        if (result.getCode().equals("500")) {
             redirectAttributes.addFlashAttribute("redirect_url", url);
             return new AdviceView<>("redirect:" + contextPath + "/login");
         }
 
-        if (result.getCode().equals(403)) {
+        if (result.getCode().equals("403")) {
             modelMap.addFlashAttribute("msg", Optional.ofNullable(result.getMsg()).orElse("当前登陆端限制登录, 需要注册密钥"));
             try {
                 return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
@@ -591,7 +590,7 @@ public class LoginProvider implements InitializingBean {
         String key = UUID.randomUUID().toString();
         if (null != cookies || Strings.isNullOrEmpty(token)) {
             ReturnResult<String> returnResult = oauthResult(cookies, token, key, address);
-            if (returnResult.getCode().equals(200)) {
+            if (returnResult.getCode().equals("200")) {
                 return "redirect:" + url;
             }
         }
