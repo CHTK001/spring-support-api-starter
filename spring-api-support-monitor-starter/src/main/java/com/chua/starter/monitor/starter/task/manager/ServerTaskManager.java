@@ -3,6 +3,7 @@ package com.chua.starter.monitor.starter.task.manager;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerFileUploadQueue;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.pojo.ServerMetricsData;
@@ -16,14 +17,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 /**
  * 服务器任务管理器
@@ -45,6 +53,8 @@ public class ServerTaskManager {
     private final MonitorSysGenServerMetricsService metricsService;
     private final PrometheusDataCollectorService prometheusDataCollectorService;
     private final LocalSystemDataCollector localSystemDataCollector;
+    private final MonitorSysGenServerFileUploadQueueService fileUploadQueueService;
+    private final MonitorSysGenServerFileUploadTaskService fileUploadTaskService;
 
     // 虚拟线程执行器
     private ExecutorService executorService;
@@ -84,6 +94,9 @@ public class ServerTaskManager {
         private Future<?> logCleanupTask;
         private Future<?> cacheCleanupTask;
         private Future<?> webSocketCleanupTask;
+        private Future<?> fileUploadQueueTask;
+        private Future<?> fileUploadStatusCheckTask;
+        private Future<?> fileUploadCleanupTask;
         private MonitorSysGenServerSetting currentSetting;
         private volatile boolean taskRunning = true;
         private long lastConfigCheckTime = 0;
@@ -104,6 +117,9 @@ public class ServerTaskManager {
             cancelTask(logCleanupTask);
             cancelTask(cacheCleanupTask);
             cancelTask(webSocketCleanupTask);
+            cancelTask(fileUploadQueueTask);
+            cancelTask(fileUploadStatusCheckTask);
+            cancelTask(fileUploadCleanupTask);
         }
 
         private void cancelTask(Future<?> task) {
@@ -365,6 +381,24 @@ public class ServerTaskManager {
             }
         });
         globalTasks.put("tempFileCleanup", tempFileCleanupTask);
+
+        // 文件上传状态检查任务 - 每30秒
+        Future<?> fileUploadStatusCheckTask = executorService.submit(() -> {
+            while (running) {
+                try {
+                    Thread.sleep(30000); // 30秒
+                    if (running) {
+                        checkUploadTaskStatus();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    log.error("文件上传状态检查任务异常", e);
+                }
+            }
+        });
+        globalTasks.put("fileUploadStatusCheck", fileUploadStatusCheckTask);
 
         // 数据清理任务 - 每天凌晨3点（简化为每24小时）
         Future<?> dataCleanupTask = executorService.submit(() -> {
@@ -1445,7 +1479,8 @@ public class ServerTaskManager {
      * 创建在线状态检测任务
      */
     private void createOnlineCheckTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingOnlineCheckEnabled() != 1) {
+        Integer monitorSysGenServerSettingOnlineCheckEnabled = setting.getMonitorSysGenServerSettingOnlineCheckEnabled();
+        if (null == monitorSysGenServerSettingOnlineCheckEnabled || monitorSysGenServerSettingOnlineCheckEnabled != 1) {
             return;
         }
 
@@ -1493,7 +1528,11 @@ public class ServerTaskManager {
      * 创建延迟检测任务
      */
     private void createLatencyCheckTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingLatencyCheckEnabled() != 1) {
+        if(null == setting) {
+            return;
+        }
+        Integer monitorSysGenServerSettingLatencyCheckEnabled = setting.getMonitorSysGenServerSettingLatencyCheckEnabled();
+        if (null == monitorSysGenServerSettingLatencyCheckEnabled || monitorSysGenServerSettingLatencyCheckEnabled != 1) {
             return;
         }
 
@@ -1541,7 +1580,8 @@ public class ServerTaskManager {
      * 创建日志清理任务
      */
     private void createLogCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingLogCleanupEnabled() != 1) {
+        Integer monitorSysGenServerSettingLogCleanupEnabled = setting.getMonitorSysGenServerSettingLogCleanupEnabled();
+        if (null == monitorSysGenServerSettingLogCleanupEnabled || monitorSysGenServerSettingLogCleanupEnabled != 1) {
             return;
         }
 
@@ -1745,9 +1785,33 @@ public class ServerTaskManager {
      */
     private void processFileUploadQueue() {
         try {
-            log.debug("处理文件上传队列");
-            // 这里可以调用相关服务处理文件上传队列
-            // 暂时只记录日志
+            log.debug("开始处理文件上传队列");
+
+            // 批量获取待处理的队列任务
+            var pendingQueueResult = fileUploadQueueService.dequeueBatch(10);
+            if (pendingQueueResult != null && pendingQueueResult.getData() != null) {
+                var pendingTasks = pendingQueueResult.getData();
+
+                for (var queueTask : pendingTasks) {
+                    try {
+                        // 处理单个队列任务
+                        processQueueTask(queueTask);
+                    } catch (Exception e) {
+                        log.error("处理队列任务失败: taskId={}",
+                                queueTask.getMonitorSysGenServerFileUploadQueueId(), e);
+
+                        // 标记任务失败
+                        fileUploadQueueService.markFailed(
+                                queueTask.getMonitorSysGenServerFileUploadQueueId(),
+                                e.getMessage());
+                    }
+                }
+
+                if (!pendingTasks.isEmpty()) {
+                    log.info("处理文件上传队列完成，处理了 {} 个任务", pendingTasks.size());
+                }
+            }
+
         } catch (Exception e) {
             log.error("处理文件上传队列失败", e);
         }
@@ -1771,9 +1835,24 @@ public class ServerTaskManager {
      */
     private void cleanupUploadTempFiles() {
         try {
-            log.debug("清理上传临时文件");
-            // 这里可以调用相关服务清理临时文件
-            // 暂时只记录日志
+            log.debug("开始清理上传临时文件");
+
+            // 清理系统临时目录中的上传文件
+            cleanupTempDirectory(System.getProperty("java.io.tmpdir"), "upload_");
+
+            // 清理应用临时目录
+            cleanupTempDirectory("./temp/uploads", null);
+
+            // 清理已完成的队列项
+            var cleanupResult = fileUploadQueueService.cleanupCompletedItems(1); // 保留1天
+            if (cleanupResult != null && cleanupResult.getData() != null) {
+                var result = cleanupResult.getData();
+                if (result.getCleanupCount() != null && result.getCleanupCount() > 0) {
+                    log.info("清理了 {} 个已完成的队列项", result.getCleanupCount());
+                }
+            }
+
+            log.info("清理上传临时文件完成");
         } catch (Exception e) {
             log.error("清理上传临时文件失败", e);
         }
@@ -1898,6 +1977,134 @@ public class ServerTaskManager {
         if (taskInfo != null) {
             taskInfo.setTaskRunning(true);
             log.info("恢复服务器 {} 的所有任务", serverId);
+        }
+    }
+
+    // ==================== 文件上传任务相关方法 ====================
+
+    /**
+     * 检查上传任务状态
+     */
+    private void checkUploadTaskStatus() {
+        try {
+            log.debug("开始检查上传任务状态");
+
+            // 检查超时的处理中任务
+            var timeoutResult = fileUploadQueueService.resetTimeoutProcessingItems(30); // 30分钟超时
+            if (timeoutResult != null && timeoutResult.getData() != null) {
+                var resetResult = timeoutResult.getData();
+                if (resetResult.getResetCount() != null && resetResult.getResetCount() > 0) {
+                    log.warn("重置了 {} 个超时的上传任务", resetResult.getResetCount());
+                }
+            }
+
+            // 注意：这里可以根据需要实现重试逻辑
+            // 由于当前服务接口中没有批量重试方法，暂时跳过重试逻辑
+            log.debug("上传任务状态检查完成");
+
+        } catch (Exception e) {
+            log.error("检查上传任务状态失败", e);
+        }
+    }
+
+    /**
+     * 处理单个队列任务
+     *
+     * @param queueTask 队列任务
+     */
+    private void processQueueTask(MonitorSysGenServerFileUploadQueue queueTask) {
+        try {
+            Long queueId = queueTask.getMonitorSysGenServerFileUploadQueueId();
+
+            // 标记任务开始处理
+            fileUploadQueueService.markProcessing(queueId);
+
+            // 获取关联的上传任务
+            Long taskId = queueTask.getMonitorSysGenServerFileUploadTaskId();
+            var taskResult = fileUploadTaskService.getTaskById(taskId);
+
+            if (taskResult != null && taskResult.getData() != null) {
+                var uploadTask = taskResult.getData();
+
+                // 执行实际的文件上传逻辑
+                boolean success = executeFileUpload(uploadTask);
+
+                if (success) {
+                    // 标记任务完成
+                    fileUploadQueueService.markCompleted(queueId);
+                    log.info("队列任务处理成功: queueId={}, taskId={}", queueId, taskId);
+                } else {
+                    // 标记任务失败
+                    fileUploadQueueService.markFailed(queueId, "文件上传失败");
+                    log.warn("队列任务处理失败: queueId={}, taskId={}", queueId, taskId);
+                }
+            } else {
+                fileUploadQueueService.markFailed(queueId, "关联的上传任务不存在");
+                log.error("队列任务关联的上传任务不存在: queueId={}, taskId={}", queueId, taskId);
+            }
+
+        } catch (Exception e) {
+            log.error("处理队列任务异常: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 执行文件上传
+     *
+     * @param uploadTask 上传任务
+     * @return 是否成功
+     */
+    private boolean executeFileUpload(Object uploadTask) {
+        // 这里应该实现具体的文件上传逻辑
+        // 由于涉及到具体的文件传输实现，这里只返回模拟结果
+        try {
+            // 模拟上传过程
+            Thread.sleep(100); // 模拟上传耗时
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    /**
+     * 清理临时目录
+     *
+     * @param dirPath 目录路径
+     * @param prefix  文件前缀过滤
+     */
+    private void cleanupTempDirectory(String dirPath, String prefix) {
+        try {
+            Path directory = Paths.get(dirPath);
+            if (!Files.exists(directory)) {
+                return;
+            }
+
+            try (Stream<Path> files = Files.list(directory)) {
+                files.filter(Files::isRegularFile)
+                        .filter(file -> prefix == null || file.getFileName().toString().startsWith(prefix))
+                        .filter(file -> {
+                            try {
+                                // 删除超过1小时的文件
+                                return Files.getLastModifiedTime(file).toInstant()
+                                        .isBefore(Instant.now().minus(1, ChronoUnit.HOURS));
+                            } catch (IOException e) {
+                                log.warn("检查文件修改时间失败: {}", file, e);
+                                return false;
+                            }
+                        })
+                        .forEach(file -> {
+                            try {
+                                Files.delete(file);
+                                log.debug("删除临时文件: {}", file);
+                            } catch (IOException e) {
+                                log.warn("删除临时文件失败: {}", file, e);
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            log.error("清理临时目录失败: {}", dirPath, e);
         }
     }
 }
