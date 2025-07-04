@@ -29,6 +29,14 @@
             <version>${hutool.version}</version>
         </dependency>
 
+        <!-- 熔断器依赖暂时注释，因为依赖包不存在 -->
+        <!--
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-circuit-breaker-starter</artifactId>
+        </dependency>
+        -->
+
         <!-- OSHI系统信息库 -->
         <dependency>
             <groupId>com.github.oshi</groupId>
