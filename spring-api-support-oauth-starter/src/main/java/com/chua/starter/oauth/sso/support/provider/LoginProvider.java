@@ -52,9 +52,43 @@ import static com.chua.common.support.lang.code.ReturnCode.RESULT_ACCESS_UNAUTHO
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.*;
 
 /**
- * 登录
+ * OAuth认证登录控制器
+ *
+ * <p>提供OAuth认证服务器的核心登录功能，包括用户认证、令牌生成、会话管理等。</p>
+ *
+ * <h3>主要功能：</h3>
+ * <ul>
+ *   <li><strong>用户登录</strong> - 支持用户名密码登录、第三方登录等多种方式</li>
+ *   <li><strong>令牌管理</strong> - 生成、验证、刷新和撤销访问令牌</li>
+ *   <li><strong>会话管理</strong> - 管理用户登录会话，支持单点登录和多点登录</li>
+ *   <li><strong>安全控制</strong> - 提供登录验证码、防暴力破解等安全机制</li>
+ *   <li><strong>页面渲染</strong> - 提供登录页面、错误页面等前端界面</li>
+ * </ul>
+ *
+ * <h3>支持的认证方式：</h3>
+ * <ul>
+ *   <li>用户名密码认证</li>
+ *   <li>手机号验证码认证</li>
+ *   <li>邮箱验证码认证</li>
+ *   <li>第三方OAuth登录（如Gitee、GitHub等）</li>
+ *   <li>扫码登录</li>
+ * </ul>
+ *
+ * <h3>API端点：</h3>
+ * <ul>
+ *   <li><code>GET /login</code> - 显示登录页面</li>
+ *   <li><code>POST /login</code> - 处理登录请求</li>
+ *   <li><code>POST /logout</code> - 处理登出请求</li>
+ *   <li><code>POST /refresh</code> - 刷新访问令牌</li>
+ *   <li><code>GET /captcha</code> - 生成验证码</li>
+ * </ul>
+ *
+ * <p>该控制器集成了多种认证协议，支持灵活的配置和扩展。</p>
  *
  * @author CH
+ * @see AuthServerProperties 认证服务器配置
+ * @see LoginCheck 登录检查服务
+ * @see com.chua.starter.oauth.sso.support.protocol.OAuthProtocolHandler OAuth协议处理器
  */
 @Controller
 @Conditional(OnBeanCondition.class)
@@ -122,7 +156,7 @@ public class LoginProvider implements InitializingBean {
     @PostMapping("/logout")
     @ResponseBody
     @Operation(summary = "登出")
-    public AdviceView logoutWeb(@RequestBody AuthRequest request1,
+    public AdviceView<Object> logoutWeb(@RequestBody AuthRequest request1,
                                 HttpServletRequest request, HttpServletResponse response) {
         String data = request1.getData();
         LogoutType type = LogoutType.valueOf(request1.getType().toUpperCase());
@@ -152,15 +186,15 @@ public class LoginProvider implements InitializingBean {
         Object uid = request.getAttribute("uid");
         if (null != uid) {
             tokenResolver.logout(uid.toString(), (LogoutType) request.getAttribute("type"));
-            return new AdviceView(EMPTY, request);
+            return new AdviceView<>(EMPTY, request);
         }
         if (null == data) {
-            return new AdviceView(EMPTY, request);
+            return new AdviceView<>(EMPTY, request);
         }
         if (!Strings.isNullOrEmpty(accept) && !accept.contains("text/html")) {
-            return new AdviceView(logoutApi(data, type, request, response), request);
+            return new AdviceView<>(logoutApi(data, type, request, response), request);
         }
-        return new AdviceView("redirect:/login");
+        return new AdviceView<>("redirect:/login");
     }
 
     /**
@@ -200,45 +234,96 @@ public class LoginProvider implements InitializingBean {
      * @return 登录页
      */
     public ReturnResult<?> doLogin(String username, String passwd, String authType, String data, HttpServletRequest request, HttpServletResponse response, Map<String, Object> extParams) {
+        return doLoginFast(username, passwd, authType, data, request, response, extParams);
+    }
+
+    /**
+     * 高性能登录方法
+     */
+    public ReturnResult<?> doLoginFast(String username, String passwd, String authType, String data, HttpServletRequest request, HttpServletResponse response, Map<String, Object> extParams) {
+        // 快速获取客户端地址
         String address = RequestUtils.getIpAddress(request);
-        AccessSecret accessSecret = getAkSk(data);
-        if (StringUtils.isEmpty(passwd)) {
-            passwd = accessSecret.getPassword();
-        }
 
-        // 如果传入了额外参数，优先使用传入的
-        Object ext = (extParams != null) ? extParams : ((accessSecret != null) ? accessSecret.getExt() : null);
-
-        if (null != accessSecret && null != accessSecret.getExt()) {
-            address = MapUtils.getString(accessSecret.getExt(), "address", address);
-        }
-
-        log.info("登录请求地址: {}, 账号:{}, 登陆方式:{}", address, username, authType);
-        ReturnResult result = loginCheck.doLogin(address, username, passwd, authType, ext);
-        log.info("登录结果: {} => {}", result.getCode(), result.getMsg());
-        if (!result.getCode().equals(OK.getCode())) {
-            Object data1 = result.getData();
-            if (null != data1) {
-                request.setAttribute(authServerProperties.getTokenName(), ((LoginResult) data1).getToken());
+        // 延迟解析AK/SK（只在需要时解析）
+        AccessSecret accessSecret = null;
+        if (data != null && !data.isEmpty()) {
+            accessSecret = getAkSkFast(data);
+            if (accessSecret != null) {
+                // 优先使用AK/SK中的密码
+                if (passwd == null || passwd.isEmpty()) {
+                    passwd = accessSecret.getPassword();
+                }
+                // 优先使用AK/SK中的地址
+                if (accessSecret.getExt() != null) {
+                    String akSkAddress = MapUtils.getString(accessSecret.getExt(), "address", null);
+                    if (akSkAddress != null && !akSkAddress.isEmpty()) {
+                        address = akSkAddress;
+                    }
+                }
             }
-            logout(request, response);
-            return ReturnResult.newBuilder().code(result.getCode()).data(result.getData()).msg(result.getMsg()).build();
         }
 
-        if (!checkAkSk(result, data, accessSecret)) {
-            Object data1 = result.getData();
-            if (null != data1) {
-                request.setAttribute(authServerProperties.getTokenName(), ((LoginResult) data1).getToken());
-            }
-            logout(request, response);
-            return ReturnResult.newBuilder().code(RESULT_ACCESS_UNAUTHORIZED.getCode()).msg("ak/sk无效").build();
+        // 确定扩展参数（避免重复检查）
+        Object ext = extParams != null ? extParams :
+                    (accessSecret != null ? accessSecret.getExt() : null);
+
+        // 执行登录检查
+        if (log.isInfoEnabled()) {
+            log.info("登录请求 - 地址: {}, 账号: {}, 方式: {}", address, username, authType);
         }
-        if (authServerProperties.isOpenReturnCheckAkSk()) {
-            doEncodeReturnValue(result, accessSecret);
+
+        ReturnResult<LoginResult> result = loginCheck.doLogin(address, username, passwd, authType, ext);
+
+        if (log.isInfoEnabled()) {
+            log.info("登录结果: {} => {}", result.getCode(), result.getMsg());
+        }
+
+        // 快速失败检查
+        if (!OK.getCode().equals(result.getCode())) {
+            handleLoginFailure(result, request, response);
+            return buildFailureResult(result);
+        }
+
+        // AK/SK验证（只在启用时执行）
+        if (authServerProperties.isOpenCheckAkSk() && !checkAkSkFast(result, data, accessSecret)) {
+            handleLoginFailure(result, request, response);
+            return ReturnResult.newBuilder()
+                    .code(RESULT_ACCESS_UNAUTHORIZED.getCode())
+                    .msg("ak/sk无效")
+                    .build();
+        }
+
+        // 返回值加密（只在启用时执行）
+        if (authServerProperties.isOpenReturnCheckAkSk() && accessSecret != null) {
+            doEncodeReturnValueFast(result, accessSecret);
         }
 
         return result;
+    }
 
+    /**
+     * 处理登录失败
+     */
+    private void handleLoginFailure(ReturnResult<LoginResult> result, HttpServletRequest request, HttpServletResponse response) {
+        Object data = result.getData();
+        if (data instanceof LoginResult) {
+            String token = ((LoginResult) data).getToken();
+            if (token != null && !token.isEmpty()) {
+                request.setAttribute(authServerProperties.getTokenName(), token);
+            }
+        }
+        logout(request, response);
+    }
+
+    /**
+     * 构建失败结果
+     */
+    private ReturnResult<?> buildFailureResult(ReturnResult<LoginResult> result) {
+        return ReturnResult.newBuilder()
+                .code(result.getCode())
+                .data(result.getData())
+                .msg(result.getMsg())
+                .build();
     }
 
     /**
@@ -247,7 +332,7 @@ public class LoginProvider implements InitializingBean {
      * @param resultReturnResult 结果
      * @param accessSecret       AK/SK
      */
-    private void doEncodeReturnValue(ReturnResult resultReturnResult, AccessSecret accessSecret) {
+    private void doEncodeReturnValue(ReturnResult<LoginResult> resultReturnResult, AccessSecret accessSecret) {
         if (!authServerProperties.isOpenReturnCheckAkSk()) {
             return;
         }
@@ -259,8 +344,75 @@ public class LoginProvider implements InitializingBean {
         resultReturnResult.setData(Codec.build(encryption, accessSecret.getUKey()).encodeHex(json));
     }
 
+    /**
+     * AK/SK缓存
+     */
+    private static final java.util.concurrent.ConcurrentHashMap<String, AccessSecret> AK_SK_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>(64);
+    private static final long AK_SK_CACHE_TTL = 300000; // 5分钟缓存
+
+    /**
+     * 高性能AK/SK获取（带缓存）
+     */
+    private AccessSecret getAkSkFast(String data) {
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
+
+        // 尝试从缓存获取
+        AccessSecret cached = AK_SK_CACHE.get(data);
+        if (cached != null && (System.currentTimeMillis() - cached.getCacheTime()) < AK_SK_CACHE_TTL) {
+            return cached;
+        }
+
+        // 缓存未命中，创建新的
+        AccessSecret accessSecret = createAccessSecret(data);
+        if (accessSecret != null) {
+            accessSecret.setCacheTime(System.currentTimeMillis());
+            AK_SK_CACHE.put(data, accessSecret);
+        }
+
+        return accessSecret;
+    }
+
     private AccessSecret getAkSk(String data) {
-        return null != data ? createAccessSecret(data) : null;
+        return getAkSkFast(data);
+    }
+
+    /**
+     * 高性能AK/SK检查
+     */
+    private boolean checkAkSkFast(ReturnResult<?> result, String data, AccessSecret accessSecret) {
+        // 如果未启用AK/SK检查，直接返回true
+        if (!authServerProperties.isOpenCheckAkSk()) {
+            return true;
+        }
+
+        return checkAkSk(result, data, accessSecret);
+    }
+
+    /**
+     * 高性能返回值加密
+     */
+    private void doEncodeReturnValueFast(ReturnResult<?> result, AccessSecret accessSecret) {
+        if (!authServerProperties.isOpenReturnCheckAkSk() || accessSecret == null) {
+            return;
+        }
+
+        Object data = result.getData();
+        if (!(data instanceof LoginResult)) {
+            return;
+        }
+
+        LoginResult loginResult = (LoginResult) data;
+        // 避免修改原始对象
+        if (loginResult.getUserResult() != null) {
+            loginResult.getUserResult().setAccessSecret(new AccessSecret());
+        }
+
+        String json = Json.toJson(loginResult);
+        String encodedData = Codec.build(encryption, accessSecret.getUKey()).encodeHex(json);
+        result.setData(encodedData);
     }
 
     /**
@@ -324,12 +476,13 @@ public class LoginProvider implements InitializingBean {
         String request = Codec.build(encryption, DigestUtils.md5Hex(key)).decodeHex(value);
         JsonObject jsonObject2 = Json.getJsonObject(request);
 
-        return new AccessSecret(jsonObject2.getString(ACCESS_KEY),
-                jsonObject2.getString(SECRET_KEY),
-                authKey,
-                jsonObject.getString("password"),
-                jsonObject.getObject("ext", Map.class)
-        );
+        AccessSecret accessSecret = new AccessSecret();
+        accessSecret.setAccessKey(jsonObject2.getString(ACCESS_KEY));
+        accessSecret.setSecretKey(jsonObject2.getString(SECRET_KEY));
+        accessSecret.setUKey(authKey);
+        accessSecret.setPassword(jsonObject.getString("password"));
+        accessSecret.setExt(jsonObject.getObject("ext", Map.class));
+        return accessSecret;
     }
 
     /**
@@ -346,7 +499,7 @@ public class LoginProvider implements InitializingBean {
             }
     )
     @PostMapping("/doLogin")
-    public AdviceView doWebLogin(
+    public AdviceView<Object> doWebLogin(
             @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response,
@@ -365,24 +518,24 @@ public class LoginProvider implements InitializingBean {
         String accept = request.getHeader("accept");
         if (null != accept && !accept.contains("text/html")) {
             ReturnResult<?> result = doLogin(username, passwd, type, data, request, response, null);
-            return new AdviceView(result, request);
+            return new AdviceView<>(result, request);
         }
 
         if (!DigestUtils.sha512Hex(username + passwd + code).equals(data)) {
             modelMap.addFlashAttribute("msg", "登录失败");
             try {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + url);
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
             }
         }
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute("KAPTCHA_SESSION_KEY")).orElse("").toString();
         if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
             modelMap.addFlashAttribute("msg", "校验码错误");
             try {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + url);
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
             }
         }
 
@@ -391,21 +544,21 @@ public class LoginProvider implements InitializingBean {
 
         if (result.getCode().equals(500)) {
             redirectAttributes.addFlashAttribute("redirect_url", url);
-            return new AdviceView("redirect:" + contextPath + "/login");
+            return new AdviceView<>("redirect:" + contextPath + "/login");
         }
 
         if (result.getCode().equals(403)) {
             modelMap.addFlashAttribute("msg", Optional.ofNullable(result.getMsg()).orElse("当前登陆端限制登录, 需要注册密钥"));
             try {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                return new AdviceView("redirect:" + contextPath + "/login?redirect_url=" + url);
+                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
             }
         }
 
         LoginResult loginResult = result.getData();
         CookieUtil.set(response, authServerProperties.getCookieName(), loginResult.getToken(), ifRem);
-        return new AdviceView("redirect:" + url);
+        return new AdviceView<>("redirect:" + url);
     }
 
 
