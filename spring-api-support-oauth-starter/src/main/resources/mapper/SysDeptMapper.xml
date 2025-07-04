@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.oauth.sso.mapper.SysDeptMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysDept">
+    <!--@mbg.generated-->
+    <!--@Table sys_dept-->
+    <id column="sys_dept_id" jdbcType="INTEGER" property="sysDeptId" />
+    <result column="sys_dept_name" jdbcType="VARCHAR" property="sysDeptName" />
+    <result column="sys_dept_pid" jdbcType="INTEGER" property="sysDeptPid" />
+    <result column="sys_dept_tree_id" jdbcType="VARCHAR" property="sysDeptTreeId" />
+    <result column="sys_dept_code" jdbcType="VARCHAR" property="sysDeptCode" />
+    <result column="sys_dept_principal" jdbcType="VARCHAR" property="sysDeptPrincipal" />
+    <result column="sys_dept_contact" jdbcType="VARCHAR" property="sysDeptContact" />
+    <result column="sys_dept_sort" jdbcType="INTEGER" property="sysDeptSort" />
+    <result column="sys_dept_status" jdbcType="INTEGER" property="sysDeptStatus" />
+    <result column="sys_dept_remark" jdbcType="VARCHAR" property="sysDeptRemark" />
+    <result column="sys_dept_data_permission" jdbcType="INTEGER" property="sysDeptDataPermission" />
+    <result column="sys_dept_data_permission_dept_id" jdbcType="VARCHAR" property="sysDeptDataPermissionDeptId" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    sys_dept_id, sys_dept_name, sys_dept_pid, sys_dept_tree_id, sys_dept_code, sys_dept_principal, 
+    sys_dept_contact, sys_dept_sort, sys_dept_status, sys_dept_remark, sys_dept_data_permission, 
+    sys_dept_data_permission_dept_id, create_name, create_by, create_time, update_time, 
+    update_name, update_by
+  </sql>
+</mapper>
