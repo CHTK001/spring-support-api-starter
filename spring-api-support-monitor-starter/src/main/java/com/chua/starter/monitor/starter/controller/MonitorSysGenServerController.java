@@ -28,12 +28,26 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 /**
  * 服务器管理控制器
  *
+ * 提供服务器的完整生命周期管理功能，包括：
+ * - 基础CRUD操作：创建、查询、更新、删除服务器
+ * - 连接管理：测试连接、建立连接、断开连接
+ * - 监控功能：获取服务器指标数据、监控状态管理
+ * - 文件操作：文件上传、下载、管理
+ * - 远程操作：命令执行、终端连接
+ * - 代理支持：Guacamole代理连接
+ * - 批量操作：批量测试、批量配置
+ *
+ * 主要API路径：
+ * - /v1/gen/server/* - 服务器基础管理
+ * - /v1/gen/server/detail/* - 服务器详情相关
+ * - /v1/gen/server/proxy/* - 代理相关功能
+ *
  * @author CH
  * @since 2024/12/18
  */
 @RestController
 @RequestMapping("v1/gen/server")
-@Tag(name = "服务器管理")
+@Tag(name = "服务器管理", description = "服务器完整生命周期管理API")
 @RequiredArgsConstructor
 @Slf4j
 public class MonitorSysGenServerController {
@@ -42,32 +56,54 @@ public class MonitorSysGenServerController {
     private final MonitorSysGenServerMetricsService metricsService;
 
     /**
-     * 根据主键删除数据
+     * 删除服务器
      *
-     * @param id 主键M
-     * @return 操作结果
+     * 删除指定的服务器配置，同时会：
+     * - 清理相关的监控数据
+     * - 断开现有连接
+     * - 删除关联的组件配置
+     * - 清理历史记录
+     *
+     * 注意：此操作不可逆，请谨慎使用
+     *
+     * @param id 服务器ID
+     * @return 操作结果，true表示删除成功
      */
     @ResponseBody
-    @Operation(summary = "删除数据")
+    @Operation(summary = "删除服务器", description = "删除指定服务器及其相关数据，操作不可逆")
     @DeleteMapping("delete")
-    public ReturnResult<Boolean> delete(@Parameter(name = "主键") String id) {
+    public ReturnResult<Boolean> delete(@Parameter(name = "服务器ID", description = "要删除的服务器唯一标识") String id) {
+        log.info("开始删除服务器: serverId={}", id);
         return monitorSysGenServerService.deleteServer(id);
     }
 
     /**
-     * 根据主键更新数据
+     * 更新服务器配置
      *
-     * @param monitorSysGenServer 实体
-     * @return 操作结果
+     * 更新服务器的基本信息，包括：
+     * - 连接信息（主机、端口、协议等）
+     * - 认证信息（用户名、密码、私钥等）
+     * - 网络配置（代理、超时等）
+     * - 系统信息（操作系统、架构等）
+     *
+     * 更新后会自动重新检测服务器信息
+     *
+     * @param monitorSysGenServer 服务器实体信息
+     * @param bindingResult 数据验证结果
+     * @return 操作结果，true表示更新成功
      */
     @ResponseBody
-    @Operation(summary = "更新数据")
+    @Operation(summary = "更新服务器配置", description = "更新服务器基本信息和连接配置")
     @PutMapping("update")
     public ReturnResult<Boolean> updateById(@Validated(UpdateGroup.class) @RequestBody MonitorSysGenServer monitorSysGenServer, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            log.warn("服务器更新参数验证失败: {}", bindingResult.getAllErrors().getFirst().getDefaultMessage());
             return ReturnResult.illegal(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
+        log.info("开始更新服务器配置: serverId={}, serverName={}",
+                monitorSysGenServer.getMonitorSysGenServerId(),
+                monitorSysGenServer.getMonitorSysGenServerName());
         return monitorSysGenServerService.updateServer(monitorSysGenServer);
     }
 
@@ -438,12 +474,21 @@ public class MonitorSysGenServerController {
     /**
      * 获取服务器支持的数据上报方式
      *
+     * 根据服务器类型和配置返回支持的数据上报方式：
+     * - NONE: 不上报数据
+     * - LOCAL: 本地上报（仅本地服务器支持）
+     * - API: API接口上报（远程服务器推荐）
+     * - PROMETHEUS: Prometheus采集（需要配置Prometheus服务器）
+     *
+     * 本地服务器和远程服务器支持的上报方式可能不同
+     *
      * @param id 服务器ID
-     * @return 支持的上报方式列表
+     * @return 支持的上报方式列表，包含方式代码和描述
      */
-    @Operation(summary = "获取服务器支持的数据上报方式")
+    @Operation(summary = "获取服务器支持的数据上报方式", description = "根据服务器类型返回可用的数据上报方式")
     @GetMapping("report/methods")
-    public ReturnResult<List<String>> getSupportedReportMethods(@Parameter(name = "服务器ID") String id) {
+    public ReturnResult<List<String>> getSupportedReportMethods(@Parameter(name = "服务器ID", description = "服务器唯一标识") String id) {
+        log.debug("获取服务器支持的数据上报方式: serverId={}", id);
         return monitorSysGenServerService.getSupportedReportMethods(id);
     }
 
@@ -468,23 +513,42 @@ public class MonitorSysGenServerController {
     /**
      * 手动检测服务器信息
      *
+     * 检测指定服务器的系统信息，包括：
+     * - 操作系统类型、版本、架构
+     * - 是否为本地服务器
+     * - 网络接口和IP地址
+     * - 系统资源信息
+     * - Docker支持检测
+     *
+     * 检测结果会自动更新到服务器配置中
+     *
      * @param id 服务器ID
-     * @return 检测结果
+     * @return 检测结果，包含详细的系统信息
      */
-    @Operation(summary = "手动检测服务器信息")
+    @Operation(summary = "手动检测服务器信息", description = "检测服务器系统信息并自动更新配置")
     @PostMapping("detect-info")
-    public ReturnResult<Map<String, Object>> detectServerInfo(@Parameter(name = "服务器ID") String id) {
+    public ReturnResult<Map<String, Object>> detectServerInfo(@Parameter(name = "服务器ID", description = "要检测的服务器唯一标识") String id) {
+        log.info("开始检测服务器信息: serverId={}", id);
         return monitorSysGenServerService.detectServerInfo(id);
     }
 
     /**
      * 批量检测服务器信息
      *
-     * @return 检测结果
+     * 对所有服务器进行信息检测，包括：
+     * - 操作系统类型和版本检测
+     * - 网络连接状态检测
+     * - 本地/远程服务器判断
+     * - 系统资源信息获取
+     *
+     * 注意：此操作可能耗时较长，建议在后台执行
+     *
+     * @return 检测结果，包含成功和失败的服务器列表
      */
-    @Operation(summary = "批量检测服务器信息")
+    @Operation(summary = "批量检测服务器信息", description = "对所有服务器进行系统信息检测，耗时操作")
     @PostMapping("batch-detect-info")
     public ReturnResult<Map<String, Object>> batchDetectServerInfo() {
+        log.info("开始批量检测服务器信息");
         return monitorSysGenServerService.batchDetectServerInfo();
     }
 

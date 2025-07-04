@@ -37,7 +37,7 @@ import static com.chua.common.support.lang.code.ReturnCode.OK;
 @Extension("http")
 @Slf4j
 @Conditional(OnBeanCondition.class)
-@RequestMapping("${plugin.auth.server.context-path:}")
+@RequestMapping
 @RequiredArgsConstructor
 @Tag(name = "认证服务", description = "提供HTTP协议的认证服务接口")
 public class HttpProtocol implements Protocol, InitializingBean {
