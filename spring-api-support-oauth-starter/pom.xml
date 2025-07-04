@@ -125,6 +125,11 @@
             <version>5.1.2</version>
         </dependency>
 
+        <!-- MyBatis Plus 支持 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mybatis-starter</artifactId>
+        </dependency>
 
     </dependencies>
 

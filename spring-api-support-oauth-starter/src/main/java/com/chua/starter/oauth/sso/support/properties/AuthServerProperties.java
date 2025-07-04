@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -130,6 +131,23 @@ public class AuthServerProperties {
     private boolean openReturnCheckAkSk = true;
 
     /**
+     * 是否启用IP白名单认证
+     * <p>启用后，只有在IP白名单中的客户端才能访问</p>
+     * <p>需要配合openCheckAkSk使用</p>
+     * <p>默认值：false</p>
+     */
+    private boolean enableIpWhitelist = false;
+
+    /**
+     * IP白名单配置
+     * <p>允许访问的客户端IP地址列表</p>
+     * <p>支持CIDR格式，如：192.168.1.0/24</p>
+     * <p>支持单个IP，如：192.168.1.100</p>
+     */
+    private List<String> ipWhitelist = new ArrayList<>();
+
+
+    /**
      * 令牌管理器类型
      * <p>指定用于存储和管理令牌的实现方式</p>
      * <p>可选值：</p>
@@ -174,7 +192,7 @@ public class AuthServerProperties {
      * <p>空字符串表示不启用AK/SK认证</p>
      * <p>默认值：空字符串</p>
      */
-    private String authenticate = "";
+    private String authenticate = "redis";
 
     /**
      * 服务上下文路径
@@ -219,4 +237,5 @@ public class AuthServerProperties {
          */
         MULTIPLE
     }
+
 }

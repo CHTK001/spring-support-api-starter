@@ -142,4 +142,34 @@ public interface MonitorSysGenServerComponentService extends IService<MonitorSys
      * @return 更新结果
      */
     ReturnResult<Boolean> updateComponentSortOrder(Long componentId, Integer sortOrder);
+
+    /**
+     * 查询组件数据（支持时间范围）
+     *
+     * @param componentId 组件ID
+     * @param startTime   开始时间（时间戳，秒）
+     * @param endTime     结束时间（时间戳，秒）
+     * @param step        步长（秒）
+     * @return 组件数据
+     */
+    ReturnResult<Object> getComponentData(Long componentId, Long startTime, Long endTime, Integer step);
+
+    /**
+     * 批量查询组件数据
+     *
+     * @param serverId  服务器ID
+     * @param startTime 开始时间（时间戳，秒）
+     * @param endTime   结束时间（时间戳，秒）
+     * @param step      步长（秒）
+     * @return 组件数据集合
+     */
+    ReturnResult<Map<String, Object>> getBatchComponentData(Integer serverId, Long startTime, Long endTime, Integer step);
+
+    /**
+     * 获取组件实时数据
+     *
+     * @param componentId 组件ID
+     * @return 实时数据
+     */
+    ReturnResult<Object> getComponentRealtimeData(Long componentId);
 }

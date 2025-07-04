@@ -34,6 +34,14 @@ public class MonitorSysGenServerComponentController {
 
     private final MonitorSysGenServerComponentService componentService;
 
+    /**
+     * 根据服务器ID获取组件列表
+     *
+     * @param serverId 服务器ID，必填参数，用于标识特定的服务器
+     * @return 返回指定服务器的所有组件配置列表，包含组件的详细信息
+     * @throws IllegalArgumentException 当服务器ID为空或无效时抛出
+     * @since 2025/01/03
+     */
     @ApiOperation("根据服务器ID获取组件列表")
     @Operation(summary = "根据服务器ID获取组件列表", description = "获取指定服务器的所有组件配置")
     @GetMapping("/list/{serverId}")
@@ -41,9 +49,26 @@ public class MonitorSysGenServerComponentController {
             @ApiParam(value = "服务器ID", required = true)
             @Parameter(description = "服务器ID", required = true)
             @PathVariable Integer serverId) {
-        return componentService.getComponentsByServerId(serverId);
+        log.info("开始获取服务器组件列表, serverId: {}", serverId);
+        try {
+            ReturnResult<List<MonitorSysGenServerComponent>> result = componentService.getComponentsByServerId(serverId);
+            log.info("获取服务器组件列表成功, serverId: {}, 组件数量: {}", serverId,
+                    result.isSuccess() && result.getData() != null ? result.getData().size() : 0);
+            return result;
+        } catch (Exception e) {
+            log.error("获取服务器组件列表失败, serverId: {}", serverId, e);
+            throw e;
+        }
     }
 
+    /**
+     * 根据组件ID获取组件信息
+     *
+     * @param componentId 组件ID，必填参数，用于标识特定的组件
+     * @return 返回指定组件的详细信息，包含组件的所有配置属性
+     * @throws IllegalArgumentException 当组件ID为空或无效时抛出
+     * @since 2025/01/03
+     */
     @ApiOperation("根据组件ID获取组件信息")
     @Operation(summary = "根据组件ID获取组件信息", description = "获取指定组件的详细信息")
     @GetMapping("/{componentId}")
@@ -51,9 +76,27 @@ public class MonitorSysGenServerComponentController {
             @ApiParam(value = "组件ID", required = true)
             @Parameter(description = "组件ID", required = true)
             @PathVariable Long componentId) {
-        return componentService.getComponentById(componentId);
+        log.info("开始获取组件信息, componentId: {}", componentId);
+        try {
+            ReturnResult<MonitorSysGenServerComponent> result = componentService.getComponentById(componentId);
+            log.info("获取组件信息成功, componentId: {}, 组件名称: {}", componentId,
+                    result.isSuccess() && result.getData() != null ? result.getData().getMonitorSysGenServerComponentName() : "未知");
+            return result;
+        } catch (Exception e) {
+            log.error("获取组件信息失败, componentId: {}", componentId, e);
+            throw e;
+        }
     }
 
+    /**
+     * 更新组件信息
+     *
+     * @param componentId 组件ID，必填参数，用于标识要更新的组件
+     * @param component   组件信息对象，包含要更新的组件配置数据
+     * @return 返回更新操作的结果，true表示更新成功，false表示更新失败
+     * @throws IllegalArgumentException 当组件ID或组件信息为空时抛出
+     * @since 2025/01/03
+     */
     @ApiOperation("更新组件信息")
     @Operation(summary = "更新组件信息", description = "更新指定组件的配置信息")
     @PutMapping("/{componentId}")
@@ -62,8 +105,21 @@ public class MonitorSysGenServerComponentController {
             @Parameter(description = "组件ID", required = true)
             @PathVariable Long componentId,
             @RequestBody MonitorSysGenServerComponent component) {
-        component.setMonitorSysGenServerComponentId(componentId);
-        return componentService.updateComponent(component);
+        log.info("开始更新组件信息, componentId: {}, componentName: {}", componentId,
+                component != null ? component.getMonitorSysGenServerComponentName() : "未知");
+        try {
+            if (component == null) {
+                log.warn("更新组件信息失败, 组件信息为空, componentId: {}", componentId);
+                return ReturnResult.error("组件信息不能为空");
+            }
+            component.setMonitorSysGenServerComponentId(componentId);
+            ReturnResult<Boolean> result = componentService.updateComponent(component);
+            log.info("更新组件信息成功, componentId: {}, 更新结果: {}", componentId, result.isSuccess());
+            return result;
+        } catch (Exception e) {
+            log.error("更新组件信息失败, componentId: {}", componentId, e);
+            throw e;
+        }
     }
 
     @ApiOperation("根据服务器ID和组件类型获取组件列表")
@@ -213,5 +269,95 @@ public class MonitorSysGenServerComponentController {
             @Parameter(description = "组件ID", required = true)
             @PathVariable Long componentId) {
         return ReturnResult.ok(componentService.removeById(componentId));
+    }
+
+    /**
+     * 查询组件数据（支持时间范围）
+     *
+     * @param componentId 组件ID，必填参数，用于标识要查询数据的组件
+     * @param startTime   开始时间（Unix时间戳，秒），可选参数，默认为当前时间前30分钟
+     * @param endTime     结束时间（Unix时间戳，秒），可选参数，默认为当前时间
+     * @param step        数据采样步长（秒），默认为60秒，用于控制数据点的密度
+     * @return 返回组件在指定时间范围内的监控数据，数据格式根据组件类型而定
+     * @throws IllegalArgumentException 当组件ID无效或时间参数不合理时抛出
+     * @since 2025/01/03
+     */
+    @ApiOperation("查询组件数据（支持时间范围）")
+    @Operation(summary = "查询组件数据", description = "根据时间范围查询组件的监控数据")
+    @GetMapping("/{componentId}/data")
+    public ReturnResult<Object> getComponentData(
+            @ApiParam(value = "组件ID", required = true)
+            @Parameter(description = "组件ID", required = true)
+            @PathVariable Long componentId,
+            @ApiParam(value = "开始时间（时间戳，秒）")
+            @Parameter(description = "开始时间（时间戳，秒）")
+            @RequestParam(required = false) Long startTime,
+            @ApiParam(value = "结束时间（时间戳，秒）")
+            @Parameter(description = "结束时间（时间戳，秒）")
+            @RequestParam(required = false) Long endTime,
+            @ApiParam(value = "步长（秒）", defaultValue = "60")
+            @Parameter(description = "步长（秒）")
+            @RequestParam(defaultValue = "60") Integer step) {
+        log.info("开始查询组件数据, componentId: {}, startTime: {}, endTime: {}, step: {}",
+                componentId, startTime, endTime, step);
+        try {
+            ReturnResult<Object> result = componentService.getComponentData(componentId, startTime, endTime, step);
+            log.info("查询组件数据成功, componentId: {}, 查询结果: {}", componentId, result.isSuccess());
+            return result;
+        } catch (Exception e) {
+            log.error("查询组件数据失败, componentId: {}, startTime: {}, endTime: {}, step: {}",
+                    componentId, startTime, endTime, step, e);
+            throw e;
+        }
+    }
+
+    /**
+     * 批量查询组件数据
+     *
+     * @param serverId  服务器ID，必填参数，用于标识要查询组件数据的服务器
+     * @param startTime 开始时间（Unix时间戳，秒），可选参数，默认为当前时间前30分钟
+     * @param endTime   结束时间（Unix时间戳，秒），可选参数，默认为当前时间
+     * @param step      数据采样步长（秒），默认为60秒，用于控制数据点的密度
+     * @return 返回指定服务器所有启用组件在指定时间范围内的监控数据集合
+     * @throws IllegalArgumentException 当服务器ID无效或时间参数不合理时抛出
+     * @since 2025/01/03
+     */
+    @ApiOperation("批量查询组件数据")
+    @Operation(summary = "批量查询组件数据", description = "批量查询指定服务器所有组件的监控数据")
+    @GetMapping("/batch/{serverId}/data")
+    public ReturnResult<Map<String, Object>> getBatchComponentData(
+            @ApiParam(value = "服务器ID", required = true)
+            @Parameter(description = "服务器ID", required = true)
+            @PathVariable Integer serverId,
+            @ApiParam(value = "开始时间（时间戳，秒）")
+            @Parameter(description = "开始时间（时间戳，秒）")
+            @RequestParam(required = false) Long startTime,
+            @ApiParam(value = "结束时间（时间戳，秒）")
+            @Parameter(description = "结束时间（时间戳，秒）")
+            @RequestParam(required = false) Long endTime,
+            @ApiParam(value = "步长（秒）", defaultValue = "60")
+            @Parameter(description = "步长（秒）")
+            @RequestParam(defaultValue = "60") Integer step) {
+        log.info("开始批量查询组件数据, serverId: {}, startTime: {}, endTime: {}, step: {}",
+                serverId, startTime, endTime, step);
+        try {
+            ReturnResult<Map<String, Object>> result = componentService.getBatchComponentData(serverId, startTime, endTime, step);
+            log.info("批量查询组件数据成功, serverId: {}, 查询结果: {}", serverId, result.isSuccess());
+            return result;
+        } catch (Exception e) {
+            log.error("批量查询组件数据失败, serverId: {}, startTime: {}, endTime: {}, step: {}",
+                    serverId, startTime, endTime, step, e);
+            throw e;
+        }
+    }
+
+    @ApiOperation("获取组件实时数据")
+    @Operation(summary = "获取组件实时数据", description = "获取组件的实时监控数据")
+    @GetMapping("/{componentId}/data/realtime")
+    public ReturnResult<Object> getComponentRealtimeData(
+            @ApiParam(value = "组件ID", required = true)
+            @Parameter(description = "组件ID", required = true)
+            @PathVariable Long componentId) {
+        return componentService.getComponentRealtimeData(componentId);
     }
 }

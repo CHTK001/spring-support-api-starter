@@ -2,10 +2,10 @@ package com.chua.starter.monitor.starter.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.mybatis.utils.PageResultUtils;
-import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +19,28 @@ import java.util.Map;
 /**
  * 服务器配置设置控制器
  *
+ * 管理服务器的监控配置和运行时设置，包括：
+ * - 监控配置：启用/禁用监控、数据收集频率、数据保留策略
+ * - 数据上报：上报方式选择（NONE/LOCAL/API/PROMETHEUS）、上报配置
+ * - 告警配置：告警阈值设置、通知方式配置
+ * - 高级配置：连接超时、重试策略、性能优化参数
+ * - 配置管理：导入/导出、模板应用、批量配置
+ *
+ * 与基础服务器管理的区别：
+ * - MonitorSysGenServerController：管理服务器基本信息（连接信息、认证等）
+ * - MonitorSysGenServerSettingController：管理服务器运行时配置（监控、告警等）
+ *
+ * 主要功能：
+ * - 指标管理：配置数据收集和上报方式
+ * - 告警管理：设置监控阈值和通知规则
+ * - 配置模板：预设配置模板的应用和管理
+ *
  * @author CH
  * @since 2024/12/26
  */
 @RestController
 @RequestMapping("v1/gen/server/setting")
-@Tag(name = "服务器配置设置")
+@Tag(name = "服务器配置设置", description = "服务器监控配置和运行时设置管理API")
 @RequiredArgsConstructor
 public class MonitorSysGenServerSettingController {
 
@@ -45,15 +61,26 @@ public class MonitorSysGenServerSettingController {
     }
 
     /**
-     * 根据服务器ID获取配置
+     * 根据服务器ID获取或创建配置
+     *
+     * 获取指定服务器的配置设置，如果不存在则自动创建默认配置。
+     * 包含的配置项：
+     * - 基础监控配置：启用状态、数据收集频率、数据保留时间
+     * - 数据上报配置：上报方式、上报地址、认证信息
+     * - 告警配置：告警阈值、通知方式、联系人信息
+     * - 高级配置：连接超时、Docker监控、日志监控等
+     *
+     * 支持两个路径：
+     * - /server/{serverId}: 仅获取现有配置
+     * - /server/{serverId}/or-create: 获取配置，不存在时创建默认配置
      *
      * @param serverId 服务器ID
-     * @return 服务器配置
+     * @return 服务器配置设置，包含完整的监控和告警配置
      */
     @ResponseBody
-    @Operation(summary = "根据服务器ID获取配置")
+    @Operation(summary = "获取或创建服务器配置", description = "获取服务器的监控配置，不存在时自动创建默认配置")
     @GetMapping({"server/{serverId}", "server/{serverId}/or-create"})
-    public ReturnResult<MonitorSysGenServerSetting> getByServerId(@PathVariable Integer serverId) {
+    public ReturnResult<MonitorSysGenServerSetting> getByServerId(@PathVariable("serverId") Integer serverId) {
         return monitorSysGenServerSettingService.getOrCreateSetting(serverId);
     }
 

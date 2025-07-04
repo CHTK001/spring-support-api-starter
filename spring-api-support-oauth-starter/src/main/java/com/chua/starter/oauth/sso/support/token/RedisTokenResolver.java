@@ -35,7 +35,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 public class RedisTokenResolver implements TokenResolver {
 
     @AutoInject
-    private RedisTemplate stringRedisTemplate;
+    private RedisTemplate<String, Object> stringRedisTemplate;
 
     @AutoInject
     private AuthServerProperties authServerProperties;
@@ -59,7 +59,7 @@ public class RedisTokenResolver implements TokenResolver {
         if (online == AuthServerProperties.Online.SINGLE) {
             unRegisterSingle(token);
         }
-        ValueOperations forValue = stringRedisTemplate.opsForValue();
+        ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
         long expire = userResult.getExpire() == null ? authServerProperties.getExpire() : userResult.getExpire();
         long refreshExpire = userResult.getExpire() == null ? authServerProperties.getRefreshExpire() : userResult.getExpire() + 86400L;
         userResult.setExpire(expire);
