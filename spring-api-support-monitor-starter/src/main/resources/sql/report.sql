@@ -2912,36 +2912,36 @@ CREATE TABLE `monitor_sys_gen_server_connection_status`  (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for monitor_sys_gen_server_detail_component
+-- Table structure for monitor_sys_gen_server_component
 -- ----------------------------
-DROP TABLE IF EXISTS `monitor_sys_gen_server_detail_component`;
-CREATE TABLE `monitor_sys_gen_server_detail_component`  (
-  `monitor_sys_gen_server_detail_component_id` bigint NOT NULL AUTO_INCREMENT COMMENT '组件配置ID',
+DROP TABLE IF EXISTS `monitor_sys_gen_server_component`;
+CREATE TABLE `monitor_sys_gen_server_component`  (
+  `monitor_sys_gen_server_component_id` bigint NOT NULL AUTO_INCREMENT COMMENT '组件配置ID',
   `monitor_sys_gen_server_id` int NULL DEFAULT NULL COMMENT '关联服务器ID',
-  `monitor_sys_gen_server_detail_component_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件名称',
-  `monitor_sys_gen_server_detail_component_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件标题',
-  `monitor_sys_gen_server_detail_component_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件类型',
-  `monitor_sys_gen_server_detail_component_expression_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '表达式类型',
-  `monitor_sys_gen_server_detail_component_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '查询表达式',
-  `monitor_sys_gen_server_detail_component_position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件位置信息',
-  `monitor_sys_gen_server_detail_component_chart_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图表配置',
-  `monitor_sys_gen_server_detail_component_refresh_interval` int NULL DEFAULT NULL COMMENT '刷新间隔(秒)',
-  `monitor_sys_gen_server_detail_component_enabled` int NULL DEFAULT NULL COMMENT '是否启用',
-  `monitor_sys_gen_server_detail_component_sort_order` int NULL DEFAULT NULL COMMENT '排序序号',
-  `monitor_sys_gen_server_detail_component_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件描述',
-  `monitor_sys_gen_server_detail_component_create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
-  `monitor_sys_gen_server_detail_component_update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `monitor_sys_gen_server_component_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件名称',
+  `monitor_sys_gen_server_component_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件标题',
+  `monitor_sys_gen_server_component_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件类型',
+  `monitor_sys_gen_server_component_expression_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '表达式类型',
+  `monitor_sys_gen_server_component_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '查询表达式',
+  `monitor_sys_gen_server_component_position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件位置信息',
+  `monitor_sys_gen_server_component_chart_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图表配置',
+  `monitor_sys_gen_server_component_refresh_interval` int NULL DEFAULT NULL COMMENT '刷新间隔(秒)',
+  `monitor_sys_gen_server_component_enabled` int NULL DEFAULT NULL COMMENT '是否启用',
+  `monitor_sys_gen_server_component_sort_order` int NULL DEFAULT NULL COMMENT '排序序号',
+  `monitor_sys_gen_server_component_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件描述',
+  `monitor_sys_gen_server_component_create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `monitor_sys_gen_server_component_update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`monitor_sys_gen_server_detail_component_id`) USING BTREE
+  PRIMARY KEY (`monitor_sys_gen_server_component_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of monitor_sys_gen_server_detail_component
+-- Records of monitor_sys_gen_server_component
 -- ----------------------------
 
 -- ----------------------------

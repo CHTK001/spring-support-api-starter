@@ -10,7 +10,7 @@
 
 **文件**: `MonitorSysGenServerComponent.java`
 - 基于`MonitorSysGenServerDetailComponent`的简化版本
-- 使用相同的数据库表`monitor_sys_gen_server_detail_component`
+- 使用相同的数据库表`monitor_sys_gen_server_component`
 - 包含所有必要的字段映射和验证注解
 - 继承自`SysBase`，符合项目规范
 
@@ -105,7 +105,7 @@ ReturnResult<List<MonitorSysGenServerComponent>> componentsResult = componentSer
 - 保持相同的日志记录风格
 
 ### 2. 数据库设计
-- 复用现有的`monitor_sys_gen_server_detail_component`表
+- 复用现有的`monitor_sys_gen_server_component`表
 - 通过字段映射实现不同的实体类
 - 支持模板机制（serverId = -1为模板）
 - 支持组件统计和分析
