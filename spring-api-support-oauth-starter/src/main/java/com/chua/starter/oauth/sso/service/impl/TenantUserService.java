@@ -12,6 +12,7 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.datasource.support.DataSourceContextSupport;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
+import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
@@ -139,7 +140,7 @@ public class TenantUserService implements UserInfoService, Constant {
             int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
             if (errorCount == count) {
                 log.warn("租户账户已被锁定: 用户={}, 租户={}", principal, tenantId);
-                return UserResume.builder().message("账户已被锁定").build();
+                return new UserResume("账户已被锁定");
             }
         }
 
@@ -164,13 +165,13 @@ public class TenantUserService implements UserInfoService, Constant {
             if (null == user || null == user.getSysTenantId()) {
                 log.warn("租户登录失败: 用户不存在 用户={}, 租户={}", principal, tenantId);
                 check(newAccessKey, hasKey);
-                return UserResume.builder().message("账号/密码不正确").build();
+                return new UserResume("账号/密码不正确");
             }
 
             // 检查账户状态
             if (1 != user.getSysUserStatus()) {
                 log.warn("租户登录失败: 账户已禁用 用户={}, 租户={}", principal, tenantId);
-                return UserResume.builder().message("账号已被禁用").build();
+                return new UserResume("账号已被禁用");
             }
 
             // 验证密码
@@ -320,11 +321,11 @@ public class TenantUserService implements UserInfoService, Constant {
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {
-            return UserResume.builder().message("账号/密码不正确").build();
+            return new UserResume("账号/密码不正确");
         }
 
         if (1 != user.getSysUserStatus()) {
-            return UserResume.builder().message("账号已被禁用").build();
+            return new UserResume("账号已被禁用");
         }
         UserResume userResult1 = loginInfo(userResult.getUsername(), user, null);
         userResult1.setLoginType(userResult.getLoginType());
@@ -366,9 +367,9 @@ public class TenantUserService implements UserInfoService, Constant {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         // 构建角色详细信息集合
-        LinkedHashSet<UserResult.RoleInfo> roleInfos = roles.stream()
+        LinkedHashSet<RoleInfo> roleInfos = roles.stream()
                 .map(it -> {
-                    UserResult.RoleInfo item = new UserResult.RoleInfo();
+                    RoleInfo item = new RoleInfo();
                     item.setRoleCode(it.getSysRoleCode());
                     item.setRoleName(it.getSysRoleName());
                     item.setReadable(it.getSysRoleReadable() == null || it.getSysRoleReadable() == 1);
@@ -406,27 +407,27 @@ public class TenantUserService implements UserInfoService, Constant {
         log.debug("用户权限查询耗时: {}ms", System.currentTimeMillis() - startTime);
 
         // 构建用户结果对象
-        return UserResume.builder()
-                .userId(user.getSysUserId() + "")
-                .openId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
-                .unionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
-                .roles(roleCodes)
-                .tenantId(String.valueOf(user.getSysTenantId()))
-                .rolesByRole(roleInfos)
-                .deptId(user.getSysDeptId() + "")
-                .dataPermission(dataPermission)
-                .dataPermissionRule(dataPermissionRule)
-                .permission(permissions)
-                .phone(user.getSysUserPhone())
-                .username(accessKey)
-                .loginCnt(user.getSysUserLongCount())
-                .nickName(user.getSysUserNickname())
-                .ext(ImmutableBuilder.builderOfMap(String.class, Object.class)
+        return new UserResume()
+                .setUserId(user.getSysUserId() + "")
+                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
+                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
+                .setRoles(roleCodes)
+                .setTenantId(String.valueOf(user.getSysTenantId()))
+                .setRolesByRole(roleInfos)
+                .setDeptId(user.getSysDeptId() + "")
+                .setDataPermission(dataPermission)
+                .setDataPermissionRule(dataPermissionRule)
+                .setPermission(permissions)
+                .setPhone(user.getSysUserPhone())
+                .setUsername(accessKey)
+                .setLoginCnt(user.getSysUserLongCount())
+                .setName(user.getSysUserNickname())
+                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
                         .put("userDashboardGrid", userDashboardGrid)
                         .put("userDashboard", userDashboard)
                         .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
-                        .build()).build();
+                        .build());
     }
 
     /**
@@ -517,13 +518,13 @@ public class TenantUserService implements UserInfoService, Constant {
      */
     private UserResume checkLimit(Integer errorCount) {
         if (errorCount == count) {
-            return UserResume.builder().message("账号已被锁定").build();
+            return new UserResume("账号已被锁定");
         }
 
         if (errorCount > (count - 3)) {
-            return UserResume.builder().message("密码错误, 剩余尝试次数" + (count - errorCount) + "次,账号将被锁定" + timeout + "分钟").build();
+            return new UserResume("密码错误, 剩余尝试次数" + (count - errorCount) + "次,账号将被锁定" + timeout + "分钟");
         }
 
-        return UserResume.builder().message("账号/密码不正确").build();
+        return new UserResume("账号/密码不正确");
     }
 }

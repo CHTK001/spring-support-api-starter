@@ -100,7 +100,7 @@ public class TemporaryTokenService implements UserInfoService, Constant {
         // 参数校验 - principal即为用户当前令牌
         if (StringUtils.isEmpty(principal)) {
             log.warn("临时令牌创建失败: 缺少令牌参数");
-            return UserResume.builder().message(ERROR_MISSING_TOKEN).build();
+            return new UserResume(ERROR_MISSING_TOKEN);
         }
 
         // 获取TokenResolver服务
@@ -110,7 +110,7 @@ public class TemporaryTokenService implements UserInfoService, Constant {
 
         if (null == tokenResolver) {
             log.error("临时令牌创建失败: 令牌解析服务不可用, 配置类型={}", authServerProperties.getTokenManagement());
-            return UserResume.builder().message(ERROR_TOKEN_SERVICE_UNAVAILABLE).build();
+            return new UserResume(ERROR_TOKEN_SERVICE_UNAVAILABLE);
         }
 
         log.debug("令牌解析器加载耗时: {}ms", System.currentTimeMillis() - startTime);
@@ -124,14 +124,14 @@ public class TemporaryTokenService implements UserInfoService, Constant {
             log.warn("临时令牌创建失败: 无效的源令牌 {} - {}",
                     principal.substring(0, Math.min(principal.length(), 10)) + "...",
                     resolve.getMsg());
-            return UserResume.builder().message(ERROR_INVALID_TOKEN).build();
+            return new UserResume(ERROR_INVALID_TOKEN);
         }
 
         // 获取原始用户信息
         UserResume userData = resolve.getData();
         if (null == userData) {
             log.warn("临时令牌创建失败: 令牌解析后的用户信息为空");
-            return UserResume.builder().message(ERROR_INVALID_USER).build();
+            return new UserResume(ERROR_INVALID_USER);
         }
 
         // 确定临时令牌过期时间（默认10秒）
