@@ -37,11 +37,11 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
 
     @Override
     public void onApplicationEvent(UserLoggerInfo userLoggerInfo) {
-        SysUserLog sysUserLog = createSysUserLog(userLoggerInfo);
-        ThreadUtils.newStaticThreadPool()
-                .execute(() -> {
-                    baseMapper.insert(sysUserLog);
-                });
+//        SysUserLog sysUserLog = createSysUserLog(userLoggerInfo);
+//        ThreadUtils.newStaticThreadPool()
+//                .execute(() -> {
+//                    baseMapper.insert(sysUserLog);
+//                });
     }
 
     /**

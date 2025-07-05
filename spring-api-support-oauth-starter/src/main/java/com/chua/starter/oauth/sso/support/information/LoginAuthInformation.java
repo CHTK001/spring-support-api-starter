@@ -6,6 +6,7 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.SignUtils;
+import com.chua.starter.oauth.sso.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
@@ -29,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LoginAuthInformation extends AbstractAuthInformation {
 
 
+    private final SysUserLogService sysUserLogService;
+
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
                                 HttpServletRequest request,
@@ -36,6 +39,7 @@ public class LoginAuthInformation extends AbstractAuthInformation {
                                 ApplicationContext applicationContext,
                                 LoginCheck loginCheck) {
         super(authServerProperties, data, request, response, applicationContext, loginCheck);
+        this.sysUserLogService = applicationContext.getBean(SysUserLogService.class);
     }
 
     /**
@@ -52,6 +56,7 @@ public class LoginAuthInformation extends AbstractAuthInformation {
                 (Map<String, String>) MapUtils.getObject(this.bodyData, "x-oauth-ext"),
                 response,
                 authServerProperties,
+                sysUserLogService,
                 applicationContext,
                 loginCheck);
     }
