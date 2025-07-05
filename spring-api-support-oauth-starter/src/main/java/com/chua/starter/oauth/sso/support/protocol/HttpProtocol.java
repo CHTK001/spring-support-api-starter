@@ -1,24 +1,23 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
-import com.chua.starter.oauth.client.support.user.AccessSecret;
 import com.chua.starter.oauth.client.support.user.LoginResult;
+import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
-import com.chua.starter.oauth.sso.support.information.AuthInformation;
-import com.chua.starter.oauth.sso.support.parser.Authorization;
+import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
+import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
+import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
+import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
+import com.chua.starter.oauth.sso.support.parser.UpgradeAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
@@ -36,19 +35,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.chua.common.support.constant.CommonConstant.EMPTY;
-import static com.chua.common.support.lang.code.ReturnCode.OK;
-import static com.chua.common.support.lang.code.ReturnCode.RESULT_ACCESS_UNAUTHORIZED;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.OAUTH_KEY;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.OAUTH_VALUE;
 
 
 /**
@@ -86,67 +81,31 @@ public class HttpProtocol implements Protocol, InitializingBean {
                     @ApiResponse(responseCode = "401", description = "登录失败，用户名或密码错误")
             }
     )
-    @PostMapping("/doLogin")
-    public AdviceView<Object> doWebLogin(
+    @ResponseBody
+    @PostMapping("/login")
+    public ReturnResult<String> login(
             @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response,
             RedirectAttributes redirectAttributes,
             RedirectAttributes modelMap
     ) {
-        String username = authRequest.getUsername(),
-                passwd = authRequest.getPasswd(),
-                code = authRequest.getCode(),
-                type = authRequest.getType(),
-                data = authRequest.getData(),
-                url = authRequest.getRedirect_url(),
-                mode = authRequest.getMode(),
-                ifRemember = authRequest.getIfRemember();
-        String address = RequestUtils.getIpAddress(request);
-        String accept = request.getHeader("accept");
-        if (null != accept && !accept.contains("text/html")) {
-            ReturnResult<?> result = doLogin(username, passwd, type, data, request, response, null);
-            return new AdviceView<>(result, request);
+        LoginAuthInformation authInformation = new LoginAuthInformation(
+                authServerProperties,
+                authRequest.getData(),
+                request,
+                response,
+                applicationContext,
+                loginCheck);
+        if(!authInformation.isSuccessful()) {
+            return ReturnResult.illegal(authInformation.errorMessage());
         }
-
-        if (!DigestUtils.sha512Hex(username + passwd + code).equals(data)) {
-            modelMap.addFlashAttribute("msg", "登录失败");
-            try {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
-            }
+        LoginAuthorization authorization = authInformation.authorization();
+        ReturnResult<String> authentication = authorization.authentication();
+        if(authentication.isFailure()) {
+            return ReturnResult.error(authentication.getMsg());
         }
-        String sessionKey = Optional.ofNullable(request.getSession().getAttribute("KAPTCHA_SESSION_KEY")).orElse("").toString();
-        if (Strings.isNullOrEmpty(code) || !code.equalsIgnoreCase(sessionKey)) {
-            modelMap.addFlashAttribute("msg", "校验码错误");
-            try {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
-            }
-        }
-
-        boolean ifRem = "on".equals(ifRemember);
-        ReturnResult<LoginResult> result = loginCheck.doLogin(address, username, passwd, type, null);
-
-        if (result.getCode().equals("500")) {
-            redirectAttributes.addFlashAttribute("redirect_url", url);
-            return new AdviceView<>("redirect:" + contextPath + "/login");
-        }
-
-        if (result.getCode().equals("403")) {
-            modelMap.addFlashAttribute("msg", Optional.ofNullable(result.getMsg()).orElse("当前登陆端限制登录, 需要注册密钥"));
-            try {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + URLEncoder.encode(url, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                return new AdviceView<>("redirect:" + contextPath + "/login?redirect_url=" + url);
-            }
-        }
-
-        LoginResult loginResult = result.getData();
-        CookieUtil.set(response, authServerProperties.getCookieName(), loginResult.getToken(), ifRem);
-        return new AdviceView<>("redirect:" + url);
+        return authentication;
     }
 
     /**
@@ -262,34 +221,26 @@ public class HttpProtocol implements Protocol, InitializingBean {
             }
     )
     public ReturnResult<String> oauth(
-            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest request1,
+            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response) {
-        String data = request1.getData();
-        AuthInformation authInformation = new AuthInformation(request1.isEncipher(), data, request, authServerProperties, applicationContext, loginCheck);
-        Authorization authorization = authInformation.resolve();
-        String address = RequestUtils.getIpAddress(request);
-
-        if (!authorization.hasKey()) {
-            return ReturnResult.noAuth();
+        OauthAuthInformation authInformation = new OauthAuthInformation(
+                authServerProperties,
+                authRequest.getData(),
+                request,
+                response,
+                applicationContext,
+                loginCheck);
+        if(!authInformation.isSuccessful()) {
+            return ReturnResult.illegal(authInformation.errorMessage());
         }
-
-        if (!authorization.hasTokenOrCookie()) {
-            return ReturnResult.noAuth();
-        }
-
-        ReturnResult<String> authentication = authorization.authentication(request1.isEncipher());
-        if (!OK.getCode().equals(authentication.getCode())) {
-            return ReturnResult.noAuth();
-        }
-
-        return authentication;
+        OauthAuthorization authorization = authInformation.authorization();
+        return authorization.authentication();
     }
 
     /**
      * 执行升级操作的方法。
      *
-     * @param data     包含升级相关数据的字符串，具体格式和内容根据业务逻辑而定。
      * @param request  HttpServletRequest对象，用于获取客户端请求的相关信息。
      * @param response HttpServletResponse对象，用于向客户端发送响应。
      * @return ReturnResult<String> 包含升级操作结果的返回对象，其中可能包含成功与否、错误信息等。
@@ -305,32 +256,21 @@ public class HttpProtocol implements Protocol, InitializingBean {
             }
     )
     public ReturnResult<String> upgrade(
-            @Parameter(description = "包含升级相关的加密数据", required = true) @RequestParam("data") String data,
+            @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response) {
-        AuthInformation authInformation = new AuthInformation(true, data, request, authServerProperties, applicationContext, loginCheck);
-        Authorization authorization = authInformation.resolve();
-        String address = RequestUtils.getIpAddress(request);
-
-        if (!authorization.hasRefreshToken()) {
-            return ReturnResult.noAuth();
+        UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
+                authServerProperties,
+                authRequest.getData(),
+                request,
+                response,
+                applicationContext,
+                loginCheck);
+        if(!authInformation.isSuccessful()) {
+            return ReturnResult.illegal(authInformation.errorMessage());
         }
-
-        if (!authorization.hasKey()) {
-            return ReturnResult.noAuth();
-        }
-
-        if (!authorization.hasTokenOrCookie()) {
-            return ReturnResult.noAuth();
-        }
-
-        ReturnResult<String> authentication = authorization.upgrade(address, authServerProperties.getCookieName());
-        if (!OK.getCode().equals(authentication.getCode())) {
-            return ReturnResult.noAuth();
-        }
-
-
-        return authentication;
+        UpgradeAuthorization authorization = authInformation.authorization();
+        return authorization.authentication();
     }
 
 

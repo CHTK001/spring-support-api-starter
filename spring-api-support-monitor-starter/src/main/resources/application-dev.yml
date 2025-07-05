@@ -32,7 +32,7 @@ logging:
 
 plugin:
   oauth:
-    address: http://172.16.0.40:19180/oauth
+    address: http://127.0.0.1:19180/oauth
   api:
     ignore-format-packages:
       - com.chua.starter.monitor.jpom

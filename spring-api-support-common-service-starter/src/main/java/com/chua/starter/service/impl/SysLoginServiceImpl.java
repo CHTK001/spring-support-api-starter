@@ -106,7 +106,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         UserInfoVO userInfoVO = new UserInfoVO();
         com.chua.common.support.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
-        userInfoVO.setAvatar(userLoginInfo.getExtValue("sysUserAvatar"));
+        userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
         userInfoVO.setPerms(userLoginInfo.getPermission());

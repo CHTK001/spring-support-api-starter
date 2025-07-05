@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.support.user;
 
 
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 
 /**
  * 用户信息服务接口
@@ -25,7 +26,7 @@ public interface UserInfoService {
      * @param ext        扩展参数，可包含额外的登录信息
      * @return 用户结果，若认证失败则message字段包含错误信息
      */
-    UserResult checkLogin(String principal, String credential, String address, Object ext);
+    UserResume checkLogin(String principal, String credential, String address, Object ext);
 
     /**
      * 升级/刷新用户信息
@@ -34,5 +35,5 @@ public interface UserInfoService {
      * @param userResult 已有的用户信息
      * @return 更新后的用户信息
      */
-    UserResult upgrade(UserResult userResult);
+    UserResume upgrade(UserResult userResult);
 }

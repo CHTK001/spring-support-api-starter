@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
@@ -99,7 +100,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
 
         String tokenManagement = authServerProperties.getTokenManagement();
         TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
-        ReturnResult<UserResult> result = tokenResolver.resolve(null, token);
+        ReturnResult<UserResume> result = tokenResolver.resolve(null, token);
         if (null != giteeService) {
             giteeService.binder(data, result.getData());
         }
