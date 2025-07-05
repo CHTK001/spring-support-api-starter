@@ -1624,7 +1624,11 @@ public class ServerTaskManager {
      * 创建缓存清理任务
      */
     private void createCacheCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingTempFileCleanupEnabled() != 1) {
+        if(null ==  setting) {
+            return;
+        }
+        Integer monitorSysGenServerSettingTempFileCleanupEnabled = setting.getMonitorSysGenServerSettingTempFileCleanupEnabled();
+        if (null == monitorSysGenServerSettingTempFileCleanupEnabled || monitorSysGenServerSettingTempFileCleanupEnabled != 1) {
             return;
         }
 
@@ -1667,7 +1671,11 @@ public class ServerTaskManager {
      * 创建WebSocket清理任务
      */
     private void createWebSocketCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingWebSocketCleanupEnabled() != 1) {
+        if(null == setting) {
+            return;
+        }
+        Integer monitorSysGenServerSettingWebSocketCleanupEnabled = setting.getMonitorSysGenServerSettingWebSocketCleanupEnabled();
+        if (null == monitorSysGenServerSettingWebSocketCleanupEnabled || monitorSysGenServerSettingWebSocketCleanupEnabled != 1) {
             return;
         }
 

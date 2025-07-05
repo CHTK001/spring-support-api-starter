@@ -53,6 +53,7 @@ public class LoginAuthInformation extends AbstractAuthInformation {
                 MapUtils.getString(this.bodyData, "x-oauth-username"),
                 MapUtils.getString(this.bodyData, "x-oauth-password"),
                 MapUtils.getString(this.bodyData, "x-oauth-auth-type"),
+                MapUtils.getString(this.bodyData, "x-oauth-param-app-name"),
                 (Map<String, String>) MapUtils.getObject(this.bodyData, "x-oauth-ext"),
                 response,
                 authServerProperties,
