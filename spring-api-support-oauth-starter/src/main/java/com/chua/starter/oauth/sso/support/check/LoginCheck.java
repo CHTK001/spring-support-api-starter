@@ -5,12 +5,14 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.oauth.sso.support.user.UserInfoService;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ClassUtils;
 
@@ -65,7 +67,7 @@ public class LoginCheck {
      * @return 登录结果，包含令牌和用户信息
      */
     public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
-        UserResult userResult = null;
+        UserResume userResume = null;
         Map<String, UserInfoService> beansOfType = applicationContext.getBeansOfType(UserInfoService.class);
         for (Map.Entry<String, UserInfoService> entry : beansOfType.entrySet()) {
             UserInfoService userInfoService = entry.getValue();
@@ -74,32 +76,34 @@ public class LoginCheck {
             }
 
             try {
-                userResult = userInfoService.checkLogin(principal, credential, address, ext);
+                userResume = userInfoService.checkLogin(principal, credential, address, ext);
             } catch (Exception e) {
                 log.error("用户认证异常: {}, 类型: {}", principal, authType, e);
                 continue;
             }
-            if (null != userResult && Strings.isNullOrEmpty(userResult.getMessage())) {
-                userResult.setAuthType(authType);
-                userResult.setUid(createUid(principal, authType));
+            if (null != userResume && Strings.isNullOrEmpty(userResume.getMessage())) {
+                userResume.setLoginType(authType);
+                userResume.setUid(createUid(principal, authType));
                 break;
             }
         }
 
-        if (null == userResult) {
+        if (null == userResume) {
             return ReturnResult.noAuth();
         }
 
-        if (!Strings.isNullOrEmpty(userResult.getMessage())) {
-            return ReturnResult.noAuth(userResult.getMessage());
+        if (!Strings.isNullOrEmpty(userResume.getMessage())) {
+            return ReturnResult.noAuth(userResume.getMessage());
         }
 
         TokenResolver tokenManagement = ServiceProvider.of(TokenResolver.class).getExtension(authServerProperties.getTokenManagement());
+        UserResult userResult = UserResult.builder().build();
+        BeanUtils.copyProperties(userResume, userResult);
         ReturnResult<LoginResult> token = tokenManagement.createToken(address, userResult, authType);
         String code = token.getCode();
         if (OK.getCode().equals(code)) {
             LoginResult loginResult = token.getData();
-            loginResult.setUserResult(userResult);
+            loginResult.setUserResume(userResume);
         }
         return token;
     }
@@ -110,12 +114,12 @@ public class LoginCheck {
      * @param userResult 用户信息
      * @return 用户信息
      */
-    public UserResult getUserInfo(UserResult userResult) {
+    public UserResume getUserInfo(UserResult userResult) {
         try {
             Map<String, UserInfoService> beansOfType = applicationContext.getBeansOfType(UserInfoService.class);
             UserInfoService userInfoService = null;
             for (Map.Entry<String, UserInfoService> entry : beansOfType.entrySet()) {
-                if (isMatch(entry.getValue(), userResult.getAuthType())) {
+                if (isMatch(entry.getValue(), userResult.getLoginType())) {
                     userInfoService = entry.getValue();
                     break;
                 }

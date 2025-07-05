@@ -11,6 +11,7 @@ import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.generation.TokenGeneration;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
@@ -20,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_PRE;
@@ -60,11 +62,11 @@ public class RedisTokenResolver implements TokenResolver {
             unRegisterSingle(token);
         }
         ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
-        long expire = userResult.getExpire() == null ? authServerProperties.getExpire() : userResult.getExpire();
-        long refreshExpire = userResult.getExpire() == null ? authServerProperties.getRefreshExpire() : userResult.getExpire() + 86400L;
-        userResult.setExpire(expire);
+        long expire = userResult.getExpireTime() == null ? authServerProperties.getExpire() : userResult.getExpireTime();
+        long refreshExpire = userResult.getExpireTime() == null ? authServerProperties.getRefreshExpire() : userResult.getExpireTime() + 86400L;
+        userResult.setExpireTime(expire);
         userResult.setRefreshToken(refreshToken);
-        userResult.setRefreshExpire(refreshExpire);
+        userResult.setRefreshExpireTime(refreshExpire);
         forValue.set(redisKey, userResult);
         forValue.set(redisRefreshKey, userResult);
 
@@ -143,11 +145,10 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    public ReturnResult<UserResult> resolve(Cookie[] cookies, String token) {
-        Cookie cookie = CookieUtil.getCookie(cookies, authServerProperties.getCookieName());
+    public ReturnResult<UserResume> resolve(String cookie, String token) {
         String cv = token;
         if (StringUtils.isEmpty(StringUtils.ifValid(cv, ""))) {
-            cv = null == cookie ? null : cookie.getValue();
+            cv = null == cookie ? null : cookie;
         }
 
         if (null == cv) {
@@ -158,7 +159,12 @@ public class RedisTokenResolver implements TokenResolver {
         if (null == s) {
             return ReturnResult.noAuth();
         }
-        UserResult userResult = (UserResult) s;
+        UserResult userResult = null;
+        if(s instanceof Map map) {
+            userResult = BeanUtils.copyProperties(map, UserResult.class);
+        } else {
+            userResult = (UserResult) s;
+        }
         if (authServerProperties.isRenew()) {
             resetExpire(userResult, token);
         }
@@ -166,8 +172,8 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    public ReturnResult<UserResult> upgradeForTimestamp(String token, String refreshToken) {
-        ReturnResult<UserResult> userResultReturnResult = upgradeForVersion(token, token);
+    public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
+        ReturnResult<UserResume> userResultReturnResult = upgradeForVersion(token, token);
         if (!userResultReturnResult.isOk()) {
             return userResultReturnResult;
         }
@@ -179,7 +185,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    public ReturnResult<UserResult> upgradeForVersion(String token, String refreshToken) {
+    public ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken) {
         String redisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
@@ -187,7 +193,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
-        UserResult newUserResult = loginCheck.getUserInfo(userResult);
+        UserResume newUserResult = loginCheck.getUserInfo(userResult);
         if (null == newUserResult) {
             return ReturnResult.ok(userResult);
         }
@@ -196,7 +202,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    public ReturnResult<UserResult> upgradeForRefresh(String token, String refreshToken) {
+    public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
         Object s = stringRedisTemplate.opsForValue().get(redisRefreshKey);
         if (null == s) {
@@ -204,7 +210,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
         String redisKey = TOKEN_PRE + token;
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
-        return ReturnResult.ok(userResult, userResult.getAuthType());
+        return ReturnResult.ok(userResult, userResult.getLoginType());
     }
 
     @Override
@@ -227,13 +233,13 @@ public class RedisTokenResolver implements TokenResolver {
     /**
      * token续费
      *
-     * @param userResult token信息
+     * @param userResume token信息
      * @param token      token
      */
     @SuppressWarnings("unchecked")
-    private void resetExpire(UserResult userResult, String token) {
-        long expire = userResult.getExpire() == null ? authServerProperties.getExpire() : userResult.getExpire();
-        userResult.setExpire(expire);
+    private void resetExpire(UserResume userResume, String token) {
+        long expire = userResume.getExpireTime() == null ? authServerProperties.getExpire() : userResume.getExpireTime();
+        userResume.setExpireTime(expire);
         if (expire > 0) {
             stringRedisTemplate.expire(token, Duration.ofSeconds(expire));
         }

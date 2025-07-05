@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.third;
 
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.oauth.sso.service.impl.UserService;
@@ -30,7 +31,7 @@ public class GiteeUserService extends UserService {
     private SysUserMapper sysUserMapper;
 
     @Override
-    public UserResult checkLogin(String username, String password, String address, Object ext) {
+    public UserResume checkLogin(String username, String password, String address, Object ext) {
         SysUser sysUser = sysUserTripartiteBindMapper.getSysUser(username, "gitee");
         return null == sysUser ? null : loginInfo(sysUser.getSysUserUsername(), sysUser, address);
     }

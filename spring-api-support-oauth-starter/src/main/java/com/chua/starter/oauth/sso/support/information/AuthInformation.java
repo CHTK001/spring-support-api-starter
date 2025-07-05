@@ -1,182 +1,57 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonArray;
-import com.chua.common.support.json.JsonObject;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.Md5Utils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.configuration.SpringBeanUtils;
-import com.chua.starter.common.support.utils.RequestUtils;
-import com.chua.starter.oauth.client.support.enums.UpgradeType;
+import com.chua.common.support.converter.Converter;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
-import com.chua.starter.oauth.sso.support.parser.InvalidAuthorization;
-import com.chua.starter.oauth.sso.support.parser.RequestAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.RequestHeader;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 鉴权信息
  *
  * @author CH
  */
-@Slf4j
-public class AuthInformation {
-    private final boolean encipher;
-    private final String data;
-    private final HttpServletRequest request;
-    @Getter
-    private final AuthServerProperties authServerProperties;
-    @Getter
-    private final String address;
-    private final String encryption;
-    private final ApplicationContext applicationContext;
-    private final LoginCheck loginCheck;
-    @Getter
-    private String accessKey;
-    private String secretKey;
-    @Getter
-    private String oauthKey;
-    private String token;
-    private Cookie[] cookie;
-    @Getter
-    private UpgradeType upgradeType;
-    @Getter
-    private String refreshToken;
-
-    public AuthInformation(boolean encipher, String data,
-                           HttpServletRequest request,
-                           AuthServerProperties authServerProperties,
-                           ApplicationContext applicationContext,
-                           LoginCheck loginCheck) {
-        this.encipher = encipher;
-        this.data = data;
-        this.request = request;
-        this.authServerProperties = authServerProperties;
-        this.address = RequestUtils.getIpAddress(request);
-        this.encryption = authServerProperties.getEncryption();
-        this.applicationContext = applicationContext;
-        this.loginCheck = loginCheck;
-    }
+public interface AuthInformation {
 
     /**
-     * 解析
+     * 鉴权信息
+     *
+     * @return 鉴权信息
      */
-    public Authorization resolve() {
-        try {
-            return analysisRequest();
-        } catch (Exception e) {
-            return InvalidAuthorization.INSTANCE;
-        }
-    }
+    Authorization authorization();
+
 
     /**
-     * 解析请求
+     * 错误信息
+     *
+     * @return 错误信息
      */
-    private Authorization analysisRequest() {
-        if (encipher) {
-            return analysisRequestEncipher();
-        }
+    String errorMessage();
+    /**
+     * 是否成功
+     *
+     * @return 是否成功
+     */
+    boolean isSuccessful();
 
-        return analysisRequestNotEncipher();
-    }
-
-    private Authorization analysisRequestNotEncipher() {
-        JsonObject jsonObject = Json.getJsonObject(data);
-        String oauthValue = jsonObject.getString(OAUTH_VALUE);
-        this.accessKey = jsonObject.getString(ACCESS_KEY);
-        this.secretKey = jsonObject.getString(SECRET_KEY);
-        this.oauthKey = jsonObject.getString(OAUTH_KEY);
-        String clientIp = jsonObject.getString("clientIp");
-
-        // 检查AKSK认证
-        if (authServerProperties.isOpenCheckAkSk()) {
-        }
-
-        // 根据encipher标识决定是否解密oauthValue
-        String tokenCookieData;
-        if (encipher) {
-            tokenCookieData = Codec.build(encryption, oauthKey).decodeHex(oauthValue);
-        } else {
-            tokenCookieData = oauthValue;
-        }
-
-        JsonObject parseObject = Json.getJsonObject(tokenCookieData);
-        this.token = parseObject.getString(authServerProperties.getTokenName());
-        this.upgradeType = UpgradeType.getUpgradeType(parseObject.getString(OAUTH_UPGRADE_KEY));
-        this.refreshToken = parseObject.getString(OAUTH_UPGRADE_KEY_TOKEN);
-        JsonArray jsonArray = parseObject.getJsonArray(authServerProperties.getCookieName());
-        int size = jsonArray.size();
-        Cookie[] cookies = new Cookie[size];
-        for (int i = 0; i < size; i++) {
-            JsonObject jsonObject1 = jsonArray.getJsonObject(i);
-            cookies[i] = new Cookie(jsonObject1.getString("name"), jsonObject1.getString("value"));
-        }
-        this.cookie = cookies;
-
-        RequestAuthorization authorization = new RequestAuthorization(this,
-                token,
-                cookie,
-                accessKey,
-                secretKey,
-                upgradeType,
-                applicationContext,
-                loginCheck,
-                refreshToken
-        );
-        SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(authorization);
-        return authorization;
-    }
-
-    private Authorization analysisRequestEncipher() {
-        String requestData = Codec.build(encryption, authServerProperties.getServiceKey()).decodeHex(data);
-        JsonObject jsonObject = Json.getJsonObject(requestData);
-        String oauthValue = jsonObject.getString(OAUTH_VALUE);
-        this.accessKey = jsonObject.getString(ACCESS_KEY);
-        this.secretKey = jsonObject.getString(SECRET_KEY);
-        this.oauthKey = jsonObject.getString(OAUTH_KEY);
-
-        String tokenCookie = Codec.build(encryption, Md5Utils.getInstance()
-                .getMd5String(accessKey + DigestUtils.md5Hex(secretKey + oauthKey))).decodeHex(oauthValue);
-
-        JsonObject parseObject = Json.getJsonObject(tokenCookie);
-        this.token = parseObject.getString(authServerProperties.getTokenName());
-        this.upgradeType = UpgradeType.getUpgradeType(parseObject.getString(OAUTH_UPGRADE_KEY));
-        this.refreshToken = parseObject.getString(OAUTH_UPGRADE_KEY_TOKEN);
-        JsonArray jsonArray = parseObject.getJsonArray(authServerProperties.getCookieName());
-        int size = jsonArray.size();
-        Cookie[] cookies = new Cookie[size];
-        for (int i = 0; i < size; i++) {
-            JsonObject jsonObject1 = jsonArray.getJsonObject(i);
-            cookies[i] = new Cookie(jsonObject1.getString("name"), jsonObject1.getString("value"));
-        }
-        this.cookie = cookies;
-
-        RequestAuthorization authorization = new RequestAuthorization(this,
-                token,
-                cookie,
-                accessKey,
-                secretKey,
-                upgradeType,
-                applicationContext,
-                loginCheck,
-                refreshToken
-        );
-        SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(authorization);
-        return authorization;
-    }
-
-    public Codec getCodec() {
-        return Codec.build(encryption, oauthKey);
-    }
-
+    /**
+     * 获取认证信息
+     *
+     * @param data 数据
+     * @return 认证信息
+     */
+    String encodeHex(String data);
+    /**
+     * 获取认证信息
+     *
+     * @return 认证信息
+     */
+    AuthServerProperties getAuthServerProperties();
 }

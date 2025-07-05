@@ -3,6 +3,7 @@ package com.chua.starter.oauth.sso.service.impl;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.support.user.UserInfoService;
 import com.chua.starter.system.entity.SysUser;
@@ -81,7 +82,7 @@ public class ThirdPartyUserService extends UserService implements UserInfoServic
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override
-    public UserResult checkLogin(String principal, String credential, String address, Object ext) {
+    public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         log.debug("第三方登录请求: 用户ID={}, IP={}", principal, address);
 
         // 构建缓存键
@@ -110,13 +111,14 @@ public class ThirdPartyUserService extends UserService implements UserInfoServic
         
         if (null == user) {
             log.warn("第三方登录失败: 用户不存在 ID={}, IP={}", principal, address);
-            return new UserResult().setMessage("账号/密码不正确");
+            return UserResume.builder().message("账号/密码不正确").build();
+
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.warn("第三方登录失败: 账户已禁用 ID={}, IP={}", principal, address);
-            return new UserResult().setMessage("账号已被禁用");
+            return UserResume.builder().message("账号已被禁用").build();
         }
 
         // 更新用户最后登录IP

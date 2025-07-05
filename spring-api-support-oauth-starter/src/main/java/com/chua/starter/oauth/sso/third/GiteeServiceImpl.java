@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.third;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.impl.SysUserTripartiteBind;
 import com.chua.starter.oauth.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.oauth.sso.support.gitee.GiteeService;
@@ -26,8 +27,8 @@ public class GiteeServiceImpl implements GiteeService {
     final SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
-    public void binder(AuthUser data, UserResult userResult) {
-        String id = userResult.getId();
+    public void binder(AuthUser data, UserResume userResult) {
+        String id = userResult.getUserId();
         if(null != id) {
             SysUserTripartiteBind selectOne = sysUserTripartiteBindMapper.selectOne(Wrappers.<SysUserTripartiteBind>lambdaQuery()
                     .eq(SysUserTripartiteBind::getUserId, id).eq(SysUserTripartiteBind::getLoginCodeType, "gitee"));

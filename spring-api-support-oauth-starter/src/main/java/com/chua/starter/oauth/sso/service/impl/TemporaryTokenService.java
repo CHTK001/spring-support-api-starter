@@ -7,6 +7,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.oauth.sso.support.user.UserInfoService;
@@ -93,13 +94,13 @@ public class TemporaryTokenService implements UserInfoService, Constant {
      * @return 临时用户令牌信息，若令牌无效则message字段包含错误信息
      */
     @Override
-    public UserResult checkLogin(String principal, String credential, String address, Object ext) {
+    public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         log.debug("临时令牌请求: IP={}", address);
 
         // 参数校验 - principal即为用户当前令牌
         if (StringUtils.isEmpty(principal)) {
             log.warn("临时令牌创建失败: 缺少令牌参数");
-            return new UserResult().setMessage(ERROR_MISSING_TOKEN);
+            return UserResume.builder().message(ERROR_MISSING_TOKEN).build();
         }
 
         // 获取TokenResolver服务
@@ -109,28 +110,28 @@ public class TemporaryTokenService implements UserInfoService, Constant {
 
         if (null == tokenResolver) {
             log.error("临时令牌创建失败: 令牌解析服务不可用, 配置类型={}", authServerProperties.getTokenManagement());
-            return new UserResult().setMessage(ERROR_TOKEN_SERVICE_UNAVAILABLE);
+            return UserResume.builder().message(ERROR_TOKEN_SERVICE_UNAVAILABLE).build();
         }
 
         log.debug("令牌解析器加载耗时: {}ms", System.currentTimeMillis() - startTime);
 
         // 验证令牌有效性 - 通过principal获取用户信息
         startTime = System.currentTimeMillis();
-        ReturnResult<UserResult> resolve = tokenResolver.resolve(null, principal);
+        ReturnResult<UserResume> resolve = tokenResolver.resolve(null, principal);
         log.debug("令牌解析耗时: {}ms", System.currentTimeMillis() - startTime);
 
         if (!resolve.isOk() || null == resolve.getData()) {
             log.warn("临时令牌创建失败: 无效的源令牌 {} - {}",
                     principal.substring(0, Math.min(principal.length(), 10)) + "...",
                     resolve.getMsg());
-            return new UserResult().setMessage(ERROR_INVALID_TOKEN);
+            return UserResume.builder().message(ERROR_INVALID_TOKEN).build();
         }
 
         // 获取原始用户信息
-        UserResult userData = resolve.getData();
+        UserResume userData = resolve.getData();
         if (null == userData) {
             log.warn("临时令牌创建失败: 令牌解析后的用户信息为空");
-            return new UserResult().setMessage(ERROR_INVALID_USER);
+            return UserResume.builder().message(ERROR_INVALID_USER).build();
         }
 
         // 确定临时令牌过期时间（默认10秒）
@@ -153,7 +154,7 @@ public class TemporaryTokenService implements UserInfoService, Constant {
         }
 
         // 创建一个临时用户结果，包含原始用户的基本信息
-        UserResult temporaryResult = createTemporaryResult(userData, expireTime);
+        UserResume temporaryResult = createTemporaryResult(userData, expireTime);
 
         log.info("临时令牌创建成功: 用户={}, IP={}, 过期时间={}秒",
                 Optional.ofNullable(userData.getUsername()).orElse(userData.getUserId()),
@@ -170,24 +171,10 @@ public class TemporaryTokenService implements UserInfoService, Constant {
      * @param expireTime 过期时间(秒)
      * @return 临时用户结果对象
      */
-    private UserResult createTemporaryResult(UserResult userData, long expireTime) {
-        return new UserResult()
-                .setId(userData.getId())
-                .setUserId(userData.getUserId())
-                .setClientId(userData.getClientId())
-                .setOpenId(userData.getOpenId())
-                .setUnionId(userData.getUnionId())
-                .setRoles(userData.getRoles())
-                .setRolesByRole(userData.getRolesByRole())
-                .setDeptId(userData.getDeptId())
-                .setDataPermission(userData.getDataPermission())
-                .setDataPermissionRule(userData.getDataPermissionRule())
-                .setPermission(userData.getPermission())
-                .setPhone(userData.getPhone())
-                .setUsername(userData.getUsername())
-                .setName(userData.getName())
-                .setExpire(expireTime)  // 设置过期时间为临时值
-                .setAuthType("TEMPORARY");
+    private UserResume createTemporaryResult(UserResume userData, long expireTime) {
+        userData.setExpireTime(expireTime);
+        userData.setLoginType("TEMPORARY");
+        return userData;
     }
 
     /**
@@ -198,7 +185,7 @@ public class TemporaryTokenService implements UserInfoService, Constant {
      * @return 原始用户信息，不做任何修改
      */
     @Override
-    public UserResult upgrade(UserResult userResult) {
+    public UserResume upgrade(UserResult userResult) {
         // 临时令牌不支持升级
         log.debug("临时令牌不支持升级操作: {}",
                 Optional.ofNullable(userResult.getUsername()).orElse(userResult.getUserId()));
