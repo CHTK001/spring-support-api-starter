@@ -56,6 +56,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 ImmutableBuilder.<String, Object>builderOfMap()
                         .put("address", address)
                         .put("fingerprint", fingerprint)
+                        .put("ua", request.getHeader("User-Agent"))
                         .build()
         );
 

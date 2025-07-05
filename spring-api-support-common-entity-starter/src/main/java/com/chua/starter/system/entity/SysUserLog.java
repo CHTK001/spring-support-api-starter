@@ -146,6 +146,13 @@ public class SysUserLog extends SysBase implements Serializable {
     @ApiModelProperty(value = "请求状态; 0: 失败; 1: 成功")
     @Schema(description = "请求状态; 0: 失败; 1: 成功")
     private Integer sysLogStatus;
+    /**
+     * 请求消息
+     */
+    @TableField(value = "sys_log_message")
+    @ApiModelProperty(value = "请求消息")
+    @Schema(description = "请求消息")
+    private String sysLogMessage;
 
     /**
      * 耗时
