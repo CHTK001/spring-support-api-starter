@@ -28,6 +28,7 @@ public final class LoginAuthorization implements Authorization {
     private final String username;
     private final String password;
     private final String loginType;
+    private final String appName;
     private final Map<String, String> ext;
     private final HttpServletResponse response;
     private final AuthServerProperties authServerProperties;
@@ -40,6 +41,7 @@ public final class LoginAuthorization implements Authorization {
                               String username,
                               String password,
                               String loginType,
+                              String appName,
                               Map<String, String> ext,
                               HttpServletResponse response,
                               AuthServerProperties authServerProperties,
@@ -50,6 +52,7 @@ public final class LoginAuthorization implements Authorization {
         this.username = username;
         this.password = password;
         this.loginType = loginType;
+        this.appName = appName;
         this.ext = ext;
         this.response = response;
         this.authServerProperties = authServerProperties;
@@ -99,6 +102,7 @@ public final class LoginAuthorization implements Authorization {
         sysUserLog.setSysLogUsername(loginAuthorization.username);
         sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
         sysUserLog.setSysLogUrl("/login");
+        sysUserLog.setSysLogAppName(appName);
         sysUserLog.setSysLogLoginType(loginAuthorization.loginType);
         sysUserLog.setSysLogCost(BigDecimal.valueOf(cost));
         sysUserLog.setSysLogStatus(returnResult.isOk() ? 1 : 0);

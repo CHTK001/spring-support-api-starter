@@ -11,6 +11,7 @@ import com.chua.starter.oauth.sso.service.SysUserLogService;
 import com.chua.starter.system.entity.SysUserLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.util.concurrent.Executors;
  */
 @Slf4j
 @Service
+@Primary
 public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService {
 
     /**
