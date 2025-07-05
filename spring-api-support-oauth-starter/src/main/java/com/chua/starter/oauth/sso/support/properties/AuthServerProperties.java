@@ -227,6 +227,35 @@ public class AuthServerProperties {
      */
     private Set<String> user = new HashSet<>();
 
+    /**
+     * TCP协议服务端口
+     * <p>用于TCP协议的OAuth认证服务</p>
+     * <p>TCP协议相比HTTP协议具有以下优势：</p>
+     * <ul>
+     *   <li>无HTTP头部开销，减少约200-500字节</li>
+     *   <li>自定义二进制协议，数据更紧凑</li>
+     *   <li>长连接复用，减少连接建立开销</li>
+     *   <li>支持数据压缩，进一步减少传输大小</li>
+     * </ul>
+     * <p>默认值：8081</p>
+     */
+    private Integer tcpPort = 8081;
+
+    /**
+     * UDP协议服务端口
+     * <p>用于UDP协议的OAuth认证服务</p>
+     * <p>UDP协议具有最小的传输开销：</p>
+     * <ul>
+     *   <li>无连接开销，每个数据包独立</li>
+     *   <li>协议头部仅8字节（vs TCP的20字节）</li>
+     *   <li>无握手过程，延迟最低</li>
+     *   <li>适合小数据包的快速传输</li>
+     *   <li>自定义压缩协议，数据包大小最小化</li>
+     * </ul>
+     * <p>默认值：8082</p>
+     */
+    private Integer udpPort = 8082;
+
     public enum Online {
         /**
          * 只允许一个在线
