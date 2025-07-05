@@ -3,6 +3,9 @@ package com.chua.starter.oauth.sso.configuration;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.starter.datasource.support.DataSourceContextSupport;
 import com.chua.starter.oauth.sso.properties.TenantDataSourceProperties;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -31,20 +34,30 @@ import java.util.List;
 @Configuration
 public class RedisConfiguration  {
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(factory);
+    @Configuration
+    public class RedisConfig {
 
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        @Bean
+        public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+            RedisTemplate<String, Object> template = new RedisTemplate<>();
+            template.setConnectionFactory(factory);
 
-        template.setDefaultSerializer(serializer);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(serializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(serializer);
+            // 使用Jackson2JsonRedisSerializer来序列化value
+            Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
 
-        return template;
+            // 解决查询缓存转换异常的问题
+            ObjectMapper om = new ObjectMapper();
+            om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+            om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
+            serializer.setObjectMapper(om);
+
+            template.setKeySerializer(new StringRedisSerializer());
+            template.setValueSerializer(serializer);
+            template.setHashKeySerializer(new StringRedisSerializer());
+            template.setHashValueSerializer(serializer);
+
+            template.afterPropertiesSet();
+            return template;
+        }
     }
-
 }
