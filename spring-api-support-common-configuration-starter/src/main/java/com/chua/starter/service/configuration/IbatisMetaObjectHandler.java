@@ -50,23 +50,23 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("createBy")) {
-                registerField(metaObject, "createBy",  userLoginInfo.getExtValue("sysUserId"), CREATE);
+                registerField(metaObject, "createBy",  userLoginInfo.getOption("sysUserId"), CREATE);
             }
 
             if (metaObject.hasGetter("createName")) {
-                registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("sysDeptId")) {
-                registerField(metaObject, "sysDeptId", userLoginInfo.getExtValue("sysDeptId"), CREATE);
+                registerField(metaObject, "sysDeptId", userLoginInfo.getOption("sysDeptId"), CREATE);
             }
 
             if (metaObject.hasGetter("tenantId")) {
-                registerField(metaObject, "tenantId", userLoginInfo.getExtValue("tenantId"), CREATE);
+                registerField(metaObject, "tenantId", userLoginInfo.getOption("tenantId"), CREATE);
             }
         }
 
@@ -86,13 +86,13 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("updateBy")) {
-                registerField(metaObject, "updateBy",  userLoginInfo.getExtValue("sysUserId"), UPDATE);
+                registerField(metaObject, "updateBy",  userLoginInfo.getOption("sysUserId"), UPDATE);
             }
             if (metaObject.hasGetter("updateName")) {
-                registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getExtValue("userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
         }
     }

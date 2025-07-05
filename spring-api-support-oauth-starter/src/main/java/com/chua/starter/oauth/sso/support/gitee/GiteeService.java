@@ -1,6 +1,7 @@
 package com.chua.starter.oauth.sso.support.gitee;
 
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import me.zhyd.oauth.model.AuthUser;
 
 /**
@@ -19,6 +20,6 @@ public interface GiteeService {
      * @param data       数据
      * @param userResult token
      */
-    void binder(AuthUser data, UserResult userResult);
+    void binder(AuthUser data, UserResume userResult);
 
 }

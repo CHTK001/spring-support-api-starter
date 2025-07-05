@@ -10,6 +10,7 @@ import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.support.user.UserInfoService;
@@ -107,7 +108,7 @@ public class UserService implements UserInfoService, Constant {
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override
-    public UserResult checkLogin(String principal, String credential, String address, Object ext) {
+    public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         // 构建登录错误计数的Redis键
         String newAccessKey = "system:" + LOGIN_ERROR + principal;
         long startTime = System.currentTimeMillis();
@@ -118,7 +119,7 @@ public class UserService implements UserInfoService, Constant {
             int errorCount = Integer.parseInt(errorCountStr);
             if (errorCount >= count) {
                 log.warn("账户已被锁定: {}, IP: {}", principal, address);
-                return new UserResult().setMessage("账户已被锁定");
+                return UserResume.builder().message("账户已被锁定").build();
             }
         }
 
@@ -142,7 +143,7 @@ public class UserService implements UserInfoService, Constant {
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.info("登录失败: 账户已禁用 {}, IP: {}", principal, address);
-            return new UserResult().setMessage("账号已被禁用");
+            return UserResume.builder().message("账号已被禁用").build();
         }
 
         // 验证密码 - 使用常量时间比较避免计时攻击
@@ -156,7 +157,7 @@ public class UserService implements UserInfoService, Constant {
         // 更新用户登录信息 - 异步更新以提高响应速度
         user.setSysUserLastIp(address);
         sysUserMapper.updateById(user);
-        
+
         // 登录成功，清除错误计数
         if (errorCountStr != null) {
             stringRedisTemplate.delete(newAccessKey);
@@ -180,33 +181,33 @@ public class UserService implements UserInfoService, Constant {
      * @return 更新后的用户信息
      */
     @Override
-    public UserResult upgrade(UserResult userResult) {
+    public UserResume upgrade(UserResult userResult) {
         // 查询最新的用户信息 - 只选择必要字段
         long startTime = System.currentTimeMillis();
         SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery()
                 .select(SysUser::getSysUserId, SysUser::getSysUserUsername, SysUser::getSysUserStatus,
                         SysUser::getSysDeptId, SysUser::getSysUserPhone)
-                .eq(SysUser::getSysUserId, userResult.getId())
+                .eq(SysUser::getSysUserId, userResult.getUserId())
                 .last("limit 1"));
-                
+
         if (null == user) {
-            log.warn("用户信息刷新失败: 用户不存在 ID={}", userResult.getId());
-            return new UserResult().setMessage("账号/密码不正确");
+            log.warn("用户信息刷新失败: 用户不存在 ID={}", userResult.getUserId());
+            return UserResume.builder().message("账号/密码不正确").build();
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
-            log.warn("用户信息刷新失败: 账户已禁用 ID={}", userResult.getId());
-            return new UserResult().setMessage("账号已被禁用");
+            log.warn("用户信息刷新失败: 账户已禁用 ID={}", userResult.getUserId());
+            return UserResume.builder().message("账号已被禁用").build();
         }
 
         // 创建更新后的用户结果
-        UserResult updatedResult = loginInfo(userResult.getUsername(), user, null);
-        updatedResult.setAuthType(userResult.getAuthType());
+        UserResume updatedResult = loginInfo(userResult.getUsername(), user, null);
+        updatedResult.setLoginType(userResult.getLoginType());
         log.debug("用户信息刷新成功: {} (ID:{}), 耗时: {}ms",
                 user.getSysUserUsername(), user.getSysUserId(),
                 System.currentTimeMillis() - startTime);
-                
+
         return updatedResult;
     }
 
@@ -223,7 +224,7 @@ public class UserService implements UserInfoService, Constant {
      * @param address   客户端IP地址，可为null表示不更新登录信息
      * @return 完整的用户结果对象
      */
-    protected UserResult loginInfo(String accessKey, SysUser user, String address) {
+    protected UserResume loginInfo(String accessKey, SysUser user, String address) {
         long startTime = System.currentTimeMillis();
 
         // 增加用户登录计数 - 使用管道操作减少网络往返
@@ -271,29 +272,29 @@ public class UserService implements UserInfoService, Constant {
         log.debug("权限加载耗时: {}ms", System.currentTimeMillis() - startTime);
 
         // 构建用户结果对象 - 使用链式调用提高代码可读性
-        return new UserResult()
-                .setId(user.getSysUserId() + "")
-                .setUserId(user.getSysUserId() + "")
-                .setClientId(user.getSysClientId())
-                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
-                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
-                .setRoles(collect)
-                .setRolesByRole(roleInfo)
-                .setDeptId(user.getSysDeptId() + "")
-                .setDataPermission(dataPermission)
-                .setPermission(permissions)
-                .setDataPermissionRule(dataPermissionRule)
-                .setPermission(getPermission(user))
-                .setPhone(user.getSysUserPhone())
-                .setUsername(accessKey)
-                .setLoginCnt(user.getSysUserLongCount())
-                .setName(user.getSysUserNickname())
-                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
+        return UserResume.builder()
+                .userId(user.getSysUserId() + "")
+                .openId(user.getSysClientId() + "_" + DigestUtils.md5Hex(String.valueOf(user.getSysUserId())))
+                .unionId(DigestUtils.md5Hex(user.getSysClientId() + "_" + user.getSysUserId()))
+                .roles(collect)
+                .rolesByRole(roleInfo)
+                .deptId(ObjectUtils.defaultIfNull(user.getSysDeptId(), it -> null))
+                .dataPermission(dataPermission)
+                .permission(permissions)
+                .dataPermissionRule(dataPermissionRule)
+                .permission(getPermission(user))
+                .phone(user.getSysUserPhone())
+                .username(accessKey)
+                .loginCnt(user.getSysUserLongCount())
+                .nickName(user.getSysUserNickname())
+                .ext(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
                         .put("userDashboardGrid", userDashboardGrid)
                         .put("userDashboard", userDashboard)
                         .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
-                        .build());
+                        .build())
+                .build()
+                ;
     }
 
 
@@ -357,7 +358,7 @@ public class UserService implements UserInfoService, Constant {
      * @param hasKey       键是否已存在
      * @return 包含错误信息的用户结果
      */
-    private UserResult check(String newAccessKey, Boolean hasKey) {
+    private UserResume check(String newAccessKey, Boolean hasKey) {
         ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
 
         // 增加错误计数
@@ -368,7 +369,7 @@ public class UserService implements UserInfoService, Constant {
             // 如果达到最大错误次数，设置锁定状态
             if (errorCount + 1 == count) {
                 stringRedisTemplate.expire(newAccessKey, timeout, TimeUnit.MINUTES);
-                return new UserResult().setMessage("账号已被锁定");
+                return UserResume.builder().message("账号已被锁定").build();
             }
 
             return checkLimit(errorCount + 1);
@@ -385,11 +386,11 @@ public class UserService implements UserInfoService, Constant {
      * @param errorCount 当前错误次数
      * @return 包含错误信息的用户结果
      */
-    private UserResult checkLimit(Integer errorCount) {
+    private UserResume checkLimit(Integer errorCount) {
         int remain = count - errorCount;
         if (remain <= 3) {
-            return new UserResult().setMessage("账号/密码不正确，还有" + remain + "次机会");
+            return UserResume.builder().message("账号/密码不正确，还有" + remain + "次机会").build();
         }
-        return new UserResult().setMessage("账号/密码不正确");
+        return UserResume.builder().message("账号/密码不正确").build();
     }
 }

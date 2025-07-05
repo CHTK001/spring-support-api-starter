@@ -3,6 +3,7 @@ package com.chua.starter.oauth.sso.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.entity.SysUser;
@@ -87,7 +88,7 @@ public class WeixinMiniAppService extends UserService {
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override
-    public UserResult checkLogin(String openId, String password, String address, Object ext) {
+    public UserResume checkLogin(String openId, String password, String address, Object ext) {
         log.debug("微信小程序登录请求: OpenID={}, IP={}", openId, address);
 
         // 构建缓存键
@@ -119,7 +120,7 @@ public class WeixinMiniAppService extends UserService {
             // 检查是否存在关联记录
             if (thirdPartyUser == null) {
                 log.warn("微信小程序登录失败: 未找到关联用户 OpenID={}", openId);
-                return new UserResult().setMessage("账号不存在");
+                return UserResume.builder().message("账号不存在").build();
             }
 
             sysUserId = thirdPartyUser.getSysUserId();
@@ -132,7 +133,7 @@ public class WeixinMiniAppService extends UserService {
 
         if (sysUserId == null) {
             log.warn("微信小程序登录失败: 关联记录中缺少用户ID OpenID={}", openId);
-            return new UserResult().setMessage("账号不存在");
+            return UserResume.builder().message("账号不存在").build();
         }
 
         // 查询系统用户信息
@@ -142,13 +143,13 @@ public class WeixinMiniAppService extends UserService {
 
         if (null == user) {
             log.warn("微信小程序登录失败: 关联的系统用户不存在 ID={}", sysUserId);
-            return new UserResult().setMessage("账号不存在");
+            return UserResume.builder().message("账号不存在").build();
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.warn("微信小程序登录失败: 账户已禁用 ID={}", sysUserId);
-            return new UserResult().setMessage("账号已被禁用");
+            return UserResume.builder().message("账号已被禁用").build();
         }
 
         // 更新用户登录信息

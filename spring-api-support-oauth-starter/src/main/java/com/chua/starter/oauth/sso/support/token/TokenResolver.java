@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import jakarta.servlet.http.Cookie;
 
 /**
@@ -41,11 +42,11 @@ public interface TokenResolver {
     /**
      * 解析token
      *
-     * @param cookies cookie
+     * @param cookie cookie
      * @param token   token
      * @return 登录信息
      */
-    ReturnResult<UserResult> resolve(Cookie[] cookies, String token);
+    ReturnResult<UserResume> resolve(String cookie, String token);
 
     /**
      * 刷新token
@@ -54,7 +55,7 @@ public interface TokenResolver {
      * @param refreshToken
      * @return 登录信息
      */
-    ReturnResult<UserResult> upgradeForTimestamp(String token, String refreshToken);
+    ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken);
 
     /**
      * 刷新token内容
@@ -63,7 +64,7 @@ public interface TokenResolver {
      * @param refreshToken 刷新token
      * @return 登录信息
      */
-    ReturnResult<UserResult> upgradeForVersion(String token, String refreshToken);
+    ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken);
 
     /**
      * 刷新token
@@ -72,7 +73,7 @@ public interface TokenResolver {
      * @param refreshToken 刷新token
      * @return 登录信息
      */
-    ReturnResult<UserResult> upgradeForRefresh(String token, String refreshToken);
+    ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken);
 
     /**
      * 注销
