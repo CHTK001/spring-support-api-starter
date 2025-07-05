@@ -25,10 +25,10 @@ import java.time.LocalDateTime;
 @ApiModel(description = "服务器组件配置")
 @Schema(description = "服务器组件配置")
 @Data
-@TableName(value = "monitor_sys_gen_server_detail_component")
+@TableName(value = "monitor_sys_gen_server_component")
 public class MonitorSysGenServerComponent extends SysBase {
 
-    @TableId(value = "monitor_sys_gen_server_detail_component_id", type = IdType.AUTO)
+    @TableId(value = "monitor_sys_gen_server_component_id", type = IdType.AUTO)
     @ApiModelProperty(value = "组件配置ID")
     @Schema(description = "组件配置ID")
     @NotNull(message = "不能为null")
