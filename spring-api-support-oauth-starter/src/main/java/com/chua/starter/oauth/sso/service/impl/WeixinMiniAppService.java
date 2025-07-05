@@ -120,7 +120,7 @@ public class WeixinMiniAppService extends UserService {
             // 检查是否存在关联记录
             if (thirdPartyUser == null) {
                 log.warn("微信小程序登录失败: 未找到关联用户 OpenID={}", openId);
-                return UserResume.builder().message("账号不存在").build();
+                return new UserResume("账号不存在");
             }
 
             sysUserId = thirdPartyUser.getSysUserId();
@@ -133,7 +133,7 @@ public class WeixinMiniAppService extends UserService {
 
         if (sysUserId == null) {
             log.warn("微信小程序登录失败: 关联记录中缺少用户ID OpenID={}", openId);
-            return UserResume.builder().message("账号不存在").build();
+            return new UserResume("账号不存在");
         }
 
         // 查询系统用户信息
@@ -143,13 +143,13 @@ public class WeixinMiniAppService extends UserService {
 
         if (null == user) {
             log.warn("微信小程序登录失败: 关联的系统用户不存在 ID={}", sysUserId);
-            return UserResume.builder().message("账号不存在").build();
+            return new UserResume("账号不存在");
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.warn("微信小程序登录失败: 账户已禁用 ID={}", sysUserId);
-            return UserResume.builder().message("账号已被禁用").build();
+            return new UserResume("账号已被禁用");
         }
 
         // 更新用户登录信息

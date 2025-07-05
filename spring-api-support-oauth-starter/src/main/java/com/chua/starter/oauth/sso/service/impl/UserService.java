@@ -9,6 +9,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
+import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
@@ -119,7 +120,7 @@ public class UserService implements UserInfoService, Constant {
             int errorCount = Integer.parseInt(errorCountStr);
             if (errorCount >= count) {
                 log.warn("账户已被锁定: {}, IP: {}", principal, address);
-                return UserResume.builder().message("账户已被锁定").build();
+                return new UserResume("账户已被锁定");
             }
         }
 
@@ -143,7 +144,7 @@ public class UserService implements UserInfoService, Constant {
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.info("登录失败: 账户已禁用 {}, IP: {}", principal, address);
-            return UserResume.builder().message("账号已被禁用").build();
+            return new UserResume("账号已被禁用");
         }
 
         // 验证密码 - 使用常量时间比较避免计时攻击
@@ -192,13 +193,13 @@ public class UserService implements UserInfoService, Constant {
 
         if (null == user) {
             log.warn("用户信息刷新失败: 用户不存在 ID={}", userResult.getUserId());
-            return UserResume.builder().message("账号/密码不正确").build();
+            return new UserResume("账号/密码不正确");
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.warn("用户信息刷新失败: 账户已禁用 ID={}", userResult.getUserId());
-            return UserResume.builder().message("账号已被禁用").build();
+            return new UserResume("账号已被禁用");
         }
 
         // 创建更新后的用户结果
@@ -243,9 +244,9 @@ public class UserService implements UserInfoService, Constant {
         List<SysRole> role = getRole(user);
 
         LinkedHashSet<String> collect = role.stream().map(SysRole::getSysRoleCode).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
-        LinkedHashSet<UserResult.RoleInfo> roleInfo =
+        LinkedHashSet<RoleInfo> roleInfo =
                 role.stream().map(it -> {
-                    UserResult.RoleInfo item = new UserResult.RoleInfo();
+                    RoleInfo item = new RoleInfo();
                     item.setRoleCode(it.getSysRoleCode());
                     item.setRoleName(it.getSysRoleName());
                     item.setReadable(it.getSysRoleReadable() == null || it.getSysRoleReadable() == 1);
@@ -272,28 +273,29 @@ public class UserService implements UserInfoService, Constant {
         log.debug("权限加载耗时: {}ms", System.currentTimeMillis() - startTime);
 
         // 构建用户结果对象 - 使用链式调用提高代码可读性
-        return UserResume.builder()
-                .userId(user.getSysUserId() + "")
-                .openId(user.getSysClientId() + "_" + DigestUtils.md5Hex(String.valueOf(user.getSysUserId())))
-                .unionId(DigestUtils.md5Hex(user.getSysClientId() + "_" + user.getSysUserId()))
-                .roles(collect)
-                .rolesByRole(roleInfo)
-                .deptId(ObjectUtils.defaultIfNull(user.getSysDeptId(), it -> null))
-                .dataPermission(dataPermission)
-                .permission(permissions)
-                .dataPermissionRule(dataPermissionRule)
-                .permission(getPermission(user))
-                .phone(user.getSysUserPhone())
-                .username(accessKey)
-                .loginCnt(user.getSysUserLongCount())
-                .nickName(user.getSysUserNickname())
-                .ext(ImmutableBuilder.builderOfMap(String.class, Object.class)
+        return new UserResult()
+                .setUserId(user.getSysUserId() + "")
+                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
+                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
+                .setRoles(collect)
+                .setRolesByRole(roleInfo)
+                .setDeptId(user.getSysDeptId() + "")
+                .setDataPermission(dataPermission)
+                .setPermission(permissions)
+                .setDataPermissionRule(dataPermissionRule)
+                .setPermission(getPermission(user))
+                .setPhone(user.getSysUserPhone())
+                .setUsername(accessKey)
+                .setLoginCnt(user.getSysUserLongCount())
+                .setName(user.getSysUserNickname())
+                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
                         .put("userDashboardGrid", userDashboardGrid)
                         .put("userDashboard", userDashboard)
                         .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
-                        .build())
-                .build()
+                        .build()
+                )
+
                 ;
     }
 
@@ -369,7 +371,7 @@ public class UserService implements UserInfoService, Constant {
             // 如果达到最大错误次数，设置锁定状态
             if (errorCount + 1 == count) {
                 stringRedisTemplate.expire(newAccessKey, timeout, TimeUnit.MINUTES);
-                return UserResume.builder().message("账号已被锁定").build();
+                return new UserResume("账号已被锁定");
             }
 
             return checkLimit(errorCount + 1);
@@ -389,8 +391,8 @@ public class UserService implements UserInfoService, Constant {
     private UserResume checkLimit(Integer errorCount) {
         int remain = count - errorCount;
         if (remain <= 3) {
-            return UserResume.builder().message("账号/密码不正确，还有" + remain + "次机会").build();
+            return new UserResume("账号/密码不正确，还有" + remain + "次机会");
         }
-        return UserResume.builder().message("账号/密码不正确").build();
+        return new UserResume("账号/密码不正确");
     }
 }
