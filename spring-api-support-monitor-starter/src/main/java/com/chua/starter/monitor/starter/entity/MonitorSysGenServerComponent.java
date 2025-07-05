@@ -46,7 +46,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 组件名称
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_name")
+    @TableField(value = "monitor_sys_gen_server_component_name")
     @ApiModelProperty(value = "组件名称")
     @Schema(description = "组件名称")
     @Size(max = 255, message = "组件名称最大长度要小于 255")
@@ -55,7 +55,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 组件标题
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_title")
+    @TableField(value = "monitor_sys_gen_server_component_title")
     @ApiModelProperty(value = "组件标题")
     @Schema(description = "组件标题")
     @Size(max = 255, message = "组件标题最大长度要小于 255")
@@ -64,7 +64,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 组件类型 (card:卡片, gauge:仪表盘, line:折线图, bar:柱状图, pie:饼图, table:表格)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_type")
+    @TableField(value = "monitor_sys_gen_server_component_type")
     @ApiModelProperty(value = "组件类型")
     @Schema(description = "组件类型")
     @Size(max = 50, message = "组件类型最大长度要小于 50")
@@ -73,7 +73,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 表达式类型 (PROMETHEUS:prometheus表达式, SQL:sql表达式)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_expression_type")
+    @TableField(value = "monitor_sys_gen_server_component_expression_type")
     @ApiModelProperty(value = "表达式类型")
     @Schema(description = "表达式类型")
     @Size(max = 20, message = "表达式类型最大长度要小于 20")
@@ -82,7 +82,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 查询表达式 (Prometheus PromQL 或 SQL)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_expression")
+    @TableField(value = "monitor_sys_gen_server_component_expression")
     @ApiModelProperty(value = "查询表达式")
     @Schema(description = "查询表达式")
     @Size(max = 2000, message = "查询表达式最大长度要小于 2000")
@@ -91,7 +91,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 组件位置信息 (JSON格式存储x,y,w,h等布局信息)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_position")
+    @TableField(value = "monitor_sys_gen_server_component_position")
     @ApiModelProperty(value = "组件位置信息")
     @Schema(description = "组件位置信息")
     @Size(max = 1000, message = "组件位置信息最大长度要小于 1000")
@@ -100,7 +100,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 图表配置 (JSON格式存储图表样式、颜色等配置)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_chart_config")
+    @TableField(value = "monitor_sys_gen_server_component_chart_config")
     @ApiModelProperty(value = "图表配置")
     @Schema(description = "图表配置")
     @Size(max = 2000, message = "图表配置最大长度要小于 2000")
@@ -109,7 +109,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 刷新间隔(秒)
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_refresh_interval")
+    @TableField(value = "monitor_sys_gen_server_component_refresh_interval")
     @ApiModelProperty(value = "刷新间隔(秒)")
     @Schema(description = "刷新间隔(秒)")
     private Integer monitorSysGenServerComponentRefreshInterval;
@@ -117,7 +117,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 是否启用 0:否 1:是
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_enabled")
+    @TableField(value = "monitor_sys_gen_server_component_enabled")
     @ApiModelProperty(value = "是否启用")
     @Schema(description = "是否启用")
     private Integer monitorSysGenServerComponentEnabled;
@@ -125,7 +125,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 排序序号
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_sort_order")
+    @TableField(value = "monitor_sys_gen_server_component_sort_order")
     @ApiModelProperty(value = "排序序号")
     @Schema(description = "排序序号")
     private Integer monitorSysGenServerComponentSortOrder;
@@ -133,7 +133,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 组件描述
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_desc")
+    @TableField(value = "monitor_sys_gen_server_component_desc")
     @ApiModelProperty(value = "组件描述")
     @Schema(description = "组件描述")
     @Size(max = 500, message = "组件描述最大长度要小于 500")
@@ -142,7 +142,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 创建时间
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_create_time")
+    @TableField(value = "monitor_sys_gen_server_component_create_time")
     @ApiModelProperty(value = "创建时间")
     @Schema(description = "创建时间")
     private LocalDateTime monitorSysGenServerComponentCreateTime;
@@ -150,7 +150,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     /**
      * 更新时间
      */
-    @TableField(value = "monitor_sys_gen_server_detail_component_update_time")
+    @TableField(value = "monitor_sys_gen_server_component_update_time")
     @ApiModelProperty(value = "更新时间")
     @Schema(description = "更新时间")
     private LocalDateTime monitorSysGenServerComponentUpdateTime;
