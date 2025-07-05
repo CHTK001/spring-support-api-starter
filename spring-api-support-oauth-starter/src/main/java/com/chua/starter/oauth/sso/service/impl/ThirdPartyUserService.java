@@ -111,14 +111,14 @@ public class ThirdPartyUserService extends UserService implements UserInfoServic
         
         if (null == user) {
             log.warn("第三方登录失败: 用户不存在 ID={}, IP={}", principal, address);
-            return UserResume.builder().message("账号/密码不正确").build();
+            return new UserResume("账号/密码不正确");
 
         }
 
         // 检查账户状态
         if (1 != user.getSysUserStatus()) {
             log.warn("第三方登录失败: 账户已禁用 ID={}, IP={}", principal, address);
-            return UserResume.builder().message("账号已被禁用").build();
+            return new UserResume("账号已被禁用");
         }
 
         // 更新用户最后登录IP

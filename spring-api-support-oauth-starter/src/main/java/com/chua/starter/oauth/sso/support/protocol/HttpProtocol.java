@@ -13,9 +13,11 @@ import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
+import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
+import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
 import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
 import com.chua.starter.oauth.sso.support.parser.UpgradeAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
@@ -108,27 +110,6 @@ public class HttpProtocol implements Protocol, InitializingBean {
         return authentication;
     }
 
-    /**
-     * 高性能登录方法
-     */
-    public ReturnResult<?> doLogin(String username, String passwd, String authType, String data, HttpServletRequest request, HttpServletResponse response, Map<String, Object> extParams) {
-        // 快速获取客户端地址
-        String address = RequestUtils.getIpAddress(request);
-
-        // 执行登录检查
-        if (log.isInfoEnabled()) {
-            log.info("登录请求 - 地址: {}, 账号: {}, 方式: {}", address, username, authType);
-        }
-
-        ReturnResult<LoginResult> result = loginCheck.doLogin(address, username, passwd, authType, null);
-
-        if (log.isInfoEnabled()) {
-            log.info("登录结果: {} => {}", result.getCode(), result.getMsg());
-        }
-
-        return result;
-    }
-
 
     /**
      * 登出
@@ -138,45 +119,24 @@ public class HttpProtocol implements Protocol, InitializingBean {
     @PostMapping("/logout")
     @ResponseBody
     @Operation(summary = "登出")
-    public AdviceView<Object> logoutWeb(@RequestBody AuthRequest request1,
+    public ReturnResult<String> logout(@RequestBody AuthRequest authRequest,
                                         HttpServletRequest request, HttpServletResponse response) {
-        String data = request1.getData();
-        LogoutType type = LogoutType.valueOf(request1.getType().toUpperCase());
-        String address = RequestUtils.getIpAddress(request);
-        String accept = request.getHeader("accept");
-
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(authServerProperties.getTokenManagement());
-        Cookie cookie = CookieUtil.get(request, authServerProperties.getCookieName());
-        if (null != cookie) {
-            tokenResolver.logout(cookie.getValue());
-            CookieUtil.remove(request, response, authServerProperties.getCookieName());
+        LogoutAuthInformation authInformation = new LogoutAuthInformation(
+                authServerProperties,
+                authRequest.getData(),
+                request,
+                response,
+                applicationContext,
+                loginCheck);
+        if(!authInformation.isSuccessful()) {
+            return ReturnResult.illegal(authInformation.errorMessage());
         }
-
-        String headerValue = request.getHeader(authServerProperties.getTokenName());
-
-        if (!Strings.isNullOrEmpty(headerValue)) {
-            tokenResolver.logout(headerValue);
+        LogoutAuthorization authorization = authInformation.authorization();
+        ReturnResult<String> authentication = authorization.authentication();
+        if(authentication.isFailure()) {
+            return ReturnResult.error(authentication.getMsg());
         }
-
-
-        Object attributeValue = request.getAttribute(authServerProperties.getTokenName());
-
-        if (null != attributeValue) {
-            tokenResolver.logout(attributeValue.toString());
-        }
-
-        Object uid = request.getAttribute("uid");
-        if (null != uid) {
-            tokenResolver.logout(uid.toString(), (LogoutType) request.getAttribute("type"));
-            return new AdviceView<>(EMPTY, request);
-        }
-        if (null == data) {
-            return new AdviceView<>(EMPTY, request);
-        }
-        if (!Strings.isNullOrEmpty(accept) && !accept.contains("text/html")) {
-            return new AdviceView<>(logoutApi(data, type, request, response), request);
-        }
-        return new AdviceView<>("redirect:/login");
+        return authentication;
     }
 
     /**

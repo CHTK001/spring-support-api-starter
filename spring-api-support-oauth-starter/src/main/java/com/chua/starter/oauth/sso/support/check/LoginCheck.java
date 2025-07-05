@@ -97,7 +97,7 @@ public class LoginCheck {
         }
 
         TokenResolver tokenManagement = ServiceProvider.of(TokenResolver.class).getExtension(authServerProperties.getTokenManagement());
-        UserResult userResult = UserResult.builder().build();
+        UserResult userResult = new UserResult();
         BeanUtils.copyProperties(userResume, userResult);
         ReturnResult<LoginResult> token = tokenManagement.createToken(address, userResult, authType);
         String code = token.getCode();
