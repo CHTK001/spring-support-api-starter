@@ -99,3 +99,35 @@ create table sys_user_third_party
 )
     comment '用户三方绑定表' row_format = DYNAMIC;
 
+create table sys_user_log
+(
+    sys_log_id          int auto_increment
+        primary key,
+    sys_log_username    varchar(255) null comment '账号',
+    sys_log_address     varchar(255) null comment '请求地址',
+    sys_log_ip          varchar(255) null comment '请求IP',
+    sys_log_isp         varchar(255) null comment '运营商',
+    sys_log_system      varchar(255) null comment '系统',
+    sys_log_ua          text         null comment 'ua',
+    sys_log_browser     varchar(255) null comment '浏览器',
+    sys_log_url         varchar(255) null comment '请求地址',
+    sys_log_param       varchar(255) null comment '请求参数',
+    sys_log_cost        int          null comment '耗时',
+    sys_log_from        varchar(255) null comment '请求模块',
+    sys_log_status      int          null comment '请求状态; 0: 失败; 1: 成功',
+    sys_log_fingerprint varchar(255) null comment '浏览器指纹',
+    sys_log_login_type  varchar(255) null comment '登录方式',
+    sys_dept_id         int          null comment '机构ID',
+    create_name         varchar(255) null comment '创建人姓名',
+    create_by           int          null comment '创建人',
+    create_time         datetime     null comment '创建时间',
+    update_time         datetime     null comment '更新时间',
+    update_name         varchar(255) null comment '更新人姓名',
+    update_by           int          null comment '更新人',
+    sys_log_message     varchar(200) null comment '描述信息'
+)
+    comment '系统日志表' row_format = DYNAMIC;
+
+create index index_sys_log_from
+    on sys_user_log (sys_log_from);
+

@@ -1,7 +1,7 @@
 spring:
   profiles:
     active: dev
-    include: mybatis,socket,report
+    include: mybatis,socket,report,ip
   sql:
     init:
       data-locations: classpath:*.sql
