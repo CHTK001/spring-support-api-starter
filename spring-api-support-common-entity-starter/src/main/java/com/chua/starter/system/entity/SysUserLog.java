@@ -120,6 +120,13 @@ public class SysUserLog extends SysBase implements Serializable {
     @Schema(description = "请求地址")
     @Size(max = 255, message = "请求地址最大长度要小于 255")
     private String sysLogUrl;
+    /**
+     * 应用名称
+     */
+    @TableField(value = "sys_log_app_name")
+    @ApiModelProperty(value = "应用名称")
+    @Schema(description = "应用名称")
+    private String sysLogAppName;
 
     /**
      * 请求参数

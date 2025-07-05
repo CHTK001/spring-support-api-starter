@@ -46,6 +46,34 @@ create table sys_role
 )
     comment '角色表' row_format = DYNAMIC;
 
+create table sys_tenant
+(
+    sys_tenant_id          int auto_increment
+        primary key,
+    sys_tenant_name        varchar(255) null comment '名称',
+    sys_tenant_username    varchar(255) null comment '账号',
+    sys_tenant_password    varchar(255) null comment '密码',
+    sys_tenant_sign        varchar(255) null comment '签名',
+    sys_tenant_corporation varchar(255) null comment '公司',
+    sys_tenant_delete      int          null comment '是否删除; 0:正常',
+    sys_tenant_status      int          null comment '是否禁用; 0:正常',
+    sys_tenant_contact     varchar(255) null comment '联系人',
+    sys_tenant_phone       varchar(255) null comment '手机号',
+    sys_tenant_address     varchar(255) null comment '地址',
+    sys_tenant_email       varchar(255) null comment '邮件',
+    sys_tenant_code        varchar(255) null comment '唯一编码',
+    sys_tenant_gid         varchar(255) null comment '租户对于配置唯一ID',
+    sys_tenant_home_url    varchar(255) null comment '租户访问地址',
+    sys_tenant_remark      varchar(255) null comment '备注',
+    create_name            varchar(255) null comment '创建人姓名',
+    create_by              int          null comment '创建人',
+    create_time            datetime     null comment '创建时间',
+    update_time            datetime     null comment '更新时间',
+    update_name            varchar(255) null comment '更新人姓名',
+    update_by              int          null comment '更新人'
+)
+    comment '租户表' row_format = DYNAMIC;
+
 create table sys_user
 (
     sys_user_id               int auto_increment
@@ -81,24 +109,6 @@ create table sys_user
 )
     comment '用户表' row_format = DYNAMIC;
 
-create table sys_user_third_party
-(
-    sys_user_third_party_id    int auto_increment
-        primary key,
-    sys_user_third_party_type  varchar(255) null comment '三方类型. gitee',
-    sys_user_third_party_name  varchar(255) null comment '三方信息名称',
-    sys_user_third_party_value varchar(255) null comment '三方信息',
-    sys_user_id                int          null comment '当前系统用户ID',
-    sys_user_third_party_uid   varchar(255) null comment '三方用户ID',
-    create_name                varchar(255) null comment '创建人姓名',
-    create_by                  int          null comment '创建人',
-    create_time                datetime     null comment '创建时间',
-    update_time                datetime     null comment '更新时间',
-    update_name                varchar(255) null comment '更新人姓名',
-    update_by                  int          null comment '更新人'
-)
-    comment '用户三方绑定表' row_format = DYNAMIC;
-
 create table sys_user_log
 (
     sys_log_id          int auto_increment
@@ -124,10 +134,38 @@ create table sys_user_log
     update_time         datetime     null comment '更新时间',
     update_name         varchar(255) null comment '更新人姓名',
     update_by           int          null comment '更新人',
-    sys_log_message     varchar(200) null comment '描述信息'
+    sys_log_message     varchar(200) null comment '描述信息',
+    sys_log_app_name    varchar(200) null comment '访问的应用'
 )
     comment '系统日志表' row_format = DYNAMIC;
 
 create index index_sys_log_from
     on sys_user_log (sys_log_from);
+
+create table sys_user_role
+(
+    sys_user_role_id int auto_increment
+        primary key,
+    sys_user_id      int null comment '用户ID',
+    sys_role_id      int null comment '角色ID'
+)
+    comment '用户 - 角色关系表' row_format = DYNAMIC;
+
+create table sys_user_third_party
+(
+    sys_user_third_party_id    int auto_increment
+        primary key,
+    sys_user_third_party_type  varchar(255) null comment '三方类型. gitee',
+    sys_user_third_party_name  varchar(255) null comment '三方信息名称',
+    sys_user_third_party_value varchar(255) null comment '三方信息',
+    sys_user_id                int          null comment '当前系统用户ID',
+    sys_user_third_party_uid   varchar(255) null comment '三方用户ID',
+    create_name                varchar(255) null comment '创建人姓名',
+    create_by                  int          null comment '创建人',
+    create_time                datetime     null comment '创建时间',
+    update_time                datetime     null comment '更新时间',
+    update_name                varchar(255) null comment '更新人姓名',
+    update_by                  int          null comment '更新人'
+)
+    comment '用户三方绑定表' row_format = DYNAMIC;
 
