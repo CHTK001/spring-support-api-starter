@@ -197,21 +197,5 @@ public interface MonitorSysGenServerComponentService extends IService<MonitorSys
      */
     ReturnResult<Object> queryPrometheusData(Long componentId, String promQL, Long startTime, Long endTime, Integer step);
 
-    /**
-     * 订阅实时数据（REALTIME类型）
-     *
-     * @param componentId 组件ID
-     * @param sessionId WebSocket会话ID
-     * @return 订阅结果
-     */
-    ReturnResult<Boolean> subscribeRealtimeData(Long componentId, String sessionId);
 
-    /**
-     * 取消订阅实时数据
-     *
-     * @param componentId 组件ID
-     * @param sessionId WebSocket会话ID
-     * @return 取消订阅结果
-     */
-    ReturnResult<Boolean> unsubscribeRealtimeData(Long componentId, String sessionId);
 }
