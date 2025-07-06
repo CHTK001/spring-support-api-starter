@@ -30,6 +30,14 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     IPage<MonitorSysGenServer> pageFor(Page<MonitorSysGenServer> page, MonitorSysGenServer entity);
 
     /**
+     * 带缓存的根据ID获取服务器信息
+     *
+     * @param serverId 服务器ID
+     * @return 服务器信息
+     */
+    MonitorSysGenServer getByIdWithCache(Integer serverId);
+
+    /**
      * 根据ID获取服务器信息和配置信息
      *
      * @param id 服务器ID
