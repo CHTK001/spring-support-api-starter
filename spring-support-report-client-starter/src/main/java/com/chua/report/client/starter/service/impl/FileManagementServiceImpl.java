@@ -65,7 +65,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             // 排序
             sortFiles(files, sortBy, sortOrder);
 
-            FileOperationResponse response = FileOperationResponse.success("LIST", files);
+            FileOperationResponse response = FileOperationResponse.success("LIST", "列出文件成功", files);
             response.setDuration(System.currentTimeMillis() - startTime);
             
             log.debug("列出目录文件成功: path={}, count={}, duration={}ms", 
@@ -98,7 +98,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
             FileInfo rootInfo = buildFileTree(rootPath, depth, showHidden, 0);
             
-            FileOperationResponse response = FileOperationResponse.success("TREE", rootInfo);
+            FileOperationResponse response = FileOperationResponse.successWithTree("TREE", "获取文件树成功", rootInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
             
             log.debug("获取文件树成功: path={}, maxDepth={}, duration={}ms", 
@@ -145,9 +145,8 @@ public class FileManagementServiceImpl implements FileManagementService {
 
             FileInfo fileInfo = convertToFileInfo(target);
             
-            FileOperationResponse response = FileOperationResponse.success("UPLOAD", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("UPLOAD", "文件上传成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
-            response.setSize(file.getSize());
             
             log.info("文件上传成功: target={}, size={}, duration={}ms", 
                 target, file.getSize(), response.getDuration());
@@ -182,9 +181,8 @@ public class FileManagementServiceImpl implements FileManagementService {
             byte[] data = Files.readAllBytes(path);
             FileInfo fileInfo = convertToFileInfo(path);
             
-            FileOperationResponse response = FileOperationResponse.success("DOWNLOAD", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("DOWNLOAD", "文件下载成功", fileInfo);
             response.setData(data);
-            response.setSize((long) data.length);
             response.setDuration(System.currentTimeMillis() - startTime);
             
             log.debug("文件下载成功: path={}, size={}, duration={}ms", 
@@ -351,7 +349,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             Files.move(sourcePath, targetPath);
 
             FileInfo fileInfo = convertToFileInfo(targetPath);
-            FileOperationResponse response = FileOperationResponse.success("RENAME", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("RENAME", "文件重命名成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.info("文件重命名成功: {} -> {}, duration={}ms", path, newName, response.getDuration());
@@ -384,7 +382,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             Files.createDirectories(dirPath);
 
             FileInfo dirInfo = convertToFileInfo(dirPath);
-            FileOperationResponse response = FileOperationResponse.success("MKDIR", dirInfo);
+            FileOperationResponse response = FileOperationResponse.success("MKDIR", "目录创建成功", dirInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.info("目录创建成功: path={}, duration={}ms", path, response.getDuration());
@@ -430,7 +428,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             Files.move(source, target, options);
 
             FileInfo fileInfo = convertToFileInfo(target);
-            FileOperationResponse response = FileOperationResponse.success("MOVE", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("MOVE", "文件移动成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.info("文件移动成功: {} -> {}, duration={}ms", sourcePath, targetPath, response.getDuration());
@@ -475,7 +473,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             }
 
             FileInfo fileInfo = convertToFileInfo(target);
-            FileOperationResponse response = FileOperationResponse.success("COPY", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("COPY", "文件复制成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.info("文件复制成功: {} -> {}, duration={}ms", sourcePath, targetPath, response.getDuration());
@@ -513,7 +511,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             }
 
             FileInfo fileInfo = convertToFileInfo(filePath);
-            FileOperationResponse response = FileOperationResponse.success("CHMOD", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("CHMOD", "文件权限修改成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.info("文件权限修改成功: path={}, permissions={}, duration={}ms",
@@ -554,8 +552,7 @@ public class FileManagementServiceImpl implements FileManagementService {
             String fileEncoding = encoding != null ? encoding : "UTF-8";
             String content = new String(Files.readAllBytes(path), fileEncoding);
 
-            FileOperationResponse response = FileOperationResponse.success("PREVIEW", content);
-            response.setSize(fileSize);
+            FileOperationResponse response = FileOperationResponse.successWithContent("PREVIEW", "文件预览成功", content, "text/plain");
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.debug("文件预览成功: path={}, size={}, encoding={}, duration={}ms",
@@ -584,7 +581,7 @@ public class FileManagementServiceImpl implements FileManagementService {
 
             FileInfo fileInfo = convertToFileInfo(filePath);
 
-            FileOperationResponse response = FileOperationResponse.success("INFO", fileInfo);
+            FileOperationResponse response = FileOperationResponse.success("INFO", "获取文件信息成功", fileInfo);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.debug("获取文件信息成功: path={}, duration={}ms", path, response.getDuration());
@@ -646,7 +643,7 @@ public class FileManagementServiceImpl implements FileManagementService {
                 }
             });
 
-            FileOperationResponse response = FileOperationResponse.success("SEARCH", results);
+            FileOperationResponse response = FileOperationResponse.success("SEARCH", "文件搜索成功", results);
             response.setDuration(System.currentTimeMillis() - startTime);
 
             log.debug("文件搜索完成: path={}, pattern={}, results={}, duration={}ms",
