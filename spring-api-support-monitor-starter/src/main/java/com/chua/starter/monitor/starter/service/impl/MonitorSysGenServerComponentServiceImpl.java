@@ -69,13 +69,9 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
     @Lazy
     private SocketSessionTemplate socketSessionTemplate;
 
-    // 实时数据订阅管理
-    private final Map<Long, Map<String, String>> realtimeSubscriptions = new ConcurrentHashMap<>();
-
     // Redis键前缀常量
     private static final String REDIS_TIME_SERIES_PREFIX = "monitor:timeseries:";
     private static final String REDIS_COMPONENT_PREFIX = "monitor:component:";
-    private static final String WEBSOCKET_TOPIC_PREFIX = "component/realtime/";
 
     /**
      * 根据服务器ID获取组件列表
@@ -647,54 +643,7 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
         }
     }
 
-    @Override
-    public ReturnResult<Boolean> subscribeRealtimeData(Long componentId, String sessionId) {
-        log.debug("开始订阅实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
 
-        try {
-            // 验证组件存在且为REALTIME类型
-            MonitorSysGenServerComponent component = getById(componentId);
-            if (component == null) {
-                return ReturnResult.error("组件不存在");
-            }
-
-            String expressionType = component.getMonitorSysGenServerComponentExpressionType();
-            if (!"REALTIME".equalsIgnoreCase(expressionType)) {
-                return ReturnResult.error("组件不是实时数据类型");
-            }
-
-            // 添加订阅记录
-            realtimeSubscriptions.computeIfAbsent(componentId, k -> new ConcurrentHashMap<>())
-                    .put(sessionId, WEBSOCKET_TOPIC_PREFIX + componentId);
-
-            log.debug("订阅实时数据成功, componentId: {}, sessionId: {}", componentId, sessionId);
-            return ReturnResult.ok(true);
-        } catch (Exception e) {
-            log.error("订阅实时数据失败, componentId: {}, sessionId: {}", componentId, sessionId, e);
-            return ReturnResult.error("订阅实时数据失败: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public ReturnResult<Boolean> unsubscribeRealtimeData(Long componentId, String sessionId) {
-        log.debug("开始取消订阅实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
-
-        try {
-            Map<String, String> sessions = realtimeSubscriptions.get(componentId);
-            if (sessions != null) {
-                sessions.remove(sessionId);
-                if (sessions.isEmpty()) {
-                    realtimeSubscriptions.remove(componentId);
-                }
-            }
-
-            log.debug("取消订阅实时数据成功, componentId: {}, sessionId: {}", componentId, sessionId);
-            return ReturnResult.ok(true);
-        } catch (Exception e) {
-            log.error("取消订阅实时数据失败, componentId: {}, sessionId: {}", componentId, sessionId, e);
-            return ReturnResult.error("取消订阅实时数据失败: " + e.getMessage());
-        }
-    }
 
     /**
      * 执行组件时序数据查询（COMPONENT类型）
@@ -761,13 +710,12 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
 
         try {
             // 对于实时数据，返回当前缓存的最新数据
-            // 实际的实时数据通过WebSocket推送，这里返回最近的数据快照
+            // 实际的实时数据通过现有的服务器主页Socket.IO推送机制获取
             Map<String, Object> realtimeData = new HashMap<>();
             realtimeData.put("componentId", componentId);
             realtimeData.put("expression", expression);
             realtimeData.put("type", "realtime");
-            realtimeData.put("message", "实时数据通过WebSocket推送，请订阅相应的主题");
-            realtimeData.put("topic", WEBSOCKET_TOPIC_PREFIX + componentId);
+            realtimeData.put("message", "实时数据通过服务器主页Socket.IO推送机制获取，请使用useServerMetrics监听server_metrics消息");
             realtimeData.put("timestamp", System.currentTimeMillis());
 
             log.debug("实时数据查询完成, componentId: {}, expression: {}", componentId, expression);
