@@ -4,6 +4,7 @@ import com.chua.starter.monitor.starter.pojo.ClientHealthReport;
 import com.chua.starter.monitor.starter.pojo.ClientHealthStatus;
 import com.chua.starter.monitor.starter.service.ClientHealthService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -32,6 +33,7 @@ public class ClientHealthServiceImpl implements ClientHealthService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final MonitorSysGenServerService serverService;
+    private final MonitorSysGenServerSettingService serverSettingService;
 
     private static final String REDIS_KEY_PREFIX = "client:health:";
     private static final String REDIS_STATISTICS_KEY = "client:health:statistics";
@@ -233,15 +235,13 @@ public class ClientHealthServiceImpl implements ClientHealthService {
     public ReturnResult<ClientHealthStatus> getServerClientHealth(Integer serverId) {
         try {
             // 获取服务器配置
-            ReturnResult<MonitorSysGenServer> serverResult = serverService.getById(serverId);
-            if (!serverResult.isSuccess()) {
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (null == server) {
                 return ReturnResult.error("服务器不存在");
             }
-            
-            MonitorSysGenServer server = serverResult.getData();
-            
+
             // 获取服务器设置
-            ReturnResult<MonitorSysGenServerSetting> settingResult = serverService.getServerSetting(serverId);
+            ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getOrCreateSetting(serverId);
             if (!settingResult.isSuccess()) {
                 return ReturnResult.error("服务器配置不存在");
             }

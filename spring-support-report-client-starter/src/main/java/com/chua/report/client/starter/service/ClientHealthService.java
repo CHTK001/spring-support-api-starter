@@ -1,6 +1,7 @@
 package com.chua.report.client.starter.service;
 
 import com.chua.report.client.starter.pojo.ClientHealthInfo;
+import com.chua.report.client.starter.pojo.ClientHealthReport;
 
 /**
  * 客户端健康状态服务接口
@@ -50,4 +51,10 @@ public interface ClientHealthService {
      * 重置健康状态
      */
     void resetHealth();
+
+    /**
+     * 获取健康状态上报对象
+     * @return 健康状态上报对象，如果没有健康信息则返回null
+     */
+    ClientHealthReport getHealthReport();
 }
