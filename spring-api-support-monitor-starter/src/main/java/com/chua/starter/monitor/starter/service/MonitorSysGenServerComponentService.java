@@ -172,4 +172,46 @@ public interface MonitorSysGenServerComponentService extends IService<MonitorSys
      * @return 实时数据
      */
     ReturnResult<Object> getComponentRealtimeData(Long componentId);
+
+    /**
+     * 根据表达式类型查询时序数据（COMPONENT类型）
+     *
+     * @param componentId 组件ID
+     * @param indicatorName 指标名称
+     * @param startTime 开始时间（时间戳，秒）
+     * @param endTime 结束时间（时间戳，秒）
+     * @param step 步长（秒）
+     * @return 时序数据
+     */
+    ReturnResult<Object> queryTimeSeriesData(Long componentId, String indicatorName, Long startTime, Long endTime, Integer step);
+
+    /**
+     * 根据表达式类型查询Prometheus数据（PROMETHEUS类型）
+     *
+     * @param componentId 组件ID
+     * @param promQL Prometheus查询表达式
+     * @param startTime 开始时间（时间戳，秒）
+     * @param endTime 结束时间（时间戳，秒）
+     * @param step 步长（秒）
+     * @return Prometheus查询结果
+     */
+    ReturnResult<Object> queryPrometheusData(Long componentId, String promQL, Long startTime, Long endTime, Integer step);
+
+    /**
+     * 订阅实时数据（REALTIME类型）
+     *
+     * @param componentId 组件ID
+     * @param sessionId WebSocket会话ID
+     * @return 订阅结果
+     */
+    ReturnResult<Boolean> subscribeRealtimeData(Long componentId, String sessionId);
+
+    /**
+     * 取消订阅实时数据
+     *
+     * @param componentId 组件ID
+     * @param sessionId WebSocket会话ID
+     * @return 取消订阅结果
+     */
+    ReturnResult<Boolean> unsubscribeRealtimeData(Long componentId, String sessionId);
 }

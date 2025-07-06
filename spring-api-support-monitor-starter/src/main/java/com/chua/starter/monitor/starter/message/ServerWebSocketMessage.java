@@ -154,6 +154,12 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String RDP_CONNECT = "rdp_connect";
         public static final String RDP_DISCONNECT = "rdp_disconnect";
         public static final String RDP_ERROR = "rdp_error";
+
+        // 组件实时数据相关消息类型
+        public static final String COMPONENT_REALTIME_DATA = "component_realtime_data";
+        public static final String COMPONENT_SUBSCRIBE = "component_subscribe";
+        public static final String COMPONENT_UNSUBSCRIBE = "component_unsubscribe";
+        public static final String COMPONENT_DATA_UPDATE = "component_data_update";
     }
 
     /**
@@ -394,6 +400,78 @@ public class ServerWebSocketMessage implements Serializable {
                 .serverId(serverId)
                 .serverName(serverName)
                 .data(customData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建组件实时数据消息
+     */
+    public static ServerWebSocketMessage createComponentRealtimeDataMessage(
+            Long componentId, String componentName, Object realtimeData) {
+        Map<String, Object> componentData = new HashMap<>();
+        componentData.put("componentId", componentId);
+        componentData.put("componentName", componentName);
+        componentData.put("data", realtimeData);
+        componentData.put("type", "realtime");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.COMPONENT_REALTIME_DATA)
+                .data(componentData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建组件订阅消息
+     */
+    public static ServerWebSocketMessage createComponentSubscribeMessage(
+            Long componentId, String componentName, String sessionId) {
+        Map<String, Object> subscribeData = new HashMap<>();
+        subscribeData.put("componentId", componentId);
+        subscribeData.put("componentName", componentName);
+        subscribeData.put("sessionId", sessionId);
+        subscribeData.put("action", "subscribe");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.COMPONENT_SUBSCRIBE)
+                .data(subscribeData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建组件取消订阅消息
+     */
+    public static ServerWebSocketMessage createComponentUnsubscribeMessage(
+            Long componentId, String componentName, String sessionId) {
+        Map<String, Object> unsubscribeData = new HashMap<>();
+        unsubscribeData.put("componentId", componentId);
+        unsubscribeData.put("componentName", componentName);
+        unsubscribeData.put("sessionId", sessionId);
+        unsubscribeData.put("action", "unsubscribe");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.COMPONENT_UNSUBSCRIBE)
+                .data(unsubscribeData)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建组件数据更新消息
+     */
+    public static ServerWebSocketMessage createComponentDataUpdateMessage(
+            Long componentId, String componentName, Object updatedData) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("componentId", componentId);
+        updateData.put("componentName", componentName);
+        updateData.put("data", updatedData);
+        updateData.put("type", "update");
+
+        return ServerWebSocketMessage.builder()
+                .messageType(MessageType.COMPONENT_DATA_UPDATE)
+                .data(updateData)
                 .timestamp(System.currentTimeMillis())
                 .build();
     }
