@@ -131,11 +131,7 @@
                 <version>${module.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-support-report-client-starter</artifactId>
-                <version>${module.version}</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>com.chua</groupId>
