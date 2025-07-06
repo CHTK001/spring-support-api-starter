@@ -377,7 +377,7 @@ public class FileOperationResponse implements Serializable {
                 .success(true)
                 .operation(operation)
                 .message(message)
-                .data(data)
+                .extraData(data)
                 .endTime(LocalDateTime.now())
                 .build();
     }
