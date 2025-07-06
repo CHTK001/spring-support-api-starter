@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentLayoutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponentLayout">
+        <id column="monitor_sys_gen_server_component_layout_id" property="monitorSysGenServerComponentLayoutId" />
+        <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" />
+        <result column="monitor_sys_gen_server_component_id" property="monitorSysGenServerComponentId" />
+        <result column="monitor_sys_gen_server_component_layout_x" property="monitorSysGenServerComponentLayoutX" />
+        <result column="monitor_sys_gen_server_component_layout_y" property="monitorSysGenServerComponentLayoutY" />
+        <result column="monitor_sys_gen_server_component_layout_w" property="monitorSysGenServerComponentLayoutW" />
+        <result column="monitor_sys_gen_server_component_layout_h" property="monitorSysGenServerComponentLayoutH" />
+        <result column="monitor_sys_gen_server_component_layout_z_index" property="monitorSysGenServerComponentLayoutZIndex" />
+        <result column="monitor_sys_gen_server_component_layout_movable" property="monitorSysGenServerComponentLayoutMovable" />
+        <result column="monitor_sys_gen_server_component_layout_resizable" property="monitorSysGenServerComponentLayoutResizable" />
+        <result column="monitor_sys_gen_server_component_layout_status" property="monitorSysGenServerComponentLayoutStatus" />
+        <result column="monitor_sys_gen_server_component_layout_sort_order" property="monitorSysGenServerComponentLayoutSortOrder" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_component_layout_id,
+        monitor_sys_gen_server_id,
+        monitor_sys_gen_server_component_id,
+        monitor_sys_gen_server_component_layout_x,
+        monitor_sys_gen_server_component_layout_y,
+        monitor_sys_gen_server_component_layout_w,
+        monitor_sys_gen_server_component_layout_h,
+        monitor_sys_gen_server_component_layout_z_index,
+        monitor_sys_gen_server_component_layout_movable,
+        monitor_sys_gen_server_component_layout_resizable,
+        monitor_sys_gen_server_component_layout_status,
+        monitor_sys_gen_server_component_layout_sort_order,
+        create_time,
+        update_time,
+        create_by,
+        update_by
+    </sql>
+
+    <!-- 根据服务器ID获取组件布局列表 -->
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        ORDER BY monitor_sys_gen_server_component_layout_sort_order ASC, 
+                 monitor_sys_gen_server_component_layout_id ASC
+    </select>
+
+    <!-- 根据服务器ID和组件ID获取布局配置 -->
+    <select id="selectByServerIdAndComponentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_component_id = #{componentId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据服务器ID获取启用的组件布局列表 -->
+    <select id="selectEnabledByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+          AND monitor_sys_gen_server_component_layout_status = 1
+        ORDER BY monitor_sys_gen_server_component_layout_sort_order ASC, 
+                 monitor_sys_gen_server_component_layout_id ASC
+    </select>
+
+    <!-- 批量更新组件布局位置信息 -->
+    <update id="batchUpdatePosition">
+        <foreach collection="layouts" item="layout" separator=";">
+            UPDATE monitor_sys_gen_server_component_layout
+            SET monitor_sys_gen_server_component_layout_x = #{layout.monitorSysGenServerComponentLayoutX},
+                monitor_sys_gen_server_component_layout_y = #{layout.monitorSysGenServerComponentLayoutY},
+                monitor_sys_gen_server_component_layout_w = #{layout.monitorSysGenServerComponentLayoutW},
+                monitor_sys_gen_server_component_layout_h = #{layout.monitorSysGenServerComponentLayoutH},
+                monitor_sys_gen_server_component_layout_z_index = #{layout.monitorSysGenServerComponentLayoutZIndex},
+                update_time = NOW()
+            WHERE monitor_sys_gen_server_component_layout_id = #{layout.monitorSysGenServerComponentLayoutId}
+        </foreach>
+    </update>
+
+    <!-- 根据组件ID删除布局配置 -->
+    <delete id="deleteByComponentId">
+        DELETE FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_component_id = #{componentId}
+    </delete>
+
+    <!-- 根据服务器ID删除所有布局配置 -->
+    <delete id="deleteByServerId">
+        DELETE FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+    </delete>
+
+    <!-- 获取服务器组件布局统计信息 -->
+    <select id="getLayoutStatistics" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as total_layouts,
+            COUNT(CASE WHEN monitor_sys_gen_server_component_layout_status = 1 THEN 1 END) as enabled_layouts,
+            COUNT(CASE WHEN monitor_sys_gen_server_component_layout_status = 0 THEN 1 END) as disabled_layouts,
+            AVG(monitor_sys_gen_server_component_layout_w) as avg_width,
+            AVG(monitor_sys_gen_server_component_layout_h) as avg_height
+        FROM monitor_sys_gen_server_component_layout
+        WHERE monitor_sys_gen_server_id = #{serverId}
+    </select>
+
+</mapper>
