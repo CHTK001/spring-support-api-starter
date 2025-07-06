@@ -72,6 +72,8 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
     // Redis键前缀常量
     private static final String REDIS_TIME_SERIES_PREFIX = "monitor:timeseries:";
     private static final String REDIS_COMPONENT_PREFIX = "monitor:component:";
+    // 服务器指标数据存储键前缀（与MonitorSysGenServerMetricsServiceImpl保持一致）
+    private static final String REDIS_METRICS_PREFIX = "SERVER:server:metrics:";
 
     /**
      * 根据服务器ID获取组件列表
@@ -582,8 +584,24 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
                 return ReturnResult.error("时序数据服务不可用");
             }
 
-            // 构建时序数据查询键
-            String timeSeriesKey = REDIS_TIME_SERIES_PREFIX + indicatorName;
+            // 获取组件信息以获取serverId
+            MonitorSysGenServerComponent component = getById(componentId);
+            if (component == null) {
+                log.warn("查询时序数据失败, 组件不存在, componentId: {}", componentId);
+                return ReturnResult.error("组件不存在");
+            }
+
+            Integer serverId = component.getMonitorSysGenServerId();
+            if (serverId == null) {
+                log.warn("查询时序数据失败, 组件未关联服务器, componentId: {}", componentId);
+                return ReturnResult.error("组件未关联服务器");
+            }
+
+            // 构建正确的时序数据查询键，使用实际存储的键格式
+            // 实际存储格式：SERVER:server:metrics:serverId:指标名称
+            String timeSeriesKey = REDIS_METRICS_PREFIX + serverId + ":" + indicatorName;
+
+            log.debug("查询时序数据键: {}, 时间范围: {} - {}", timeSeriesKey, startTime, endTime);
 
             // 调用时序数据服务查询
             ReturnResult<?> result = timeSeriesService.range(
@@ -595,11 +613,13 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             );
 
             if (result.isSuccess()) {
-                log.debug("查询时序数据成功, componentId: {}, indicatorName: {}", componentId, indicatorName);
+                log.debug("查询时序数据成功, componentId: {}, serverId: {}, indicatorName: {}, 数据量: {}",
+                         componentId, serverId, indicatorName,
+                         result.getData() != null ? result.getData().toString().length() : 0);
                 return ReturnResult.ok(result.getData());
             } else {
-                log.warn("查询时序数据失败, componentId: {}, indicatorName: {}, error: {}",
-                        componentId, indicatorName, result.getMsg());
+                log.warn("查询时序数据失败, componentId: {}, serverId: {}, indicatorName: {}, error: {}",
+                        componentId, serverId, indicatorName, result.getMsg());
                 return ReturnResult.error("查询时序数据失败: " + result.getMsg());
             }
         } catch (Exception e) {
@@ -671,8 +691,24 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
                 return ReturnResult.error("时间范围参数不完整");
             }
 
-            // 构建时序数据查询键，使用表达式作为指标名称
-            String timeSeriesKey = REDIS_TIME_SERIES_PREFIX + expression;
+            // 获取组件信息以获取serverId
+            MonitorSysGenServerComponent component = getById(componentId);
+            if (component == null) {
+                log.warn("查询组件时序数据失败, 组件不存在, componentId: {}", componentId);
+                return ReturnResult.error("组件不存在");
+            }
+
+            Integer serverId = component.getMonitorSysGenServerId();
+            if (serverId == null) {
+                log.warn("查询组件时序数据失败, 组件未关联服务器, componentId: {}", componentId);
+                return ReturnResult.error("组件未关联服务器");
+            }
+
+            // 构建正确的时序数据查询键，使用实际存储的键格式
+            // 实际存储格式：SERVER:server:metrics:serverId:指标名称
+            String timeSeriesKey = REDIS_METRICS_PREFIX + serverId + ":" + expression;
+
+            log.debug("查询组件时序数据键: {}, 时间范围: {} - {}", timeSeriesKey, startTime, endTime);
 
             // 调用时序数据服务查询
             ReturnResult<?> result = timeSeriesService.range(
@@ -684,11 +720,13 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             );
 
             if (result.isSuccess()) {
-                log.debug("查询组件时序数据成功, componentId: {}, expression: {}", componentId, expression);
+                log.debug("查询组件时序数据成功, componentId: {}, serverId: {}, expression: {}, 数据量: {}",
+                         componentId, serverId, expression,
+                         result.getData() != null ? result.getData().toString().length() : 0);
                 return ReturnResult.ok(result.getData());
             } else {
-                log.warn("查询组件时序数据失败, componentId: {}, expression: {}, error: {}",
-                        componentId, expression, result.getMsg());
+                log.warn("查询组件时序数据失败, componentId: {}, serverId: {}, expression: {}, error: {}",
+                        componentId, serverId, expression, result.getMsg());
                 return ReturnResult.error("查询时序数据失败: " + result.getMsg());
             }
         } catch (Exception e) {

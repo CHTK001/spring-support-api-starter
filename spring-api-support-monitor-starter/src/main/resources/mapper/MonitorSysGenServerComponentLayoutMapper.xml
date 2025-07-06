@@ -72,15 +72,42 @@
 
     <!-- 批量更新组件布局位置信息 -->
     <update id="batchUpdatePosition">
-        <foreach collection="layouts" item="layout" separator=";">
-            UPDATE monitor_sys_gen_server_component_layout
-            SET monitor_sys_gen_server_component_layout_x = #{layout.monitorSysGenServerComponentLayoutX},
-                monitor_sys_gen_server_component_layout_y = #{layout.monitorSysGenServerComponentLayoutY},
-                monitor_sys_gen_server_component_layout_w = #{layout.monitorSysGenServerComponentLayoutW},
-                monitor_sys_gen_server_component_layout_h = #{layout.monitorSysGenServerComponentLayoutH},
-                monitor_sys_gen_server_component_layout_z_index = #{layout.monitorSysGenServerComponentLayoutZIndex},
-                update_time = NOW()
-            WHERE monitor_sys_gen_server_component_layout_id = #{layout.monitorSysGenServerComponentLayoutId}
+        UPDATE monitor_sys_gen_server_component_layout
+        SET
+            monitor_sys_gen_server_component_layout_x = CASE monitor_sys_gen_server_component_layout_id
+                <foreach collection="layouts" item="layout">
+                    WHEN #{layout.monitorSysGenServerComponentLayoutId} THEN #{layout.monitorSysGenServerComponentLayoutX}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_layout_x
+            END,
+            monitor_sys_gen_server_component_layout_y = CASE monitor_sys_gen_server_component_layout_id
+                <foreach collection="layouts" item="layout">
+                    WHEN #{layout.monitorSysGenServerComponentLayoutId} THEN #{layout.monitorSysGenServerComponentLayoutY}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_layout_y
+            END,
+            monitor_sys_gen_server_component_layout_w = CASE monitor_sys_gen_server_component_layout_id
+                <foreach collection="layouts" item="layout">
+                    WHEN #{layout.monitorSysGenServerComponentLayoutId} THEN #{layout.monitorSysGenServerComponentLayoutW}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_layout_w
+            END,
+            monitor_sys_gen_server_component_layout_h = CASE monitor_sys_gen_server_component_layout_id
+                <foreach collection="layouts" item="layout">
+                    WHEN #{layout.monitorSysGenServerComponentLayoutId} THEN #{layout.monitorSysGenServerComponentLayoutH}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_layout_h
+            END,
+            monitor_sys_gen_server_component_layout_z_index = CASE monitor_sys_gen_server_component_layout_id
+                <foreach collection="layouts" item="layout">
+                    WHEN #{layout.monitorSysGenServerComponentLayoutId} THEN #{layout.monitorSysGenServerComponentLayoutZIndex}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_layout_z_index
+            END,
+            update_time = NOW()
+        WHERE monitor_sys_gen_server_component_layout_id IN
+        <foreach collection="layouts" item="layout" open="(" close=")" separator=",">
+            #{layout.monitorSysGenServerComponentLayoutId}
         </foreach>
     </update>
 

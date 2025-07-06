@@ -35,11 +35,23 @@
 
     <!-- 批量更新组件位置信息 -->
     <update id="batchUpdatePosition">
-        <foreach collection="components" item="component" separator=";">
-            UPDATE monitor_sys_gen_server_component
-            SET monitor_sys_gen_server_component_position = #{component.monitorSysGenServerComponentPosition},
-                monitor_sys_gen_server_component_update_time = #{component.monitorSysGenServerComponentUpdateTime}
-            WHERE monitor_sys_gen_server_component_id = #{component.monitorSysGenServerComponentId}
+        UPDATE monitor_sys_gen_server_component
+        SET
+            monitor_sys_gen_server_component_position = CASE monitor_sys_gen_server_component_id
+                <foreach collection="components" item="component">
+                    WHEN #{component.monitorSysGenServerComponentId} THEN #{component.monitorSysGenServerComponentPosition}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_position
+            END,
+            monitor_sys_gen_server_component_update_time = CASE monitor_sys_gen_server_component_id
+                <foreach collection="components" item="component">
+                    WHEN #{component.monitorSysGenServerComponentId} THEN #{component.monitorSysGenServerComponentUpdateTime}
+                </foreach>
+                ELSE monitor_sys_gen_server_component_update_time
+            END
+        WHERE monitor_sys_gen_server_component_id IN
+        <foreach collection="components" item="component" open="(" close=")" separator=",">
+            #{component.monitorSysGenServerComponentId}
         </foreach>
     </update>
 
