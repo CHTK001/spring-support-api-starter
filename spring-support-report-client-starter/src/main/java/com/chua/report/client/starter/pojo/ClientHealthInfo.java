@@ -88,6 +88,36 @@ public class ClientHealthInfo {
     private Long uptime;
 
     /**
+     * CPU使用率（百分比）
+     */
+    private Double cpuUsage;
+
+    /**
+     * 内存使用率（百分比）
+     */
+    private Double memoryUsage;
+
+    /**
+     * 磁盘使用率（百分比）
+     */
+    private Double diskUsage;
+
+    /**
+     * 网络延迟（毫秒）
+     */
+    private Long networkLatency;
+
+    /**
+     * 主机名
+     */
+    private String hostname;
+
+    /**
+     * 额外信息（JSON格式）
+     */
+    private String extraInfo;
+
+    /**
      * 额外属性
      */
     private java.util.Map<String, Object> properties;
@@ -150,5 +180,44 @@ public class ClientHealthInfo {
     public void markUnhealthy() {
         this.healthy = false;
         this.expireTime = LocalDateTime.now();
+    }
+
+    /**
+     * 转换为健康状态上报对象
+     */
+    public ClientHealthReport toReport() {
+        return ClientHealthReport.builder()
+                .clientIp(clientIp)
+                .clientPort(clientPort)
+                .reportTime(lastUpdateTime != null ? lastUpdateTime : LocalDateTime.now())
+                .clientVersion(clientVersion)
+                .hostname(hostname)
+                .osInfo(osInfo)
+                .cpuUsage(cpuUsage)
+                .memoryUsage(memoryUsage)
+                .diskUsage(diskUsage)
+                .networkLatency(networkLatency)
+                .extraInfo(extraInfo)
+                .build();
+    }
+
+    /**
+     * 判断健康状态是否正常
+     */
+    public boolean isSystemHealthy() {
+        // 基本的健康检查逻辑
+        if (cpuUsage != null && cpuUsage > 90) {
+            return false;
+        }
+        if (memoryUsage != null && memoryUsage > 90) {
+            return false;
+        }
+        if (diskUsage != null && diskUsage > 95) {
+            return false;
+        }
+        if (networkLatency != null && networkLatency > 5000) {
+            return false;
+        }
+        return true;
     }
 }
