@@ -235,6 +235,8 @@ public class MonitorSysGenServer extends SysBase {
     @Schema(description = "网络延迟(毫秒)")
     private Long monitorSysGenServerLatency;
 
+
+
     /**
      * 判断延迟是否正常
      * 延迟小于100ms认为正常
@@ -260,4 +262,6 @@ public class MonitorSysGenServer extends SysBase {
     public boolean isLatencyAbnormal() {
         return this.monitorSysGenServerLatency != null && this.monitorSysGenServerLatency >= 500;
     }
+
+
 }
