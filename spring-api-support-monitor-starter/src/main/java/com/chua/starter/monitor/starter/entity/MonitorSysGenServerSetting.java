@@ -7,6 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.chua.starter.monitor.starter.enums.FileManagementMode;
+import com.chua.starter.monitor.starter.pojo.FileManagementApiConfig;
+import com.chua.common.support.json.Json;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -510,6 +513,65 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Schema(description = "文件上传最大重试次数")
     private Integer monitorSysGenServerSettingFileUploadMaxRetries;
 
+    // ==================== 文件管理配置 ====================
+
+    /**
+     * 文件管理方式 (NONE:不启用, SSH:SSH模式, API:API模式)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_mode")
+    @ApiModelProperty(value = "文件管理方式")
+    @Schema(description = "文件管理方式(NONE:不启用, SSH:SSH模式, API:API模式)")
+    private FileManagementMode monitorSysGenServerSettingFileManagementMode;
+
+    /**
+     * 文件管理API配置 (JSON格式，仅在API模式下使用)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_api_config")
+    @ApiModelProperty(value = "文件管理API配置")
+    @Schema(description = "文件管理API配置(JSON格式)")
+    @Size(max = 2000, message = "文件管理API配置最大长度要小于 2000")
+    private String monitorSysGenServerSettingFileManagementApiConfig;
+
+    /**
+     * 是否启用文件管理 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_enabled")
+    @ApiModelProperty(value = "是否启用文件管理")
+    @Schema(description = "是否启用文件管理")
+    private Integer monitorSysGenServerSettingFileManagementEnabled;
+
+    /**
+     * 文件管理操作超时时间 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_timeout")
+    @ApiModelProperty(value = "文件管理操作超时时间")
+    @Schema(description = "文件管理操作超时时间 (秒)")
+    private Integer monitorSysGenServerSettingFileManagementTimeout;
+
+    /**
+     * 文件管理最大重试次数
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_max_retries")
+    @ApiModelProperty(value = "文件管理最大重试次数")
+    @Schema(description = "文件管理最大重试次数")
+    private Integer monitorSysGenServerSettingFileManagementMaxRetries;
+
+    /**
+     * 客户端健康状态检查间隔 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_client_health_check_interval")
+    @ApiModelProperty(value = "客户端健康状态检查间隔")
+    @Schema(description = "客户端健康状态检查间隔 (秒)")
+    private Integer monitorSysGenServerSettingClientHealthCheckInterval;
+
+    /**
+     * 客户端健康状态超时时间 (秒)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_client_health_timeout")
+    @ApiModelProperty(value = "客户端健康状态超时时间")
+    @Schema(description = "客户端健康状态超时时间 (秒)")
+    private Integer monitorSysGenServerSettingClientHealthTimeout;
+
     // ==================== 任务调度配置 ====================
 
     /**
@@ -953,6 +1015,14 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingConnectionTimeout(0);
         setting.setMonitorSysGenServerSettingReadTimeout(60);
 
+        // 文件管理配置
+        setting.setMonitorSysGenServerSettingFileManagementEnabled(0);
+        setting.setMonitorSysGenServerSettingFileManagementMode(FileManagementMode.NONE);
+        setting.setMonitorSysGenServerSettingFileManagementTimeout(60);
+        setting.setMonitorSysGenServerSettingFileManagementMaxRetries(3);
+        setting.setMonitorSysGenServerSettingClientHealthCheckInterval(30);
+        setting.setMonitorSysGenServerSettingClientHealthTimeout(10);
+
         // 其他配置
         setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);
         setting.setMonitorSysGenServerSettingStatus(1);
@@ -1018,5 +1088,112 @@ public class MonitorSysGenServerSetting extends SysBase {
      */
     public boolean isDockerMonitorEnabled() {
         return this.monitorSysGenServerSettingDockerMonitorEnabled != null && this.monitorSysGenServerSettingDockerMonitorEnabled == 1;
+    }
+
+    // ==================== 文件管理相关方法 ====================
+
+    /**
+     * 判断是否启用文件管理
+     */
+    public boolean isFileManagementEnabled() {
+        return this.monitorSysGenServerSettingFileManagementEnabled != null && this.monitorSysGenServerSettingFileManagementEnabled == 1;
+    }
+
+    /**
+     * 获取文件管理模式
+     */
+    public FileManagementMode getFileManagementMode() {
+        return monitorSysGenServerSettingFileManagementMode != null ?
+               monitorSysGenServerSettingFileManagementMode : FileManagementMode.NONE;
+    }
+
+    /**
+     * 设置文件管理模式
+     */
+    public void setFileManagementMode(FileManagementMode mode) {
+        this.monitorSysGenServerSettingFileManagementMode = mode;
+    }
+
+    /**
+     * 获取文件管理API配置对象
+     */
+    public FileManagementApiConfig getFileManagementApiConfigObject() {
+        if (monitorSysGenServerSettingFileManagementApiConfig == null ||
+            monitorSysGenServerSettingFileManagementApiConfig.trim().isEmpty()) {
+            return FileManagementApiConfig.createDefault();
+        }
+
+        try {
+            return Json.fromJson(monitorSysGenServerSettingFileManagementApiConfig, FileManagementApiConfig.class);
+        } catch (Exception e) {
+            return FileManagementApiConfig.createDefault();
+        }
+    }
+
+    /**
+     * 设置文件管理API配置对象
+     */
+    public void setFileManagementApiConfigObject(FileManagementApiConfig config) {
+        if (config == null) {
+            this.monitorSysGenServerSettingFileManagementApiConfig = null;
+        } else {
+            try {
+                this.monitorSysGenServerSettingFileManagementApiConfig = Json.toJson(config);
+            } catch (Exception e) {
+                this.monitorSysGenServerSettingFileManagementApiConfig = null;
+            }
+        }
+    }
+
+    /**
+     * 判断是否支持文件管理功能
+     * 需要启用文件管理且文件管理模式不为NONE
+     */
+    public boolean supportsFileManagement() {
+        return isFileManagementEnabled() &&
+               getFileManagementMode().supportsFileManagement();
+    }
+
+    /**
+     * 判断是否需要客户端健康状态验证
+     */
+    public boolean requiresClientHealthCheck() {
+        return getFileManagementMode().requiresClientOnline();
+    }
+
+    /**
+     * 获取客户端健康状态检查间隔（秒）
+     * 如果未设置则返回默认值30秒
+     */
+    public int getClientHealthCheckIntervalOrDefault() {
+        return monitorSysGenServerSettingClientHealthCheckInterval != null ?
+               monitorSysGenServerSettingClientHealthCheckInterval : 30;
+    }
+
+    /**
+     * 获取客户端健康状态超时时间（秒）
+     * 如果未设置则返回默认值10秒
+     */
+    public int getClientHealthTimeoutOrDefault() {
+        return monitorSysGenServerSettingClientHealthTimeout != null ?
+               monitorSysGenServerSettingClientHealthTimeout : 10;
+    }
+
+    /**
+     * 获取文件管理操作超时时间（秒）
+     * 如果未设置则返回默认值60秒
+     */
+    public int getFileManagementTimeoutOrDefault() {
+        return monitorSysGenServerSettingFileManagementTimeout != null ?
+               monitorSysGenServerSettingFileManagementTimeout : 60;
+    }
+
+    /**
+     * 获取文件管理最大重试次数
+     * 如果未设置则返回默认值3次
+     */
+    public int getFileManagementMaxRetriesOrDefault() {
+        return monitorSysGenServerSettingFileManagementMaxRetries != null ?
+               monitorSysGenServerSettingFileManagementMaxRetries : 3;
     }
 }
