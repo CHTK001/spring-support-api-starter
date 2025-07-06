@@ -145,7 +145,7 @@ public class MonitorSysGenServerComponent extends SysBase {
     @TableField(value = "monitor_sys_gen_server_component_show_title")
     @ApiModelProperty(value = "是否显示标题")
     @Schema(description = "是否显示标题")
-    private Integer monitorSysGenServerComponentShowTitle;
+    private Boolean monitorSysGenServerComponentShowTitle;
 
     /**
      * 创建时间
