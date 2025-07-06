@@ -6,15 +6,19 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent;
+import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerComponentService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.impl.PrometheusService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +63,10 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
 
     @Autowired
     @Lazy
+    private MonitorSysGenServerSettingService serverSettingService;
+
+    @Autowired
+    @Lazy
     private TimeSeriesService timeSeriesService;
 
     @Autowired
@@ -74,6 +82,17 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
     private static final String REDIS_COMPONENT_PREFIX = "monitor:component:";
     // 服务器指标数据存储键前缀（与MonitorSysGenServerMetricsServiceImpl保持一致）
     private static final String REDIS_METRICS_PREFIX = "SERVER:server:metrics:";
+
+    /**
+     * 带缓存的根据ID获取组件信息
+     *
+     * @param componentId 组件ID
+     * @return 组件信息
+     */
+    @Cacheable(value = "serverComponent", key = "#componentId", unless = "#result == null")
+    public MonitorSysGenServerComponent getByIdWithCache(Long componentId) {
+        return this.getById(componentId);
+    }
 
     /**
      * 根据服务器ID获取组件列表
@@ -639,23 +658,58 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             }
 
             // 获取组件关联的服务器信息
-            MonitorSysGenServerComponent component = getById(componentId);
+            MonitorSysGenServerComponent component = getByIdWithCache(componentId);
             if (component == null) {
                 return ReturnResult.error("组件不存在");
             }
 
-            MonitorSysGenServer server = serverService.getById(String.valueOf(component.getMonitorSysGenServerId()));
+            Integer serverId = component.getMonitorSysGenServerId();
+            if (serverId == null) {
+                return ReturnResult.error("组件未关联服务器");
+            }
+
+            // 获取服务器基本信息
+            MonitorSysGenServer server = serverService.getByIdWithCache(serverId);
             if (server == null) {
                 return ReturnResult.error("服务器配置不存在");
             }
 
-            // 构建Prometheus查询地址
-            String prometheusAddress = server.getMonitorSysGenServerHost() + ":" + server.getMonitorSysGenServerPort();
+            // 获取服务器配置信息，从中获取Prometheus配置
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
+                serverSettingService.getByServerId(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                return ReturnResult.error("服务器配置不存在或获取失败");
+            }
+
+            MonitorSysGenServerSetting setting = settingResult.getData();
+
+            // 构建Prometheus查询地址，优先使用配置中的URL
+            String prometheusAddress;
+            if (StringUtils.isNotBlank(setting.getMonitorSysGenServerSettingPrometheusUrl())) {
+                // 使用配置中的完整URL
+                prometheusAddress = setting.getMonitorSysGenServerSettingPrometheusUrl();
+            } else if (StringUtils.isNotBlank(setting.getMonitorSysGenServerSettingPrometheusHost())
+                    && setting.getMonitorSysGenServerSettingPrometheusPort() != null) {
+                // 使用配置中的主机和端口
+                prometheusAddress = "http://" + setting.getMonitorSysGenServerSettingPrometheusHost()
+                    + ":" + setting.getMonitorSysGenServerSettingPrometheusPort();
+            } else {
+                return ReturnResult.error("未配置Prometheus地址");
+            }
 
             // 执行Prometheus查询
-            String queryResult = prometheusService.queryPrometheus(prometheusAddress, promQL);
+            String queryResult;
+            if (startTime != null && endTime != null && step != null) {
+                // 范围查询
+                JsonNode result = prometheusService.queryRange(prometheusAddress, promQL, startTime, endTime, step);
+                queryResult = result != null ? result.toString() : "{}";
+            } else {
+                // 即时查询
+                queryResult = prometheusService.queryPrometheus(prometheusAddress, promQL);
+            }
 
-            log.debug("查询Prometheus数据成功, componentId: {}, promQL: {}", componentId, promQL);
+            log.debug("查询Prometheus数据成功, componentId: {}, promQL: {}, address: {}",
+                componentId, promQL, prometheusAddress);
             return ReturnResult.ok(queryResult);
         } catch (Exception e) {
             log.error("查询Prometheus数据异常, componentId: {}, promQL: {}", componentId, promQL, e);

@@ -25,6 +25,7 @@ import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -243,6 +244,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 .eq(entity.getMonitorSysGenServerStatus() != null,
                         MonitorSysGenServer::getMonitorSysGenServerStatus, entity.getMonitorSysGenServerStatus())
                 .orderByDesc(MonitorSysGenServer::getCreateTime));
+    }
+
+    @Override
+    @Cacheable(value = "server", key = "#serverId", unless = "#result == null")
+    public MonitorSysGenServer getByIdWithCache(Integer serverId) {
+        return this.getById(serverId);
     }
 
     @Override
