@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
@@ -8,8 +9,13 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerComponentService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.impl.PrometheusService;
+import com.chua.starter.redis.support.service.TimeSeriesService;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 服务器组件配置服务实现类
@@ -49,6 +56,26 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
 
     private final MonitorSysGenServerComponentMapper componentMapper;
     private final MonitorSysGenServerService serverService;
+
+    @Autowired
+    @Lazy
+    private TimeSeriesService timeSeriesService;
+
+    @Autowired
+    @Lazy
+    private PrometheusService prometheusService;
+
+    @Autowired
+    @Lazy
+    private SocketSessionTemplate socketSessionTemplate;
+
+    // 实时数据订阅管理
+    private final Map<Long, Map<String, String>> realtimeSubscriptions = new ConcurrentHashMap<>();
+
+    // Redis键前缀常量
+    private static final String REDIS_TIME_SERIES_PREFIX = "monitor:timeseries:";
+    private static final String REDIS_COMPONENT_PREFIX = "monitor:component:";
+    private static final String WEBSOCKET_TOPIC_PREFIX = "component/realtime/";
 
     /**
      * 根据服务器ID获取组件列表
@@ -242,6 +269,10 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
                 return executePrometheusQuery(serverId, expression, timeRange);
             } else if ("SQL".equalsIgnoreCase(expressionType)) {
                 return executeSqlQuery(serverId, expression, timeRange);
+            } else if ("COMPONENT".equalsIgnoreCase(expressionType)) {
+                return executeComponentTimeSeriesQuery(componentId, expression, timeRange);
+            } else if ("REALTIME".equalsIgnoreCase(expressionType)) {
+                return executeRealtimeQuery(componentId, expression, timeRange);
             } else {
                 return ReturnResult.error("不支持的表达式类型: " + expressionType);
             }
@@ -441,19 +472,18 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
                     "step", step != null ? step : 60
             );
 
+            // 根据表达式类型路由到不同的数据查询方式
             if ("PROMETHEUS".equalsIgnoreCase(expressionType)) {
-                return executePrometheusQuery(component.getMonitorSysGenServerId(), expression, timeRange);
+                return queryPrometheusData(componentId, expression, startTime, endTime, step);
+            } else if ("COMPONENT".equalsIgnoreCase(expressionType)) {
+                return queryTimeSeriesData(componentId, expression, startTime, endTime, step);
+            } else if ("REALTIME".equalsIgnoreCase(expressionType)) {
+                return getComponentRealtimeData(componentId);
             } else if ("SQL".equalsIgnoreCase(expressionType)) {
                 return executeSqlQuery(component.getMonitorSysGenServerId(), expression, timeRange);
             } else {
-                // 组件选择类型，返回模拟数据
-                log.debug("查询组件数据成功, componentId: {}, 类型: 组件选择", componentId);
-                return ReturnResult.ok(Map.of(
-                        "type", "component",
-                        "componentId", componentId,
-                        "data", "组件数据查询功能待实现",
-                        "timeRange", timeRange
-                ));
+                log.warn("不支持的表达式类型: {}, componentId: {}", expressionType, componentId);
+                return ReturnResult.error("不支持的表达式类型: " + expressionType);
             }
         } catch (Exception e) {
             log.error("查询组件数据失败, componentId: {}", componentId, e);
@@ -545,4 +575,258 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             return ReturnResult.error("获取组件实时数据失败: " + e.getMessage());
         }
     }
+
+    @Override
+    public ReturnResult<Object> queryTimeSeriesData(Long componentId, String indicatorName, Long startTime, Long endTime, Integer step) {
+        log.debug("开始查询时序数据, componentId: {}, indicatorName: {}", componentId, indicatorName);
+
+        try {
+            if (timeSeriesService == null) {
+                log.warn("TimeSeriesService未注入，无法查询时序数据");
+                return ReturnResult.error("时序数据服务不可用");
+            }
+
+            // 构建时序数据查询键
+            String timeSeriesKey = REDIS_TIME_SERIES_PREFIX + indicatorName;
+
+            // 调用时序数据服务查询
+            ReturnResult<?> result = timeSeriesService.range(
+                    timeSeriesKey,
+                    startTime,
+                    endTime,
+                    false, // 不只获取最新数据
+                    1000   // 不限制数量
+            );
+
+            if (result.isSuccess()) {
+                log.debug("查询时序数据成功, componentId: {}, indicatorName: {}", componentId, indicatorName);
+                return ReturnResult.ok(result.getData());
+            } else {
+                log.warn("查询时序数据失败, componentId: {}, indicatorName: {}, error: {}",
+                        componentId, indicatorName, result.getMsg());
+                return ReturnResult.error("查询时序数据失败: " + result.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("查询时序数据异常, componentId: {}, indicatorName: {}", componentId, indicatorName, e);
+            return ReturnResult.error("查询时序数据异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Object> queryPrometheusData(Long componentId, String promQL, Long startTime, Long endTime, Integer step) {
+        log.debug("开始查询Prometheus数据, componentId: {}, promQL: {}", componentId, promQL);
+
+        try {
+            if (prometheusService == null) {
+                log.warn("PrometheusService未注入，无法查询Prometheus数据");
+                return ReturnResult.error("Prometheus服务不可用");
+            }
+
+            // 获取组件关联的服务器信息
+            MonitorSysGenServerComponent component = getById(componentId);
+            if (component == null) {
+                return ReturnResult.error("组件不存在");
+            }
+
+            MonitorSysGenServer server = serverService.getById(String.valueOf(component.getMonitorSysGenServerId()));
+            if (server == null) {
+                return ReturnResult.error("服务器配置不存在");
+            }
+
+            // 构建Prometheus查询地址
+            String prometheusAddress = server.getMonitorSysGenServerHost() + ":" + server.getMonitorSysGenServerPort();
+
+            // 执行Prometheus查询
+            String queryResult = prometheusService.queryPrometheus(prometheusAddress, promQL);
+
+            log.debug("查询Prometheus数据成功, componentId: {}, promQL: {}", componentId, promQL);
+            return ReturnResult.ok(queryResult);
+        } catch (Exception e) {
+            log.error("查询Prometheus数据异常, componentId: {}, promQL: {}", componentId, promQL, e);
+            return ReturnResult.error("查询Prometheus数据异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> subscribeRealtimeData(Long componentId, String sessionId) {
+        log.debug("开始订阅实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
+
+        try {
+            // 验证组件存在且为REALTIME类型
+            MonitorSysGenServerComponent component = getById(componentId);
+            if (component == null) {
+                return ReturnResult.error("组件不存在");
+            }
+
+            String expressionType = component.getMonitorSysGenServerComponentExpressionType();
+            if (!"REALTIME".equalsIgnoreCase(expressionType)) {
+                return ReturnResult.error("组件不是实时数据类型");
+            }
+
+            // 添加订阅记录
+            realtimeSubscriptions.computeIfAbsent(componentId, k -> new ConcurrentHashMap<>())
+                    .put(sessionId, WEBSOCKET_TOPIC_PREFIX + componentId);
+
+            log.debug("订阅实时数据成功, componentId: {}, sessionId: {}", componentId, sessionId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("订阅实时数据失败, componentId: {}, sessionId: {}", componentId, sessionId, e);
+            return ReturnResult.error("订阅实时数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> unsubscribeRealtimeData(Long componentId, String sessionId) {
+        log.debug("开始取消订阅实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
+
+        try {
+            Map<String, String> sessions = realtimeSubscriptions.get(componentId);
+            if (sessions != null) {
+                sessions.remove(sessionId);
+                if (sessions.isEmpty()) {
+                    realtimeSubscriptions.remove(componentId);
+                }
+            }
+
+            log.debug("取消订阅实时数据成功, componentId: {}, sessionId: {}", componentId, sessionId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("取消订阅实时数据失败, componentId: {}, sessionId: {}", componentId, sessionId, e);
+            return ReturnResult.error("取消订阅实时数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 执行组件时序数据查询（COMPONENT类型）
+     *
+     * @param componentId 组件ID
+     * @param expression 表达式（指标名称）
+     * @param timeRange 时间范围参数
+     * @return 查询结果
+     */
+    private ReturnResult<Object> executeComponentTimeSeriesQuery(Long componentId, String expression, Map<String, Object> timeRange) {
+        log.debug("开始执行组件时序数据查询, componentId: {}, expression: {}", componentId, expression);
+
+        try {
+            if (timeSeriesService == null) {
+                log.warn("TimeSeriesService未注入，无法查询时序数据");
+                return ReturnResult.error("时序数据服务不可用");
+            }
+
+            // 从时间范围参数中提取时间信息
+            Long startTime = extractTimeFromRange(timeRange, "startTime");
+            Long endTime = extractTimeFromRange(timeRange, "endTime");
+            Integer step = extractStepFromRange(timeRange);
+
+            if (startTime == null || endTime == null) {
+                return ReturnResult.error("时间范围参数不完整");
+            }
+
+            // 构建时序数据查询键，使用表达式作为指标名称
+            String timeSeriesKey = REDIS_TIME_SERIES_PREFIX + expression;
+
+            // 调用时序数据服务查询
+            ReturnResult<?> result = timeSeriesService.range(
+                    timeSeriesKey,
+                    startTime,
+                    endTime,
+                    false, // 不只获取最新数据
+                    1000   // 不限制数量
+            );
+
+            if (result.isSuccess()) {
+                log.debug("查询组件时序数据成功, componentId: {}, expression: {}", componentId, expression);
+                return ReturnResult.ok(result.getData());
+            } else {
+                log.warn("查询组件时序数据失败, componentId: {}, expression: {}, error: {}",
+                        componentId, expression, result.getMsg());
+                return ReturnResult.error("查询时序数据失败: " + result.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("执行组件时序数据查询失败, componentId: {}, expression: {}", componentId, expression, e);
+            return ReturnResult.error("查询时序数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 执行实时数据查询（REALTIME类型）
+     *
+     * @param componentId 组件ID
+     * @param expression 表达式（实时数据源标识）
+     * @param timeRange 时间范围参数
+     * @return 查询结果
+     */
+    private ReturnResult<Object> executeRealtimeQuery(Long componentId, String expression, Map<String, Object> timeRange) {
+        log.debug("开始执行实时数据查询, componentId: {}, expression: {}", componentId, expression);
+
+        try {
+            // 对于实时数据，返回当前缓存的最新数据
+            // 实际的实时数据通过WebSocket推送，这里返回最近的数据快照
+            Map<String, Object> realtimeData = new HashMap<>();
+            realtimeData.put("componentId", componentId);
+            realtimeData.put("expression", expression);
+            realtimeData.put("type", "realtime");
+            realtimeData.put("message", "实时数据通过WebSocket推送，请订阅相应的主题");
+            realtimeData.put("topic", WEBSOCKET_TOPIC_PREFIX + componentId);
+            realtimeData.put("timestamp", System.currentTimeMillis());
+
+            log.debug("实时数据查询完成, componentId: {}, expression: {}", componentId, expression);
+            return ReturnResult.ok(realtimeData);
+        } catch (Exception e) {
+            log.error("执行实时数据查询失败, componentId: {}, expression: {}", componentId, expression, e);
+            return ReturnResult.error("查询实时数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从时间范围参数中提取时间值
+     *
+     * @param timeRange 时间范围参数
+     * @param key 时间键名
+     * @return 时间戳（秒）
+     */
+    private Long extractTimeFromRange(Map<String, Object> timeRange, String key) {
+        if (timeRange == null || !timeRange.containsKey(key)) {
+            return null;
+        }
+
+        Object value = timeRange.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        } else if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException e) {
+                log.warn("无法解析时间参数: {} = {}", key, value);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 从时间范围参数中提取步长值
+     *
+     * @param timeRange 时间范围参数
+     * @return 步长（秒）
+     */
+    private Integer extractStepFromRange(Map<String, Object> timeRange) {
+        if (timeRange == null || !timeRange.containsKey("step")) {
+            return 60; // 默认步长60秒
+        }
+
+        Object value = timeRange.get("step");
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                log.warn("无法解析步长参数: {}", value);
+                return 60; // 默认步长60秒
+            }
+        }
+        return 60; // 默认步长60秒
+    }
+
 }

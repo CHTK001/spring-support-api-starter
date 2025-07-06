@@ -360,4 +360,33 @@ public class MonitorSysGenServerComponentController {
             @PathVariable Long componentId) {
         return componentService.getComponentRealtimeData(componentId);
     }
+
+    @ApiOperation("订阅组件实时数据")
+    @Operation(summary = "订阅组件实时数据", description = "为指定组件订阅实时数据推送")
+    @PostMapping("/{componentId}/realtime/subscribe")
+    public ReturnResult<Boolean> subscribeRealtimeData(
+            @ApiParam(value = "组件ID", required = true)
+            @Parameter(description = "组件ID", required = true)
+            @PathVariable Long componentId,
+            @ApiParam(value = "WebSocket会话ID", required = true)
+            @Parameter(description = "WebSocket会话ID", required = true)
+            @RequestParam String sessionId) {
+        log.info("订阅组件实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
+        return componentService.subscribeRealtimeData(componentId, sessionId);
+    }
+
+    @ApiOperation("取消订阅组件实时数据")
+    @Operation(summary = "取消订阅组件实时数据", description = "取消指定组件的实时数据订阅")
+    @PostMapping("/{componentId}/realtime/unsubscribe")
+    public ReturnResult<Boolean> unsubscribeRealtimeData(
+            @ApiParam(value = "组件ID", required = true)
+            @Parameter(description = "组件ID", required = true)
+            @PathVariable Long componentId,
+            @ApiParam(value = "WebSocket会话ID", required = true)
+            @Parameter(description = "WebSocket会话ID", required = true)
+            @RequestParam String sessionId) {
+        log.info("取消订阅组件实时数据, componentId: {}, sessionId: {}", componentId, sessionId);
+        return componentService.unsubscribeRealtimeData(componentId, sessionId);
+    }
+
 }
