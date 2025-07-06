@@ -140,6 +140,14 @@ public class MonitorSysGenServerComponent extends SysBase {
     private String monitorSysGenServerComponentDesc;
 
     /**
+     * 是否显示标题 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_component_show_title")
+    @ApiModelProperty(value = "是否显示标题")
+    @Schema(description = "是否显示标题")
+    private Integer monitorSysGenServerComponentShowTitle;
+
+    /**
      * 创建时间
      */
     @TableField(value = "monitor_sys_gen_server_component_create_time")

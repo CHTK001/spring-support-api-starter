@@ -5,12 +5,14 @@ import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.starter.service.MonitorSysGenServerComponentService;
 import com.chua.starter.monitor.starter.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务器WebSocket消息处理器
@@ -24,6 +26,7 @@ import java.util.List;
 public class ServerWebSocketMessageHandler {
 
     private final MonitorSysGenServerService serverService;
+    private final MonitorSysGenServerComponentService componentService;
     private final List<ServerConnectionService> connectionServices;
     private final SocketSessionTemplate socketSessionTemplate;
 
@@ -49,6 +52,12 @@ public class ServerWebSocketMessageHandler {
                     break;
                 case ServerWebSocketMessage.MessageType.SSH_DISCONNECT:
                     handleSSHDisconnect(message);
+                    break;
+                case ServerWebSocketMessage.MessageType.COMPONENT_SUBSCRIBE:
+                    handleComponentSubscribe(message);
+                    break;
+                case ServerWebSocketMessage.MessageType.COMPONENT_UNSUBSCRIBE:
+                    handleComponentUnsubscribe(message);
                     break;
                 default:
                     log.debug("未处理的消息类型: {}", message.getMessageType());
@@ -221,7 +230,7 @@ public class ServerWebSocketMessageHandler {
         try {
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
-            
+
             ServerWebSocketMessage message = ServerWebSocketMessage.createSSHDataMessage(
                 serverId,
                 serverName,
@@ -230,6 +239,94 @@ public class ServerWebSocketMessageHandler {
             broadcastMessage(message);
         } catch (Exception e) {
             log.error("发送SSH数据到前端失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理组件订阅请求
+     */
+    private void handleComponentSubscribe(ServerWebSocketMessage message) {
+        try {
+            Map<String, Object> data = (Map<String, Object>) message.getData();
+            if (data == null) {
+                log.warn("组件订阅消息数据为空");
+                return;
+            }
+
+            Long componentId = extractLongFromData(data, "componentId");
+            String sessionId = (String) data.get("sessionId");
+
+            if (componentId == null || sessionId == null) {
+                log.warn("组件订阅参数不完整: componentId={}, sessionId={}", componentId, sessionId);
+                return;
+            }
+
+            log.info("处理组件订阅请求: componentId={}, sessionId={}", componentId, sessionId);
+            componentService.subscribeRealtimeData(componentId, sessionId);
+        } catch (Exception e) {
+            log.error("处理组件订阅请求失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理组件取消订阅请求
+     */
+    private void handleComponentUnsubscribe(ServerWebSocketMessage message) {
+        try {
+            Map<String, Object> data = (Map<String, Object>) message.getData();
+            if (data == null) {
+                log.warn("组件取消订阅消息数据为空");
+                return;
+            }
+
+            Long componentId = extractLongFromData(data, "componentId");
+            String sessionId = (String) data.get("sessionId");
+
+            if (componentId == null || sessionId == null) {
+                log.warn("组件取消订阅参数不完整: componentId={}, sessionId={}", componentId, sessionId);
+                return;
+            }
+
+            log.info("处理组件取消订阅请求: componentId={}, sessionId={}", componentId, sessionId);
+            componentService.unsubscribeRealtimeData(componentId, sessionId);
+        } catch (Exception e) {
+            log.error("处理组件取消订阅请求失败: {}", e.getMessage(), e);
+        }
+    }
+
+
+    /**
+     * 从数据Map中提取Long类型值
+     */
+    private Long extractLongFromData(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        } else if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException e) {
+                log.warn("无法解析Long类型参数: {} = {}", key, value);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 发送组件实时数据到前端
+     */
+    public void sendComponentRealtimeDataToClient(Long componentId, String componentName, Object data) {
+        try {
+            ServerWebSocketMessage message = ServerWebSocketMessage.createComponentRealtimeDataMessage(
+                componentId,
+                componentName,
+                data
+            );
+            broadcastMessage(message);
+            log.debug("发送组件实时数据到前端: componentId={}", componentId);
+        } catch (Exception e) {
+            log.error("发送组件实时数据到前端失败: componentId={}", componentId, e);
         }
     }
 }
