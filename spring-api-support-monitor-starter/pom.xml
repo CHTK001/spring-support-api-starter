@@ -214,6 +214,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-netty-starter</artifactId>
         </dependency>
 
