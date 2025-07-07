@@ -518,7 +518,7 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 文件管理方式 (NONE:不启用, SSH:SSH模式, API:API模式)
      */
-    @TableField(value = "monitor_sys_gen_server_setting_file_management_mode")
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_mode", typeHandler = com.chua.starter.monitor.starter.handler.FileManagementModeTypeHandler.class)
     @ApiModelProperty(value = "文件管理方式")
     @Schema(description = "文件管理方式(NONE:不启用, SSH:SSH模式, API:API模式)")
     private FileManagementMode monitorSysGenServerSettingFileManagementMode;

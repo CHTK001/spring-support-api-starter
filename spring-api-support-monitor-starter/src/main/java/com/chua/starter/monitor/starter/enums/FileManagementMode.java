@@ -1,10 +1,12 @@
 package com.chua.starter.monitor.starter.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 
 /**
  * 文件管理模式枚举
- * 
+ *
  * @author CH
  * @since 2024/12/13
  */
@@ -61,6 +63,7 @@ public enum FileManagementMode {
     /**
      * 根据代码获取枚举值
      */
+    @JsonCreator
     public static FileManagementMode fromCode(String code) {
         if (code == null) {
             return NONE;
@@ -72,6 +75,16 @@ public enum FileManagementMode {
             }
         }
         return NONE;
+    }
+
+    /**
+     * 获取枚举值，用于 MyBatis Plus 序列化和 JSON 序列化
+     *
+     * @return 枚举代码
+     */
+    @JsonValue
+    public String getValue() {
+        return code;
     }
 
     /**
