@@ -172,7 +172,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-calcite-starter</artifactId>
@@ -206,6 +205,11 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-discovery-starter</artifactId>
         </dependency>
 
         <dependency>
