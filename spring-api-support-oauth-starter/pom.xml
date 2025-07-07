@@ -63,12 +63,6 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-report-client-starter</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-discovery-starter</artifactId>

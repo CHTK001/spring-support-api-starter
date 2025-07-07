@@ -130,6 +130,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
