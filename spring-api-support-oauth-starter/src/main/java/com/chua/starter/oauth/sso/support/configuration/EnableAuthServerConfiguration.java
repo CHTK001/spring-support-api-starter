@@ -32,7 +32,6 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -84,7 +83,6 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
     AuthServerProperties authServerProperties;
     private List<HttpMessageConverter<?>> messageConverters;
-
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -142,7 +140,6 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         }
         this.messageConverters = new LinkedList<>();
         messageConverters.add(new MappingJackson2HttpMessageConverter());
-        messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
         messageConverters.add(new StringHttpMessageConverter());
 
         authServerProperties = Binder.get(applicationContext.getEnvironment()).bindOrCreate(AuthServerProperties.PRE, AuthServerProperties.class);
