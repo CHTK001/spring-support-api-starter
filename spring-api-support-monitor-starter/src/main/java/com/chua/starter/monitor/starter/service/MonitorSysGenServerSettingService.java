@@ -20,7 +20,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
     /**
      * 分页查询服务器配置设置
      *
-     * @param page 分页参数
+     * @param page   分页参数
      * @param entity 查询条件
      * @return 分页结果
      */
@@ -86,7 +86,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 批量更新监控启用状态
      *
      * @param serverIds 服务器ID列表
-     * @param enabled 是否启用
+     * @param enabled   是否启用
      * @return 操作结果
      */
     ReturnResult<Boolean> batchUpdateMonitorEnabled(List<Integer> serverIds, Boolean enabled);
@@ -117,7 +117,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 更新服务器配置状态
      *
      * @param serverId 服务器ID
-     * @param status 状态
+     * @param status   状态
      * @return 操作结果
      */
     ReturnResult<Boolean> updateStatusByServerId(Integer serverId, Integer status);
@@ -140,7 +140,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
     /**
      * 复制配置到其他服务器
      *
-     * @param sourceServerId 源服务器ID
+     * @param sourceServerId  源服务器ID
      * @param targetServerIds 目标服务器ID列表
      * @return 操作结果
      */
@@ -166,7 +166,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 导出配置
      *
      * @param serverIds 服务器ID列表
-     * @param format 导出格式 (json/yaml/xml)
+     * @param format    导出格式 (json/yaml/xml)
      * @return 导出数据
      */
     ReturnResult<String> exportSettings(List<Integer> serverIds, String format);
@@ -175,8 +175,8 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 导入配置
      *
      * @param configData 配置数据
-     * @param format 数据格式 (json/yaml/xml)
-     * @param overwrite 是否覆盖现有配置
+     * @param format     数据格式 (json/yaml/xml)
+     * @param overwrite  是否覆盖现有配置
      * @return 导入结果
      */
     ReturnResult<Boolean> importSettings(String configData, String format, boolean overwrite);
@@ -193,7 +193,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 获取配置变更历史
      *
      * @param serverId 服务器ID
-     * @param limit 限制数量
+     * @param limit    限制数量
      * @return 变更历史
      */
     ReturnResult<List<Map<String, Object>>> getSettingHistory(Integer serverId, Integer limit);
@@ -226,7 +226,7 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * 应用配置模板到多个服务器
      *
      * @param templateType 模板类型
-     * @param serverIds 服务器ID列表
+     * @param serverIds    服务器ID列表
      * @return 操作结果
      */
     ReturnResult<Boolean> applyTemplateToServers(String templateType, List<Integer> serverIds);
@@ -238,4 +238,35 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * @return 服务器配置
      */
     ReturnResult<MonitorSysGenServerSetting> getOrCreateSetting(Integer serverId);
+
+    /**
+     * 测试文件管理连接
+     *
+     * @param serverId 服务器ID
+     * @return 测试结果
+     */
+    ReturnResult<Boolean> testFileManagementConnection(Integer serverId);
+
+    /**
+     * 获取文件管理配置模板
+     *
+     * @param mode 文件管理模式 (SSH, API, NODE, LOCAL)
+     * @return 配置模板
+     */
+    ReturnResult<Map<String, Object>> getFileManagementConfigTemplate(String mode);
+
+    /**
+     * 验证文件管理配置
+     *
+     * @param config 配置数据
+     * @return 验证结果
+     */
+    ReturnResult<Map<String, Object>> validateFileManagementConfig(Map<String, Object> config);
+
+    /**
+     * 获取可用的NODE客户端列表
+     *
+     * @return NODE客户端列表
+     */
+    ReturnResult<List<Map<String, Object>>> getAvailableNodeClients();
 }
