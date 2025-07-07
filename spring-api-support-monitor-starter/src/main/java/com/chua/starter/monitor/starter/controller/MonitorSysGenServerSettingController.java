@@ -19,21 +19,14 @@ import java.util.Map;
 /**
  * 服务器配置设置控制器
  *
- * 管理服务器的监控配置和运行时设置，包括：
- * - 监控配置：启用/禁用监控、数据收集频率、数据保留策略
- * - 数据上报：上报方式选择（NONE/LOCAL/API/PROMETHEUS）、上报配置
- * - 告警配置：告警阈值设置、通知方式配置
- * - 高级配置：连接超时、重试策略、性能优化参数
- * - 配置管理：导入/导出、模板应用、批量配置
+ * 管理服务器的监控配置和运行时设置，包括： - 监控配置：启用/禁用监控、数据收集频率、数据保留策略 -
+ * 数据上报：上报方式选择（NONE/LOCAL/API/PROMETHEUS）、上报配置 - 告警配置：告警阈值设置、通知方式配置 -
+ * 高级配置：连接超时、重试策略、性能优化参数 - 配置管理：导入/导出、模板应用、批量配置
  *
- * 与基础服务器管理的区别：
- * - MonitorSysGenServerController：管理服务器基本信息（连接信息、认证等）
- * - MonitorSysGenServerSettingController：管理服务器运行时配置（监控、告警等）
+ * 与基础服务器管理的区别： - MonitorSysGenServerController：管理服务器基本信息（连接信息、认证等） -
+ * MonitorSysGenServerSettingController：管理服务器运行时配置（监控、告警等）
  *
- * 主要功能：
- * - 指标管理：配置数据收集和上报方式
- * - 告警管理：设置监控阈值和通知规则
- * - 配置模板：预设配置模板的应用和管理
+ * 主要功能： - 指标管理：配置数据收集和上报方式 - 告警管理：设置监控阈值和通知规则 - 配置模板：预设配置模板的应用和管理
  *
  * @author CH
  * @since 2024/12/26
@@ -56,23 +49,19 @@ public class MonitorSysGenServerSettingController {
     @ResponseBody
     @Operation(summary = "分页查询服务器配置设置")
     @GetMapping("page")
-    public ReturnPageResult<MonitorSysGenServerSetting> page(Query<MonitorSysGenServerSetting> page, MonitorSysGenServerSetting entity) {
+    public ReturnPageResult<MonitorSysGenServerSetting> page(Query<MonitorSysGenServerSetting> page,
+                                                             MonitorSysGenServerSetting entity) {
         return PageResultUtils.ok(monitorSysGenServerSettingService.pageFor(page.createPage(), entity));
     }
 
     /**
      * 根据服务器ID获取或创建配置
      *
-     * 获取指定服务器的配置设置，如果不存在则自动创建默认配置。
-     * 包含的配置项：
-     * - 基础监控配置：启用状态、数据收集频率、数据保留时间
-     * - 数据上报配置：上报方式、上报地址、认证信息
-     * - 告警配置：告警阈值、通知方式、联系人信息
-     * - 高级配置：连接超时、Docker监控、日志监控等
+     * 获取指定服务器的配置设置，如果不存在则自动创建默认配置。 包含的配置项： - 基础监控配置：启用状态、数据收集频率、数据保留时间 -
+     * 数据上报配置：上报方式、上报地址、认证信息 - 告警配置：告警阈值、通知方式、联系人信息 - 高级配置：连接超时、Docker监控、日志监控等
      *
-     * 支持两个路径：
-     * - /server/{serverId}: 仅获取现有配置
-     * - /server/{serverId}/or-create: 获取配置，不存在时创建默认配置
+     * 支持两个路径： - /server/{serverId}: 仅获取现有配置 - /server/{serverId}/or-create:
+     * 获取配置，不存在时创建默认配置
      *
      * @param serverId 服务器ID
      * @return 服务器配置设置，包含完整的监控和告警配置
@@ -100,14 +89,15 @@ public class MonitorSysGenServerSettingController {
     /**
      * 保存或更新服务器配置
      *
-     * @param setting 服务器配置
+     * @param setting       服务器配置
      * @param bindingResult 验证结果
      * @return 操作结果
      */
     @ResponseBody
     @Operation(summary = "保存或更新服务器配置")
     @PostMapping({"save", "save-or-update"})
-    public ReturnResult<Boolean> saveOrUpdate(@Validated @RequestBody MonitorSysGenServerSetting setting, BindingResult bindingResult) {
+    public ReturnResult<Boolean> saveOrUpdate(@Validated @RequestBody MonitorSysGenServerSetting setting,
+                                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(bindingResult.getFieldError().getDefaultMessage());
         }
@@ -117,14 +107,15 @@ public class MonitorSysGenServerSettingController {
     /**
      * 更新服务器配置
      *
-     * @param setting 服务器配置
+     * @param setting       服务器配置
      * @param bindingResult 验证结果
      * @return 操作结果
      */
     @ResponseBody
     @Operation(summary = "更新服务器配置")
     @PutMapping("update")
-    public ReturnResult<Boolean> update(@Validated @RequestBody MonitorSysGenServerSetting setting, BindingResult bindingResult) {
+    public ReturnResult<Boolean> update(@Validated @RequestBody MonitorSysGenServerSetting setting,
+                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(bindingResult.getFieldError().getDefaultMessage());
         }
@@ -216,7 +207,8 @@ public class MonitorSysGenServerSettingController {
     @ResponseBody
     @Operation(summary = "获取启用上报的服务器配置")
     @GetMapping("report/enabled")
-    public ReturnResult<List<MonitorSysGenServerSetting>> getReportEnabledSettings(@RequestParam(required = false) String reportMethod) {
+    public ReturnResult<List<MonitorSysGenServerSetting>> getReportEnabledSettings(
+            @RequestParam(required = false) String reportMethod) {
         return monitorSysGenServerSettingService.getReportEnabledSettings(reportMethod);
     }
 
@@ -224,7 +216,7 @@ public class MonitorSysGenServerSettingController {
      * 更新服务器配置状态
      *
      * @param serverId 服务器ID
-     * @param status 状态
+     * @param status   状态
      * @return 操作结果
      */
     @ResponseBody
@@ -287,14 +279,15 @@ public class MonitorSysGenServerSettingController {
     /**
      * 复制配置到其他服务器
      *
-     * @param sourceServerId 源服务器ID
+     * @param sourceServerId  源服务器ID
      * @param targetServerIds 目标服务器ID列表
      * @return 操作结果
      */
     @ResponseBody
     @Operation(summary = "复制配置到其他服务器")
     @PostMapping("copy/{sourceServerId}")
-    public ReturnResult<Boolean> copySetting(@PathVariable Integer sourceServerId, @RequestBody List<Integer> targetServerIds) {
+    public ReturnResult<Boolean> copySetting(@PathVariable Integer sourceServerId,
+                                             @RequestBody List<Integer> targetServerIds) {
         return monitorSysGenServerSettingService.copySettingToServers(sourceServerId, targetServerIds);
     }
 
@@ -333,13 +326,14 @@ public class MonitorSysGenServerSettingController {
      * 导出配置
      *
      * @param serverIds 服务器ID列表
-     * @param format 导出格式
+     * @param format    导出格式
      * @return 导出数据
      */
     @ResponseBody
     @Operation(summary = "导出配置")
     @PostMapping("export")
-    public ReturnResult<String> exportSettings(@RequestBody List<Integer> serverIds, @RequestParam(defaultValue = "json") String format) {
+    public ReturnResult<String> exportSettings(@RequestBody List<Integer> serverIds,
+                                               @RequestParam(defaultValue = "json") String format) {
         return monitorSysGenServerSettingService.exportSettings(serverIds, format);
     }
 
@@ -347,16 +341,16 @@ public class MonitorSysGenServerSettingController {
      * 导入配置
      *
      * @param configData 配置数据
-     * @param format 数据格式
-     * @param overwrite 是否覆盖现有配置
+     * @param format     数据格式
+     * @param overwrite  是否覆盖现有配置
      * @return 导入结果
      */
     @ResponseBody
     @Operation(summary = "导入配置")
     @PostMapping("import")
-    public ReturnResult<Boolean> importSettings(@RequestParam String configData, 
-                                               @RequestParam(defaultValue = "json") String format,
-                                               @RequestParam(defaultValue = "false") boolean overwrite) {
+    public ReturnResult<Boolean> importSettings(@RequestParam String configData,
+                                                @RequestParam(defaultValue = "json") String format,
+                                                @RequestParam(defaultValue = "false") boolean overwrite) {
         return monitorSysGenServerSettingService.importSettings(configData, format, overwrite);
     }
 
@@ -377,13 +371,14 @@ public class MonitorSysGenServerSettingController {
      * 获取配置变更历史
      *
      * @param serverId 服务器ID
-     * @param limit 限制数量
+     * @param limit    限制数量
      * @return 变更历史
      */
     @ResponseBody
     @Operation(summary = "获取配置变更历史")
     @GetMapping("server/{serverId}/history")
-    public ReturnResult<List<Map<String, Object>>> getHistory(@PathVariable Integer serverId, @RequestParam(defaultValue = "10") Integer limit) {
+    public ReturnResult<List<Map<String, Object>>> getHistory(@PathVariable Integer serverId,
+                                                              @RequestParam(defaultValue = "10") Integer limit) {
         return monitorSysGenServerSettingService.getSettingHistory(serverId, limit);
     }
 
@@ -430,13 +425,14 @@ public class MonitorSysGenServerSettingController {
      * 应用配置模板到多个服务器
      *
      * @param templateType 模板类型
-     * @param serverIds 服务器ID列表
+     * @param serverIds    服务器ID列表
      * @return 操作结果
      */
     @ResponseBody
     @Operation(summary = "应用配置模板到多个服务器")
     @PostMapping("template/{templateType}/apply")
-    public ReturnResult<Boolean> applyTemplate(@PathVariable String templateType, @RequestBody List<Integer> serverIds) {
+    public ReturnResult<Boolean> applyTemplate(@PathVariable String templateType,
+                                               @RequestBody List<Integer> serverIds) {
         return monitorSysGenServerSettingService.applyTemplateToServers(templateType, serverIds);
     }
 
@@ -463,5 +459,56 @@ public class MonitorSysGenServerSettingController {
         } catch (Exception e) {
             return ReturnResult.error("参数格式错误: " + e.getMessage());
         }
+    }
+
+    /**
+     * 测试文件管理连接
+     *
+     * @param serverId 服务器ID
+     * @return 测试结果
+     */
+    @ResponseBody
+    @Operation(summary = "测试文件管理连接")
+    @PostMapping("test-file-management/{serverId}")
+    public ReturnResult<Boolean> testFileManagementConnection(@PathVariable Integer serverId) {
+        return monitorSysGenServerSettingService.testFileManagementConnection(serverId);
+    }
+
+    /**
+     * 获取文件管理配置模板
+     *
+     * @param mode 文件管理模式 (SSH, API, NODE, LOCAL)
+     * @return 配置模板
+     */
+    @ResponseBody
+    @Operation(summary = "获取文件管理配置模板")
+    @GetMapping("file-management/template")
+    public ReturnResult<Map<String, Object>> getFileManagementConfigTemplate(@RequestParam String mode) {
+        return monitorSysGenServerSettingService.getFileManagementConfigTemplate(mode);
+    }
+
+    /**
+     * 验证文件管理配置
+     *
+     * @param config 配置数据
+     * @return 验证结果
+     */
+    @ResponseBody
+    @Operation(summary = "验证文件管理配置")
+    @PostMapping("file-management/validate")
+    public ReturnResult<Map<String, Object>> validateFileManagementConfig(@RequestBody Map<String, Object> config) {
+        return monitorSysGenServerSettingService.validateFileManagementConfig(config);
+    }
+
+    /**
+     * 获取可用的NODE客户端列表
+     *
+     * @return NODE客户端列表
+     */
+    @ResponseBody
+    @Operation(summary = "获取可用的NODE客户端列表", description = "获取所有在线的NODE客户端，用于文件管理功能")
+    @GetMapping("file-management/node-clients")
+    public ReturnResult<List<Map<String, Object>>> getAvailableNodeClients() {
+        return monitorSysGenServerSettingService.getAvailableNodeClients();
     }
 }

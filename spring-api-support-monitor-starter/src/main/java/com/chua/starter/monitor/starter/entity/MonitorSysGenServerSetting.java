@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.mybatis.pojo.SysBase;
 import com.chua.starter.monitor.starter.enums.FileManagementMode;
 import com.chua.starter.monitor.starter.pojo.FileManagementApiConfig;
-import com.chua.common.support.json.Json;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -533,6 +533,15 @@ public class MonitorSysGenServerSetting extends SysBase {
     private String monitorSysGenServerSettingFileManagementApiConfig;
 
     /**
+     * 选择的NODE客户端ID (仅在NODE模式下使用)
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_file_management_node_client")
+    @ApiModelProperty(value = "选择的NODE客户端ID")
+    @Schema(description = "选择的NODE客户端ID(仅在NODE模式下使用)")
+    @Size(max = 100, message = "NODE客户端ID最大长度要小于 100")
+    private String monitorSysGenServerSettingFileManagementNodeClient;
+
+    /**
      * 是否启用文件管理 0:否 1:是
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_enabled")
@@ -718,144 +727,35 @@ public class MonitorSysGenServerSetting extends SysBase {
     private String monitorSysGenServerSettingPrometheusLabels;
 
     /**
-     * 数据上报方式枚举
+     * 判断是否启用监控
      */
-    public enum DataReportMethod {
-        NONE("NONE", "不支持上报"),
-        LOCAL("LOCAL", "本地上报"),
-        API("API", "接口上报"),
-        PROMETHEUS("PROMETHEUS", "Prometheus");
-
-        private final String code;
-        private final String desc;
-
-        DataReportMethod(String code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public static DataReportMethod fromCode(String code) {
-            for (DataReportMethod method : values()) {
-                if (method.code.equals(code)) {
-                    return method;
-                }
-            }
-            return NONE;
-        }
+    public boolean isMonitorEnabled() {
+        return this.monitorSysGenServerSettingMonitorEnabled != null
+                && this.monitorSysGenServerSettingMonitorEnabled == 1;
     }
 
     /**
-     * Docker连接方式枚举
+     * 判断是否需要上报
      */
-    public enum DockerConnectionType {
-        SHELL("SHELL", "命令行"),
-        TCP("TCP", "TCP连接"),
-        SOCKET("SOCKET", "Unix Socket");
-
-        private final String code;
-        private final String desc;
-
-        DockerConnectionType(String code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public static DockerConnectionType fromCode(String code) {
-            for (DockerConnectionType type : values()) {
-                if (type.code.equals(code)) {
-                    return type;
-                }
-            }
-            return SHELL;
-        }
+    public boolean isReportEnabled() {
+        return this.monitorSysGenServerSettingReportEnabled != null
+                && this.monitorSysGenServerSettingReportEnabled == 1;
     }
 
     /**
-     * 代理类型枚举
+     * 判断是否启用性能优化建议
      */
-    public enum ProxyType {
-        HTTP("HTTP", "HTTP代理"),
-        SOCKS4("SOCKS4", "SOCKS4代理"),
-        SOCKS5("SOCKS5", "SOCKS5代理"),
-        SSH_TUNNEL("SSH_TUNNEL", "SSH隧道"),
-        GUACAMOLE("GUACAMOLE", "Guacamole代理");
-
-        private final String code;
-        private final String desc;
-
-        ProxyType(String code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public static ProxyType fromCode(String code) {
-            for (ProxyType type : values()) {
-                if (type.code.equals(code)) {
-                    return type;
-                }
-            }
-            return HTTP;
-        }
+    public boolean isPerformanceSuggestionEnabled() {
+        return this.monitorSysGenServerSettingPerformanceSuggestionEnabled != null
+                && this.monitorSysGenServerSettingPerformanceSuggestionEnabled == 1;
     }
 
     /**
-     * 告警通知方式枚举
+     * 判断是否启用自动恢复通知
      */
-    public enum AlertNotificationMethod {
-        EMAIL("EMAIL", "邮件"),
-        SMS("SMS", "短信"),
-        WEBHOOK("WEBHOOK", "Webhook"),
-        DINGTALK("DINGTALK", "钉钉"),
-        WECHAT("WECHAT", "微信");
-
-        private final String code;
-        private final String desc;
-
-        AlertNotificationMethod(String code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public static AlertNotificationMethod fromCode(String code) {
-            for (AlertNotificationMethod method : values()) {
-                if (method.code.equals(code)) {
-                    return method;
-                }
-            }
-            return EMAIL;
-        }
+    public boolean isAutoRecoveryNotificationEnabled() {
+        return this.monitorSysGenServerSettingAutoRecoveryNotificationEnabled != null
+                && this.monitorSysGenServerSettingAutoRecoveryNotificationEnabled == 1;
     }
 
     /**
@@ -879,10 +779,11 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 判断是否启用监控
+     * 判断是否启用Docker
      */
-    public boolean isMonitorEnabled() {
-        return this.monitorSysGenServerSettingMonitorEnabled != null && this.monitorSysGenServerSettingMonitorEnabled == 1;
+    public boolean isDockerEnabled() {
+        return this.monitorSysGenServerSettingDockerEnabled != null
+                && this.monitorSysGenServerSettingDockerEnabled == 1;
     }
 
     /**
@@ -893,31 +794,35 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 判断是否需要上报
+     * 判断是否启用进程监控
      */
-    public boolean isReportEnabled() {
-        return this.monitorSysGenServerSettingReportEnabled != null && this.monitorSysGenServerSettingReportEnabled == 1;
+    public boolean isProcessMonitorEnabled() {
+        return this.monitorSysGenServerSettingProcessMonitorEnabled != null
+                && this.monitorSysGenServerSettingProcessMonitorEnabled == 1;
     }
 
     /**
-     * 判断是否启用性能优化建议
+     * 判断是否启用服务监控
      */
-    public boolean isPerformanceSuggestionEnabled() {
-        return this.monitorSysGenServerSettingPerformanceSuggestionEnabled != null && this.monitorSysGenServerSettingPerformanceSuggestionEnabled == 1;
+    public boolean isServiceMonitorEnabled() {
+        return this.monitorSysGenServerSettingServiceMonitorEnabled != null
+                && this.monitorSysGenServerSettingServiceMonitorEnabled == 1;
     }
 
     /**
-     * 判断是否启用自动恢复通知
+     * 判断是否启用端口监控
      */
-    public boolean isAutoRecoveryNotificationEnabled() {
-        return this.monitorSysGenServerSettingAutoRecoveryNotificationEnabled != null && this.monitorSysGenServerSettingAutoRecoveryNotificationEnabled == 1;
+    public boolean isPortMonitorEnabled() {
+        return this.monitorSysGenServerSettingPortMonitorEnabled != null
+                && this.monitorSysGenServerSettingPortMonitorEnabled == 1;
     }
 
     /**
-     * 判断是否启用Docker
+     * 判断是否启用日志监控
      */
-    public boolean isDockerEnabled() {
-        return this.monitorSysGenServerSettingDockerEnabled != null && this.monitorSysGenServerSettingDockerEnabled == 1;
+    public boolean isLogMonitorEnabled() {
+        return this.monitorSysGenServerSettingLogMonitorEnabled != null
+                && this.monitorSysGenServerSettingLogMonitorEnabled == 1;
     }
 
     /**
@@ -928,38 +833,60 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 判断是否启用进程监控
-     */
-    public boolean isProcessMonitorEnabled() {
-        return this.monitorSysGenServerSettingProcessMonitorEnabled != null && this.monitorSysGenServerSettingProcessMonitorEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用服务监控
-     */
-    public boolean isServiceMonitorEnabled() {
-        return this.monitorSysGenServerSettingServiceMonitorEnabled != null && this.monitorSysGenServerSettingServiceMonitorEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用端口监控
-     */
-    public boolean isPortMonitorEnabled() {
-        return this.monitorSysGenServerSettingPortMonitorEnabled != null && this.monitorSysGenServerSettingPortMonitorEnabled == 1;
-    }
-
-    /**
-     * 判断是否启用日志监控
-     */
-    public boolean isLogMonitorEnabled() {
-        return this.monitorSysGenServerSettingLogMonitorEnabled != null && this.monitorSysGenServerSettingLogMonitorEnabled == 1;
-    }
-
-    /**
      * 判断是否启用Docker TLS
      */
     public boolean isDockerTlsEnabled() {
-        return this.monitorSysGenServerSettingDockerTlsEnabled != null && this.monitorSysGenServerSettingDockerTlsEnabled == 1;
+        return this.monitorSysGenServerSettingDockerTlsEnabled != null
+                && this.monitorSysGenServerSettingDockerTlsEnabled == 1;
+    }
+
+    /**
+     * 获取监控端口列表
+     */
+    public java.util.List<Integer> getMonitorPortsList() {
+        if (this.monitorSysGenServerSettingMonitorPorts == null
+                || this.monitorSysGenServerSettingMonitorPorts.trim().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+
+        java.util.List<Integer> ports = new java.util.ArrayList<>();
+        String[] portStrings = this.monitorSysGenServerSettingMonitorPorts.split(",");
+        for (String portString : portStrings) {
+            try {
+                ports.add(Integer.parseInt(portString.trim()));
+            } catch (NumberFormatException e) {
+                // 忽略无效的端口号
+            }
+        }
+        return ports;
+    }
+
+    /**
+     * 设置监控端口列表
+     */
+    public void setMonitorPortsList(java.util.List<Integer> ports) {
+        if (ports == null || ports.isEmpty()) {
+            this.monitorSysGenServerSettingMonitorPorts = null;
+        } else {
+            this.monitorSysGenServerSettingMonitorPorts = ports.stream().map(String::valueOf)
+                    .collect(java.util.stream.Collectors.joining(","));
+        }
+    }
+
+    /**
+     * 是否启用Docker监控
+     */
+    public boolean isDockerMonitorEnabled() {
+        return this.monitorSysGenServerSettingDockerMonitorEnabled != null
+                && this.monitorSysGenServerSettingDockerMonitorEnabled == 1;
+    }
+
+    /**
+     * 判断是否启用文件管理
+     */
+    public boolean isFileManagementEnabled() {
+        return this.monitorSysGenServerSettingFileManagementEnabled != null
+                && this.monitorSysGenServerSettingFileManagementEnabled == 1;
     }
 
     /**
@@ -1051,60 +978,53 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 获取监控端口列表
+     * 获取文件管理模式
      */
-    public java.util.List<Integer> getMonitorPortsList() {
-        if (this.monitorSysGenServerSettingMonitorPorts == null || this.monitorSysGenServerSettingMonitorPorts.trim().isEmpty()) {
-            return new java.util.ArrayList<>();
-        }
-
-        java.util.List<Integer> ports = new java.util.ArrayList<>();
-        String[] portStrings = this.monitorSysGenServerSettingMonitorPorts.split(",");
-        for (String portString : portStrings) {
-            try {
-                ports.add(Integer.parseInt(portString.trim()));
-            } catch (NumberFormatException e) {
-                // 忽略无效的端口号
-            }
-        }
-        return ports;
+    public FileManagementMode getFileManagementMode() {
+        return monitorSysGenServerSettingFileManagementMode != null ? monitorSysGenServerSettingFileManagementMode
+                : FileManagementMode.NONE;
     }
 
     /**
-     * 设置监控端口列表
+     * 获取文件管理API配置对象
      */
-    public void setMonitorPortsList(java.util.List<Integer> ports) {
-        if (ports == null || ports.isEmpty()) {
-            this.monitorSysGenServerSettingMonitorPorts = null;
-        } else {
-            this.monitorSysGenServerSettingMonitorPorts = ports.stream()
-                .map(String::valueOf)
-                .collect(java.util.stream.Collectors.joining(","));
+    public FileManagementApiConfig getFileManagementApiConfigObject() {
+        if (monitorSysGenServerSettingFileManagementApiConfig == null
+                || monitorSysGenServerSettingFileManagementApiConfig.trim().isEmpty()) {
+            return FileManagementApiConfig.createDefault();
+        }
+
+        try {
+            return Json.fromJson(monitorSysGenServerSettingFileManagementApiConfig, FileManagementApiConfig.class);
+        } catch (Exception e) {
+            return FileManagementApiConfig.createDefault();
         }
     }
 
     /**
-     * 是否启用Docker监控
+     * 判断是否支持文件管理功能 需要启用文件管理且文件管理模式不为NONE
      */
-    public boolean isDockerMonitorEnabled() {
-        return this.monitorSysGenServerSettingDockerMonitorEnabled != null && this.monitorSysGenServerSettingDockerMonitorEnabled == 1;
+    public boolean supportsFileManagement() {
+        return isFileManagementEnabled() && getFileManagementMode().supportsFileManagement();
     }
 
     // ==================== 文件管理相关方法 ====================
 
     /**
-     * 判断是否启用文件管理
+     * 获取客户端健康状态检查间隔（秒） 如果未设置则返回默认值30秒
      */
-    public boolean isFileManagementEnabled() {
-        return this.monitorSysGenServerSettingFileManagementEnabled != null && this.monitorSysGenServerSettingFileManagementEnabled == 1;
+    public int getClientHealthCheckIntervalOrDefault() {
+        return monitorSysGenServerSettingClientHealthCheckInterval != null
+                ? monitorSysGenServerSettingClientHealthCheckInterval
+                : 30;
     }
 
     /**
-     * 获取文件管理模式
+     * 获取客户端健康状态超时时间（秒） 如果未设置则返回默认值10秒
      */
-    public FileManagementMode getFileManagementMode() {
-        return monitorSysGenServerSettingFileManagementMode != null ?
-               monitorSysGenServerSettingFileManagementMode : FileManagementMode.NONE;
+    public int getClientHealthTimeoutOrDefault() {
+        return monitorSysGenServerSettingClientHealthTimeout != null ? monitorSysGenServerSettingClientHealthTimeout
+                : 10;
     }
 
     /**
@@ -1115,19 +1035,11 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 获取文件管理API配置对象
+     * 获取文件管理操作超时时间（秒） 如果未设置则返回默认值60秒
      */
-    public FileManagementApiConfig getFileManagementApiConfigObject() {
-        if (monitorSysGenServerSettingFileManagementApiConfig == null ||
-            monitorSysGenServerSettingFileManagementApiConfig.trim().isEmpty()) {
-            return FileManagementApiConfig.createDefault();
-        }
-
-        try {
-            return Json.fromJson(monitorSysGenServerSettingFileManagementApiConfig, FileManagementApiConfig.class);
-        } catch (Exception e) {
-            return FileManagementApiConfig.createDefault();
-        }
+    public int getFileManagementTimeoutOrDefault() {
+        return monitorSysGenServerSettingFileManagementTimeout != null ? monitorSysGenServerSettingFileManagementTimeout
+                : 60;
     }
 
     /**
@@ -1146,12 +1058,12 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 判断是否支持文件管理功能
-     * 需要启用文件管理且文件管理模式不为NONE
+     * 获取文件管理最大重试次数 如果未设置则返回默认值3次
      */
-    public boolean supportsFileManagement() {
-        return isFileManagementEnabled() &&
-               getFileManagementMode().supportsFileManagement();
+    public int getFileManagementMaxRetriesOrDefault() {
+        return monitorSysGenServerSettingFileManagementMaxRetries != null
+                ? monitorSysGenServerSettingFileManagementMaxRetries
+                : 3;
     }
 
     /**
@@ -1162,38 +1074,132 @@ public class MonitorSysGenServerSetting extends SysBase {
     }
 
     /**
-     * 获取客户端健康状态检查间隔（秒）
-     * 如果未设置则返回默认值30秒
+     * 数据上报方式枚举
      */
-    public int getClientHealthCheckIntervalOrDefault() {
-        return monitorSysGenServerSettingClientHealthCheckInterval != null ?
-               monitorSysGenServerSettingClientHealthCheckInterval : 30;
+    public enum DataReportMethod {
+        NONE("NONE", "不支持上报"), LOCAL("LOCAL", "本地上报"), API("API", "接口上报"), PROMETHEUS("PROMETHEUS", "Prometheus");
+
+        private final String code;
+        private final String desc;
+
+        DataReportMethod(String code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static DataReportMethod fromCode(String code) {
+            for (DataReportMethod method : values()) {
+                if (method.code.equals(code)) {
+                    return method;
+                }
+            }
+            return NONE;
+        }
     }
 
     /**
-     * 获取客户端健康状态超时时间（秒）
-     * 如果未设置则返回默认值10秒
+     * Docker连接方式枚举
      */
-    public int getClientHealthTimeoutOrDefault() {
-        return monitorSysGenServerSettingClientHealthTimeout != null ?
-               monitorSysGenServerSettingClientHealthTimeout : 10;
+    public enum DockerConnectionType {
+        SHELL("SHELL", "命令行"), TCP("TCP", "TCP连接"), SOCKET("SOCKET", "Unix Socket");
+
+        private final String code;
+        private final String desc;
+
+        DockerConnectionType(String code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static DockerConnectionType fromCode(String code) {
+            for (DockerConnectionType type : values()) {
+                if (type.code.equals(code)) {
+                    return type;
+                }
+            }
+            return SHELL;
+        }
     }
 
     /**
-     * 获取文件管理操作超时时间（秒）
-     * 如果未设置则返回默认值60秒
+     * 代理类型枚举
      */
-    public int getFileManagementTimeoutOrDefault() {
-        return monitorSysGenServerSettingFileManagementTimeout != null ?
-               monitorSysGenServerSettingFileManagementTimeout : 60;
+    public enum ProxyType {
+        HTTP("HTTP", "HTTP代理"), SOCKS4("SOCKS4", "SOCKS4代理"), SOCKS5("SOCKS5", "SOCKS5代理"),
+        SSH_TUNNEL("SSH_TUNNEL", "SSH隧道"), GUACAMOLE("GUACAMOLE", "Guacamole代理");
+
+        private final String code;
+        private final String desc;
+
+        ProxyType(String code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static ProxyType fromCode(String code) {
+            for (ProxyType type : values()) {
+                if (type.code.equals(code)) {
+                    return type;
+                }
+            }
+            return HTTP;
+        }
     }
 
     /**
-     * 获取文件管理最大重试次数
-     * 如果未设置则返回默认值3次
+     * 告警通知方式枚举
      */
-    public int getFileManagementMaxRetriesOrDefault() {
-        return monitorSysGenServerSettingFileManagementMaxRetries != null ?
-               monitorSysGenServerSettingFileManagementMaxRetries : 3;
+    public enum AlertNotificationMethod {
+        EMAIL("EMAIL", "邮件"), SMS("SMS", "短信"), WEBHOOK("WEBHOOK", "Webhook"), DINGTALK("DINGTALK", "钉钉"),
+        WECHAT("WECHAT", "微信");
+
+        private final String code;
+        private final String desc;
+
+        AlertNotificationMethod(String code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static AlertNotificationMethod fromCode(String code) {
+            for (AlertNotificationMethod method : values()) {
+                if (method.code.equals(code)) {
+                    return method;
+                }
+            }
+            return EMAIL;
+        }
     }
 }
