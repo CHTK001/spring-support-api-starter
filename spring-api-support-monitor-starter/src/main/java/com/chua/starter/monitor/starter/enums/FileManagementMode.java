@@ -17,6 +17,11 @@ public enum FileManagementMode {
     NONE("NONE", "不启用", "不提供文件管理功能"),
 
     /**
+     * 本地模式 - 直接访问本地文件系统
+     */
+    LOCAL("LOCAL", "本地连接", "直接访问服务器本地文件系统，仅适用于本地服务器"),
+
+    /**
      * SSH模式 - 通过SSH/SFTP协议进行文件管理
      */
     SSH("SSH", "SSH模式", "通过SSH/SFTP协议直接访问服务器文件系统"),
@@ -60,7 +65,7 @@ public enum FileManagementMode {
         if (code == null) {
             return NONE;
         }
-        
+
         for (FileManagementMode mode : values()) {
             if (mode.code.equals(code)) {
                 return mode;
@@ -76,7 +81,7 @@ public enum FileManagementMode {
         if (name == null) {
             return NONE;
         }
-        
+
         for (FileManagementMode mode : values()) {
             if (mode.name.equals(name)) {
                 return mode;
@@ -90,6 +95,13 @@ public enum FileManagementMode {
      */
     public boolean supportsFileManagement() {
         return this != NONE;
+    }
+
+    /**
+     * 判断是否需要本地文件系统访问
+     */
+    public boolean requiresLocalFileSystem() {
+        return this == LOCAL;
     }
 
     /**
@@ -131,42 +143,42 @@ public enum FileManagementMode {
      * 判断是否支持实时文件操作
      */
     public boolean supportsRealtimeOperations() {
-        return this == SSH || this == API || this == NODE;
+        return this == LOCAL || this == SSH || this == API || this == NODE;
     }
 
     /**
      * 判断是否支持大文件传输
      */
     public boolean supportsLargeFileTransfer() {
-        return this == SSH || this == API || this == NODE;
+        return this == LOCAL || this == SSH || this == API || this == NODE;
     }
 
     /**
      * 判断是否支持文件权限管理
      */
     public boolean supportsPermissionManagement() {
-        return this == SSH;
+        return this == LOCAL || this == SSH;
     }
 
     /**
      * 判断是否支持文件压缩/解压
      */
     public boolean supportsArchiveOperations() {
-        return this == SSH || this == API || this == NODE;
+        return this == LOCAL || this == SSH || this == API || this == NODE;
     }
 
     /**
      * 判断是否支持文件搜索
      */
     public boolean supportsFileSearch() {
-        return this == SSH || this == API || this == NODE;
+        return this == LOCAL || this == SSH || this == API || this == NODE;
     }
 
     /**
      * 判断是否支持文件预览
      */
     public boolean supportsFilePreview() {
-        return this == SSH || this == API || this == NODE;
+        return this == LOCAL || this == SSH || this == API || this == NODE;
     }
 
     /**
@@ -174,21 +186,18 @@ public enum FileManagementMode {
      */
     public String[] getSupportedOperations() {
         switch (this) {
+            case LOCAL:
+                return new String[]{"LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR", "COPY", "MOVE",
+                        "CHMOD", "CHOWN", "SEARCH", "PREVIEW", "INFO", "COMPRESS", "EXTRACT"};
             case SSH:
-                return new String[]{
-                    "LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR",
-                    "COPY", "MOVE", "CHMOD", "CHOWN", "SEARCH", "PREVIEW", "INFO"
-                };
+                return new String[]{"LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR", "COPY", "MOVE",
+                        "CHMOD", "CHOWN", "SEARCH", "PREVIEW", "INFO"};
             case NODE:
-                return new String[]{
-                    "LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR",
-                    "COPY", "MOVE", "SEARCH", "PREVIEW", "INFO", "COMPRESS", "EXTRACT"
-                };
+                return new String[]{"LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR", "COPY", "MOVE",
+                        "SEARCH", "PREVIEW", "INFO", "COMPRESS", "EXTRACT"};
             case API:
-                return new String[]{
-                    "LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR",
-                    "COPY", "MOVE", "SEARCH", "PREVIEW", "INFO", "COMPRESS", "EXTRACT"
-                };
+                return new String[]{"LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR", "COPY", "MOVE",
+                        "SEARCH", "PREVIEW", "INFO", "COMPRESS", "EXTRACT"};
             case NONE:
             default:
                 return new String[0];
@@ -202,7 +211,7 @@ public enum FileManagementMode {
         if (operation == null) {
             return false;
         }
-        
+
         String[] supportedOps = getSupportedOperations();
         for (String op : supportedOps) {
             if (op.equalsIgnoreCase(operation)) {
@@ -217,6 +226,8 @@ public enum FileManagementMode {
      */
     public int getDefaultTimeout() {
         switch (this) {
+            case LOCAL:
+                return 30; // 本地操作默认30秒超时
             case SSH:
                 return 60; // SSH操作默认60秒超时
             case NODE:
@@ -234,6 +245,8 @@ public enum FileManagementMode {
      */
     public int getDefaultMaxRetries() {
         switch (this) {
+            case LOCAL:
+                return 1; // 本地操作默认重试1次
             case SSH:
                 return 2; // SSH操作默认重试2次
             case NODE:
@@ -275,7 +288,7 @@ public enum FileManagementMode {
         if (os == null) {
             return false;
         }
-        
+
         String[] supportedOs = getSupportedOperatingSystems();
         for (String supportedOsName : supportedOs) {
             if (supportedOsName.equalsIgnoreCase(os)) {
