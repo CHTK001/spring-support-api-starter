@@ -121,6 +121,220 @@ public class ServerWebSocketMessage implements Serializable {
     private Object data;
 
     /**
+     * 创建连接状态变化消息
+     */
+    public static ServerWebSocketMessage createConnectionStatusMessage(Integer serverId, String serverName,
+                                                                       String serverHost, Integer serverPort, String serverProtocol, Integer connectionStatus,
+                                                                       String statusDesc, String errorMessage, Long responseTime) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.CONNECTION_STATUS_CHANGE)
+                .serverId(serverId).serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol(serverProtocol).connectionStatus(connectionStatus)
+                .statusDesc(statusDesc).errorMessage(errorMessage).responseTime(responseTime)
+                .connectTime(LocalDateTime.now()).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建SSH数据消息
+     */
+    public static ServerWebSocketMessage createSSHDataMessage(Integer serverId, String serverName, String data) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.SSH_DATA).serverId(serverId)
+                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建SSH连接消息
+     */
+    public static ServerWebSocketMessage createSSHConnectMessage(Integer serverId, String serverName,
+                                                                 String serverHost, Integer serverPort) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.SSH_CONNECT).serverId(serverId)
+                .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol("SSH").connectTime(LocalDateTime.now())
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建SSH断开连接消息
+     */
+    public static ServerWebSocketMessage createSSHDisconnectMessage(Integer serverId, String serverName,
+                                                                    String reason) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.SSH_DISCONNECT).serverId(serverId)
+                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建SSH错误消息
+     */
+    public static ServerWebSocketMessage createSSHErrorMessage(Integer serverId, String serverName,
+                                                               String errorMessage) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.SSH_ERROR).serverId(serverId)
+                .serverName(serverName).errorMessage(errorMessage).timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建Shell输出消息
+     */
+    public static ServerWebSocketMessage createShellOutputMessage(Integer serverId, String serverName,
+                                                                  String output) {
+        Map<String, Object> shellData = new HashMap<>();
+        shellData.put("output", output);
+        shellData.put("type", "output");
+
+        return ServerWebSocketMessage.builder().messageType(MessageType.SHELL_OUTPUT).serverId(serverId)
+                .serverName(serverName).data(shellData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建服务器指标消息
+     */
+    public static ServerWebSocketMessage createServerMetricsMessage(Integer serverId, String serverName,
+                                                                    Object metricsData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.SERVER_METRICS).serverId(serverId)
+                .serverName(serverName).data(metricsData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建VNC数据消息
+     */
+    public static ServerWebSocketMessage createVncDataMessage(Integer serverId, String serverName, Object data) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_DATA).serverId(serverId)
+                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建VNC输入消息
+     */
+    public static ServerWebSocketMessage createVncInputMessage(Integer serverId, String serverName,
+                                                               Object inputData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_INPUT).serverId(serverId)
+                .serverName(serverName).data(inputData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建RDP数据消息
+     */
+    public static ServerWebSocketMessage createRdpDataMessage(Integer serverId, String serverName, Object data) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_DATA).serverId(serverId)
+                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建RDP输入消息
+     */
+    public static ServerWebSocketMessage createRdpInputMessage(Integer serverId, String serverName,
+                                                               Object inputData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_INPUT).serverId(serverId)
+                .serverName(serverName).data(inputData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建RDP连接消息
+     */
+    public static ServerWebSocketMessage createRdpConnectionMessage(Integer serverId, String serverName,
+                                                                    String status) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_CONNECT).serverId(serverId)
+                .serverName(serverName).data(Map.of("status", status))
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建RDP断开连接消息
+     */
+    public static ServerWebSocketMessage createRdpDisconnectMessage(Integer serverId, String serverName,
+                                                                    String reason) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_DISCONNECT).serverId(serverId)
+                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建VNC连接消息
+     */
+    public static ServerWebSocketMessage createVncConnectionMessage(Integer serverId, String serverName,
+                                                                    String status) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_CONNECT).serverId(serverId)
+                .serverName(serverName).data(Map.of("status", status))
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建VNC断开连接消息
+     */
+    public static ServerWebSocketMessage createVncDisconnectMessage(Integer serverId, String serverName,
+                                                                    String reason) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_DISCONNECT).serverId(serverId)
+                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 创建自定义消息
+     */
+    public static ServerWebSocketMessage createCustomMessage(Integer serverId, String serverName,
+                                                             Map<String, Object> customData) {
+        String messageType = (String) customData.getOrDefault("type", "custom");
+
+        return ServerWebSocketMessage.builder().messageType(messageType).serverId(serverId)
+                .serverName(serverName).data(customData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建节点状态更新消息
+     */
+    public static ServerWebSocketMessage createNodeStatusUpdateMessage(String nodeId, Object nodeData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.NODE_STATUS_UPDATE).data(nodeData)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建节点列表更新消息
+     */
+    public static ServerWebSocketMessage createNodeListUpdateMessage(Object nodeListData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.NODE_LIST_UPDATE).data(nodeListData)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建节点统计信息更新消息
+     */
+    public static ServerWebSocketMessage createNodeStatisticsUpdateMessage(Object statisticsData) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.NODE_STATISTICS_UPDATE)
+                .data(statisticsData).timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建节点连接消息
+     */
+    public static ServerWebSocketMessage createNodeConnectMessage(String nodeId, String nodeName, String ipAddress,
+                                                                  Integer port) {
+        Map<String, Object> nodeData = new HashMap<>();
+        nodeData.put("nodeId", nodeId);
+        nodeData.put("nodeName", nodeName);
+        nodeData.put("ipAddress", ipAddress);
+        nodeData.put("port", port);
+        nodeData.put("connectTime", LocalDateTime.now());
+
+        return ServerWebSocketMessage.builder().messageType(MessageType.NODE_CONNECT).data(nodeData)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建节点断开连接消息
+     */
+    public static ServerWebSocketMessage createNodeDisconnectMessage(String nodeId, String nodeName,
+                                                                     String reason) {
+        Map<String, Object> nodeData = new HashMap<>();
+        nodeData.put("nodeId", nodeId);
+        nodeData.put("nodeName", nodeName);
+        nodeData.put("reason", reason);
+        nodeData.put("disconnectTime", LocalDateTime.now());
+
+        return ServerWebSocketMessage.builder().messageType(MessageType.NODE_DISCONNECT).data(nodeData)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
      * 消息类型常量
      */
     public static class MessageType {
@@ -155,252 +369,11 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String RDP_DISCONNECT = "rdp_disconnect";
         public static final String RDP_ERROR = "rdp_error";
 
-
+        // 节点管理相关消息类型
+        public static final String NODE_STATUS_UPDATE = "node_status_update";
+        public static final String NODE_LIST_UPDATE = "node_list_update";
+        public static final String NODE_STATISTICS_UPDATE = "node_statistics_update";
+        public static final String NODE_CONNECT = "node_connect";
+        public static final String NODE_DISCONNECT = "node_disconnect";
     }
-
-    /**
-     * 创建连接状态变化消息
-     */
-    public static ServerWebSocketMessage createConnectionStatusMessage(
-            Integer serverId, String serverName, String serverHost, Integer serverPort, 
-            String serverProtocol, Integer connectionStatus, String statusDesc, 
-            String errorMessage, Long responseTime) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.CONNECTION_STATUS_CHANGE)
-                .serverId(serverId)
-                .serverName(serverName)
-                .serverHost(serverHost)
-                .serverPort(serverPort)
-                .serverProtocol(serverProtocol)
-                .connectionStatus(connectionStatus)
-                .statusDesc(statusDesc)
-                .errorMessage(errorMessage)
-                .responseTime(responseTime)
-                .connectTime(LocalDateTime.now())
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建SSH数据消息
-     */
-    public static ServerWebSocketMessage createSSHDataMessage(
-            Integer serverId, String serverName, String data) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SSH_DATA)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(data)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建SSH连接消息
-     */
-    public static ServerWebSocketMessage createSSHConnectMessage(
-            Integer serverId, String serverName, String serverHost, Integer serverPort) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SSH_CONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .serverHost(serverHost)
-                .serverPort(serverPort)
-                .serverProtocol("SSH")
-                .connectTime(LocalDateTime.now())
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建SSH断开连接消息
-     */
-    public static ServerWebSocketMessage createSSHDisconnectMessage(
-            Integer serverId, String serverName, String reason) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SSH_DISCONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .errorMessage(reason)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建SSH错误消息
-     */
-    public static ServerWebSocketMessage createSSHErrorMessage(
-            Integer serverId, String serverName, String errorMessage) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SSH_ERROR)
-                .serverId(serverId)
-                .serverName(serverName)
-                .errorMessage(errorMessage)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建Shell输出消息
-     */
-    public static ServerWebSocketMessage createShellOutputMessage(
-            Integer serverId, String serverName, String output) {
-        Map<String, Object> shellData = new HashMap<>();
-        shellData.put("output", output);
-        shellData.put("type", "output");
-
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SHELL_OUTPUT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(shellData)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建服务器指标消息
-     */
-    public static ServerWebSocketMessage createServerMetricsMessage(
-            Integer serverId, String serverName, Object metricsData) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.SERVER_METRICS)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(metricsData)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建VNC数据消息
-     */
-    public static ServerWebSocketMessage createVncDataMessage(
-            Integer serverId, String serverName, Object data) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.VNC_DATA)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(data)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建VNC输入消息
-     */
-    public static ServerWebSocketMessage createVncInputMessage(
-            Integer serverId, String serverName, Object inputData) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.VNC_INPUT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(inputData)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建RDP数据消息
-     */
-    public static ServerWebSocketMessage createRdpDataMessage(
-            Integer serverId, String serverName, Object data) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.RDP_DATA)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(data)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建RDP输入消息
-     */
-    public static ServerWebSocketMessage createRdpInputMessage(
-            Integer serverId, String serverName, Object inputData) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.RDP_INPUT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(inputData)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建RDP连接消息
-     */
-    public static ServerWebSocketMessage createRdpConnectionMessage(
-            Integer serverId, String serverName, String status) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.RDP_CONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(Map.of("status", status))
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建RDP断开连接消息
-     */
-    public static ServerWebSocketMessage createRdpDisconnectMessage(
-            Integer serverId, String serverName, String reason) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.RDP_DISCONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .errorMessage(reason)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建VNC连接消息
-     */
-    public static ServerWebSocketMessage createVncConnectionMessage(
-            Integer serverId, String serverName, String status) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.VNC_CONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(Map.of("status", status))
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建VNC断开连接消息
-     */
-    public static ServerWebSocketMessage createVncDisconnectMessage(
-            Integer serverId, String serverName, String reason) {
-        return ServerWebSocketMessage.builder()
-                .messageType(MessageType.VNC_DISCONNECT)
-                .serverId(serverId)
-                .serverName(serverName)
-                .errorMessage(reason)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-    /**
-     * 创建自定义消息
-     */
-    public static ServerWebSocketMessage createCustomMessage(
-            Integer serverId, String serverName, Map<String, Object> customData) {
-        String messageType = (String) customData.getOrDefault("type", "custom");
-
-        return ServerWebSocketMessage.builder()
-                .messageType(messageType)
-                .serverId(serverId)
-                .serverName(serverName)
-                .data(customData)
-                .timestamp(System.currentTimeMillis())
-                .build();
-    }
-
-
-
-
 }

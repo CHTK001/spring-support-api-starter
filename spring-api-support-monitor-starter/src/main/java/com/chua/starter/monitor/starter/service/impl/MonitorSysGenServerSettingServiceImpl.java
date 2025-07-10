@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,7 +10,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory;
-import com.chua.starter.monitor.starter.enums.FileManagementMode;
+// 移除 FileManagementMode 导入，改为使用字符串比较
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
@@ -107,50 +109,31 @@ public class MonitorSysGenServerSettingServiceImpl
     @CacheEvict(value = "serverSetting", key = "#setting.monitorSysGenServerId")
     public ReturnResult<Boolean> saveOrUpdateSetting(MonitorSysGenServerSetting setting) {
         try {
-            // 验证配置有效性
-            ReturnResult<Boolean> validateResult = validateSetting(setting);
-            if (!validateResult.isOk()) {
-                return validateResult;
+            // 基本参数验证
+            if (setting == null || setting.getMonitorSysGenServerId() == null) {
+                return ReturnResult.error("服务器配置或服务器ID不能为空");
             }
 
-            boolean result = this.saveOrUpdate(setting);
+            // 先判断服务器是否已有配置
+            MonitorSysGenServerSetting existingSetting = baseMapper
+                    .selectByServerId(setting.getMonitorSysGenServerId());
+            boolean result;
+            String operation;
 
-            // 如果保存成功，更新相关任务配置
-            if (result && setting.getMonitorSysGenServerId() != null) {
-                try {
-                    serverTaskManagementService.updateServerTasks(setting.getMonitorSysGenServerId());
-                    log.debug("更新服务器 {} 任务配置成功", setting.getMonitorSysGenServerId());
-                } catch (Exception e) {
-                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
-                    // 不影响配置保存的结果
-                }
-
-                // 通过任务管理器更新数据推送和监控配置
-                try {
-                    Integer serverId = setting.getMonitorSysGenServerId();
-                    // 任务管理器会根据配置自动启动或停止相应的任务
-                    serverTaskManager.updateServerTasks(serverId);
-                    log.debug("更新服务器 {} 任务配置成功", serverId);
-                } catch (Exception e) {
-                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
-                    // 不影响配置保存的结果
-                }
-
-                // 根据配置更新服务器任务
-                try {
-                    Integer serverId = setting.getMonitorSysGenServerId();
-
-                    // 更新服务器任务配置（会自动根据配置启动或停止相应任务）
-                    serverTaskManager.updateServerTasks(serverId);
-                    log.debug("更新服务器 {} 的任务配置", serverId);
-
-                } catch (Exception e) {
-                    log.error("更新服务器任务配置失败: serverId={}", setting.getMonitorSysGenServerId(), e);
-                    // 不影响配置保存的结果
-                }
+            if (existingSetting == null) {
+                // 没有配置，执行保存操作
+                result = this.save(setting);
+                operation = "保存";
+                log.info("服务器 {} 没有配置，执行保存操作: {}", setting.getMonitorSysGenServerId(), result ? "成功" : "失败");
+            } else {
+                // 有配置，执行更新操作
+                setting.setMonitorSysGenServerSettingId(existingSetting.getMonitorSysGenServerSettingId());
+                result = this.updateById(setting);
+                operation = "更新";
+                log.info("服务器 {} 已有配置，执行更新操作: {}", setting.getMonitorSysGenServerId(), result ? "成功" : "失败");
             }
 
-            return ReturnResult.of(result, result ? "保存成功" : "保存失败");
+            return ReturnResult.of(result, result ? operation + "成功" : operation + "失败");
         } catch (Exception e) {
             log.error("保存服务器配置失败: {}", e.getMessage(), e);
             return ReturnResult.error("保存失败: " + e.getMessage());
@@ -412,6 +395,12 @@ public class MonitorSysGenServerSettingServiceImpl
             setting.setMonitorSysGenServerSettingProxyEnabled(0); // 默认不启用代理
             setting.setMonitorSysGenServerSettingProxyHost("localhost"); // 默认代理主机
             setting.setMonitorSysGenServerSettingProxyPort(4822); // 默认Guacamole代理端口
+
+            // 设置默认文件管理配置
+            setting.setMonitorSysGenServerSettingFileManagementEnabled(0); // 默认不启用文件管理
+            setting.setMonitorSysGenServerSettingFileManagementMode("NONE"); // 默认不启用文件管理
+            setting.setMonitorSysGenServerSettingFileManagementTimeout(60); // 默认超时60秒
+            setting.setMonitorSysGenServerSettingFileManagementMaxRetries(3); // 默认重试3次
 
             setting.setCreateTime(LocalDateTime.now());
             setting.setUpdateTime(LocalDateTime.now());
@@ -814,7 +803,7 @@ public class MonitorSysGenServerSettingServiceImpl
                 return ReturnResult.error("服务器配置不存在");
             }
 
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.error("告警功能未启用");
             }
 
@@ -852,7 +841,7 @@ public class MonitorSysGenServerSettingServiceImpl
                 return ReturnResult.error("服务器配置不存在");
             }
 
-            if (!setting.isMonitorEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isMonitorEnabled(setting)) {
                 return ReturnResult.error("监控功能未启用");
             }
 
@@ -980,24 +969,25 @@ public class MonitorSysGenServerSettingServiceImpl
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            FileManagementMode fileManagementMode = setting.getMonitorSysGenServerSettingFileManagementMode();
+            String fileManagementModeStr = setting.getMonitorSysGenServerSettingFileManagementMode();
 
-            if (null == fileManagementMode || fileManagementMode == FileManagementMode.NONE) {
+            if (fileManagementModeStr == null || fileManagementModeStr.trim().isEmpty()
+                    || "NONE".equals(fileManagementModeStr)) {
                 return ReturnResult.error("文件管理功能未启用");
             }
 
             // 根据不同模式进行连接测试
-            switch (fileManagementMode) {
-                case LOCAL:
+            switch (fileManagementModeStr.toUpperCase()) {
+                case "LOCAL":
                     return testLocalFileManagement();
-                case SSH:
+                case "SSH":
                     return testSshFileManagement(serverId);
-                case NODE:
+                case "NODE":
                     return testNodeFileManagement(serverId, setting);
-                case API:
+                case "API":
                     return testApiFileManagement(setting);
                 default:
-                    return ReturnResult.error("不支持的文件管理模式: " + fileManagementMode);
+                    return ReturnResult.error("不支持的文件管理模式: " + fileManagementModeStr);
             }
         } catch (Exception e) {
             log.error("测试文件管理连接失败: serverId={}", serverId, e);
@@ -1177,7 +1167,10 @@ public class MonitorSysGenServerSettingServiceImpl
 
     /**
      * 记录配置变更历史
+     *
+     * @deprecated 暂未使用，预留给将来的配置变更历史记录功能
      */
+    @SuppressWarnings("unused")
     private void recordSettingHistory(Integer serverId, Long settingId,
                                       MonitorSysGenServerSettingHistory.ChangeType changeType, String description, String user) {
         try {

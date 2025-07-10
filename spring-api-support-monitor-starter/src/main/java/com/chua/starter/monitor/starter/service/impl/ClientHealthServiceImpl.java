@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+
 import com.chua.starter.monitor.starter.pojo.ClientHealthReport;
 import com.chua.starter.monitor.starter.pojo.ClientHealthStatus;
 import com.chua.starter.monitor.starter.service.ClientHealthService;
@@ -48,19 +50,19 @@ public class ClientHealthServiceImpl implements ClientHealthService {
 
             // 创建存储对象
             ClientHealthStatus status = ClientHealthStatus.fromReport(report);
-            
+
             // 存储到Redis，设置TTL为10秒
             String key = status.getRedisKey();
             String value = Json.toJson(status);
-            
+
             redisTemplate.opsForValue().set(key, value, 10, TimeUnit.SECONDS);
-            
+
             // 更新统计信息
             updateStatistics(status);
-            
+
             log.debug("客户端健康状态上报成功: {}", status.getClientAddress());
             return ReturnResult.ok();
-            
+
         } catch (Exception e) {
             log.error("客户端健康状态上报失败", e);
             return ReturnResult.error("客户端健康状态上报失败: " + e.getMessage());
@@ -72,14 +74,14 @@ public class ClientHealthServiceImpl implements ClientHealthService {
         try {
             String key = ClientHealthStatus.getRedisKey(clientIp, clientPort);
             String value = redisTemplate.opsForValue().get(key);
-            
+
             if (value == null) {
                 return ReturnResult.error("客户端健康状态不存在或已过期");
             }
-            
+
             ClientHealthStatus status = Json.fromJson(value, ClientHealthStatus.class);
             return ReturnResult.ok(status);
-            
+
         } catch (Exception e) {
             log.error("获取客户端健康状态失败", e);
             return ReturnResult.error("获取客户端健康状态失败: " + e.getMessage());
@@ -93,11 +95,11 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             if (!result.isSuccess()) {
                 return ReturnResult.ok(false);
             }
-            
+
             ClientHealthStatus status = result.getData();
             boolean online = status != null && status.isOnlineAndValid();
             return ReturnResult.ok(online);
-            
+
         } catch (Exception e) {
             log.error("检查客户端在线状态失败", e);
             return ReturnResult.ok(false);
@@ -111,10 +113,10 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             if (keys == null || keys.isEmpty()) {
                 return ReturnResult.ok(new ArrayList<>());
             }
-            
+
             List<String> values = redisTemplate.opsForValue().multiGet(keys);
             List<ClientHealthStatus> onlineClients = new ArrayList<>();
-            
+
             for (String value : values) {
                 if (value != null) {
                     try {
@@ -127,9 +129,9 @@ public class ClientHealthServiceImpl implements ClientHealthService {
                     }
                 }
             }
-            
+
             return ReturnResult.ok(onlineClients);
-            
+
         } catch (Exception e) {
             log.error("获取在线客户端列表失败", e);
             return ReturnResult.error("获取在线客户端列表失败: " + e.getMessage());
@@ -141,11 +143,11 @@ public class ClientHealthServiceImpl implements ClientHealthService {
         try {
             String value = redisTemplate.opsForValue().get(REDIS_STATISTICS_KEY);
             Map<String, Object> statistics = new HashMap<>();
-            
+
             if (value != null) {
                 statistics = Json.fromJson(value, Map.class);
             }
-            
+
             // 实时统计在线客户端数量
             ReturnResult<List<ClientHealthStatus>> onlineResult = getAllHealthyClients();
             if (onlineResult.isSuccess()) {
@@ -158,9 +160,9 @@ public class ClientHealthServiceImpl implements ClientHealthService {
                 statistics.put("healthyCount", healthyCount);
                 statistics.put("unhealthyCount", onlineClients.size() - healthyCount);
             }
-            
+
             return ReturnResult.ok(statistics);
-            
+
         } catch (Exception e) {
             log.error("获取健康状态统计信息失败", e);
             return ReturnResult.error("获取健康状态统计信息失败: " + e.getMessage());
@@ -174,7 +176,7 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             if (keys == null || keys.isEmpty()) {
                 return ReturnResult.ok(0);
             }
-            
+
             int cleanedCount = 0;
             for (String key : keys) {
                 String value = redisTemplate.opsForValue().get(key);
@@ -192,10 +194,10 @@ public class ClientHealthServiceImpl implements ClientHealthService {
                     }
                 }
             }
-            
+
             log.info("清理过期的客户端健康状态记录: {} 条", cleanedCount);
             return ReturnResult.ok(cleanedCount);
-            
+
         } catch (Exception e) {
             log.error("清理过期记录失败", e);
             return ReturnResult.error("清理过期记录失败: " + e.getMessage());
@@ -206,7 +208,7 @@ public class ClientHealthServiceImpl implements ClientHealthService {
     public ReturnResult<Map<String, Boolean>> batchCheckOnlineStatus(List<String> clientAddresses) {
         try {
             Map<String, Boolean> statusMap = new HashMap<>();
-            
+
             for (String address : clientAddresses) {
                 String[] parts = address.split(":");
                 if (parts.length == 2) {
@@ -222,9 +224,9 @@ public class ClientHealthServiceImpl implements ClientHealthService {
                     statusMap.put(address, false);
                 }
             }
-            
+
             return ReturnResult.ok(statusMap);
-            
+
         } catch (Exception e) {
             log.error("批量检查客户端在线状态失败", e);
             return ReturnResult.error("批量检查客户端在线状态失败: " + e.getMessage());
@@ -245,26 +247,26 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             if (!settingResult.isSuccess()) {
                 return ReturnResult.error("服务器配置不存在");
             }
-            
+
             MonitorSysGenServerSetting setting = settingResult.getData();
-            
+
             // 检查是否需要客户端健康状态验证
-            if (!setting.requiresClientHealthCheck()) {
+            if (!MonitorSysGenServerSettingUtils.requiresClientHealthCheck(setting)) {
                 return ReturnResult.error("服务器未启用客户端健康状态验证");
             }
-            
+
             // 获取API配置
-            var apiConfig = setting.getFileManagementApiConfigObject();
+            var apiConfig = MonitorSysGenServerSettingUtils.getFileManagementApiConfigObject(setting);
             String clientHost = apiConfig.useClientAddress() ? null : apiConfig.getApiHost();
             Integer clientPort = apiConfig.useClientPort() ? null : apiConfig.getApiPort();
-            
+
             // 如果配置为使用客户端地址，需要从其他地方获取
             if (clientHost == null || clientPort == null) {
                 return ReturnResult.error("无法确定客户端地址，请检查文件管理API配置");
             }
-            
+
             return getClientHealth(clientHost, clientPort);
-            
+
         } catch (Exception e) {
             log.error("获取服务器客户端健康状态失败", e);
             return ReturnResult.error("获取服务器客户端健康状态失败: " + e.getMessage());
@@ -278,11 +280,11 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             if (!result.isSuccess()) {
                 return ReturnResult.ok(false);
             }
-            
+
             ClientHealthStatus status = result.getData();
             boolean online = status != null && status.isOnlineAndValid();
             return ReturnResult.ok(online);
-            
+
         } catch (Exception e) {
             log.error("检查服务器客户端在线状态失败", e);
             return ReturnResult.ok(false);
@@ -297,10 +299,10 @@ public class ClientHealthServiceImpl implements ClientHealthService {
             Map<String, Object> statistics = new HashMap<>();
             statistics.put("lastReportTime", LocalDateTime.now());
             statistics.put("lastReportClient", status.getClientAddress());
-            
+
             String value = Json.toJson(statistics);
             redisTemplate.opsForValue().set(REDIS_STATISTICS_KEY, value, 1, TimeUnit.HOURS);
-            
+
         } catch (Exception e) {
             log.warn("更新统计信息失败", e);
         }
