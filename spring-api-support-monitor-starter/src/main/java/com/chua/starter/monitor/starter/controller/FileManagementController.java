@@ -1,16 +1,9 @@
 package com.chua.starter.monitor.starter.controller;
 
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
-
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.impl.ApiFileManagementServiceImpl;
-import com.chua.starter.monitor.starter.service.impl.NodeFileManagementServiceImpl;
-import com.chua.starter.monitor.starter.service.impl.SshFileManagementServiceImpl;
+import com.chua.starter.monitor.starter.service.impl.FileManagementFacadeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,15 +31,12 @@ import java.nio.charset.StandardCharsets;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/file-management")
+@RequestMapping("v1/file-management")
 @RequiredArgsConstructor
 @Tag(name = "文件管理", description = "文件管理相关接口")
 public class FileManagementController {
 
-    private final MonitorSysGenServerSettingService serverSettingService;
-    private final SshFileManagementServiceImpl sshFileManagementService;
-    private final NodeFileManagementServiceImpl nodeFileManagementService;
-    private final ApiFileManagementServiceImpl apiFileManagementService;
+    private final FileManagementFacadeServiceImpl fileManagementFacadeService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")
@@ -58,27 +47,7 @@ public class FileManagementController {
             @Parameter(description = "排序字段") @RequestParam(defaultValue = "name") String sortBy,
             @Parameter(description = "排序方向") @RequestParam(defaultValue = "asc") String sortOrder) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
-                case "NODE":
-                    return nodeFileManagementService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
-                case "API":
-                    return apiFileManagementService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("列出文件失败: serverId={}, path={}", serverId, path, e);
-            return ReturnResult.error("列出文件失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
     }
 
     @Operation(summary = "获取文件树", description = "获取指定路径的文件树结构")
@@ -89,27 +58,7 @@ public class FileManagementController {
             @Parameter(description = "最大深度") @RequestParam(defaultValue = "3") Integer maxDepth,
             @Parameter(description = "是否包含隐藏文件") @RequestParam(defaultValue = "false") Boolean includeHidden) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.getFileTree(serverId, path, maxDepth, includeHidden);
-                case "NODE":
-                    return nodeFileManagementService.getFileTree(serverId, path, maxDepth, includeHidden);
-                case "API":
-                    return apiFileManagementService.getFileTree(serverId, path, maxDepth, includeHidden);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("获取文件树失败: serverId={}, path={}", serverId, path, e);
-            return ReturnResult.error("获取文件树失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.getFileTree(serverId, path, maxDepth, includeHidden);
     }
 
     @Operation(summary = "上传文件", description = "上传文件到指定路径")
@@ -120,27 +69,7 @@ public class FileManagementController {
             @Parameter(description = "上传文件", required = true) @RequestParam("file") MultipartFile file,
             @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.uploadFile(serverId, targetPath, file, overwrite);
-                case "NODE":
-                    return nodeFileManagementService.uploadFile(serverId, targetPath, file, overwrite);
-                case "API":
-                    return apiFileManagementService.uploadFile(serverId, targetPath, file, overwrite);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("上传文件失败: serverId={}, targetPath={}", serverId, targetPath, e);
-            return ReturnResult.error("上传文件失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.uploadFile(serverId, targetPath, file, overwrite);
     }
 
     @Operation(summary = "下载文件", description = "下载指定文件")
@@ -150,30 +79,7 @@ public class FileManagementController {
             HttpServletResponse response) {
 
         try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                response.setStatus(HttpStatus.BAD_REQUEST.value());
-                response.getWriter().write("服务器文件管理模式未配置");
-                return;
-            }
-
-            ReturnResult<FileOperationResponse> result;
-            switch (mode) {
-                case "SSH":
-                    result = sshFileManagementService.downloadFile(serverId, filePath);
-                    break;
-                case "NODE":
-                    result = nodeFileManagementService.downloadFile(serverId, filePath);
-                    break;
-                case "API":
-                    result = apiFileManagementService.downloadFile(serverId, filePath);
-                    break;
-                case "NONE":
-                default:
-                    response.setStatus(HttpStatus.BAD_REQUEST.value());
-                    response.getWriter().write("文件管理功能未启用");
-                    return;
-            }
+            ReturnResult<FileOperationResponse> result = fileManagementFacadeService.downloadFile(serverId, filePath);
 
             if (!result.isSuccess()) {
                 response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -227,27 +133,7 @@ public class FileManagementController {
             @Parameter(description = "文件路径", required = true) @RequestParam String path,
             @Parameter(description = "是否递归删除") @RequestParam(defaultValue = "false") Boolean recursive) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.deleteFile(serverId, path, recursive);
-                case "NODE":
-                    return nodeFileManagementService.deleteFile(serverId, path, recursive);
-                case "API":
-                    return apiFileManagementService.deleteFile(serverId, path, recursive);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("删除文件失败: serverId={}, path={}", serverId, path, e);
-            return ReturnResult.error("删除文件失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.deleteFile(serverId, path, recursive);
     }
 
     @Operation(summary = "重命名文件", description = "重命名文件或目录")
@@ -257,27 +143,7 @@ public class FileManagementController {
             @Parameter(description = "原文件路径", required = true) @RequestParam String oldPath,
             @Parameter(description = "新文件名", required = true) @RequestParam String newName) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.renameFile(serverId, oldPath, newName);
-                case "NODE":
-                    return nodeFileManagementService.renameFile(serverId, oldPath, newName);
-                case "API":
-                    return apiFileManagementService.renameFile(serverId, oldPath, newName);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("重命名文件失败: serverId={}, oldPath={}, newName={}", serverId, oldPath, newName, e);
-            return ReturnResult.error("重命名文件失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.renameFile(serverId, oldPath, newName);
     }
 
     @Operation(summary = "创建目录", description = "创建新目录")
@@ -287,27 +153,7 @@ public class FileManagementController {
             @Parameter(description = "目录路径", required = true) @RequestParam String path,
             @Parameter(description = "是否递归创建") @RequestParam(defaultValue = "true") Boolean recursive) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.createDirectory(serverId, path, recursive);
-                case "NODE":
-                    return nodeFileManagementService.createDirectory(serverId, path, recursive);
-                case "API":
-                    return apiFileManagementService.createDirectory(serverId, path, recursive);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("创建目录失败: serverId={}, path={}", serverId, path, e);
-            return ReturnResult.error("创建目录失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.createDirectory(serverId, path, recursive);
     }
 
     @Operation(summary = "执行文件操作", description = "执行复杂的文件操作")
@@ -316,28 +162,7 @@ public class FileManagementController {
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
             @Parameter(description = "操作请求", required = true) @RequestBody FileOperationRequest request) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    // SSH模式暂不支持复杂操作
-                    return ReturnResult.error("SSH模式暂不支持此操作");
-                case "NODE":
-                    return nodeFileManagementService.executeOperation(serverId, request);
-                case "API":
-                    return apiFileManagementService.executeOperation(serverId, request);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("执行文件操作失败: serverId={}, operation={}", serverId, request.getOperation(), e);
-            return ReturnResult.error("执行文件操作失败: " + e.getMessage());
-        }
+        return fileManagementFacadeService.executeOperation(serverId, request);
     }
 
     @Operation(summary = "测试连接", description = "测试文件管理连接")
@@ -345,41 +170,7 @@ public class FileManagementController {
     public ReturnResult<Boolean> testConnection(
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId) {
 
-        try {
-            String mode = getFileManagementMode(serverId);
-            if (mode == null) {
-                return ReturnResult.error("服务器文件管理模式未配置");
-            }
-
-            switch (mode) {
-                case "SSH":
-                    return sshFileManagementService.testConnection(serverId);
-                case "NODE":
-                    return nodeFileManagementService.testConnection(serverId);
-                case "API":
-                    return apiFileManagementService.testConnection(serverId);
-                case "NONE":
-                default:
-                    return ReturnResult.error("文件管理功能未启用");
-            }
-        } catch (Exception e) {
-            log.error("测试连接失败: serverId={}", serverId, e);
-            return ReturnResult.error("测试连接失败: " + e.getMessage());
-        }
-    }
-
-    // 辅助方法
-    private String getFileManagementMode(Integer serverId) {
-        try {
-            ReturnResult<MonitorSysGenServerSetting> byServerId = serverSettingService.getByServerId(serverId);
-            if (byServerId.isOk()) {
-                return MonitorSysGenServerSettingUtils.getFileManagementMode(byServerId.getData());
-            }
-            return null;
-        } catch (Exception e) {
-            log.error("获取文件管理模式失败: serverId={}", serverId, e);
-            return null;
-        }
+        return fileManagementFacadeService.testConnection(serverId);
     }
 
 }

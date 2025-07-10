@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.monitor.starter.enums.AlertNotificationMethod;
 import com.chua.starter.monitor.starter.enums.DataReportMethod;
 import com.chua.starter.monitor.starter.enums.DockerConnectionType;
 import com.chua.starter.monitor.starter.enums.ProxyType;
-import com.chua.starter.monitor.starter.enums.AlertNotificationMethod;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -793,6 +793,15 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingStatus(1);
 
         return setting;
+    }
+
+
+    /**
+     * 是否启用端口监控
+     */
+    public boolean isEnabled() {
+        Integer monitorSysGenServerSettingPortMonitorEnabled = getMonitorSysGenServerSettingPortMonitorEnabled();
+        return null != monitorSysGenServerSettingPortMonitorEnabled && monitorSysGenServerSettingPortMonitorEnabled == 1;
     }
 
 }
