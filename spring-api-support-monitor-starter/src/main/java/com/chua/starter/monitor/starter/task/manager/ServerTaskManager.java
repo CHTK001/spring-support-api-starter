@@ -471,7 +471,7 @@ public class ServerTaskManager {
                 MonitorSysGenServerSetting oldSetting = configCache.get(serverId);
 
                 // 检查配置是否有变化
-                if (oldSetting == null || !configEquals(oldSetting, newSetting)) {
+                if (!configEquals(oldSetting, newSetting)) {
                     configCache.put(serverId, newSetting);
 
                     // 更新任务中的配置
@@ -982,12 +982,8 @@ public class ServerTaskManager {
         }
 
         // 检查告警启用状态是否变化
-        if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
-                newSetting.getMonitorSysGenServerSettingAlertEnabled())) {
-            return true;
-        }
-
-        return false;
+        return !Objects.equals(currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
+                newSetting.getMonitorSysGenServerSettingAlertEnabled());
     }
 
     /**
@@ -1101,13 +1097,9 @@ public class ServerTaskManager {
         int inactiveServers = 0;
 
         for (ServerTaskInfo taskInfo : serverTasks.values()) {
-            boolean hasActiveTasks = false;
-
-            if (taskInfo.getMetricsCollectionTask() != null &&
-                !taskInfo.getMetricsCollectionTask().isCancelled() &&
-                !taskInfo.getMetricsCollectionTask().isDone()) {
-                hasActiveTasks = true;
-            }
+            boolean hasActiveTasks = taskInfo.getMetricsCollectionTask() != null &&
+                    !taskInfo.getMetricsCollectionTask().isCancelled() &&
+                    !taskInfo.getMetricsCollectionTask().isDone();
 
             if (hasActiveTasks) {
                 activeServers++;
@@ -1165,7 +1157,7 @@ public class ServerTaskManager {
      * 创建数据推送任务
      */
     private void createDataPushTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
+        if (!setting.isEnabled()) {
             return;
         }
 
@@ -1221,7 +1213,8 @@ public class ServerTaskManager {
      * 创建端口监控任务
      */
     private void createPortMonitorTask(ServerTaskInfo taskInfo, MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
-        if (setting.getMonitorSysGenServerSettingPortMonitorEnabled() != 1) {
+        Integer monitorSysGenServerSettingPortMonitorEnabled = setting.getMonitorSysGenServerSettingPortMonitorEnabled();
+        if (null == monitorSysGenServerSettingPortMonitorEnabled || monitorSysGenServerSettingPortMonitorEnabled != 1) {
             return;
         }
 
