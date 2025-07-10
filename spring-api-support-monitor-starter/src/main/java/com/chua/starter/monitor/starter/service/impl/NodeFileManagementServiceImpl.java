@@ -1,14 +1,16 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+
+import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.MapUtils;
+import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.enums.FileManagementMode;
-import com.chua.starter.monitor.starter.pojo.ClientHealthStatus;
 import com.chua.starter.monitor.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
-import com.chua.starter.monitor.starter.service.ClientHealthService;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
@@ -19,10 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * NODE模式文件管理服务实现
- * 通过在线客户端代理进行文件管理，自动检测客户端地址
+ * NODE模式文件管理服务实现 通过在线客户端代理进行文件管理，自动检测客户端地址
  * 
  * @author CH
  * @since 2024/12/13
@@ -34,21 +38,24 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
-    private final ClientHealthService clientHealthService;
+    private final DiscoveryService discoveryService;
     private final ApiFileManagementServiceImpl apiFileManagementService;
 
+    private final Random random = new Random();
+
     @Override
-    public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden, String sortBy, String sortOrder) {
+    public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
+                                                         String sortBy, String sortOrder) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
             if (!clientAddressResult.isSuccess()) {
                 return ReturnResult.error(clientAddressResult.getMsg());
             }
-            
+
             // 使用API服务实现，但使用自动检测的客户端地址
             return apiFileManagementService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
-            
+
         } catch (Exception e) {
             log.error("NODE模式列出文件失败: serverId={}, path={}", serverId, path, e);
             return ReturnResult.error("NODE模式列出文件失败: " + e.getMessage());
@@ -56,7 +63,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth, Boolean includeHidden) {
+    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
+                                                           Boolean includeHidden) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
@@ -73,7 +81,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file,
+                                                          Boolean overwrite) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
@@ -90,14 +99,15 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName, InputStream inputStream, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
+                                                          InputStream inputStream, Boolean overwrite) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
             if (!clientAddressResult.isSuccess()) {
                 return ReturnResult.error(clientAddressResult.getMsg());
             }
-            
+
             return apiFileManagementService.uploadFile(serverId, targetPath, fileName, inputStream, overwrite);
 
         } catch (Exception e) {
@@ -148,7 +158,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
             if (!clientAddressResult.isSuccess()) {
                 return ReturnResult.error(clientAddressResult.getMsg());
             }
-            
+
             return apiFileManagementService.renameFile(serverId, oldPath, newName);
 
         } catch (Exception e) {
@@ -192,8 +202,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     /**
-     * 获取客户端地址
-     * NODE模式自动检测在线客户端地址
+     * 获取客户端地址 NODE模式通过节点名称获取在线客户端地址，支持多个地址的随机选择
      */
     private ReturnResult<String> getClientAddress(Integer serverId) {
         try {
@@ -202,7 +211,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
             if (server == null) {
                 return ReturnResult.error("服务器不存在: " + serverId);
             }
-            
+
             // 检查文件管理模式
             ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getByServerId(serverId);
             if (!settingResult.isOk() || settingResult.getData() == null) {
@@ -210,26 +219,41 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (setting.getMonitorSysGenServerSettingFileManagementMode() != FileManagementMode.NODE) {
+            if (!"NODE".equals(MonitorSysGenServerSettingUtils.getFileManagementMode(setting))) {
                 return ReturnResult.error("服务器文件管理模式不是NODE模式");
             }
-            
-            // 检查客户端健康状态
-            ReturnResult<ClientHealthStatus> healthResult = clientHealthService.getClientHealth(server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
-            if (!healthResult.isSuccess()) {
-                return ReturnResult.error("客户端不在线或健康状态检查失败: " + healthResult.getMsg());
+
+            // 获取NODE配置中的节点名称
+            String nodeClientFunction = setting.getMonitorSysGenServerSettingFileManagementNodeClient();
+            if (nodeClientFunction == null || nodeClientFunction.trim().isEmpty()) {
+                return ReturnResult.error("NODE模式未配置节点名称");
             }
-            
-            ClientHealthStatus healthStatus = healthResult.getData();
-            if (healthStatus == null) {
-                return ReturnResult.error("客户端健康状态为空");
+
+            // 从Discovery服务获取所有在线的监控节点
+            Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("monitor");
+            if (discoveryAll == null || discoveryAll.isEmpty()) {
+                return ReturnResult.error("没有找到在线的监控节点");
             }
-            
-            // 返回客户端地址
-            String clientAddress = healthStatus.getClientAddress();
-            log.debug("NODE模式自动检测到客户端地址: {}", clientAddress);
+
+            // 根据节点名称筛选匹配的Discovery实例
+            List<Discovery> matchingNodes = discoveryAll.stream().filter(discovery -> {
+                String applicationName = MapUtils.getString(discovery.getMetadata(), "applicationName");
+                return nodeClientFunction.equals(applicationName);
+            }).collect(Collectors.toList());
+
+            if (matchingNodes.isEmpty()) {
+                return ReturnResult.error("没有找到名称为 '" + nodeClientFunction + "' 的在线节点");
+            }
+
+            // 随机选择一个节点实例
+            Discovery selectedNode = matchingNodes.get(random.nextInt(matchingNodes.size()));
+            String clientAddress = selectedNode.getHost() + ":" + selectedNode.getPort();
+
+            log.debug("NODE模式从 {} 个实例中随机选择节点地址: {} (节点名称: {})", matchingNodes.size(), clientAddress,
+                    nodeClientFunction);
+
             return ReturnResult.ok(clientAddress);
-            
+
         } catch (Exception e) {
             log.error("获取客户端地址失败: serverId={}", serverId, e);
             return ReturnResult.error("获取客户端地址失败: " + e.getMessage());
@@ -237,9 +261,10 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     // 以下方法委托给 ApiFileManagementServiceImpl，但需要先检查客户端健康状态
-    
+
     @Override
-    public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath,
+                                                        Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -248,7 +273,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath,
+                                                        Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -257,7 +283,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions,
+                                                                 Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -266,7 +293,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group,
+                                                           Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -275,7 +303,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String path, String pattern, Boolean includeContent, Integer maxResults) {
+    public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String path, String pattern,
+                                                           Boolean includeContent, Integer maxResults) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -284,7 +313,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> filePaths, String archivePath, String format) {
+    public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> filePaths,
+                                                             String archivePath, String format) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -293,7 +323,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath,
+                                                              Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -302,7 +333,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding, Long maxSize) {
+    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding,
+                                                           Long maxSize) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -329,7 +361,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths,
+                                                                Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -356,7 +389,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path, Boolean includeSubdirectories) {
+    public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path,
+                                                                 Boolean includeSubdirectories) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -392,7 +426,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath, Boolean deleteExtra) {
+    public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath,
+                                                         Boolean deleteExtra) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -401,7 +436,8 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath, String linkPath) {
+    public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath,
+                                                                  String linkPath) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
