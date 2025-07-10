@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.starter.service.impl;
 
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.enums.FileManagementMode;
 import com.chua.starter.monitor.starter.pojo.*;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
@@ -30,8 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Base64;
 
 /**
- * API模式文件管理服务实现
- * 通过HTTP API调用客户端代理进行文件管理
+ * API模式文件管理服务实现 通过HTTP API调用客户端代理进行文件管理
  * 
  * @author CH
  * @since 2024/12/13
@@ -54,9 +53,10 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     private static final long CACHE_TIMEOUT = 5 * 60 * 1000; // 5分钟缓存
 
     @Override
-    public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden, String sortBy, String sortOrder) {
+    public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
+                                                         String sortBy, String sortOrder) {
         long startTime = System.currentTimeMillis();
-        
+
         try {
             // 验证客户端健康状态
             ReturnResult<Boolean> healthCheck = validateClientHealth(serverId);
@@ -83,10 +83,10 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Map<String, Object> responseBody = response.getBody();
                 List<FileInfo> files = parseFileList(responseBody);
-                
+
                 FileOperationResponse operationResponse = FileOperationResponse.success("LIST", files, path)
                         .withDuration(startTime);
-                
+
                 log.info("API文件列表获取成功: serverId={}, path={}, count={}", serverId, path, files.size());
                 return ReturnResult.ok(operationResponse);
             } else {
@@ -100,9 +100,10 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth, Boolean includeHidden) {
+    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
+                                                           Boolean includeHidden) {
         long startTime = System.currentTimeMillis();
-        
+
         try {
             // 验证客户端健康状态
             ReturnResult<Boolean> healthCheck = validateClientHealth(serverId);
@@ -128,10 +129,10 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Map<String, Object> responseBody = response.getBody();
                 FileInfo tree = parseFileTree(responseBody);
-                
+
                 FileOperationResponse operationResponse = FileOperationResponse.success("TREE", tree, path)
                         .withDuration(startTime);
-                
+
                 log.info("API文件树获取成功: serverId={}, path={}", serverId, path);
                 return ReturnResult.ok(operationResponse);
             } else {
@@ -145,19 +146,22 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file,
+                                                          Boolean overwrite) {
         try {
             return uploadFile(serverId, targetPath, file.getOriginalFilename(), file.getInputStream(), overwrite);
         } catch (Exception e) {
-            log.error("API文件上传失败: serverId={}, targetPath={}, fileName={}", serverId, targetPath, file.getOriginalFilename(), e);
+            log.error("API文件上传失败: serverId={}, targetPath={}, fileName={}", serverId, targetPath,
+                    file.getOriginalFilename(), e);
             return ReturnResult.error("API文件上传失败: " + e.getMessage());
         }
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName, InputStream inputStream, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
+                                                          InputStream inputStream, Boolean overwrite) {
         long startTime = System.currentTimeMillis();
-        
+
         try {
             // 验证客户端健康状态
             ReturnResult<Boolean> healthCheck = validateClientHealth(serverId);
@@ -172,7 +176,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
             // 构建文件上传请求
             String url = config.buildFileOperationUrl("upload");
-            
+
             // 创建multipart请求
             HttpHeaders headers = createApiHeaders(config);
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -181,18 +185,18 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             body.add("targetPath", targetPath);
             body.add("fileName", fileName);
             body.add("overwrite", overwrite != null ? overwrite : false);
-            
+
             // 添加文件流
             body.add("file", new InputStreamResource(inputStream, fileName));
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-            
+
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 FileOperationResponse operationResponse = FileOperationResponse.success("UPLOAD", "文件上传成功")
                         .withDuration(startTime);
-                
+
                 log.info("API文件上传成功: serverId={}, targetPath={}, fileName={}", serverId, targetPath, fileName);
                 return ReturnResult.ok(operationResponse);
             } else {
@@ -221,7 +225,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
             // 构建下载请求
             String url = config.buildFileOperationUrl("download");
-            
+
             HttpHeaders headers = createApiHeaders(config);
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
 
@@ -229,18 +233,15 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             requestParams.put("filePath", filePath);
 
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestParams, headers);
-            
+
             ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, byte[].class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 // 创建文件操作响应，包含下载URL或文件内容
-                FileOperationResponse fileResponse = FileOperationResponse.builder()
-                    .success(true)
-                    .operation("DOWNLOAD")
-                    .message("文件下载成功")
-                    .downloadUrl("data:application/octet-stream;base64," +
-                        java.util.Base64.getEncoder().encodeToString(response.getBody()))
-                    .build();
+                FileOperationResponse fileResponse = FileOperationResponse.builder().success(true).operation("DOWNLOAD")
+                        .message("文件下载成功").downloadUrl("data:application/octet-stream;base64,"
+                                + java.util.Base64.getEncoder().encodeToString(response.getBody()))
+                        .build();
 
                 log.info("API文件下载成功: serverId={}, filePath={}", serverId, filePath);
                 return ReturnResult.ok(fileResponse);
@@ -256,7 +257,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> deleteFile(Integer serverId, String path, Boolean recursive) {
-        return executeSimpleOperation(serverId, "delete", path, Map.of("recursive", recursive != null ? recursive : false));
+        return executeSimpleOperation(serverId, "delete", path,
+                Map.of("recursive", recursive != null ? recursive : false));
     }
 
     @Override
@@ -266,11 +268,13 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> createDirectory(Integer serverId, String path, Boolean recursive) {
-        return executeSimpleOperation(serverId, "mkdir", path, Map.of("recursive", recursive != null ? recursive : false));
+        return executeSimpleOperation(serverId, "mkdir", path,
+                Map.of("recursive", recursive != null ? recursive : false));
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath,
+                                                        Boolean overwrite) {
         Map<String, Object> params = new HashMap<>();
         params.put("targetPath", targetPath);
         params.put("overwrite", overwrite != null ? overwrite : false);
@@ -278,7 +282,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath,
+                                                        Boolean overwrite) {
         Map<String, Object> params = new HashMap<>();
         params.put("targetPath", targetPath);
         params.put("overwrite", overwrite != null ? overwrite : false);
@@ -286,17 +291,20 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions,
+                                                                 Boolean recursive) {
         return ReturnResult.error("API模式暂不支持权限修改");
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group,
+                                                           Boolean recursive) {
         return ReturnResult.error("API模式暂不支持所有者修改");
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String searchPath, String pattern, Boolean includeContent, Integer maxResults) {
+    public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String searchPath, String pattern,
+                                                           Boolean includeContent, Integer maxResults) {
         Map<String, Object> params = new HashMap<>();
         params.put("pattern", pattern);
         params.put("includeContent", includeContent != null ? includeContent : false);
@@ -305,7 +313,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding, Long maxSize) {
+    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding,
+                                                           Long maxSize) {
         Map<String, Object> params = new HashMap<>();
         params.put("encoding", encoding != null ? encoding : "UTF-8");
         params.put("maxSize", maxSize != null ? maxSize : 1024 * 1024);
@@ -346,15 +355,14 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
         }
     }
 
-
-
     @Override
     public ReturnResult<FileOperationResponse> getDiskUsage(Integer serverId, String path) {
         return executeSimpleOperation(serverId, "diskUsage", path, Map.of());
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> paths, String archivePath, String format) {
+    public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> paths, String archivePath,
+                                                             String format) {
         Map<String, Object> params = new HashMap<>();
         params.put("paths", paths);
         params.put("archivePath", archivePath);
@@ -363,7 +371,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath, Boolean overwrite) {
+    public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath,
+                                                              Boolean overwrite) {
         Map<String, Object> params = new HashMap<>();
         params.put("extractPath", extractPath);
         params.put("overwrite", overwrite != null ? overwrite : false);
@@ -379,7 +388,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
                 return listFiles(serverId, request.getPath(), request.getIncludeHiddenOrDefault(),
                         request.getSortByOrDefault(), request.getSortOrderOrDefault());
             case TREE:
-                return getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(), request.getIncludeHiddenOrDefault());
+                return getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(),
+                        request.getIncludeHiddenOrDefault());
             case DELETE:
                 return deleteFile(serverId, request.getPath(), request.getRecursiveOrDefault());
             case RENAME:
@@ -391,21 +401,23 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             case MOVE:
                 return moveFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
             case SEARCH:
-                return searchFiles(serverId, request.getPath(), request.getPattern(),
-                        request.getIncludeContentOrDefault(), request.getMaxResultsOrDefault());
+                return searchFiles(serverId, request.getPath(), request.getPattern(), request.getIncludeContentOrDefault(),
+                        request.getMaxResultsOrDefault());
             case PREVIEW:
                 return previewFile(serverId, request.getPath(), request.getEncoding(), request.getMaxSize());
             case COMPRESS:
                 return compressFiles(serverId, request.getPaths(), request.getArchivePath(), request.getFormat());
             case EXTRACT:
-                return extractArchive(serverId, request.getPath(), request.getExtractPath(), request.getOverwriteOrDefault());
+                return extractArchive(serverId, request.getPath(), request.getExtractPath(),
+                        request.getOverwriteOrDefault());
             default:
                 return ReturnResult.error("不支持的操作类型: " + request.getOperation());
         }
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths, Boolean recursive) {
+    public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths,
+                                                                Boolean recursive) {
         Map<String, Object> params = new HashMap<>();
         params.put("paths", paths);
         params.put("recursive", recursive != null ? recursive : false);
@@ -414,10 +426,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<List<String>> getSupportedOperations(Integer serverId) {
-        List<String> operations = Arrays.asList(
-            "LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR",
-            "COPY", "MOVE", "SEARCH", "PREVIEW", "COMPRESS", "EXTRACT", "INFO"
-        );
+        List<String> operations = Arrays.asList("LIST", "TREE", "UPLOAD", "DOWNLOAD", "DELETE", "RENAME", "MKDIR",
+                "COPY", "MOVE", "SEARCH", "PREVIEW", "COMPRESS", "EXTRACT", "INFO");
         return ReturnResult.ok(operations);
     }
 
@@ -441,7 +451,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
                 HttpHeaders headers = createApiHeaders(config);
                 HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-                ResponseEntity<String> response = restTemplate.exchange(healthUrl, HttpMethod.GET, requestEntity, String.class);
+                ResponseEntity<String> response = restTemplate.exchange(healthUrl, HttpMethod.GET, requestEntity,
+                        String.class);
 
                 if (response.getStatusCode().is2xxSuccessful()) {
                     return ReturnResult.ok(true);
@@ -481,7 +492,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (setting.getMonitorSysGenServerSettingFileManagementMode() != FileManagementMode.API) {
+            if (!"API".equals(MonitorSysGenServerSettingUtils.getFileManagementMode(setting))) {
                 return null;
             }
 
@@ -544,8 +555,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
         return headers;
     }
 
-    private <T> ResponseEntity<T> sendApiRequest(FileManagementApiConfig config, String url,
-                                                HttpMethod method, Map<String, Object> params, Class<T> responseType) {
+    private <T> ResponseEntity<T> sendApiRequest(FileManagementApiConfig config, String url, HttpMethod method,
+                                                 Map<String, Object> params, Class<T> responseType) {
 
         HttpHeaders headers = createApiHeaders(config);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(params, headers);
@@ -582,8 +593,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
         throw new RuntimeException("API请求重试次数已用完");
     }
 
-    private ReturnResult<FileOperationResponse> executeSimpleOperation(Integer serverId, String operation,
-                                                                      String path, Map<String, Object> additionalParams) {
+    private ReturnResult<FileOperationResponse> executeSimpleOperation(Integer serverId, String operation, String path,
+                                                                       Map<String, Object> additionalParams) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -615,8 +626,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
                     message = (String) response.getBody().get("message");
                 }
 
-                FileOperationResponse operationResponse = FileOperationResponse.success(operation.toUpperCase(), message)
-                        .withDuration(startTime);
+                FileOperationResponse operationResponse = FileOperationResponse
+                        .success(operation.toUpperCase(), message).withDuration(startTime);
 
                 log.info("API操作成功: serverId={}, operation={}, path={}", serverId, operation, path);
                 return ReturnResult.ok(operationResponse);
@@ -685,7 +696,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
                 if (lastModified instanceof String) {
                     builder.modifyTime(LocalDateTime.parse((String) lastModified));
                 } else if (lastModified instanceof Number) {
-                    builder.modifyTime(LocalDateTime.ofEpochSecond(((Number) lastModified).longValue(), 0, java.time.ZoneOffset.UTC));
+                    builder.modifyTime(LocalDateTime.ofEpochSecond(((Number) lastModified).longValue(), 0,
+                            java.time.ZoneOffset.UTC));
                 }
             }
 
@@ -712,7 +724,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path, Boolean includeSubdirectories) {
+    public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path,
+                                                                 Boolean includeSubdirectories) {
         Map<String, Object> params = new HashMap<>();
         params.put("includeSubdirectories", includeSubdirectories != null ? includeSubdirectories : false);
         return executeSimpleOperation(serverId, "statistics", path, params);
@@ -740,7 +753,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath, Boolean deleteExtra) {
+    public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath,
+                                                         Boolean deleteExtra) {
         Map<String, Object> params = new HashMap<>();
         params.put("targetPath", targetPath);
         params.put("deleteExtra", deleteExtra != null ? deleteExtra : false);
@@ -748,7 +762,8 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath, String linkPath) {
+    public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath,
+                                                                  String linkPath) {
         Map<String, Object> params = new HashMap<>();
         params.put("linkPath", linkPath);
         return executeSimpleOperation(serverId, "symlink", targetPath, params);

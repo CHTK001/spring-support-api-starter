@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
@@ -43,7 +45,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.ok(false, "告警功能未启用");
             }
 
@@ -59,8 +61,7 @@ public class AlertServiceImpl implements AlertService {
                 }
 
                 // 发送告警
-                String alertMessage = String.format("CPU使用率过高: 当前值 %.2f%%, 阈值 %.2f%%",
-                        cpuUsage, threshold);
+                String alertMessage = String.format("CPU使用率过高: 当前值 %.2f%%, 阈值 %.2f%%", cpuUsage, threshold);
                 return sendAlert(serverId, "CPU", alertMessage, cpuUsage, threshold);
             }
 
@@ -80,7 +81,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.ok(false, "告警功能未启用");
             }
 
@@ -94,8 +95,7 @@ public class AlertServiceImpl implements AlertService {
                     return ReturnResult.ok(false, "告警在静默期内");
                 }
 
-                String alertMessage = String.format("内存使用率过高: 当前值 %.2f%%, 阈值 %.2f%%",
-                        memoryUsage, threshold);
+                String alertMessage = String.format("内存使用率过高: 当前值 %.2f%%, 阈值 %.2f%%", memoryUsage, threshold);
                 return sendAlert(serverId, "MEMORY", alertMessage, memoryUsage, threshold);
             }
 
@@ -115,7 +115,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.ok(false, "告警功能未启用");
             }
 
@@ -129,8 +129,7 @@ public class AlertServiceImpl implements AlertService {
                     return ReturnResult.ok(false, "告警在静默期内");
                 }
 
-                String alertMessage = String.format("磁盘使用率过高: 当前值 %.2f%%, 阈值 %.2f%%",
-                        diskUsage, threshold);
+                String alertMessage = String.format("磁盘使用率过高: 当前值 %.2f%%, 阈值 %.2f%%", diskUsage, threshold);
                 return sendAlert(serverId, "DISK", alertMessage, diskUsage, threshold);
             }
 
@@ -150,7 +149,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.ok(false, "告警功能未启用");
             }
 
@@ -164,8 +163,7 @@ public class AlertServiceImpl implements AlertService {
                     return ReturnResult.ok(false, "告警在静默期内");
                 }
 
-                String alertMessage = String.format("网络使用率过高: 当前值 %.2f Mbps, 阈值 %.2f Mbps",
-                        networkUsage, threshold);
+                String alertMessage = String.format("网络使用率过高: 当前值 %.2f Mbps, 阈值 %.2f Mbps", networkUsage, threshold);
                 return sendAlert(serverId, "NETWORK", alertMessage, networkUsage, threshold);
             }
 
@@ -185,7 +183,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.ok(false, "告警功能未启用");
             }
 
@@ -199,8 +197,7 @@ public class AlertServiceImpl implements AlertService {
                     return ReturnResult.ok(false, "告警在静默期内");
                 }
 
-                String alertMessage = String.format("响应时间过长: 当前值 %d ms, 阈值 %d ms",
-                        responseTime, threshold);
+                String alertMessage = String.format("响应时间过长: 当前值 %d ms, 阈值 %d ms", responseTime, threshold);
                 return sendAlert(serverId, "RESPONSE_TIME", alertMessage, responseTime, threshold);
             }
 
@@ -281,8 +278,8 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public ReturnResult<Boolean> sendAlert(Integer serverId, String alertType, String alertMessage,
-                                           Object currentValue, Object thresholdValue) {
+    public ReturnResult<Boolean> sendAlert(Integer serverId, String alertType, String alertMessage, Object currentValue,
+                                           Object thresholdValue) {
         try {
             ReturnResult<MonitorSysGenServerSetting> settingResult = settingService.getByServerId(serverId);
             if (!settingResult.isOk() || settingResult.getData() == null) {
@@ -298,8 +295,8 @@ public class AlertServiceImpl implements AlertService {
             }
 
             // 构建告警消息
-            String fullMessage = String.format("[服务器告警] 服务器ID: %d, 告警类型: %s, %s, 时间: %s",
-                    serverId, alertType, alertMessage, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            String fullMessage = String.format("[服务器告警] 服务器ID: %d, 告警类型: %s, %s, 时间: %s", serverId, alertType,
+                    alertMessage, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             // 根据通知方式发送告警
             boolean sent = false;
@@ -317,7 +314,8 @@ public class AlertServiceImpl implements AlertService {
                     sent = sendWeChatAlert(notificationAddress, fullMessage);
                     break;
                 case "WEBHOOK":
-                    sent = sendWebhookAlert(notificationAddress, fullMessage, serverId, alertType, currentValue, thresholdValue);
+                    sent = sendWebhookAlert(notificationAddress, fullMessage, serverId, alertType, currentValue,
+                            thresholdValue);
                     break;
                 default:
                     return ReturnResult.error("不支持的通知方式: " + notificationMethod);
@@ -353,7 +351,7 @@ public class AlertServiceImpl implements AlertService {
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
-            if (!setting.isAutoRecoveryNotificationEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAutoRecoveryNotificationEnabled(setting)) {
                 return ReturnResult.ok(false, "自动恢复通知未启用");
             }
 
@@ -365,8 +363,8 @@ public class AlertServiceImpl implements AlertService {
             }
 
             // 构建恢复消息
-            String fullMessage = String.format("[服务器恢复] 服务器ID: %d, 告警类型: %s, %s, 时间: %s",
-                    serverId, alertType, recoveryMessage, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            String fullMessage = String.format("[服务器恢复] 服务器ID: %d, 告警类型: %s, %s, 时间: %s", serverId, alertType,
+                    recoveryMessage, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             // 发送恢复通知
             boolean sent = false;
@@ -411,7 +409,7 @@ public class AlertServiceImpl implements AlertService {
                 return ReturnResult.error("服务器配置不能为空");
             }
 
-            if (!setting.isAlertEnabled()) {
+            if (!MonitorSysGenServerSettingUtils.isAlertEnabled(setting)) {
                 return ReturnResult.error("告警功能未启用");
             }
 
@@ -428,7 +426,8 @@ public class AlertServiceImpl implements AlertService {
 
             // 发送测试消息
             String testMessage = String.format("[测试告警] 服务器ID: %d, 这是一条测试告警消息, 时间: %s",
-                    setting.getMonitorSysGenServerId(), LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    setting.getMonitorSysGenServerId(),
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             boolean sent = false;
             switch (notificationMethod) {
@@ -445,7 +444,8 @@ public class AlertServiceImpl implements AlertService {
                     sent = sendWeChatAlert(notificationAddress, testMessage);
                     break;
                 case "WEBHOOK":
-                    sent = sendWebhookAlert(notificationAddress, testMessage, setting.getMonitorSysGenServerId(), "TEST", null, null);
+                    sent = sendWebhookAlert(notificationAddress, testMessage, setting.getMonitorSysGenServerId(), "TEST",
+                            null, null);
                     break;
                 default:
                     return ReturnResult.error("不支持的通知方式: " + notificationMethod);
@@ -610,8 +610,8 @@ public class AlertServiceImpl implements AlertService {
     /**
      * 发送Webhook告警
      */
-    private boolean sendWebhookAlert(String webhookUrl, String message, Integer serverId,
-                                     String alertType, Object currentValue, Object thresholdValue) {
+    private boolean sendWebhookAlert(String webhookUrl, String message, Integer serverId, String alertType,
+                                     Object currentValue, Object thresholdValue) {
         try {
             // 这里应该发送HTTP POST请求到指定的Webhook URL
             Map<String, Object> payload = new HashMap<>();
@@ -633,8 +633,8 @@ public class AlertServiceImpl implements AlertService {
     /**
      * 记录告警历史
      */
-    private void recordAlertHistory(Integer serverId, String alertType, String message,
-                                    Object currentValue, Object thresholdValue) {
+    private void recordAlertHistory(Integer serverId, String alertType, String message, Object currentValue,
+                                    Object thresholdValue) {
         try {
             String key = ALERT_HISTORY_KEY_PREFIX + serverId;
             Map<String, Object> alertRecord = new HashMap<>();
@@ -642,7 +642,8 @@ public class AlertServiceImpl implements AlertService {
             alertRecord.put("message", message);
             alertRecord.put("currentValue", currentValue);
             alertRecord.put("thresholdValue", thresholdValue);
-            alertRecord.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            alertRecord.put("timestamp",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             // 使用Redis List存储告警历史，保留最近100条
             redisTemplate.opsForList().leftPush(key, alertRecord);
@@ -663,11 +664,13 @@ public class AlertServiceImpl implements AlertService {
 
             // 更新全局统计
             redisTemplate.opsForHash().increment(globalKey, "totalAlerts", 1);
-            redisTemplate.opsForHash().put(globalKey, "lastAlertTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            redisTemplate.opsForHash().put(globalKey, "lastAlertTime",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             // 更新服务器统计
             redisTemplate.opsForHash().increment(serverKey, "totalAlerts", 1);
-            redisTemplate.opsForHash().put(serverKey, "lastAlertTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            redisTemplate.opsForHash().put(serverKey, "lastAlertTime",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
             // 设置过期时间
             redisTemplate.expire(globalKey, 30, TimeUnit.DAYS);

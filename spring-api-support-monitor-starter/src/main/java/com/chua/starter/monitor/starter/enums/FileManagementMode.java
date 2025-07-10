@@ -69,12 +69,37 @@ public enum FileManagementMode {
             return NONE;
         }
 
+        // 处理旧数据的数字格式兼容性
+        if (code.matches("\\d+")) {
+            return fromLegacyCode(Integer.parseInt(code));
+        }
+
         for (FileManagementMode mode : values()) {
             if (mode.code.equals(code)) {
                 return mode;
             }
         }
         return NONE;
+    }
+
+    /**
+     * 从旧的数字代码获取枚举值（向后兼容）
+     */
+    public static FileManagementMode fromLegacyCode(int legacyCode) {
+        switch (legacyCode) {
+            case 0:
+                return NONE;
+            case 1:
+                return SSH;
+            case 2:
+                return API;
+            case 3:
+                return NODE;
+            case 4:
+                return LOCAL;
+            default:
+                return NONE;
+        }
     }
 
     /**
