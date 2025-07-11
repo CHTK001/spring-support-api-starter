@@ -349,13 +349,22 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
                 return ReturnResult.error("源文件不存在: " + sourcePath);
             }
 
+            // 检查目标路径是否已存在
             if (Files.exists(target) && !overwrite) {
                 return ReturnResult.error("目标文件已存在: " + targetPath);
             }
 
+            // 确保目标路径的父目录存在
+            Path targetParent = target.getParent();
+            if (targetParent != null && !Files.exists(targetParent)) {
+                Files.createDirectories(targetParent);
+            }
+
             if (Files.isDirectory(source)) {
+                // 复制目录：targetPath是目标目录的完整路径
                 copyDirectory(source, target);
             } else {
+                // 复制文件：targetPath是目标文件的完整路径
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
             }
 
@@ -386,10 +395,18 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
                 return ReturnResult.error("源文件不存在: " + sourcePath);
             }
 
+            // 检查目标路径是否已存在
             if (Files.exists(target) && !overwrite) {
                 return ReturnResult.error("目标文件已存在: " + targetPath);
             }
 
+            // 确保目标路径的父目录存在
+            Path targetParent = target.getParent();
+            if (targetParent != null && !Files.exists(targetParent)) {
+                Files.createDirectories(targetParent);
+            }
+
+            // 移动文件或目录：targetPath是目标的完整路径
             Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
 
             FileOperationResponse response = new FileOperationResponse();
@@ -722,11 +739,16 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
     /**
      * 递归复制目录
+     *
+     * @param source 源目录路径
+     * @param target 目标目录路径（完整路径，不是父目录）
+     * @throws IOException 复制过程中的IO异常
      */
     private void copyDirectory(Path source, Path target) throws IOException {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                // 计算相对于源目录的相对路径，然后在目标目录下创建对应的目录结构
                 Path targetDir = target.resolve(source.relativize(dir));
                 if (!Files.exists(targetDir)) {
                     Files.createDirectories(targetDir);
@@ -736,6 +758,7 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                // 计算相对于源目录的相对路径，然后在目标目录下创建对应的文件
                 Path targetFile = target.resolve(source.relativize(file));
                 Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
                 return FileVisitResult.CONTINUE;
@@ -801,7 +824,6 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
             Boolean overwrite) {
         return ReturnResult.error("本地文件管理暂不支持文件解压");
     }
-
 
     @Override
     public ReturnResult<FileInfo> getFileInfo(Integer serverId, String path) {
