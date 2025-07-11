@@ -4,7 +4,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
-
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,10 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * 本地文件管理服务实现
@@ -156,7 +157,7 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
             // 检查文件是否存在
             if (Files.exists(targetFile) && !overwrite) {
-                return ReturnResult.error("文件已存在: " + targetFile.toString());
+                return ReturnResult.error("文件已存在: " + targetFile);
             }
 
             // 保存文件
@@ -255,7 +256,7 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
             Path newFile = oldFile.getParent().resolve(newName);
             if (Files.exists(newFile)) {
-                return ReturnResult.error("目标文件已存在: " + newFile.toString());
+                return ReturnResult.error("目标文件已存在: " + newFile);
             }
 
             Files.move(oldFile, newFile);
@@ -316,7 +317,7 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
             // 检查文件是否存在
             if (Files.exists(targetFile) && !overwrite) {
-                return ReturnResult.error("文件已存在: " + targetFile.toString());
+                return ReturnResult.error("文件已存在: " + targetFile);
             }
 
             // 保存文件
@@ -801,11 +802,6 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
         return ReturnResult.error("本地文件管理暂不支持文件解压");
     }
 
-    @Override
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding,
-            Long maxSize) {
-        return ReturnResult.error("本地文件管理暂不支持文件预览");
-    }
 
     @Override
     public ReturnResult<FileInfo> getFileInfo(Integer serverId, String path) {
