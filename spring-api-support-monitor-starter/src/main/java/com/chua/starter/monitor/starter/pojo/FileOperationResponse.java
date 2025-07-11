@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.MediaType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -99,6 +100,18 @@ public class FileOperationResponse implements Serializable {
     @Schema(description = "文件内容类型")
     private String contentType;
 
+
+    /**
+     * 文件内容类型
+     */
+    @ApiModelProperty(value = "文件内容类型")
+    private MediaType mediaType;
+
+    /**
+     * 文件内容字节数组
+     */
+    @ApiModelProperty(value = "文件内容字节数组")
+    private byte[] contentBytes;
     /**
      * 文件编码
      */
@@ -487,5 +500,9 @@ public class FileOperationResponse implements Serializable {
     public String toString() {
         return String.format("FileOperationResponse{operation='%s', success=%s, message='%s'}", 
                 operation, success, message);
+    }
+
+    public byte[] getAll() {
+        return contentBytes;
     }
 }
