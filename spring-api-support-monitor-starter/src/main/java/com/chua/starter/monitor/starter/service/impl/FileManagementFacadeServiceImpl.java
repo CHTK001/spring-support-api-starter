@@ -140,8 +140,14 @@ public class FileManagementFacadeServiceImpl {
                         .body(fileOperationResponseReturnResult.getMsg().getBytes(StandardCharsets.UTF_8));
             }
             FileOperationResponse fileOperationResponse = fileOperationResponseReturnResult.getData();
+            if (!fileOperationResponse.getSuccess()) {
+                return ResponseEntity.badRequest()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(fileOperationResponse.getMessage().getBytes(StandardCharsets.UTF_8));
+            }
             return ResponseEntity.ok()
                     .contentType(fileOperationResponse.getMediaType())
+                    .contentLength(fileOperationResponse.getAll().length)
                     .body(fileOperationResponse.getAll());
         } catch (Exception e) {
             log.error("预览文件失败: serverId={}, filePath={}", serverId, filePath, e);
