@@ -45,7 +45,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
-                                                         String sortBy, String sortOrder) {
+            String sortBy, String sortOrder) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
@@ -64,15 +64,26 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
-                                                           Boolean includeHidden) {
+            Boolean includeHidden) {
+        return getFileTree(serverId, path, maxDepth, includeHidden, false, 1000, 0);
+    }
+
+    @Override
+    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
+            Boolean includeHidden, Boolean lazyLoad, Integer pageSize, Integer pageIndex) {
         try {
+            log.info("NODE文件管理: 获取文件树 - serverId={}, path={}, maxDepth={}, lazyLoad={}, pageSize={}, pageIndex={}",
+                    serverId, path, maxDepth, lazyLoad, pageSize, pageIndex);
+
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
             if (!clientAddressResult.isSuccess()) {
                 return ReturnResult.error(clientAddressResult.getMsg());
             }
 
-            return apiFileManagementService.getFileTree(serverId, path, maxDepth, includeHidden);
+            // 使用API服务实现，传递懒加载参数
+            return apiFileManagementService.getFileTree(serverId, path, maxDepth, includeHidden, lazyLoad, pageSize,
+                    pageIndex);
 
         } catch (Exception e) {
             log.error("NODE模式获取文件树失败: serverId={}, path={}", serverId, path, e);
@@ -82,7 +93,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file,
-                                                          Boolean overwrite) {
+            Boolean overwrite) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
@@ -100,7 +111,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
-                                                          InputStream inputStream, Boolean overwrite) {
+            InputStream inputStream, Boolean overwrite) {
         try {
             // 检查客户端健康状态并获取地址
             ReturnResult<String> clientAddressResult = getClientAddress(serverId);
@@ -264,7 +275,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath,
-                                                        Boolean overwrite) {
+            Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -274,7 +285,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath,
-                                                        Boolean overwrite) {
+            Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -284,7 +295,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions,
-                                                                 Boolean recursive) {
+            Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -294,7 +305,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group,
-                                                           Boolean recursive) {
+            Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -304,7 +315,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String path, String pattern,
-                                                           Boolean includeContent, Integer maxResults) {
+            Boolean includeContent, Integer maxResults) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -314,7 +325,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> filePaths,
-                                                             String archivePath, String format) {
+            String archivePath, String format) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -324,7 +335,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath,
-                                                              Boolean overwrite) {
+            Boolean overwrite) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -333,13 +344,13 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding,
-                                                           Long maxSize) {
+    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String previewType,
+            Integer maxSizeMB) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
         }
-        return apiFileManagementService.previewFile(serverId, filePath, encoding, maxSize);
+        return apiFileManagementService.previewFile(serverId, filePath, previewType, maxSizeMB);
     }
 
     @Override
@@ -362,7 +373,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths,
-                                                                Boolean recursive) {
+            Boolean recursive) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -390,7 +401,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path,
-                                                                 Boolean includeSubdirectories) {
+            Boolean includeSubdirectories) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -427,7 +438,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath,
-                                                         Boolean deleteExtra) {
+            Boolean deleteExtra) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -437,7 +448,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath,
-                                                                  String linkPath) {
+            String linkPath) {
         ReturnResult<String> clientAddressResult = getClientAddress(serverId);
         if (!clientAddressResult.isSuccess()) {
             return ReturnResult.error(clientAddressResult.getMsg());
@@ -453,4 +464,5 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         }
         return apiFileManagementService.getFileSystemInfo(serverId);
     }
+
 }
