@@ -50,15 +50,19 @@ public class FileManagementController {
         return fileManagementFacadeService.listFiles(serverId, path, includeHidden, sortBy, sortOrder);
     }
 
-    @Operation(summary = "获取文件树", description = "获取指定路径的文件树结构")
+    @Operation(summary = "获取文件树", description = "获取指定路径的文件树结构，支持懒加载模式")
     @GetMapping("/tree")
     public ReturnResult<FileOperationResponse> getFileTree(
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
             @Parameter(description = "文件路径", required = true) @RequestParam String path,
             @Parameter(description = "最大深度") @RequestParam(defaultValue = "3") Integer maxDepth,
-            @Parameter(description = "是否包含隐藏文件") @RequestParam(defaultValue = "false") Boolean includeHidden) {
+            @Parameter(description = "是否包含隐藏文件") @RequestParam(defaultValue = "false") Boolean includeHidden,
+            @Parameter(description = "是否启用懒加载模式") @RequestParam(defaultValue = "false") Boolean lazyLoad,
+            @Parameter(description = "每页文件数量限制") @RequestParam(defaultValue = "1000") Integer pageSize,
+            @Parameter(description = "页码（从0开始）") @RequestParam(defaultValue = "0") Integer pageIndex) {
 
-        return fileManagementFacadeService.getFileTree(serverId, path, maxDepth, includeHidden);
+        return fileManagementFacadeService.getFileTree(serverId, path, maxDepth, includeHidden, lazyLoad, pageSize,
+                pageIndex);
     }
 
     @Operation(summary = "上传文件", description = "上传文件到指定路径")
@@ -100,7 +104,7 @@ public class FileManagementController {
                     response.setContentLengthLong(file.length());
 
                     try (FileInputStream fis = new FileInputStream(file);
-                         OutputStream os = response.getOutputStream()) {
+                            OutputStream os = response.getOutputStream()) {
 
                         byte[] buffer = new byte[8192];
                         int bytesRead;
@@ -124,6 +128,17 @@ public class FileManagementController {
                 log.error("写入错误响应失败", ioException);
             }
         }
+    }
+
+    @Operation(summary = "预览文件", description = "获取文件内容用于预览")
+    @GetMapping("/preview")
+    public ReturnResult<FileOperationResponse> previewFile(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "文件路径", required = true) @RequestParam String filePath,
+            @Parameter(description = "预览类型") @RequestParam(defaultValue = "auto") String previewType,
+            @Parameter(description = "最大文件大小(MB)") @RequestParam(defaultValue = "10") Integer maxSizeMB) {
+
+        return fileManagementFacadeService.previewFile(serverId, filePath, previewType, maxSizeMB);
     }
 
     @Operation(summary = "删除文件", description = "删除指定文件或目录")

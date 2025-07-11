@@ -88,7 +88,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      */
     @Override
     public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
-                                                         String sortBy, String sortOrder) {
+            String sortBy, String sortOrder) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -161,14 +161,34 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      */
     @Override
     public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
-                                                           Boolean includeHidden) {
+            Boolean includeHidden) {
+        return getFileTree(serverId, path, maxDepth, includeHidden, false, 1000, 0);
+    }
+
+    /**
+     * 获取文件树（支持懒加载）
+     */
+    @Override
+    public ReturnResult<FileOperationResponse> getFileTree(Integer serverId, String path, Integer maxDepth,
+            Boolean includeHidden, Boolean lazyLoad, Integer pageSize, Integer pageIndex) {
         try {
+            log.info("SSH文件管理: 获取文件树 - serverId={}, path={}, maxDepth={}, lazyLoad={}, pageSize={}, pageIndex={}",
+                    serverId, path, maxDepth, lazyLoad, pageSize, pageIndex);
+
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
 
-            FileInfo fileTree = buildFileTree(sftp, path, maxDepth != null ? maxDepth : 3, includeHidden, 0);
+            FileInfo fileTree;
+            if (lazyLoad) {
+                // 懒加载模式：只加载当前层级的文件，支持分页
+                fileTree = buildFileTreeLazy(sftp, path, maxDepth != null ? maxDepth : 3, includeHidden, pageSize,
+                        pageIndex);
+            } else {
+                // 传统模式：递归加载所有层级
+                fileTree = buildFileTree(sftp, path, maxDepth != null ? maxDepth : 3, includeHidden, 0);
+            }
 
             return ReturnResult.ok(FileOperationResponse.successWithTree("TREE", "文件树获取成功", fileTree));
 
@@ -183,7 +203,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      */
     @Override
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file,
-                                                          Boolean overwrite) {
+            Boolean overwrite) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -226,7 +246,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      */
     @Override
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
-                                                          InputStream inputStream, Boolean overwrite) {
+            InputStream inputStream, Boolean overwrite) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -492,7 +512,8 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             }
 
             return FileInfo.builder().name(fileName).path(parentPath + "/" + fileName).size(0L).isDirectory(false)
-                    .permissions("unknown").modifyTime(LocalDateTime.now()).build();
+                    .permissions("unknown").modifyTime(LocalDateTime.now()).leaf(true) // 错误情况下默认为叶子节点
+                    .build();
         }
     }
 
@@ -510,12 +531,14 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
             return FileInfo.builder().name(fileName).path(fullPath).size(size).isDirectory(isDirectory)
                     .permissions("rw-r--r--") // 默认权限，可以根据需要调整
-                    .modifyTime(modifyTime).build();
+                    .modifyTime(modifyTime).leaf(!isDirectory) // 设置 leaf 属性：文件为叶子节点，目录不是叶子节点
+                    .build();
         } catch (Exception e) {
             log.error("构建文件信息失败: {}", fullPath, e);
             // 返回基本信息
             return FileInfo.builder().name(fileName).path(fullPath).size(0L).isDirectory(false).permissions("unknown")
-                    .modifyTime(LocalDateTime.now()).build();
+                    .modifyTime(LocalDateTime.now()).leaf(true) // 错误情况下默认为叶子节点
+                    .build();
         }
     }
 
@@ -559,18 +582,18 @@ public class SshFileManagementServiceImpl implements FileManagementService {
         Comparator<FileInfo> comparator;
 
         switch (sortBy != null ? sortBy : "name") {
-            case "size":
-                comparator = Comparator.comparing(f -> f.getSize() != null ? f.getSize() : 0L);
-                break;
-            case "modifyTime":
-                comparator = Comparator.comparing(f -> f.getModifyTime() != null ? f.getModifyTime() : LocalDateTime.MIN);
-                break;
-            case "type":
-                comparator = Comparator.comparing(f -> f.getIsDirectory() != null && f.getIsDirectory() ? "0" : "1");
-                break;
-            default:
-                comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
-                break;
+        case "size":
+            comparator = Comparator.comparing(f -> f.getSize() != null ? f.getSize() : 0L);
+            break;
+        case "modifyTime":
+            comparator = Comparator.comparing(f -> f.getModifyTime() != null ? f.getModifyTime() : LocalDateTime.MIN);
+            break;
+        case "type":
+            comparator = Comparator.comparing(f -> f.getIsDirectory() != null && f.getIsDirectory() ? "0" : "1");
+            break;
+        default:
+            comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
+            break;
         }
 
         // 目录优先
@@ -585,7 +608,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     }
 
     private FileInfo buildFileTree(SftpChannel sftp, String path, int maxDepth, Boolean includeHidden,
-                                   int currentDepth) {
+            int currentDepth) {
         if (currentDepth >= maxDepth) {
             return null;
         }
@@ -667,6 +690,163 @@ public class SshFileManagementServiceImpl implements FileManagementService {
         }
 
         return fileInfo;
+    }
+
+    /**
+     * 构建文件树（懒加载模式） 只加载当前层级的文件夹，不递归加载子目录
+     */
+    private FileInfo buildFileTreeLazy(SftpChannel sftp, String path, int maxDepth, Boolean includeHidden, int pageSize,
+            int pageIndex) {
+        // 检查路径是否存在
+        if (!sftp.exists(path)) {
+            return null;
+        }
+
+        String fileName = path.substring(path.lastIndexOf('/') + 1);
+        if (fileName.isEmpty()) {
+            fileName = "/";
+        }
+
+        String parentPath = path.substring(0, path.lastIndexOf('/'));
+        FileInfo fileInfo = buildFileInfoFromPath(sftp, fileName, parentPath, path);
+
+        if (sftp.isDirectory(path)) {
+            List<FileInfo> children = new ArrayList<>();
+            List<SftpItem> allDirectories = new ArrayList<>();
+
+            // 使用增强的 SftpChannel 获取文件列表
+            SftpItem[] items = null;
+            try {
+                items = sftp.list(path);
+            } catch (Exception e) {
+                log.warn("列出目录内容失败: {}", path, e);
+                fileInfo.setChildren(children); // 设置空的子项列表
+                return fileInfo;
+            }
+
+            if (items != null) {
+                // 先收集所有目录
+                for (SftpItem item : items) {
+                    if (item == null) {
+                        continue;
+                    }
+
+                    String childName = null;
+                    try {
+                        childName = item.getName();
+                    } catch (Exception e) {
+                        log.warn("获取子项名称失败: {}", path, e);
+                        continue;
+                    }
+
+                    if (childName == null || childName.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    if (".".equals(childName) || "..".equals(childName)) {
+                        continue;
+                    }
+
+                    if (!Boolean.TRUE.equals(includeHidden) && childName.startsWith(".")) {
+                        continue;
+                    }
+
+                    try {
+                        // 只收集目录，懒加载模式下不递归加载文件
+                        if (item.isDirectory()) {
+                            allDirectories.add(item);
+                        }
+                    } catch (Exception e) {
+                        log.warn("检查子项类型失败: childName={}, path={}", childName, path, e);
+                    }
+                }
+
+                // 排序以确保一致的顺序
+                allDirectories.sort(Comparator.comparing(item -> {
+                    try {
+                        return item.getName();
+                    } catch (Exception e) {
+                        return "";
+                    }
+                }));
+
+                // 实现分页
+                int totalEntries = allDirectories.size();
+                int startIndex = pageIndex * pageSize;
+                int endIndex = Math.min(startIndex + pageSize, totalEntries);
+
+                if (startIndex < totalEntries) {
+                    for (int i = startIndex; i < endIndex; i++) {
+                        SftpItem item = allDirectories.get(i);
+                        try {
+                            // 创建目录节点，但不递归加载其子目录
+                            FileInfo childInfo = createDirectoryNodeLazy(sftp, item, path, includeHidden);
+                            if (childInfo != null) {
+                                children.add(childInfo);
+                            }
+                        } catch (Exception e) {
+                            log.warn("创建目录节点失败: item={}, path={}", item, path, e);
+                        }
+                    }
+                }
+
+                // 如果有更多数据，设置hasMore标志
+                if (endIndex < totalEntries) {
+                    fileInfo.setExtraProperties("{\"hasMore\": true, \"totalCount\": " + totalEntries + "}");
+                }
+            }
+
+            fileInfo.setChildren(children);
+        }
+
+        return fileInfo;
+    }
+
+    /**
+     * 创建目录节点（懒加载模式） 只创建节点信息，不加载子目录
+     */
+    private FileInfo createDirectoryNodeLazy(SftpChannel sftp, SftpItem item, String parentPath,
+            Boolean includeHidden) {
+        try {
+            String childName = item.getName();
+            String childPath = parentPath.endsWith("/") ? parentPath + childName : parentPath + "/" + childName;
+
+            FileInfo childInfo = buildFileInfoFromSftpItem(item, parentPath);
+            if (childInfo != null) {
+                // 检查是否有子目录，用于前端显示展开图标
+                boolean hasChildren = false;
+                try {
+                    SftpItem[] subItems = sftp.list(childPath);
+                    if (subItems != null) {
+                        for (SftpItem subItem : subItems) {
+                            if (subItem != null && subItem.isDirectory()) {
+                                String subName = subItem.getName();
+                                if (!".".equals(subName) && !"..".equals(subName)) {
+                                    if (Boolean.TRUE.equals(includeHidden) || !subName.startsWith(".")) {
+                                        hasChildren = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // 忽略权限异常
+                    log.debug("检查子目录失败: {}", childPath, e);
+                }
+
+                // 如果有子目录，设置一个空的children列表，让前端知道这个节点可以展开
+                if (hasChildren) {
+                    childInfo.setChildren(new ArrayList<>());
+                    childInfo.setExtraProperties("{\"hasChildren\": true}");
+                }
+            }
+
+            return childInfo;
+        } catch (Exception e) {
+            log.warn("创建目录节点失败: {}", item, e);
+            return null;
+        }
     }
 
     // ==================== 已移除的旧方法 ====================
@@ -764,7 +944,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath,
-                                                        Boolean overwrite) {
+            Boolean overwrite) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -804,7 +984,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath,
-                                                        Boolean overwrite) {
+            Boolean overwrite) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -849,7 +1029,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions,
-                                                                 Boolean recursive) {
+            Boolean recursive) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -935,31 +1115,31 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> changeOwner(Integer serverId, String path, String owner, String group,
-                                                           Boolean recursive) {
+            Boolean recursive) {
         return ReturnResult.error("SSH模式暂不支持修改文件所有者操作");
     }
 
     @Override
     public ReturnResult<FileOperationResponse> searchFiles(Integer serverId, String searchPath, String pattern,
-                                                           Boolean includeContent, Integer maxResults) {
+            Boolean includeContent, Integer maxResults) {
         return ReturnResult.error("SSH模式暂不支持文件搜索操作");
     }
 
     @Override
     public ReturnResult<FileOperationResponse> compressFiles(Integer serverId, List<String> filePaths,
-                                                             String archivePath, String format) {
+            String archivePath, String format) {
         return ReturnResult.error("SSH模式暂不支持文件压缩操作");
     }
 
     @Override
     public ReturnResult<FileOperationResponse> extractArchive(Integer serverId, String archivePath, String extractPath,
-                                                              Boolean overwrite) {
+            Boolean overwrite) {
         return ReturnResult.error("SSH模式暂不支持文件解压操作");
     }
 
     @Override
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String encoding,
-                                                           Long maxSize) {
+    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String previewType,
+            Integer maxSizeMB) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -976,21 +1156,23 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             }
 
             long fileSize = sftp.getFileSize(filePath);
-            long previewSize = maxSize != null ? Math.min(fileSize, maxSize) : Math.min(fileSize, 1024 * 1024); // 默认最大1MB
+            long maxSizeBytes = maxSizeMB != null ? maxSizeMB * 1024L * 1024L : 10 * 1024L * 1024L; // 默认最大10MB
+            long previewSize = Math.min(fileSize, maxSizeBytes);
 
             try (InputStream inputStream = sftp.download(filePath)) {
                 byte[] buffer = new byte[(int) previewSize];
                 int bytesRead = inputStream.read(buffer);
 
-                String content = new String(buffer, 0, bytesRead, encoding != null ? encoding : "UTF-8");
+                String content = new String(buffer, 0, bytesRead, "UTF-8");
 
-                Map<String, Object> data = new HashMap<>();
-                data.put("content", content);
-                data.put("size", fileSize);
-                data.put("previewSize", bytesRead);
-                data.put("encoding", encoding != null ? encoding : "UTF-8");
+                FileOperationResponse response = new FileOperationResponse();
+                response.setSuccess(true);
+                response.setOperation("preview");
+                response.setMessage("文件预览成功");
+                response.setContent(content);
+                response.setContentType("text");
 
-                return ReturnResult.ok(FileOperationResponse.success("PREVIEW", "文件预览成功", data));
+                return ReturnResult.ok(response);
             }
 
         } catch (Exception e) {
@@ -1048,40 +1230,40 @@ public class SshFileManagementServiceImpl implements FileManagementService {
         }
 
         switch (FileOperationRequest.OperationType.fromCode(request.getOperation())) {
-            case LIST:
-                return listFiles(serverId, request.getPath(), request.getIncludeHiddenOrDefault(),
-                        request.getSortByOrDefault(), request.getSortOrderOrDefault());
-            case TREE:
-                return getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(),
-                        request.getIncludeHiddenOrDefault());
-            case DELETE:
-                return deleteFile(serverId, request.getPath(), request.getRecursiveOrDefault());
-            case RENAME:
-                return renameFile(serverId, request.getPath(), request.getNewName());
-            case MKDIR:
-                return createDirectory(serverId, request.getPath(), request.getRecursiveOrDefault());
-            case COPY:
-                return copyFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
-            case MOVE:
-                return moveFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
-            case SEARCH:
-                return searchFiles(serverId, request.getPath(), request.getPattern(), request.getIncludeContentOrDefault(),
-                        request.getMaxResultsOrDefault());
-            case PREVIEW:
-                return previewFile(serverId, request.getPath(), request.getEncoding(), request.getMaxSize());
-            case COMPRESS:
-                return compressFiles(serverId, request.getPaths(), request.getArchivePath(), request.getFormat());
-            case EXTRACT:
-                return extractArchive(serverId, request.getPath(), request.getExtractPath(),
-                        request.getOverwriteOrDefault());
-            default:
-                return ReturnResult.error("不支持的操作类型: " + request.getOperation());
+        case LIST:
+            return listFiles(serverId, request.getPath(), request.getIncludeHiddenOrDefault(),
+                    request.getSortByOrDefault(), request.getSortOrderOrDefault());
+        case TREE:
+            return getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(),
+                    request.getIncludeHiddenOrDefault());
+        case DELETE:
+            return deleteFile(serverId, request.getPath(), request.getRecursiveOrDefault());
+        case RENAME:
+            return renameFile(serverId, request.getPath(), request.getNewName());
+        case MKDIR:
+            return createDirectory(serverId, request.getPath(), request.getRecursiveOrDefault());
+        case COPY:
+            return copyFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
+        case MOVE:
+            return moveFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
+        case SEARCH:
+            return searchFiles(serverId, request.getPath(), request.getPattern(), request.getIncludeContentOrDefault(),
+                    request.getMaxResultsOrDefault());
+        case PREVIEW:
+            return previewFile(serverId, request.getPath(), "auto", 10);
+        case COMPRESS:
+            return compressFiles(serverId, request.getPaths(), request.getArchivePath(), request.getFormat());
+        case EXTRACT:
+            return extractArchive(serverId, request.getPath(), request.getExtractPath(),
+                    request.getOverwriteOrDefault());
+        default:
+            return ReturnResult.error("不支持的操作类型: " + request.getOperation());
         }
     }
 
     @Override
     public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths,
-                                                                Boolean recursive) {
+            Boolean recursive) {
         try {
             SftpChannel sftp = getSftpChannel(serverId);
             if (sftp == null) {
@@ -1157,7 +1339,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> getFileStatistics(Integer serverId, String path,
-                                                                 Boolean includeSubdirectories) {
+            Boolean includeSubdirectories) {
         return ReturnResult.error("SSH模式暂不支持文件统计信息查询");
     }
 
@@ -1178,13 +1360,13 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> syncFiles(Integer serverId, String sourcePath, String targetPath,
-                                                         Boolean deleteExtra) {
+            Boolean deleteExtra) {
         return ReturnResult.error("SSH模式暂不支持文件同步功能");
     }
 
     @Override
     public ReturnResult<FileOperationResponse> createSymbolicLink(Integer serverId, String targetPath,
-                                                                  String linkPath) {
+            String linkPath) {
         return ReturnResult.error("SSH模式暂不支持创建符号链接功能");
     }
 
@@ -1192,4 +1374,5 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> getFileSystemInfo(Integer serverId) {
         return ReturnResult.error("SSH模式暂不支持文件系统信息获取");
     }
+
 }
