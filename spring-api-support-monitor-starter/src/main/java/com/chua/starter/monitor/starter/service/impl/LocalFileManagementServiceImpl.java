@@ -998,6 +998,10 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
         // 根据文件扩展名自动判断
         String ext = fileName.substring(fileName.lastIndexOf('.') + 1);
 
+        if ("pdf".equals(ext)) {
+            return "pdf";
+        }
+
         // 图片文件
         if (ext.matches("jpg|jpeg|png|gif|bmp|svg|webp|ico")) {
             return "image";
