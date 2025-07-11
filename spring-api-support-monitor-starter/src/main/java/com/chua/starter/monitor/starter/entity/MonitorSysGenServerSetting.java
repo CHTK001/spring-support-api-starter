@@ -464,56 +464,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Schema(description = "读取超时时间 (秒)")
     private Integer monitorSysGenServerSettingReadTimeout;
 
-    // ==================== 文件上传配置 ====================
-
-    /**
-     * 是否启用文件上传队列处理 0:否 1:是
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_enabled")
-    @ApiModelProperty(value = "是否启用文件上传队列处理")
-    @Schema(description = "是否启用文件上传队列处理")
-    private Integer monitorSysGenServerSettingFileUploadEnabled;
-
-    /**
-     * 文件上传队列处理间隔 (秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_interval")
-    @ApiModelProperty(value = "文件上传队列处理间隔")
-    @Schema(description = "文件上传队列处理间隔 (秒)")
-    private Integer monitorSysGenServerSettingFileUploadInterval;
-
-    /**
-     * 文件上传状态检查间隔 (秒)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_status_check_interval")
-    @ApiModelProperty(value = "文件上传状态检查间隔")
-    @Schema(description = "文件上传状态检查间隔 (秒)")
-    private Integer monitorSysGenServerSettingFileUploadStatusCheckInterval;
-
-    /**
-     * 文件上传临时文件清理间隔 (小时)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_cleanup_interval")
-    @ApiModelProperty(value = "文件上传临时文件清理间隔")
-    @Schema(description = "文件上传临时文件清理间隔 (小时)")
-    private Integer monitorSysGenServerSettingFileUploadCleanupInterval;
-
-    /**
-     * 文件上传超时时间 (分钟)
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_timeout")
-    @ApiModelProperty(value = "文件上传超时时间")
-    @Schema(description = "文件上传超时时间 (分钟)")
-    private Integer monitorSysGenServerSettingFileUploadTimeout;
-
-    /**
-     * 文件上传最大重试次数
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_file_upload_max_retries")
-    @ApiModelProperty(value = "文件上传最大重试次数")
-    @Schema(description = "文件上传最大重试次数")
-    private Integer monitorSysGenServerSettingFileUploadMaxRetries;
-
     // ==================== 文件管理配置 ====================
 
     /**
@@ -795,13 +745,13 @@ public class MonitorSysGenServerSetting extends SysBase {
         return setting;
     }
 
-
     /**
      * 是否启用端口监控
      */
     public boolean isEnabled() {
         Integer monitorSysGenServerSettingPortMonitorEnabled = getMonitorSysGenServerSettingPortMonitorEnabled();
-        return null != monitorSysGenServerSettingPortMonitorEnabled && monitorSysGenServerSettingPortMonitorEnabled == 1;
+        return null != monitorSysGenServerSettingPortMonitorEnabled
+                && monitorSysGenServerSettingPortMonitorEnabled == 1;
     }
 
 }

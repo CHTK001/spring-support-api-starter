@@ -23,7 +23,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 分页查询服务器列表
      *
-     * @param page 分页参数
+     * @param page   分页参数
      * @param entity 查询条件
      * @return 分页结果
      */
@@ -80,7 +80,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 执行服务器命令
      *
-     * @param id 服务器ID
+     * @param id      服务器ID
      * @param command 命令
      * @return 执行结果
      */
@@ -97,7 +97,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 发送数据到服务器
      *
-     * @param id 服务器ID
+     * @param id   服务器ID
      * @param data 数据
      * @return 操作结果
      */
@@ -106,8 +106,8 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 调整终端大小
      *
-     * @param id 服务器ID
-     * @param width 宽度
+     * @param id     服务器ID
+     * @param width  宽度
      * @param height 高度
      * @return 操作结果
      */
@@ -116,7 +116,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 获取文件列表
      *
-     * @param id 服务器ID
+     * @param id   服务器ID
      * @param path 路径
      * @return 文件列表
      */
@@ -125,8 +125,8 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 上传文件
      *
-     * @param id 服务器ID
-     * @param localPath 本地路径
+     * @param id         服务器ID
+     * @param localPath  本地路径
      * @param remotePath 远程路径
      * @return 上传结果
      */
@@ -135,9 +135,9 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 下载文件
      *
-     * @param id 服务器ID
+     * @param id         服务器ID
      * @param remotePath 远程路径
-     * @param localPath 本地路径
+     * @param localPath  本地路径
      * @return 下载结果
      */
     ReturnResult<Boolean> downloadFile(String id, String remotePath, String localPath);
@@ -184,11 +184,12 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 批量操作服务器
      *
-     * @param ids 服务器ID列表
+     * @param ids    服务器ID列表
      * @param action 操作类型 (connect/disconnect/enable_monitoring/disable_monitoring)
      * @return 操作结果
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO> batchOperation(List<String> ids, String action);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO> batchOperation(List<String> ids,
+                                                                                               String action);
 
     /**
      * 获取服务器统计信息
@@ -211,12 +212,13 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param configData 配置数据
      * @return 导入结果
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.ImportServerConfigResultDTO> importServerConfig(String configData);
+    ReturnResult<com.chua.starter.monitor.starter.pojo.ImportServerConfigResultDTO> importServerConfig(
+            String configData);
 
     /**
      * 克隆服务器配置
      *
-     * @param sourceId 源服务器ID
+     * @param sourceId   源服务器ID
      * @param targetName 目标服务器名称
      * @return 克隆结果
      */
@@ -225,8 +227,8 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 更新服务器连接状态
      *
-     * @param id 服务器ID
-     * @param status 连接状态
+     * @param id           服务器ID
+     * @param status       连接状态
      * @param errorMessage 错误信息
      * @return 更新结果
      */
@@ -285,7 +287,8 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param timeRange  时间范围参数
      * @return 查询结果
      */
-    ReturnResult<Object> queryDataByConfig(String id, String queryType, String expression, Map<String, Object> timeRange);
+    ReturnResult<Object> queryDataByConfig(String id, String queryType, String expression,
+                                           Map<String, Object> timeRange);
 
     /**
      * 手动检测服务器信息
@@ -338,7 +341,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 保存服务器指标数据
      *
-     * @param serverId 服务器ID
+     * @param serverId   服务器ID
      * @param systemData 系统数据
      * @return 保存结果
      */
@@ -347,7 +350,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 通过WebSocket推送服务器数据
      *
-     * @param serverId 服务器ID
+     * @param serverId   服务器ID
      * @param systemData 系统数据
      */
     void pushServerDataToWebSocket(Integer serverId, Map<String, Object> systemData);
@@ -363,7 +366,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     /**
      * 更新服务器健康状态
      *
-     * @param serverId 服务器ID
+     * @param serverId  服务器ID
      * @param isHealthy 是否健康
      * @return 更新结果
      */
@@ -475,7 +478,8 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param interval  数据间隔（分钟）
      * @return 指标数据列表
      */
-    ReturnResult<List<Map<String, Object>>> getMetricsHistory(Integer serverId, String startTime, String endTime, Integer interval);
+    ReturnResult<List<Map<String, Object>>> getMetricsHistory(Integer serverId, String startTime, String endTime,
+                                                              Integer interval);
 
     /**
      * 测试Prometheus连接
@@ -484,5 +488,65 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @return 测试结果
      */
     ReturnResult<Boolean> testPrometheusConnection(Integer serverId);
+
+    /**
+     * 根据分组ID获取服务器列表
+     *
+     * @param groupId 分组ID
+     * @return 服务器列表
+     */
+    ReturnResult<List<MonitorSysGenServer>> getServersByGroupId(Integer groupId);
+
+    /**
+     * 根据分组ID分页查询服务器列表
+     *
+     * @param page    分页参数
+     * @param groupId 分组ID
+     * @param entity  查询条件
+     * @return 分页结果
+     */
+    IPage<MonitorSysGenServer> pageServersByGroupId(Page<MonitorSysGenServer> page, Integer groupId,
+                                                    MonitorSysGenServer entity);
+
+    /**
+     * 统计分组下的服务器数量
+     *
+     * @param groupId 分组ID
+     * @return 服务器数量
+     */
+    ReturnResult<Integer> countServersByGroupId(Integer groupId);
+
+    /**
+     * 批量更新服务器分组
+     *
+     * @param serverIds 服务器ID列表
+     * @param groupId   分组ID
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> batchUpdateServerGroup(List<Integer> serverIds, Integer groupId);
+
+    /**
+     * 移除服务器分组（设置为null）
+     *
+     * @param serverIds 服务器ID列表
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> removeServerGroup(List<Integer> serverIds);
+
+    /**
+     * 获取未分组的服务器列表
+     *
+     * @return 服务器列表
+     */
+    ReturnResult<List<MonitorSysGenServer>> getUngroupedServers();
+
+    /**
+     * 分页查询未分组的服务器列表
+     *
+     * @param page   分页参数
+     * @param entity 查询条件
+     * @return 分页结果
+     */
+    IPage<MonitorSysGenServer> pageUngroupedServers(Page<MonitorSysGenServer> page, MonitorSysGenServer entity);
 
 }

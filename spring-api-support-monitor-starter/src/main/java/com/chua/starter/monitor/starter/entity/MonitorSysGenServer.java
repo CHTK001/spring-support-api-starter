@@ -104,8 +104,6 @@ public class MonitorSysGenServer extends SysBase {
     @Size(max = 500, message = "私钥文件路径最大长度要小于 500")
     private String monitorSysGenServerPrivateKey;
 
-
-
     /**
      * 连接超时时间(毫秒)
      */
@@ -130,8 +128,6 @@ public class MonitorSysGenServer extends SysBase {
     @ApiModelProperty(value = "服务器状态")
     @Schema(description = "服务器状态")
     private Integer monitorSysGenServerStatus;
-
-
 
     /**
      * 服务器标签 (用于分组)
@@ -166,12 +162,6 @@ public class MonitorSysGenServer extends SysBase {
     @Schema(description = "连接失败原因")
     @Size(max = 1000, message = "连接失败原因最大长度要小于 1000")
     private String monitorSysGenServerConnectionError;
-
-
-
-
-
-
 
     /**
      * 代理ID (关联MonitorProxy表)
@@ -235,33 +225,34 @@ public class MonitorSysGenServer extends SysBase {
     @Schema(description = "网络延迟(毫秒)")
     private Long monitorSysGenServerLatency;
 
-
+    /**
+     * 服务器分组ID
+     */
+    @TableField(value = "monitor_sys_gen_server_group_id")
+    @ApiModelProperty(value = "服务器分组ID")
+    @Schema(description = "服务器分组ID")
+    private Integer monitorSysGenServerGroupId;
 
     /**
-     * 判断延迟是否正常
-     * 延迟小于100ms认为正常
+     * 判断延迟是否正常 延迟小于100ms认为正常
      */
     public boolean isLatencyNormal() {
         return this.monitorSysGenServerLatency != null && this.monitorSysGenServerLatency < 100;
     }
 
     /**
-     * 判断延迟是否较高
-     * 延迟大于等于100ms且小于500ms认为较高
+     * 判断延迟是否较高 延迟大于等于100ms且小于500ms认为较高
      */
     public boolean isLatencyHigh() {
-        return this.monitorSysGenServerLatency != null
-                && this.monitorSysGenServerLatency >= 100
+        return this.monitorSysGenServerLatency != null && this.monitorSysGenServerLatency >= 100
                 && this.monitorSysGenServerLatency < 500;
     }
 
     /**
-     * 判断延迟是否异常
-     * 延迟大于等于500ms认为异常
+     * 判断延迟是否异常 延迟大于等于500ms认为异常
      */
     public boolean isLatencyAbnormal() {
         return this.monitorSysGenServerLatency != null && this.monitorSysGenServerLatency >= 500;
     }
-
 
 }

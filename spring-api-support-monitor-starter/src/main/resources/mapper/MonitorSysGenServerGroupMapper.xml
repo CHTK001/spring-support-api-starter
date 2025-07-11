@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerGroupMapper">
+
+    <!-- 根据状态获取分组列表 -->
+    <select id="selectByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+        SELECT * FROM monitor_sys_gen_server_group
+        WHERE monitor_sys_gen_server_group_status = #{status}
+        ORDER BY monitor_sys_gen_server_group_sort ASC, create_time DESC
+    </select>
+
+    <!-- 获取默认分组 -->
+    <select id="selectDefaultGroup" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+        SELECT * FROM monitor_sys_gen_server_group
+        WHERE monitor_sys_gen_server_group_is_default = 1
+        AND monitor_sys_gen_server_group_status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 清除所有分组的默认状态 -->
+    <update id="clearDefaultGroups">
+        UPDATE monitor_sys_gen_server_group
+        SET monitor_sys_gen_server_group_is_default = 0
+        WHERE monitor_sys_gen_server_group_is_default = 1
+    </update>
+
+    <!-- 获取最大排序号 -->
+    <select id="selectMaxSort" resultType="java.lang.Integer">
+        SELECT COALESCE(MAX(monitor_sys_gen_server_group_sort), 0) 
+        FROM monitor_sys_gen_server_group
+    </select>
+
+    <!-- 批量更新排序号 -->
+    <update id="batchUpdateSort">
+        <foreach collection="groups" item="group" separator=";">
+            UPDATE monitor_sys_gen_server_group
+            SET monitor_sys_gen_server_group_sort = #{group.monitorSysGenServerGroupSort}
+            WHERE monitor_sys_gen_server_group_id = #{group.monitorSysGenServerGroupId}
+        </foreach>
+    </update>
+
+    <!-- 根据名称查询分组（排除指定ID） -->
+    <select id="countByNameExcludeId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM monitor_sys_gen_server_group
+        WHERE monitor_sys_gen_server_group_name = #{groupName}
+        <if test="excludeId != null">
+            AND monitor_sys_gen_server_group_id != #{excludeId}
+        </if>
+    </select>
+
+</mapper>
