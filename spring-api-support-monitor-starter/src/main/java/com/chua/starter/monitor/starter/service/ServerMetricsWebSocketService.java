@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -506,8 +507,12 @@ public class ServerMetricsWebSocketService {
 
             // 设置操作系统信息
             if (systemData.containsKey("osName")) {
-                String osInfo = systemData.get("osName") + " " + systemData.get("osVersion");
-                metrics.setMonitorSysGenServerMetricsOsInfo(osInfo);
+                Map<String, String> osInfo = new HashMap<>();
+                osInfo.put("osName", systemData.get("osName").toString());
+                osInfo.put("osArch", systemData.get("osArch").toString());
+                osInfo.put("osVersion", systemData.get("osVersion").toString());
+                osInfo.put("hostname", InetAddress.getByName(server.getMonitorSysGenServerHost()).getHostName());
+                metrics.setMonitorSysGenServerMetricsOsInfo(Json.toJson(osInfo));
             }
 
             // 设置响应时间（本地采集响应时间很快）
