@@ -176,22 +176,29 @@ public class FileInfo implements Serializable {
     private String extraProperties;
 
     /**
+     * 是否为叶子节点（用于Element Plus el-tree组件）
+     */
+    @ApiModelProperty(value = "是否为叶子节点")
+    @Schema(description = "是否为叶子节点（用于Element Plus el-tree组件）")
+    private Boolean leaf;
+
+    /**
      * 获取格式化的文件大小
      */
     public String getFormattedSize() {
         if (size == null || size == 0) {
             return "0 B";
         }
-        
-        String[] units = {"B", "KB", "MB", "GB", "TB"};
+
+        String[] units = { "B", "KB", "MB", "GB", "TB" };
         int unitIndex = 0;
         double fileSize = size.doubleValue();
-        
+
         while (fileSize >= 1024 && unitIndex < units.length - 1) {
             fileSize /= 1024;
             unitIndex++;
         }
-        
+
         return String.format("%.2f %s", fileSize, units[unitIndex]);
     }
 
@@ -202,60 +209,60 @@ public class FileInfo implements Serializable {
         if (isDirectory != null && isDirectory) {
             return "folder";
         }
-        
+
         if (extension == null || extension.isEmpty()) {
             return "file";
         }
-        
+
         String ext = extension.toLowerCase();
         switch (ext) {
-            case "txt":
-            case "log":
-            case "md":
-                return "file-text";
-            case "jpg":
-            case "jpeg":
-            case "png":
-            case "gif":
-            case "bmp":
-                return "file-image";
-            case "mp4":
-            case "avi":
-            case "mov":
-            case "wmv":
-                return "file-video";
-            case "mp3":
-            case "wav":
-            case "flac":
-                return "file-audio";
-            case "pdf":
-                return "file-pdf";
-            case "doc":
-            case "docx":
-                return "file-word";
-            case "xls":
-            case "xlsx":
-                return "file-excel";
-            case "ppt":
-            case "pptx":
-                return "file-powerpoint";
-            case "zip":
-            case "rar":
-            case "7z":
-            case "tar":
-            case "gz":
-                return "file-archive";
-            case "java":
-            case "js":
-            case "py":
-            case "cpp":
-            case "c":
-            case "php":
-            case "html":
-            case "css":
-                return "file-code";
-            default:
-                return "file";
+        case "txt":
+        case "log":
+        case "md":
+            return "file-text";
+        case "jpg":
+        case "jpeg":
+        case "png":
+        case "gif":
+        case "bmp":
+            return "file-image";
+        case "mp4":
+        case "avi":
+        case "mov":
+        case "wmv":
+            return "file-video";
+        case "mp3":
+        case "wav":
+        case "flac":
+            return "file-audio";
+        case "pdf":
+            return "file-pdf";
+        case "doc":
+        case "docx":
+            return "file-word";
+        case "xls":
+        case "xlsx":
+            return "file-excel";
+        case "ppt":
+        case "pptx":
+            return "file-powerpoint";
+        case "zip":
+        case "rar":
+        case "7z":
+        case "tar":
+        case "gz":
+            return "file-archive";
+        case "java":
+        case "js":
+        case "py":
+        case "cpp":
+        case "c":
+        case "php":
+        case "html":
+        case "css":
+            return "file-code";
+        default:
+            return "file";
         }
     }
 
@@ -266,13 +273,11 @@ public class FileInfo implements Serializable {
         if (extension == null || extension.isEmpty()) {
             return false;
         }
-        
+
         String ext = extension.toLowerCase();
-        String[] textExtensions = {
-            "txt", "log", "md", "json", "xml", "yml", "yaml", "properties",
-            "java", "js", "py", "cpp", "c", "h", "php", "html", "css", "sql"
-        };
-        
+        String[] textExtensions = { "txt", "log", "md", "json", "xml", "yml", "yaml", "properties", "java", "js", "py",
+                "cpp", "c", "h", "php", "html", "css", "sql" };
+
         for (String textExt : textExtensions) {
             if (textExt.equals(ext)) {
                 return true;
@@ -288,10 +293,10 @@ public class FileInfo implements Serializable {
         if (extension == null || extension.isEmpty()) {
             return false;
         }
-        
+
         String ext = extension.toLowerCase();
-        String[] imageExtensions = {"jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"};
-        
+        String[] imageExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "svg", "webp" };
+
         for (String imageExt : imageExtensions) {
             if (imageExt.equals(ext)) {
                 return true;
@@ -307,10 +312,10 @@ public class FileInfo implements Serializable {
         if (extension == null || extension.isEmpty()) {
             return false;
         }
-        
+
         String ext = extension.toLowerCase();
-        String[] archiveExtensions = {"zip", "rar", "7z", "tar", "gz", "bz2", "xz"};
-        
+        String[] archiveExtensions = { "zip", "rar", "7z", "tar", "gz", "bz2", "xz" };
+
         for (String archiveExt : archiveExtensions) {
             if (archiveExt.equals(ext)) {
                 return true;
@@ -326,7 +331,7 @@ public class FileInfo implements Serializable {
         if (permissions == null || permissions.isEmpty()) {
             return "未知";
         }
-        
+
         StringBuilder desc = new StringBuilder();
         if (readable != null && readable) {
             desc.append("读 ");
@@ -337,7 +342,7 @@ public class FileInfo implements Serializable {
         if (executable != null && executable) {
             desc.append("执行 ");
         }
-        
+
         return desc.toString().trim();
     }
 
@@ -359,8 +364,7 @@ public class FileInfo implements Serializable {
      * 判断是否为空目录
      */
     public boolean isEmptyDirectory() {
-        return isDirectory != null && isDirectory && 
-               (children == null || children.isEmpty());
+        return isDirectory != null && isDirectory && (children == null || children.isEmpty());
     }
 
     /**
@@ -377,49 +381,34 @@ public class FileInfo implements Serializable {
         if (children == null || children.isEmpty()) {
             return false;
         }
-        
-        return children.stream().anyMatch(child -> 
-            child.getIsDirectory() != null && child.getIsDirectory());
+
+        return children.stream().anyMatch(child -> child.getIsDirectory() != null && child.getIsDirectory());
     }
 
     /**
      * 创建简单文件信息
      */
     public static FileInfo createSimple(String name, String path, boolean isDirectory) {
-        return FileInfo.builder()
-                .name(name)
-                .path(path)
-                .isDirectory(isDirectory)
-                .build();
+        return FileInfo.builder().name(name).path(path).isDirectory(isDirectory).build();
     }
 
     /**
      * 创建目录信息
      */
     public static FileInfo createDirectory(String name, String path) {
-        return FileInfo.builder()
-                .name(name)
-                .path(path)
-                .isDirectory(true)
-                .size(0L)
-                .build();
+        return FileInfo.builder().name(name).path(path).isDirectory(true).size(0L).build();
     }
 
     /**
      * 创建文件信息
      */
     public static FileInfo createFile(String name, String path, long size) {
-        return FileInfo.builder()
-                .name(name)
-                .path(path)
-                .isDirectory(false)
-                .size(size)
-                .build();
+        return FileInfo.builder().name(name).path(path).isDirectory(false).size(size).build();
     }
 
     @Override
     public String toString() {
-        return String.format("FileInfo{name='%s', path='%s', isDirectory=%s, size=%s}", 
-                name, path, isDirectory, getFormattedSize());
+        return String.format("FileInfo{name='%s', path='%s', isDirectory=%s, size=%s}", name, path, isDirectory,
+                getFormattedSize());
     }
 }
