@@ -1,7 +1,5 @@
 package com.chua.starter.monitor.starter.service.impl;
 
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
-
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.ssh.support.SftpItem;
@@ -16,8 +14,10 @@ import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 
 /**
  * SSH文件管理服务实现
@@ -1161,16 +1163,22 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
             try (InputStream inputStream = sftp.download(filePath)) {
                 byte[] buffer = new byte[(int) previewSize];
-                int bytesRead = inputStream.read(buffer);
-
-                String content = new String(buffer, 0, bytesRead, "UTF-8");
-
+                inputStream.read(buffer);
                 FileOperationResponse response = new FileOperationResponse();
                 response.setSuccess(true);
                 response.setOperation("preview");
                 response.setMessage("文件预览成功");
-                response.setContent(content);
-                response.setContentType("text");
+                response.setContentBytes(buffer);
+                if (filePath.endsWith(".txt")) {
+                    response.setContentType("text");
+                    response.setMediaType(TEXT_PLAIN);
+                } else if (filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".gif")) {
+                    response.setContentType("image");
+                    response.setMediaType(MediaType.IMAGE_PNG);
+                } else if (filePath.endsWith(".pdf")) {
+                    response.setContentType("pdf");
+                    response.setMediaType(MediaType.APPLICATION_PDF);
+                }
 
                 return ReturnResult.ok(response);
             }

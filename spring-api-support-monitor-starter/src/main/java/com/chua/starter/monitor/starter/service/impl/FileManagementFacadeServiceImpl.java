@@ -9,8 +9,12 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingServic
 import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * 文件管理门面服务实现 统一处理文件管理的路由逻辑
@@ -119,19 +123,31 @@ public class FileManagementFacadeServiceImpl {
     /**
      * 预览文件
      */
-    public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String previewType,
-            Integer maxSizeMB) {
+    public ResponseEntity<byte[]> previewFile(Integer serverId, String filePath, String previewType,
+                                              Integer maxSizeMB) {
         try {
             FileManagementService service = getFileManagementService(serverId);
             if (service == null) {
-                return ReturnResult.error("服务器文件管理模式未配置或未启用");
+                return ResponseEntity.badRequest()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body("服务器文件管理模式未配置或未启用".getBytes(StandardCharsets.UTF_8));
             }
 
-            return service.previewFile(serverId, filePath, previewType, maxSizeMB);
-
+            ReturnResult<FileOperationResponse> fileOperationResponseReturnResult = service.previewFile(serverId, filePath, previewType, maxSizeMB);
+            if (!fileOperationResponseReturnResult.isOk()) {
+                return ResponseEntity.badRequest()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(fileOperationResponseReturnResult.getMsg().getBytes(StandardCharsets.UTF_8));
+            }
+            FileOperationResponse fileOperationResponse = fileOperationResponseReturnResult.getData();
+            return ResponseEntity.ok()
+                    .contentType(fileOperationResponse.getMediaType())
+                    .body(fileOperationResponse.getAll());
         } catch (Exception e) {
             log.error("预览文件失败: serverId={}, filePath={}", serverId, filePath, e);
-            return ReturnResult.error("预览文件失败: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(("预览文件失败: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
     }
 

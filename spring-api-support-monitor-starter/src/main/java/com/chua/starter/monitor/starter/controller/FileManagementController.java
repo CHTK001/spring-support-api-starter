@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -132,7 +133,7 @@ public class FileManagementController {
 
     @Operation(summary = "预览文件", description = "获取文件内容用于预览")
     @GetMapping("/preview")
-    public ReturnResult<FileOperationResponse> previewFile(
+    public ResponseEntity<byte[]> previewFile(
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
             @Parameter(description = "文件路径", required = true) @RequestParam String filePath,
             @Parameter(description = "预览类型") @RequestParam(defaultValue = "auto") String previewType,

@@ -6,13 +6,13 @@ import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_PDF;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 
 /**
  * 本地文件管理服务实现
@@ -955,6 +958,8 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
                 return previewTextFile(path, response);
             case "image":
                 return previewImageFile(path, response);
+                case "pdf":
+                    return previewPdfFile(path, response);
             case "binary":
                 response.setSuccess(false);
                 response.setMessage("二进制文件无法预览");
@@ -971,6 +976,15 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
             response.setMessage("预览文件失败: " + e.getMessage());
             return ReturnResult.ok(response);
         }
+    }
+
+    private ReturnResult<FileOperationResponse> previewPdfFile(Path path, FileOperationResponse response) throws IOException {
+        response.setSuccess(true);
+        response.setMessage("预览成功");
+        response.setContentType("application/pdf");
+        response.setMediaType(APPLICATION_PDF);
+        response.setContentBytes(Files.readAllBytes(path));
+        return ReturnResult.ok(response);
     }
 
     /**
@@ -1003,11 +1017,11 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
      */
     private ReturnResult<FileOperationResponse> previewTextFile(Path path, FileOperationResponse response)
             throws IOException {
-        String content = Files.readString(path, StandardCharsets.UTF_8);
         response.setSuccess(true);
         response.setMessage("文本文件预览成功");
-        response.setContent(content);
         response.setContentType("text");
+        response.setMediaType(TEXT_PLAIN);
+        response.setContentBytes(Files.readAllBytes(path));
         return ReturnResult.ok(response);
     }
 
@@ -1017,7 +1031,6 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
     private ReturnResult<FileOperationResponse> previewImageFile(Path path, FileOperationResponse response)
             throws IOException {
         byte[] imageBytes = Files.readAllBytes(path);
-        String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
 
         // 获取MIME类型
         String mimeType = Files.probeContentType(path);
@@ -1027,6 +1040,8 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
                 mimeType = "image/jpeg";
             } else if (ext.endsWith(".png")) {
                 mimeType = "image/png";
+            } else if (ext.endsWith(".webp")) {
+                mimeType = "image/webp";
             } else if (ext.endsWith(".gif")) {
                 mimeType = "image/gif";
             } else {
@@ -1034,11 +1049,10 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
             }
         }
 
-        String dataUrl = "data:" + mimeType + ";base64," + base64Image;
-
+        response.setMediaType(MediaType.parseMediaTypes(mimeType).getFirst());
+        response.setContentBytes(imageBytes);
         response.setSuccess(true);
         response.setMessage("图片文件预览成功");
-        response.setContent(dataUrl);
         response.setContentType("image");
         return ReturnResult.ok(response);
     }
