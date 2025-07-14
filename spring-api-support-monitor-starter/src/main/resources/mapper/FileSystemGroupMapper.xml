@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemGroupMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemGroup">
+        <id column="file_system_group_id" property="fileSystemGroupId" jdbcType="INTEGER"/>
+        <result column="file_system_group_name" property="fileSystemGroupName" jdbcType="VARCHAR"/>
+        <result column="file_system_group_parent_id" property="fileSystemGroupParentId" jdbcType="INTEGER"/>
+        <result column="file_system_group_path" property="fileSystemGroupPath" jdbcType="VARCHAR"/>
+        <result column="file_system_group_full_path" property="fileSystemGroupFullPath" jdbcType="VARCHAR"/>
+        <result column="file_system_group_level" property="fileSystemGroupLevel" jdbcType="INTEGER"/>
+        <result column="file_system_group_tree_path" property="fileSystemGroupTreePath" jdbcType="VARCHAR"/>
+        <result column="file_system_group_description" property="fileSystemGroupDescription" jdbcType="VARCHAR"/>
+        <result column="file_system_group_is_default" property="fileSystemGroupIsDefault" jdbcType="BOOLEAN"/>
+        <result column="file_system_group_sort" property="fileSystemGroupSort" jdbcType="INTEGER"/>
+        <result column="file_system_group_status" property="fileSystemGroupStatus" jdbcType="INTEGER"/>
+        <result column="file_system_group_icon" property="fileSystemGroupIcon" jdbcType="VARCHAR"/>
+        <result column="file_system_group_color" property="fileSystemGroupColor" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="file_count" property="fileCount" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        file_system_group_id, file_system_group_name, file_system_group_parent_id,
+        file_system_group_path, file_system_group_full_path, file_system_group_level,
+        file_system_group_tree_path, file_system_group_description, file_system_group_is_default,
+        file_system_group_sort, file_system_group_status, file_system_group_icon,
+        file_system_group_color, create_time, update_time, create_by, update_by
+    </sql>
+
+    <!-- 查询分组树（包含文件数量统计） -->
+    <select id="selectGroupTreeWithFileCount" resultMap="BaseResultMap">
+        SELECT 
+            g.<include refid="Base_Column_List"/>,
+            COALESCE(f.file_count, 0) as file_count
+        FROM file_system_group g
+        LEFT JOIN (
+            SELECT 
+                file_system_group_id,
+                COUNT(*) as file_count
+            FROM file_system
+            WHERE file_system_group_id IS NOT NULL
+            GROUP BY file_system_group_id
+        ) f ON g.file_system_group_id = f.file_system_group_id
+        ORDER BY g.file_system_group_sort ASC, g.file_system_group_id ASC
+    </select>
+
+    <!-- 查询默认分组 -->
+    <select id="selectDefaultGroup" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM file_system_group
+        WHERE file_system_group_is_default = 1
+        AND file_system_group_status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 统计分组下的文件数量 -->
+    <select id="countFilesByGroupId" parameterType="java.lang.Integer" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM file_system
+        WHERE file_system_group_id = #{groupId}
+    </select>
+
+    <!-- 查询分组及其所有子分组的ID -->
+    <select id="selectGroupAndChildrenIds" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        <![CDATA[
+        WITH RECURSIVE group_tree AS (
+            -- 查询指定分组
+            SELECT file_system_group_id
+            FROM file_system_group
+            WHERE file_system_group_id = #{groupId}
+            
+            UNION ALL
+            
+            -- 递归查询子分组
+            SELECT g.file_system_group_id
+            FROM file_system_group g
+            INNER JOIN group_tree gt ON g.file_system_group_parent_id = gt.file_system_group_id
+        )
+        SELECT file_system_group_id FROM group_tree
+        ]]>
+    </select>
+
+    <!-- 根据父分组ID查询子分组 -->
+    <select id="selectByParentId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM file_system_group
+        WHERE file_system_group_parent_id = #{parentId}
+        ORDER BY file_system_group_sort ASC, file_system_group_id ASC
+    </select>
+
+</mapper>
