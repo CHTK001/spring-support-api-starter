@@ -215,7 +215,7 @@ public class FileSystemController {
             ReturnResult<FileSystem> fileResult = fileSystemService.getFileDetail(fileId);
             String fileName = "download";
             if (fileResult.isSuccess() && fileResult.getData() != null) {
-                fileName = fileResult.getData().getFileSystemOriginalName();
+                fileName = fileResult.getData().getFileOriginalName();
             }
 
             HttpHeaders headers = new HttpHeaders();
@@ -398,9 +398,9 @@ public class FileSystemController {
 
             // 如果是图片、视频等可预览的文件，设置为inline；否则设置为attachment
             if (isPreviewableFile(fileSystem.getFileSystemType())) {
-                headers.setContentDispositionFormData("inline", fileSystem.getFileSystemOriginalName());
+                headers.setContentDispositionFormData("inline", fileSystem.getFileOriginalName());
             } else {
-                headers.setContentDispositionFormData("attachment", fileSystem.getFileSystemOriginalName());
+                headers.setContentDispositionFormData("attachment", fileSystem.getFileOriginalName());
             }
 
             return ResponseEntity.ok().headers(headers).body(result.getData());
