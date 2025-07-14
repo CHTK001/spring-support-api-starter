@@ -20,6 +20,8 @@
         <result column="file_system_upload_start_time" property="fileSystemUploadStartTime" />
         <result column="file_system_upload_complete_time" property="fileSystemUploadCompleteTime" />
         <result column="file_system_remark" property="fileSystemRemark" />
+        <result column="file_system_group_id" property="fileSystemGroupId" />
+        <result column="file_system_group_name" property="fileSystemGroupName" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="create_by" property="createBy" />
@@ -31,7 +33,7 @@
         file_system_id, file_system_name, file_system_original_name, file_system_path, file_system_size, file_system_md5,
         file_system_type, file_system_extension, file_system_chunk_total, file_system_chunk_uploaded, file_system_status,
         file_system_http_access_enabled, file_system_http_access_url, file_system_upload_start_time, file_system_upload_complete_time,
-        file_system_remark, create_time, update_time, create_by, update_by
+        file_system_remark, file_system_group_id, create_time, update_time, create_by, update_by
     </sql>
 
     <!-- 根据MD5查找文件 -->
@@ -75,9 +77,9 @@
     </delete>
 
     <!-- 统计各状态文件数量 -->
-    <select id="countByStatus" resultType="java.util.Map">
+    <select id="countByStatus" resultType="com.chua.starter.monitor.starter.pojo.FileSystemStatusCountDTO">
         SELECT
-            file_system_status,
+            file_system_status as fileSystemStatus,
             COUNT(*) as count
         FROM file_system
         GROUP BY file_system_status

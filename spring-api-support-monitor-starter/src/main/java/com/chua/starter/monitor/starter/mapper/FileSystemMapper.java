@@ -44,7 +44,7 @@ public interface FileSystemMapper extends BaseMapper<FileSystem> {
     /**
      * 更新已上传分片数
      *
-     * @param fileId 文件ID
+     * @param fileId        文件ID
      * @param chunkUploaded 已上传分片数
      * @return 更新的记录数
      */
@@ -63,5 +63,5 @@ public interface FileSystemMapper extends BaseMapper<FileSystem> {
      *
      * @return 状态统计信息
      */
-    List<java.util.Map<String, Object>> countByStatus();
+    List<com.chua.starter.monitor.starter.pojo.FileSystemStatusCountDTO> countByStatus();
 }
