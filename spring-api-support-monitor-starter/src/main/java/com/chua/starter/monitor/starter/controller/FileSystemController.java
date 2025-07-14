@@ -381,7 +381,7 @@ public class FileSystemController {
             }
 
             FileSystem fileSystem = fileResult.getData();
-            if (!Boolean.TRUE.equals(fileSystem.getFileSystemHttpAccessEnabled())) {
+            if (!Boolean.TRUE.equals(fileSystem.getHttpAccessEnabled())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("文件HTTP访问未启用".getBytes());
             }
 
@@ -393,11 +393,11 @@ public class FileSystemController {
 
             // 设置响应头
             HttpHeaders headers = new HttpHeaders();
-            String contentType = getContentType(fileSystem.getFileSystemExtension());
+            String contentType = getContentType(fileSystem.getFileExtension());
             headers.setContentType(MediaType.parseMediaType(contentType));
 
             // 如果是图片、视频等可预览的文件，设置为inline；否则设置为attachment
-            if (isPreviewableFile(fileSystem.getFileSystemType())) {
+            if (isPreviewableFile(fileSystem.getFileType())) {
                 headers.setContentDispositionFormData("inline", fileSystem.getFileOriginalName());
             } else {
                 headers.setContentDispositionFormData("attachment", fileSystem.getFileOriginalName());
