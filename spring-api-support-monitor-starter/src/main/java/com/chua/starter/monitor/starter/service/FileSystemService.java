@@ -37,9 +37,11 @@ public interface FileSystemService extends IService<FileSystem> {
      * @param fileSize  文件大小
      * @param fileMd5   文件MD5
      * @param chunkSize 分片大小
+     * @param groupId   文件分组ID
      * @return 初始化结果，包含文件ID和分片数量
      */
-    ReturnResult<FileInitUploadDTO> initChunkUpload(String fileName, Long fileSize, String fileMd5, Long chunkSize);
+    ReturnResult<FileInitUploadDTO> initChunkUpload(String fileName, Long fileSize, String fileMd5, Long chunkSize,
+            Integer groupId);
 
     /**
      * 上传文件分片
@@ -67,6 +69,15 @@ public interface FileSystemService extends IService<FileSystem> {
      * @return 合并结果
      */
     ReturnResult<Boolean> manualMergeFile(Integer fileId);
+
+    /**
+     * 设置文件分组
+     *
+     * @param fileId  文件ID
+     * @param groupId 分组ID，null表示移除分组
+     * @return 设置结果
+     */
+    ReturnResult<Boolean> setFileGroup(Integer fileId, Integer groupId);
 
     /**
      * 删除文件

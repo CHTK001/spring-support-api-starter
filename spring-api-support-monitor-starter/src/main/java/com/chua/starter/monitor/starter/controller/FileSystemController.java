@@ -80,12 +80,14 @@ public class FileSystemController {
             @ApiParam("文件名") @Parameter(description = "文件名") @RequestParam String fileName,
             @ApiParam("文件大小(字节)") @Parameter(description = "文件大小(字节)") @RequestParam Long fileSize,
             @ApiParam("文件MD5值") @Parameter(description = "文件MD5值") @RequestParam String fileMd5,
-            @ApiParam("分片大小(字节)，可选") @Parameter(description = "分片大小(字节)，可选") @RequestParam(required = false, defaultValue = "0") Long chunkSize) {
+            @ApiParam("分片大小(字节)，可选") @Parameter(description = "分片大小(字节)，可选") @RequestParam(required = false, defaultValue = "0") Long chunkSize,
+            @ApiParam("文件分组ID，可选") @Parameter(description = "文件分组ID，可选") @RequestParam(required = false) Integer groupId) {
 
-        log.info("初始化分片上传: fileName={}, fileSize={}, fileMd5={}, chunkSize={}", fileName, fileSize, fileMd5, chunkSize);
+        log.info("初始化分片上传: fileName={}, fileSize={}, fileMd5={}, chunkSize={}, groupId={}", fileName, fileSize, fileMd5,
+                chunkSize, groupId);
 
         try {
-            return fileSystemService.initChunkUpload(fileName, fileSize, fileMd5, chunkSize);
+            return fileSystemService.initChunkUpload(fileName, fileSize, fileMd5, chunkSize, groupId);
         } catch (Exception e) {
             log.error("初始化分片上传失败", e);
             return ReturnResult.error("初始化失败: " + e.getMessage());
@@ -172,6 +174,26 @@ public class FileSystemController {
         } catch (Exception e) {
             log.error("删除文件失败", e);
             return ReturnResult.error("删除失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 设置文件分组
+     */
+    @ApiOperation("设置文件分组")
+    @Operation(summary = "设置文件分组", description = "为已上传的文件设置分组")
+    @PutMapping("/set-group/{fileId}")
+    public ReturnResult<Boolean> setFileGroup(
+            @ApiParam("文件ID") @Parameter(description = "文件ID") @PathVariable Integer fileId,
+            @ApiParam("分组ID") @Parameter(description = "分组ID，null表示移除分组") @RequestParam(required = false) Integer groupId) {
+
+        log.info("设置文件分组: fileId={}, groupId={}", fileId, groupId);
+
+        try {
+            return fileSystemService.setFileGroup(fileId, groupId);
+        } catch (Exception e) {
+            log.error("设置文件分组失败", e);
+            return ReturnResult.error("设置分组失败: " + e.getMessage());
         }
     }
 
