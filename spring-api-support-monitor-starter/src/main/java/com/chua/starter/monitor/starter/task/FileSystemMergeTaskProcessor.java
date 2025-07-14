@@ -105,21 +105,21 @@ public class FileSystemMergeTaskProcessor {
                 }
 
                 // 只处理待合并状态的文件
-                if (fileSystem.getFileStatus() != FileSystem.FileStatus.PENDING_MERGE) {
-                    log.debug("文件状态不是待合并，跳过: fileId={}, status={}", fileId, fileSystem.getFileStatus());
+                if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.PENDING_MERGE) {
+                    log.debug("文件状态不是待合并，跳过: fileId={}, status={}", fileId, fileSystem.getFileSystemStatus());
                     continue;
                 }
 
                 // 检查是否所有分片都已上传完成
                 int completedChunks = fileSystemPartService.countCompletedChunks(fileId);
-                if (completedChunks == fileSystem.getChunkTotal()) {
+                if (completedChunks == fileSystem.getFileSystemChunkTotal()) {
                     // 异步执行合并任务
                     processMergeFileAsync(fileId);
                 } else {
                     // 分片未完成，重新放回队列稍后处理
                     mergeQueue.enqueue(fileId);
                     log.debug("文件分片未完成，重新入队: fileId={}, completed={}/{}", fileId, completedChunks,
-                            fileSystem.getChunkTotal());
+                            fileSystem.getFileSystemChunkTotal());
                 }
 
             } catch (Exception e) {
@@ -142,7 +142,7 @@ public class FileSystemMergeTaskProcessor {
         try {
             // 查询待合并的文件
             List<FileSystem> pendingFiles = fileSystemService.lambdaQuery()
-                    .eq(FileSystem::getFileStatus, FileSystem.FileStatus.PENDING_MERGE).last("LIMIT 50") // 限制查询数量
+                    .eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.PENDING_MERGE).last("LIMIT 50") // 限制查询数量
                     .list();
 
             if (!pendingFiles.isEmpty()) {
@@ -150,7 +150,7 @@ public class FileSystemMergeTaskProcessor {
 
                 // 将文件ID添加到队列
                 for (FileSystem fileSystem : pendingFiles) {
-                    mergeQueue.enqueue(fileSystem.getFileId());
+                    mergeQueue.enqueue(fileSystem.getFileSystemId());
                 }
             }
 
@@ -177,7 +177,7 @@ public class FileSystemMergeTaskProcessor {
 
             // 查询合并失败的文件（限制重试次数）
             List<FileSystem> failedFiles = fileSystemService.lambdaQuery()
-                    .eq(FileSystem::getFileStatus, FileSystem.FileStatus.MERGE_FAILED).last("LIMIT 10").list();
+                    .eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.MERGE_FAILED).last("LIMIT 10").list();
 
             if (failedFiles.isEmpty()) {
                 log.debug("没有需要重试的失败文件");
@@ -190,12 +190,12 @@ public class FileSystemMergeTaskProcessor {
             for (FileSystem fileSystem : failedFiles) {
                 try {
                     // 重置状态为待合并
-                    fileSystemService.lambdaUpdate().eq(FileSystem::getFileId, fileSystem.getFileId())
-                            .set(FileSystem::getFileStatus, FileSystem.FileStatus.PENDING_MERGE).update();
+                    fileSystemService.lambdaUpdate().eq(FileSystem::getFileSystemId, fileSystem.getFileSystemId())
+                            .set(FileSystem::getFileSystemStatus, FileSystem.FileStatus.PENDING_MERGE).update();
 
-                    log.info("重置失败文件状态为待合并: fileId={}", fileSystem.getFileId());
+                    log.info("重置失败文件状态为待合并: fileId={}", fileSystem.getFileSystemId());
                 } catch (Exception e) {
-                    log.error("重置失败文件状态失败: fileId={}", fileSystem.getFileId(), e);
+                    log.error("重置失败文件状态失败: fileId={}", fileSystem.getFileSystemId(), e);
                 }
             }
 
@@ -242,8 +242,8 @@ public class FileSystemMergeTaskProcessor {
             }
 
             // 更新状态为合并中
-            fileSystemService.lambdaUpdate().eq(FileSystem::getFileId, fileId)
-                    .set(FileSystem::getFileStatus, FileSystem.FileStatus.MERGING).update();
+            fileSystemService.lambdaUpdate().eq(FileSystem::getFileSystemId, fileId)
+                    .set(FileSystem::getFileSystemStatus, FileSystem.FileStatus.MERGING).update();
 
             // 发送合并开始消息
             fileSystemSseService.sendMergeProgress(fileId, 0.0, "开始合并");
@@ -273,7 +273,7 @@ public class FileSystemMergeTaskProcessor {
             }
 
             // 创建目标文件目录
-            Path targetPath = Paths.get(fileSystem.getFilePath());
+            Path targetPath = Paths.get(fileSystem.getFileSystemPath());
             Files.createDirectories(targetPath.getParent());
 
             // 合并分片文件
@@ -285,14 +285,15 @@ public class FileSystemMergeTaskProcessor {
             }
 
             long mergedFileSize = Files.size(targetPath);
-            if (!fileSystem.getFileSize().equals(mergedFileSize)) {
-                throw new RuntimeException("合并后文件大小不匹配: 期望=" + fileSystem.getFileSize() + ", 实际=" + mergedFileSize);
+            if (!fileSystem.getFileSystemSize().equals(mergedFileSize)) {
+                throw new RuntimeException(
+                        "合并后文件大小不匹配: 期望=" + fileSystem.getFileSystemSize() + ", 实际=" + mergedFileSize);
             }
 
             // 更新文件状态为已完成
-            fileSystemService.lambdaUpdate().eq(FileSystem::getFileId, fileId)
-                    .set(FileSystem::getFileStatus, FileSystem.FileStatus.COMPLETED)
-                    .set(FileSystem::getUploadCompleteTime, LocalDateTime.now()).update();
+            fileSystemService.lambdaUpdate().eq(FileSystem::getFileSystemId, fileId)
+                    .set(FileSystem::getFileSystemStatus, FileSystem.FileStatus.COMPLETED)
+                    .set(FileSystem::getFileSystemUploadCompleteTime, LocalDateTime.now()).update();
 
             // 发送合并完成消息
             fileSystemSseService.sendMergeProgress(fileId, 100.0, "合并完成");
@@ -308,8 +309,8 @@ public class FileSystemMergeTaskProcessor {
 
             // 更新状态为合并失败
             try {
-                fileSystemService.lambdaUpdate().eq(FileSystem::getFileId, fileId)
-                        .set(FileSystem::getFileStatus, FileSystem.FileStatus.MERGE_FAILED).update();
+                fileSystemService.lambdaUpdate().eq(FileSystem::getFileSystemId, fileId)
+                        .set(FileSystem::getFileSystemStatus, FileSystem.FileStatus.MERGE_FAILED).update();
 
                 // 发送合并失败消息
                 fileSystemSseService.sendMergeProgress(fileId, 0.0, "合并失败: " + e.getMessage());
