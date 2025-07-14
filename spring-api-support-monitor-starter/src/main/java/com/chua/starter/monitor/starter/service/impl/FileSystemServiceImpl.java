@@ -167,28 +167,28 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             // 创建分片记录
             for (int i = 0; i < chunkTotal; i++) {
                 FileSystemPart part = new FileSystemPart();
-                part.setFileSystemPartFileId(fileSystem.getFileId());
+                part.setFileSystemPartFileId(fileSystem.getFileSystemId());
                 part.setFileSystemPartChunkNumber(i);
                 part.setFileSystemPartChunkStatus(FileSystemPart.ChunkStatus.PENDING);
                 part.setFileSystemPartRetryCount(0);
                 fileSystemPartService.save(part);
             }
 
-            FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(fileSystem.getFileId()).chunkTotal(chunkTotal)
-                    .chunkSize(actualChunkSize).fileName(fileSystem.getFileName()).fileSize(fileSize).fileMd5(fileMd5)
-                    .build();
+            FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(fileSystem.getFileSystemId())
+                    .chunkTotal(chunkTotal).chunkSize(actualChunkSize).fileName(fileSystem.getFileSystemName())
+                    .fileSize(fileSize).fileMd5(fileMd5).build();
 
             // 发送文件创建消息
             Map<String, Object> fileInfo = new HashMap<>();
-            fileInfo.put("fileId", fileSystem.getFileId());
-            fileInfo.put("fileName", fileSystem.getFileName());
-            fileInfo.put("originalName", fileSystem.getFileOriginalName());
-            fileInfo.put("fileSize", fileSystem.getFileSize());
+            fileInfo.put("fileId", fileSystem.getFileSystemId());
+            fileInfo.put("fileName", fileSystem.getFileSystemName());
+            fileInfo.put("originalName", fileSystem.getFileSystemOriginalName());
+            fileInfo.put("fileSize", fileSystem.getFileSystemSize());
             fileInfo.put("chunkTotal", chunkTotal);
             fileInfo.put("status", "initialized");
             fileSystemSseService.sendFileCreated(fileInfo);
 
-            log.info("分片上传初始化成功: fileId={}, chunkTotal={}", fileSystem.getFileId(), chunkTotal);
+            log.info("分片上传初始化成功: fileId={}, chunkTotal={}", fileSystem.getFileSystemId(), chunkTotal);
             return ReturnResult.ok(result);
 
         } catch (Exception e) {
@@ -395,14 +395,14 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             baseMapper.updateChunkUploaded(fileId, completedChunks);
 
             // 计算并发送上传进度
-            double progress = fileSystem.getChunkTotal() > 0
-                    ? ((double) completedChunks / fileSystem.getChunkTotal() * 100)
+            double progress = fileSystem.getFileSystemChunkTotal() > 0
+                    ? ((double) completedChunks / fileSystem.getFileSystemChunkTotal() * 100)
                     : 0;
             fileSystemSseService.sendUploadProgress(fileId, progress,
-                    String.format("已上传 %d/%d 个分片", completedChunks, fileSystem.getChunkTotal()));
+                    String.format("已上传 %d/%d 个分片", completedChunks, fileSystem.getFileSystemChunkTotal()));
 
             // 检查是否所有分片都已上传完成
-            if (completedChunks == fileSystem.getChunkTotal()) {
+            if (completedChunks == fileSystem.getFileSystemChunkTotal()) {
                 log.info("所有分片上传完成，通知合并队列: fileId={}", fileId);
                 // 更新文件状态为待合并
                 baseMapper.updateStatus(fileId, FileSystem.FileStatus.PENDING_MERGE);
@@ -413,7 +413,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             }
 
             log.info("分片上传成功: fileId={}, chunkNumber={}, completedChunks={}/{}", fileId, chunkNumber, completedChunks,
-                    fileSystem.getChunkTotal());
+                    fileSystem.getFileSystemChunkTotal());
             return ReturnResult.ok(true);
 
         } catch (IOException e) {
@@ -435,8 +435,8 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            double progress = fileSystem.getChunkTotal() > 0
-                    ? ((double) fileSystem.getChunkUploaded() / fileSystem.getChunkTotal() * 100)
+            double progress = fileSystem.getFileSystemChunkTotal() > 0
+                    ? ((double) fileSystem.getFileSystemChunkUploaded() / fileSystem.getFileSystemChunkTotal() * 100)
                     : 0;
 
             // 查询缺失和失败的分片
@@ -455,14 +455,15 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 }
             }
 
-            boolean canMerge = fileSystem.getChunkUploaded().equals(fileSystem.getChunkTotal())
-                    && fileSystem.getFileStatus() == FileSystem.FileStatus.PENDING_MERGE;
+            boolean canMerge = fileSystem.getFileSystemChunkUploaded().equals(fileSystem.getFileSystemChunkTotal())
+                    && fileSystem.getFileSystemStatus() == FileSystem.FileStatus.PENDING_MERGE;
 
             FileUploadStatusDTO result = FileUploadStatusDTO.builder().fileId(fileId)
-                    .fileName(fileSystem.getFileOriginalName()).fileStatus(fileSystem.getFileStatus())
-                    .chunkTotal(fileSystem.getChunkTotal()).chunkUploaded(fileSystem.getChunkUploaded())
-                    .uploadProgress(progress).uploadStartTime(fileSystem.getUploadStartTime())
-                    .uploadCompleteTime(fileSystem.getUploadCompleteTime()).missingChunks(missingChunks)
+                    .fileName(fileSystem.getFileSystemOriginalName()).fileStatus(fileSystem.getFileSystemStatus())
+                    .chunkTotal(fileSystem.getFileSystemChunkTotal())
+                    .chunkUploaded(fileSystem.getFileSystemChunkUploaded()).uploadProgress(progress)
+                    .uploadStartTime(fileSystem.getFileSystemUploadStartTime())
+                    .uploadCompleteTime(fileSystem.getFileSystemUploadCompleteTime()).missingChunks(missingChunks)
                     .failedChunks(failedChunks).canMerge(canMerge).build();
 
             return ReturnResult.ok(result);
@@ -483,17 +484,17 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            if (fileSystem.getFileStatus() == FileSystem.FileStatus.COMPLETED) {
+            if (fileSystem.getFileSystemStatus() == FileSystem.FileStatus.COMPLETED) {
                 return ReturnResult.error("文件已完成合并");
             }
 
-            if (fileSystem.getFileStatus() == FileSystem.FileStatus.MERGING) {
+            if (fileSystem.getFileSystemStatus() == FileSystem.FileStatus.MERGING) {
                 return ReturnResult.error("文件正在合并中");
             }
 
             // 检查是否所有分片都已上传
             int completedChunks = fileSystemPartService.countCompletedChunks(fileId);
-            if (completedChunks != fileSystem.getChunkTotal()) {
+            if (completedChunks != fileSystem.getFileSystemChunkTotal()) {
                 return ReturnResult.error("分片上传未完成，无法合并");
             }
 
@@ -522,11 +523,11 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             }
 
             // 删除物理文件
-            if (StringUtils.hasText(fileSystem.getFilePath())) {
+            if (StringUtils.hasText(fileSystem.getFileSystemPath())) {
                 try {
-                    Files.deleteIfExists(Paths.get(fileSystem.getFilePath()));
+                    Files.deleteIfExists(Paths.get(fileSystem.getFileSystemPath()));
                 } catch (IOException e) {
-                    log.warn("删除物理文件失败: {}", fileSystem.getFilePath(), e);
+                    log.warn("删除物理文件失败: {}", fileSystem.getFileSystemPath(), e);
                 }
             }
 
@@ -547,7 +548,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             removeById(fileId);
 
             // 发送文件删除消息
-            fileSystemSseService.sendFileDeleted(fileId, fileSystem.getFileName());
+            fileSystemSseService.sendFileDeleted(fileId, fileSystem.getFileSystemName());
             fileSystemSseService.sendFileOperationResult("delete", fileId, true, "文件删除成功");
 
             log.info("文件删除成功: fileId={}", fileId);
@@ -606,7 +607,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            if (fileSystem.getFileStatus() != FileSystem.FileStatus.COMPLETED) {
+            if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.COMPLETED) {
                 return ReturnResult.error("文件未完成，无法下载");
             }
 
@@ -616,11 +617,11 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件下载功能未启用");
             }
 
-            if (!StringUtils.hasText(fileSystem.getFilePath())) {
+            if (!StringUtils.hasText(fileSystem.getFileSystemPath())) {
                 return ReturnResult.error("文件路径不存在");
             }
 
-            Path filePath = Paths.get(fileSystem.getFilePath());
+            Path filePath = Paths.get(fileSystem.getFileSystemPath());
             if (!Files.exists(filePath)) {
                 return ReturnResult.error("物理文件不存在");
             }
@@ -648,11 +649,11 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            if (fileSystem.getFileStatus() != FileSystem.FileStatus.COMPLETED) {
+            if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.COMPLETED) {
                 return ReturnResult.error("文件未完成，无法访问");
             }
 
-            if (!Boolean.TRUE.equals(fileSystem.getHttpAccessEnabled())) {
+            if (!Boolean.TRUE.equals(fileSystem.getFileSystemHttpAccessEnabled())) {
                 return ReturnResult.error("文件HTTP访问未启用");
             }
 
@@ -662,8 +663,8 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("系统HTTP访问功能未启用");
             }
 
-            if (StringUtils.hasText(fileSystem.getHttpAccessUrl())) {
-                return ReturnResult.ok(fileSystem.getHttpAccessUrl());
+            if (StringUtils.hasText(fileSystem.getFileSystemHttpAccessUrl())) {
+                return ReturnResult.ok(fileSystem.getFileSystemHttpAccessUrl());
             }
 
             // 生成HTTP访问URL
@@ -675,7 +676,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             String accessUrl = domain + "/api/v1/filesystem/access/" + fileId;
 
             // 更新文件记录
-            fileSystem.setHttpAccessUrl(accessUrl);
+            fileSystem.setFileSystemHttpAccessUrl(accessUrl);
             updateById(fileSystem);
 
             return ReturnResult.ok(accessUrl);
@@ -696,7 +697,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            if (fileSystem.getFileStatus() != FileSystem.FileStatus.COMPLETED) {
+            if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.COMPLETED) {
                 return ReturnResult.error("文件未完成，无法设置HTTP访问");
             }
 
@@ -706,16 +707,16 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("系统HTTP访问功能未启用");
             }
 
-            fileSystem.setHttpAccessEnabled(enabled);
+            fileSystem.setFileSystemHttpAccessEnabled(enabled);
 
             // 如果启用HTTP访问且URL为空，则生成URL
-            if (Boolean.TRUE.equals(enabled) && !StringUtils.hasText(fileSystem.getHttpAccessUrl())) {
+            if (Boolean.TRUE.equals(enabled) && !StringUtils.hasText(fileSystem.getFileSystemHttpAccessUrl())) {
                 String domain = setting.getFileSystemSettingHttpAccessDomain();
                 if (!StringUtils.hasText(domain)) {
                     domain = "http://localhost:8080";
                 }
                 String accessUrl = domain + "/api/v1/filesystem/access/" + fileId;
-                fileSystem.setHttpAccessUrl(accessUrl);
+                fileSystem.setFileSystemHttpAccessUrl(accessUrl);
             }
 
             updateById(fileSystem);
@@ -780,14 +781,14 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
 
             // 总文件大小
             LambdaQueryWrapper<FileSystem> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FileSystem::getFileStatus, FileSystem.FileStatus.COMPLETED);
+            wrapper.eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.COMPLETED);
             List<FileSystem> completedFileList = list(wrapper);
-            long totalSize = completedFileList.stream().mapToLong(f -> f.getFileSize() != null ? f.getFileSize() : 0)
-                    .sum();
+            long totalSize = completedFileList.stream()
+                    .mapToLong(f -> f.getFileSystemSize() != null ? f.getFileSystemSize() : 0).sum();
 
             // HTTP访问启用的文件数
             long httpAccessEnabledFiles = count(
-                    new LambdaQueryWrapper<FileSystem>().eq(FileSystem::getHttpAccessEnabled, true));
+                    new LambdaQueryWrapper<FileSystem>().eq(FileSystem::getFileSystemHttpAccessEnabled, true));
 
             // 今日上传文件统计
             LocalDateTime todayStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
@@ -795,8 +796,8 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             todayWrapper.ge(FileSystem::getCreateTime, todayStart);
             List<FileSystem> todayFiles = list(todayWrapper);
             long todayUploadFiles = todayFiles.size();
-            long todayUploadSize = todayFiles.stream().mapToLong(f -> f.getFileSize() != null ? f.getFileSize() : 0)
-                    .sum();
+            long todayUploadSize = todayFiles.stream()
+                    .mapToLong(f -> f.getFileSystemSize() != null ? f.getFileSystemSize() : 0).sum();
 
             // 平均文件大小
             long averageFileSize = totalFiles > 0 ? totalSize / totalFiles : 0;
@@ -852,7 +853,7 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 return ReturnResult.error("文件不存在");
             }
 
-            if (fileSystem.getFileStatus() != FileSystem.FileStatus.MERGE_FAILED) {
+            if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.MERGE_FAILED) {
                 return ReturnResult.error("只能重试合并失败的文件");
             }
 
@@ -920,22 +921,22 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             // 按状态统计文件数量
             Map<String, Long> statusCounts = new HashMap<>();
             statusCounts.put("pendingMerge",
-                    lambdaQuery().eq(FileSystem::getFileStatus, FileSystem.FileStatus.PENDING_MERGE).count());
+                    lambdaQuery().eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.PENDING_MERGE).count());
             statusCounts.put("merging",
-                    lambdaQuery().eq(FileSystem::getFileStatus, FileSystem.FileStatus.MERGING).count());
+                    lambdaQuery().eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.MERGING).count());
             statusCounts.put("completed",
-                    lambdaQuery().eq(FileSystem::getFileStatus, FileSystem.FileStatus.COMPLETED).count());
+                    lambdaQuery().eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.COMPLETED).count());
             statusCounts.put("mergeFailed",
-                    lambdaQuery().eq(FileSystem::getFileStatus, FileSystem.FileStatus.MERGE_FAILED).count());
+                    lambdaQuery().eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.MERGE_FAILED).count());
             statistics.put("statusCounts", statusCounts);
 
             // 存储空间统计
             List<FileSystem> completedFiles = lambdaQuery()
-                    .eq(FileSystem::getFileStatus, FileSystem.FileStatus.COMPLETED).select(FileSystem::getFileSize)
-                    .list();
+                    .eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.COMPLETED)
+                    .select(FileSystem::getFileSystemSize).list();
 
             long totalStorageUsed = completedFiles.stream()
-                    .mapToLong(file -> file.getFileSize() != null ? file.getFileSize() : 0L).sum();
+                    .mapToLong(file -> file.getFileSystemSize() != null ? file.getFileSystemSize() : 0L).sum();
 
             statistics.put("totalStorageUsed", totalStorageUsed);
             statistics.put("totalStorageUsedMB", totalStorageUsed / (1024 * 1024));

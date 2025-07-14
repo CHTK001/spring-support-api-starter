@@ -215,7 +215,7 @@ public class FileSystemController {
             ReturnResult<FileSystem> fileResult = fileSystemService.getFileDetail(fileId);
             String fileName = "download";
             if (fileResult.isSuccess() && fileResult.getData() != null) {
-                fileName = fileResult.getData().getFileOriginalName();
+                fileName = fileResult.getData().getFileSystemOriginalName();
             }
 
             HttpHeaders headers = new HttpHeaders();
@@ -381,7 +381,7 @@ public class FileSystemController {
             }
 
             FileSystem fileSystem = fileResult.getData();
-            if (!Boolean.TRUE.equals(fileSystem.getHttpAccessEnabled())) {
+            if (!Boolean.TRUE.equals(fileSystem.getFileSystemHttpAccessEnabled())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("文件HTTP访问未启用".getBytes());
             }
 
@@ -393,14 +393,14 @@ public class FileSystemController {
 
             // 设置响应头
             HttpHeaders headers = new HttpHeaders();
-            String contentType = getContentType(fileSystem.getFileExtension());
+            String contentType = getContentType(fileSystem.getFileSystemExtension());
             headers.setContentType(MediaType.parseMediaType(contentType));
 
             // 如果是图片、视频等可预览的文件，设置为inline；否则设置为attachment
-            if (isPreviewableFile(fileSystem.getFileType())) {
-                headers.setContentDispositionFormData("inline", fileSystem.getFileOriginalName());
+            if (isPreviewableFile(fileSystem.getFileSystemType())) {
+                headers.setContentDispositionFormData("inline", fileSystem.getFileSystemOriginalName());
             } else {
-                headers.setContentDispositionFormData("attachment", fileSystem.getFileOriginalName());
+                headers.setContentDispositionFormData("attachment", fileSystem.getFileSystemOriginalName());
             }
 
             return ResponseEntity.ok().headers(headers).body(result.getData());
