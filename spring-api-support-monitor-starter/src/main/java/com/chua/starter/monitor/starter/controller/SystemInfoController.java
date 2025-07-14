@@ -1,12 +1,7 @@
 package com.chua.starter.monitor.starter.controller;
 
-import com.chua.common.support.annotations.ApiModel;
-import com.chua.common.support.annotations.ApiModelProperty;
-import com.chua.common.support.annotations.ColumnDesc;
-import com.chua.common.support.utils.ReturnResult;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import com.chua.common.support.lang.code.ReturnResult;
+import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
