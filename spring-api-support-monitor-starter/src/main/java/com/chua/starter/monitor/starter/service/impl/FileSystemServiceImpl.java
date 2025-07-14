@@ -64,28 +64,28 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
         LambdaQueryWrapper<FileSystem> wrapper = new LambdaQueryWrapper<>();
 
         // 文件名模糊查询
-        if (StringUtils.hasText(fileSystem.getFileName())) {
-            wrapper.like(FileSystem::getFileName, fileSystem.getFileName());
+        if (StringUtils.hasText(fileSystem.getFileSystemName())) {
+            wrapper.like(FileSystem::getFileSystemName, fileSystem.getFileSystemName());
         }
 
         // 原始文件名模糊查询
-        if (StringUtils.hasText(fileSystem.getFileOriginalName())) {
-            wrapper.like(FileSystem::getFileOriginalName, fileSystem.getFileOriginalName());
+        if (StringUtils.hasText(fileSystem.getFileSystemOriginalName())) {
+            wrapper.like(FileSystem::getFileSystemOriginalName, fileSystem.getFileSystemOriginalName());
         }
 
         // 文件类型查询
-        if (StringUtils.hasText(fileSystem.getFileType())) {
-            wrapper.eq(FileSystem::getFileType, fileSystem.getFileType());
+        if (StringUtils.hasText(fileSystem.getFileSystemType())) {
+            wrapper.eq(FileSystem::getFileSystemType, fileSystem.getFileSystemType());
         }
 
         // 文件状态查询
-        if (fileSystem.getFileStatus() != null) {
-            wrapper.eq(FileSystem::getFileStatus, fileSystem.getFileStatus());
+        if (fileSystem.getFileSystemStatus() != null) {
+            wrapper.eq(FileSystem::getFileSystemStatus, fileSystem.getFileSystemStatus());
         }
 
         // HTTP访问状态查询
-        if (fileSystem.getHttpAccessEnabled() != null) {
-            wrapper.eq(FileSystem::getHttpAccessEnabled, fileSystem.getHttpAccessEnabled());
+        if (fileSystem.getFileSystemHttpAccessEnabled() != null) {
+            wrapper.eq(FileSystem::getFileSystemHttpAccessEnabled, fileSystem.getFileSystemHttpAccessEnabled());
         }
 
         // 按创建时间倒序
@@ -104,12 +104,12 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
         try {
             // 检查文件是否已存在
             FileSystem existingFile = baseMapper.findByMd5(fileMd5);
-            if (existingFile != null && existingFile.getFileStatus() == FileSystem.FileStatus.COMPLETED) {
-                log.info("文件已存在且已完成: fileId={}", existingFile.getFileId());
-                FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(existingFile.getFileId())
-                        .fileName(existingFile.getFileName()).fileSize(existingFile.getFileSize())
-                        .fileMd5(existingFile.getFileMd5()).chunkTotal(existingFile.getChunkTotal()).chunkSize(0L)
-                        .exists(true).message("文件已存在").build();
+            if (existingFile != null && existingFile.getFileSystemStatus() == FileSystem.FileStatus.COMPLETED) {
+                log.info("文件已存在且已完成: fileId={}", existingFile.getFileSystemId());
+                FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(existingFile.getFileSystemId())
+                        .fileName(existingFile.getFileSystemName()).fileSize(existingFile.getFileSystemSize())
+                        .fileMd5(existingFile.getFileSystemMd5()).chunkTotal(existingFile.getFileSystemChunkTotal())
+                        .chunkSize(0L).exists(true).message("文件已存在").build();
                 return ReturnResult.ok(result);
             }
 
@@ -145,22 +145,22 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
 
             // 创建文件记录
             FileSystem fileSystem = new FileSystem();
-            fileSystem.setFileName(generateFileName(fileName));
-            fileSystem.setFileOriginalName(fileName);
-            fileSystem.setFileSize(fileSize);
-            fileSystem.setFileMd5(fileMd5);
-            fileSystem.setFileType(getFileType(fileName));
-            fileSystem.setFileExtension(getFileExtension(fileName));
-            fileSystem.setChunkTotal(chunkTotal);
-            fileSystem.setChunkUploaded(0);
-            fileSystem.setFileStatus(FileSystem.FileStatus.PENDING_MERGE);
-            fileSystem.setHttpAccessEnabled(false);
-            fileSystem.setUploadStartTime(LocalDateTime.now());
+            fileSystem.setFileSystemName(generateFileName(fileName));
+            fileSystem.setFileSystemOriginalName(fileName);
+            fileSystem.setFileSystemSize(fileSize);
+            fileSystem.setFileSystemMd5(fileMd5);
+            fileSystem.setFileSystemType(getFileType(fileName));
+            fileSystem.setFileSystemExtension(getFileExtension(fileName));
+            fileSystem.setFileSystemChunkTotal(chunkTotal);
+            fileSystem.setFileSystemChunkUploaded(0);
+            fileSystem.setFileSystemStatus(FileSystem.FileStatus.PENDING_MERGE);
+            fileSystem.setFileSystemHttpAccessEnabled(false);
+            fileSystem.setFileSystemUploadStartTime(LocalDateTime.now());
 
             // 生成文件存储路径
             String storagePath = generateStoragePath(setting.getFileSystemSettingStorageRootPath(),
-                    fileSystem.getFileName());
-            fileSystem.setFilePath(storagePath);
+                    fileSystem.getFileSystemName());
+            fileSystem.setFileSystemPath(storagePath);
 
             save(fileSystem);
 
