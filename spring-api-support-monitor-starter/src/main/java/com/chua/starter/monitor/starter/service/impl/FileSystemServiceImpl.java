@@ -64,28 +64,28 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
         LambdaQueryWrapper<FileSystem> wrapper = new LambdaQueryWrapper<>();
 
         // 文件名模糊查询
-        if (StringUtils.hasText(fileSystem.getFileSystemName())) {
-            wrapper.like(FileSystem::getFileSystemName, fileSystem.getFileSystemName());
+        if (StringUtils.hasText(fileSystem.getFileName())) {
+            wrapper.like(FileSystem::getFileName, fileSystem.getFileName());
         }
 
         // 原始文件名模糊查询
-        if (StringUtils.hasText(fileSystem.getFileSystemOriginalName())) {
-            wrapper.like(FileSystem::getFileSystemOriginalName, fileSystem.getFileSystemOriginalName());
+        if (StringUtils.hasText(fileSystem.getFileOriginalName())) {
+            wrapper.like(FileSystem::getFileOriginalName, fileSystem.getFileOriginalName());
         }
 
         // 文件类型查询
-        if (StringUtils.hasText(fileSystem.getFileSystemType())) {
-            wrapper.eq(FileSystem::getFileSystemType, fileSystem.getFileSystemType());
+        if (StringUtils.hasText(fileSystem.getFileType())) {
+            wrapper.eq(FileSystem::getFileType, fileSystem.getFileType());
         }
 
         // 文件状态查询
-        if (fileSystem.getFileSystemStatus() != null) {
-            wrapper.eq(FileSystem::getFileSystemStatus, fileSystem.getFileSystemStatus());
+        if (fileSystem.getFileStatus() != null) {
+            wrapper.eq(FileSystem::getFileStatus, fileSystem.getFileStatus());
         }
 
         // HTTP访问状态查询
-        if (fileSystem.getFileSystemHttpAccessEnabled() != null) {
-            wrapper.eq(FileSystem::getFileSystemHttpAccessEnabled, fileSystem.getFileSystemHttpAccessEnabled());
+        if (fileSystem.getHttpAccessEnabled() != null) {
+            wrapper.eq(FileSystem::getHttpAccessEnabled, fileSystem.getHttpAccessEnabled());
         }
 
         // 按创建时间倒序
@@ -104,12 +104,12 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
         try {
             // 检查文件是否已存在
             FileSystem existingFile = baseMapper.findByMd5(fileMd5);
-            if (existingFile != null && existingFile.getFileSystemStatus() == FileSystem.FileStatus.COMPLETED) {
-                log.info("文件已存在且已完成: fileId={}", existingFile.getFileSystemId());
-                FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(existingFile.getFileSystemId())
-                        .fileName(existingFile.getFileSystemName()).fileSize(existingFile.getFileSystemSize())
-                        .fileMd5(existingFile.getFileSystemMd5()).chunkTotal(existingFile.getFileSystemChunkTotal())
-                        .chunkSize(0L).exists(true).message("文件已存在").build();
+            if (existingFile != null && existingFile.getFileStatus() == FileSystem.FileStatus.COMPLETED) {
+                log.info("文件已存在且已完成: fileId={}", existingFile.getFileId());
+                FileInitUploadDTO result = FileInitUploadDTO.builder().fileId(existingFile.getFileId())
+                        .fileName(existingFile.getFileName()).fileSize(existingFile.getFileSize())
+                        .fileMd5(existingFile.getFileMd5()).chunkTotal(existingFile.getChunkTotal()).chunkSize(0L)
+                        .exists(true).message("文件已存在").build();
                 return ReturnResult.ok(result);
             }
 
