@@ -200,7 +200,7 @@ public class FileSystemGroupServiceImpl extends ServiceImpl<FileSystemGroupMappe
 
         // 批量更新文件的分组ID
         LambdaUpdateWrapper<FileSystem> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.in(FileSystem::getFileId, fileIds).set(FileSystem::getFileSystemGroupId, targetGroupId)
+        updateWrapper.in(FileSystem::getFileSystemId, fileIds).set(FileSystem::getFileSystemGroupId, targetGroupId)
                 .set(FileSystem::getUpdateTime, LocalDateTime.now());
 
         int updatedCount = fileSystemMapper.update(null, updateWrapper);
