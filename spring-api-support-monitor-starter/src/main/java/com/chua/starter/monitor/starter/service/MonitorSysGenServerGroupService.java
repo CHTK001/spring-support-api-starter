@@ -25,6 +25,17 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
     IPage<MonitorSysGenServerGroup> pageFor(IPage<MonitorSysGenServerGroup> page, MonitorSysGenServerGroup entity);
 
     /**
+     * 分页查询服务器分组（包含服务器数量）
+     *
+     * @param page   分页参数
+     * @param entity 查询条件
+     * @return 分页结果
+     */
+    ReturnResult<IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> pageForWithServerCount(
+            IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page,
+            MonitorSysGenServerGroup entity);
+
+    /**
      * 获取启用的分组列表
      *
      * @return 启用的分组列表
@@ -32,11 +43,25 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
     ReturnResult<List<MonitorSysGenServerGroup>> getEnabledGroups();
 
     /**
+     * 获取启用的分组列表（包含服务器数量）
+     *
+     * @return 启用的分组列表
+     */
+    ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroupsWithServerCount();
+
+    /**
      * 获取所有分组列表
      *
      * @return 所有分组列表
      */
     ReturnResult<List<MonitorSysGenServerGroup>> getAllGroups();
+
+    /**
+     * 获取所有分组列表（包含服务器数量）
+     *
+     * @return 所有分组列表
+     */
+    ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getAllGroupsWithServerCount();
 
     /**
      * 根据ID获取分组信息
@@ -79,32 +104,6 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
     ReturnResult<Boolean> batchDeleteGroups(List<Integer> groupIds);
 
     /**
-     * 更新分组状态
-     *
-     * @param groupId 分组ID
-     * @param status  状态 0:禁用 1:启用
-     * @return 更新结果
-     */
-    ReturnResult<Boolean> updateGroupStatus(Integer groupId, Integer status);
-
-    /**
-     * 更新分组排序
-     *
-     * @param groupId 分组ID
-     * @param sort    排序号
-     * @return 更新结果
-     */
-    ReturnResult<Boolean> updateGroupSort(Integer groupId, Integer sort);
-
-    /**
-     * 批量更新分组排序
-     *
-     * @param sortData 排序数据
-     * @return 更新结果
-     */
-    ReturnResult<Boolean> batchUpdateGroupSort(List<MonitorSysGenServerGroup> sortData);
-
-    /**
      * 检查分组名称是否存在
      *
      * @param groupName 分组名称
@@ -121,22 +120,6 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
     ReturnResult<MonitorSysGenServerGroup> getDefaultGroup();
 
     /**
-     * 设置默认分组
-     *
-     * @param groupId 分组ID
-     * @return 设置结果
-     */
-    ReturnResult<Boolean> setDefaultGroup(Integer groupId);
-
-    /**
-     * 获取分组下的服务器数量
-     *
-     * @param groupId 分组ID
-     * @return 服务器数量
-     */
-    ReturnResult<Integer> getServerCountByGroup(Integer groupId);
-
-    /**
      * 复制分组
      *
      * @param sourceGroupId 源分组ID
@@ -144,4 +127,76 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
      * @return 复制结果
      */
     ReturnResult<Boolean> copyGroup(Integer sourceGroupId, String newGroupName);
+
+    /**
+     * 获取分组统计信息
+     *
+     * @return 分组统计信息
+     */
+    ReturnResult<java.util.Map<String, Object>> getGroupStatistics();
+
+    /**
+     * 根据分组ID列表获取分组信息
+     *
+     * @param groupIds 分组ID列表
+     * @return 分组列表
+     */
+    ReturnResult<List<MonitorSysGenServerGroup>> getGroupsByIds(List<Integer> groupIds);
+
+    /**
+     * 获取分组及其服务器数量
+     *
+     * @return 分组及服务器数量信息
+     */
+    ReturnResult<List<java.util.Map<String, Object>>> getGroupsWithServerCount();
+
+    /**
+     * 移动服务器到指定分组
+     *
+     * @param serverIds 服务器ID列表
+     * @param groupId   目标分组ID
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> moveServersToGroup(List<Integer> serverIds, Integer groupId);
+
+    /**
+     * 获取分组下的服务器列表
+     *
+     * @param groupId 分组ID
+     * @return 服务器列表
+     */
+    ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> getServersByGroupId(
+            Integer groupId);
+
+    /**
+     * 批量设置服务器分组
+     *
+     * @param serverGroupMappings 服务器分组映射列表
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> batchSetServerGroups(List<java.util.Map<String, Object>> serverGroupMappings);
+
+    /**
+     * 获取详细的分组统计信息
+     *
+     * @return 详细统计信息
+     */
+    ReturnResult<java.util.Map<String, Object>> getDetailedGroupStatistics();
+
+    /**
+     * 获取分组及其服务器详细信息
+     *
+     * @param includeServers 是否包含服务器列表
+     * @return 分组详细信息列表
+     */
+    ReturnResult<List<java.util.Map<String, Object>>> getGroupsWithDetails(Boolean includeServers);
+
+    /**
+     * 根据分组ID获取分组详细信息
+     *
+     * @param groupId        分组ID
+     * @param includeServers 是否包含服务器列表
+     * @return 分组详细信息
+     */
+    ReturnResult<java.util.Map<String, Object>> getGroupDetailById(Integer groupId, Boolean includeServers);
 }

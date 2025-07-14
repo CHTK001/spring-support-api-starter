@@ -138,15 +138,46 @@
 
     <!-- 获取异常日志统计 -->
     <select id="getExceptionStatistics" resultType="java.util.Map">
-        SELECT 
-        COUNT(*) as exceptionCount, 
-        COUNT(DISTINCT monitor_sys_gen_server_log_logger) as distinctLoggers 
-        FROM monitor_sys_gen_server_logs 
-        WHERE monitor_sys_gen_server_id = #{serverId} 
-        AND monitor_sys_gen_server_log_exception_stack IS NOT NULL 
-        AND monitor_sys_gen_server_log_exception_stack != '' 
-        AND monitor_sys_gen_server_log_create_time BETWEEN #{startTime} AND #{endTime} 
+        SELECT
+        COUNT(*) as exceptionCount,
+        COUNT(DISTINCT monitor_sys_gen_server_log_logger) as distinctLoggers
+        FROM monitor_sys_gen_server_logs
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_log_exception_stack IS NOT NULL
+        AND monitor_sys_gen_server_log_exception_stack != ''
+        AND monitor_sys_gen_server_log_create_time BETWEEN #{startTime} AND #{endTime}
         AND monitor_sys_gen_server_log_status = 1
     </select>
+
+    <!-- 根据服务器ID统计日志数量 -->
+    <select id="countByServerId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM monitor_sys_gen_server_logs
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_log_status = 1
+    </select>
+
+    <!-- 根据服务器ID和日志级别统计日志数量 -->
+    <select id="countByServerIdAndLevel" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM monitor_sys_gen_server_logs
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_log_level = #{level}
+        AND monitor_sys_gen_server_log_status = 1
+    </select>
+
+    <!-- 根据服务器ID和时间范围统计日志数量 -->
+    <select id="countByServerIdAndTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM monitor_sys_gen_server_logs
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_log_create_time <![CDATA[>=]]> #{startTime}
+        AND monitor_sys_gen_server_log_create_time <![CDATA[<=]]> #{endTime}
+        AND monitor_sys_gen_server_log_status = 1
+    </select>
+
+    <!-- 根据服务器ID和时间删除日志 -->
+    <delete id="deleteByServerIdAndBeforeDate">
+        DELETE FROM monitor_sys_gen_server_logs
+        WHERE monitor_sys_gen_server_id = #{serverId}
+        AND monitor_sys_gen_server_log_create_time <![CDATA[<]]> #{beforeDate}
+    </delete>
 
 </mapper>
