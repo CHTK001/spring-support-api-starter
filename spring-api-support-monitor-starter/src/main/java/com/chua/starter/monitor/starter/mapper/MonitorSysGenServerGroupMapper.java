@@ -2,6 +2,7 @@ package com.chua.starter.monitor.starter.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup;
+import com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -60,5 +61,62 @@ public interface MonitorSysGenServerGroupMapper extends BaseMapper<MonitorSysGen
      * @param excludeId 排除的分组ID
      * @return 分组数量
      */
-    long countByNameExcludeId(@Param("groupName") String groupName, @Param("excludeId") Integer excludeId);
+    Long countByNameExcludeId(@Param("groupName") String groupName, @Param("excludeId") Integer excludeId);
+
+    /**
+     * 获取分组下的服务器数量
+     *
+     * @param groupId 分组ID
+     * @return 服务器数量
+     */
+    Integer countServersByGroupId(@Param("groupId") Integer groupId);
+
+    /**
+     * 获取分组统计信息
+     *
+     * @return 分组统计信息
+     */
+    List<java.util.Map<String, Object>> getGroupStatistics();
+
+    /**
+     * 根据分组ID列表获取分组信息
+     *
+     * @param groupIds 分组ID列表
+     * @return 分组列表
+     */
+    List<MonitorSysGenServerGroup> selectByIds(@Param("groupIds") List<Integer> groupIds);
+
+    /**
+     * 获取分组及其服务器数量
+     *
+     * @return 分组及服务器数量信息
+     */
+    List<java.util.Map<String, Object>> selectGroupsWithServerCount();
+
+    /**
+     * 分页查询分组及其服务器数量
+     *
+     * @param page   分页参数
+     * @param entity 查询条件
+     * @return 分页结果
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectPageWithServerCount(
+            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page,
+            @Param("entity") MonitorSysGenServerGroup entity);
+
+    /**
+     * 获取所有分组及其服务器数量
+     *
+     * @return 分组及服务器数量信息
+     */
+    List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectAllWithServerCount();
+
+    /**
+     * 根据状态获取分组及其服务器数量
+     *
+     * @param status 状态
+     * @return 分组及服务器数量信息
+     */
+    List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectByStatusWithServerCount(
+            @Param("status") Integer status);
 }

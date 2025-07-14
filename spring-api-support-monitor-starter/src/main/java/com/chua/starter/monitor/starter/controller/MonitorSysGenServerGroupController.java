@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1/gen/server/group")
+@RequestMapping("/v1/server/group")
 @RequiredArgsConstructor
 @Api(tags = "服务器分组管理")
 @Tag(name = "服务器分组管理", description = "服务器分组的增删改查操作")
@@ -34,19 +34,19 @@ public class MonitorSysGenServerGroupController {
     private final MonitorSysGenServerGroupService serverGroupService;
 
     /**
-     * 分页查询服务器分组
+     * 分页查询服务器分组（包含服务器数量）
      */
     @GetMapping("/page")
     @ApiOperation(value = "分页查询服务器分组")
-    @Operation(summary = "分页查询服务器分组", description = "根据条件分页查询服务器分组列表")
-    public ReturnResult<IPage<MonitorSysGenServerGroup>> page(
+    @Operation(summary = "分页查询服务器分组", description = "根据条件分页查询服务器分组列表，包含服务器数量")
+    public ReturnResult<IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> page(
             @Parameter(description = "当前页码") @RequestParam(defaultValue = "1") Integer current,
             @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer size,
             @Parameter(description = "查询条件") MonitorSysGenServerGroup entity) {
         try {
-            Page<MonitorSysGenServerGroup> page = new Page<>(current, size);
-            IPage<MonitorSysGenServerGroup> result = serverGroupService.pageFor(page, entity);
-            return ReturnResult.ok(result);
+            Page<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page = new Page<>(current,
+                    size);
+            return serverGroupService.pageForWithServerCount(page, entity);
         } catch (Exception e) {
             log.error("分页查询服务器分组失败", e);
             return ReturnResult.error("分页查询服务器分组失败: " + e.getMessage());
@@ -54,23 +54,23 @@ public class MonitorSysGenServerGroupController {
     }
 
     /**
-     * 获取启用的分组列表
+     * 获取启用的分组列表（包含服务器数量）
      */
     @GetMapping("/enabled")
     @ApiOperation(value = "获取启用的分组列表")
-    @Operation(summary = "获取启用的分组列表", description = "获取所有启用状态的服务器分组")
-    public ReturnResult<List<MonitorSysGenServerGroup>> getEnabledGroups() {
-        return serverGroupService.getEnabledGroups();
+    @Operation(summary = "获取启用的分组列表", description = "获取所有启用状态的服务器分组，包含服务器数量")
+    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroups() {
+        return serverGroupService.getEnabledGroupsWithServerCount();
     }
 
     /**
-     * 获取所有分组列表
+     * 获取所有分组列表（包含服务器数量）
      */
     @GetMapping("/all")
     @ApiOperation(value = "获取所有分组列表")
-    @Operation(summary = "获取所有分组列表", description = "获取所有服务器分组")
-    public ReturnResult<List<MonitorSysGenServerGroup>> getAllGroups() {
-        return serverGroupService.getAllGroups();
+    @Operation(summary = "获取所有分组列表", description = "获取所有服务器分组，包含服务器数量")
+    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getAllGroups() {
+        return serverGroupService.getAllGroupsWithServerCount();
     }
 
     /**
@@ -112,8 +112,7 @@ public class MonitorSysGenServerGroupController {
     @DeleteMapping("/{groupId}")
     @ApiOperation(value = "删除分组")
     @Operation(summary = "删除分组", description = "根据ID删除服务器分组")
-    public ReturnResult<Boolean> deleteGroup(
-            @Parameter(description = "分组ID") @PathVariable Integer groupId) {
+    public ReturnResult<Boolean> deleteGroup(@Parameter(description = "分组ID") @PathVariable Integer groupId) {
         return serverGroupService.deleteGroup(groupId);
     }
 
@@ -129,53 +128,6 @@ public class MonitorSysGenServerGroupController {
     }
 
     /**
-     * 更新分组状态
-     */
-    @PutMapping("/{groupId}/status")
-    @ApiOperation(value = "更新分组状态")
-    @Operation(summary = "更新分组状态", description = "启用或禁用服务器分组")
-    public ReturnResult<Boolean> updateGroupStatus(
-            @Parameter(description = "分组ID") @PathVariable Integer groupId,
-            @Parameter(description = "状态") @RequestParam Integer status) {
-        return serverGroupService.updateGroupStatus(groupId, status);
-    }
-
-    /**
-     * 更新分组排序
-     */
-    @PutMapping("/{groupId}/sort")
-    @ApiOperation(value = "更新分组排序")
-    @Operation(summary = "更新分组排序", description = "更新服务器分组排序号")
-    public ReturnResult<Boolean> updateGroupSort(
-            @Parameter(description = "分组ID") @PathVariable Integer groupId,
-            @Parameter(description = "排序号") @RequestParam Integer sort) {
-        return serverGroupService.updateGroupSort(groupId, sort);
-    }
-
-    /**
-     * 批量更新分组排序
-     */
-    @PutMapping("/sort/batch")
-    @ApiOperation(value = "批量更新分组排序")
-    @Operation(summary = "批量更新分组排序", description = "批量更新服务器分组排序")
-    public ReturnResult<Boolean> batchUpdateGroupSort(
-            @Parameter(description = "排序数据") @RequestBody List<MonitorSysGenServerGroup> sortData) {
-        return serverGroupService.batchUpdateGroupSort(sortData);
-    }
-
-    /**
-     * 检查分组名称是否存在
-     */
-    @GetMapping("/check-name")
-    @ApiOperation(value = "检查分组名称是否存在")
-    @Operation(summary = "检查分组名称是否存在", description = "检查分组名称是否已被使用")
-    public ReturnResult<Boolean> checkGroupNameExists(
-            @Parameter(description = "分组名称") @RequestParam String groupName,
-            @Parameter(description = "排除的分组ID") @RequestParam(required = false) Integer excludeId) {
-        return serverGroupService.checkGroupNameExists(groupName, excludeId);
-    }
-
-    /**
      * 获取默认分组
      */
     @GetMapping("/default")
@@ -186,25 +138,14 @@ public class MonitorSysGenServerGroupController {
     }
 
     /**
-     * 设置默认分组
+     * 检查分组名称是否存在
      */
-    @PutMapping("/{groupId}/default")
-    @ApiOperation(value = "设置默认分组")
-    @Operation(summary = "设置默认分组", description = "设置指定分组为默认分组")
-    public ReturnResult<Boolean> setDefaultGroup(
-            @Parameter(description = "分组ID") @PathVariable Integer groupId) {
-        return serverGroupService.setDefaultGroup(groupId);
-    }
-
-    /**
-     * 获取分组下的服务器数量
-     */
-    @GetMapping("/{groupId}/server-count")
-    @ApiOperation(value = "获取分组下的服务器数量")
-    @Operation(summary = "获取分组下的服务器数量", description = "统计指定分组下的服务器数量")
-    public ReturnResult<Integer> getServerCountByGroup(
-            @Parameter(description = "分组ID") @PathVariable Integer groupId) {
-        return serverGroupService.getServerCountByGroup(groupId);
+    @GetMapping("/check-name")
+    @ApiOperation(value = "检查分组名称是否存在")
+    @Operation(summary = "检查分组名称是否存在", description = "检查指定的分组名称是否已存在")
+    public ReturnResult<Boolean> checkGroupNameExists(@Parameter(description = "分组名称") @RequestParam String groupName,
+            @Parameter(description = "排除的分组ID") @RequestParam(required = false) Integer excludeId) {
+        return serverGroupService.checkGroupNameExists(groupName, excludeId);
     }
 
     /**
@@ -213,8 +154,7 @@ public class MonitorSysGenServerGroupController {
     @PostMapping("/{sourceGroupId}/copy")
     @ApiOperation(value = "复制分组")
     @Operation(summary = "复制分组", description = "复制现有分组创建新分组")
-    public ReturnResult<Boolean> copyGroup(
-            @Parameter(description = "源分组ID") @PathVariable Integer sourceGroupId,
+    public ReturnResult<Boolean> copyGroup(@Parameter(description = "源分组ID") @PathVariable Integer sourceGroupId,
             @Parameter(description = "新分组名称") @RequestParam String newGroupName) {
         return serverGroupService.copyGroup(sourceGroupId, newGroupName);
     }

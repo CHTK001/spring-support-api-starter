@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemPartMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemPart">
+        <id column="file_system_part_id" property="fileSystemPartId" />
+        <result column="file_system_part_file_id" property="fileSystemPartFileId" />
+        <result column="file_system_part_chunk_number" property="fileSystemPartChunkNumber" />
+        <result column="file_system_part_chunk_size" property="fileSystemPartChunkSize" />
+        <result column="file_system_part_chunk_md5" property="fileSystemPartChunkMd5" />
+        <result column="file_system_part_chunk_path" property="fileSystemPartChunkPath" />
+        <result column="file_system_part_chunk_status" property="fileSystemPartChunkStatus" />
+        <result column="file_system_part_upload_time" property="fileSystemPartUploadTime" />
+        <result column="file_system_part_process_time" property="fileSystemPartProcessTime" />
+        <result column="file_system_part_error_message" property="fileSystemPartErrorMessage" />
+        <result column="file_system_part_retry_count" property="fileSystemPartRetryCount" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        file_system_part_id, file_system_part_file_id, file_system_part_chunk_number, file_system_part_chunk_size, file_system_part_chunk_md5, file_system_part_chunk_path,
+        file_system_part_chunk_status, file_system_part_upload_time, file_system_part_process_time, file_system_part_error_message, file_system_part_retry_count,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+    <!-- 根据文件ID查询所有分片 -->
+    <select id="findByFileId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE file_system_part_file_id = #{fileId}
+        ORDER BY file_system_part_chunk_number ASC
+    </select>
+
+    <!-- 根据文件ID和分片序号查询分片 -->
+    <select id="findByFileIdAndChunkNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE file_system_part_file_id = #{fileId}
+        AND file_system_part_chunk_number = #{chunkNumber}
+        LIMIT 1
+    </select>
+
+    <!-- 统计文件已完成的分片数 -->
+    <select id="countCompletedChunks" resultType="int">
+        SELECT COUNT(*)
+        FROM file_system_part
+        WHERE file_system_part_file_id = #{fileId}
+        AND file_system_part_chunk_status = 2
+    </select>
+
+    <!-- 更新分片状态 -->
+    <update id="updateStatus">
+        UPDATE file_system_part
+        SET file_system_part_chunk_status = #{status},
+            file_system_part_process_time = NOW(),
+            update_time = NOW()
+        WHERE file_system_part_id = #{partId}
+    </update>
+
+    <!-- 批量更新文件的所有分片状态 -->
+    <update id="updateStatusByFileId">
+        UPDATE file_system_part
+        SET file_system_part_chunk_status = #{status},
+            file_system_part_process_time = NOW(),
+            update_time = NOW()
+        WHERE file_system_part_file_id = #{fileId}
+    </update>
+
+    <!-- 根据文件ID删除所有分片 -->
+    <delete id="deleteByFileId">
+        DELETE FROM file_system_part
+        WHERE file_system_part_file_id = #{fileId}
+    </delete>
+
+    <!-- 查询待处理的分片 -->
+    <select id="findPendingChunks" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE file_system_part_chunk_status = 0
+        ORDER BY create_time ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询失败的分片(可重试) -->
+    <select id="findFailedChunksForRetry" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE chunk_status = 3
+        AND retry_count < #{maxRetryCount}
+        ORDER BY update_time ASC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 增加重试次数 -->
+    <update id="incrementRetryCount">
+        UPDATE file_system_part
+        SET file_system_part_retry_count = file_system_part_retry_count + 1,
+            update_time = NOW()
+        WHERE file_system_part_id = #{partId}
+    </update>
+
+    <!-- 查询处理中的分片 -->
+    <select id="findProcessingChunks" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE file_system_part_chunk_status = 1
+        ORDER BY file_system_part_process_time ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询超时的处理中分片 -->
+    <select id="findTimeoutProcessingChunks" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_part
+        WHERE file_system_part_chunk_status = 1
+        AND TIMESTAMPDIFF(MINUTE, file_system_part_process_time, NOW()) > #{timeoutMinutes}
+        ORDER BY file_system_part_process_time ASC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 重置超时的分片状态 -->
+    <update id="resetTimeoutChunks">
+        <![CDATA[
+        UPDATE file_system_part
+        SET file_system_part_chunk_status = 0,
+            file_system_part_process_time = NULL,
+            file_system_part_error_message = CONCAT(IFNULL(file_system_part_error_message, ''), '; 处理超时重置'),
+            update_time = NOW()
+        WHERE file_system_part_chunk_status = 1
+        AND TIMESTAMPDIFF(MINUTE, file_system_part_process_time, NOW()) > #{timeoutMinutes}
+        ]]>
+    </update>
+
+    <!-- 批量更新分片错误信息 -->
+    <update id="batchUpdateErrorMessage">
+        UPDATE file_system_part
+        SET file_system_part_error_message = #{errorMessage},
+            file_system_part_chunk_status = 3,
+            update_time = NOW()
+        WHERE file_system_part_id IN
+        <foreach collection="partIds" item="partId" open="(" separator="," close=")">
+            #{partId}
+        </foreach>
+    </update>
+
+    <!-- 获取文件分片统计信息 -->
+    <select id="getChunkStatistics" resultType="java.util.Map">
+        SELECT
+            file_system_part_file_id,
+            COUNT(*) as total_chunks,
+            SUM(CASE WHEN file_system_part_chunk_status = 0 THEN 1 ELSE 0 END) as pending_chunks,
+            SUM(CASE WHEN file_system_part_chunk_status = 1 THEN 1 ELSE 0 END) as processing_chunks,
+            SUM(CASE WHEN file_system_part_chunk_status = 2 THEN 1 ELSE 0 END) as completed_chunks,
+            SUM(CASE WHEN file_system_part_chunk_status = 3 THEN 1 ELSE 0 END) as failed_chunks,
+            SUM(IFNULL(file_system_part_chunk_size, 0)) as total_chunk_size,
+            AVG(IFNULL(file_system_part_chunk_size, 0)) as avg_chunk_size,
+            MAX(file_system_part_retry_count) as max_retry_count,
+            MIN(file_system_part_upload_time) as first_upload_time,
+            MAX(file_system_part_upload_time) as last_upload_time
+        FROM file_system_part
+        WHERE file_system_part_file_id = #{fileId}
+        GROUP BY file_system_part_file_id
+    </select>
+
+    <!-- 查询分片上传进度 -->
+    <select id="getUploadProgress" resultType="java.util.Map">
+        SELECT
+            file_system_part_file_id,
+            COUNT(*) as total_chunks,
+            SUM(CASE WHEN file_system_part_chunk_status = 2 THEN 1 ELSE 0 END) as completed_chunks,
+            ROUND(SUM(CASE WHEN file_system_part_chunk_status = 2 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as progress_percentage,
+            SUM(CASE WHEN file_system_part_chunk_status = 3 THEN 1 ELSE 0 END) as failed_chunks
+        FROM file_system_part
+        WHERE file_system_part_file_id IN
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+        GROUP BY file_system_part_file_id
+    </select>
+
+    <!-- 清理孤立的分片记录 -->
+    <delete id="cleanupOrphanChunks">
+        DELETE fsp FROM file_system_part fsp
+        LEFT JOIN file_system fs ON fsp.file_system_part_file_id = fs.file_system_id
+        WHERE fs.file_system_id IS NULL
+    </delete>
+
+    <!-- 查询需要清理的分片文件路径 -->
+    <select id="findChunkPathsForCleanup" resultType="string">
+        SELECT DISTINCT file_system_part_chunk_path
+        FROM file_system_part
+        WHERE file_system_part_chunk_path IS NOT NULL
+        AND file_system_part_chunk_path != ''
+        <if test="fileId != null">
+            AND file_system_part_file_id = #{fileId}
+        </if>
+        <if test="status != null">
+            AND file_system_part_chunk_status = #{status}
+        </if>
+        <if test="olderThanHours != null">
+            <![CDATA[AND TIMESTAMPDIFF(HOUR, update_time, NOW()) > #{olderThanHours}]]>
+        </if>
+    </select>
+
+    <!-- 批量删除指定状态的分片 -->
+    <delete id="batchDeleteByStatus">
+        DELETE FROM file_system_part
+        WHERE file_system_part_chunk_status IN
+        <foreach collection="statusList" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        <if test="olderThanHours != null">
+            <![CDATA[AND TIMESTAMPDIFF(HOUR, update_time, NOW()) > #{olderThanHours}]]>
+        </if>
+    </delete>
+
+</mapper>

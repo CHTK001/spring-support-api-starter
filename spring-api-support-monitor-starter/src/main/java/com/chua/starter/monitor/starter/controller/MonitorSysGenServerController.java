@@ -222,7 +222,7 @@ public class MonitorSysGenServerController {
         if (server != null) {
             boolean success = result.isOk() && result.getData() != null && result.getData();
             ServerLogUtils.logServerConnect(Integer.valueOf(id), "SSH", server.getMonitorSysGenServerHost(),
-                    server.getMonitorSysGenServerPort(), success, success ? "连接测试成功" : result.getMessage());
+                    server.getMonitorSysGenServerPort(), success, success ? "连接测试成功" : "连接测试失败");
         }
 
         return result;
