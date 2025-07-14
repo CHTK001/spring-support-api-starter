@@ -11,6 +11,7 @@ import com.chua.starter.monitor.starter.entity.FileSystemSetting;
 import com.chua.starter.monitor.starter.mapper.FileSystemMapper;
 import com.chua.starter.monitor.starter.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.starter.pojo.FileSystemStatisticsDTO;
+import com.chua.starter.monitor.starter.pojo.FileSystemStatusCountDTO;
 import com.chua.starter.monitor.starter.pojo.FileUploadStatusDTO;
 import com.chua.starter.monitor.starter.service.FileSystemPartService;
 import com.chua.starter.monitor.starter.service.FileSystemService;
@@ -737,15 +738,28 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             long totalFiles = count();
 
             // 各状态文件数量
-            List<Map<String, Object>> statusCounts = baseMapper.countByStatus();
+            List<FileSystemStatusCountDTO> statusCounts = baseMapper.countByStatus();
             long pendingFiles = 0;
             long mergingFiles = 0;
             long completedFiles = 0;
             long failedFiles = 0;
 
-            for (Map<String, Object> item : statusCounts) {
-                Integer status = (Integer) item.get("file_status");
-                Long count = (Long) item.get("count");
+            for (FileSystemStatusCountDTO statusCount : statusCounts) {
+                Integer status = statusCount.getFileSystemStatus();
+                Long count = statusCount.getCount();
+
+                // 检查status是否为null，避免NullPointerException
+                if (status == null) {
+                    log.warn("发现文件状态为null的记录，跳过统计: status={}, count={}", status, count);
+                    continue;
+                }
+
+                // 检查count是否为null，避免NullPointerException
+                if (count == null) {
+                    log.warn("发现文件数量为null的记录，跳过统计: status={}, count={}", status, count);
+                    continue;
+                }
+
                 switch (status) {
                 case FileSystem.FileStatus.PENDING_MERGE:
                     pendingFiles = count;
@@ -759,6 +773,9 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
                 case FileSystem.FileStatus.MERGE_FAILED:
                     failedFiles = count;
                     break; // 合并失败
+                default:
+                    log.warn("发现未知的文件状态: {}, count: {}, statusName: {}", status, count, statusCount.getStatusName());
+                    break;
                 }
             }
 
@@ -948,27 +965,6 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
         }
 
         return statistics;
-    }
-
-    /**
-     * 获取状态名称
-     */
-    private String getStatusName(Integer status) {
-        if (status == null) {
-            return "unknown";
-        }
-        switch (status) {
-        case FileSystem.FileStatus.PENDING_MERGE:
-            return "pending";
-        case FileSystem.FileStatus.MERGING:
-            return "merging";
-        case FileSystem.FileStatus.COMPLETED:
-            return "completed";
-        case FileSystem.FileStatus.MERGE_FAILED:
-            return "failed";
-        default:
-            return "unknown";
-        }
     }
 
     /**
