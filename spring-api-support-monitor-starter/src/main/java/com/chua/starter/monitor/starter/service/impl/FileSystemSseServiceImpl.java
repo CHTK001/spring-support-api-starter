@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +33,7 @@ public class FileSystemSseServiceImpl implements FileSystemSseService {
      */
     private static final long SSE_TIMEOUT = 30 * 60 * 1000L; // 30分钟
 
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
     /**
      * 心跳检测间隔（秒）
      */
@@ -252,7 +254,7 @@ public class FileSystemSseServiceImpl implements FileSystemSseService {
     public void sendUploadProgress(Integer fileId, Double progress, String status) {
         Map<String, Object> data = new HashMap<>();
         data.put("fileId", fileId);
-        data.put("progress", progress);
+        data.put("progress", DECIMAL_FORMAT.format(progress));
         data.put("status", status);
         data.put("timestamp", System.currentTimeMillis());
 
@@ -263,7 +265,7 @@ public class FileSystemSseServiceImpl implements FileSystemSseService {
     public void sendMergeProgress(Integer fileId, Double progress, String status) {
         Map<String, Object> data = new HashMap<>();
         data.put("fileId", fileId);
-        data.put("progress", progress);
+        data.put("progress", DECIMAL_FORMAT.format(progress));
         data.put("status", status);
         data.put("timestamp", System.currentTimeMillis());
 

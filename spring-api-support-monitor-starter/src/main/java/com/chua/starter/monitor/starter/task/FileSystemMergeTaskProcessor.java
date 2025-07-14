@@ -9,6 +9,8 @@ import com.chua.starter.monitor.starter.service.FileSystemSettingService;
 import com.chua.starter.monitor.starter.service.FileSystemSseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -40,14 +42,16 @@ import java.util.concurrent.Semaphore;
 @RequiredArgsConstructor
 public class FileSystemMergeTaskProcessor {
 
-    private final FileSystemService fileSystemService;
+    @Autowired
+    @Lazy
+    private FileSystemService fileSystemService;
     private final FileSystemPartService fileSystemPartService;
     private final FileSystemSettingService fileSystemSettingService;
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
 
     // 合并任务信号量，用于控制并发数量
-    private volatile Semaphore mergeSemaphore;
+    private volatile Semaphore mergeSemaphore = new Semaphore(1); // 默认初始化为1个许可
     private volatile int currentMergeTaskLimit = 1;
 
     // 数据库查询缓存，减少频繁查询
@@ -63,13 +67,11 @@ public class FileSystemMergeTaskProcessor {
             // 获取系统配置
             FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
             if (setting == null) {
+                log.debug("未找到启用的文件系统配置，跳过合并处理");
                 return;
             }
 
-            // 检查是否开启手动合并模式
-            if (Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
-                return;
-            }
+            log.debug("开始处理自动合并队列");
 
             // 更新合并任务限制
             updateMergeTaskLimit(setting.getFileSystemSettingMergeTaskLimit());
@@ -211,15 +213,20 @@ public class FileSystemMergeTaskProcessor {
     public CompletableFuture<Void> processMergeFileAsync(Integer fileId) {
         return CompletableFuture.runAsync(() -> {
             try {
+                // 确保合并许可信号量已初始化
+                ensureMergeSemaphoreInitialized();
+
                 // 获取合并许可
-                if (mergeSemaphore != null && mergeSemaphore.tryAcquire()) {
+                if (mergeSemaphore.tryAcquire()) {
                     try {
                         processMergeFile(fileId);
                     } finally {
                         mergeSemaphore.release();
                     }
                 } else {
-                    log.debug("合并任务达到并发限制，跳过: fileId={}", fileId);
+                    log.warn("合并任务达到并发限制，将文件重新加入队列: fileId={}", fileId);
+                    // 如果无法获取许可，将文件重新加入队列稍后处理
+                    mergeQueue.enqueue(fileId);
                 }
             } catch (Exception e) {
                 log.error("异步合并文件失败: fileId={}", fileId, e);
@@ -405,6 +412,20 @@ public class FileSystemMergeTaskProcessor {
             currentMergeTaskLimit = newLimit;
             mergeSemaphore = new Semaphore(currentMergeTaskLimit);
             log.info("更新合并任务并发限制: {}", currentMergeTaskLimit);
+        }
+    }
+
+    /**
+     * 确保合并许可信号量已初始化
+     */
+    private void ensureMergeSemaphoreInitialized() {
+        if (mergeSemaphore == null) {
+            synchronized (this) {
+                if (mergeSemaphore == null) {
+                    mergeSemaphore = new Semaphore(currentMergeTaskLimit);
+                    log.info("初始化合并任务信号量: permits={}", currentMergeTaskLimit);
+                }
+            }
         }
     }
 }

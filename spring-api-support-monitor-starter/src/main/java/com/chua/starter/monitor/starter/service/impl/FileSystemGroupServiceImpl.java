@@ -69,11 +69,15 @@ public class FileSystemGroupServiceImpl extends ServiceImpl<FileSystemGroupMappe
             group.setFileSystemGroupIsDefault(false);
         }
 
-        // 计算层级和路径
-        calculateGroupPaths(group);
+        // 先计算基本路径信息（不包含需要ID的字段）
+        calculateBasicGroupPaths(group);
 
-        // 保存分组
+        // 保存分组（此时会生成ID）
         save(group);
+
+        // 保存后再计算完整路径信息（包含需要ID的字段）
+        calculateGroupPaths(group);
+        updateById(group);
 
         // 创建物理目录
         createPhysicalDirectory(group);
@@ -234,6 +238,14 @@ public class FileSystemGroupServiceImpl extends ServiceImpl<FileSystemGroupMappe
 
         saveBatch(defaultGroups);
 
+        // 保存后更新每个分组的TreePath字段
+        for (FileSystemGroup group : defaultGroups) {
+            if (group.getFileSystemGroupId() != null) {
+                group.setFileSystemGroupTreePath(group.getFileSystemGroupId().toString());
+                updateById(group);
+            }
+        }
+
         // 为每个分组创建物理目录
         defaultGroups.forEach(this::createPhysicalDirectory);
 
@@ -313,9 +325,34 @@ public class FileSystemGroupServiceImpl extends ServiceImpl<FileSystemGroupMappe
     }
 
     /**
-     * 计算分组的路径信息
+     * 计算分组的基本路径信息（不依赖ID）
+     */
+    private void calculateBasicGroupPaths(FileSystemGroup group) {
+        if (group.getFileSystemGroupParentId() == null) {
+            // 根分组
+            group.setFileSystemGroupLevel(1);
+            group.setFileSystemGroupFullPath(group.getFileSystemGroupPath());
+        } else {
+            // 子分组
+            FileSystemGroup parent = getById(group.getFileSystemGroupParentId());
+            if (parent != null) {
+                group.setFileSystemGroupLevel(parent.getFileSystemGroupLevel() + 1);
+                group.setFileSystemGroupFullPath(
+                        parent.getFileSystemGroupFullPath() + "/" + group.getFileSystemGroupPath());
+            }
+        }
+    }
+
+    /**
+     * 计算分组的完整路径信息（包含依赖ID的字段）
      */
     private void calculateGroupPaths(FileSystemGroup group) {
+        if (group.getFileSystemGroupId() == null) {
+            // 如果ID为空，只计算基本路径
+            calculateBasicGroupPaths(group);
+            return;
+        }
+
         if (group.getFileSystemGroupParentId() == null) {
             // 根分组
             group.setFileSystemGroupLevel(1);

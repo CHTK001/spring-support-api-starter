@@ -76,12 +76,12 @@ public class FileSystemSetting extends SysBase implements Serializable {
     private Integer fileSystemSettingMergeTaskLimit;
 
     /**
-     * 是否开启手动合并
+     * 是否支持手动合并功能（不影响自动合并）
      */
-    @ColumnDesc("是否开启手动合并")
+    @ColumnDesc("是否支持手动合并功能")
     @TableField(value = "file_system_setting_manual_merge_enabled")
-    @ApiModelProperty(value = "是否开启手动合并")
-    @Schema(description = "是否开启手动合并")
+    @ApiModelProperty(value = "是否支持手动合并功能")
+    @Schema(description = "是否支持手动合并功能（不影响自动合并）")
     private Boolean fileSystemSettingManualMergeEnabled;
 
     /**
