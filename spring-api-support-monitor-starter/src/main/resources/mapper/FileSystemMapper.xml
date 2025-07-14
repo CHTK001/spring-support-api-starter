@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystem">
+        <id column="file_system_id" property="fileSystemId" />
+        <result column="file_system_name" property="fileSystemName" />
+        <result column="file_system_original_name" property="fileSystemOriginalName" />
+        <result column="file_system_path" property="fileSystemPath" />
+        <result column="file_system_size" property="fileSystemSize" />
+        <result column="file_system_md5" property="fileSystemMd5" />
+        <result column="file_system_type" property="fileSystemType" />
+        <result column="file_system_extension" property="fileSystemExtension" />
+        <result column="file_system_chunk_total" property="fileSystemChunkTotal" />
+        <result column="file_system_chunk_uploaded" property="fileSystemChunkUploaded" />
+        <result column="file_system_status" property="fileSystemStatus" />
+        <result column="file_system_http_access_enabled" property="fileSystemHttpAccessEnabled" />
+        <result column="file_system_http_access_url" property="fileSystemHttpAccessUrl" />
+        <result column="file_system_upload_start_time" property="fileSystemUploadStartTime" />
+        <result column="file_system_upload_complete_time" property="fileSystemUploadCompleteTime" />
+        <result column="file_system_remark" property="fileSystemRemark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        file_system_id, file_system_name, file_system_original_name, file_system_path, file_system_size, file_system_md5,
+        file_system_type, file_system_extension, file_system_chunk_total, file_system_chunk_uploaded, file_system_status,
+        file_system_http_access_enabled, file_system_http_access_url, file_system_upload_start_time, file_system_upload_complete_time,
+        file_system_remark, create_time, update_time, create_by, update_by
+    </sql>
+
+    <!-- 根据MD5查找文件 -->
+    <select id="findByMd5" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_md5 = #{fileMd5}
+        LIMIT 1
+    </select>
+
+    <!-- 根据状态查询文件列表 -->
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_status = #{status}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 更新文件状态 -->
+    <update id="updateStatus">
+        UPDATE file_system
+        SET file_system_status = #{status},
+            update_time = NOW()
+        WHERE file_system_id = #{fileId}
+    </update>
+
+    <!-- 更新已上传分片数 -->
+    <update id="updateChunkUploaded">
+        UPDATE file_system
+        SET file_system_chunk_uploaded = #{chunkUploaded},
+            update_time = NOW()
+        WHERE file_system_id = #{fileId}
+    </update>
+
+    <!-- 批量删除过期文件 -->
+    <delete id="deleteExpiredFiles">
+        <![CDATA[
+        DELETE FROM file_system
+        WHERE DATEDIFF(NOW(), create_time) > #{retentionDays}
+        ]]>
+    </delete>
+
+    <!-- 统计各状态文件数量 -->
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT
+            file_system_status,
+            COUNT(*) as count
+        FROM file_system
+        GROUP BY file_system_status
+    </select>
+
+    <!-- 查询待合并的文件 -->
+    <select id="findPendingMergeFiles" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_status = 0
+        ORDER BY create_time ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询合并失败的文件 -->
+    <select id="findFailedMergeFiles" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_status = 3
+        ORDER BY update_time ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 根据文件类型统计 -->
+    <select id="countByFileType" resultType="java.util.Map">
+        SELECT
+            file_system_type,
+            COUNT(*) as count,
+            SUM(file_system_size) as total_size
+        FROM file_system
+        WHERE file_system_status = 2
+        GROUP BY file_system_type
+        ORDER BY count DESC
+    </select>
+
+    <!-- 查询大文件列表 -->
+    <select id="findLargeFiles" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_size > #{minSize}
+        ORDER BY file_system_size DESC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询最近上传的文件 -->
+    <select id="findRecentFiles" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE create_time >= #{startTime}
+        ORDER BY create_time DESC
+        ]]>
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询启用HTTP访问的文件 -->
+    <select id="findHttpAccessEnabledFiles" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        WHERE file_system_http_access_enabled = 1
+        AND file_system_status = 2
+        ORDER BY create_time DESC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 批量更新HTTP访问状态 -->
+    <update id="batchUpdateHttpAccess">
+        UPDATE file_system
+        SET file_system_http_access_enabled = #{enabled},
+            update_time = NOW()
+        WHERE file_system_id IN
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </update>
+
+    <!-- 清理临时文件记录 -->
+    <delete id="cleanupTempFiles">
+        <![CDATA[
+        DELETE FROM file_system
+        WHERE file_system_status IN (0, 1)
+        AND TIMESTAMPDIFF(HOUR, create_time, NOW()) > #{hours}
+        ]]>
+    </delete>
+
+    <!-- 获取文件存储统计信息 -->
+    <select id="getStorageStatistics" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total_files,
+            SUM(CASE WHEN file_system_status = 0 THEN 1 ELSE 0 END) as pending_files,
+            SUM(CASE WHEN file_system_status = 1 THEN 1 ELSE 0 END) as merging_files,
+            SUM(CASE WHEN file_system_status = 2 THEN 1 ELSE 0 END) as completed_files,
+            SUM(CASE WHEN file_system_status = 3 THEN 1 ELSE 0 END) as failed_files,
+            SUM(CASE WHEN file_system_status = 2 THEN file_system_size ELSE 0 END) as total_size,
+            AVG(CASE WHEN file_system_status = 2 THEN file_system_size ELSE NULL END) as avg_file_size,
+            MAX(file_system_size) as max_file_size,
+            MIN(CASE WHEN file_system_status = 2 THEN file_system_size ELSE NULL END) as min_file_size,
+            COUNT(CASE WHEN DATE(create_time) = CURDATE() THEN 1 ELSE NULL END) as today_files,
+            COUNT(CASE WHEN file_system_http_access_enabled = 1 THEN 1 ELSE NULL END) as http_access_files
+        FROM file_system
+    </select>
+
+    <!-- 根据时间范围查询文件 -->
+    <select id="findFilesByTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        <where>
+            <if test="startTime != null">
+                <![CDATA[create_time >= #{startTime}]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[AND create_time <= #{endTime}]]>
+            </if>
+            <if test="status != null">
+                AND file_system_status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 搜索文件 -->
+    <select id="searchFiles" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (file_system_name LIKE CONCAT('%', #{keyword}, '%')
+                OR file_system_original_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="fileType != null and fileType != ''">
+                AND file_system_type = #{fileType}
+            </if>
+            <if test="status != null">
+                AND file_system_status = #{status}
+            </if>
+            <if test="minSize != null">
+                <![CDATA[AND file_system_size >= #{minSize}]]>
+            </if>
+            <if test="maxSize != null">
+                <![CDATA[AND file_system_size <= #{maxSize}]]>
+            </if>
+        </where>
+        ORDER BY 
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ${orderBy}
+            </when>
+            <otherwise>
+                create_time DESC
+            </otherwise>
+        </choose>
+        <if test="limit != null and limit > 0">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+</mapper>

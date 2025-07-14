@@ -30,13 +30,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 分页结果
      */
-    ReturnResult<IPage<MonitorSysGenServerLog>> getLogPage(Page<MonitorSysGenServerLog> page,
-                                                           Integer serverId,
-                                                           String level,
-                                                           String source,
-                                                           String keyword,
-                                                           LocalDateTime startTime,
-                                                           LocalDateTime endTime);
+    ReturnResult<IPage<MonitorSysGenServerLog>> getLogPage(Page<MonitorSysGenServerLog> page, Integer serverId,
+            String level, String source, String keyword, LocalDateTime startTime, LocalDateTime endTime);
 
     /**
      * 根据服务器ID和时间范围查询日志
@@ -46,9 +41,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 日志列表
      */
-    ReturnResult<List<MonitorSysGenServerLog>> getLogsByServerAndTime(Integer serverId,
-                                                                      LocalDateTime startTime,
-                                                                      LocalDateTime endTime);
+    ReturnResult<List<MonitorSysGenServerLog>> getLogsByServerAndTime(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 获取最近的错误日志
@@ -79,11 +73,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 搜索结果
      */
-    ReturnResult<IPage<MonitorSysGenServerLog>> searchLogContent(Page<MonitorSysGenServerLog> page,
-                                                                Integer serverId,
-                                                                String keyword,
-                                                                LocalDateTime startTime,
-                                                                LocalDateTime endTime);
+    ReturnResult<IPage<MonitorSysGenServerLog>> searchLogContent(Page<MonitorSysGenServerLog> page, Integer serverId,
+            String keyword, LocalDateTime startTime, LocalDateTime endTime);
 
     /**
      * 批量保存日志
@@ -118,9 +109,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 统计结果
      */
-    ReturnResult<Map<String, Object>> getLogLevelStatistics(Integer serverId,
-                                                            LocalDateTime startTime,
-                                                            LocalDateTime endTime);
+    ReturnResult<Map<String, Object>> getLogLevelStatistics(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 获取日志来源统计
@@ -130,9 +120,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 统计结果
      */
-    ReturnResult<Map<String, Object>> getLogSourceStatistics(Integer serverId,
-                                                             LocalDateTime startTime,
-                                                             LocalDateTime endTime);
+    ReturnResult<Map<String, Object>> getLogSourceStatistics(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 获取日志时间分布统计
@@ -142,9 +131,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 时间分布统计
      */
-    ReturnResult<List<Map<String, Object>>> getLogTimeDistribution(Integer serverId,
-                                                                   LocalDateTime startTime,
-                                                                   LocalDateTime endTime);
+    ReturnResult<List<Map<String, Object>>> getLogTimeDistribution(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 获取异常日志统计
@@ -154,9 +142,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 异常统计
      */
-    ReturnResult<Map<String, Object>> getExceptionStatistics(Integer serverId,
-                                                             LocalDateTime startTime,
-                                                             LocalDateTime endTime);
+    ReturnResult<Map<String, Object>> getExceptionStatistics(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 获取日志大小统计
@@ -166,9 +153,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 日志大小统计
      */
-    ReturnResult<Map<String, Object>> getLogSizeStatistics(Integer serverId,
-                                                           LocalDateTime startTime,
-                                                           LocalDateTime endTime);
+    ReturnResult<Map<String, Object>> getLogSizeStatistics(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 生成日志报告
@@ -178,9 +164,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param endTime   结束时间
      * @return 日志报告
      */
-    ReturnResult<Map<String, Object>> generateLogReport(Integer serverId,
-                                                        LocalDateTime startTime,
-                                                        LocalDateTime endTime);
+    ReturnResult<Map<String, Object>> generateLogReport(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime);
 
     /**
      * 导出日志
@@ -193,12 +178,8 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @param format    导出格式
      * @return 导出结果
      */
-    ReturnResult<String> exportLogs(Integer serverId,
-                                   String level,
-                                   String source,
-                                   LocalDateTime startTime,
-                                   LocalDateTime endTime,
-                                   String format);
+    ReturnResult<String> exportLogs(Integer serverId, String level, String source, LocalDateTime startTime,
+            LocalDateTime endTime, String format);
 
     /**
      * 清理日志数据
@@ -239,4 +220,21 @@ public interface MonitorSysGenServerLogService extends IService<MonitorSysGenSer
      * @return 重启结果
      */
     ReturnResult<Boolean> restartLogCollection(Integer serverId);
+
+    /**
+     * 获取服务器日志统计信息（简化版本）
+     *
+     * @param serverId 服务器ID
+     * @return 统计信息
+     */
+    ReturnResult<Map<String, Object>> getServerLogStatistics(Integer serverId);
+
+    /**
+     * 清理服务器日志
+     *
+     * @param serverId   服务器ID
+     * @param beforeDate 清理此日期之前的日志
+     * @return 清理的记录数
+     */
+    ReturnResult<Integer> cleanupServerLogs(Integer serverId, LocalDateTime beforeDate);
 }

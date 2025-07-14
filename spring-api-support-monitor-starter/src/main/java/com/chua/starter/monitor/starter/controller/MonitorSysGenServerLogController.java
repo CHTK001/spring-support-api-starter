@@ -59,10 +59,8 @@ public class MonitorSysGenServerLogController {
             @RequestParam(value = "level", required = false) @Parameter(description = "日志级别") @ApiParam("日志级别") String level,
             @RequestParam(value = "source", required = false) @Parameter(description = "日志来源") @ApiParam("日志来源") String source,
             @RequestParam(value = "keyword", required = false) @Parameter(description = "关键词") @ApiParam("关键词") String keyword,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         Page<MonitorSysGenServerLog> page = new Page<>(current, size);
         return logService.getLogPage(page, serverId, level, source, keyword, startTime, endTime);
@@ -81,10 +79,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("根据服务器ID和时间范围查询日志")
     public ReturnResult<List<MonitorSysGenServerLog>> getLogsByServerAndTime(
             @PathVariable("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -126,8 +122,7 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取实时日志")
     public ReturnResult<List<MonitorSysGenServerLog>> getRealTimeLogs(
             @PathVariable("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "lastTime", required = false) @Parameter(description = "最后时间") @ApiParam("最后时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime lastTime,
+            @RequestParam(value = "lastTime", required = false) @Parameter(description = "最后时间") @ApiParam("最后时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime lastTime,
             @RequestParam(value = "limit", defaultValue = "100") @Parameter(description = "限制数量") @ApiParam("限制数量") Integer limit) {
 
         if (lastTime == null) {
@@ -156,10 +151,8 @@ public class MonitorSysGenServerLogController {
             @RequestParam(value = "size", defaultValue = "20") @Parameter(description = "页大小") @ApiParam("页大小") Long size,
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
             @RequestParam("keyword") @Parameter(description = "关键词") @ApiParam("关键词") String keyword,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(7);
@@ -199,8 +192,7 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("删除过期日志")
     public ReturnResult<Integer> deleteExpiredLogs(
             @PathVariable("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam("expiredTime") @Parameter(description = "过期时间") @ApiParam("过期时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime expiredTime) {
+            @RequestParam("expiredTime") @Parameter(description = "过期时间") @ApiParam("过期时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime expiredTime) {
 
         return logService.deleteExpiredLogs(serverId, expiredTime);
     }
@@ -215,10 +207,25 @@ public class MonitorSysGenServerLogController {
     @Operation(summary = "批量删除过期日志")
     @ApiOperation("批量删除过期日志")
     public ReturnResult<Integer> batchDeleteExpiredLogs(
-            @RequestParam("expiredTime") @Parameter(description = "过期时间") @ApiParam("过期时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime expiredTime) {
+            @RequestParam("expiredTime") @Parameter(description = "过期时间") @ApiParam("过期时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime expiredTime) {
 
         return logService.batchDeleteExpiredLogs(expiredTime);
+    }
+
+    /**
+     * 获取服务器日志统计信息（简化版本，用于对话框显示）
+     *
+     * @param serverId 服务器ID
+     * @return 统计信息
+     */
+    @GetMapping("/statistics")
+    @Operation(summary = "获取服务器日志统计信息")
+    @ApiOperation("获取服务器日志统计信息")
+    public ReturnResult<Map<String, Object>> getServerLogStatistics(
+            @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId) {
+
+        log.info("获取服务器日志统计信息: serverId={}", serverId);
+        return logService.getServerLogStatistics(serverId);
     }
 
     /**
@@ -234,10 +241,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取日志级别统计")
     public ReturnResult<Map<String, Object>> getLogLevelStatistics(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -262,10 +267,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取日志来源统计")
     public ReturnResult<Map<String, Object>> getLogSourceStatistics(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -290,10 +293,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取日志时间分布统计")
     public ReturnResult<List<Map<String, Object>>> getLogTimeDistribution(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -318,10 +319,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取异常日志统计")
     public ReturnResult<Map<String, Object>> getExceptionStatistics(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -346,10 +345,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("获取日志大小统计")
     public ReturnResult<Map<String, Object>> getLogSizeStatistics(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(1);
@@ -374,10 +371,8 @@ public class MonitorSysGenServerLogController {
     @ApiOperation("生成日志报告")
     public ReturnResult<Map<String, Object>> generateLogReport(
             @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
-            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @RequestParam(value = "startTime", required = false) @Parameter(description = "开始时间") @ApiParam("开始时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @Parameter(description = "结束时间") @ApiParam("结束时间") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
 
         if (startTime == null) {
             startTime = LocalDateTime.now().minusDays(7);
@@ -447,5 +442,23 @@ public class MonitorSysGenServerLogController {
             @PathVariable("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId) {
 
         return logService.getLogCollectionStatus(serverId);
+    }
+
+    /**
+     * 清理服务器日志
+     *
+     * @param serverId   服务器ID
+     * @param beforeDate 清理此日期之前的日志
+     * @return 清理结果
+     */
+    @DeleteMapping("/cleanup")
+    @Operation(summary = "清理服务器日志")
+    @ApiOperation("清理服务器日志")
+    public ReturnResult<Integer> cleanupServerLogs(
+            @RequestParam("serverId") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer serverId,
+            @RequestParam(value = "beforeDate", required = false) @Parameter(description = "清理此日期之前的日志") @ApiParam("清理此日期之前的日志") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beforeDate) {
+
+        log.info("清理服务器日志: serverId={}, beforeDate={}", serverId, beforeDate);
+        return logService.cleanupServerLogs(serverId, beforeDate);
     }
 }

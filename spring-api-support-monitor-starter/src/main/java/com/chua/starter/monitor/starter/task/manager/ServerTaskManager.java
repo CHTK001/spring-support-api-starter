@@ -8,6 +8,7 @@ import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.starter.pojo.ServerMetricsData;
 import com.chua.starter.monitor.starter.service.*;
 import com.chua.starter.monitor.starter.utils.LocalSystemDataCollector;
+import com.chua.starter.monitor.starter.utils.ServerLogUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
@@ -381,15 +382,15 @@ public class ServerTaskManager {
         return Objects.equals(old.getMonitorSysGenServerSettingDataCollectionFrequency(),
                 newSetting.getMonitorSysGenServerSettingDataCollectionFrequency())
                 && Objects.equals(old.getMonitorSysGenServerSettingMonitorEnabled(),
-                newSetting.getMonitorSysGenServerSettingMonitorEnabled())
+                        newSetting.getMonitorSysGenServerSettingMonitorEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingAlertEnabled(),
-                newSetting.getMonitorSysGenServerSettingAlertEnabled())
+                        newSetting.getMonitorSysGenServerSettingAlertEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingDataReportMethod(),
-                newSetting.getMonitorSysGenServerSettingDataReportMethod())
+                        newSetting.getMonitorSysGenServerSettingDataReportMethod())
                 && Objects.equals(old.getMonitorSysGenServerSettingPortMonitorEnabled(),
-                newSetting.getMonitorSysGenServerSettingPortMonitorEnabled())
+                        newSetting.getMonitorSysGenServerSettingPortMonitorEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingPortCheckInterval(),
-                newSetting.getMonitorSysGenServerSettingPortCheckInterval());
+                        newSetting.getMonitorSysGenServerSettingPortCheckInterval());
     }
 
     /**
@@ -502,7 +503,7 @@ public class ServerTaskManager {
      * 创建指标收集任务
      */
     private void createMetricsCollectionTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                             MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (setting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
             return;
         }
@@ -522,6 +523,10 @@ public class ServerTaskManager {
                     // 执行指标收集
                     collectAndPushMetrics(server, currentSetting);
 
+                    // 记录任务执行信息
+                    ServerLogUtils.logDebug(server.getMonitorSysGenServerId(),
+                            String.format("指标收集任务执行完成，下次执行间隔: %d秒", frequency));
+
                     // 按配置的频率休眠
                     Thread.sleep(frequency * 1000L);
 
@@ -530,6 +535,7 @@ public class ServerTaskManager {
                     break;
                 } catch (Exception e) {
                     log.error("指标收集任务异常: serverId={}", server.getMonitorSysGenServerId(), e);
+                    ServerLogUtils.logError(server.getMonitorSysGenServerId(), "指标收集任务执行异常", e);
                     try {
                         Thread.sleep(30000); // 异常时等待30秒
                     } catch (InterruptedException ie) {
@@ -541,14 +547,15 @@ public class ServerTaskManager {
         });
 
         taskInfo.setMetricsCollectionTask(task);
-        log.debug("为服务器 {} 创建指标收集任务", server.getMonitorSysGenServerName());
+        log.info("为服务器 {} 创建指标收集任务，采集频率: {}秒", server.getMonitorSysGenServerName(),
+                getEffectiveCollectionFrequency(setting));
     }
 
     /**
      * 创建告警检测任务
      */
     private void createAlertDetectionTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                          MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (setting.getMonitorSysGenServerSettingAlertEnabled() != 1) {
             return;
         }
@@ -566,14 +573,21 @@ public class ServerTaskManager {
                     // 执行告警检测
                     detectAndPushAlerts(server, currentSetting);
 
-                    // 固定2分钟间隔
-                    Thread.sleep(120000);
+                    // 使用配置的告警检测间隔，默认2分钟
+                    Integer alertInterval = getEffectiveAlertInterval(currentSetting);
+
+                    // 记录任务执行信息
+                    ServerLogUtils.logDebug(server.getMonitorSysGenServerId(),
+                            String.format("告警检测任务执行完成，下次执行间隔: %d秒", alertInterval));
+
+                    Thread.sleep(alertInterval * 1000L);
 
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
                     log.error("告警检测任务异常: serverId={}", server.getMonitorSysGenServerId(), e);
+                    ServerLogUtils.logError(server.getMonitorSysGenServerId(), "告警检测任务执行异常", e);
                     try {
                         Thread.sleep(120000); // 异常时等待2分钟
                     } catch (InterruptedException ie) {
@@ -585,14 +599,14 @@ public class ServerTaskManager {
         });
 
         taskInfo.setAlertDetectionTask(task);
-        log.debug("为服务器 {} 创建告警检测任务", server.getMonitorSysGenServerName());
+        log.info("为服务器 {} 创建告警检测任务，检测间隔: {}秒", server.getMonitorSysGenServerName(), getEffectiveAlertInterval(setting));
     }
 
     /**
      * 创建健康检查任务
      */
     private void createHealthCheckTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                       MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         Future<?> task = executorService.submit(() -> {
             while (taskInfo.isTaskRunning() && running) {
                 try {
@@ -813,6 +827,12 @@ public class ServerTaskManager {
             // 检查是否需要更新
             if (needsTaskUpdate(taskInfo, newSetting)) {
                 log.info("检测到服务器 {} 配置变化，重新创建任务", serverId);
+
+                // 记录配置变更信息
+                if (taskInfo.getCurrentSetting() != null) {
+                    logConfigurationChange(serverId, taskInfo.getCurrentSetting(), newSetting);
+                }
+
                 createServerTasks(serverId);
             } else {
                 log.debug("服务器 {} 配置未变化，跳过任务更新", serverId);
@@ -823,10 +843,17 @@ public class ServerTaskManager {
     }
 
     /**
-     * 获取有效的数据收集频率
+     * 获取有效的数据收集频率 优先级：数据采集频率 > 监控间隔 > 默认值
      */
     private Integer getEffectiveCollectionFrequency(MonitorSysGenServerSetting setting) {
         Integer frequency = setting.getMonitorSysGenServerSettingDataCollectionFrequency();
+
+        // 如果数据采集频率未设置或无效，使用监控间隔
+        if (frequency == null || frequency <= 0) {
+            frequency = setting.getMonitorSysGenServerSettingMonitorInterval();
+        }
+
+        // 如果监控间隔也未设置或无效，使用默认值
         if (frequency == null || frequency <= 0) {
             frequency = 30; // 默认30秒
         }
@@ -839,6 +866,30 @@ public class ServerTaskManager {
         }
 
         return frequency;
+    }
+
+    /**
+     * 获取有效的告警检测间隔 默认2分钟，确保在合理范围内
+     */
+    private Integer getEffectiveAlertInterval(MonitorSysGenServerSetting setting) {
+        // 告警检测间隔通常比数据采集间隔长，默认2分钟
+        Integer interval = 120; // 默认2分钟
+
+        // 可以根据数据采集频率动态调整，但不少于1分钟
+        Integer collectionFreq = getEffectiveCollectionFrequency(setting);
+        if (collectionFreq != null && collectionFreq > 0) {
+            // 告警检测间隔至少是数据采集频率的2倍，但不少于60秒
+            interval = Math.max(60, collectionFreq * 2);
+        }
+
+        // 确保间隔在合理范围内
+        if (interval < 60) {
+            interval = 60; // 最小1分钟
+        } else if (interval > 1800) {
+            interval = 1800; // 最大30分钟
+        }
+
+        return interval;
     }
 
     /**
@@ -874,6 +925,15 @@ public class ServerTaskManager {
         Integer currentFreq = getEffectiveCollectionFrequency(currentSetting);
         Integer newFreq = getEffectiveCollectionFrequency(newSetting);
         if (!currentFreq.equals(newFreq)) {
+            log.info("服务器 {} 数据收集频率变化: {} -> {} 秒", taskInfo.getServerId(), currentFreq, newFreq);
+            return true;
+        }
+
+        // 检查告警检测间隔是否变化
+        Integer currentAlertInterval = getEffectiveAlertInterval(currentSetting);
+        Integer newAlertInterval = getEffectiveAlertInterval(newSetting);
+        if (!currentAlertInterval.equals(newAlertInterval)) {
+            log.info("服务器 {} 告警检测间隔变化: {} -> {} 秒", taskInfo.getServerId(), currentAlertInterval, newAlertInterval);
             return true;
         }
 
@@ -881,18 +941,89 @@ public class ServerTaskManager {
         Integer currentInterval = getEffectiveMonitorInterval(currentSetting);
         Integer newInterval = getEffectiveMonitorInterval(newSetting);
         if (!currentInterval.equals(newInterval)) {
+            log.info("服务器 {} 监控间隔变化: {} -> {} 秒", taskInfo.getServerId(), currentInterval, newInterval);
             return true;
         }
 
         // 检查监控启用状态是否变化
         if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingMonitorEnabled(),
                 newSetting.getMonitorSysGenServerSettingMonitorEnabled())) {
+            log.info("服务器 {} 监控启用状态变化: {} -> {}", taskInfo.getServerId(),
+                    currentSetting.getMonitorSysGenServerSettingMonitorEnabled(),
+                    newSetting.getMonitorSysGenServerSettingMonitorEnabled());
             return true;
         }
 
         // 检查告警启用状态是否变化
-        return !Objects.equals(currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
-                newSetting.getMonitorSysGenServerSettingAlertEnabled());
+        if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
+                newSetting.getMonitorSysGenServerSettingAlertEnabled())) {
+            log.info("服务器 {} 告警启用状态变化: {} -> {}", taskInfo.getServerId(),
+                    currentSetting.getMonitorSysGenServerSettingAlertEnabled(),
+                    newSetting.getMonitorSysGenServerSettingAlertEnabled());
+            return true;
+        }
+
+        // 检查数据上报方式是否变化
+        if (!Objects.equals(currentSetting.getMonitorSysGenServerSettingDataReportMethod(),
+                newSetting.getMonitorSysGenServerSettingDataReportMethod())) {
+            log.info("服务器 {} 数据上报方式变化: {} -> {}", taskInfo.getServerId(),
+                    currentSetting.getMonitorSysGenServerSettingDataReportMethod(),
+                    newSetting.getMonitorSysGenServerSettingDataReportMethod());
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 记录配置变更信息
+     */
+    private void logConfigurationChange(Integer serverId, MonitorSysGenServerSetting oldSetting,
+            MonitorSysGenServerSetting newSetting) {
+        StringBuilder changeLog = new StringBuilder("服务器配置变更: ");
+
+        // 检查数据采集频率变化
+        Integer oldFreq = getEffectiveCollectionFrequency(oldSetting);
+        Integer newFreq = getEffectiveCollectionFrequency(newSetting);
+        if (!oldFreq.equals(newFreq)) {
+            changeLog.append(String.format("数据采集频率: %d秒 -> %d秒; ", oldFreq, newFreq));
+        }
+
+        // 检查告警检测间隔变化
+        Integer oldAlertInterval = getEffectiveAlertInterval(oldSetting);
+        Integer newAlertInterval = getEffectiveAlertInterval(newSetting);
+        if (!oldAlertInterval.equals(newAlertInterval)) {
+            changeLog.append(String.format("告警检测间隔: %d秒 -> %d秒; ", oldAlertInterval, newAlertInterval));
+        }
+
+        // 检查监控启用状态变化
+        if (!Objects.equals(oldSetting.getMonitorSysGenServerSettingMonitorEnabled(),
+                newSetting.getMonitorSysGenServerSettingMonitorEnabled())) {
+            changeLog.append(String.format("监控启用状态: %s -> %s; ",
+                    oldSetting.getMonitorSysGenServerSettingMonitorEnabled() == 1 ? "启用" : "禁用",
+                    newSetting.getMonitorSysGenServerSettingMonitorEnabled() == 1 ? "启用" : "禁用"));
+        }
+
+        // 检查告警启用状态变化
+        if (!Objects.equals(oldSetting.getMonitorSysGenServerSettingAlertEnabled(),
+                newSetting.getMonitorSysGenServerSettingAlertEnabled())) {
+            changeLog.append(String.format("告警启用状态: %s -> %s; ",
+                    oldSetting.getMonitorSysGenServerSettingAlertEnabled() == 1 ? "启用" : "禁用",
+                    newSetting.getMonitorSysGenServerSettingAlertEnabled() == 1 ? "启用" : "禁用"));
+        }
+
+        // 检查数据上报方式变化
+        if (!Objects.equals(oldSetting.getMonitorSysGenServerSettingDataReportMethod(),
+                newSetting.getMonitorSysGenServerSettingDataReportMethod())) {
+            changeLog.append(
+                    String.format("数据上报方式: %s -> %s; ", oldSetting.getMonitorSysGenServerSettingDataReportMethod(),
+                            newSetting.getMonitorSysGenServerSettingDataReportMethod()));
+        }
+
+        // 记录到服务器日志
+        if (changeLog.length() > "服务器配置变更: ".length()) {
+            ServerLogUtils.logInfo(serverId, changeLog.toString());
+        }
     }
 
     /**
@@ -947,11 +1078,28 @@ public class ServerTaskManager {
         if (taskInfo.getCurrentSetting() != null) {
             Map<String, Object> config = new HashMap<>();
             config.put("collectionFrequency", getEffectiveCollectionFrequency(taskInfo.getCurrentSetting()));
+            config.put("alertInterval", getEffectiveAlertInterval(taskInfo.getCurrentSetting()));
             config.put("monitorInterval", getEffectiveMonitorInterval(taskInfo.getCurrentSetting()));
             config.put("monitorEnabled", taskInfo.getCurrentSetting().getMonitorSysGenServerSettingMonitorEnabled());
             config.put("alertEnabled", taskInfo.getCurrentSetting().getMonitorSysGenServerSettingAlertEnabled());
+            config.put("dataReportMethod",
+                    taskInfo.getCurrentSetting().getMonitorSysGenServerSettingDataReportMethod());
+            config.put("portMonitorEnabled",
+                    taskInfo.getCurrentSetting().getMonitorSysGenServerSettingPortMonitorEnabled());
+            config.put("onlineCheckEnabled",
+                    taskInfo.getCurrentSetting().getMonitorSysGenServerSettingOnlineCheckEnabled());
+            config.put("latencyCheckEnabled",
+                    taskInfo.getCurrentSetting().getMonitorSysGenServerSettingLatencyCheckEnabled());
             status.put("config", config);
         }
+
+        // 添加任务性能统计
+        Map<String, Object> performance = new HashMap<>();
+        performance.put("taskCount", taskStatus.size());
+        performance.put("runningTasks", taskStatus.values().stream()
+                .mapToInt(task -> (Boolean) ((Map<String, Object>) task).get("running") ? 1 : 0).sum());
+        performance.put("lastUpdateTime", System.currentTimeMillis());
+        status.put("performance", performance);
 
         return status;
     }
@@ -1004,7 +1152,7 @@ public class ServerTaskManager {
      * 将Prometheus数据转换为标准服务器指标格式
      */
     private MonitorSysGenServerMetrics convertToServerMetrics(MonitorSysGenServer server,
-                                                              ServerMetricsData metricsData) {
+            ServerMetricsData metricsData) {
         try {
             MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
             metrics.setMonitorSysGenServerId(server.getMonitorSysGenServerId());
@@ -1032,7 +1180,7 @@ public class ServerTaskManager {
      * 创建数据推送任务
      */
     private void createDataPushTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                    MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (!setting.isEnabled()) {
             return;
         }
@@ -1063,6 +1211,10 @@ public class ServerTaskManager {
                     // 执行数据推送
                     executeDataPush(server, currentSetting, currentReportMethod);
 
+                    // 记录任务执行信息
+                    ServerLogUtils.logDebug(server.getMonitorSysGenServerId(),
+                            String.format("数据推送任务执行完成，推送方式: %s，下次执行间隔: %d秒", currentReportMethod, frequency));
+
                     // 按配置的频率休眠
                     Thread.sleep(frequency * 1000L);
 
@@ -1071,6 +1223,7 @@ public class ServerTaskManager {
                     break;
                 } catch (Exception e) {
                     log.error("数据推送任务异常: serverId={}", server.getMonitorSysGenServerId(), e);
+                    ServerLogUtils.logError(server.getMonitorSysGenServerId(), "数据推送任务执行异常", e);
                     try {
                         Thread.sleep(30000); // 异常时等待30秒
                     } catch (InterruptedException ie) {
@@ -1082,14 +1235,15 @@ public class ServerTaskManager {
         });
 
         taskInfo.setDataPushTask(task);
-        log.debug("为服务器 {} 创建数据推送任务", server.getMonitorSysGenServerName());
+        log.info("为服务器 {} 创建数据推送任务，推送方式: {}，推送频率: {}秒", server.getMonitorSysGenServerName(),
+                setting.getMonitorSysGenServerSettingDataReportMethod(), getEffectiveCollectionFrequency(setting));
     }
 
     /**
      * 创建端口监控任务
      */
     private void createPortMonitorTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                       MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         Integer monitorSysGenServerSettingPortMonitorEnabled = setting
                 .getMonitorSysGenServerSettingPortMonitorEnabled();
         if (null == monitorSysGenServerSettingPortMonitorEnabled || monitorSysGenServerSettingPortMonitorEnabled != 1) {
@@ -1247,7 +1401,7 @@ public class ServerTaskManager {
      * 创建在线状态检测任务
      */
     private void createOnlineCheckTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                       MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         Integer monitorSysGenServerSettingOnlineCheckEnabled = setting
                 .getMonitorSysGenServerSettingOnlineCheckEnabled();
         if (null == monitorSysGenServerSettingOnlineCheckEnabled || monitorSysGenServerSettingOnlineCheckEnabled != 1) {
@@ -1401,7 +1555,7 @@ public class ServerTaskManager {
      * 创建延迟检测任务
      */
     private void createLatencyCheckTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                        MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (null == setting) {
             return;
         }
@@ -1457,7 +1611,7 @@ public class ServerTaskManager {
      * 创建日志清理任务
      */
     private void createLogCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                      MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         Integer monitorSysGenServerSettingLogCleanupEnabled = setting.getMonitorSysGenServerSettingLogCleanupEnabled();
         if (null == monitorSysGenServerSettingLogCleanupEnabled || monitorSysGenServerSettingLogCleanupEnabled != 1) {
             return;
@@ -1503,7 +1657,7 @@ public class ServerTaskManager {
      * 创建缓存清理任务
      */
     private void createCacheCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                        MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (null == setting) {
             return;
         }
@@ -1554,7 +1708,7 @@ public class ServerTaskManager {
      * 创建WebSocket清理任务
      */
     private void createWebSocketCleanupTask(ServerTaskInfo taskInfo, MonitorSysGenServer server,
-                                            MonitorSysGenServerSetting setting) {
+            MonitorSysGenServerSetting setting) {
         if (null == setting) {
             return;
         }

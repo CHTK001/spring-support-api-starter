@@ -23,22 +23,18 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
     /**
      * 分页查询服务器日志
      *
-     * @param page     分页参数
-     * @param serverId 服务器ID
-     * @param level    日志级别
-     * @param source   日志来源
-     * @param keyword  关键词
+     * @param page      分页参数
+     * @param serverId  服务器ID
+     * @param level     日志级别
+     * @param source    日志来源
+     * @param keyword   关键词
      * @param startTime 开始时间
      * @param endTime   结束时间
      * @return 分页结果
      */
-    IPage<MonitorSysGenServerLog> selectLogPage(Page<MonitorSysGenServerLog> page,
-                                                @Param("serverId") Integer serverId,
-                                                @Param("level") String level,
-                                                @Param("source") String source,
-                                                @Param("keyword") String keyword,
-                                                @Param("startTime") LocalDateTime startTime,
-                                                @Param("endTime") LocalDateTime endTime);
+    IPage<MonitorSysGenServerLog> selectLogPage(Page<MonitorSysGenServerLog> page, @Param("serverId") Integer serverId,
+            @Param("level") String level, @Param("source") String source, @Param("keyword") String keyword,
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 根据服务器ID和时间范围查询日志
@@ -49,8 +45,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 日志列表
      */
     List<MonitorSysGenServerLog> selectLogsByServerAndTime(@Param("serverId") Integer serverId,
-                                                           @Param("startTime") LocalDateTime startTime,
-                                                           @Param("endTime") LocalDateTime endTime);
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 根据日志级别查询日志数量
@@ -61,10 +56,8 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @param endTime   结束时间
      * @return 日志数量
      */
-    Long countLogsByLevel(@Param("serverId") Integer serverId,
-                          @Param("level") String level,
-                          @Param("startTime") LocalDateTime startTime,
-                          @Param("endTime") LocalDateTime endTime);
+    Long countLogsByLevel(@Param("serverId") Integer serverId, @Param("level") String level,
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 获取日志级别统计
@@ -75,8 +68,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 统计结果
      */
     List<Map<String, Object>> getLogLevelStatistics(@Param("serverId") Integer serverId,
-                                                     @Param("startTime") LocalDateTime startTime,
-                                                     @Param("endTime") LocalDateTime endTime);
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 获取日志来源统计
@@ -87,8 +79,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 统计结果
      */
     List<Map<String, Object>> getLogSourceStatistics(@Param("serverId") Integer serverId,
-                                                      @Param("startTime") LocalDateTime startTime,
-                                                      @Param("endTime") LocalDateTime endTime);
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 获取最近的错误日志
@@ -97,8 +88,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @param limit    限制数量
      * @return 错误日志列表
      */
-    List<MonitorSysGenServerLog> getRecentErrorLogs(@Param("serverId") Integer serverId,
-                                                     @Param("limit") Integer limit);
+    List<MonitorSysGenServerLog> getRecentErrorLogs(@Param("serverId") Integer serverId, @Param("limit") Integer limit);
 
     /**
      * 获取实时日志
@@ -109,8 +99,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 实时日志列表
      */
     List<MonitorSysGenServerLog> getRealTimeLogs(@Param("serverId") Integer serverId,
-                                                 @Param("lastTime") LocalDateTime lastTime,
-                                                 @Param("limit") Integer limit);
+            @Param("lastTime") LocalDateTime lastTime, @Param("limit") Integer limit);
 
     /**
      * 删除过期日志
@@ -119,8 +108,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @param expiredTime 过期时间
      * @return 删除数量
      */
-    int deleteExpiredLogs(@Param("serverId") Integer serverId,
-                          @Param("expiredTime") LocalDateTime expiredTime);
+    int deleteExpiredLogs(@Param("serverId") Integer serverId, @Param("expiredTime") LocalDateTime expiredTime);
 
     /**
      * 批量删除过期日志
@@ -138,9 +126,8 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @param endTime   结束时间
      * @return 日志大小(字节)
      */
-    Long getLogSizeStatistics(@Param("serverId") Integer serverId,
-                              @Param("startTime") LocalDateTime startTime,
-                              @Param("endTime") LocalDateTime endTime);
+    Long getLogSizeStatistics(@Param("serverId") Integer serverId, @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime);
 
     /**
      * 获取日志时间分布统计
@@ -151,8 +138,7 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 时间分布统计
      */
     List<Map<String, Object>> getLogTimeDistribution(@Param("serverId") Integer serverId,
-                                                      @Param("startTime") LocalDateTime startTime,
-                                                      @Param("endTime") LocalDateTime endTime);
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 搜索日志内容
@@ -165,10 +151,8 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 搜索结果
      */
     IPage<MonitorSysGenServerLog> searchLogContent(Page<MonitorSysGenServerLog> page,
-                                                   @Param("serverId") Integer serverId,
-                                                   @Param("keyword") String keyword,
-                                                   @Param("startTime") LocalDateTime startTime,
-                                                   @Param("endTime") LocalDateTime endTime);
+            @Param("serverId") Integer serverId, @Param("keyword") String keyword,
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     /**
      * 获取异常日志统计
@@ -179,6 +163,43 @@ public interface MonitorSysGenServerLogMapper extends BaseMapper<MonitorSysGenSe
      * @return 异常统计
      */
     Map<String, Object> getExceptionStatistics(@Param("serverId") Integer serverId,
-                                               @Param("startTime") LocalDateTime startTime,
-                                               @Param("endTime") LocalDateTime endTime);
+            @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * 根据服务器ID统计日志数量
+     *
+     * @param serverId 服务器ID
+     * @return 日志数量
+     */
+    long countByServerId(@Param("serverId") Integer serverId);
+
+    /**
+     * 根据服务器ID和日志级别统计日志数量
+     *
+     * @param serverId 服务器ID
+     * @param level    日志级别
+     * @return 日志数量
+     */
+    long countByServerIdAndLevel(@Param("serverId") Integer serverId, @Param("level") String level);
+
+    /**
+     * 根据服务器ID和时间范围统计日志数量
+     *
+     * @param serverId  服务器ID
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 日志数量
+     */
+    long countByServerIdAndTimeRange(@Param("serverId") Integer serverId, @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * 根据服务器ID和时间删除日志
+     *
+     * @param serverId   服务器ID
+     * @param beforeDate 删除此日期之前的日志
+     * @return 删除的记录数
+     */
+    int deleteByServerIdAndBeforeDate(@Param("serverId") Integer serverId,
+            @Param("beforeDate") LocalDateTime beforeDate);
 }

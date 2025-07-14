@@ -48,4 +48,155 @@
         </if>
     </select>
 
+    <!-- 获取分组下的服务器数量 -->
+    <select id="countServersByGroupId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM monitor_sys_gen_server
+        WHERE monitor_sys_gen_server_group_id = #{groupId}
+        AND monitor_sys_gen_server_status = 1
+    </select>
+
+    <!-- 获取分组统计信息 -->
+    <select id="getGroupStatistics" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total_groups,
+            SUM(CASE WHEN monitor_sys_gen_server_group_status = 1 THEN 1 ELSE 0 END) as enabled_groups,
+            SUM(CASE WHEN monitor_sys_gen_server_group_is_default = 1 THEN 1 ELSE 0 END) as default_groups,
+            AVG(monitor_sys_gen_server_group_sort) as avg_sort
+        FROM monitor_sys_gen_server_group
+    </select>
+
+    <!-- 根据分组ID列表获取分组信息 -->
+    <select id="selectByIds" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+        SELECT * FROM monitor_sys_gen_server_group
+        WHERE monitor_sys_gen_server_group_id IN
+        <foreach collection="groupIds" item="groupId" open="(" separator="," close=")">
+            #{groupId}
+        </foreach>
+        ORDER BY monitor_sys_gen_server_group_sort ASC, create_time DESC
+    </select>
+
+    <!-- 获取分组及其服务器数量 -->
+    <select id="selectGroupsWithServerCount" resultType="java.util.Map">
+        <![CDATA[
+        SELECT
+            g.monitor_sys_gen_server_group_id as groupId,
+            g.monitor_sys_gen_server_group_name as groupName,
+            g.monitor_sys_gen_server_group_desc as groupDesc,
+            g.monitor_sys_gen_server_group_color as groupColor,
+            g.monitor_sys_gen_server_group_icon as groupIcon,
+            g.monitor_sys_gen_server_group_status as groupStatus,
+            g.monitor_sys_gen_server_group_is_default as isDefault,
+            g.monitor_sys_gen_server_group_sort as groupSort,
+            g.monitor_sys_gen_server_group_remark as groupRemark,
+            g.create_time as createTime,
+            g.update_time as updateTime,
+            COALESCE(s.server_count, 0) as serverCount
+        FROM monitor_sys_gen_server_group g
+        LEFT JOIN (
+            SELECT
+                monitor_sys_gen_server_group_id,
+                COUNT(*) as server_count
+            FROM monitor_sys_gen_server
+            WHERE monitor_sys_gen_server_status = 1
+            GROUP BY monitor_sys_gen_server_group_id
+        ) s ON g.monitor_sys_gen_server_group_id = s.monitor_sys_gen_server_group_id
+        ORDER BY g.monitor_sys_gen_server_group_sort ASC, g.create_time DESC
+        ]]>
+    </select>
+
+    <!-- 分页查询分组及其服务器数量 -->
+    <select id="selectPageWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+        <![CDATA[
+        SELECT
+            g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,
+            g.monitor_sys_gen_server_group_name as monitorSysGenServerGroupName,
+            g.monitor_sys_gen_server_group_desc as monitorSysGenServerGroupDesc,
+            g.monitor_sys_gen_server_group_color as monitorSysGenServerGroupColor,
+            g.monitor_sys_gen_server_group_icon as monitorSysGenServerGroupIcon,
+            g.monitor_sys_gen_server_group_status as monitorSysGenServerGroupStatus,
+            g.monitor_sys_gen_server_group_is_default as monitorSysGenServerGroupIsDefault,
+            g.monitor_sys_gen_server_group_sort as monitorSysGenServerGroupSort,
+            g.monitor_sys_gen_server_group_remark as monitorSysGenServerGroupRemark,
+            g.create_time as createTime,
+            g.update_time as updateTime,
+            COALESCE(s.server_count, 0) as serverCount
+        FROM monitor_sys_gen_server_group g
+        LEFT JOIN (
+            SELECT
+                monitor_sys_gen_server_group_id,
+                COUNT(*) as server_count
+            FROM monitor_sys_gen_server
+            WHERE monitor_sys_gen_server_status = 1
+            GROUP BY monitor_sys_gen_server_group_id
+        ) s ON g.monitor_sys_gen_server_group_id = s.monitor_sys_gen_server_group_id
+        WHERE 1=1
+        ]]>
+        <if test="entity.monitorSysGenServerGroupName != null and entity.monitorSysGenServerGroupName != ''">
+            AND g.monitor_sys_gen_server_group_name LIKE CONCAT('%', #{entity.monitorSysGenServerGroupName}, '%')
+        </if>
+        <if test="entity.monitorSysGenServerGroupStatus != null">
+            AND g.monitor_sys_gen_server_group_status = #{entity.monitorSysGenServerGroupStatus}
+        </if>
+        ORDER BY g.monitor_sys_gen_server_group_sort ASC, g.create_time DESC
+    </select>
+
+    <!-- 获取所有分组及其服务器数量 -->
+    <select id="selectAllWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+        <![CDATA[
+        SELECT
+            g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,
+            g.monitor_sys_gen_server_group_name as monitorSysGenServerGroupName,
+            g.monitor_sys_gen_server_group_desc as monitorSysGenServerGroupDesc,
+            g.monitor_sys_gen_server_group_color as monitorSysGenServerGroupColor,
+            g.monitor_sys_gen_server_group_icon as monitorSysGenServerGroupIcon,
+            g.monitor_sys_gen_server_group_status as monitorSysGenServerGroupStatus,
+            g.monitor_sys_gen_server_group_is_default as monitorSysGenServerGroupIsDefault,
+            g.monitor_sys_gen_server_group_sort as monitorSysGenServerGroupSort,
+            g.monitor_sys_gen_server_group_remark as monitorSysGenServerGroupRemark,
+            g.create_time as createTime,
+            g.update_time as updateTime,
+            COALESCE(s.server_count, 0) as serverCount
+        FROM monitor_sys_gen_server_group g
+        LEFT JOIN (
+            SELECT
+                monitor_sys_gen_server_group_id,
+                COUNT(*) as server_count
+            FROM monitor_sys_gen_server
+            WHERE monitor_sys_gen_server_status = 1
+            GROUP BY monitor_sys_gen_server_group_id
+        ) s ON g.monitor_sys_gen_server_group_id = s.monitor_sys_gen_server_group_id
+        ORDER BY g.monitor_sys_gen_server_group_sort ASC, g.create_time DESC
+        ]]>
+    </select>
+
+    <!-- 根据状态获取分组及其服务器数量 -->
+    <select id="selectByStatusWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+        <![CDATA[
+        SELECT
+            g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,
+            g.monitor_sys_gen_server_group_name as monitorSysGenServerGroupName,
+            g.monitor_sys_gen_server_group_desc as monitorSysGenServerGroupDesc,
+            g.monitor_sys_gen_server_group_color as monitorSysGenServerGroupColor,
+            g.monitor_sys_gen_server_group_icon as monitorSysGenServerGroupIcon,
+            g.monitor_sys_gen_server_group_status as monitorSysGenServerGroupStatus,
+            g.monitor_sys_gen_server_group_is_default as monitorSysGenServerGroupIsDefault,
+            g.monitor_sys_gen_server_group_sort as monitorSysGenServerGroupSort,
+            g.monitor_sys_gen_server_group_remark as monitorSysGenServerGroupRemark,
+            g.create_time as createTime,
+            g.update_time as updateTime,
+            COALESCE(s.server_count, 0) as serverCount
+        FROM monitor_sys_gen_server_group g
+        LEFT JOIN (
+            SELECT
+                monitor_sys_gen_server_group_id,
+                COUNT(*) as server_count
+            FROM monitor_sys_gen_server
+            WHERE monitor_sys_gen_server_status = 1
+            GROUP BY monitor_sys_gen_server_group_id
+        ) s ON g.monitor_sys_gen_server_group_id = s.monitor_sys_gen_server_group_id
+        WHERE g.monitor_sys_gen_server_group_status = #{status}
+        ORDER BY g.monitor_sys_gen_server_group_sort ASC, g.create_time DESC
+        ]]>
+    </select>
+
 </mapper>

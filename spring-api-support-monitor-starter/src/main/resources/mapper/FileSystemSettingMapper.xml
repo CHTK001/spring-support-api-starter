@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemSettingMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemSetting">
+        <id column="file_system_setting_id" property="fileSystemSettingId" />
+        <result column="file_system_setting_name" property="fileSystemSettingName" />
+        <result column="file_system_setting_chunk_upload_enabled" property="fileSystemSettingChunkUploadEnabled" />
+        <result column="file_system_setting_chunk_size_mb" property="fileSystemSettingChunkSizeMb" />
+        <result column="file_system_setting_merge_task_limit" property="fileSystemSettingMergeTaskLimit" />
+        <result column="file_system_setting_manual_merge_enabled" property="fileSystemSettingManualMergeEnabled" />
+        <result column="file_system_setting_download_enabled" property="fileSystemSettingDownloadEnabled" />
+        <result column="file_system_setting_http_access_enabled" property="fileSystemSettingHttpAccessEnabled" />
+        <result column="file_system_setting_http_access_domain" property="fileSystemSettingHttpAccessDomain" />
+        <result column="file_system_setting_allowed_file_types" property="fileSystemSettingAllowedFileTypes" />
+        <result column="file_system_setting_max_file_size_mb" property="fileSystemSettingMaxFileSizeMb" />
+        <result column="file_system_setting_storage_root_path" property="fileSystemSettingStorageRootPath" />
+        <result column="file_system_setting_temp_storage_path" property="fileSystemSettingTempStoragePath" />
+        <result column="file_system_setting_file_retention_days" property="fileSystemSettingFileRetentionDays" />
+        <result column="file_system_setting_enabled" property="fileSystemSettingEnabled" />
+        <result column="file_system_setting_remark" property="fileSystemSettingRemark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        file_system_setting_id, file_system_setting_name, file_system_setting_chunk_upload_enabled, file_system_setting_chunk_size_mb, file_system_setting_merge_task_limit,
+        file_system_setting_manual_merge_enabled, file_system_setting_download_enabled, file_system_setting_http_access_enabled, file_system_setting_http_access_domain,
+        file_system_setting_allowed_file_types, file_system_setting_max_file_size_mb, file_system_setting_storage_root_path, file_system_setting_temp_storage_path,
+        file_system_setting_file_retention_days, file_system_setting_enabled, file_system_setting_remark, create_time, update_time, create_by, update_by
+    </sql>
+
+    <!-- 获取启用的配置 -->
+    <select id="findEnabledSetting" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_setting
+        WHERE file_system_setting_enabled = 1
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据配置名称查询 -->
+    <select id="findBySettingName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_setting
+        WHERE file_system_setting_name = #{settingName}
+        LIMIT 1
+    </select>
+
+    <!-- 禁用所有配置 -->
+    <update id="disableAllSettings">
+        UPDATE file_system_setting
+        SET file_system_setting_enabled = 0,
+            update_time = NOW()
+        WHERE file_system_setting_enabled = 1
+    </update>
+
+    <!-- 启用指定配置 -->
+    <update id="enableSetting">
+        UPDATE file_system_setting
+        SET file_system_setting_enabled = 1,
+            update_time = NOW()
+        WHERE file_system_setting_id = #{settingId}
+    </update>
+
+    <!-- 获取所有配置列表 -->
+    <select id="findAllSettings" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM file_system_setting
+        ORDER BY file_system_setting_enabled DESC, update_time DESC
+    </select>
+
+    <!-- 检查配置名称是否存在 -->
+    <select id="existsBySettingName" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM file_system_setting
+        WHERE setting_name = #{settingName}
+        <if test="excludeId != null">
+            AND setting_id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 获取配置统计信息 -->
+    <select id="getSettingStatistics" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total_settings,
+            SUM(CASE WHEN file_system_setting_enabled = 1 THEN 1 ELSE 0 END) as enabled_settings,
+            SUM(CASE WHEN file_system_setting_chunk_upload_enabled = 1 THEN 1 ELSE 0 END) as chunk_upload_enabled_count,
+            SUM(CASE WHEN file_system_setting_download_enabled = 1 THEN 1 ELSE 0 END) as download_enabled_count,
+            SUM(CASE WHEN file_system_setting_http_access_enabled = 1 THEN 1 ELSE 0 END) as http_access_enabled_count,
+            AVG(file_system_setting_chunk_size_mb) as avg_chunk_size_mb,
+            AVG(file_system_setting_max_file_size_mb) as avg_max_file_size_mb,
+            AVG(file_system_setting_merge_task_limit) as avg_merge_task_limit
+        FROM file_system_setting
+    </select>
+
+    <!-- 批量更新配置状态 -->
+    <update id="batchUpdateEnabled">
+        UPDATE file_system_setting
+        SET file_system_setting_enabled = #{enabled},
+            update_time = NOW()
+        WHERE file_system_setting_id IN
+        <foreach collection="settingIds" item="settingId" open="(" separator="," close=")">
+            #{settingId}
+        </foreach>
+    </update>
+
+    <!-- 复制配置 -->
+    <insert id="copySettingFrom" parameterType="map">
+        INSERT INTO file_system_setting (
+            file_system_setting_name, file_system_setting_chunk_upload_enabled, file_system_setting_chunk_size_mb, file_system_setting_merge_task_limit,
+            file_system_setting_manual_merge_enabled, file_system_setting_download_enabled, file_system_setting_http_access_enabled, file_system_setting_http_access_domain,
+            file_system_setting_allowed_file_types, file_system_setting_max_file_size_mb, file_system_setting_storage_root_path, file_system_setting_temp_storage_path,
+            file_system_setting_file_retention_days, file_system_setting_enabled, file_system_setting_remark, create_time, update_time
+        )
+        SELECT
+            #{newSettingName}, file_system_setting_chunk_upload_enabled, file_system_setting_chunk_size_mb, file_system_setting_merge_task_limit,
+            file_system_setting_manual_merge_enabled, file_system_setting_download_enabled, file_system_setting_http_access_enabled, file_system_setting_http_access_domain,
+            file_system_setting_allowed_file_types, file_system_setting_max_file_size_mb, file_system_setting_storage_root_path, file_system_setting_temp_storage_path,
+            file_system_setting_file_retention_days, 0, CONCAT(file_system_setting_remark, ' (复制)'), NOW(), NOW()
+        FROM file_system_setting
+        WHERE file_system_setting_id = #{sourceSettingId}
+    </insert>
+
+    <!-- 重置为默认配置 -->
+    <update id="resetToDefault">
+        UPDATE file_system_setting
+        SET file_system_setting_chunk_upload_enabled = 1,
+            file_system_setting_chunk_size_mb = 5,
+            file_system_setting_merge_task_limit = 1,
+            file_system_setting_manual_merge_enabled = 1,
+            file_system_setting_download_enabled = 1,
+            file_system_setting_http_access_enabled = 0,
+            file_system_setting_http_access_domain = NULL,
+            file_system_setting_allowed_file_types = NULL,
+            file_system_setting_max_file_size_mb = 1024,
+            file_system_setting_storage_root_path = NULL,
+            file_system_setting_temp_storage_path = NULL,
+            file_system_setting_file_retention_days = 0,
+            update_time = NOW()
+        WHERE file_system_setting_id = #{settingId}
+    </update>
+
+    <!-- 查询配置变更历史 -->
+    <select id="findSettingHistory" resultType="java.util.Map">
+        SELECT
+            file_system_setting_id,
+            file_system_setting_name,
+            file_system_setting_enabled,
+            update_time,
+            update_by
+        FROM file_system_setting
+        ORDER BY update_time DESC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 清理未使用的配置 -->
+    <delete id="cleanupUnusedSettings">
+        <![CDATA[
+        DELETE FROM file_system_setting
+        WHERE file_system_setting_enabled = 0
+        AND TIMESTAMPDIFF(DAY, update_time, NOW()) > #{daysOld}
+        AND file_system_setting_name != '默认配置'
+        ]]>
+    </delete>
+
+
+</mapper>

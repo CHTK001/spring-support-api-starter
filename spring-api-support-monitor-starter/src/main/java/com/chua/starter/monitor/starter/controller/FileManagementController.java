@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * 文件管理控制器
@@ -153,7 +154,7 @@ public class FileManagementController {
     }
 
     @Operation(summary = "重命名文件", description = "重命名文件或目录")
-    @PutMapping("/rename")
+    @PostMapping("/rename")
     public ReturnResult<FileOperationResponse> renameFile(
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
             @Parameter(description = "原文件路径", required = true) @RequestParam String oldPath,
@@ -187,6 +188,60 @@ public class FileManagementController {
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId) {
 
         return fileManagementFacadeService.testConnection(serverId);
+    }
+
+    @Operation(summary = "复制文件", description = "复制文件或目录")
+    @PostMapping("/copy")
+    public ReturnResult<FileOperationResponse> copyFile(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "源路径", required = true) @RequestParam String sourcePath,
+            @Parameter(description = "目标路径", required = true) @RequestParam String targetPath,
+            @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite) {
+
+        return fileManagementFacadeService.copyFile(serverId, sourcePath, targetPath, overwrite);
+    }
+
+    @Operation(summary = "移动文件", description = "移动文件或目录")
+    @PostMapping("/move")
+    public ReturnResult<FileOperationResponse> moveFile(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "源路径", required = true) @RequestParam String sourcePath,
+            @Parameter(description = "目标路径", required = true) @RequestParam String targetPath,
+            @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite) {
+
+        return fileManagementFacadeService.moveFile(serverId, sourcePath, targetPath, overwrite);
+    }
+
+    @Operation(summary = "批量删除文件", description = "批量删除多个文件或目录")
+    @PostMapping("/batch-delete")
+    public ReturnResult<FileOperationResponse> batchDeleteFiles(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "文件路径列表", required = true) @RequestBody List<String> paths,
+            @Parameter(description = "是否递归删除") @RequestParam(defaultValue = "false") Boolean recursive) {
+
+        return fileManagementFacadeService.batchDeleteFiles(serverId, paths, recursive);
+    }
+
+    @Operation(summary = "读取文件内容", description = "读取文本文件内容")
+    @GetMapping("/read")
+    public ReturnResult<String> readFileContent(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "文件路径", required = true) @RequestParam String filePath,
+            @Parameter(description = "文件编码") @RequestParam(defaultValue = "UTF-8") String encoding) {
+
+        return fileManagementFacadeService.readFileContent(serverId, filePath, encoding);
+    }
+
+    @Operation(summary = "保存文件内容", description = "保存文本文件内容")
+    @PostMapping("/write")
+    public ReturnResult<FileOperationResponse> writeFileContent(
+            @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
+            @Parameter(description = "文件路径", required = true) @RequestParam String filePath,
+            @Parameter(description = "文件内容", required = true) @RequestBody String content,
+            @Parameter(description = "文件编码") @RequestParam(defaultValue = "UTF-8") String encoding,
+            @Parameter(description = "是否创建备份") @RequestParam(defaultValue = "true") Boolean createBackup) {
+
+        return fileManagementFacadeService.writeFileContent(serverId, filePath, content, encoding, createBackup);
     }
 
 }
