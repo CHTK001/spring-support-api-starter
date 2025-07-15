@@ -410,7 +410,12 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             }
 
             // 保存分片文件
-            chunkFile.transferTo(chunkPath.toFile());
+            try {
+                chunkFile.transferTo(chunkPath.toFile());
+            } catch (IOException e) {
+                log.error("保存分片文件失败: fileId={}, chunkNumber={}", fileId, chunkNumber, e);
+                throw e; // 重新抛出异常，让外层catch处理
+            }
 
             // 如果之前无法获取大小，现在从保存的文件获取
             if (chunkSize <= 0) {
