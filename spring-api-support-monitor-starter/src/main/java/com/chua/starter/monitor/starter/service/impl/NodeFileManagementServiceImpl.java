@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @since 2024/12/13
  */
 @Slf4j
-@Service
+@Service("nodeFileManagementServiceImpl")
 @RequiredArgsConstructor
 public class NodeFileManagementServiceImpl implements FileManagementService {
 
