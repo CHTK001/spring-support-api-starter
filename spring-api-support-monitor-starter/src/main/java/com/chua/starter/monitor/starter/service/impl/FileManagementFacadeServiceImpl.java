@@ -7,8 +7,8 @@ import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,6 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FileManagementFacadeServiceImpl {
 
     private final MonitorSysGenServerSettingService serverSettingService;
@@ -33,6 +32,18 @@ public class FileManagementFacadeServiceImpl {
     private final SshFileManagementServiceImpl sshFileManagementService;
     private final NodeFileManagementServiceImpl nodeFileManagementService;
     private final ApiFileManagementServiceImpl apiFileManagementService;
+
+    public FileManagementFacadeServiceImpl(MonitorSysGenServerSettingService serverSettingService,
+            LocalFileManagementServiceImpl localFileManagementService,
+            SshFileManagementServiceImpl sshFileManagementService,
+            @Qualifier("nodeFileManagementServiceImpl") NodeFileManagementServiceImpl nodeFileManagementService,
+            ApiFileManagementServiceImpl apiFileManagementService) {
+        this.serverSettingService = serverSettingService;
+        this.localFileManagementService = localFileManagementService;
+        this.sshFileManagementService = sshFileManagementService;
+        this.nodeFileManagementService = nodeFileManagementService;
+        this.apiFileManagementService = apiFileManagementService;
+    }
 
     /**
      * 列出文件
