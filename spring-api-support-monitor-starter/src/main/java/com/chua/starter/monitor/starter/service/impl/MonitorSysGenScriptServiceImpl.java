@@ -18,7 +18,14 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import com.chua.report.client.starter.pojo.ScriptExecuteRequest;
+import com.chua.report.client.starter.pojo.ScriptExecuteResponse;
+import com.chua.report.client.starter.service.ScriptExecuteService;
+import com.chua.report.client.starter.service.impl.ScriptExecuteServiceImpl;
 
 /**
  * 脚本管理服务实现
@@ -33,6 +40,19 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
 
     private final MonitorSysGenScriptMapper scriptMapper;
     private final MonitorSysGenScriptExecutionMapper executionMapper;
+
+    // 脚本执行服务
+    private final ScriptExecuteService scriptExecuteService = new ScriptExecuteServiceImpl();
+
+    // 异步执行器
+    private final ExecutorService asyncExecutor = Executors.newCachedThreadPool(r -> {
+        Thread thread = new Thread(r, "script-executor-" + System.currentTimeMillis());
+        thread.setDaemon(true);
+        return thread;
+    });
+
+    // 正在运行的脚本进程映射 <executionId, processId>
+    private final Map<Long, Long> runningProcesses = new ConcurrentHashMap<>();
 
     @Override
     public IPage<MonitorSysGenScript> getScriptPage(ScriptManagementDTO.ScriptQueryDTO queryDTO) {
@@ -303,18 +323,100 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public MonitorSysGenScriptExecution executeScript(Integer scriptId,
             ScriptManagementDTO.ScriptExecuteRequestDTO requestDTO) {
-        // TODO: 实现脚本执行逻辑
-        log.info("执行脚本: scriptId={}, parameters={}", scriptId, requestDTO.getParameters());
-        throw new UnsupportedOperationException("脚本执行功能待实现");
+        log.info("开始执行脚本: scriptId={}, parameters={}", scriptId, requestDTO.getParameters());
+
+        // 1. 验证脚本是否存在
+        MonitorSysGenScript script = scriptMapper.selectById(scriptId);
+        if (script == null) {
+            throw new IllegalArgumentException("脚本不存在: scriptId=" + scriptId);
+        }
+
+        // 2. 检查脚本状态
+        if (script.getMonitorSysGenScriptStatus() != MonitorSysGenScript.ScriptStatus.ENABLED) {
+            throw new IllegalStateException("脚本已禁用，无法执行");
+        }
+
+        // 3. 创建执行记录
+        MonitorSysGenScriptExecution execution = createExecutionRecord(script, requestDTO);
+
+        try {
+            // 4. 保存初始执行记录
+            executionMapper.insert(execution);
+            log.info("创建执行记录: executionId={}", execution.getMonitorSysGenScriptExecutionId());
+
+            // 5. 异步执行脚本
+            executeScriptAsync(execution, script, requestDTO);
+
+            // 6. 更新脚本的最后执行时间和执行次数
+            updateScriptExecutionInfo(script);
+
+            return execution;
+
+        } catch (Exception e) {
+            log.error("执行脚本失败: scriptId={}", scriptId, e);
+            // 更新执行记录为失败状态
+            execution.setExecutionFailed("执行启动失败: " + e.getMessage());
+            executionMapper.updateById(execution);
+            throw new RuntimeException("执行脚本失败: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public boolean stopScriptExecution(Long executionId) {
-        // TODO: 实现停止脚本执行逻辑
         log.info("停止脚本执行: executionId={}", executionId);
-        throw new UnsupportedOperationException("停止脚本执行功能待实现");
+
+        if (executionId == null) {
+            log.warn("执行ID不能为空");
+            return false;
+        }
+
+        try {
+            // 获取执行记录
+            MonitorSysGenScriptExecution execution = executionMapper.selectById(executionId);
+            if (execution == null) {
+                log.warn("执行记录不存在: executionId={}", executionId);
+                return false;
+            }
+
+            // 检查执行状态
+            if (!execution.isRunning()) {
+                log.info("脚本已不在运行状态: executionId={}, status={}", executionId,
+                        execution.getMonitorSysGenScriptExecutionStatus());
+                return true;
+            }
+
+            // 获取进程ID
+            Long processId = runningProcesses.get(executionId);
+            if (processId == null) {
+                processId = execution.getMonitorSysGenScriptExecutionProcessId();
+            }
+
+            boolean stopped = false;
+            if (processId != null) {
+                // 尝试停止进程
+                stopped = scriptExecuteService.stopScript(processId);
+                log.info("停止脚本进程: executionId={}, processId={}, stopped={}", executionId, processId, stopped);
+            }
+
+            // 更新执行记录状态为已取消
+            execution.setMonitorSysGenScriptExecutionStatus(MonitorSysGenScriptExecution.ExecutionStatus.CANCELLED);
+            execution.setMonitorSysGenScriptExecutionEndTime(LocalDateTime.now());
+            execution.calculateDuration();
+            executionMapper.updateById(execution);
+
+            // 清理进程映射
+            runningProcesses.remove(executionId);
+
+            log.info("脚本执行已停止: executionId={}", executionId);
+            return true;
+
+        } catch (Exception e) {
+            log.error("停止脚本执行失败: executionId={}", executionId, e);
+            return false;
+        }
     }
 
     @Override
@@ -484,5 +586,230 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
         // TODO: 实现清理过期执行记录逻辑
         log.info("清理过期执行记录: days={}", days);
         throw new UnsupportedOperationException("清理过期执行记录功能待实现");
+    }
+
+    // ==================== 私有方法 ====================
+
+    /**
+     * 创建执行记录
+     *
+     * @param script     脚本信息
+     * @param requestDTO 执行请求
+     * @return 执行记录
+     */
+    private MonitorSysGenScriptExecution createExecutionRecord(MonitorSysGenScript script,
+            ScriptManagementDTO.ScriptExecuteRequestDTO requestDTO) {
+        log.debug("创建脚本执行记录: scriptId={}, scriptName={}", script.getMonitorSysGenScriptId(),
+                script.getMonitorSysGenScriptName());
+
+        MonitorSysGenScriptExecution execution = new MonitorSysGenScriptExecution();
+
+        // 设置脚本信息
+        execution.setMonitorSysGenScriptId(script.getMonitorSysGenScriptId());
+
+        // 设置执行参数
+        if (requestDTO.getParameters() != null && requestDTO.getParameters().length > 0) {
+            execution.setMonitorSysGenScriptExecutionParameters(String.join(" ", requestDTO.getParameters()));
+        }
+
+        // 设置执行状态为运行中
+        execution.setMonitorSysGenScriptExecutionStatus(MonitorSysGenScriptExecution.ExecutionStatus.RUNNING);
+
+        // 设置开始时间
+        execution.setMonitorSysGenScriptExecutionStartTime(LocalDateTime.now());
+
+        // 设置服务器ID
+        if (requestDTO.getServerId() != null) {
+            execution.setMonitorSysGenScriptExecutionServerId(requestDTO.getServerId());
+        }
+
+        // 设置触发类型
+        if (StringUtils.hasText(requestDTO.getTriggerType())) {
+            MonitorSysGenScriptExecution.TriggerType triggerType = MonitorSysGenScriptExecution.TriggerType
+                    .fromCode(requestDTO.getTriggerType());
+            execution.setMonitorSysGenScriptExecutionTriggerType(
+                    triggerType != null ? triggerType : MonitorSysGenScriptExecution.TriggerType.MANUAL);
+        } else {
+            execution.setMonitorSysGenScriptExecutionTriggerType(MonitorSysGenScriptExecution.TriggerType.MANUAL);
+        }
+
+        // 生成任务ID用于内存管理
+        execution.setMonitorSysGenScriptExecutionTaskId(
+                "task_" + System.currentTimeMillis() + "_" + script.getMonitorSysGenScriptId());
+
+        log.debug("执行记录创建完成: scriptId={}, taskId={}", script.getMonitorSysGenScriptId(),
+                execution.getMonitorSysGenScriptExecutionTaskId());
+
+        return execution;
+    }
+
+    /**
+     * 异步执行脚本
+     *
+     * @param execution  执行记录
+     * @param script     脚本信息
+     * @param requestDTO 执行请求
+     */
+    private void executeScriptAsync(MonitorSysGenScriptExecution execution, MonitorSysGenScript script,
+            ScriptManagementDTO.ScriptExecuteRequestDTO requestDTO) {
+        log.info("开始异步执行脚本: scriptId={}, executionId={}, taskId={}", script.getMonitorSysGenScriptId(),
+                execution.getMonitorSysGenScriptExecutionId(), execution.getMonitorSysGenScriptExecutionTaskId());
+
+        // 提交异步任务
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 构建脚本执行请求
+                ScriptExecuteRequest scriptRequest = buildScriptExecuteRequest(script, requestDTO);
+
+                // 执行脚本
+                ScriptExecuteResponse response = scriptExecuteService.executeScript(scriptRequest);
+
+                // 保存进程ID
+                if (response.getProcessId() != null) {
+                    execution.setMonitorSysGenScriptExecutionProcessId(response.getProcessId());
+                    runningProcesses.put(execution.getMonitorSysGenScriptExecutionId(), response.getProcessId());
+                    executionMapper.updateById(execution);
+                }
+
+                // 处理执行结果
+                handleScriptExecutionResult(execution, response);
+
+            } catch (Exception e) {
+                log.error("异步执行脚本失败: scriptId={}, executionId={}", script.getMonitorSysGenScriptId(),
+                        execution.getMonitorSysGenScriptExecutionId(), e);
+
+                // 更新执行记录为失败状态
+                execution.setExecutionFailed("脚本执行异常: " + e.getMessage());
+                executionMapper.updateById(execution);
+
+                // 清理进程映射
+                runningProcesses.remove(execution.getMonitorSysGenScriptExecutionId());
+            }
+        }, asyncExecutor);
+    }
+
+    /**
+     * 更新脚本执行信息
+     *
+     * @param script 脚本信息
+     */
+    private void updateScriptExecutionInfo(MonitorSysGenScript script) {
+        log.debug("更新脚本执行信息: scriptId={}", script.getMonitorSysGenScriptId());
+
+        try {
+            // 增加执行次数并更新最后执行时间
+            script.incrementExecuteCount();
+
+            // 更新数据库
+            scriptMapper.updateById(script);
+
+            log.debug("脚本执行信息更新完成: scriptId={}, executeCount={}", script.getMonitorSysGenScriptId(),
+                    script.getExecuteCountOrDefault());
+
+        } catch (Exception e) {
+            log.error("更新脚本执行信息失败: scriptId={}", script.getMonitorSysGenScriptId(), e);
+        }
+    }
+
+    /**
+     * 构建脚本执行请求
+     *
+     * @param script     脚本信息
+     * @param requestDTO 执行请求DTO
+     * @return 脚本执行请求
+     */
+    private ScriptExecuteRequest buildScriptExecuteRequest(MonitorSysGenScript script,
+            ScriptManagementDTO.ScriptExecuteRequestDTO requestDTO) {
+        log.debug("构建脚本执行请求: scriptId={}, scriptType={}", script.getMonitorSysGenScriptId(),
+                script.getMonitorSysGenScriptType());
+
+        ScriptExecuteRequest.ScriptExecuteRequestBuilder builder = ScriptExecuteRequest.builder()
+                .scriptType(script.getMonitorSysGenScriptType()).scriptContent(script.getMonitorSysGenScriptContent())
+                .async(requestDTO.getAsync() != null ? requestDTO.getAsync() : true);
+
+        // 设置脚本参数
+        if (requestDTO.getParameters() != null && requestDTO.getParameters().length > 0) {
+            builder.scriptParams(requestDTO.getParameters());
+        } else if (StringUtils.hasText(script.getMonitorSysGenScriptParameters())) {
+            // 使用脚本默认参数
+            try {
+                // 假设参数是JSON数组格式或空格分隔的字符串
+                String[] defaultParams = script.getMonitorSysGenScriptParameters().split("\\s+");
+                builder.scriptParams(defaultParams);
+            } catch (Exception e) {
+                log.warn("解析脚本默认参数失败: scriptId={}, parameters={}", script.getMonitorSysGenScriptId(),
+                        script.getMonitorSysGenScriptParameters());
+            }
+        }
+
+        // 设置工作目录
+        if (StringUtils.hasText(requestDTO.getWorkingDirectory())) {
+            builder.workingDirectory(requestDTO.getWorkingDirectory());
+        }
+
+        // 设置超时时间
+        Integer timeout = requestDTO.getTimeout() != null ? requestDTO.getTimeout() : script.getTimeoutOrDefault();
+        builder.timeout(timeout);
+
+        // 设置环境变量
+        if (requestDTO.getEnvironment() != null && !requestDTO.getEnvironment().isEmpty()) {
+            builder.environment(requestDTO.getEnvironment());
+        }
+
+        // 设置执行用户
+        builder.executeUser("system");
+
+        ScriptExecuteRequest request = builder.build();
+        log.debug("脚本执行请求构建完成: scriptType={}, timeout={}秒", request.getScriptType(), request.getTimeout());
+
+        return request;
+    }
+
+    /**
+     * 处理脚本执行结果
+     *
+     * @param execution 执行记录
+     * @param response  执行响应
+     */
+    private void handleScriptExecutionResult(MonitorSysGenScriptExecution execution, ScriptExecuteResponse response) {
+        log.debug("处理脚本执行结果: executionId={}, success={}, status={}", execution.getMonitorSysGenScriptExecutionId(),
+                response.isSuccess(), response.getStatus());
+
+        try {
+            // 根据执行结果更新执行记录
+            if (response.isSuccess()) {
+                MonitorSysGenScriptExecution.ExecutionStatus status;
+
+                // 根据响应状态确定执行状态
+                if ("SUCCESS".equalsIgnoreCase(response.getStatus())) {
+                    status = MonitorSysGenScriptExecution.ExecutionStatus.SUCCESS;
+                } else if ("TIMEOUT".equalsIgnoreCase(response.getStatus())) {
+                    status = MonitorSysGenScriptExecution.ExecutionStatus.TIMEOUT;
+                } else if ("FAILED".equalsIgnoreCase(response.getStatus())) {
+                    status = MonitorSysGenScriptExecution.ExecutionStatus.FAILED;
+                } else {
+                    status = MonitorSysGenScriptExecution.ExecutionStatus.SUCCESS; // 默认成功
+                }
+
+                execution.setExecutionCompleted(status, response.getExitCode(), response.getStdout(),
+                        response.getStderr());
+            } else {
+                // 执行失败
+                execution.setExecutionFailed(response.getMessage() != null ? response.getMessage() : "脚本执行失败");
+            }
+
+            // 更新数据库
+            executionMapper.updateById(execution);
+
+            // 清理进程映射
+            runningProcesses.remove(execution.getMonitorSysGenScriptExecutionId());
+
+            log.info("脚本执行结果处理完成: executionId={}, status={}, duration={}ms",
+                    execution.getMonitorSysGenScriptExecutionId(), execution.getMonitorSysGenScriptExecutionStatus(),
+                    execution.getMonitorSysGenScriptExecutionDuration());
+
+        } catch (Exception e) {
+            log.error("处理脚本执行结果失败: executionId={}", execution.getMonitorSysGenScriptExecutionId(), e);
+        }
     }
 }
