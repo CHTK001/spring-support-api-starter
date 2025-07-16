@@ -108,6 +108,13 @@ public class MonitorSysGenScriptExecution extends SysBase {
     private Long monitorSysGenScriptExecutionProcessId;
 
     /**
+     * 任务ID（用于内存任务管理）
+     */
+    @Schema(description = "任务ID", example = "task_123456789")
+    @TableField("monitor_sys_gen_script_execution_task_id")
+    private String monitorSysGenScriptExecutionTaskId;
+
+    /**
      * 执行服务器ID
      */
     @Schema(description = "执行服务器ID", example = "1")
