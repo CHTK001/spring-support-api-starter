@@ -33,6 +33,7 @@ logging:
 plugin:
   oauth:
     address: http://172.16.3.66:19180/oauth
+    protocol: static
   api:
     ignore-format-packages:
       - com.chua.starter.monitor.jpom
