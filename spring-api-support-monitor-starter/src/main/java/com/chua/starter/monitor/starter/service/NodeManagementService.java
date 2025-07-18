@@ -13,7 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/30
  */
-public interface OnlineNodeManagementService {
+public interface NodeManagementService {
 
     /**
      * 获取所有在线节点列表
@@ -51,4 +51,13 @@ public interface OnlineNodeManagementService {
      * @return 匹配的节点列表
      */
     ReturnResult<List<OnlineNodeInfo>> searchNodes(String keyword);
+
+    /**
+     * 根据IP地址和端口获取在线节点信息
+     *
+     * @param ipAddress IP地址
+     * @param port      端口号
+     * @return 在线节点信息
+     */
+    OnlineNodeInfo getOnlineNode(String ipAddress, Integer port);
 }

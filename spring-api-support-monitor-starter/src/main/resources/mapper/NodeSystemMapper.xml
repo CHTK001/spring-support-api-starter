@@ -3,7 +3,7 @@
 <mapper namespace="com.chua.starter.monitor.starter.mapper.NodeSystemMapper">
 
     <!-- 基础结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenNodeSystem">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.NodeSystem">
         <id column="node_system_id" jdbcType="VARCHAR" property="nodeSystemId" />
         <result column="node_system_name" jdbcType="VARCHAR" property="nodeSystemName" />
         <result column="node_system_application_name" jdbcType="VARCHAR" property="nodeSystemApplicationName" />
@@ -34,14 +34,170 @@
 
     <!-- 基础列名 -->
     <sql id="Base_Column_List">
-        node_system_id, node_system_name, node_system_application_name, node_system_ip_address, 
-        node_system_port, node_system_status, node_system_type, node_system_version, 
-        node_system_healthy, node_system_first_discovered_time, node_system_last_online_time, 
-        node_system_last_offline_time, node_system_last_heartbeat_time, node_system_connection_count, 
-        node_system_error_count, node_system_last_error_time, node_system_last_error_message, 
-        node_system_avg_cpu_usage, node_system_avg_memory_usage, node_system_avg_disk_usage, 
-        node_system_avg_network_latency, node_system_avg_response_time, node_system_total_online_duration, 
+        node_system_id, node_system_name, node_system_application_name, node_system_ip_address,
+        node_system_port, node_system_status, node_system_type, node_system_version,
+        node_system_healthy, node_system_first_discovered_time, node_system_last_online_time,
+        node_system_last_offline_time, node_system_last_heartbeat_time, node_system_connection_count,
+        node_system_error_count, node_system_last_error_time, node_system_last_error_message,
+        node_system_avg_cpu_usage, node_system_avg_memory_usage, node_system_avg_disk_usage,
+        node_system_avg_network_latency, node_system_avg_response_time, node_system_total_online_duration,
         node_system_metadata, create_time, update_time
     </sql>
+
+    <!-- 根据IP和端口查询节点 -->
+    <select id="selectByIpAndPort" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM node_system
+        WHERE node_system_ip_address = #{ipAddress}
+        AND node_system_port = #{port}
+    </select>
+
+    <!-- 更新节点在线状态 -->
+    <update id="updateNodeStatus">
+        UPDATE node_system SET
+            node_system_status = #{status},
+            node_system_last_heartbeat_time = #{heartbeatTime},
+            node_system_last_online_time = CASE WHEN #{status} = 'ONLINE' THEN #{heartbeatTime} ELSE node_system_last_online_time END,
+            node_system_last_offline_time = CASE WHEN #{status} != 'ONLINE' THEN #{heartbeatTime} ELSE node_system_last_offline_time END,
+            node_system_healthy = #{healthy},
+            update_time = #{heartbeatTime}
+        WHERE node_system_id = #{nodeId}
+    </update>
+
+    <!-- 更新节点性能指标 -->
+    <update id="updateNodeMetrics">
+        UPDATE node_system SET
+            node_system_avg_cpu_usage = #{cpuUsage},
+            node_system_avg_memory_usage = #{memoryUsage},
+            node_system_avg_disk_usage = #{diskUsage},
+            node_system_avg_network_latency = #{networkLatency},
+            node_system_avg_response_time = #{responseTime},
+            update_time = NOW()
+        WHERE node_system_id = #{nodeId}
+    </update>
+
+    <!-- 增加连接次数 -->
+    <update id="incrementConnectionCount">
+        UPDATE node_system SET
+            node_system_connection_count = COALESCE(node_system_connection_count, 0) + 1,
+            update_time = NOW()
+        WHERE node_system_id = #{nodeId}
+    </update>
+
+    <!-- 增加错误次数 -->
+    <update id="incrementErrorCount">
+        UPDATE node_system SET
+            node_system_error_count = COALESCE(node_system_error_count, 0) + 1,
+            node_system_last_error_time = #{errorTime},
+            node_system_last_error_message = #{errorMessage},
+            update_time = #{errorTime}
+        WHERE node_system_id = #{nodeId}
+    </update>
+
+    <!-- 获取节点统计信息 -->
+    <select id="getNodeStatistics" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as totalNodes,
+            SUM(CASE WHEN node_system_status = 'ONLINE' THEN 1 ELSE 0 END) as onlineNodes,
+            SUM(CASE WHEN node_system_status = 'OFFLINE' THEN 1 ELSE 0 END) as offlineNodes,
+            SUM(CASE WHEN node_system_healthy = 1 THEN 1 ELSE 0 END) as healthyNodes,
+            SUM(CASE WHEN node_system_status = 'ERROR' THEN 1 ELSE 0 END) as errorNodes,
+            SUM(CASE WHEN node_system_status = 'MAINTENANCE' THEN 1 ELSE 0 END) as maintenanceNodes,
+            SUM(COALESCE(node_system_connection_count, 0)) as totalConnections,
+            AVG(COALESCE(node_system_avg_response_time, 0)) as averageResponseTime,
+            AVG(COALESCE(node_system_avg_cpu_usage, 0)) as averageCpuUsage,
+            AVG(COALESCE(node_system_avg_memory_usage, 0)) as averageMemoryUsage,
+            AVG(COALESCE(node_system_avg_disk_usage, 0)) as averageDiskUsage
+        FROM node_system
+    </select>
+
+    <!-- 按应用名称分组统计节点数量 -->
+    <select id="getNodeCountByApplication" resultType="java.util.Map">
+        SELECT node_system_application_name as applicationName, COUNT(*) as nodeCount
+        FROM node_system
+        GROUP BY node_system_application_name
+    </select>
+
+    <!-- 按状态分组统计节点数量 -->
+    <select id="getNodeCountByStatus" resultType="java.util.Map">
+        SELECT node_system_status as status, COUNT(*) as nodeCount
+        FROM node_system
+        GROUP BY node_system_status
+    </select>
+
+    <!-- 按节点类型分组统计节点数量 -->
+    <select id="getNodeCountByType" resultType="java.util.Map">
+        SELECT node_system_type as nodeType, COUNT(*) as nodeCount
+        FROM node_system
+        WHERE node_system_type IS NOT NULL
+        GROUP BY node_system_type
+    </select>
+
+    <!-- 获取最近活跃的节点（按最后心跳时间排序） -->
+    <select id="getRecentActiveNodes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM node_system
+        WHERE node_system_status = 'ONLINE'
+        ORDER BY node_system_last_heartbeat_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取响应最快的节点 -->
+    <select id="getFastestNodes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM node_system
+        WHERE node_system_status = 'ONLINE' AND node_system_avg_response_time IS NOT NULL
+        ORDER BY node_system_avg_response_time ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取负载最高的节点 -->
+    <select id="getHighestLoadNodes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM node_system
+        WHERE node_system_status = 'ONLINE' AND node_system_avg_cpu_usage IS NOT NULL
+        ORDER BY node_system_avg_cpu_usage DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 搜索节点 -->
+    <select id="searchNodes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM node_system
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (node_system_name LIKE CONCAT('%', #{keyword}, '%')
+            OR node_system_application_name LIKE CONCAT('%', #{keyword}, '%')
+            OR node_system_ip_address LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null and status != ''">
+            AND node_system_status = #{status}
+        </if>
+        <if test="applicationName != null and applicationName != ''">
+            AND node_system_application_name = #{applicationName}
+        </if>
+        ORDER BY node_system_last_heartbeat_time DESC
+    </select>
+
+    <!-- 批量更新节点状态为离线 -->
+    <update id="batchUpdateOfflineStatus">
+        UPDATE node_system SET
+            node_system_status = 'OFFLINE',
+            node_system_last_offline_time = NOW(),
+            node_system_healthy = 0,
+            update_time = NOW()
+        WHERE node_system_id IN
+        <foreach collection="nodeIds" item="nodeId" open="(" separator="," close=")">
+            #{nodeId}
+        </foreach>
+    </update>
+
+    <!-- 更新在线时长统计 -->
+    <update id="updateOnlineDuration">
+        UPDATE node_system SET
+            node_system_total_online_duration = COALESCE(node_system_total_online_duration, 0) + #{duration},
+            update_time = NOW()
+        WHERE node_system_id = #{nodeId}
+    </update>
 
 </mapper>

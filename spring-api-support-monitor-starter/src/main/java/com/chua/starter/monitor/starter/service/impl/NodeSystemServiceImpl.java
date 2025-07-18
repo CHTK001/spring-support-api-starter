@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenNodeSystem;
+import com.chua.starter.monitor.starter.entity.NodeSystem;
 import com.chua.starter.monitor.starter.mapper.NodeSystemMapper;
 import com.chua.starter.monitor.starter.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.starter.service.NodeSystemService;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, MonitorSysGenNodeSystem>
+public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, NodeSystem>
         implements NodeSystemService {
 
     private final NodeSystemMapper nodeSystemMapper;
@@ -48,10 +48,10 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
             // 将不在在线列表中的节点标记为离线
             if (!onlineNodeIds.isEmpty()) {
                 // 查询数据库中状态为在线但不在当前在线列表中的节点
-                List<MonitorSysGenNodeSystem> allOnlineInDb = lambdaQuery()
-                        .eq(MonitorSysGenNodeSystem::getNodeSystemStatus, "ONLINE").list();
+                List<NodeSystem> allOnlineInDb = lambdaQuery()
+                        .eq(NodeSystem::getNodeSystemStatus, "ONLINE").list();
 
-                List<String> offlineNodeIds = allOnlineInDb.stream().map(MonitorSysGenNodeSystem::getNodeSystemId)
+                List<String> offlineNodeIds = allOnlineInDb.stream().map(NodeSystem::getNodeSystemId)
                         .filter(id -> !onlineNodeIds.contains(id)).collect(Collectors.toList());
 
                 if (!offlineNodeIds.isEmpty()) {
@@ -68,21 +68,21 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
     }
 
     @Override
-    public MonitorSysGenNodeSystem getByIpAndPort(String ipAddress, Integer port) {
+    public NodeSystem getByIpAndPort(String ipAddress, Integer port) {
         return nodeSystemMapper.selectByIpAndPort(ipAddress, port);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MonitorSysGenNodeSystem createOrUpdateNode(OnlineNodeInfo nodeInfo) {
+    public NodeSystem createOrUpdateNode(OnlineNodeInfo nodeInfo) {
         String nodeId = generateNodeId(nodeInfo.getIpAddress(), nodeInfo.getPort());
 
-        MonitorSysGenNodeSystem existingNode = getById(nodeId);
+        NodeSystem existingNode = getById(nodeId);
         LocalDateTime now = LocalDateTime.now();
 
         if (existingNode == null) {
             // 创建新节点
-            MonitorSysGenNodeSystem newNode = new MonitorSysGenNodeSystem();
+            NodeSystem newNode = new NodeSystem();
             newNode.setNodeSystemId(nodeId);
             newNode.setNodeSystemName(nodeInfo.getNodeName());
             newNode.setNodeSystemApplicationName(nodeInfo.getApplicationName());
@@ -151,7 +151,7 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
     /**
      * 更新性能指标（使用移动平均算法）
      */
-    private void updatePerformanceMetrics(MonitorSysGenNodeSystem existingNode, OnlineNodeInfo nodeInfo) {
+    private void updatePerformanceMetrics(NodeSystem existingNode, OnlineNodeInfo nodeInfo) {
         double alpha = 0.3; // 平滑因子，新值权重
 
         if (nodeInfo.getCpuUsage() != null) {
@@ -240,22 +240,22 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
     }
 
     @Override
-    public List<MonitorSysGenNodeSystem> getRecentActiveNodes(int limit) {
+    public List<NodeSystem> getRecentActiveNodes(int limit) {
         return nodeSystemMapper.getRecentActiveNodes(limit);
     }
 
     @Override
-    public List<MonitorSysGenNodeSystem> getFastestNodes(int limit) {
+    public List<NodeSystem> getFastestNodes(int limit) {
         return nodeSystemMapper.getFastestNodes(limit);
     }
 
     @Override
-    public List<MonitorSysGenNodeSystem> getHighestLoadNodes(int limit) {
+    public List<NodeSystem> getHighestLoadNodes(int limit) {
         return nodeSystemMapper.getHighestLoadNodes(limit);
     }
 
     @Override
-    public List<MonitorSysGenNodeSystem> searchNodes(String keyword, String status, String applicationName) {
+    public List<NodeSystem> searchNodes(String keyword, String status, String applicationName) {
         return nodeSystemMapper.searchNodes(keyword, status, applicationName);
     }
 
@@ -282,12 +282,12 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
     public void cleanupOfflineNodes(int timeoutMinutes) {
         LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(timeoutMinutes);
 
-        List<MonitorSysGenNodeSystem> timeoutNodes = lambdaQuery()
-                .eq(MonitorSysGenNodeSystem::getNodeSystemStatus, "ONLINE")
-                .lt(MonitorSysGenNodeSystem::getNodeSystemLastHeartbeatTime, cutoffTime).list();
+        List<NodeSystem> timeoutNodes = lambdaQuery()
+                .eq(NodeSystem::getNodeSystemStatus, "ONLINE")
+                .lt(NodeSystem::getNodeSystemLastHeartbeatTime, cutoffTime).list();
 
         if (!timeoutNodes.isEmpty()) {
-            List<String> timeoutNodeIds = timeoutNodes.stream().map(MonitorSysGenNodeSystem::getNodeSystemId)
+            List<String> timeoutNodeIds = timeoutNodes.stream().map(NodeSystem::getNodeSystemId)
                     .collect(Collectors.toList());
 
             batchUpdateOfflineStatus(timeoutNodeIds);
@@ -305,7 +305,7 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, Monitor
 
         try {
             // 获取节点基本信息
-            MonitorSysGenNodeSystem nodeSystem = getById(nodeId);
+            NodeSystem nodeSystem = getById(nodeId);
             if (nodeSystem == null) {
                 stats.put("error", "节点不存在");
                 return stats;
