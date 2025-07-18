@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenNodeSystem;
+import com.chua.starter.monitor.starter.entity.NodeSystem;
 import com.chua.starter.monitor.starter.pojo.OnlineNodeInfo;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/30
  */
-public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
+public interface NodeSystemService extends IService<NodeSystem> {
 
     /**
      * 同步在线节点数据到数据库
@@ -29,7 +29,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param port 端口
      * @return 节点信息
      */
-    MonitorSysGenNodeSystem getByIpAndPort(String ipAddress, Integer port);
+    NodeSystem getByIpAndPort(String ipAddress, Integer port);
 
     /**
      * 创建或更新节点
@@ -37,7 +37,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param nodeInfo 节点信息
      * @return 节点系统信息
      */
-    MonitorSysGenNodeSystem createOrUpdateNode(OnlineNodeInfo nodeInfo);
+    NodeSystem createOrUpdateNode(OnlineNodeInfo nodeInfo);
 
     /**
      * 更新节点状态
@@ -110,7 +110,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param limit 限制数量
      * @return 最近活跃节点列表
      */
-    List<MonitorSysGenNodeSystem> getRecentActiveNodes(int limit);
+    List<NodeSystem> getRecentActiveNodes(int limit);
 
     /**
      * 获取响应最快的节点
@@ -118,7 +118,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param limit 限制数量
      * @return 响应最快节点列表
      */
-    List<MonitorSysGenNodeSystem> getFastestNodes(int limit);
+    List<NodeSystem> getFastestNodes(int limit);
 
     /**
      * 获取负载最高的节点
@@ -126,7 +126,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param limit 限制数量
      * @return 负载最高节点列表
      */
-    List<MonitorSysGenNodeSystem> getHighestLoadNodes(int limit);
+    List<NodeSystem> getHighestLoadNodes(int limit);
 
     /**
      * 搜索节点
@@ -136,7 +136,7 @@ public interface NodeSystemService extends IService<MonitorSysGenNodeSystem> {
      * @param applicationName 应用名称
      * @return 搜索结果
      */
-    List<MonitorSysGenNodeSystem> searchNodes(String keyword, String status, String applicationName);
+    List<NodeSystem> searchNodes(String keyword, String status, String applicationName);
 
     /**
      * 批量更新节点状态为离线

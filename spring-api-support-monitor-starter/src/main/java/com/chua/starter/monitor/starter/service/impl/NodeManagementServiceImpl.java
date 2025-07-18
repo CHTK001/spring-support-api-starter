@@ -7,7 +7,7 @@ import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.starter.pojo.NodeStatistics;
 import com.chua.starter.monitor.starter.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.starter.service.NodeSystemService;
-import com.chua.starter.monitor.starter.service.OnlineNodeManagementService;
+import com.chua.starter.monitor.starter.service.NodeManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OnlineNodeManagementServiceImpl implements OnlineNodeManagementService {
+public class NodeManagementServiceImpl implements NodeManagementService {
 
     private final DiscoveryService discoveryService;
     private final NodeSystemService nodeSystemService;
@@ -273,6 +273,20 @@ public class OnlineNodeManagementServiceImpl implements OnlineNodeManagementServ
             log.error("搜索节点失败: keyword={}", keyword, e);
             return ReturnResult.error("搜索节点失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public OnlineNodeInfo getOnlineNode(String ipAddress, Integer port) {
+        ReturnResult<List<OnlineNodeInfo>> allOnlineNodes = getAllOnlineNodes();
+        if(!allOnlineNodes.isSuccess()) {
+            return null;
+        }
+        for (OnlineNodeInfo node : allOnlineNodes.getData()) {
+            if (node.getIpAddress().equals(ipAddress) && node.getPort().equals(port)) {
+                return node;
+            }
+        }
+        return null;
     }
 
     /**

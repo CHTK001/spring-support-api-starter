@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptMapper">
+
+    <!-- 根据脚本名称查找脚本 -->
+    <select id="findByScriptName" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScript">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_name = #{scriptName}
+        ]]>
+    </select>
+
+    <!-- 根据脚本类型查找脚本 -->
+    <select id="findByScriptType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScript">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_type = #{scriptType} 
+        AND monitor_sys_gen_script_status = 1
+        ]]>
+    </select>
+
+    <!-- 根据分类查找脚本 -->
+    <select id="findByCategory" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScript">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_category = #{category} 
+        AND monitor_sys_gen_script_status = 1
+        ]]>
+    </select>
+
+    <!-- 根据标签查找脚本 -->
+    <select id="findByTag" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScript">
+        <![CDATA[
+        SELECT * FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_tags LIKE CONCAT('%', #{tag}, '%') 
+        AND monitor_sys_gen_script_status = 1
+        ]]>
+    </select>
+
+    <!-- 更新脚本执行统计 -->
+    <update id="updateExecuteStatistics">
+        <![CDATA[
+        UPDATE monitor_sys_gen_script SET 
+            monitor_sys_gen_script_execute_count = monitor_sys_gen_script_execute_count + 1, 
+            monitor_sys_gen_script_last_execute_time = #{executeTime} 
+        WHERE monitor_sys_gen_script_id = #{scriptId}
+        ]]>
+    </update>
+
+    <!-- 获取脚本统计信息 -->
+    <select id="getScriptStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptMapper$ScriptStatistics">
+        <![CDATA[
+        SELECT 
+            COUNT(*) as totalCount, 
+            SUM(CASE WHEN monitor_sys_gen_script_status = 1 THEN 1 ELSE 0 END) as enabledCount, 
+            SUM(CASE WHEN monitor_sys_gen_script_status = 0 THEN 1 ELSE 0 END) as disabledCount, 
+            SUM(monitor_sys_gen_script_execute_count) as totalExecutions 
+        FROM monitor_sys_gen_script
+        ]]>
+    </select>
+
+    <!-- 获取各类型脚本数量统计 -->
+    <select id="getScriptTypeStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptMapper$ScriptTypeCount">
+        <![CDATA[
+        SELECT monitor_sys_gen_script_type as scriptType, COUNT(*) as count 
+        FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_status = 1 
+        GROUP BY monitor_sys_gen_script_type 
+        ORDER BY count DESC
+        ]]>
+    </select>
+
+    <!-- 获取各分类脚本数量统计 -->
+    <select id="getScriptCategoryStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptMapper$ScriptCategoryCount">
+        <![CDATA[
+        SELECT monitor_sys_gen_script_category as category, COUNT(*) as count 
+        FROM monitor_sys_gen_script 
+        WHERE monitor_sys_gen_script_status = 1 
+        GROUP BY monitor_sys_gen_script_category 
+        ORDER BY count DESC
+        ]]>
+    </select>
+
+</mapper>
