@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.pojo.*;
 import com.chua.starter.monitor.starter.service.NodeDocumentationService;
-import com.chua.starter.monitor.starter.service.OnlineNodeManagementService;
+import com.chua.starter.monitor.starter.service.NodeManagementService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NodeDocumentationServiceImpl implements NodeDocumentationService {
 
-    private final OnlineNodeManagementService nodeManagementService;
+    private final NodeManagementService nodeManagementService;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 

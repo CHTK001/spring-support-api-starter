@@ -1,12 +1,11 @@
 package com.chua.starter.monitor.starter.service.impl;
 
-import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.common.support.http.HttpClient;
-
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenNodeSystem;
+import com.chua.starter.discovery.support.service.DiscoveryService;
+import com.chua.starter.monitor.starter.entity.NodeSystem;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.pojo.RemoteOperationRequest;
 import com.chua.starter.monitor.starter.pojo.RemoteOperationResponse;
@@ -14,7 +13,6 @@ import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.starter.service.NodeRemoteService;
 import com.chua.starter.monitor.starter.service.NodeSystemService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -295,7 +293,7 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     public boolean checkNodeConnection(String nodeId) {
         try {
             // 从数据库获取节点信息
-            MonitorSysGenNodeSystem nodeSystem = nodeSystemService.getById(nodeId);
+            NodeSystem nodeSystem = nodeSystemService.getById(nodeId);
             if (nodeSystem == null) {
                 log.warn("节点不存在: nodeId={}", nodeId);
                 return false;
@@ -398,7 +396,7 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
      * 构建节点URL
      */
     private String buildNodeUrl(String nodeId, String path) {
-        MonitorSysGenNodeSystem nodeSystem = nodeSystemService.getById(nodeId);
+        NodeSystem nodeSystem = nodeSystemService.getById(nodeId);
         if (nodeSystem == null) {
             throw new RuntimeException("节点不存在: " + nodeId);
         }
@@ -570,7 +568,7 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     private Integer getServerIdByNodeId(String nodeId) {
         try {
             // 获取节点信息
-            MonitorSysGenNodeSystem nodeSystem = nodeSystemService.getById(nodeId);
+            NodeSystem nodeSystem = nodeSystemService.getById(nodeId);
             if (nodeSystem == null) {
                 throw new RuntimeException("节点不存在: " + nodeId);
             }

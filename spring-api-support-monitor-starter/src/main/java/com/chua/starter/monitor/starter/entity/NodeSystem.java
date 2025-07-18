@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("monitor_sys_gen_node_system")
+@TableName("node_system")
 @ApiModel(value = "NodeSystem", description = "节点系统信息")
 @Schema(description = "节点系统信息")
 public class NodeSystem extends SysBase {

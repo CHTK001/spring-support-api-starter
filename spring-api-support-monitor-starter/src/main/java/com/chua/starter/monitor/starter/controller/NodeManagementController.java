@@ -3,7 +3,7 @@ package com.chua.starter.monitor.starter.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.starter.pojo.NodeStatistics;
 import com.chua.starter.monitor.starter.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.starter.service.OnlineNodeManagementService;
+import com.chua.starter.monitor.starter.service.NodeManagementService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,7 +29,7 @@ import java.util.Map;
 @Slf4j
 public class NodeManagementController {
 
-    private final OnlineNodeManagementService onlineNodeManagementService;
+    private final NodeManagementService nodeManagementService;
 
     /**
      * 获取所有在线节点列表
@@ -41,7 +41,7 @@ public class NodeManagementController {
     public ReturnResult<List<OnlineNodeInfo>> getAllOnlineNodes() {
         try {
             log.info("开始获取所有在线节点列表");
-            return onlineNodeManagementService.getAllOnlineNodes();
+            return nodeManagementService.getAllOnlineNodes();
         } catch (Exception e) {
             log.error("获取所有在线节点列表失败", e);
             return ReturnResult.error("获取在线节点列表失败: " + e.getMessage());
@@ -58,7 +58,7 @@ public class NodeManagementController {
     public ReturnResult<Map<String, List<OnlineNodeInfo>>> getOnlineNodesByApplication() {
         try {
             log.info("开始按应用分组获取在线节点");
-            return onlineNodeManagementService.getOnlineNodesByApplication();
+            return nodeManagementService.getOnlineNodesByApplication();
         } catch (Exception e) {
             log.error("按应用分组获取在线节点失败", e);
             return ReturnResult.error("按应用分组获取节点失败: " + e.getMessage());
@@ -75,7 +75,7 @@ public class NodeManagementController {
     public ReturnResult<NodeStatistics> getNodeStatistics() {
         try {
             log.info("开始获取节点统计信息");
-            return onlineNodeManagementService.getNodeStatistics();
+            return nodeManagementService.getNodeStatistics();
         } catch (Exception e) {
             log.error("获取节点统计信息失败", e);
             return ReturnResult.error("获取节点统计信息失败: " + e.getMessage());
@@ -95,7 +95,7 @@ public class NodeManagementController {
             @PathVariable("nodeId") String nodeId) {
         try {
             log.info("开始获取节点详情: nodeId={}", nodeId);
-            return onlineNodeManagementService.getNodeDetails(nodeId);
+            return nodeManagementService.getNodeDetails(nodeId);
         } catch (Exception e) {
             log.error("获取节点详情失败: nodeId={}", nodeId, e);
             return ReturnResult.error("获取节点详情失败: " + e.getMessage());
@@ -115,7 +115,7 @@ public class NodeManagementController {
             @RequestParam("keyword") String keyword) {
         try {
             log.info("开始搜索节点: keyword={}", keyword);
-            return onlineNodeManagementService.searchNodes(keyword);
+            return nodeManagementService.searchNodes(keyword);
         } catch (Exception e) {
             log.error("搜索节点失败: keyword={}", keyword, e);
             return ReturnResult.error("搜索节点失败: " + e.getMessage());
