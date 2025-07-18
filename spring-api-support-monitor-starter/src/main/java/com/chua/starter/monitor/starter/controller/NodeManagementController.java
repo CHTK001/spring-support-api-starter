@@ -27,7 +27,7 @@ import java.util.Map;
 @Tag(name = "在线节点管理")
 @RequiredArgsConstructor
 @Slf4j
-public class OnlineNodeManagementController {
+public class NodeManagementController {
 
     private final OnlineNodeManagementService onlineNodeManagementService;
 
