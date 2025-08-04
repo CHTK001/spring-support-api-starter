@@ -1,7 +1,6 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.file.FileInfo;
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.protocol.client.ProtocolClientFactory;
 import com.chua.ssh.support.client.SftpClient;
