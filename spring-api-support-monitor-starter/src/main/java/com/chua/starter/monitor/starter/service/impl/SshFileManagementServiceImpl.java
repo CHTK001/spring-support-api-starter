@@ -1,14 +1,13 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.file.FileInfo;
 import com.chua.common.support.protocol.ClientSetting;
-import com.chua.ssh.support.SftpItem;
-import com.chua.ssh.support.sftp.SftpChannel;
-import com.chua.ssh.support.ssh.SshChannelSession;
-import com.chua.ssh.support.ssh.SshClient;
+import com.chua.common.support.protocol.client.ProtocolClientFactory;
+import com.chua.ssh.support.client.SftpClient;
+import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;
@@ -92,22 +91,20 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
             String sortBy, String sortOrder) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
-            if (sftp == null) {
+            SftpClient sftpClient = createClient(serverId);
+            if (sftpClient == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
 
-            List<FileInfo> files = new ArrayList<>();
-
             // 使用增强的 SftpChannel 获取文件列表
-            SftpItem[] items = sftp.list(path);
+            List<FileInfo> items = sftpClient.listFiles(path);
 
             if (items == null) {
                 log.warn("SFTP列表返回null: serverId={}, path={}", serverId, path);
-                return ReturnResult.ok(FileOperationResponse.success("LIST", "文件列表获取成功（空目录）", files));
+                return ReturnResult.ok(FileOperationResponse.success("LIST", "文件列表获取成功（空目录）", items));
             }
 
-            for (SftpItem item : items) {
+            for (FileInfo item : items) {
                 if (item == null) {
                     log.warn("跳过null的SftpItem: serverId={}, path={}", serverId, path);
                     continue;
@@ -135,22 +132,12 @@ public class SshFileManagementServiceImpl implements FileManagementService {
                 if (!Boolean.TRUE.equals(includeHidden) && fileName.startsWith(".")) {
                     continue;
                 }
-
-                // 使用 SftpItem 构建 FileInfo
-                try {
-                    FileInfo fileInfo = buildFileInfoFromSftpItem(item, path);
-                    if (fileInfo != null) {
-                        files.add(fileInfo);
-                    }
-                } catch (Exception e) {
-                    log.warn("构建FileInfo失败，跳过文件: fileName={}, serverId={}, path={}", fileName, serverId, path, e);
-                }
             }
 
             // 排序
-            sortFiles(files, sortBy, sortOrder);
+            sortFiles(items, sortBy, sortOrder);
 
-            return ReturnResult.ok(FileOperationResponse.success("LIST", "文件列表获取成功", files));
+            return ReturnResult.ok(FileOperationResponse.success("LIST", "文件列表获取成功", items));
 
         } catch (Exception e) {
             log.error("列出文件失败: serverId={}, path={}", serverId, path, e);
@@ -177,7 +164,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             log.info("SSH文件管理: 获取文件树 - serverId={}, path={}, maxDepth={}, lazyLoad={}, pageSize={}, pageIndex={}",
                     serverId, path, maxDepth, lazyLoad, pageSize, pageIndex);
 
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpClient sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -207,7 +194,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, MultipartFile file,
             Boolean overwrite) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -250,7 +237,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
             InputStream inputStream, Boolean overwrite) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -289,7 +276,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<FileOperationResponse> downloadFile(Integer serverId, String filePath) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -327,7 +314,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<FileOperationResponse> deleteFile(Integer serverId, String path, Boolean recursive) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -371,7 +358,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     }
 
     // 辅助方法
-    private SshClient getSshClient(Integer serverId) {
+    private SftpClient createSftpClient(Integer serverId) {
         try {
             // 获取服务器信息
             MonitorSysGenServer server = serverService.getById(serverId);
@@ -390,10 +377,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
                 return null;
             }
 
-            // 创建SSH客户端（SshClient 自带连接管理和缓存）
-            SshClient sshClient = createSshClient(server);
-
-            return sshClient;
+            return createSftpClient(server);
 
         } catch (Exception e) {
             log.error("创建SSH客户端失败: serverId={}", serverId, e);
@@ -404,35 +388,22 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     /**
      * 获取SFTP通道
      */
-    private SftpChannel getSftpChannel(Integer serverId) {
+    private SftpClient createClient(Integer serverId) {
         try {
-            SshClient sshClient = getSshClient(serverId);
+            SftpClient sshClient = createSftpClient(serverId);
             if (sshClient == null) {
                 log.error("无法获取SSH客户端: serverId={}", serverId);
                 return null;
             }
 
-            SshChannelSession session = sshClient.createSession();
-            if (session == null) {
-                log.error("无法创建SSH会话: serverId={}", serverId);
-                return null;
-            }
-
-            SftpChannel sftpChannel = (SftpChannel) session.openChannel("sftp");
-            if (sftpChannel == null) {
-                log.error("无法创建SFTP通道: serverId={}", serverId);
-                return null;
-            }
-
-            return sftpChannel;
-
+            return sshClient;
         } catch (Exception e) {
             log.error("获取SFTP通道失败: serverId={}", serverId, e);
             return null;
         }
     }
 
-    private SshClient createSshClient(MonitorSysGenServer server) {
+    private SftpClient createSftpClient(MonitorSysGenServer server) {
         ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
         config.host(server.getMonitorSysGenServerHost());
         config.port(server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 22);
@@ -440,89 +411,23 @@ public class SshFileManagementServiceImpl implements FileManagementService {
         config.password(server.getMonitorSysGenServerPassword());
 
         if (server.getMonitorSysGenServerTimeout() != null) {
-            config.timeoutMillis(server.getMonitorSysGenServerTimeout());
+            config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
         }
 
-        return new SshClient(config.build());
+        return ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SftpClient.class, config.build());
     }
 
     private boolean isClientConnected(SshClient sshClient) {
         try {
-            SshChannelSession session = sshClient.createSession();
-            return session != null && !session.isClosed();
+            return sshClient.isConnected();
         } catch (Exception e) {
             return false;
         }
     }
-
-    // parseFileInfo 方法已移除 - 不再需要解析 ls 命令输出，改用 SftpChannel 的增强功能
-
-    /**
-     * 从 SftpItem 构建 FileInfo
-     */
-    private FileInfo buildFileInfoFromSftpItem(SftpItem item, String parentPath) {
-        try {
-            String fileName = item.getName();
-            String fullPath = parentPath.endsWith("/") ? parentPath + fileName : parentPath + "/" + fileName;
-
-            // 从 SftpItem 的 entry 获取权限信息
-            String permissions = "unknown";
-            try {
-                if (item.getEntry() != null && item.getEntry().getAttrs() != null) {
-                    permissions = getPermissionString(item.getEntry().getAttrs().getPermissions());
-                }
-            } catch (Exception e) {
-                log.warn("获取文件权限失败: {}", fileName, e);
-            }
-
-            // 转换修改时间
-            LocalDateTime modifyTime = LocalDateTime.now();
-            try {
-                modifyTime = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(item.lastModified()),
-                        ZoneId.systemDefault());
-            } catch (Exception e) {
-                log.warn("获取文件修改时间失败: {}", fileName, e);
-            }
-
-            // 获取文件大小
-            long size = 0L;
-            try {
-                size = item.getSize();
-            } catch (Exception e) {
-                log.warn("获取文件大小失败: {}", fileName, e);
-            }
-
-            // 判断是否为目录
-            boolean isDirectory = false;
-            try {
-                isDirectory = item.isDirectory();
-            } catch (Exception e) {
-                log.warn("判断文件类型失败: {}", fileName, e);
-            }
-
-            return FileInfo.builder().name(fileName).path(fullPath).size(size).isDirectory(isDirectory)
-                    .permissions(permissions).modifyTime(modifyTime).build();
-
-        } catch (Exception e) {
-            log.error("构建FileInfo失败", e);
-            // 返回一个基本的FileInfo对象
-            String fileName = "unknown";
-            try {
-                fileName = item.getName();
-            } catch (Exception ex) {
-                log.error("无法获取文件名", ex);
-            }
-
-            return FileInfo.builder().name(fileName).path(parentPath + "/" + fileName).size(0L).isDirectory(false)
-                    .permissions("unknown").modifyTime(LocalDateTime.now()).leaf(true) // 错误情况下默认为叶子节点
-                    .build();
-        }
-    }
-
     /**
      * 从路径构建 FileInfo（使用 SftpChannel 的增强功能）
      */
-    private FileInfo buildFileInfoFromPath(SftpChannel sftp, String fileName, String parentPath, String fullPath) {
+    private FileInfo buildFileInfoFromPath(SftpClient sftp, String fileName, String parentPath, String fullPath) {
         try {
             long size = sftp.getFileSize(fullPath);
             long lastModified = sftp.getLastModified(fullPath);
@@ -531,10 +436,13 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             LocalDateTime modifyTime = LocalDateTime.ofInstant(java.time.Instant.ofEpochSecond(lastModified),
                     ZoneId.systemDefault());
 
-            return FileInfo.builder().name(fileName).path(fullPath).size(size).isDirectory(isDirectory)
-                    .permissions("rw-r--r--") // 默认权限，可以根据需要调整
-                    .modifyTime(modifyTime).leaf(!isDirectory) // 设置 leaf 属性：文件为叶子节点，目录不是叶子节点
-                    .build();
+            FileInfo fileInfo = new FileInfo(fileName, parentPath);
+            fileInfo.setLastModified(lastModified);
+            fileInfo.setFile(size > 0);
+            fileInfo.setSize(size);
+            fileInfo.setDirectory(isDirectory);
+            fileInfo.setLeaf(!isDirectory);
+            return fileInfo;
         } catch (Exception e) {
             log.error("构建文件信息失败: {}", fullPath, e);
             // 返回基本信息
@@ -697,8 +605,8 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     /**
      * 构建文件树（懒加载模式） 只加载当前层级的文件夹，不递归加载子目录
      */
-    private FileInfo buildFileTreeLazy(SftpChannel sftp, String path, int maxDepth, Boolean includeHidden, int pageSize,
-            int pageIndex) {
+    private FileInfo buildFileTreeLazy(SftpClient sftp, String path, int maxDepth, Boolean includeHidden, int pageSize,
+            int pageIndex) throws Exception {
         // 检查路径是否存在
         if (!sftp.exists(path)) {
             return null;
@@ -713,91 +621,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
         FileInfo fileInfo = buildFileInfoFromPath(sftp, fileName, parentPath, path);
 
         if (sftp.isDirectory(path)) {
-            List<FileInfo> children = new ArrayList<>();
-            List<SftpItem> allDirectories = new ArrayList<>();
-
-            // 使用增强的 SftpChannel 获取文件列表
-            SftpItem[] items = null;
-            try {
-                items = sftp.list(path);
-            } catch (Exception e) {
-                log.warn("列出目录内容失败: {}", path, e);
-                fileInfo.setChildren(children); // 设置空的子项列表
-                return fileInfo;
-            }
-
-            if (items != null) {
-                // 先收集所有目录
-                for (SftpItem item : items) {
-                    if (item == null) {
-                        continue;
-                    }
-
-                    String childName = null;
-                    try {
-                        childName = item.getName();
-                    } catch (Exception e) {
-                        log.warn("获取子项名称失败: {}", path, e);
-                        continue;
-                    }
-
-                    if (childName == null || childName.trim().isEmpty()) {
-                        continue;
-                    }
-
-                    if (".".equals(childName) || "..".equals(childName)) {
-                        continue;
-                    }
-
-                    if (!Boolean.TRUE.equals(includeHidden) && childName.startsWith(".")) {
-                        continue;
-                    }
-
-                    try {
-                        // 只收集目录，懒加载模式下不递归加载文件
-                        if (item.isDirectory()) {
-                            allDirectories.add(item);
-                        }
-                    } catch (Exception e) {
-                        log.warn("检查子项类型失败: childName={}, path={}", childName, path, e);
-                    }
-                }
-
-                // 排序以确保一致的顺序
-                allDirectories.sort(Comparator.comparing(item -> {
-                    try {
-                        return item.getName();
-                    } catch (Exception e) {
-                        return "";
-                    }
-                }));
-
-                // 实现分页
-                int totalEntries = allDirectories.size();
-                int startIndex = pageIndex * pageSize;
-                int endIndex = Math.min(startIndex + pageSize, totalEntries);
-
-                if (startIndex < totalEntries) {
-                    for (int i = startIndex; i < endIndex; i++) {
-                        SftpItem item = allDirectories.get(i);
-                        try {
-                            // 创建目录节点，但不递归加载其子目录
-                            FileInfo childInfo = createDirectoryNodeLazy(sftp, item, path, includeHidden);
-                            if (childInfo != null) {
-                                children.add(childInfo);
-                            }
-                        } catch (Exception e) {
-                            log.warn("创建目录节点失败: item={}, path={}", item, path, e);
-                        }
-                    }
-                }
-
-                // 如果有更多数据，设置hasMore标志
-                if (endIndex < totalEntries) {
-                    fileInfo.setExtraProperties("{\"hasMore\": true, \"totalCount\": " + totalEntries + "}");
-                }
-            }
-
+            List<FileInfo> children = sftp.listFiles(path);
             fileInfo.setChildren(children);
         }
 
@@ -861,7 +685,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<FileOperationResponse> renameFile(Integer serverId, String oldPath, String newName) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -903,7 +727,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<FileOperationResponse> createDirectory(Integer serverId, String path, Boolean recursive) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -948,7 +772,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> copyFile(Integer serverId, String sourcePath, String targetPath,
             Boolean overwrite) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -988,7 +812,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> moveFile(Integer serverId, String sourcePath, String targetPath,
             Boolean overwrite) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -1033,7 +857,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> changePermissions(Integer serverId, String path, String permissions,
             Boolean recursive) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -1143,7 +967,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> previewFile(Integer serverId, String filePath, String previewType,
             Integer maxSizeMB) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -1192,7 +1016,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<FileInfo> getFileInfo(Integer serverId, String path) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }
@@ -1220,7 +1044,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     @Override
     public ReturnResult<Boolean> testConnection(Integer serverId) {
         try {
-            SshClient sshClient = getSshClient(serverId);
+            SshClient sshClient = createSftpClient(serverId);
             if (sshClient != null && isClientConnected(sshClient)) {
                 return ReturnResult.ok(true);
             }
@@ -1273,7 +1097,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> batchDeleteFiles(Integer serverId, List<String> paths,
             Boolean recursive) {
         try {
-            SftpChannel sftp = getSftpChannel(serverId);
+            SftpChannel sftp = createClient(serverId);
             if (sftp == null) {
                 return ReturnResult.error("无法建立SFTP连接");
             }

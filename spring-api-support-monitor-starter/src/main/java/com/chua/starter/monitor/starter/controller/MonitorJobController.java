@@ -14,7 +14,6 @@ import com.chua.starter.monitor.starter.job.pojo.JobStatisticResult;
 import com.chua.starter.monitor.starter.job.trigger.JobTriggerPoolHelper;
 import com.chua.starter.monitor.starter.service.MonitorJobLogService;
 import com.chua.starter.monitor.starter.service.MonitorJobService;
-import com.chua.starter.monitor.starter.service.MonitorSender;
 import com.chua.starter.mybatis.controller.AbstractSwaggerController;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -40,7 +39,6 @@ public class MonitorJobController extends AbstractSwaggerController<MonitorJobSe
     @Getter
     private final MonitorJobService service;
     final MonitorJobLogService monitorJobLogService;
-    final MonitorSender monitorSender;
 
 
     /**
