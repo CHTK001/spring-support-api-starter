@@ -3,11 +3,9 @@ package com.chua.starter.monitor.starter.service.impl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ClientSetting;
-import com.chua.common.support.protocol.channel.Channel;
-import com.chua.common.support.protocol.session.ChannelSession;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.ssh.support.ssh.SshClient;
+import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
@@ -62,11 +60,6 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     private final Map<Integer, DataCallback> dataCallbackMap = new ConcurrentHashMap<>();
 
     /**
-     * Shell Channel映射
-     */
-    private final Map<Integer, Channel> shellChannelMap = new ConcurrentHashMap<>();
-
-    /**
      * Shell Channel监听器映射
      */
     private final Map<Integer, ShellChannelListener> shellListenerMap = new ConcurrentHashMap<>();
@@ -89,9 +82,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             SshClient sshClient = createSshClient(server);
             sshClient.connect();
 
-            // 检查连接状态
-            ChannelSession session = (ChannelSession) sshClient.getSession();
-            boolean connected = session != null;
+            boolean connected = sshClient.isConnected();
 
             if (connected) {
                 sshClientPool.put(serverId, sshClient);
@@ -101,7 +92,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
                 // 创建shell类型的channel并监听整个channel
                 try {
-                    createShellChannel(serverId, session);
+                    createShellChannel(serverId, sshClient);
                 } catch (Exception e) {
                     log.error("创建Shell channel失败: {}", e.getMessage(), e);
                     // 即使shell channel创建失败，SSH连接仍然可用
@@ -134,9 +125,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         try {
             SshClient sshClient = createSshClient(server);
             sshClient.connect();
-            // 连接成功，检查会话状态
-            ChannelSession session = (ChannelSession) sshClient.getSession();
-            boolean connected = session != null;
+            boolean connected = sshClient.isConnected();
             if (connected) {
                 sshClient.close();
             }
@@ -155,8 +144,6 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             if (listener != null) {
                 listener.stop();
             }
-            shellChannelMap.remove(serverId);
-
             SshClient sshClient = sshClientPool.remove(serverId);
             if (sshClient != null) {
                 sshClient.close();
@@ -219,8 +206,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             return false;
         }
         try {
-            ChannelSession session = (ChannelSession) sshClient.getSession();
-            return session != null;
+            return sshClient.isConnected();
         } catch (Exception e) {
             return false;
         }
@@ -462,7 +448,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 //        }
 
         if (server.getMonitorSysGenServerTimeout() != null) {
-            config.timeoutMillis(server.getMonitorSysGenServerTimeout());
+            config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
         }
 
         return new SshClient(config.build());
@@ -806,23 +792,18 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
      */
     private String executeCommandInternal(SshClient sshClient, String command) {
         try {
-            ChannelSession clientSession = (ChannelSession) sshClient.getSession();
-            if (clientSession == null) {
-                return "SSH会话不可用";
-            }
-
             String channelId = "cmd_" + System.currentTimeMillis();
-            Channel channel = clientSession.openChannel(channelId, "exec");
 
             StringBuilder result = new StringBuilder();
-            channel.setListener(result::append);
+            sshClient.setListener(new SshClient.DefaultSshListener() {
+                @Override
+                public void onOutput(String s) {
+                    result.append(s);
+                }
+            });
 
             // 执行命令并等待结果
-            channel.execute(command, 5000); // 5秒超时
-
-            // 关闭通道
-            clientSession.closeChannel(channelId);
-
+            sshClient.executeCommand(command);
             return result.toString();
         } catch (Exception e) {
             log.error("执行SSH命令内部错误: {}", e.getMessage(), e);
@@ -922,17 +903,14 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     /**
      * 创建Shell Channel并开始监听
      */
-    private void createShellChannel(Integer serverId, ChannelSession session) {
+    private void createShellChannel(Integer serverId, SshClient sshClient) {
         try {
             // 创建shell类型的channel
             String channelId = "shell_" + serverId + "_" + System.currentTimeMillis();
-            Channel shellChannel = session.openChannel(channelId, "shell");
 
             // 创建监听器
-            ShellChannelListener listener = new ShellChannelListener(serverId, shellChannel);
+            ShellChannelListener listener = new ShellChannelListener(serverId, sshClient);
 
-            // 缓存channel和监听器
-            shellChannelMap.put(serverId, shellChannel);
             shellListenerMap.put(serverId, listener);
 
             // 初始化shell环境
@@ -988,26 +966,29 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
      */
     private class ShellChannelListener {
         private final Integer serverId;
-        private final Channel shellChannel;
+        private final SshClient sshClient;
         private volatile boolean running = true;
 
-        public ShellChannelListener(Integer serverId, Channel shellChannel) {
+        public ShellChannelListener(Integer serverId, SshClient sshClient) {
             this.serverId = serverId;
-            this.shellChannel = shellChannel;
+            this.sshClient = sshClient;
 
             // 设置channel监听器，监听整个channel的输出
-            shellChannel.setListener(output -> {
-                if (running) {
-                    sendShellOutput(serverId, output);
+            sshClient.setListener(new SshClient.DefaultSshListener() {
+                @Override
+                public void onOutput(String output) {
+                    if (running) {
+                        sendShellOutput(serverId, output);
+                    }
                 }
             });
         }
 
         public void sendInput(String input) {
             try {
-                if (shellChannel != null && running) {
+                if (sshClient != null && running) {
                     // 使用channel的execute方法发送输入
-                    shellChannel.execute(input, 0);
+                    sshClient.executeCommand(input);
                 }
             } catch (Exception e) {
                 log.error("发送输入到Shell channel失败: serverId={}, error={}", serverId, e.getMessage());
@@ -1018,8 +999,8 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         public void stop() {
             running = false;
             try {
-                if (shellChannel != null) {
-                    shellChannel.close();
+                if (sshClient != null) {
+                    sshClient.close();
                 }
             } catch (Exception e) {
                 log.warn("关闭Shell channel失败: {}", e.getMessage());

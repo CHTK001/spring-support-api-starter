@@ -8,7 +8,6 @@ import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;

@@ -16,7 +16,6 @@ import com.chua.starter.monitor.starter.job.pojo.JobStatistic;
 import com.chua.starter.monitor.starter.job.pojo.JobStatisticResult;
 import com.chua.starter.monitor.starter.mapper.MonitorJobLogMapper;
 import com.chua.starter.monitor.starter.service.MonitorJobLogService;
-import com.chua.starter.monitor.starter.service.MonitorSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, MonitorJobLog> implements MonitorJobLogService {
 
-    private final MonitorSender monitorSender;
     private final DiscoveryService discoveryService;
 
     @Override
@@ -124,7 +122,8 @@ public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, M
         jobCat.setLogId(monitorJobLog.getJobLogId());
         jobCat.setFromLineNum(0);
         jobCat.setDate(monitorJobLog.getJobLogTriggerTime());
-        return monitorSender.uploadSync(null, discovery, Json.toJson(jobCat), ModuleType.JOB_LOG_CAT).getData();
+//        return monitorSender.uploadSync(null, discovery, Json.toJson(jobCat), ModuleType.JOB_LOG_CAT).getData();
+        return null;
     }
 
     private Integer getNumberByClearType(Integer clearType) {

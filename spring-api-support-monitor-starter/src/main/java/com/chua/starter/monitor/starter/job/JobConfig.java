@@ -18,7 +18,6 @@ import com.chua.starter.monitor.starter.job.route.ExecutorRouter;
 import com.chua.starter.monitor.starter.properties.ReportJobProperties;
 import com.chua.starter.monitor.starter.service.MonitorJobLogService;
 import com.chua.starter.monitor.starter.service.MonitorJobService;
-import com.chua.starter.monitor.starter.service.MonitorSender;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 
@@ -41,7 +40,6 @@ public class JobConfig {
     private MonitorJobService monitorJobService;
     private MonitorJobLogService monitorJobLogService;
     private DiscoveryService discoveryService;
-    private MonitorSender monitorSender;
     private RedissonClient redissonClient;
 
     public static JobConfig getInstance() {
@@ -91,7 +89,6 @@ public class JobConfig {
         // 从应用上下文中获取各种服务的实例
         this.discoveryService = applicationContext.getBean(DiscoveryService.class);
         this.monitorJobService = applicationContext.getBean(MonitorJobService.class);
-        this.monitorSender = applicationContext.getBean(MonitorSender.class);
         this.monitorJobLogService = applicationContext.getBean(MonitorJobLogService.class);
         this.redissonClient = applicationContext.getBean(RedissonClient.class);
     }
@@ -145,7 +142,7 @@ public class JobConfig {
     public ReturnResult<String> run(MonitorJobLog jobLog, Set<Discovery> address, TriggerParam triggerParam) {
         // 遍历地址列表，发送触发参数
         for (Discovery monitorRequest : address) {
-            monitorSender.upload(jobLog, monitorRequest, Json.toJSONString(triggerParam), ModuleType.JOB);
+           // monitorSender.upload(jobLog, monitorRequest, Json.toJSONString(triggerParam), ModuleType.JOB);
         }
         // 执行成功
         return ReturnResult.success();
