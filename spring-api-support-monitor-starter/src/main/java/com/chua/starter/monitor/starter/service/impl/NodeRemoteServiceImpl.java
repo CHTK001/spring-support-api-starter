@@ -4,6 +4,7 @@ import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.report.client.starter.pojo.FileInfo;
 import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.starter.entity.NodeSystem;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
@@ -519,7 +520,7 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     public Map<String, Object> getFileAttributes(String nodeId, String filePath) {
         try {
             Integer serverId = getServerIdByNodeId(nodeId);
-            ReturnResult<com.chua.starter.monitor.starter.pojo.FileInfo> result = super.getFileInfo(serverId, filePath);
+            ReturnResult<FileInfo> result = super.getFileInfo(serverId, filePath);
 
             if (result.isSuccess() && result.getData() != null) {
                 return convertFileInfoToMap(result.getData());
@@ -542,16 +543,13 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     /**
      * 将FileInfo转换为Map
      */
-    private Map<String, Object> convertFileInfoToMap(com.chua.starter.monitor.starter.pojo.FileInfo fileInfo) {
+    private Map<String, Object> convertFileInfoToMap(FileInfo fileInfo) {
         Map<String, Object> map = new HashMap<>();
         map.put("name", fileInfo.getName());
         map.put("path", fileInfo.getPath());
         map.put("size", fileInfo.getSize());
         map.put("isDirectory", fileInfo.getIsDirectory());
         map.put("isHidden", fileInfo.getIsHidden());
-        map.put("readable", fileInfo.getReadable());
-        map.put("writable", fileInfo.getWritable());
-        map.put("executable", fileInfo.getExecutable());
         map.put("modifyTime", fileInfo.getModifyTime());
         map.put("createTime", fileInfo.getCreateTime());
         map.put("fileType", fileInfo.getFileType());

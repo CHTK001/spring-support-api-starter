@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.report.client.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import org.springframework.web.multipart.MultipartFile;

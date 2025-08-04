@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.report.client.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
 
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
