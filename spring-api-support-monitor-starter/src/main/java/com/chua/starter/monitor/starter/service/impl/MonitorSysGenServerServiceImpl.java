@@ -59,9 +59,6 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     private ServerConnectionWebSocketService webSocketService;
     @Autowired
     @Lazy
-    private MonitorProxyService monitorProxyService;
-    @Autowired
-    @Lazy
     private MonitorSysGenServerSettingService monitorSysGenServerSettingService;
     @Autowired
     @Lazy
@@ -1442,14 +1439,14 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             String proxyType = null;
             String proxyHost = null;
             Integer proxyPort = null;
-            if (server.getMonitorSysGenServerProxyId() != null) {
-                MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-                if (proxy != null) {
-                    proxyType = proxy.getProxyProtocol();
-                    proxyHost = proxy.getProxyHost();
-                    proxyPort = proxy.getProxyPort();
-                }
-            }
+//            if (server.getMonitorSysGenServerProxyId() != null) {
+//                MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
+//                if (proxy != null) {
+//                    proxyType = proxy.getProxyProtocol();
+//                    proxyHost = proxy.getProxyHost();
+//                    proxyPort = proxy.getProxyPort();
+//                }
+//            }
             config.put("proxyType", proxyType);
             config.put("proxyHost", proxyHost);
             config.put("proxyPort", proxyPort);
