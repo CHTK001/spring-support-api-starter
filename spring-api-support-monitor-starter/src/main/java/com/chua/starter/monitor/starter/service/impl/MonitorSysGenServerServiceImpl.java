@@ -6,12 +6,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
+import com.chua.common.support.indicator.TimeIndicator;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.session.indicator.TimeIndicator;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.starter.monitor.starter.entity.MonitorProxy;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
@@ -45,6 +44,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
  */
 @Service
 @Slf4j
+@SuppressWarnings("ALL")
 @RequiredArgsConstructor
 public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenServerMapper, MonitorSysGenServer>
         implements MonitorSysGenServerService {
@@ -1252,25 +1252,26 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             if (server.getMonitorSysGenServerProxyId() == null) {
                 return ReturnResult.error("服务器未配置代理");
             }
-
-            // 获取代理信息
-            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-            if (proxy == null) {
-                return ReturnResult.error("代理配置不存在");
-            }
-
-            // 检查是否配置了Guacamole代理
-            if (!"GUACAMOLE".equalsIgnoreCase(proxy.getProxyProtocol())) {
-                return ReturnResult.error("服务器未配置Guacamole代理");
-            }
-
-            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
-                return ReturnResult.error("代理服务器地址或端口未配置");
-            }
+//
+//            // 获取代理信息
+//            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
+//            if (proxy == null) {
+//                return ReturnResult.error("代理配置不存在");
+//            }
+//
+//            // 检查是否配置了Guacamole代理
+//            if (!"GUACAMOLE".equalsIgnoreCase(proxy.getProxyProtocol())) {
+//                return ReturnResult.error("服务器未配置Guacamole代理");
+//            }
+//
+//            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
+//                return ReturnResult.error("代理服务器地址或端口未配置");
+//            }
 
             // 构建Guacamole连接URL
-            String proxyUrl = String.format("http://%s:%d/guacamole/#/client/%s", proxy.getProxyHost(),
-                    proxy.getProxyPort(), generateGuacamoleConnectionId(server));
+            String proxyUrl = null;
+//            String.format("http://%s:%d/guacamole/#/client/%s", proxy.getProxyHost(),
+//                    proxy.getProxyPort(), generateGuacamoleConnectionId(server));
 
             return ReturnResult.ok(proxyUrl);
         } catch (Exception e) {
@@ -1287,15 +1288,15 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 return ReturnResult.error("服务器不存在");
             }
 
-            // 获取代理信息
-            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-            if (proxy == null) {
-                return ReturnResult.error("代理配置不存在");
-            }
-
-            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
-                return ReturnResult.error("代理服务器地址或端口未配置");
-            }
+//            // 获取代理信息
+//            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
+//            if (proxy == null) {
+//                return ReturnResult.error("代理配置不存在");
+//            }
+//
+//            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
+//                return ReturnResult.error("代理服务器地址或端口未配置");
+//            }
 
             // TODO: 实现代理连接测试逻辑
             // 这里可以尝试连接到代理服务器，验证连接是否正常

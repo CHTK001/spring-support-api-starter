@@ -1,7 +1,6 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.pojo.FileInfo;
 import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
 import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;

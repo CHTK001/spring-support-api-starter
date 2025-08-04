@@ -2,6 +2,7 @@ package com.chua.starter.monitor.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
@@ -792,7 +793,7 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
     /**
      * 将TimeIndicator转换为MonitorSysGenServerMetrics
      */
-    private MonitorSysGenServerMetrics convertTimeIndicatorToMetrics(com.chua.common.support.session.indicator.TimeIndicator indicator, Integer serverId) {
+    private MonitorSysGenServerMetrics convertTimeIndicatorToMetrics(TimeIndicator indicator, Integer serverId) {
         try {
             MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
             metrics.setMonitorSysGenServerId(serverId);

@@ -30,7 +30,6 @@ public class ImageToolController {
 
     /**
      * phantom
-     * @param uriSpec uriSpec
      * @return byte[]
      */
     @PostMapping("phantom")
