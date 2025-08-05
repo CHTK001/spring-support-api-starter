@@ -14,6 +14,7 @@ import com.chua.starter.monitor.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatusCountDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
+import com.chua.starter.monitor.pojo.response.FileSystemResponse;
 import com.chua.starter.monitor.service.FileSystemGroupService;
 import com.chua.starter.monitor.service.FileSystemPartService;
 import com.chua.starter.monitor.service.FileSystemService;
@@ -61,6 +62,62 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
     private final FileSystemMergeTaskProcessor mergeTaskProcessor;
+
+    @Override
+    public ReturnResult<List<FileSystemResponse>> list(String absolutePath, String name) {
+        try {
+            log.info("获取文件列表: absolutePath={}, name={}", absolutePath, name);
+
+            // 构建查询条件
+            LambdaQueryWrapper<FileSystem> wrapper = new LambdaQueryWrapper<>();
+
+            // 如果提供了绝对路径，按路径查询
+            if (StringUtils.hasText(absolutePath)) {
+                wrapper.like(FileSystem::getFileSystemPath, absolutePath);
+            }
+
+            // 如果提供了文件名，按文件名查询
+            if (StringUtils.hasText(name)) {
+                wrapper.like(FileSystem::getFileSystemName, name).or().like(FileSystem::getFileSystemOriginalName,
+                        name);
+            }
+
+            // 只查询已完成的文件
+            wrapper.eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.COMPLETED);
+
+            // 按创建时间倒序
+            wrapper.orderByDesc(FileSystem::getCreateTime);
+
+            // 查询文件列表
+            List<FileSystem> fileList = list(wrapper);
+
+            // 转换为响应对象
+            List<FileSystemResponse> responseList = new ArrayList<>();
+            for (FileSystem file : fileList) {
+                FileSystemResponse response = new FileSystemResponse();
+                response.setFileName(file.getFileSystemName());
+                response.setAbsolutePath(file.getFileSystemPath());
+
+                // 判断文件类型
+                if (file.getFileSystemType() != null && file.getFileSystemType().contains("directory")) {
+                    response.setFileType(FileSystemResponse.FileType.DIRECTORY);
+                    response.setIsLeaf(false);
+                } else {
+                    response.setFileType(FileSystemResponse.FileType.FILE);
+                    response.setIsLeaf(true);
+                }
+
+                responseList.add(response);
+            }
+
+            log.info("获取文件列表成功: count={}", responseList.size());
+            return ReturnResult.ok(responseList);
+
+        } catch (Exception e) {
+            log.error("获取文件列表失败: absolutePath={}, name={}", absolutePath, name, e);
+            return ReturnResult.error("获取文件列表失败: " + e.getMessage());
+        }
+    }
 
     @Override
     public ReturnPageResult<FileSystem> pageFor(Query<FileSystem> query, FileSystem fileSystem) {
