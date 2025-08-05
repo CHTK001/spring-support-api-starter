@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.starter.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
-import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
+import com.chua.report.client.starter.pojo.FileOperationRequest;
+import com.chua.report.client.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.impl.FileManagementFacadeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

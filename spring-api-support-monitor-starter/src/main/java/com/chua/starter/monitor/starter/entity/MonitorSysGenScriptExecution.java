@@ -33,7 +33,7 @@ public class MonitorSysGenScriptExecution extends SysBase {
     /**
      * 脚本ID
      */
-    @Schema(description = "脚本ID", example = "1", required = true)
+    @Schema(description = "脚本ID", example = "1")
     @TableField("monitor_sys_gen_script_id")
     private Integer monitorSysGenScriptId;
 

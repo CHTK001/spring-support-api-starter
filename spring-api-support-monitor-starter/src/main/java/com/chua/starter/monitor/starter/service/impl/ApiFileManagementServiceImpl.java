@@ -1,15 +1,16 @@
 package com.chua.starter.monitor.starter.service.impl;
 
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileInfo;
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
-
+import com.chua.report.client.starter.pojo.FileOperationRequest;
+import com.chua.report.client.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.pojo.*;
+import com.chua.starter.monitor.starter.pojo.FileManagementApiConfig;
+import com.chua.starter.monitor.starter.service.ClientHealthService;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.ClientHealthService;
-import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,17 +19,16 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Base64;
 
 /**
  * API模式文件管理服务实现 通过HTTP API调用客户端代理进行文件管理
@@ -55,7 +55,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
-            String sortBy, String sortOrder) {
+                                                         String sortBy, String sortOrder) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -249,7 +249,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             String url = config.buildFileOperationUrl("download");
 
             HttpHeaders headers = createApiHeaders(config);
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+            headers.setAccept(List.of(MediaType.APPLICATION_OCTET_STREAM));
 
             Map<String, Object> requestParams = new HashMap<>();
             requestParams.put("filePath", filePath);
@@ -542,7 +542,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     private HttpHeaders createApiHeaders(FileManagementApiConfig config) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         // 添加认证信息
         FileManagementApiConfig.AuthType authType = config.getAuthTypeEnum();
@@ -713,7 +713,7 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
                 Boolean isDirectory = (Boolean) fileData.get("isDirectory");
                 builder.isDirectory(isDirectory);
                 // 设置 leaf 属性：文件为叶子节点，目录不是叶子节点
-                builder.leaf(isDirectory == null ? true : !isDirectory);
+                builder.leaf(isDirectory == null || !isDirectory);
             }
             if (fileData.containsKey("permissions")) {
                 builder.permissions((String) fileData.get("permissions"));
