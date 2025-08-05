@@ -7,6 +7,7 @@ import com.chua.starter.monitor.entity.FileSystem;
 import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
 import com.chua.starter.monitor.pojo.FileInitUploadDTO;
+import com.chua.starter.monitor.pojo.response.FileSystemResponse;
 import com.chua.starter.mybatis.entity.Query;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,15 @@ import java.util.Map;
  * @since 2024/12/30
  */
 public interface FileSystemService extends IService<FileSystem> {
+
+    /**
+     * 获取文件列表
+     *
+     * @param absolutePath 绝对路径
+     * @param name         文件名
+     * @return 文件列表
+     */
+    ReturnResult<List<FileSystemResponse>> list(String absolutePath, String name);
 
     /**
      * 分页查询文件列表
