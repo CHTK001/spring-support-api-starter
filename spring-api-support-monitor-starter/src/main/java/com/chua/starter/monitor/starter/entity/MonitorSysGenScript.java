@@ -8,6 +8,7 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +34,7 @@ public class MonitorSysGenScript extends SysBase {
     /**
      * 脚本名称
      */
-    @Schema(description = "脚本名称", example = "系统监控脚本", required = true)
+    @Schema(description = "脚本名称", example = "系统监控脚本")
     @TableField("monitor_sys_gen_script_name")
     private String monitorSysGenScriptName;
 
@@ -55,7 +56,7 @@ public class MonitorSysGenScript extends SysBase {
     /**
      * 脚本内容
      */
-    @Schema(description = "脚本内容", example = "#!/bin/bash\necho 'Hello World'", required = true)
+    @Schema(description = "脚本内容", example = "#!/bin/bash\necho 'Hello World'")
     @TableField("monitor_sys_gen_script_content")
     private String monitorSysGenScriptContent;
 
@@ -125,6 +126,7 @@ public class MonitorSysGenScript extends SysBase {
     /**
      * 脚本状态枚举
      */
+    @Getter
     @Schema(description = "脚本状态枚举")
     public enum ScriptStatus {
         @Schema(description = "禁用")
@@ -137,14 +139,6 @@ public class MonitorSysGenScript extends SysBase {
         ScriptStatus(Integer code, String desc) {
             this.code = code;
             this.desc = desc;
-        }
-
-        public Integer getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
         }
 
         public static ScriptStatus fromCode(Integer code) {
