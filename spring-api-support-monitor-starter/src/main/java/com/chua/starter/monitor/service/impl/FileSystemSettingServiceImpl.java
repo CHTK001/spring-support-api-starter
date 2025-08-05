@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.FileSystemSetting;
-import com.chua.starter.monitor.starter.mapper.FileSystemSettingMapper;
-import com.chua.starter.monitor.starter.service.FileSystemSettingService;
+import com.chua.starter.monitor.entity.FileSystemSetting;
+import com.chua.starter.monitor.mapper.FileSystemSettingMapper;
+import com.chua.starter.monitor.service.FileSystemSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

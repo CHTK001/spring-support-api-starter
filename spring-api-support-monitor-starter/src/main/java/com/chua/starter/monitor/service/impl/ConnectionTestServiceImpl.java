@@ -2,8 +2,8 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.monitor.starter.pojo.ConnectionTestResultDTO;
-import com.chua.starter.monitor.starter.service.ConnectionTestService;
+import com.chua.starter.monitor.pojo.ConnectionTestResultDTO;
+import com.chua.starter.monitor.service.ConnectionTestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

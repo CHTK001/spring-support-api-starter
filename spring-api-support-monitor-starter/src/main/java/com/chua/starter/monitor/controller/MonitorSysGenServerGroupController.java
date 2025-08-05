@@ -3,8 +3,8 @@ package com.chua.starter.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerGroupService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerGroup;
+import com.chua.starter.monitor.service.MonitorSysGenServerGroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,12 +39,12 @@ public class MonitorSysGenServerGroupController {
     @GetMapping("/page")
     @ApiOperation(value = "分页查询服务器分组")
     @Operation(summary = "分页查询服务器分组", description = "根据条件分页查询服务器分组列表，包含服务器数量")
-    public ReturnResult<IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> page(
+    public ReturnResult<IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> page(
             @Parameter(description = "当前页码") @RequestParam(defaultValue = "1") Integer current,
             @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer size,
             @Parameter(description = "查询条件") MonitorSysGenServerGroup entity) {
         try {
-            Page<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page = new Page<>(current,
+            Page<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> page = new Page<>(current,
                     size);
             return serverGroupService.pageForWithServerCount(page, entity);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class MonitorSysGenServerGroupController {
     @GetMapping("/enabled")
     @ApiOperation(value = "获取启用的分组列表")
     @Operation(summary = "获取启用的分组列表", description = "获取所有启用状态的服务器分组，包含服务器数量")
-    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroups() {
+    public ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroups() {
         return serverGroupService.getEnabledGroupsWithServerCount();
     }
 
@@ -69,7 +69,7 @@ public class MonitorSysGenServerGroupController {
     @GetMapping("/all")
     @ApiOperation(value = "获取所有分组列表")
     @Operation(summary = "获取所有分组列表", description = "获取所有服务器分组，包含服务器数量")
-    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getAllGroups() {
+    public ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getAllGroups() {
         return serverGroupService.getAllGroupsWithServerCount();
     }
 

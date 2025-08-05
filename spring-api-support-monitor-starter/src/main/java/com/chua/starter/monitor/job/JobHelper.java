@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.job;
 
 import com.chua.common.support.express.CronExpression;
-import com.chua.starter.monitor.starter.entity.MonitorJob;
+import com.chua.starter.monitor.entity.MonitorJob;
 
 import java.util.Date;
 

@@ -2,9 +2,9 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
-import com.chua.starter.monitor.starter.enums.AlertStatus;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerAlertHistoryService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
+import com.chua.starter.monitor.enums.AlertStatus;
+import com.chua.starter.monitor.service.MonitorSysGenServerAlertHistoryService;
 import com.chua.starter.mybatis.entity.Query;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

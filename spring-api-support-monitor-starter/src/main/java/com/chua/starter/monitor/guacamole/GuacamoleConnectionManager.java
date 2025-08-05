@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.guacamole;
 
-import com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel;
+import com.chua.starter.monitor.guacamole.GuacamoleTunnel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -22,12 +22,12 @@ public class GuacamoleConnectionManager {
     /**
      * 服务器连接映射
      */
-    private final Map<Integer, com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel> serverConnections = new ConcurrentHashMap<>();
+    private final Map<Integer, com.chua.starter.monitor.guacamole.GuacamoleTunnel> serverConnections = new ConcurrentHashMap<>();
 
     /**
      * 会话连接映射
      */
-    private final Map<String, com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel> sessionConnections = new ConcurrentHashMap<>();
+    private final Map<String, com.chua.starter.monitor.guacamole.GuacamoleTunnel> sessionConnections = new ConcurrentHashMap<>();
 
     /**
      * 服务器与会话映射
@@ -37,7 +37,7 @@ public class GuacamoleConnectionManager {
     /**
      * 创建连接
      */
-    public com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel createConnection(Integer serverId, WebSocketSession session, Object guacamoleClient) {
+    public com.chua.starter.monitor.guacamole.GuacamoleTunnel createConnection(Integer serverId, WebSocketSession session, Object guacamoleClient) {
         try {
             String sessionId = session.getId();
             
@@ -45,7 +45,7 @@ public class GuacamoleConnectionManager {
             closeConnection(serverId);
             
             // 创建新的隧道
-            com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel tunnel = new com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel(serverId, guacamoleClient);
+            com.chua.starter.monitor.guacamole.GuacamoleTunnel tunnel = new com.chua.starter.monitor.guacamole.GuacamoleTunnel(serverId, guacamoleClient);
             
             // 设置回调
             tunnel.setErrorCallback(error -> {
@@ -82,7 +82,7 @@ public class GuacamoleConnectionManager {
      */
     public void closeConnection(Integer serverId) {
         try {
-            com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
+            com.chua.starter.monitor.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
             if (tunnel != null) {
                 tunnel.disconnect();
                 
@@ -101,7 +101,7 @@ public class GuacamoleConnectionManager {
      */
     public void closeConnectionBySession(String sessionId) {
         try {
-            com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel tunnel = sessionConnections.get(sessionId);
+            com.chua.starter.monitor.guacamole.GuacamoleTunnel tunnel = sessionConnections.get(sessionId);
             if (tunnel != null) {
                 Integer serverId = tunnel.getServerId();
                 closeConnection(serverId);
@@ -117,7 +117,7 @@ public class GuacamoleConnectionManager {
      */
     public boolean sendData(Integer serverId, String data) {
         try {
-            com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
+            com.chua.starter.monitor.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
             if (tunnel != null && tunnel.isConnected()) {
                 return tunnel.sendData(data);
             } else {
@@ -133,7 +133,7 @@ public class GuacamoleConnectionManager {
     /**
      * 获取连接
      */
-    public com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel getConnection(Integer serverId) {
+    public com.chua.starter.monitor.guacamole.GuacamoleTunnel getConnection(Integer serverId) {
         return serverConnections.get(serverId);
     }
 
@@ -141,7 +141,7 @@ public class GuacamoleConnectionManager {
      * 检查连接是否存在
      */
     public boolean hasConnection(Integer serverId) {
-        com.chua.starter.monitor.starter.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
+        com.chua.starter.monitor.guacamole.GuacamoleTunnel tunnel = serverConnections.get(serverId);
         return tunnel != null && tunnel.isConnected();
     }
 

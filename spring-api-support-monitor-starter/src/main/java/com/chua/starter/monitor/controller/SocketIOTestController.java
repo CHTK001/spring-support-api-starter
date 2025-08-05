@@ -3,7 +3,7 @@ package com.chua.starter.monitor.controller;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

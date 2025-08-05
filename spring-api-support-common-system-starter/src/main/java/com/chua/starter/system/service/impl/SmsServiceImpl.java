@@ -3,6 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.MessagePush;
+import com.chua.common.support.lang.message.TemplateMessagePush;
 import com.chua.common.support.lang.message.config.PushSetting;
 import com.chua.common.support.lang.message.entity.TemplateInfo;
 import com.chua.common.support.lang.message.factory.TemplateFactory;
@@ -62,8 +63,8 @@ public class SmsServiceImpl implements SmsService {
         if(null == messagePush) {
             return ReturnResult.error("短信设置 - 未设置");
         }
-
-        TemplateFactory templateFactory = messagePush.getTemplateFactory();
+        TemplateMessagePush templateMessagePush = (TemplateMessagePush) messagePush;
+        TemplateFactory templateFactory = templateMessagePush.getTemplateFactory();
         TemplateResult template = templateFactory.getTemplate(1, 50);
         List<TemplateInfo> data = new LinkedList<>(template.getData());
         if(template.getTotal() >= 50) {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerLogStatisticsMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerLogStatisticsMapper">
 
     <!-- 根据服务器ID和日期获取统计 -->
-    <select id="selectByServerAndDate" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogStatistics">
+    <select id="selectByServerAndDate" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogStatistics">
         SELECT * FROM monitor_sys_gen_server_log_statistics 
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_log_stat_date = #{date} 
@@ -11,7 +11,7 @@
     </select>
 
     <!-- 根据服务器ID和日期范围获取统计 -->
-    <select id="selectByServerAndDateRange" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogStatistics">
+    <select id="selectByServerAndDateRange" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogStatistics">
         SELECT * FROM monitor_sys_gen_server_log_statistics 
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_log_stat_date BETWEEN #{startDate} AND #{endDate} 
@@ -19,7 +19,7 @@
     </select>
 
     <!-- 获取日级统计 -->
-    <select id="selectDailyStatistics" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogStatistics">
+    <select id="selectDailyStatistics" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogStatistics">
         SELECT * FROM monitor_sys_gen_server_log_statistics 
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_log_stat_date BETWEEN #{startDate} AND #{endDate} 
@@ -28,7 +28,7 @@
     </select>
 
     <!-- 获取小时级统计 -->
-    <select id="selectHourlyStatistics" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogStatistics">
+    <select id="selectHourlyStatistics" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogStatistics">
         SELECT * FROM monitor_sys_gen_server_log_statistics 
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_log_stat_date = #{date} 

@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.configuration;
 
-import com.chua.starter.monitor.starter.websocket.*;
+import com.chua.starter.monitor.websocket.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

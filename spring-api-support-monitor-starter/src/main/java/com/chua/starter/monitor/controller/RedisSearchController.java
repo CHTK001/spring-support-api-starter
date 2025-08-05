@@ -7,7 +7,7 @@ import com.chua.redis.support.search.AggregateQuery;
 import com.chua.redis.support.search.AggregationResultItem;
 import com.chua.redis.support.search.SearchQuery;
 import com.chua.redis.support.search.SearchResultItem;
-import com.chua.starter.monitor.starter.pojo.IndicatorQuery;
+import com.chua.starter.monitor.pojo.IndicatorQuery;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentLayoutMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerComponentLayoutMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponentLayout">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorSysGenServerComponentLayout">
         <id column="monitor_sys_gen_server_component_layout_id" property="monitorSysGenServerComponentLayoutId" />
         <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" />
         <result column="monitor_sys_gen_server_component_id" property="monitorSysGenServerComponentId" />

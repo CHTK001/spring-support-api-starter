@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenScript;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution;
-import com.chua.starter.monitor.starter.pojo.ScriptManagementDTO;
+import com.chua.starter.monitor.entity.MonitorSysGenScript;
+import com.chua.starter.monitor.entity.MonitorSysGenScriptExecution;
+import com.chua.starter.monitor.pojo.ScriptManagementDTO;
 
 import java.util.List;
 import java.util.Map;

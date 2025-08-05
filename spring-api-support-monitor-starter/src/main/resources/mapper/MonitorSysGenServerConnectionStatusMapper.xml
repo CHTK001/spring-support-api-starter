@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerConnectionStatusMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerConnectionStatusMapper">
 
     <!-- 获取所有服务器连接状态 -->
-    <select id="getAllServerConnectionStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus">
+    <select id="getAllServerConnectionStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus">
         <![CDATA[
         SELECT 
             monitor_sys_gen_server_id, 
@@ -22,7 +22,7 @@
     </select>
 
     <!-- 根据服务器ID获取连接状态 -->
-    <select id="getServerConnectionStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus">
+    <select id="getServerConnectionStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus">
         <![CDATA[
         SELECT 
             monitor_sys_gen_server_id, 
@@ -41,7 +41,7 @@
     </select>
 
     <!-- 根据连接状态获取服务器列表 -->
-    <select id="getServersByConnectionStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus">
+    <select id="getServersByConnectionStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus">
         <![CDATA[
         SELECT 
             monitor_sys_gen_server_id, 
@@ -97,7 +97,7 @@
     </select>
 
     <!-- 获取长时间未连接的服务器 -->
-    <select id="getLongTimeNoConnectServers" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerConnectionStatus">
+    <select id="getLongTimeNoConnectServers" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus">
         <![CDATA[
         SELECT 
             monitor_sys_gen_server_id, 

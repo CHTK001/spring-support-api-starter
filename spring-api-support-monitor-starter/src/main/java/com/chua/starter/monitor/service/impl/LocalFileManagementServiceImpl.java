@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileInfo;
 import com.chua.report.client.starter.pojo.FileOperationRequest;
 import com.chua.report.client.starter.pojo.FileOperationResponse;
-import com.chua.starter.monitor.starter.service.FileManagementService;
+import com.chua.starter.monitor.service.FileManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

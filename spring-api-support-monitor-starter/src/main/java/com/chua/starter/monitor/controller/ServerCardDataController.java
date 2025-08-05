@@ -1,11 +1,11 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.ServerLatencyService;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.ServerLatencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

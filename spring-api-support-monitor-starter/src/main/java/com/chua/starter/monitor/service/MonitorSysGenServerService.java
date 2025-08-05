@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.pojo.ServerWithConfigDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,7 +75,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param id 服务器ID
      * @return 连接状态
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerConnectionStatusDTO> getConnectionStatus(String id);
+    ReturnResult<com.chua.starter.monitor.pojo.ServerConnectionStatusDTO> getConnectionStatus(String id);
 
     /**
      * 执行服务器命令
@@ -164,7 +164,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param id 服务器ID
      * @return 监控状态
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(String id);
+    ReturnResult<com.chua.starter.monitor.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(String id);
 
     /**
      * 手动收集服务器指标
@@ -188,7 +188,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param action 操作类型 (connect/disconnect/enable_monitoring/disable_monitoring)
      * @return 操作结果
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO> batchOperation(List<String> ids,
+    ReturnResult<com.chua.starter.monitor.pojo.BatchOperationResultDTO> batchOperation(List<String> ids,
                                                                                                String action);
 
     /**
@@ -196,7 +196,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      *
      * @return 统计信息
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.ServerStatisticsDTO> getServerStatistics();
+    ReturnResult<com.chua.starter.monitor.pojo.ServerStatisticsDTO> getServerStatistics();
 
     /**
      * 导出服务器配置
@@ -212,7 +212,7 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      * @param configData 配置数据
      * @return 导入结果
      */
-    ReturnResult<com.chua.starter.monitor.starter.pojo.ImportServerConfigResultDTO> importServerConfig(
+    ReturnResult<com.chua.starter.monitor.pojo.ImportServerConfigResultDTO> importServerConfig(
             String configData);
 
     /**

@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo;
 
-import com.chua.starter.monitor.starter.pojo.IdQuery;
+import com.chua.starter.monitor.pojo.IdQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

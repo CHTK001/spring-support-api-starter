@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.websocket;
 
-import com.chua.starter.monitor.starter.websocket.RdpWebSocketHandler;
+import com.chua.starter.monitor.websocket.RdpWebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller;
 
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponentLayout;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerComponentLayoutService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerComponentLayout;
+import com.chua.starter.monitor.service.MonitorSysGenServerComponentLayoutService;
 import com.chua.common.support.lang.code.ReturnResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

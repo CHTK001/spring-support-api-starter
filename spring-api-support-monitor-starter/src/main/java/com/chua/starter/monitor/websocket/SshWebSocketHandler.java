@@ -2,10 +2,10 @@ package com.chua.starter.monitor.websocket;
 
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.ServerConnectionService;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

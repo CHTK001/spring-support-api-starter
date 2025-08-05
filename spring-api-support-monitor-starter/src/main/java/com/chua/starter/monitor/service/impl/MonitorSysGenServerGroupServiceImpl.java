@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup;
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerGroupMapper;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerGroupService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerGroup;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerGroupMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerGroupService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -56,11 +56,11 @@ public class MonitorSysGenServerGroupServiceImpl
     }
 
     @Override
-    public ReturnResult<IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> pageForWithServerCount(
-            IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page,
+    public ReturnResult<IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> pageForWithServerCount(
+            IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> page,
             MonitorSysGenServerGroup entity) {
         try {
-            IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> result = baseMapper
+            IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> result = baseMapper
                     .selectPageWithServerCount(page, entity);
             return ReturnResult.ok(result);
         } catch (Exception e) {
@@ -86,9 +86,9 @@ public class MonitorSysGenServerGroupServiceImpl
     }
 
     @Override
-    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroupsWithServerCount() {
+    public ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroupsWithServerCount() {
         try {
-            List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> groups = baseMapper
+            List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> groups = baseMapper
                     .selectByStatusWithServerCount(1);
             return ReturnResult.ok(groups);
         } catch (Exception e) {
@@ -113,9 +113,9 @@ public class MonitorSysGenServerGroupServiceImpl
     }
 
     @Override
-    public ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getAllGroupsWithServerCount() {
+    public ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getAllGroupsWithServerCount() {
         try {
-            List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> groups = baseMapper
+            List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> groups = baseMapper
                     .selectAllWithServerCount();
             return ReturnResult.ok(groups);
         } catch (Exception e) {
@@ -526,7 +526,7 @@ public class MonitorSysGenServerGroupServiceImpl
     }
 
     @Override
-    public ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> getServersByGroupId(
+    public ReturnResult<List<com.chua.starter.monitor.entity.MonitorSysGenServer>> getServersByGroupId(
             Integer groupId) {
         try {
             if (groupId == null) {
@@ -605,7 +605,7 @@ public class MonitorSysGenServerGroupServiceImpl
             java.util.Map<String, Object> detailedStats = new java.util.HashMap<>(basicStats.getData());
 
             // 获取服务器统计信息
-            ReturnResult<com.chua.starter.monitor.starter.pojo.ServerStatisticsDTO> serverStats = serverService
+            ReturnResult<com.chua.starter.monitor.pojo.ServerStatisticsDTO> serverStats = serverService
                     .getServerStatistics();
             if (serverStats.isSuccess() && serverStats.getData() != null) {
                 detailedStats.put("total_servers", serverStats.getData().getTotalServers());
@@ -614,7 +614,7 @@ public class MonitorSysGenServerGroupServiceImpl
             }
 
             // 获取未分组服务器数量
-            ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> ungroupedServers = serverService
+            ReturnResult<List<com.chua.starter.monitor.entity.MonitorSysGenServer>> ungroupedServers = serverService
                     .getUngroupedServers();
             if (ungroupedServers.isSuccess()) {
                 detailedStats.put("ungrouped_servers", ungroupedServers.getData().size());
@@ -639,7 +639,7 @@ public class MonitorSysGenServerGroupServiceImpl
                 for (java.util.Map<String, Object> group : groupsWithCount) {
                     Integer groupId = (Integer) group.get("groupId");
                     if (groupId != null) {
-                        ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> serversResult = serverService
+                        ReturnResult<List<com.chua.starter.monitor.entity.MonitorSysGenServer>> serversResult = serverService
                                 .getServersByGroupId(groupId);
                         if (serversResult.isSuccess()) {
                             group.put("servers", serversResult.getData());
@@ -688,7 +688,7 @@ public class MonitorSysGenServerGroupServiceImpl
 
             // 如果需要包含服务器列表
             if (Boolean.TRUE.equals(includeServers)) {
-                ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> serversResult = serverService
+                ReturnResult<List<com.chua.starter.monitor.entity.MonitorSysGenServer>> serversResult = serverService
                         .getServersByGroupId(groupId);
                 if (serversResult.isSuccess()) {
                     groupDetail.put("servers", serversResult.getData());

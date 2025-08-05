@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.FileSystemMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystem">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.FileSystem">
         <id column="file_system_id" property="fileSystemId" />
         <result column="file_system_name" property="fileSystemName" />
         <result column="file_system_original_name" property="fileSystemOriginalName" />
@@ -77,7 +77,7 @@
     </delete>
 
     <!-- 统计各状态文件数量 -->
-    <select id="countByStatus" resultType="com.chua.starter.monitor.starter.pojo.FileSystemStatusCountDTO">
+    <select id="countByStatus" resultType="com.chua.starter.monitor.pojo.FileSystemStatusCountDTO">
         SELECT
             file_system_status as fileSystemStatus,
             COUNT(*) as count

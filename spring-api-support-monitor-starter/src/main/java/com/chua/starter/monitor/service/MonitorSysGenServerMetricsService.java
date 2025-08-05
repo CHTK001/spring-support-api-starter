@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 
 import java.time.LocalDateTime;
 import java.util.List;

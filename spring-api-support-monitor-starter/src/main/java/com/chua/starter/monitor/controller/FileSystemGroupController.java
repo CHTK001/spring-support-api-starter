@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.FileSystemGroup;
-import com.chua.starter.monitor.starter.service.FileSystemGroupService;
+import com.chua.starter.monitor.entity.FileSystemGroup;
+import com.chua.starter.monitor.service.FileSystemGroupService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

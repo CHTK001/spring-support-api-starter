@@ -2,7 +2,7 @@ package com.chua.starter.monitor;
 
 import cn.keepbx.jpom.JpomAppType;
 import cn.keepbx.jpom.Type;
-import com.chua.starter.monitor.starter.properties.ReportGenProperties;
+import com.chua.starter.monitor.properties.ReportGenProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ServletComponentScan
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.monitor",
-        "com.chua.starter.monitor.starter",
+        "com.chua.starter.monitor",
         "com.chua.starter.service.**"
 })
 public class MonitorServerApplication {

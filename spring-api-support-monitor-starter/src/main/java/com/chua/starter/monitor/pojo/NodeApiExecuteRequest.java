@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo;
 
-import com.chua.starter.monitor.starter.pojo.NodeApiInfo;
+import com.chua.starter.monitor.pojo.NodeApiInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -26,7 +26,7 @@ public class NodeApiExecuteRequest {
     private String contextPath;
 
     @Schema(description = "API信息")
-    private com.chua.starter.monitor.starter.pojo.NodeApiInfo api;
+    private com.chua.starter.monitor.pojo.NodeApiInfo api;
 
     @Schema(description = "路径参数")
     private Map<String, String> pathParams;

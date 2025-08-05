@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.DeviceMetrics;
+import com.chua.starter.monitor.entity.DeviceMetrics;
 
 import java.util.Map;
 

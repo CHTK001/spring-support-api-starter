@@ -9,11 +9,11 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.report.client.starter.entity.JobCat;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.discovery.support.service.DiscoveryService;
-import com.chua.starter.monitor.starter.entity.MonitorJobLog;
-import com.chua.starter.monitor.starter.job.pojo.JobStatistic;
-import com.chua.starter.monitor.starter.job.pojo.JobStatisticResult;
-import com.chua.starter.monitor.starter.mapper.MonitorJobLogMapper;
-import com.chua.starter.monitor.starter.service.MonitorJobLogService;
+import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.starter.monitor.job.pojo.JobStatistic;
+import com.chua.starter.monitor.job.pojo.JobStatisticResult;
+import com.chua.starter.monitor.mapper.MonitorJobLogMapper;
+import com.chua.starter.monitor.service.MonitorJobLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

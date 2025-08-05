@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service;
 
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
 
 /**
  * SSH 命令处理服务接口

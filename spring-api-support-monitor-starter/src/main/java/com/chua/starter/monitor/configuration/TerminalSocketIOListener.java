@@ -1,4 +1,4 @@
-//package com.chua.starter.monitor.starter.configuration;
+//package com.chua.starter.monitor.configuration;
 //
 //import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 //import com.chua.common.support.json.JsonObject;
@@ -9,7 +9,7 @@
 //import com.chua.socketio.support.annotations.OnEvent;
 //import com.chua.socketio.support.session.SocketSession;
 //import com.chua.ssh.support.ssh.SshClient;
-//import com.chua.starter.monitor.starter.service.TerminalService;
+//import com.chua.starter.monitor.service.TerminalService;
 //import lombok.RequiredArgsConstructor;
 //
 //
