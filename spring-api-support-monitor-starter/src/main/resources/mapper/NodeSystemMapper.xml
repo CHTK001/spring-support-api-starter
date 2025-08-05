@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.NodeSystemMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.NodeSystemMapper">
 
     <!-- 基础结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.NodeSystem">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.NodeSystem">
         <id column="node_system_id" jdbcType="VARCHAR" property="nodeSystemId" />
         <result column="node_system_name" jdbcType="VARCHAR" property="nodeSystemName" />
         <result column="node_system_application_name" jdbcType="VARCHAR" property="nodeSystemApplicationName" />

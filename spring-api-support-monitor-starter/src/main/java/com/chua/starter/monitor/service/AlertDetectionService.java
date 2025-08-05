@@ -1,12 +1,12 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.enums.AlertLevel;
-import com.chua.starter.monitor.starter.enums.AlertType;
+import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.enums.AlertLevel;
+import com.chua.starter.monitor.enums.AlertType;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -6,7 +6,7 @@ import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.filter.ActuatorAuthenticationFilter;
-import com.chua.starter.monitor.starter.pojo.ActuatorRequest;
+import com.chua.starter.monitor.pojo.ActuatorRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

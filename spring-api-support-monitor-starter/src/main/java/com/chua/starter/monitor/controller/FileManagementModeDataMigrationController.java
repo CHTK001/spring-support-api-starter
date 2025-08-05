@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.service.FileManagementModeDataMigrationService;
+import com.chua.starter.monitor.service.FileManagementModeDataMigrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;

@@ -4,12 +4,12 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.pojo.ServerWithConfigDto;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.utils.ServerLogUtils;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.utils.ServerLogUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -260,7 +260,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器连接状态")
     @GetMapping("status")
-    public ReturnResult<com.chua.starter.monitor.starter.pojo.ServerConnectionStatusDTO> getConnectionStatus(
+    public ReturnResult<com.chua.starter.monitor.pojo.ServerConnectionStatusDTO> getConnectionStatus(
             @Parameter(name = "服务器ID") String id) {
         return monitorSysGenServerService.getConnectionStatus(id);
     }
@@ -396,7 +396,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器监控状态")
     @GetMapping("monitoring-status")
-    public ReturnResult<com.chua.starter.monitor.starter.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(
+    public ReturnResult<com.chua.starter.monitor.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(
             @Parameter(name = "服务器ID") String id) {
         return monitorSysGenServerService.getMonitoringStatus(id);
     }
@@ -432,7 +432,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "批量操作服务器")
     @PostMapping("batch-operation")
-    public ReturnResult<com.chua.starter.monitor.starter.pojo.BatchOperationResultDTO> batchOperation(
+    public ReturnResult<com.chua.starter.monitor.pojo.BatchOperationResultDTO> batchOperation(
             @RequestBody BatchOperationRequest request) {
         return monitorSysGenServerService.batchOperation(request.getIds(), request.getAction());
     }
@@ -444,7 +444,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器统计信息")
     @GetMapping("statistics")
-    public ReturnResult<com.chua.starter.monitor.starter.pojo.ServerStatisticsDTO> getServerStatistics() {
+    public ReturnResult<com.chua.starter.monitor.pojo.ServerStatisticsDTO> getServerStatistics() {
         return monitorSysGenServerService.getServerStatistics();
     }
 
@@ -468,7 +468,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "导入服务器配置")
     @PostMapping("import")
-    public ReturnResult<com.chua.starter.monitor.starter.pojo.ImportServerConfigResultDTO> importServerConfig(
+    public ReturnResult<com.chua.starter.monitor.pojo.ImportServerConfigResultDTO> importServerConfig(
             @RequestBody String configData) {
         return monitorSysGenServerService.importServerConfig(configData);
     }

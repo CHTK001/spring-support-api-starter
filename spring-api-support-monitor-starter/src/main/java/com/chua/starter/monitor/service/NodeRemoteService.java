@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service;
 
-import com.chua.starter.monitor.starter.pojo.RemoteOperationRequest;
-import com.chua.starter.monitor.starter.pojo.RemoteOperationResponse;
+import com.chua.starter.monitor.pojo.RemoteOperationRequest;
+import com.chua.starter.monitor.pojo.RemoteOperationResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;

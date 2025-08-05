@@ -3,10 +3,10 @@ package com.chua.starter.monitor.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerAlertHistory;
-import com.chua.starter.monitor.starter.enums.AlertLevel;
-import com.chua.starter.monitor.starter.enums.AlertStatus;
-import com.chua.starter.monitor.starter.enums.AlertType;
+import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
+import com.chua.starter.monitor.enums.AlertLevel;
+import com.chua.starter.monitor.enums.AlertStatus;
+import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.mybatis.entity.Query;
 
 import java.time.LocalDateTime;

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper">
 
     <!-- 根据服务器ID获取配置 -->
-    <select id="selectByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerSetting">
         SELECT *,
                CASE
                    WHEN monitor_sys_gen_server_setting_file_management_mode = '0' THEN 'NONE'
@@ -20,7 +20,7 @@
     </select>
 
     <!-- 根据服务器ID列表批量获取配置 -->
-    <select id="selectByServerIds" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+    <select id="selectByServerIds" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerSetting">
         SELECT *,
                CASE
                    WHEN monitor_sys_gen_server_setting_file_management_mode = '0' THEN 'NONE'
@@ -40,7 +40,7 @@
     </select>
 
     <!-- 获取启用监控的服务器配置 -->
-    <select id="selectMonitorEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+    <select id="selectMonitorEnabledSettings" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerSetting">
         SELECT *,
                CASE
                    WHEN monitor_sys_gen_server_setting_file_management_mode = '0' THEN 'NONE'
@@ -57,7 +57,7 @@
     </select>
 
     <!-- 获取启用告警的服务器配置 -->
-    <select id="selectAlertEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+    <select id="selectAlertEnabledSettings" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerSetting">
         SELECT *,
                CASE
                    WHEN monitor_sys_gen_server_setting_file_management_mode = '0' THEN 'NONE'
@@ -74,7 +74,7 @@
     </select>
 
     <!-- 获取启用上报的服务器配置 -->
-    <select id="selectReportEnabledSettings" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting">
+    <select id="selectReportEnabledSettings" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerSetting">
         SELECT *,
                CASE
                    WHEN monitor_sys_gen_server_setting_file_management_mode = '0' THEN 'NONE'

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerComponentMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper">
 
     <!-- 根据服务器ID获取组件列表 -->
-    <select id="selectByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerComponent">
         SELECT * FROM monitor_sys_gen_server_component
         WHERE monitor_sys_gen_server_id = #{serverId}
         ORDER BY monitor_sys_gen_server_component_sort_order ASC, monitor_sys_gen_server_component_create_time ASC
     </select>
 
     <!-- 根据服务器ID和组件类型获取组件列表 -->
-    <select id="selectByServerIdAndType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+    <select id="selectByServerIdAndType" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerComponent">
         SELECT * FROM monitor_sys_gen_server_component
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_component_type = #{componentType}
@@ -18,7 +18,7 @@
     </select>
 
     <!-- 根据服务器ID和表达式类型获取组件列表 -->
-    <select id="selectByServerIdAndExpressionType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+    <select id="selectByServerIdAndExpressionType" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerComponent">
         SELECT * FROM monitor_sys_gen_server_component
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_component_expression_type = #{expressionType}
@@ -26,7 +26,7 @@
     </select>
 
     <!-- 获取启用的组件列表 -->
-    <select id="selectEnabledByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+    <select id="selectEnabledByServerId" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerComponent">
         SELECT * FROM monitor_sys_gen_server_component
         WHERE monitor_sys_gen_server_id = #{serverId} 
         AND monitor_sys_gen_server_component_enabled = 1
@@ -56,7 +56,7 @@
     </update>
 
     <!-- 获取组件模板列表 -->
-    <select id="selectTemplates" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerComponent">
+    <select id="selectTemplates" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerComponent">
         SELECT * FROM monitor_sys_gen_server_component
         WHERE monitor_sys_gen_server_id = -1
         ORDER BY monitor_sys_gen_server_component_sort_order ASC

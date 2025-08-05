@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.monitor.starter.entity.MonitorJobLog;
-import com.chua.starter.monitor.starter.job.pojo.JobStatisticResult;
+import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.starter.monitor.job.pojo.JobStatisticResult;
 
 /**
  * 监控日志

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorJobLogMapper">
-  <select id="time" resultType="com.chua.starter.monitor.starter.job.pojo.JobStatistic">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorJobLogMapper">
+  <select id="time" resultType="com.chua.starter.monitor.job.pojo.JobStatistic">
       SELECT
           sum(cnt) cnt,
           job_log_trigger_code,

@@ -1,5 +1,5 @@
-path-limit=com.chua.starter.monitor.starter.chain.filter.ReportUrlLimitChainFilter
-ip-limit=com.chua.starter.monitor.starter.chain.filter.ReportIpLimitChainFilter
-black=com.chua.starter.monitor.starter.chain.filter.ReportBlackChainFilter
-white=com.chua.starter.monitor.starter.chain.filter.ReportWhiteChainFilter
-qps-limit=com.chua.starter.monitor.starter.chain.filter.ReportQpsChainFilter
+path-limit=com.chua.starter.monitor.chain.filter.ReportUrlLimitChainFilter
+ip-limit=com.chua.starter.monitor.chain.filter.ReportIpLimitChainFilter
+black=com.chua.starter.monitor.chain.filter.ReportBlackChainFilter
+white=com.chua.starter.monitor.chain.filter.ReportWhiteChainFilter
+qps-limit=com.chua.starter.monitor.chain.filter.ReportQpsChainFilter

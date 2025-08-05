@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemGroupMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.FileSystemGroupMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemGroup">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.FileSystemGroup">
         <id column="file_system_group_id" property="fileSystemGroupId" jdbcType="INTEGER"/>
         <result column="file_system_group_name" property="fileSystemGroupName" jdbcType="VARCHAR"/>
         <result column="file_system_group_parent_id" property="fileSystemGroupParentId" jdbcType="INTEGER"/>

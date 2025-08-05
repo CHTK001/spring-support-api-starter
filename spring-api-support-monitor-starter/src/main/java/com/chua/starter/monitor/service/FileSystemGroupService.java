@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.monitor.starter.entity.FileSystemGroup;
+import com.chua.starter.monitor.entity.FileSystemGroup;
 
 import java.util.List;
 

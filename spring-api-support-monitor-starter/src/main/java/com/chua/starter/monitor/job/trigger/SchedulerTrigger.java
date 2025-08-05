@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.job.trigger;
 
-import com.chua.starter.monitor.starter.job.JobConfig;
-import com.chua.starter.monitor.starter.job.handler.CoreTriggerHandler;
-import com.chua.starter.monitor.starter.job.handler.RingTriggerHandler;
-import com.chua.starter.monitor.starter.properties.ReportJobProperties;
+import com.chua.starter.monitor.job.JobConfig;
+import com.chua.starter.monitor.job.handler.CoreTriggerHandler;
+import com.chua.starter.monitor.job.handler.RingTriggerHandler;
+import com.chua.starter.monitor.properties.ReportJobProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;

@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo;
 
-import com.chua.starter.monitor.starter.pojo.DiskPartitionInfo;
+import com.chua.starter.monitor.pojo.DiskPartitionInfo;
 import lombok.Data;
 
 import java.time.LocalDateTime;

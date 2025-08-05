@@ -4,10 +4,10 @@ import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.report.client.starter.job.TriggerParam;
-import com.chua.starter.monitor.starter.entity.MonitorJob;
-import com.chua.starter.monitor.starter.entity.MonitorJobLog;
-import com.chua.starter.monitor.starter.job.JobConfig;
-import com.chua.starter.monitor.starter.job.TriggerTypeEnum;
+import com.chua.starter.monitor.entity.MonitorJob;
+import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.starter.monitor.job.JobConfig;
+import com.chua.starter.monitor.job.TriggerTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

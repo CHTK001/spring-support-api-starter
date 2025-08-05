@@ -2,14 +2,14 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorApplication;
+import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.common.support.discovery.Discovery;
 // 移除未使用的导入
-import com.chua.starter.monitor.starter.pojo.ClientHealthStatus;
-import com.chua.starter.monitor.starter.pojo.OpenApi;
-import com.chua.starter.monitor.starter.service.ClientHealthService;
+import com.chua.starter.monitor.pojo.ClientHealthStatus;
+import com.chua.starter.monitor.pojo.OpenApi;
+import com.chua.starter.monitor.service.ClientHealthService;
 import com.chua.starter.discovery.support.service.DiscoveryService;
-import com.chua.starter.monitor.starter.service.MonitorAppService;
+import com.chua.starter.monitor.service.MonitorAppService;
 import com.chua.starter.mybatis.controller.AbstractSwaggerUpdateController;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;

@@ -1,12 +1,12 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.service.AlertService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.service.AlertService;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

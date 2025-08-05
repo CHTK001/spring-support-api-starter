@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.monitor.starter.entity.FileSystemGroup;
+import com.chua.starter.monitor.entity.FileSystemGroup;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,11 +1,11 @@
 package com.chua.starter.monitor.service.report;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.report.ReportHandler;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.report.ReportHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReportManager {
 
-    private final List<com.chua.starter.monitor.starter.service.report.ReportHandler> reportHandlers;
+    private final List<com.chua.starter.monitor.service.report.ReportHandler> reportHandlers;
     private final MonitorSysGenServerSettingService serverSettingService;
 
     /**
@@ -37,7 +37,7 @@ public class ReportManager {
      * @param server 服务器配置
      * @return 上报处理器
      */
-    public Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> getReportHandler(MonitorSysGenServer server) {
+    public Optional<com.chua.starter.monitor.service.report.ReportHandler> getReportHandler(MonitorSysGenServer server) {
         if (server == null) {
             log.warn("服务器配置为空");
             return Optional.empty();
@@ -62,7 +62,7 @@ public class ReportManager {
      * @param reportType 上报类型
      * @return 上报处理器
      */
-    public Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> getReportHandlerByType(String reportType) {
+    public Optional<com.chua.starter.monitor.service.report.ReportHandler> getReportHandlerByType(String reportType) {
         return reportHandlers.stream()
                 .filter(handler -> handler.getReportType().equals(reportType))
                 .findFirst();
@@ -79,7 +79,7 @@ public class ReportManager {
      */
     public ReturnResult<MonitorSysGenServerMetrics> handleReport(MonitorSysGenServer server, Map<String, Object> reportData) {
         try {
-            Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> handlerOpt = getReportHandler(server);
+            Optional<com.chua.starter.monitor.service.report.ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
                 String reportMethod = getServerReportMethod(server);
                 log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}",
@@ -87,7 +87,7 @@ public class ReportManager {
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
 
-            com.chua.starter.monitor.starter.service.report.ReportHandler handler = handlerOpt.get();
+            com.chua.starter.monitor.service.report.ReportHandler handler = handlerOpt.get();
             log.debug("使用上报处理器: {} 处理服务器: {}", 
                     handler.getClass().getSimpleName(), server.getMonitorSysGenServerId());
             
@@ -107,7 +107,7 @@ public class ReportManager {
      */
     public ReturnResult<Boolean> startDataCollection(MonitorSysGenServer server) {
         try {
-            Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> handlerOpt = getReportHandler(server);
+            Optional<com.chua.starter.monitor.service.report.ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
                 String reportMethod = getServerReportMethod(server);
                 log.warn("未找到支持的上报处理器: serverId={}, reportMethod={}",
@@ -115,7 +115,7 @@ public class ReportManager {
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
 
-            com.chua.starter.monitor.starter.service.report.ReportHandler handler = handlerOpt.get();
+            com.chua.starter.monitor.service.report.ReportHandler handler = handlerOpt.get();
             log.info("启动数据收集任务: serverId={}, handler={}", 
                     server.getMonitorSysGenServerId(), handler.getClass().getSimpleName());
             
@@ -136,13 +136,13 @@ public class ReportManager {
      */
     public ReturnResult<Boolean> stopDataCollection(Integer serverId, String reportType) {
         try {
-            Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> handlerOpt = getReportHandlerByType(reportType);
+            Optional<com.chua.starter.monitor.service.report.ReportHandler> handlerOpt = getReportHandlerByType(reportType);
             if (handlerOpt.isEmpty()) {
                 log.warn("未找到指定类型的上报处理器: serverId={}, reportType={}", serverId, reportType);
                 return ReturnResult.error("不支持的上报方式: " + reportType);
             }
 
-            com.chua.starter.monitor.starter.service.report.ReportHandler handler = handlerOpt.get();
+            com.chua.starter.monitor.service.report.ReportHandler handler = handlerOpt.get();
             log.info("停止数据收集任务: serverId={}, handler={}", 
                     serverId, handler.getClass().getSimpleName());
             
@@ -165,7 +165,7 @@ public class ReportManager {
             boolean allSuccess = true;
             StringBuilder errorMessages = new StringBuilder();
 
-            for (com.chua.starter.monitor.starter.service.report.ReportHandler handler : reportHandlers) {
+            for (com.chua.starter.monitor.service.report.ReportHandler handler : reportHandlers) {
                 try {
                     ReturnResult<Boolean> result = handler.stopDataCollection(serverId);
                     if (!result.isOk()) {
@@ -202,13 +202,13 @@ public class ReportManager {
      */
     public ReturnResult<Boolean> validateServerConfig(MonitorSysGenServer server) {
         try {
-            Optional<com.chua.starter.monitor.starter.service.report.ReportHandler> handlerOpt = getReportHandler(server);
+            Optional<com.chua.starter.monitor.service.report.ReportHandler> handlerOpt = getReportHandler(server);
             if (handlerOpt.isEmpty()) {
                 String reportMethod = getServerReportMethod(server);
                 return ReturnResult.error("不支持的上报方式: " + reportMethod);
             }
 
-            com.chua.starter.monitor.starter.service.report.ReportHandler handler = handlerOpt.get();
+            com.chua.starter.monitor.service.report.ReportHandler handler = handlerOpt.get();
             return handler.validateServerConfig(server);
             
         } catch (Exception e) {

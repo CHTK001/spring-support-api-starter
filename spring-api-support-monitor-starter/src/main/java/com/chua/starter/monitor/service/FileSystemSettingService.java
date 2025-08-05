@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.FileSystemSetting;
+import com.chua.starter.monitor.entity.FileSystemSetting;
 
 /**
  * 文件系统配置管理服务接口

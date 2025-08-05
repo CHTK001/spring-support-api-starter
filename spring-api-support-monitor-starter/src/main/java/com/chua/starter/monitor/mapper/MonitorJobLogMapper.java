@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.monitor.starter.entity.MonitorJobLog;
-import com.chua.starter.monitor.starter.job.pojo.JobStatistic;
+import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.starter.monitor.job.pojo.JobStatistic;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup;
+import com.chua.starter.monitor.entity.MonitorSysGenServerGroup;
 
 import java.util.List;
 
@@ -31,8 +31,8 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
      * @param entity 查询条件
      * @return 分页结果
      */
-    ReturnResult<IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> pageForWithServerCount(
-            IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page,
+    ReturnResult<IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> pageForWithServerCount(
+            IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> page,
             MonitorSysGenServerGroup entity);
 
     /**
@@ -47,7 +47,7 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
      *
      * @return 启用的分组列表
      */
-    ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroupsWithServerCount();
+    ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getEnabledGroupsWithServerCount();
 
     /**
      * 获取所有分组列表
@@ -61,7 +61,7 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
      *
      * @return 所有分组列表
      */
-    ReturnResult<List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount>> getAllGroupsWithServerCount();
+    ReturnResult<List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount>> getAllGroupsWithServerCount();
 
     /**
      * 根据ID获取分组信息
@@ -165,7 +165,7 @@ public interface MonitorSysGenServerGroupService extends IService<MonitorSysGenS
      * @param groupId 分组ID
      * @return 服务器列表
      */
-    ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenServer>> getServersByGroupId(
+    ReturnResult<List<com.chua.starter.monitor.entity.MonitorSysGenServer>> getServersByGroupId(
             Integer groupId);
 
     /**

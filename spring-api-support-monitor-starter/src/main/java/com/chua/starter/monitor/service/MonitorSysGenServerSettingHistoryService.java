@@ -2,8 +2,8 @@ package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
 
 import java.time.LocalDateTime;
 import java.util.List;

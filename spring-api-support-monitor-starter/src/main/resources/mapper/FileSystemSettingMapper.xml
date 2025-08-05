@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemSettingMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.FileSystemSettingMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemSetting">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.FileSystemSetting">
         <id column="file_system_setting_id" property="fileSystemSettingId" />
         <result column="file_system_setting_name" property="fileSystemSettingName" />
         <result column="file_system_setting_chunk_upload_enabled" property="fileSystemSettingChunkUploadEnabled" />

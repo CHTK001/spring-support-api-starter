@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.utils;
 
-import com.chua.starter.monitor.starter.pojo.DiskPartitionInfo;
+import com.chua.starter.monitor.pojo.DiskPartitionInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;

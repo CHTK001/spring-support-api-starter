@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -8,14 +8,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSettingHistory;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
 // 移除 FileManagementMode 导入，改为使用字符串比较
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingHistoryMapper;
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerSettingMapper;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.service.ServerTaskManagementService;
-import com.chua.starter.monitor.starter.task.manager.ServerTaskManager;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingHistoryMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.ServerTaskManagementService;
+import com.chua.starter.monitor.task.manager.ServerTaskManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;

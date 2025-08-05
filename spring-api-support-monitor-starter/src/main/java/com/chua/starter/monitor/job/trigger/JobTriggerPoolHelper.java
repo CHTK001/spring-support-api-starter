@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.job.trigger;
 
-import com.chua.starter.monitor.starter.job.JobConfig;
-import com.chua.starter.monitor.starter.job.TriggerTypeEnum;
+import com.chua.starter.monitor.job.JobConfig;
+import com.chua.starter.monitor.job.TriggerTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

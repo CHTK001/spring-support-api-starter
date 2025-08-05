@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.monitor.starter.entity.FileSystemPart;
-import com.chua.starter.monitor.starter.mapper.FileSystemPartMapper;
-import com.chua.starter.monitor.starter.service.FileSystemPartService;
+import com.chua.starter.monitor.entity.FileSystemPart;
+import com.chua.starter.monitor.mapper.FileSystemPartMapper;
+import com.chua.starter.monitor.service.FileSystemPartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

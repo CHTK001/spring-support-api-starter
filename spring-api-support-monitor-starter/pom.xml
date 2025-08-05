@@ -36,6 +36,11 @@
             <artifactId>spring-support-circuit-breaker-starter</artifactId>
         </dependency>
         -->
+        <!-- 通用工具类库 - 提供基础的工具类和常用功能 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
 
         <!-- OSHI系统信息库 -->
         <dependency>

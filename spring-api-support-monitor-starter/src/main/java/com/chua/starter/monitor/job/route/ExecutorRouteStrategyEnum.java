@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.job.route;
 
-import com.chua.starter.monitor.starter.job.route.strategy.*;
+import com.chua.starter.monitor.job.route.strategy.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
