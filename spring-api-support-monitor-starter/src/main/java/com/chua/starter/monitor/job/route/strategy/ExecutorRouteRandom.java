@@ -5,7 +5,7 @@ import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.report.client.starter.job.TriggerParam;
-import com.chua.starter.monitor.starter.job.route.ExecutorRouter;
+import com.chua.starter.monitor.job.route.ExecutorRouter;
 
 import java.security.SecureRandom;
 import java.util.Collections;

@@ -1,12 +1,12 @@
 package com.chua.starter.monitor.task;
 
-import com.chua.starter.monitor.starter.entity.FileSystem;
-import com.chua.starter.monitor.starter.entity.FileSystemPart;
-import com.chua.starter.monitor.starter.entity.FileSystemSetting;
-import com.chua.starter.monitor.starter.service.FileSystemPartService;
-import com.chua.starter.monitor.starter.service.FileSystemService;
-import com.chua.starter.monitor.starter.service.FileSystemSettingService;
-import com.chua.starter.monitor.starter.service.FileSystemSseService;
+import com.chua.starter.monitor.entity.FileSystem;
+import com.chua.starter.monitor.entity.FileSystemPart;
+import com.chua.starter.monitor.entity.FileSystemSetting;
+import com.chua.starter.monitor.service.FileSystemPartService;
+import com.chua.starter.monitor.service.FileSystemService;
+import com.chua.starter.monitor.service.FileSystemSettingService;
+import com.chua.starter.monitor.service.FileSystemSseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

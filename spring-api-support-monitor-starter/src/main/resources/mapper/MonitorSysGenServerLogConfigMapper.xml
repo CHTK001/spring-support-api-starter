@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerLogConfigMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerLogConfigMapper">
 
     <!-- 根据服务器ID获取日志配置 -->
-    <select id="selectByServerId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_id = #{serverId}
     </select>
 
     <!-- 获取所有启用的日志配置 -->
-    <select id="selectEnabledConfigs" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectEnabledConfigs" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_log_enabled = 1 
         AND monitor_sys_gen_server_log_config_status = 1
     </select>
 
     <!-- 获取启用实时日志的配置 -->
-    <select id="selectRealTimeEnabledConfigs" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectRealTimeEnabledConfigs" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_log_enabled = 1 
         AND monitor_sys_gen_server_log_real_time_enabled = 1 
@@ -24,7 +24,7 @@
     </select>
 
     <!-- 根据保留天数获取配置 -->
-    <select id="selectByRetentionDays" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectByRetentionDays" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_log_retention_days = #{retentionDays} 
         AND monitor_sys_gen_server_log_enabled = 1 
@@ -32,7 +32,7 @@
     </select>
 
     <!-- 获取需要清理的配置 -->
-    <select id="selectConfigsForCleanup" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectConfigsForCleanup" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config
         WHERE monitor_sys_gen_server_log_enabled = 1
         AND monitor_sys_gen_server_log_config_status = 1
@@ -87,7 +87,7 @@
     </select>
 
     <!-- 根据收集间隔获取配置 -->
-    <select id="selectByCollectionInterval" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectByCollectionInterval" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_log_collection_interval = #{interval} 
         AND monitor_sys_gen_server_log_enabled = 1 
@@ -95,7 +95,7 @@
     </select>
 
     <!-- 获取过期配置（长时间未更新） -->
-    <select id="selectExpiredConfigs" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectExpiredConfigs" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config
         WHERE monitor_sys_gen_server_log_update_time <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL #{days} DAY)
         AND monitor_sys_gen_server_log_config_status = 1
@@ -108,7 +108,7 @@
     </select>
 
     <!-- 获取默认配置模板 -->
-    <select id="selectDefaultTemplate" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig">
+    <select id="selectDefaultTemplate" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig">
         SELECT * FROM monitor_sys_gen_server_log_config 
         WHERE monitor_sys_gen_server_log_config_status = 1 
         ORDER BY monitor_sys_gen_server_log_create_time ASC 

@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.job.handler;
 
-import com.chua.starter.monitor.starter.job.TriggerTypeEnum;
-import com.chua.starter.monitor.starter.job.trigger.JobTriggerPoolHelper;
-import com.chua.starter.monitor.starter.properties.ReportJobProperties;
+import com.chua.starter.monitor.job.TriggerTypeEnum;
+import com.chua.starter.monitor.job.trigger.JobTriggerPoolHelper;
+import com.chua.starter.monitor.properties.ReportJobProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

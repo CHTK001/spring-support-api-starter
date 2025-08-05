@@ -1,14 +1,14 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.starter.monitor.starter.utils.MonitorSysGenServerSettingUtils;
+import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 
-import com.chua.starter.monitor.starter.pojo.ClientHealthReport;
-import com.chua.starter.monitor.starter.pojo.ClientHealthStatus;
-import com.chua.starter.monitor.starter.service.ClientHealthService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.pojo.ClientHealthReport;
+import com.chua.starter.monitor.pojo.ClientHealthStatus;
+import com.chua.starter.monitor.service.ClientHealthService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.json.Json;
 import lombok.RequiredArgsConstructor;

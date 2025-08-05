@@ -4,7 +4,7 @@ import com.chua.common.support.indicator.DataIndicator;
 import com.chua.common.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.constant.RedisConstant;
-import com.chua.starter.monitor.starter.pojo.IndicatorQuery;
+import com.chua.starter.monitor.pojo.IndicatorQuery;
 import com.chua.starter.redis.support.service.SimpleRedisService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -3,7 +3,7 @@ package com.chua.starter.monitor.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerLog;
+import com.chua.starter.monitor.entity.MonitorSysGenServerLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

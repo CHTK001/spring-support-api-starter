@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptExecutionMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenScriptExecutionMapper">
 
     <!-- 根据脚本ID查找执行历史 -->
-    <select id="findByScriptId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution">
+    <select id="findByScriptId" resultType="com.chua.starter.monitor.entity.MonitorSysGenScriptExecution">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_script_execution 
         WHERE monitor_sys_gen_script_id = #{scriptId} 
@@ -13,7 +13,7 @@
     </select>
 
     <!-- 根据执行状态查找执行历史 -->
-    <select id="findByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution">
+    <select id="findByStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenScriptExecution">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_script_execution 
         WHERE monitor_sys_gen_script_execution_status = #{status} 
@@ -22,7 +22,7 @@
     </select>
 
     <!-- 查找正在运行的执行记录 -->
-    <select id="findRunningExecutions" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution">
+    <select id="findRunningExecutions" resultType="com.chua.starter.monitor.entity.MonitorSysGenScriptExecution">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_script_execution 
         WHERE monitor_sys_gen_script_execution_status = 'RUNNING' 
@@ -31,7 +31,7 @@
     </select>
 
     <!-- 根据进程ID查找执行记录 -->
-    <select id="findByProcessId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution">
+    <select id="findByProcessId" resultType="com.chua.starter.monitor.entity.MonitorSysGenScriptExecution">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_script_execution 
         WHERE monitor_sys_gen_script_execution_process_id = #{processId}
@@ -39,7 +39,7 @@
     </select>
 
     <!-- 查找指定时间范围内的执行记录 -->
-    <select id="findByTimeRange" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenScriptExecution">
+    <select id="findByTimeRange" resultType="com.chua.starter.monitor.entity.MonitorSysGenScriptExecution">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_script_execution 
         WHERE monitor_sys_gen_script_execution_start_time BETWEEN #{startTime} AND #{endTime} 
@@ -48,7 +48,7 @@
     </select>
 
     <!-- 获取脚本执行统计信息 -->
-    <select id="getExecutionStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptExecutionMapper$ExecutionStatistics">
+    <select id="getExecutionStatistics" resultType="com.chua.starter.monitor.mapper.MonitorSysGenScriptExecutionMapper$ExecutionStatistics">
         <![CDATA[
         SELECT 
             COUNT(*) as totalExecutions, 
@@ -62,7 +62,7 @@
     </select>
 
     <!-- 获取指定脚本的执行统计 -->
-    <select id="getScriptExecutionStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptExecutionMapper$ScriptExecutionStatistics">
+    <select id="getScriptExecutionStatistics" resultType="com.chua.starter.monitor.mapper.MonitorSysGenScriptExecutionMapper$ScriptExecutionStatistics">
         <![CDATA[
         SELECT 
             COUNT(*) as totalExecutions, 
@@ -77,7 +77,7 @@
     </select>
 
     <!-- 获取每日执行统计 -->
-    <select id="getDailyExecutionStatistics" resultType="com.chua.starter.monitor.starter.mapper.MonitorSysGenScriptExecutionMapper$DailyExecutionStatistics">
+    <select id="getDailyExecutionStatistics" resultType="com.chua.starter.monitor.mapper.MonitorSysGenScriptExecutionMapper$DailyExecutionStatistics">
         <![CDATA[
         SELECT 
             DATE(monitor_sys_gen_script_execution_start_time) as executeDate, 

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerGroupMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerGroupMapper">
 
     <!-- 根据状态获取分组列表 -->
-    <select id="selectByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+    <select id="selectByStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerGroup">
         SELECT * FROM monitor_sys_gen_server_group
         WHERE monitor_sys_gen_server_group_status = #{status}
         ORDER BY monitor_sys_gen_server_group_sort ASC, create_time DESC
     </select>
 
     <!-- 获取默认分组 -->
-    <select id="selectDefaultGroup" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+    <select id="selectDefaultGroup" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerGroup">
         SELECT * FROM monitor_sys_gen_server_group
         WHERE monitor_sys_gen_server_group_is_default = 1
         AND monitor_sys_gen_server_group_status = 1
@@ -66,7 +66,7 @@
     </select>
 
     <!-- 根据分组ID列表获取分组信息 -->
-    <select id="selectByIds" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup">
+    <select id="selectByIds" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerGroup">
         SELECT * FROM monitor_sys_gen_server_group
         WHERE monitor_sys_gen_server_group_id IN
         <foreach collection="groupIds" item="groupId" open="(" separator="," close=")">
@@ -105,7 +105,7 @@
     </select>
 
     <!-- 分页查询分组及其服务器数量 -->
-    <select id="selectPageWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+    <select id="selectPageWithServerCount" resultType="com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount">
         <![CDATA[
         SELECT
             g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,
@@ -141,7 +141,7 @@
     </select>
 
     <!-- 获取所有分组及其服务器数量 -->
-    <select id="selectAllWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+    <select id="selectAllWithServerCount" resultType="com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount">
         <![CDATA[
         SELECT
             g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,
@@ -170,7 +170,7 @@
     </select>
 
     <!-- 根据状态获取分组及其服务器数量 -->
-    <select id="selectByStatusWithServerCount" resultType="com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount">
+    <select id="selectByStatusWithServerCount" resultType="com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount">
         <![CDATA[
         SELECT
             g.monitor_sys_gen_server_group_id as monitorSysGenServerGroupId,

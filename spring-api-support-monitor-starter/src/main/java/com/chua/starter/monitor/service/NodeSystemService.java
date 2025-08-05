@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.monitor.starter.entity.NodeSystem;
-import com.chua.starter.monitor.starter.pojo.OnlineNodeInfo;
+import com.chua.starter.monitor.entity.NodeSystem;
+import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 
 import java.util.List;
 import java.util.Map;

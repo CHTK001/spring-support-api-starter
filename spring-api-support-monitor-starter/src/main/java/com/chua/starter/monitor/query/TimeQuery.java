@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.query;
 
-import com.chua.starter.monitor.starter.query.PageQuery;
+import com.chua.starter.monitor.query.PageQuery;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

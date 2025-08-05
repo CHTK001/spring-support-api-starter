@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.FileSystemPartMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.FileSystemPartMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.starter.entity.FileSystemPart">
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.FileSystemPart">
         <id column="file_system_part_id" property="fileSystemPartId" />
         <result column="file_system_part_file_id" property="fileSystemPartFileId" />
         <result column="file_system_part_chunk_number" property="fileSystemPartChunkNumber" />

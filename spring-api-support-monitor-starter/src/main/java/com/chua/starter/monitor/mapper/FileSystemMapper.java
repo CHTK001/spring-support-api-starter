@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.monitor.starter.entity.FileSystem;
+import com.chua.starter.monitor.entity.FileSystem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -63,5 +63,5 @@ public interface FileSystemMapper extends BaseMapper<FileSystem> {
      *
      * @return 状态统计信息
      */
-    List<com.chua.starter.monitor.starter.pojo.FileSystemStatusCountDTO> countByStatus();
+    List<com.chua.starter.monitor.pojo.FileSystemStatusCountDTO> countByStatus();
 }

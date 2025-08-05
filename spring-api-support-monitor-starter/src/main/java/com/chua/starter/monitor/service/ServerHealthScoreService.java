@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service;
 
-import com.chua.starter.monitor.starter.config.MetricsThresholdConfig;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.config.MetricsThresholdConfig;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

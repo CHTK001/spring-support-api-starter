@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.task;
 
-import com.chua.starter.monitor.starter.service.FileSystemService;
-import com.chua.starter.monitor.starter.service.FileSystemSseService;
-import com.chua.starter.monitor.starter.task.FileSystemMergeQueue;
+import com.chua.starter.monitor.service.FileSystemService;
+import com.chua.starter.monitor.service.FileSystemSseService;
+import com.chua.starter.monitor.task.FileSystemMergeQueue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

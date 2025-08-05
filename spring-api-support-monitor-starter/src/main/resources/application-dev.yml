@@ -41,5 +41,5 @@ plugin:
   table:
     enable: true
     packages:
-      - com.chua.starter.monitor.starter.entity
+      - com.chua.starter.monitor.entity
       - com.chua.starter.monitor.entity

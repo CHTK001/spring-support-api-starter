@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenServerMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerMapper">
 
     <!-- 根据协议类型统计服务器数量 -->
     <select id="countByProtocol" resultType="java.util.Map">
@@ -24,7 +24,7 @@
     </select>
 
     <!-- 获取启用监控的服务器列表 -->
-    <select id="selectMonitoringEnabledServers" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServer">
+    <select id="selectMonitoringEnabledServers" resultType="com.chua.starter.monitor.entity.MonitorSysGenServer">
         SELECT s.* FROM monitor_sys_gen_server s
         INNER JOIN monitor_sys_gen_server_setting st ON s.monitor_sys_gen_server_id = st.monitor_sys_gen_server_id
         WHERE st.monitor_sys_gen_server_setting_monitor_enabled = 1
@@ -33,17 +33,17 @@
     </select>
 
     <!-- 根据生成器ID获取服务器列表 -->
-    <select id="selectByGenId" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServer">
+    <select id="selectByGenId" resultType="com.chua.starter.monitor.entity.MonitorSysGenServer">
         SELECT * FROM monitor_sys_gen_server WHERE gen_id = #{genId}
     </select>
 
     <!-- 根据协议类型获取服务器列表 -->
-    <select id="selectByProtocol" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServer">
+    <select id="selectByProtocol" resultType="com.chua.starter.monitor.entity.MonitorSysGenServer">
         SELECT * FROM monitor_sys_gen_server WHERE monitor_sys_gen_server_protocol = #{protocol}
     </select>
 
     <!-- 根据标签获取服务器列表 -->
-    <select id="selectByTags" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenServer">
+    <select id="selectByTags" resultType="com.chua.starter.monitor.entity.MonitorSysGenServer">
         SELECT * FROM monitor_sys_gen_server WHERE monitor_sys_gen_server_tags LIKE CONCAT('%', #{tags}, '%')
     </select>
 

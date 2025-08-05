@@ -1,12 +1,12 @@
-package com.chua.starter.monitor.util;//package com.chua.starter.monitor.starter.util;
+package com.chua.starter.monitor.util;//package com.chua.starter.monitor.util;
 //
 //import com.chua.common.support.lang.date.DateTime;
 //import com.chua.common.support.utils.FileUtils;
 //import com.chua.common.support.utils.StringUtils;
-////import com.chua.starter.monitor.starter.entity.MonitorSysGenColumn;
-////import com.chua.starter.monitor.starter.entity.MonitorSysGenTable;
-////import com.chua.starter.monitor.starter.entity.MonitorSysGenTemplate;
-//import com.chua.starter.monitor.starter.query.Download;
+////import com.chua.starter.monitor.entity.MonitorSysGenColumn;
+////import com.chua.starter.monitor.entity.MonitorSysGenTable;
+////import com.chua.starter.monitor.entity.MonitorSysGenTemplate;
+//import com.chua.starter.monitor.query.Download;
 //import lombok.AccessLevel;
 //import lombok.NoArgsConstructor;
 //import org.apache.velocity.VelocityContext;

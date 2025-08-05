@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerGroup;
+import com.chua.starter.monitor.entity.MonitorSysGenServerGroup;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -99,8 +99,8 @@ public interface MonitorSysGenServerGroupMapper extends BaseMapper<MonitorSysGen
      * @param entity 查询条件
      * @return 分页结果
      */
-    com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectPageWithServerCount(
-            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> page,
+    com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> selectPageWithServerCount(
+            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> page,
             @Param("entity") MonitorSysGenServerGroup entity);
 
     /**
@@ -108,7 +108,7 @@ public interface MonitorSysGenServerGroupMapper extends BaseMapper<MonitorSysGen
      *
      * @return 分组及服务器数量信息
      */
-    List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectAllWithServerCount();
+    List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> selectAllWithServerCount();
 
     /**
      * 根据状态获取分组及其服务器数量
@@ -116,6 +116,6 @@ public interface MonitorSysGenServerGroupMapper extends BaseMapper<MonitorSysGen
      * @param status 状态
      * @return 分组及服务器数量信息
      */
-    List<com.chua.starter.monitor.starter.pojo.MonitorSysGenServerGroupWithCount> selectByStatusWithServerCount(
+    List<com.chua.starter.monitor.pojo.MonitorSysGenServerGroupWithCount> selectByStatusWithServerCount(
             @Param("status") Integer status);
 }

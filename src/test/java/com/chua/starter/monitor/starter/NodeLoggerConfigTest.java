@@ -1,7 +1,7 @@
-package com.chua.starter.monitor.starter;
+package com.chua.starter.monitor;
 
-import com.chua.starter.monitor.starter.pojo.NodeLoggerConfigDTO;
-import com.chua.starter.monitor.starter.service.impl.NodeLoggerConfigServiceImpl;
+import com.chua.starter.monitor.pojo.NodeLoggerConfigDTO;
+import com.chua.starter.monitor.service.impl.NodeLoggerConfigServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

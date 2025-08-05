@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.report;
 
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.common.support.lang.code.ReturnResult;
 
 import java.util.Map;

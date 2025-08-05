@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.handler;
 
-import com.chua.starter.monitor.starter.enums.FileManagementMode;
+import com.chua.starter.monitor.enums.FileManagementMode;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

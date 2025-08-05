@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenServerLogConfig;
-import com.chua.starter.monitor.starter.mapper.MonitorSysGenServerLogConfigMapper;
-import com.chua.starter.monitor.starter.service.MonitorSysGenServerLogConfigService;
+import com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerLogConfigMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerLogConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
