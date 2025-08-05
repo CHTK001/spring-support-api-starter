@@ -100,7 +100,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         }
 
         if (server.getMonitorSysGenServerTimeout() != null) {
-            config.timeoutMillis(server.getMonitorSysGenServerTimeout());
+            config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
         }
 
         return new GuacamoleClient(config.build());

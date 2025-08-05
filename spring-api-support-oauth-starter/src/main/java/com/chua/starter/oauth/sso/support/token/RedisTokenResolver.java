@@ -4,7 +4,6 @@ import com.chua.common.support.annotations.Extension;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.net.UserAgent;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IdUtils;
@@ -206,9 +205,15 @@ public class RedisTokenResolver implements TokenResolver {
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
         UserResume newUserResult = loginCheck.getUserInfo(userResult);
-        if (null == newUserResult) {
+        if (null == newUserResult || null == newUserResult.getUserId()) {
             return ReturnResult.ok(userResult);
         }
+
+        if (newUserResult instanceof UserResult userResult1) {
+            userResult1.setToken(token);
+            userResult1.setRefreshToken(refreshToken);
+        }
+
         stringRedisTemplate.opsForValue().set(redisKey, newUserResult);
         return ReturnResult.ok(newUserResult);
     }
@@ -222,6 +227,8 @@ public class RedisTokenResolver implements TokenResolver {
         }
         String redisKey = TOKEN_PRE + token;
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        userResult.setToken(token);
+        userResult.setRefreshToken(refreshToken);
         return ReturnResult.ok(userResult, userResult.getLoginType());
     }
 

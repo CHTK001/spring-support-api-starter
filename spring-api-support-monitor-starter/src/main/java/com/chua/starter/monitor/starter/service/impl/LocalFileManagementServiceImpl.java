@@ -1,8 +1,9 @@
 package com.chua.starter.monitor.starter.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
-import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
+import com.chua.report.client.starter.pojo.FileInfo;
+import com.chua.report.client.starter.pojo.FileOperationRequest;
+import com.chua.report.client.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.starter.service.FileManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -36,7 +37,7 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
 
     @Override
     public ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden,
-            String sortBy, String sortOrder) {
+                                                         String sortBy, String sortOrder) {
         try {
             log.info("本地文件管理: 列出文件 - serverId={}, path={}", serverId, path);
 
@@ -461,6 +462,66 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
     }
 
     /**
+     * 排序文件列表
+     */
+    private void sortFiles(List<FileInfo> files, String sortBy, String sortOrder) {
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+
+        Comparator<FileInfo> comparator = null;
+
+        // 根据排序字段选择比较器
+        switch (sortBy != null ? sortBy.toLowerCase() : "name") {
+            case "size":
+                comparator = Comparator.comparing(FileInfo::getSize, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "modifytime":
+            case "lastmodified":
+                comparator = Comparator.comparing(FileInfo::getModifyTime, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "createtime":
+                comparator = Comparator.comparing(FileInfo::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "name":
+            default:
+                comparator = Comparator.comparing(FileInfo::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+                break;
+        }
+
+        // 目录优先排序
+        comparator = Comparator.comparing((FileInfo f) -> Boolean.FALSE.equals(f.getIsDirectory()))
+                .thenComparing(comparator);
+
+        // 根据排序顺序决定是否反转
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            comparator = comparator.reversed();
+        }
+
+        files.sort(comparator);
+    }
+
+    /**
+     * 构建文件信息
+     */
+    private FileInfo buildFileInfo(Path path) throws IOException {
+        String fileName = path.getFileName() != null ? path.getFileName().toString() : path.toString();
+        BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName(fileName);
+        fileInfo.setPath(path.toString());
+        fileInfo.setSize(attrs.size());
+        fileInfo.setIsDirectory(Files.isDirectory(path));
+        fileInfo.setModifyTime(LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()));
+        fileInfo.setCreateTime(LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()));
+        fileInfo.setIsHidden(fileName.startsWith("."));
+        fileInfo.setLeaf(!Files.isDirectory(path)); // 设置 leaf 属性：文件为叶子节点，目录不是叶子节点
+
+        return fileInfo;
+    }
+
+    /**
      * 构建文件树
      */
     private FileInfo buildFileTree(Path path, int maxDepth, boolean includeHidden, int currentDepth)
@@ -768,33 +829,6 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
         });
     }
 
-    /**
-     * 文件排序
-     */
-    private void sortFiles(List<FileInfo> files, String sortBy, String sortOrder) {
-        Comparator<FileInfo> comparator;
-
-        switch (sortBy.toLowerCase()) {
-        case "size":
-            comparator = Comparator.comparing(FileInfo::getSize);
-            break;
-        case "modified":
-            comparator = Comparator.comparing(FileInfo::getModifyTime);
-            break;
-        case "name":
-        default:
-            comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
-            break;
-        }
-
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            comparator = comparator.reversed();
-        }
-
-        // 目录优先排序
-        files.sort(Comparator.comparing(FileInfo::getIsDirectory).reversed().thenComparing(comparator));
-    }
-
     // 以下是接口要求的其他方法实现，本地文件管理暂不支持或简单实现
 
     @Override
@@ -977,7 +1011,8 @@ public class LocalFileManagementServiceImpl implements FileManagementService {
         }
     }
 
-    private ReturnResult<FileOperationResponse> previewPdfFile(Path path, FileOperationResponse response) throws IOException {
+    private ReturnResult<FileOperationResponse> previewPdfFile(Path path, FileOperationResponse response)
+            throws IOException {
         response.setSuccess(true);
         response.setMessage("预览成功");
         response.setContentType("application/pdf");

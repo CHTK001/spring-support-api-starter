@@ -41,8 +41,7 @@ public class NodeDocumentationController {
      */
     @GetMapping("/api-docs")
     @Operation(summary = "获取节点API文档", description = "获取指定节点的API文档信息")
-    public ReturnResult<List<NodeApiGroup>> getNodeApiDocs(
-            @Parameter(name = "节点ID") @RequestParam String nodeId,
+    public ReturnResult<List<NodeApiGroup>> getNodeApiDocs(@Parameter(name = "节点ID") @RequestParam String nodeId,
             @Parameter(name = "节点地址") @RequestParam String nodeAddress,
             @Parameter(name = "上下文路径") @RequestParam(required = false, defaultValue = "") String contextPath) {
         try {
@@ -51,6 +50,29 @@ public class NodeDocumentationController {
         } catch (Exception e) {
             log.error("获取节点API文档失败: nodeId={}, nodeAddress={}", nodeId, nodeAddress, e);
             return ReturnResult.error("获取API文档失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取节点Swagger资源
+     *
+     * @param nodeId      节点ID
+     * @param nodeAddress 节点地址
+     * @param contextPath 上下文路径
+     * @return Swagger资源列表
+     */
+    @GetMapping("/swagger-resources")
+    @Operation(summary = "获取节点Swagger资源", description = "获取指定节点的Swagger资源配置信息")
+    public ReturnResult<List<Map<String, Object>>> getNodeSwaggerResources(
+            @Parameter(name = "节点ID") @RequestParam String nodeId,
+            @Parameter(name = "节点地址") @RequestParam String nodeAddress,
+            @Parameter(name = "上下文路径") @RequestParam(required = false, defaultValue = "") String contextPath) {
+        try {
+            log.info("获取节点Swagger资源: nodeId={}, nodeAddress={}, contextPath={}", nodeId, nodeAddress, contextPath);
+            return nodeDocumentationService.getNodeSwaggerResources(nodeId, nodeAddress, contextPath);
+        } catch (Exception e) {
+            log.error("获取节点Swagger资源失败: nodeId={}, nodeAddress={}", nodeId, nodeAddress, e);
+            return ReturnResult.error("获取Swagger资源失败: " + e.getMessage());
         }
     }
 
@@ -64,12 +86,11 @@ public class NodeDocumentationController {
     @Operation(summary = "执行节点API", description = "执行指定节点的API接口")
     public ReturnResult<Map<String, Object>> executeNodeApi(@RequestBody NodeApiExecuteRequest request) {
         try {
-            log.info("执行节点API: nodeId={}, path={}, method={}", 
-                    request.getNodeId(), request.getApi().getPath(), request.getApi().getMethod());
+            log.info("执行节点API: nodeId={}, path={}, method={}", request.getNodeId(), request.getApi().getPath(),
+                    request.getApi().getMethod());
             return nodeDocumentationService.executeNodeApi(request);
         } catch (Exception e) {
-            log.error("执行节点API失败: nodeId={}, path={}", 
-                    request.getNodeId(), request.getApi().getPath(), e);
+            log.error("执行节点API失败: nodeId={}, path={}", request.getNodeId(), request.getApi().getPath(), e);
             return ReturnResult.error("执行API失败: " + e.getMessage());
         }
     }
@@ -82,8 +103,7 @@ public class NodeDocumentationController {
      */
     @GetMapping("/{nodeId}/health")
     @Operation(summary = "获取节点健康状态", description = "获取指定节点的健康状态信息")
-    public ReturnResult<Map<String, Object>> getNodeHealth(
-            @Parameter(name = "节点ID") @PathVariable String nodeId) {
+    public ReturnResult<Map<String, Object>> getNodeHealth(@Parameter(name = "节点ID") @PathVariable String nodeId) {
         try {
             log.info("获取节点健康状态: nodeId={}", nodeId);
             return nodeDocumentationService.getNodeHealth(nodeId);
@@ -101,8 +121,7 @@ public class NodeDocumentationController {
      */
     @GetMapping("/{nodeId}/info")
     @Operation(summary = "获取节点基本信息", description = "获取指定节点的基本信息")
-    public ReturnResult<Map<String, Object>> getNodeInfo(
-            @Parameter(name = "节点ID") @PathVariable String nodeId) {
+    public ReturnResult<Map<String, Object>> getNodeInfo(@Parameter(name = "节点ID") @PathVariable String nodeId) {
         try {
             log.info("获取节点基本信息: nodeId={}", nodeId);
             return nodeDocumentationService.getNodeInfo(nodeId);

@@ -2,8 +2,8 @@ package com.chua.starter.monitor.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileInfo;
-import com.chua.starter.monitor.starter.pojo.FileOperationRequest;
-import com.chua.starter.monitor.starter.pojo.FileOperationResponse;
+import com.chua.report.client.starter.pojo.FileOperationRequest;
+import com.chua.report.client.starter.pojo.FileOperationResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -28,7 +28,7 @@ public interface FileManagementService {
      * @return 文件列表
      */
     ReturnResult<FileOperationResponse> listFiles(Integer serverId, String path, Boolean includeHidden, String sortBy,
-            String sortOrder);
+                                                  String sortOrder);
 
     /**
      * 获取文件树

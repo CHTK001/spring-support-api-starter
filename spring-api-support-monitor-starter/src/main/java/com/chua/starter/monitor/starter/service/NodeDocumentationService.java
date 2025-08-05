@@ -26,6 +26,17 @@ public interface NodeDocumentationService {
     ReturnResult<List<NodeApiGroup>> getNodeApiDocs(String nodeId, String nodeAddress, String contextPath);
 
     /**
+     * 获取节点Swagger资源
+     *
+     * @param nodeId      节点ID
+     * @param nodeAddress 节点地址
+     * @param contextPath 上下文路径
+     * @return Swagger资源列表
+     */
+    ReturnResult<List<Map<String, Object>>> getNodeSwaggerResources(String nodeId, String nodeAddress,
+                                                                    String contextPath);
+
+    /**
      * 执行节点API
      *
      * @param request 执行请求

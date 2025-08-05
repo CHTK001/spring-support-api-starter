@@ -81,6 +81,46 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
     }
 
     @Override
+    public ReturnResult<List<Map<String, Object>>> getNodeSwaggerResources(String nodeId, String nodeAddress,
+                                                                           String contextPath) {
+        log.info("获取节点Swagger资源: nodeId={}, nodeAddress={}, contextPath={}", nodeId, nodeAddress, contextPath);
+
+        try {
+            // 构建Swagger资源URL
+            String baseUrl = buildBaseUrl(nodeAddress, contextPath);
+            String resourcesUrl = baseUrl + "/swagger-resources";
+
+            log.info("请求Swagger资源URL: {}", resourcesUrl);
+
+            // 请求Swagger资源
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(resourcesUrl, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                // 解析Swagger资源
+                List<Map<String, Object>> resources = parseSwaggerResources(response.getBody());
+                log.info("成功获取Swagger资源: nodeId={}, 资源数={}", nodeId, resources.size());
+
+                return ReturnResult.ok(resources);
+            } else {
+                log.warn("获取Swagger资源失败: nodeId={}, status={}", nodeId, response.getStatusCode());
+                // 返回默认资源
+                List<Map<String, Object>> defaultResources = createDefaultSwaggerResources();
+                return ReturnResult.ok(defaultResources);
+            }
+
+        } catch (Exception e) {
+            log.error("获取节点Swagger资源异常: nodeId={}, nodeAddress={}", nodeId, nodeAddress, e);
+            // 异常时返回默认资源
+            List<Map<String, Object>> defaultResources = createDefaultSwaggerResources();
+            return ReturnResult.ok(defaultResources);
+        }
+    }
+
+    @Override
     public ReturnResult<Map<String, Object>> executeNodeApi(NodeApiExecuteRequest request) {
         log.info("执行节点API: nodeId={}, path={}, method={}", request.getNodeId(), request.getApi().getPath(),
                 request.getApi().getMethod());
@@ -460,5 +500,69 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
         groups.add(new NodeApiGroup("文件管理", fileApis));
 
         return groups;
+    }
+
+    /**
+     * 解析Swagger资源响应
+     *
+     * @param responseBody 响应体
+     * @return Swagger资源列表
+     */
+    private List<Map<String, Object>> parseSwaggerResources(String responseBody) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(responseBody);
+            List<Map<String, Object>> resources = new ArrayList<>();
+
+            if (rootNode.isArray()) {
+                for (JsonNode resourceNode : rootNode) {
+                    Map<String, Object> resource = new HashMap<>();
+
+                    if (resourceNode.has("name")) {
+                        resource.put("name", resourceNode.get("name").asText());
+                    }
+                    if (resourceNode.has("url")) {
+                        resource.put("url", resourceNode.get("url").asText());
+                    }
+                    if (resourceNode.has("location")) {
+                        resource.put("location", resourceNode.get("location").asText());
+                    }
+                    if (resourceNode.has("swaggerVersion")) {
+                        resource.put("swaggerVersion", resourceNode.get("swaggerVersion").asText());
+                    }
+
+                    resources.add(resource);
+                }
+            }
+
+            return resources;
+        } catch (Exception e) {
+            log.error("解析Swagger资源失败", e);
+            return createDefaultSwaggerResources();
+        }
+    }
+
+    /**
+     * 创建默认Swagger资源
+     *
+     * @return 默认Swagger资源列表
+     */
+    private List<Map<String, Object>> createDefaultSwaggerResources() {
+        List<Map<String, Object>> resources = new ArrayList<>();
+
+        Map<String, Object> defaultResource = new HashMap<>();
+        defaultResource.put("name", "default");
+        defaultResource.put("url", "/v2/api-docs");
+        defaultResource.put("location", "/v2/api-docs");
+        defaultResource.put("swaggerVersion", "2.0");
+        resources.add(defaultResource);
+
+        Map<String, Object> v3Resource = new HashMap<>();
+        v3Resource.put("name", "default-v3");
+        v3Resource.put("url", "/v3/api-docs");
+        v3Resource.put("location", "/v3/api-docs");
+        v3Resource.put("swaggerVersion", "3.0");
+        resources.add(v3Resource);
+
+        return resources;
     }
 }

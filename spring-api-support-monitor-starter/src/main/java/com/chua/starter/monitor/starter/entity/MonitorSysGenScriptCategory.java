@@ -31,7 +31,7 @@ public class MonitorSysGenScriptCategory extends SysBase {
     /**
      * 分类名称
      */
-    @Schema(description = "分类名称", example = "系统监控", required = true)
+    @Schema(description = "分类名称", example = "系统监控")
     @TableField("monitor_sys_gen_script_category_name")
     private String monitorSysGenScriptCategoryName;
 
