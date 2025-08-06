@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerComponent;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -10,9 +11,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
 import com.chua.starter.monitor.service.MonitorSysGenServerComponentService;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.impl.PrometheusService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
-import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -711,7 +710,7 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             return ReturnResult.ok(queryResult);
         } catch (Exception e) {
             log.error("查询Prometheus数据异常, componentId: {}, promQL: {}", componentId, promQL, e);
-            return ReturnResult.error("查询Prometheus数据异常: " + e.getMessage());
+            return ReturnResult.error("Prometheus数据查询异常");
         }
     }
 

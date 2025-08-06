@@ -7,7 +7,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerLog;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerLogMapper;
 import com.chua.starter.monitor.service.MonitorSysGenServerLogService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,17 +24,14 @@ import java.util.Map;
  */
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGenServerLogMapper, MonitorSysGenServerLog>
         implements MonitorSysGenServerLogService {
-
-    private final MonitorSysGenServerLogMapper logMapper;
 
     @Override
     public ReturnResult<IPage<MonitorSysGenServerLog>> getLogPage(Page<MonitorSysGenServerLog> page, Integer serverId,
             String level, String source, String keyword, LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            IPage<MonitorSysGenServerLog> result = logMapper.selectLogPage(page, serverId, level, source, keyword,
+            IPage<MonitorSysGenServerLog> result = baseMapper.selectLogPage(page, serverId, level, source, keyword,
                     startTime, endTime);
             return ReturnResult.success(result);
         } catch (Exception e) {
@@ -48,7 +44,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<List<MonitorSysGenServerLog>> getLogsByServerAndTime(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            List<MonitorSysGenServerLog> logs = logMapper.selectLogsByServerAndTime(serverId, startTime, endTime);
+            List<MonitorSysGenServerLog> logs = baseMapper.selectLogsByServerAndTime(serverId, startTime, endTime);
             return ReturnResult.success(logs);
         } catch (Exception e) {
             log.error("根据服务器ID和时间范围查询日志失败: serverId={}", serverId, e);
@@ -59,7 +55,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     @Override
     public ReturnResult<List<MonitorSysGenServerLog>> getRecentErrorLogs(Integer serverId, Integer limit) {
         try {
-            List<MonitorSysGenServerLog> errorLogs = logMapper.getRecentErrorLogs(serverId, limit);
+            List<MonitorSysGenServerLog> errorLogs = baseMapper.getRecentErrorLogs(serverId, limit);
             return ReturnResult.success(errorLogs);
         } catch (Exception e) {
             log.error("获取最近错误日志失败: serverId={}", serverId, e);
@@ -71,7 +67,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<List<MonitorSysGenServerLog>> getRealTimeLogs(Integer serverId, LocalDateTime lastTime,
             Integer limit) {
         try {
-            List<MonitorSysGenServerLog> realTimeLogs = logMapper.getRealTimeLogs(serverId, lastTime, limit);
+            List<MonitorSysGenServerLog> realTimeLogs = baseMapper.getRealTimeLogs(serverId, lastTime, limit);
             return ReturnResult.success(realTimeLogs);
         } catch (Exception e) {
             log.error("获取实时日志失败: serverId={}", serverId, e);
@@ -83,7 +79,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<IPage<MonitorSysGenServerLog>> searchLogContent(Page<MonitorSysGenServerLog> page,
             Integer serverId, String keyword, LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            IPage<MonitorSysGenServerLog> result = logMapper.searchLogContent(page, serverId, keyword, startTime,
+            IPage<MonitorSysGenServerLog> result = baseMapper.searchLogContent(page, serverId, keyword, startTime,
                     endTime);
             return ReturnResult.success(result);
         } catch (Exception e) {
@@ -123,7 +119,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     @Transactional
     public ReturnResult<Integer> deleteExpiredLogs(Integer serverId, LocalDateTime expiredTime) {
         try {
-            int deletedCount = logMapper.deleteExpiredLogs(serverId, expiredTime);
+            int deletedCount = baseMapper.deleteExpiredLogs(serverId, expiredTime);
             log.info("删除服务器 {} 的过期日志 {} 条", serverId, deletedCount);
             return ReturnResult.success(deletedCount);
         } catch (Exception e) {
@@ -136,7 +132,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     @Transactional
     public ReturnResult<Integer> batchDeleteExpiredLogs(LocalDateTime expiredTime) {
         try {
-            int deletedCount = logMapper.batchDeleteExpiredLogs(expiredTime);
+            int deletedCount = baseMapper.batchDeleteExpiredLogs(expiredTime);
             log.info("批量删除过期日志 {} 条", deletedCount);
             return ReturnResult.success(deletedCount);
         } catch (Exception e) {
@@ -149,7 +145,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<Map<String, Object>> getLogLevelStatistics(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            List<Map<String, Object>> statistics = logMapper.getLogLevelStatistics(serverId, startTime, endTime);
+            List<Map<String, Object>> statistics = baseMapper.getLogLevelStatistics(serverId, startTime, endTime);
 
             Map<String, Object> result = new HashMap<>();
             Map<String, Long> levelCounts = new HashMap<>();
@@ -179,7 +175,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<Map<String, Object>> getLogSourceStatistics(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            List<Map<String, Object>> statistics = logMapper.getLogSourceStatistics(serverId, startTime, endTime);
+            List<Map<String, Object>> statistics = baseMapper.getLogSourceStatistics(serverId, startTime, endTime);
 
             Map<String, Object> result = new HashMap<>();
             Map<String, Long> sourceCounts = new HashMap<>();
@@ -209,7 +205,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<List<Map<String, Object>>> getLogTimeDistribution(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            List<Map<String, Object>> distribution = logMapper.getLogTimeDistribution(serverId, startTime, endTime);
+            List<Map<String, Object>> distribution = baseMapper.getLogTimeDistribution(serverId, startTime, endTime);
             return ReturnResult.success(distribution);
         } catch (Exception e) {
             log.error("获取日志时间分布统计失败: serverId={}", serverId, e);
@@ -221,7 +217,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<Map<String, Object>> getExceptionStatistics(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            Map<String, Object> statistics = logMapper.getExceptionStatistics(serverId, startTime, endTime);
+            Map<String, Object> statistics = baseMapper.getExceptionStatistics(serverId, startTime, endTime);
             statistics.put("serverId", serverId);
             statistics.put("startTime", startTime);
             statistics.put("endTime", endTime);
@@ -236,7 +232,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
     public ReturnResult<Map<String, Object>> getLogSizeStatistics(Integer serverId, LocalDateTime startTime,
             LocalDateTime endTime) {
         try {
-            Long totalSize = logMapper.getLogSizeStatistics(serverId, startTime, endTime);
+            Long totalSize = baseMapper.getLogSizeStatistics(serverId, startTime, endTime);
 
             Map<String, Object> result = new HashMap<>();
             result.put("totalSizeBytes", totalSize);
@@ -403,27 +399,27 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
             Map<String, Object> statistics = new HashMap<>();
 
             // 总日志数
-            long total = logMapper.countByServerId(serverId);
+            long total = baseMapper.countByServerId(serverId);
             statistics.put("total", total);
 
             // 各级别日志数量
-            long infoCount = logMapper.countByServerIdAndLevel(serverId, "INFO");
+            long infoCount = baseMapper.countByServerIdAndLevel(serverId, "INFO");
             statistics.put("infoCount", infoCount);
 
-            long warnCount = logMapper.countByServerIdAndLevel(serverId, "WARN");
+            long warnCount = baseMapper.countByServerIdAndLevel(serverId, "WARN");
             statistics.put("warnCount", warnCount);
 
-            long errorCount = logMapper.countByServerIdAndLevel(serverId, "ERROR");
+            long errorCount = baseMapper.countByServerIdAndLevel(serverId, "ERROR");
             statistics.put("errorCount", errorCount);
 
             // 今日日志数
             LocalDateTime todayStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
-            long todayCount = logMapper.countByServerIdAndTimeRange(serverId, todayStart, LocalDateTime.now());
+            long todayCount = baseMapper.countByServerIdAndTimeRange(serverId, todayStart, LocalDateTime.now());
             statistics.put("todayCount", todayCount);
 
             // 最近1小时日志数
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
-            long lastHourCount = logMapper.countByServerIdAndTimeRange(serverId, oneHourAgo, LocalDateTime.now());
+            long lastHourCount = baseMapper.countByServerIdAndTimeRange(serverId, oneHourAgo, LocalDateTime.now());
             statistics.put("lastHourCount", lastHourCount);
 
             log.info("获取服务器日志统计信息完成: serverId={}, statistics={}", serverId, statistics);
@@ -446,7 +442,7 @@ public class MonitorSysGenServerLogServiceImpl extends ServiceImpl<MonitorSysGen
                 beforeDate = LocalDateTime.now().minusDays(30);
             }
 
-            int deletedCount = logMapper.deleteByServerIdAndBeforeDate(serverId, beforeDate);
+            int deletedCount = baseMapper.deleteByServerIdAndBeforeDate(serverId, beforeDate);
 
             log.info("清理服务器日志完成: serverId={}, 清理记录数={}", serverId, deletedCount);
             return ReturnResult.success(deletedCount);
