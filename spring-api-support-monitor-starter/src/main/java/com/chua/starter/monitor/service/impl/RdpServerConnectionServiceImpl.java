@@ -351,6 +351,11 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         }
     }
 
+    @Override
+    public void setDataCallback(Integer serverId, DataCallback callback) {
+
+    }
+
     /**
      * 收集默认指标
      */

@@ -68,7 +68,7 @@ public class SshCommandServiceImpl implements SshCommandService {
                         log.error("发送SSH数据到前端失败: {}", e.getMessage(), e);
                     }
                 });
-
+                sshService.executeCommand(serverId, "\n");
                 log.info("SSH连接建立成功: serverId={}, host={}", serverId, server.getMonitorSysGenServerHost());
             }
 
