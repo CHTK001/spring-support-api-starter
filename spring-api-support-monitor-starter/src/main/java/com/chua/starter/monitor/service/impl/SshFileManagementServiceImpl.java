@@ -7,6 +7,7 @@ import com.chua.common.support.protocol.client.ProtocolClientFactory;
 import com.chua.report.client.starter.pojo.FileInfo;
 import com.chua.report.client.starter.pojo.FileOperationRequest;
 import com.chua.report.client.starter.pojo.FileOperationResponse;
+import com.chua.ssh.support.client.SftpClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.FileManagementService;
@@ -809,7 +810,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
         }
 
-        return ProtocolClientFactory.create(server.getMonitorSysGenServerId(), FileClient.class, config.build());
+        return ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SftpClient.class, config.build());
     }
 
     /**
