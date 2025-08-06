@@ -2,6 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 // 项目内部依赖
 
+import com.chua.common.support.protocol.ClientSetting;
+import com.chua.common.support.protocol.client.ProtocolClientFactory;
+import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
@@ -36,17 +39,16 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     /**
      * 连接状态映射
      */
-    private final Map<Integer, Boolean> connectionStatusMap = new ConcurrentHashMap<>();
-
-    /**
-     * 会话ID映射
-     */
-    private final Map<Integer, String> sessionIdMap = new ConcurrentHashMap<>();
+    private final Map<Integer, SshClient> connectionStatusMap = new ConcurrentHashMap<>();
 
     /**
      * 服务器配置缓存
      */
     private final Map<Integer, MonitorSysGenServer> serverConfigCache = new ConcurrentHashMap<>();
+    /**
+     * 连接数据回调映射
+     */
+    private final Map<Integer, DataCallback> connectionCallbackMap = new ConcurrentHashMap<>();
 
     @Override
     public boolean connect(MonitorSysGenServer server) {
@@ -58,16 +60,23 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                     server.getMonitorSysGenServerUsername(),
                     server.getMonitorSysGenServerHost(),
                     server.getMonitorSysGenServerPort());
+            ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
+            config.host(server.getMonitorSysGenServerHost());
+            config.port(server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 22);
+            config.username(server.getMonitorSysGenServerUsername());
+            config.password(server.getMonitorSysGenServerPassword());
+            config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
+            config.clientType("ssh"); // 指定使用SFTP客户端
 
-            // 缓存服务器配置
+            if (server.getMonitorSysGenServerTimeout() != null) {
+                config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
+            }
+
+            SshClient sshClient = ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SshClient.class, config.build());
             serverConfigCache.put(serverId, server);
-            String sessionId = "ssh_" + serverId + "_" + System.currentTimeMillis();
-            sessionIdMap.put(serverId, sessionId);
+            connectionStatusMap.put(serverId, sshClient);
 
-            // 设置连接状态为已连接（模拟）
-            connectionStatusMap.put(serverId, true);
-
-            log.info("SSH连接成功（模拟）: serverId={}", serverId);
+            log.info("SSH连接成功: serverId={}", serverId);
             return true;
             
         } catch (Exception e) {
@@ -89,8 +98,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                     server.getMonitorSysGenServerHost(),
                     server.getMonitorSysGenServerPort());
 
-            // 模拟连接测试
-            return true;
+            return connectionStatusMap.get(server.getMonitorSysGenServerId()) != null;
         } catch (Exception e) {
             log.error("SSH连接测试失败: {}", e.getMessage(), e);
             return false;
@@ -102,7 +110,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         try {
             // 清理连接状态
             connectionStatusMap.remove(serverId);
-            sessionIdMap.remove(serverId);
+            ProtocolClientFactory.uncreated(serverId);
             serverConfigCache.remove(serverId);
 
             log.info("SSH连接已断开: serverId={}", serverId);
@@ -117,9 +125,9 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             if (!isConnected(serverId)) {
                 return "SSH连接不存在或已断开";
             }
-
-            log.info("执行SSH命令（模拟）: serverId={}, command={}", serverId, command);
-            return "命令执行成功（模拟）: " + command;
+            SshClient sshClient = connectionStatusMap.get(serverId);
+            sshClient.executeCommand(command);
+            return "命令执行成功: " + command;
             
         } catch (Exception e) {
             log.error("执行SSH命令失败: {}", e.getMessage(), e);
@@ -129,7 +137,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
     @Override
     public boolean isConnected(Integer serverId) {
-        return connectionStatusMap.getOrDefault(serverId, false);
+        return connectionStatusMap.get(serverId) != null;
     }
 
     @Override
@@ -140,6 +148,8 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             } else {
                 log.warn("SSH连接不存在，无法发送数据: serverId={}", serverId);
             }
+            SshClient sshClient = connectionStatusMap.get(serverId);
+            sshClient.executeCommand(data);
         } catch (Exception e) {
             log.error("发送数据到SSH服务器失败: {}", e.getMessage(), e);
         }
@@ -181,7 +191,6 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             if (isConnected(serverId)) {
                 info.put("connected", true);
                 info.put("protocol", "SSH");
-                info.put("sessionId", sessionIdMap.get(serverId));
                 info.put("osInfo", "Linux模拟系统");
                 info.put("hostname", "ssh-server-" + serverId);
                 info.put("uptime", "模拟运行时间");
@@ -198,7 +207,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
     @Override
     public String getSessionId(Integer serverId) {
-        return sessionIdMap.get(serverId);
+        return String.valueOf(serverId);
     }
 
     @Override
@@ -217,14 +226,13 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
     public Map<String, Object> listFiles(Integer serverId, String path) {
         Map<String, Object> result = new HashMap<>();
         try {
-            if (isConnected(serverId)) {
-                result.put("success", true);
-                result.put("files", "模拟文件列表");
-                result.put("path", path);
-            } else {
+            if (!isConnected(serverId)) {
                 result.put("success", false);
                 result.put("error", "SSH连接不存在或已断开");
             }
+            result.put("success", true);
+            result.put("files", "模拟文件列表");
+            result.put("path", path);
         } catch (Exception e) {
             log.error("获取文件列表失败: {}", e.getMessage(), e);
             result.put("success", false);
@@ -263,6 +271,30 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         }
     }
 
+    @Override
+    public void setDataCallback(Integer serverId, DataCallback callback) {
+        connectionCallbackMap.put(serverId, callback);
+        if(connectionStatusMap.containsKey(serverId)) {
+            connectionStatusMap.get(serverId).setListener(new SshClient.SshListener() {
+
+                @Override
+                public void onOutput(String s) {
+                    callback.onData(s);
+                }
+
+                @Override
+                public void onException(Exception e) {
+
+                }
+
+                @Override
+                public void onClosed() {
+
+                }
+            });
+        }
+    }
+
     /**
      * 服务销毁时清理资源
      */
@@ -273,7 +305,6 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
             // 清理所有资源
             connectionStatusMap.clear();
-            sessionIdMap.clear();
             serverConfigCache.clear();
 
             log.info("SSH连接资源清理完成");

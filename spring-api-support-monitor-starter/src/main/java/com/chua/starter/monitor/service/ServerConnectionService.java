@@ -144,9 +144,7 @@ public interface ServerConnectionService {
      * @param serverId 服务器ID
      * @param callback 数据回调函数
      */
-    default void setDataCallback(Integer serverId, DataCallback callback) {
-        // 默认空实现，子类可以重写
-    }
+    void setDataCallback(Integer serverId, DataCallback callback);
 
     /**
      * 数据回调接口
