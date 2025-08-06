@@ -98,7 +98,11 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
                     server.getMonitorSysGenServerHost(),
                     server.getMonitorSysGenServerPort());
 
-            return connectionStatusMap.get(server.getMonitorSysGenServerId()) != null;
+            if(connectionStatusMap.containsKey(server.getMonitorSysGenServerId())) {
+                return true;
+            }
+
+            return connect(server);
         } catch (Exception e) {
             log.error("SSH连接测试失败: {}", e.getMessage(), e);
             return false;
