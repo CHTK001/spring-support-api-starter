@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/monitor/server/setting/history")
+@RequestMapping("/v1/monitor/server/setting/history")
 @RequiredArgsConstructor
 @Tag(name = "服务器配置变更历史管理", description = "服务器配置变更历史相关接口")
 public class MonitorSysGenServerSettingHistoryController {
@@ -49,10 +49,8 @@ public class MonitorSysGenServerSettingHistoryController {
     @Operation(summary = "根据服务器ID和时间范围查询历史记录")
     public ReturnResult<List<MonitorSysGenServerSettingHistory>> getHistoryByServerIdAndTimeRange(
             @Parameter(description = "服务器ID") @PathVariable Integer serverId,
-            @Parameter(description = "开始时间") @RequestParam(required = false) 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @Parameter(description = "结束时间") @RequestParam(required = false) 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+            @Parameter(description = "开始时间") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
         return historyService.getHistoryByServerIdAndTimeRange(serverId, startTime, endTime);
     }
 
@@ -149,10 +147,8 @@ public class MonitorSysGenServerSettingHistoryController {
     @Operation(summary = "导出历史记录")
     public ReturnResult<String> exportHistory(
             @Parameter(description = "服务器ID") @PathVariable Integer serverId,
-            @Parameter(description = "开始时间") @RequestParam(required = false) 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
-            @Parameter(description = "结束时间") @RequestParam(required = false) 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
+            @Parameter(description = "开始时间") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
             @Parameter(description = "导出格式") @RequestParam(defaultValue = "json") String format) {
         return historyService.exportHistory(serverId, startTime, endTime, format);
     }
@@ -163,8 +159,7 @@ public class MonitorSysGenServerSettingHistoryController {
     @DeleteMapping("/cleanup")
     @Operation(summary = "删除指定时间之前的历史记录")
     public ReturnResult<Integer> deleteHistoryBeforeTime(
-            @Parameter(description = "时间点") @RequestParam 
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beforeTime) {
+            @Parameter(description = "时间点") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beforeTime) {
         return historyService.deleteHistoryBeforeTime(beforeTime);
     }
 
@@ -191,7 +186,7 @@ public class MonitorSysGenServerSettingHistoryController {
             @Parameter(description = "变更用户") @RequestParam(defaultValue = "system") String user,
             @Parameter(description = "配置快照") @RequestParam(required = false) String settingSnapshot,
             @Parameter(description = "变更字段") @RequestParam(required = false) String changedFields) {
-        
+
         MonitorSysGenServerSettingHistory.ChangeType type;
         try {
             type = MonitorSysGenServerSettingHistory.ChangeType.valueOf(changeType.toUpperCase());
@@ -199,7 +194,8 @@ public class MonitorSysGenServerSettingHistoryController {
             return ReturnResult.error("无效的变更类型: " + changeType);
         }
 
-        return historyService.recordHistory(serverId, settingId, type, description, user, settingSnapshot, changedFields);
+        return historyService.recordHistory(serverId, settingId, type, description, user, settingSnapshot,
+                changedFields);
     }
 
     /**

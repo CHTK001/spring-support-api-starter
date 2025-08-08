@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/server-card")
+@RequestMapping("/server-card")
 @RequiredArgsConstructor
 @Tag(name = "服务器卡片数据", description = "服务器卡片数据相关接口")
 public class ServerCardDataController {
@@ -49,8 +49,7 @@ public class ServerCardDataController {
     @Operation(summary = "获取单个服务器卡片数据", description = "获取服务器的CPU、内存、磁盘、网络等最新数据")
     @Cacheable(value = "serverCardData", key = "#serverId", unless = "#result == null || !#result.ok")
     public ReturnResult<Map<String, Object>> getServerCardData(
-            @Parameter(description = "服务器ID", required = true)
-            @PathVariable Integer serverId) {
+            @Parameter(description = "服务器ID", required = true) @PathVariable Integer serverId) {
         try {
             if (serverId == null) {
                 return ReturnResult.error("服务器ID不能为空");
@@ -90,8 +89,7 @@ public class ServerCardDataController {
     @PostMapping("/batch")
     @Operation(summary = "批量获取服务器卡片数据", description = "批量获取多个服务器的卡片数据")
     public ReturnResult<Map<Integer, Map<String, Object>>> getBatchServerCardData(
-            @Parameter(description = "服务器ID列表", required = true)
-            @RequestBody List<Integer> serverIds) {
+            @Parameter(description = "服务器ID列表", required = true) @RequestBody List<Integer> serverIds) {
         try {
             if (serverIds == null || serverIds.isEmpty()) {
                 return ReturnResult.ok(new HashMap<>());
@@ -110,33 +108,33 @@ public class ServerCardDataController {
 
             // 使用并行流处理，提高性能
             List<CompletableFuture<Void>> futures = serverIds.stream()
-                .map(serverId -> CompletableFuture.runAsync(() -> {
-                    try {
-                        // 获取服务器基本信息
-                        MonitorSysGenServer server = serverService.getById(serverId);
-                        if (server == null) {
-                            log.warn("服务器不存在: serverId={}", serverId);
-                            return;
+                    .map(serverId -> CompletableFuture.runAsync(() -> {
+                        try {
+                            // 获取服务器基本信息
+                            MonitorSysGenServer server = serverService.getById(serverId);
+                            if (server == null) {
+                                log.warn("服务器不存在: serverId={}", serverId);
+                                return;
+                            }
+
+                            // 获取最新指标数据
+                            MonitorSysGenServerMetrics metrics = metricsService.getLatestMetricsDirectly(serverId);
+
+                            // 获取延迟数据
+                            Long latency = latencyMap.get(serverId);
+
+                            // 构建卡片数据
+                            Map<String, Object> cardData = buildServerCardData(server, metrics, latency);
+                            result.put(serverId, cardData);
+
+                        } catch (Exception e) {
+                            log.error("获取服务器卡片数据失败: serverId={}", serverId, e);
+                            // 添加错误信息到结果中
+                            Map<String, Object> errorData = createErrorCardData(serverId, e.getMessage());
+                            result.put(serverId, errorData);
                         }
-
-                        // 获取最新指标数据
-                        MonitorSysGenServerMetrics metrics = metricsService.getLatestMetricsDirectly(serverId);
-
-                        // 获取延迟数据
-                        Long latency = latencyMap.get(serverId);
-
-                        // 构建卡片数据
-                        Map<String, Object> cardData = buildServerCardData(server, metrics, latency);
-                        result.put(serverId, cardData);
-
-                    } catch (Exception e) {
-                        log.error("获取服务器卡片数据失败: serverId={}", serverId, e);
-                        // 添加错误信息到结果中
-                        Map<String, Object> errorData = createErrorCardData(serverId, e.getMessage());
-                        result.put(serverId, errorData);
-                    }
-                }))
-                .collect(Collectors.toList());
+                    }))
+                    .collect(Collectors.toList());
 
             // 等待所有任务完成
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -162,9 +160,9 @@ public class ServerCardDataController {
         try {
             // 获取所有在线服务器
             List<MonitorSysGenServer> onlineServers = serverService.list().stream()
-                .filter(server -> server.getMonitorSysGenServerStatus() != null &&
-                                server.getMonitorSysGenServerStatus() == 1)
-                .collect(Collectors.toList());
+                    .filter(server -> server.getMonitorSysGenServerStatus() != null &&
+                            server.getMonitorSysGenServerStatus() == 1)
+                    .collect(Collectors.toList());
 
             if (onlineServers.isEmpty()) {
                 log.info("当前没有在线的服务器");
@@ -173,8 +171,8 @@ public class ServerCardDataController {
 
             // 提取服务器ID列表
             List<Integer> serverIds = onlineServers.stream()
-                .map(MonitorSysGenServer::getMonitorSysGenServerId)
-                .collect(Collectors.toList());
+                    .map(MonitorSysGenServer::getMonitorSysGenServerId)
+                    .collect(Collectors.toList());
 
             log.info("获取所有在线服务器卡片数据: 共{}台服务器", serverIds.size());
 
@@ -204,16 +202,16 @@ public class ServerCardDataController {
             // 统计服务器状态
             long totalServers = allServers.size();
             long onlineServers = allServers.stream()
-                .filter(server -> server.getMonitorSysGenServerStatus() != null &&
-                                server.getMonitorSysGenServerStatus() == 1)
-                .count();
+                    .filter(server -> server.getMonitorSysGenServerStatus() != null &&
+                            server.getMonitorSysGenServerStatus() == 1)
+                    .count();
             long offlineServers = totalServers - onlineServers;
 
             // 统计连接状态
             long connectedServers = allServers.stream()
-                .filter(server -> server.getMonitorSysGenServerConnectionStatus() != null &&
-                                server.getMonitorSysGenServerConnectionStatus() == 1)
-                .count();
+                    .filter(server -> server.getMonitorSysGenServerConnectionStatus() != null &&
+                            server.getMonitorSysGenServerConnectionStatus() == 1)
+                    .count();
             long disconnectedServers = totalServers - connectedServers;
 
             summary.put("totalServers", totalServers);
@@ -242,9 +240,9 @@ public class ServerCardDataController {
      * @param latency 延迟数据
      * @return 卡片数据
      */
-    private Map<String, Object> buildServerCardData(MonitorSysGenServer server, 
-                                                   MonitorSysGenServerMetrics metrics, 
-                                                   Long latency) {
+    private Map<String, Object> buildServerCardData(MonitorSysGenServer server,
+                                                    MonitorSysGenServerMetrics metrics,
+                                                    Long latency) {
         Map<String, Object> cardData = new HashMap<>();
 
         // 服务器基本信息
@@ -334,7 +332,7 @@ public class ServerCardDataController {
     /**
      * 创建错误卡片数据
      *
-     * @param serverId 服务器ID
+     * @param serverId     服务器ID
      * @param errorMessage 错误信息
      * @return 错误卡片数据
      */
@@ -367,8 +365,7 @@ public class ServerCardDataController {
     @GetMapping("/{serverId}/health-score")
     @Operation(summary = "获取服务器健康评分", description = "根据CPU、内存、磁盘使用率计算服务器健康评分")
     public ReturnResult<Map<String, Object>> getServerHealthScore(
-            @Parameter(description = "服务器ID", required = true)
-            @PathVariable Integer serverId) {
+            @Parameter(description = "服务器ID", required = true) @PathVariable Integer serverId) {
         try {
             if (serverId == null) {
                 return ReturnResult.error("服务器ID不能为空");
@@ -393,16 +390,14 @@ public class ServerCardDataController {
      * 获取服务器性能趋势
      *
      * @param serverId 服务器ID
-     * @param hours 时间范围（小时）
+     * @param hours    时间范围（小时）
      * @return 性能趋势数据
      */
     @GetMapping("/{serverId}/performance-trend")
     @Operation(summary = "获取服务器性能趋势", description = "获取指定时间范围内的服务器性能趋势数据")
     public ReturnResult<Map<String, Object>> getServerPerformanceTrend(
-            @Parameter(description = "服务器ID", required = true)
-            @PathVariable Integer serverId,
-            @Parameter(description = "时间范围（小时）", example = "24")
-            @RequestParam(defaultValue = "24") Integer hours) {
+            @Parameter(description = "服务器ID", required = true) @PathVariable Integer serverId,
+            @Parameter(description = "时间范围（小时）", example = "24") @RequestParam(defaultValue = "24") Integer hours) {
         try {
             if (serverId == null) {
                 return ReturnResult.error("服务器ID不能为空");
@@ -430,8 +425,7 @@ public class ServerCardDataController {
     @PostMapping("/refresh-cache")
     @Operation(summary = "刷新服务器卡片数据缓存", description = "清除指定服务器或所有服务器的卡片数据缓存")
     public ReturnResult<String> refreshCardDataCache(
-            @Parameter(description = "服务器ID（可选）")
-            @RequestParam(required = false) Integer serverId) {
+            @Parameter(description = "服务器ID（可选）") @RequestParam(required = false) Integer serverId) {
         try {
             // TODO: 实现缓存清理逻辑
             if (serverId != null) {
@@ -458,12 +452,15 @@ public class ServerCardDataController {
         Map<String, Object> healthScore = new HashMap<>();
 
         // 获取各项指标
-        double cpuUsage = metrics.getMonitorSysGenServerMetricsCpuUsage() != null ?
-            metrics.getMonitorSysGenServerMetricsCpuUsage().doubleValue() : 0.0;
-        double memoryUsage = metrics.getMonitorSysGenServerMetricsMemoryUsage() != null ?
-            metrics.getMonitorSysGenServerMetricsMemoryUsage().doubleValue() : 0.0;
-        double diskUsage = metrics.getMonitorSysGenServerMetricsDiskUsage() != null ?
-            metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() : 0.0;
+        double cpuUsage = metrics.getMonitorSysGenServerMetricsCpuUsage() != null
+                ? metrics.getMonitorSysGenServerMetricsCpuUsage().doubleValue()
+                : 0.0;
+        double memoryUsage = metrics.getMonitorSysGenServerMetricsMemoryUsage() != null
+                ? metrics.getMonitorSysGenServerMetricsMemoryUsage().doubleValue()
+                : 0.0;
+        double diskUsage = metrics.getMonitorSysGenServerMetricsDiskUsage() != null
+                ? metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue()
+                : 0.0;
 
         // 计算各项评分（0-100分）
         double cpuScore = Math.max(0, 100 - cpuUsage);
@@ -505,7 +502,7 @@ public class ServerCardDataController {
      * 计算服务器性能趋势
      *
      * @param serverId 服务器ID
-     * @param hours 时间范围（小时）
+     * @param hours    时间范围（小时）
      * @return 性能趋势数据
      */
     private Map<String, Object> calculatePerformanceTrend(Integer serverId, Integer hours) {

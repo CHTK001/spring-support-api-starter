@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.controller;
 
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerComponentLayout;
 import com.chua.starter.monitor.service.MonitorSysGenServerComponentLayoutService;
-import com.chua.common.support.lang.code.ReturnResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/monitor/server/component/layout")
+@RequestMapping("/monitor/server/component/layout")
 @RequiredArgsConstructor
 @Api(tags = "服务器组件布局配置管理")
 @Tag(name = "服务器组件布局配置管理", description = "服务器组件布局配置相关接口")
