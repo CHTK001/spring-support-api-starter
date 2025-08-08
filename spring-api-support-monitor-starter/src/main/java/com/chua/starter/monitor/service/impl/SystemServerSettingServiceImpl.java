@@ -54,7 +54,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     }
 
     @Override
-    public ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects() {
+    public ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects(Integer serverId) {
         try {
             List<Map<String, Object>> filterObjects = new ArrayList<>();
 
@@ -101,6 +101,45 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         } catch (Exception e) {
             log.error("获取可用ServletFilter失败", e);
             return ReturnResult.error("获取ServletFilter失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(Integer serverId) {
+        try {
+            List<SystemServerSetting> settings = baseMapper.selectByServerId(serverId);
+            List<Map<String, Object>> installedFilters = new ArrayList<>();
+
+            for (SystemServerSetting setting : settings) {
+                Map<String, Object> filterInfo = new HashMap<>();
+                filterInfo.put("id", setting.getSystemServerSettingId());
+                filterInfo.put("type", setting.getSystemServerSettingType());
+                filterInfo.put("name", setting.getSystemServerSettingName());
+                filterInfo.put("description", setting.getSystemServerSettingDescription());
+                filterInfo.put("enabled", setting.getSystemServerSettingEnabled());
+                filterInfo.put("config", setting.getSystemServerSettingConfig());
+                filterInfo.put("className", setting.getSystemServerSettingClassName());
+                filterInfo.put("version", setting.getSystemServerSettingVersion());
+                filterInfo.put("createTime", setting.getCreateTime());
+                filterInfo.put("updateTime", setting.getUpdateTime());
+
+                installedFilters.add(filterInfo);
+            }
+
+            // 按排序顺序排序
+            installedFilters.sort((a, b) -> {
+                Integer orderA = (Integer) a.get("sortOrder");
+                Integer orderB = (Integer) b.get("sortOrder");
+                if (orderA == null) orderA = 0;
+                if (orderB == null) orderB = 0;
+                return orderA.compareTo(orderB);
+            });
+
+            log.info("获取服务器已安装ServletFilter成功: serverId={}, 数量={}", serverId, installedFilters.size());
+            return ReturnResult.ok(installedFilters);
+        } catch (Exception e) {
+            log.error("获取服务器已安装ServletFilter失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取已安装Filter失败: " + e.getMessage());
         }
     }
 

@@ -15,8 +15,8 @@
             <if test="entity.systemServerPort != null">
                 AND system_server_port = #{entity.systemServerPort}
             </if>
-            <if test="entity.systemServerStatus != null and entity.systemServerStatus != ''">
-                AND system_server_status = #{entity.systemServerStatus}
+            <if test="entity.systemServerStatus != null">
+                AND system_server_status = #{entity.systemServerStatus.name}
             </if>
             <if test="entity.systemServerType != null and entity.systemServerType != ''">
                 AND system_server_type = #{entity.systemServerType}
