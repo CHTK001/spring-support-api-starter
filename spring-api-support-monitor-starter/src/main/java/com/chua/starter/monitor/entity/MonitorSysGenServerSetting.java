@@ -6,10 +6,16 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.monitor.controller.MonitorSysGenServerController;
+import com.chua.starter.monitor.controller.MonitorSysGenServerSettingController;
 import com.chua.starter.monitor.enums.AlertNotificationMethod;
 import com.chua.starter.monitor.enums.DataReportMethod;
 import com.chua.starter.monitor.enums.DockerConnectionType;
 import com.chua.starter.monitor.enums.ProxyType;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,6 +40,16 @@ import java.math.BigDecimal;
 @TableName(value = "monitor_sys_gen_server_setting")
 public class MonitorSysGenServerSetting extends SysBase {
 
+    /**
+     * 服务器配置设置ID
+     *
+     * @see MonitorSysGenServerSettingController#getById
+     * @see MonitorSysGenServerSettingController#update
+     * @see MonitorSysGenServerSettingController#delete
+     * @see MonitorSysGenServerSettingService#getById
+     * @see MonitorSysGenServerSettingService#updateById
+     * @see MonitorSysGenServerSettingMapper#selectById
+     */
     @TableId(value = "monitor_sys_gen_server_setting_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置设置ID")
     @Schema(description = "服务器配置设置ID")
@@ -42,6 +58,13 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 服务器ID (关联MonitorSysGenServer表)
+     *
+     * @see MonitorSysGenServerSettingController#getByServerId
+     * @see MonitorSysGenServerSettingService#getByServerId
+     * @see MonitorSysGenServerSettingService#createDefaultSetting
+     * @see MonitorSysGenServerSettingMapper#selectByServerId
+     * @see MonitorSysGenServerSettingMapper#selectByServerIds
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_id")
     @ApiModelProperty(value = "服务器ID")
@@ -59,6 +82,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 数据上报方式 (NONE:不支持上报, LOCAL:本地上报, API:接口上报, PROMETHEUS:prometheus)
+     *
+     * @see MonitorSysGenServerService#getSupportedReportMethods
+     * @see MonitorSysGenServerService#queryDataByConfig
+     * @see MonitorSysGenServerSetting#getDefaultSetting
+     * @see DataReportMethod
      */
     @TableField(value = "monitor_sys_gen_server_setting_data_report_method")
     @ApiModelProperty(value = "数据上报方式")
@@ -133,6 +161,12 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerController#getConnectionStatus
+     * @see MonitorSysGenServerService#getConnectionStatus
+     * @see MonitorSysGenServerMapper#selectMonitoringEnabledServers
+     * @see MonitorSysGenServerSettingMapper#selectMonitorEnabledSettings
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_monitor_enabled")
     @ApiModelProperty(value = "是否启用监控")
@@ -181,6 +215,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用告警 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#updateAlertSettings
+     * @see MonitorSysGenServerSettingService#updateAlertSettings
+     * @see MonitorSysGenServerSettingMapper#selectAlertEnabledSettings
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_alert_enabled")
     @ApiModelProperty(value = "是否启用告警")

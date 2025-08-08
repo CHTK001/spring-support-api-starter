@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/data-report")
+@RequestMapping("/data-report")
 @Api(tags = "数据上报管理")
 @RequiredArgsConstructor
 public class DataReportController {

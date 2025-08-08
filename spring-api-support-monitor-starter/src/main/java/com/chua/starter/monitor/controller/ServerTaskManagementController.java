@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/monitor/server-task")
+@RequestMapping("/monitor/server-task")
 @RequiredArgsConstructor
 @Api(tags = "服务器任务管理")
 public class ServerTaskManagementController {
