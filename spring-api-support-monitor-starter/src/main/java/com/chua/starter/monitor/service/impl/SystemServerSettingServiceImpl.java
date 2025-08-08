@@ -7,8 +7,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
+import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
+import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.service.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;
@@ -55,13 +57,11 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     @Override
     public ReturnResult<List<SpiOption>> getAvailableServletFilterObjects(Integer serverId) {
         try {
-            List<Map<String, Object>> filterObjects = new ArrayList<>();
-
             // 通过SPI机制获取可用的ServletFilter
             ServiceProvider<ServletFilter> serviceProvider = ServiceProvider.of(ServletFilter.class);
             List<SpiOption> options = serviceProvider.options();
 
-            log.info("获取可用ServletFilter成功，共{}个", filterObjects.size());
+            log.info("获取可用ServletFilter成功，共{}个", options.size());
             return ReturnResult.ok(options);
         } catch (Exception e) {
             log.error("获取可用ServletFilter失败", e);
@@ -70,38 +70,11 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     }
 
     @Override
-    public ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(Integer serverId) {
+    public ReturnResult<List<SystemServerSetting>> getServerInstalledFilters(Integer serverId) {
         try {
             List<SystemServerSetting> settings = baseMapper.selectByServerId(serverId);
-            List<Map<String, Object>> installedFilters = new ArrayList<>();
-
-            for (SystemServerSetting setting : settings) {
-                Map<String, Object> filterInfo = new HashMap<>();
-                filterInfo.put("id", setting.getSystemServerSettingId());
-                filterInfo.put("type", setting.getSystemServerSettingType());
-                filterInfo.put("name", setting.getSystemServerSettingName());
-                filterInfo.put("description", setting.getSystemServerSettingDescription());
-                filterInfo.put("enabled", setting.getSystemServerSettingEnabled());
-                filterInfo.put("config", setting.getSystemServerSettingConfig());
-                filterInfo.put("className", setting.getSystemServerSettingClassName());
-                filterInfo.put("version", setting.getSystemServerSettingVersion());
-                filterInfo.put("createTime", setting.getCreateTime());
-                filterInfo.put("updateTime", setting.getUpdateTime());
-
-                installedFilters.add(filterInfo);
-            }
-
-            // 按排序顺序排序
-            installedFilters.sort((a, b) -> {
-                Integer orderA = (Integer) a.get("sortOrder");
-                Integer orderB = (Integer) b.get("sortOrder");
-                if (orderA == null) orderA = 0;
-                if (orderB == null) orderB = 0;
-                return orderA.compareTo(orderB);
-            });
-
-            log.info("获取服务器已安装ServletFilter成功: serverId={}, 数量={}", serverId, installedFilters.size());
-            return ReturnResult.ok(installedFilters);
+            log.info("获取服务器已安装ServletFilter成功: serverId={}, 数量={}", serverId, settings.size());
+            return ReturnResult.ok(settings);
         } catch (Exception e) {
             log.error("获取服务器已安装ServletFilter失败: serverId={}", serverId, e);
             return ReturnResult.error("获取已安装Filter失败: " + e.getMessage());
@@ -110,8 +83,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
 
     @Override
     @Transactional
-    public ReturnResult<SystemServerSetting> installServletFilter(Integer serverId, String filterType,
-                                                                  String filterName, String description) {
+    public ReturnResult<SystemServerSetting> installServletFilter(Integer serverId, String filterType) {
         try {
             // 检查是否已安装相同类型的Filter
             SystemServerSetting existingSetting = baseMapper.selectByServerIdAndType(serverId, filterType);
@@ -121,25 +93,16 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
 
             // 获取最大排序值
             Integer maxOrder = baseMapper.getMaxOrderByServerId(serverId);
-
+            ServiceProvider<ServletFilter> servletFilterServiceProvider = ServiceProvider.of(ServletFilter.class);
+            ServiceDefinition definition = servletFilterServiceProvider.getDefinition(filterType);
             // 创建配置记录
             SystemServerSetting setting = new SystemServerSetting();
             setting.setSystemServerSettingServerId(serverId);
-            setting.setSystemServerSettingName(filterName);
+            setting.setSystemServerSettingName(definition.getDescribe());
             setting.setSystemServerSettingType(filterType);
-            setting.setSystemServerSettingDescription(description);
+            setting.setSystemServerSettingDescription(definition.getDescribe());
             setting.setSystemServerSettingEnabled(true);
             setting.setSystemServerSettingOrder(maxOrder + 1);
-
-            // 通过SPI获取Filter信息
-            try {
-                ServiceProvider serviceProvider = ServiceProvider.of("ServletFilter");
-                Object filterInstance = serviceProvider.getNewExtension(filterType);
-                setting.setSystemServerSettingClassName(filterInstance.getClass().getName());
-                setting.setSystemServerSettingVersion(getFilterVersion(filterInstance));
-            } catch (Exception e) {
-                log.warn("获取Filter信息失败，使用默认值: filterType={}", filterType, e);
-            }
 
             save(setting);
 
@@ -149,7 +112,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             // 应用配置到运行中的服务器
             applyConfigToRunningServer(serverId);
 
-            log.info("安装ServletFilter成功: serverId={}, filterType={}, filterName={}", serverId, filterType, filterName);
+            log.info("安装ServletFilter成功: serverId={}, filterType={}, filterName={}", serverId, filterType, definition.getDescribe());
             return ReturnResult.ok(setting);
         } catch (Exception e) {
             log.error("安装ServletFilter失败: serverId={}, filterType={}", serverId, filterType, e);
@@ -363,6 +326,23 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             log.error("批量更新ServletFilter启用状态失败: settingIds={}, enabled={}", settingIds, enabled, e);
             return ReturnResult.error("批量更新失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public ReturnResult<Boolean> orderServerInstalledFilters(List<ServerSettingOrderRequest> settingOrders) {
+        try {
+            List<SystemServerSetting> systemServerSettings = this.listByIds(settingOrders.stream().map(ServerSettingOrderRequest::getId).toList());
+            for (int i = 0; i < systemServerSettings.size(); i++) {
+                SystemServerSetting systemServerSetting = systemServerSettings.get(i);
+                ServerSettingOrderRequest settingOrder = settingOrders.get(i);
+                systemServerSetting.setSystemServerSettingOrder(settingOrder.getSortOrder());
+            }
+            this.updateBatchById(systemServerSettings);
+        } catch (Exception e) {
+            log.error("排序ServletFilter失败: settingOrders={}", settingOrders, e);
+            return ReturnResult.error("排序失败: " + e.getMessage());
+        }
+        return ReturnResult.ok(true);
     }
 
     /**
