@@ -1635,10 +1635,16 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
                 log.info("自动检测本地服务器信息完成: {} - OS: {} {}", server.getMonitorSysGenServerName(), osType, osVersion);
             } else {
-                // 非本地服务器，只清空自动检测的系统信息字段，保留用户手动设置的配置
-                server.setMonitorSysGenServerOsType(null);
-                server.setMonitorSysGenServerOsVersion(null);
-                server.setMonitorSysGenServerOsArch(null);
+                // 非本地服务器，保留用户设置的系统信息，只在未设置时才清空
+                if (server.getMonitorSysGenServerOsType() == null || server.getMonitorSysGenServerOsType().trim().isEmpty()) {
+                    server.setMonitorSysGenServerOsType(null);
+                }
+                if (server.getMonitorSysGenServerOsVersion() == null || server.getMonitorSysGenServerOsVersion().trim().isEmpty()) {
+                    server.setMonitorSysGenServerOsVersion(null); 
+                }
+                if (server.getMonitorSysGenServerOsArch() == null || server.getMonitorSysGenServerOsArch().trim().isEmpty()) {
+                    server.setMonitorSysGenServerOsArch(null);
+                }
 
                 // 保留用户设置的多IP地址和Docker配置，只在为空时设置默认值
                 if (server.getMonitorSysGenServerIpAddresses() == null
@@ -1647,7 +1653,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 }
 
                 // 保留用户设置的Docker配置，不强制覆盖
-                log.info("检测到远程服务器: {} - 保留用户设置的多IP和Docker配置", server.getMonitorSysGenServerName());
+                log.info("检测到远程服务器: {} - 保留用户设置的系统信息、多IP和Docker配置", server.getMonitorSysGenServerName());
             }
         } catch (Exception e) {
             log.warn("自动检测服务器信息失败: {}", e.getMessage(), e);
