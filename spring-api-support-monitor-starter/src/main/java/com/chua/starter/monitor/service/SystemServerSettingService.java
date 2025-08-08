@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServerSetting;
+import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -49,18 +50,16 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @param serverId 服务器ID
      * @return 已安装的ServletFilter配置列表
      */
-    ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(Integer serverId);
+    ReturnResult<List<SystemServerSetting>> getServerInstalledFilters(Integer serverId);
 
     /**
      * 为服务器安装ServletFilter
      *
      * @param serverId    服务器ID
      * @param filterType  Filter类型
-     * @param filterName  Filter名称
-     * @param description 描述
      * @return 安装结果
      */
-    ReturnResult<SystemServerSetting> installServletFilter(Integer serverId, String filterType, String filterName, String description);
+    ReturnResult<SystemServerSetting> installServletFilter(Integer serverId, String filterType);
 
     /**
      * 卸载ServletFilter
@@ -145,4 +144,12 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @return 操作结果
      */
     ReturnResult<Boolean> batchUpdateEnabled(List<Integer> settingIds, Boolean enabled);
+
+    /**
+     * 排序服务器已安装的ServletFilter配置
+     *
+     * @param settingOrders 排序更新列表，格式：[{settingId: 1, order: 1}, ...]
+     * @return 排序结果
+     */
+    ReturnResult<Boolean> orderServerInstalledFilters(List<ServerSettingOrderRequest> settingOrders);
 }

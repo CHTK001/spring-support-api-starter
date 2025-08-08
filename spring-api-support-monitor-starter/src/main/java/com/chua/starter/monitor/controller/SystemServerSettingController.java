@@ -7,6 +7,7 @@ import com.chua.common.support.spi.SpiOption;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.SystemServerSetting;
+import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.service.SystemServerSettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -88,8 +89,16 @@ public class SystemServerSettingController {
      */
     @GetMapping("/server/{serverId}")
     @ApiOperation("根据服务器ID查询已安装的ServletFilter配置")
-    public ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(@ApiParam("服务器ID") @PathVariable Integer serverId) {
+    public ReturnResult<List<SystemServerSetting>> getServerInstalledFilters(@ApiParam("服务器ID") @PathVariable Integer serverId) {
         return systemServerSettingService.getServerInstalledFilters(serverId);
+    }
+    /**
+     * 根据服务器ID查询已安装的ServletFilter配置
+     */
+    @PostMapping("/server/{serverId}/order")
+    @ApiOperation("根据服务器排序ServletFilter配置")
+    public ReturnResult<Boolean> orderServerInstalledFilters(@RequestBody List<ServerSettingOrderRequest> settingOrders) {
+        return systemServerSettingService.orderServerInstalledFilters(settingOrders);
     }
 
     /**
@@ -175,10 +184,8 @@ public class SystemServerSettingController {
     @ApiOperation("为服务器安装ServletFilter")
     public ReturnResult<SystemServerSetting> installServletFilter(
             @ApiParam("服务器ID") @RequestParam Integer serverId,
-            @ApiParam("Filter类型") @RequestParam String filterType,
-            @ApiParam("Filter名称") @RequestParam String filterName,
-            @ApiParam("描述") @RequestParam(required = false) String description) {
-        return systemServerSettingService.installServletFilter(serverId, filterType, filterName, description);
+            @ApiParam("Filter类型") @RequestParam String filterType) {
+        return systemServerSettingService.installServletFilter(serverId, filterType);
     }
 
     /**
