@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/node-remote")
+@RequestMapping("/node-remote")
 @RequiredArgsConstructor
 @Api(tags = "节点远程操作管理")
 @Tag(name = "节点远程操作管理", description = "提供节点远程操作相关的API接口")
@@ -45,10 +45,10 @@ public class NodeRemoteController {
             @Valid @RequestBody RemoteOperationRequest request) {
         try {
             log.info("执行远程操作: nodeId={}, operationType={}", request.getNodeId(), request.getOperationType());
-            
+
             RemoteOperationResponse response = nodeRemoteService.executeRemoteOperation(request);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("执行远程操作失败", e);
             return ReturnResult.error("执行远程操作失败: " + e.getMessage());
@@ -65,12 +65,12 @@ public class NodeRemoteController {
             @Valid @RequestBody RemoteOperationRequest request) {
         try {
             log.info("异步执行远程操作: nodeId={}, operationType={}", request.getNodeId(), request.getOperationType());
-            
+
             CompletableFuture<RemoteOperationResponse> future = nodeRemoteService.executeRemoteOperationAsync(request);
-            
+
             // 返回操作ID，客户端可以通过操作ID查询状态
             return ReturnResult.ok("操作已提交，请通过操作ID查询状态");
-            
+
         } catch (Exception e) {
             log.error("异步执行远程操作失败", e);
             return ReturnResult.error("异步执行远程操作失败: " + e.getMessage());
@@ -89,12 +89,12 @@ public class NodeRemoteController {
             @ApiParam(value = "是否覆盖已存在文件") @RequestParam(defaultValue = "false") boolean overwrite,
             @ApiParam(value = "上传的文件", required = true) @RequestParam("file") MultipartFile file) {
         try {
-            log.info("上传文件到节点: nodeId={}, remoteFilePath={}, fileName={}", 
+            log.info("上传文件到节点: nodeId={}, remoteFilePath={}, fileName={}",
                     nodeId, remoteFilePath, file.getOriginalFilename());
-            
+
             RemoteOperationResponse response = nodeRemoteService.uploadFile(nodeId, file, remoteFilePath, overwrite);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("上传文件失败", e);
             return ReturnResult.error("上传文件失败: " + e.getMessage());
@@ -113,10 +113,10 @@ public class NodeRemoteController {
             @ApiParam(value = "本地保存路径") @RequestParam(required = false) String localSavePath) {
         try {
             log.info("从节点下载文件: nodeId={}, remoteFilePath={}", nodeId, remoteFilePath);
-            
+
             RemoteOperationResponse response = nodeRemoteService.downloadFile(nodeId, remoteFilePath, localSavePath);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("下载文件失败", e);
             return ReturnResult.error("下载文件失败: " + e.getMessage());
@@ -137,11 +137,11 @@ public class NodeRemoteController {
             @ApiParam(value = "超时时间（秒）") @RequestParam(defaultValue = "30") int timeout) {
         try {
             log.info("在节点执行脚本: nodeId={}, scriptType={}", nodeId, scriptType);
-            
+
             RemoteOperationResponse response = nodeRemoteService.executeScript(
                     nodeId, script, scriptType, workingDirectory, timeout);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("执行脚本失败", e);
             return ReturnResult.error("执行脚本失败: " + e.getMessage());
@@ -161,11 +161,11 @@ public class NodeRemoteController {
             @ApiParam(value = "超时时间（秒）") @RequestParam(defaultValue = "30") int timeout) {
         try {
             log.info("在节点执行命令: nodeId={}, command={}", nodeId, command);
-            
+
             RemoteOperationResponse response = nodeRemoteService.executeCommand(
                     nodeId, command, workingDirectory, timeout);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("执行命令失败", e);
             return ReturnResult.error("执行命令失败: " + e.getMessage());
@@ -182,10 +182,10 @@ public class NodeRemoteController {
             @ApiParam(value = "节点ID", required = true) @RequestParam String nodeId) {
         try {
             log.info("获取节点系统信息: nodeId={}", nodeId);
-            
+
             Map<String, Object> systemInfo = nodeRemoteService.getSystemInfo(nodeId);
             return ReturnResult.ok(systemInfo);
-            
+
         } catch (Exception e) {
             log.error("获取系统信息失败", e);
             return ReturnResult.error("获取系统信息失败: " + e.getMessage());
@@ -204,10 +204,10 @@ public class NodeRemoteController {
             @ApiParam(value = "是否包含隐藏文件") @RequestParam(defaultValue = "false") boolean includeHidden) {
         try {
             log.info("获取节点文件列表: nodeId={}, directoryPath={}", nodeId, directoryPath);
-            
+
             List<Map<String, Object>> fileList = nodeRemoteService.getFileList(nodeId, directoryPath, includeHidden);
             return ReturnResult.ok(fileList);
-            
+
         } catch (Exception e) {
             log.error("获取文件列表失败", e);
             return ReturnResult.error("获取文件列表失败: " + e.getMessage());
@@ -226,10 +226,10 @@ public class NodeRemoteController {
             @ApiParam(value = "是否递归创建") @RequestParam(defaultValue = "false") boolean recursive) {
         try {
             log.info("在节点创建目录: nodeId={}, directoryPath={}", nodeId, directoryPath);
-            
+
             RemoteOperationResponse response = nodeRemoteService.createDirectory(nodeId, directoryPath, recursive);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("创建目录失败", e);
             return ReturnResult.error("创建目录失败: " + e.getMessage());
@@ -248,10 +248,10 @@ public class NodeRemoteController {
             @ApiParam(value = "是否递归删除") @RequestParam(defaultValue = "false") boolean recursive) {
         try {
             log.info("删除节点文件: nodeId={}, path={}", nodeId, path);
-            
+
             RemoteOperationResponse response = nodeRemoteService.deleteFile(nodeId, path, recursive);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("删除文件失败", e);
             return ReturnResult.error("删除文件失败: " + e.getMessage());
@@ -268,10 +268,10 @@ public class NodeRemoteController {
             @ApiParam(value = "节点ID", required = true) @RequestParam String nodeId) {
         try {
             log.info("检查节点连接状态: nodeId={}", nodeId);
-            
+
             boolean connected = nodeRemoteService.checkNodeConnection(nodeId);
             return ReturnResult.ok(connected);
-            
+
         } catch (Exception e) {
             log.error("检查节点连接状态失败", e);
             return ReturnResult.error("检查节点连接状态失败: " + e.getMessage());
@@ -288,10 +288,10 @@ public class NodeRemoteController {
             @ApiParam(value = "操作ID", required = true) @RequestParam String operationId) {
         try {
             log.info("获取操作状态: operationId={}", operationId);
-            
+
             RemoteOperationResponse response = nodeRemoteService.getOperationStatus(operationId);
             return ReturnResult.ok(response);
-            
+
         } catch (Exception e) {
             log.error("获取操作状态失败", e);
             return ReturnResult.error("获取操作状态失败: " + e.getMessage());
@@ -308,10 +308,10 @@ public class NodeRemoteController {
             @ApiParam(value = "节点ID", required = true) @RequestParam String nodeId) {
         try {
             log.info("获取节点支持的功能: nodeId={}", nodeId);
-            
+
             List<String> features = nodeRemoteService.getSupportedFeatures(nodeId);
             return ReturnResult.ok(features);
-            
+
         } catch (Exception e) {
             log.error("获取节点支持的功能失败", e);
             return ReturnResult.error("获取节点支持的功能失败: " + e.getMessage());

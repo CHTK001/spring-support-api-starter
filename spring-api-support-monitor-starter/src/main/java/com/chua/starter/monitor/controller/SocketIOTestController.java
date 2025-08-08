@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Api(tags = "Socket.IO测试")
 @RestController
-@RequestMapping("/api/socketio")
+@RequestMapping("/socketio")
 @Slf4j
 @RequiredArgsConstructor
 public class SocketIOTestController {

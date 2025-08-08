@@ -6,6 +6,15 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.starter.monitor.controller.MonitorSysGenServerController;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerLogConfigMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.impl.MonitorSysGenServerServiceImpl;
+import com.chua.starter.monitor.utils.ServerInfoDetector;
+import com.chua.starter.monitor.utils.ServerLogUtils;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,6 +40,20 @@ import java.time.LocalDateTime;
 @TableName(value = "monitor_sys_gen_server")
 public class MonitorSysGenServer extends SysBase {
 
+    /**
+     * 服务器配置ID
+     *
+     * @see MonitorSysGenServerController#getByIdAndConfig
+     * @see MonitorSysGenServerController#testConnection
+     * @see MonitorSysGenServerController#getConnectionStatus
+     * @see MonitorSysGenServerService#getByIdWithCache
+     * @see MonitorSysGenServerService#getByIdAndConfig
+     * @see MonitorSysGenServerService#testConnection
+     * @see MonitorSysGenServerMapper#selectByGenId
+     * @see MonitorSysGenServerSettingMapper#selectByServerId
+     * @see MonitorSysGenServerComponentMapper#selectByServerId
+     * @see MonitorSysGenServerLogConfigMapper#selectByServerId
+     */
     @TableId(value = "monitor_sys_gen_server_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置ID")
     @Schema(description = "服务器配置ID")
@@ -39,6 +62,12 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 服务器名称
+     *
+     * @see MonitorSysGenServerController#page
+     * @see MonitorSysGenServerController#cloneServer
+     * @see MonitorSysGenServerService#pageFor
+     * @see MonitorSysGenServerService#cloneServer
+     * @see MonitorSysGenServerServiceImpl#disconnect
      */
     @TableField(value = "monitor_sys_gen_server_name")
     @ApiModelProperty(value = "服务器名称")
@@ -49,6 +78,13 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 服务器主机地址
+     *
+     * @see MonitorSysGenServerController#testConnection
+     * @see MonitorSysGenServerService#testConnection
+     * @see MonitorSysGenServerService#executeCommand
+     * @see MonitorSysGenServerService#collectMetrics
+     * @see MonitorSysGenServerServiceImpl#autoDetectServerInfo
+     * @see ServerInfoDetector#detectServerInfo
      */
     @TableField(value = "monitor_sys_gen_server_host")
     @ApiModelProperty(value = "服务器主机地址")
@@ -59,6 +95,12 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 服务器端口
+     *
+     * @see MonitorSysGenServerController#testConnection
+     * @see MonitorSysGenServerService#testConnection
+     * @see MonitorSysGenServerService#executeCommand
+     * @see MonitorSysGenServerService#collectMetrics
+     * @see ServerLogUtils#logServerConnect
      */
     @TableField(value = "monitor_sys_gen_server_port")
     @ApiModelProperty(value = "服务器端口")
@@ -68,6 +110,11 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 连接协议 (SSH, RDP, TELNET, VNC等)
+     *
+     * @see MonitorSysGenServerService#collectMetrics
+     * @see MonitorSysGenServerServiceImpl#getConnectionService
+     * @see MonitorSysGenServerMapper#countByProtocol
+     * @see MonitorSysGenServerMapper#selectByProtocol
      */
     @TableField(value = "monitor_sys_gen_server_protocol")
     @ApiModelProperty(value = "连接协议")
@@ -78,6 +125,11 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 用户名
+     *
+     * @see MonitorSysGenServerService#testConnection
+     * @see MonitorSysGenServerService#executeCommand
+     * @see MonitorSysGenServerService#collectMetrics
+     * @see MonitorSysGenServerServiceImpl#isConnectionFieldsChanged
      */
     @TableField(value = "monitor_sys_gen_server_username")
     @ApiModelProperty(value = "用户名")
@@ -88,6 +140,11 @@ public class MonitorSysGenServer extends SysBase {
 
     /**
      * 密码
+     *
+     * @see MonitorSysGenServerService#testConnection
+     * @see MonitorSysGenServerService#executeCommand
+     * @see MonitorSysGenServerService#collectMetrics
+     * @see MonitorSysGenServerServiceImpl#isConnectionFieldsChanged
      */
     @TableField(value = "monitor_sys_gen_server_password")
     @ApiModelProperty(value = "密码")

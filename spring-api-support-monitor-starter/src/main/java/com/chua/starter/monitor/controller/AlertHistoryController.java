@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/alert-history")
+@RequestMapping("/alert-history")
 @Api(tags = "告警历史管理")
 @RequiredArgsConstructor
 @Validated
@@ -43,7 +43,7 @@ public class AlertHistoryController {
     @PostMapping("/page")
     public ReturnPageResult<MonitorSysGenServerAlertHistory> pageAlerts(
             @RequestBody @Valid Query<MonitorSysGenServerAlertHistory> query) {
-        
+
         try {
             return alertHistoryService.pageAlerts(query);
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class AlertHistoryController {
     @PutMapping("/{alertId}/recover")
     public ReturnResult<Boolean> recoverAlert(
             @ApiParam("告警ID") @PathVariable @NotNull Integer alertId) {
-        
+
         try {
             return alertHistoryService.recoverAlert(alertId);
         } catch (Exception e) {
@@ -143,7 +143,7 @@ public class AlertHistoryController {
     public ReturnResult<Boolean> silenceAlert(
             @ApiParam("告警ID") @PathVariable @NotNull Integer alertId,
             @ApiParam("静默时长(分钟)") @RequestParam @NotNull Integer silenceMinutes) {
-        
+
         try {
             return alertHistoryService.silenceAlert(alertId, silenceMinutes);
         } catch (Exception e) {
@@ -159,7 +159,7 @@ public class AlertHistoryController {
     @GetMapping("/server/{serverId}/active")
     public ReturnResult<List<MonitorSysGenServerAlertHistory>> getActiveAlerts(
             @ApiParam("服务器ID") @PathVariable @NotNull Integer serverId) {
-        
+
         try {
             return alertHistoryService.getActiveAlertsByServerId(serverId);
         } catch (Exception e) {
@@ -176,7 +176,7 @@ public class AlertHistoryController {
     public ReturnResult<Map<String, Object>> getAlertStatistics(
             @ApiParam("服务器ID") @RequestParam(required = false) Integer serverId,
             @ApiParam("统计天数") @RequestParam(defaultValue = "7") Integer days) {
-        
+
         try {
             return alertHistoryService.getAlertStatistics(serverId, days);
         } catch (Exception e) {
@@ -193,7 +193,7 @@ public class AlertHistoryController {
     public ReturnResult<List<Map<String, Object>>> getAlertTrends(
             @ApiParam("服务器ID") @RequestParam(required = false) Integer serverId,
             @ApiParam("统计天数") @RequestParam(defaultValue = "7") Integer days) {
-        
+
         try {
             // 暂时返回空数据，等待实现
             return ReturnResult.success(List.of());
@@ -210,7 +210,7 @@ public class AlertHistoryController {
     @PostMapping("/export")
     public ReturnResult<List<MonitorSysGenServerAlertHistory>> exportAlerts(
             @RequestBody @Valid Query<MonitorSysGenServerAlertHistory> query) {
-        
+
         try {
             // 暂时返回空数据，等待实现
             return ReturnResult.success(List.of());
@@ -227,7 +227,7 @@ public class AlertHistoryController {
     @DeleteMapping("/batch")
     public ReturnResult<Integer> batchDeleteAlerts(
             @ApiParam("告警ID列表") @RequestParam List<Integer> alertIds) {
-        
+
         try {
             // 使用物理删除
             boolean result = alertHistoryService.removeByIds(alertIds);
@@ -245,7 +245,7 @@ public class AlertHistoryController {
     @DeleteMapping("/cleanup")
     public ReturnResult<Integer> cleanupExpiredAlerts(
             @ApiParam("过期天数") @RequestParam(defaultValue = "30") Integer expireDays) {
-        
+
         try {
             return alertHistoryService.cleanupExpiredAlerts(expireDays);
         } catch (Exception e) {
@@ -263,13 +263,13 @@ public class AlertHistoryController {
             @ApiParam("服务器ID") @PathVariable @NotNull Integer serverId,
             @ApiParam("开始时间") @RequestParam @NotNull LocalDateTime startTime,
             @ApiParam("结束时间") @RequestParam @NotNull LocalDateTime endTime) {
-        
+
         try {
             // 暂时返回空数据，等待实现
             return ReturnResult.success(List.of());
         } catch (Exception e) {
-            log.error("获取时间范围内的告警失败: serverId={}, startTime={}, endTime={}", 
-                serverId, startTime, endTime, e);
+            log.error("获取时间范围内的告警失败: serverId={}, startTime={}, endTime={}",
+                    serverId, startTime, endTime, e);
             return ReturnResult.error("获取时间范围内的告警失败: " + e.getMessage());
         }
     }

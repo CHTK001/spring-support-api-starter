@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chua.starter.monitor.controller.MonitorSysGenServerComponentController;
+import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
+import com.chua.starter.monitor.service.MonitorSysGenServerComponentService;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -28,6 +31,16 @@ import java.time.LocalDateTime;
 @TableName(value = "monitor_sys_gen_server_component")
 public class MonitorSysGenServerComponent extends SysBase {
 
+    /**
+     * 组件配置ID
+     *
+     * @see MonitorSysGenServerComponentController#getById
+     * @see MonitorSysGenServerComponentController#update
+     * @see MonitorSysGenServerComponentController#delete
+     * @see MonitorSysGenServerComponentService#getById
+     * @see MonitorSysGenServerComponentService#updateById
+     * @see MonitorSysGenServerComponentMapper#selectById
+     */
     @TableId(value = "monitor_sys_gen_server_component_id", type = IdType.AUTO)
     @ApiModelProperty(value = "组件配置ID")
     @Schema(description = "组件配置ID")
@@ -36,6 +49,12 @@ public class MonitorSysGenServerComponent extends SysBase {
 
     /**
      * 关联服务器ID
+     *
+     * @see MonitorSysGenServerComponentController#getByServerId
+     * @see MonitorSysGenServerComponentService#getByServerId
+     * @see MonitorSysGenServerComponentService#saveServerComponents
+     * @see MonitorSysGenServerComponentMapper#selectByServerId
+     * @see MonitorSysGenServerComponentMapper#deleteByServerId
      */
     @TableField(value = "monitor_sys_gen_server_id")
     @ApiModelProperty(value = "关联服务器ID")
