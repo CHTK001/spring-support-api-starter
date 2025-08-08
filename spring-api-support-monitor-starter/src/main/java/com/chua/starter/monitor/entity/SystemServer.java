@@ -74,6 +74,13 @@ public class SystemServer extends SysBase {
     @NotBlank(message = "系统服务器类型不能为空", groups = {AddGroup.class, UpdateGroup.class})
     @Size(max = 100, message = "系统服务器类型最大长度要小于 100")
     private String systemServerType;
+    /**
+     * 系统服务器上下文路径
+     */
+    @TableField(value = "system_server_context_path")
+    @ApiModelProperty(value = "系统服务器上下文路径")
+    @Schema(description = "系统服务器上下文路径")
+    private String systemServerContextPath;
 
     /**
      * 系统服务器启动状态

@@ -7,7 +7,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
-import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
 import com.chua.starter.monitor.service.SystemServerService;
@@ -54,7 +53,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     }
 
     @Override
-    public ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects(Integer serverId) {
+    public ReturnResult<List<SpiOption>> getAvailableServletFilterObjects(Integer serverId) {
         try {
             List<Map<String, Object>> filterObjects = new ArrayList<>();
 
@@ -62,42 +61,8 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             ServiceProvider<ServletFilter> serviceProvider = ServiceProvider.of(ServletFilter.class);
             List<SpiOption> options = serviceProvider.options();
 
-            for (SpiOption option : options) {
-                try {
-                    Map<String, Object> filterInfo = new HashMap<>();
-                    filterInfo.put("type", option.getName());
-                    // 优先使用描述，不存在则使用名称
-                    String displayName = StringUtils.hasText(option.getDescribe()) ? option.getDescribe()
-                            : option.getName();
-                    filterInfo.put("name", displayName);
-                    filterInfo.put("description", option.getDescribe());
-                    filterInfo.put("describeType", option.getDescribeType());
-                    filterInfo.put("describeDetail", option.getDescribeDetail());
-
-                    // 获取实例以获取更多信息
-                    try {
-                        Object filterInstance = serviceProvider.getNewExtension(option.getName());
-                        filterInfo.put("className", filterInstance.getClass().getName());
-                        filterInfo.put("version", getFilterVersion(filterInstance));
-                        filterInfo.put("configItems", getFilterConfigItems(filterInstance));
-                    } catch (Exception e) {
-                        log.warn("获取ServletFilter实例信息失败: filterType={}", option.getName(), e);
-                        filterInfo.put("className", "未知");
-                        filterInfo.put("version", "未知");
-                        filterInfo.put("configItems", new ArrayList<>());
-                    }
-
-                    filterObjects.add(filterInfo);
-                } catch (Exception e) {
-                    log.warn("获取ServletFilter信息失败: filterType={}", option.getName(), e);
-                }
-            }
-
-            // 按显示名称排序
-            filterObjects.sort((a, b) -> String.valueOf(a.get("name")).compareTo(String.valueOf(b.get("name"))));
-
             log.info("获取可用ServletFilter成功，共{}个", filterObjects.size());
-            return ReturnResult.ok(filterObjects);
+            return ReturnResult.ok(options);
         } catch (Exception e) {
             log.error("获取可用ServletFilter失败", e);
             return ReturnResult.error("获取ServletFilter失败: " + e.getMessage());

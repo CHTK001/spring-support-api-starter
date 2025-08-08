@@ -7,6 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ServerSetting;
 import com.chua.common.support.protocol.server.ProtocolServer;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServer;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.mapper.SystemServerMapper;
@@ -49,17 +50,13 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     }
 
     @Override
-    public ReturnResult<List<String>> getAvailableServerTypes() {
+    public ReturnResult<List<SpiOption>> getAvailableServerTypes() {
         try {
             // 通过SPI机制获取可用的服务器类型
             ServiceProvider<ProtocolServer> serviceProvider = ServiceProvider.of(ProtocolServer.class);
-            Set<String> serverTypes = serviceProvider.getExtensions();
-
-            List<String> typeList = new ArrayList<>(serverTypes);
-            Collections.sort(typeList);
-
-            log.info("获取可用服务器类型成功，共{}种类型", typeList.size());
-            return ReturnResult.ok(typeList);
+            List<SpiOption> options = serviceProvider.options();
+            log.info("获取可用服务器类型成功，共{}种类型", options.size());
+            return ReturnResult.ok(options);
         } catch (Exception e) {
             log.error("获取可用服务器类型失败", e);
             return ReturnResult.error("获取服务器类型失败: " + e.getMessage());
@@ -305,14 +302,20 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      */
     private ProtocolServer createServerInstance(SystemServer server) throws Exception {
         ServiceProvider<ProtocolServer> serviceProvider = ServiceProvider.of(ProtocolServer.class);
-        return serviceProvider.getNewExtension(server.getSystemServerType(), ServerSetting.builder()
+        ServerSetting.ServerSettingBuilder builder = ServerSetting.builder()
                 .serverId(String.valueOf(server.getSystemServerId()))
                 .serverName(server.getSystemServerName())
                 .host(server.getSystemServerHost())
-                .port(server.getSystemServerPort())
-                .maxConnections(server.getSystemServerMaxConnections())
-                .connectionTimeoutMillis(server.getSystemServerTimeout())
-                .build());
+                .port(server.getSystemServerPort());
+        if(null != server.getSystemServerMaxConnections()) {
+            builder.maxConnections(server.getSystemServerMaxConnections());
+        }
+
+        if(null != server.getSystemServerTimeout()) {
+            builder.connectionTimeoutMillis(server.getSystemServerTimeout());
+        }
+        ServerSetting serverSetting = builder.build();
+        return serviceProvider.getNewExtension(server.getSystemServerType(), serverSetting);
     }
 
     /**
