@@ -3,11 +3,15 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.discovery.ServiceDiscovery;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ServerSetting;
+import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
 import com.chua.common.support.protocol.server.ProtocolServer;
+import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
+import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServer;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.mapper.SystemServerMapper;
@@ -21,7 +25,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -336,8 +342,15 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      * 应用单个配置到服务器实例
      */
     private void applySettingToServerInstance(ProtocolServer serverInstance, SystemServerSetting setting) throws Exception {
-        // 这里需要根据具体的服务器实例类型和配置类型来实现
-        // 可以通过反射、配置接口等方式来应用配置
+        if("serviceDiscovery".equalsIgnoreCase(setting.getSystemServerSettingType())) {
+            ServletFilter servletFilter = new ServiceDiscoveryServletFilter(
+                    SpringBeanUtils.getBean(ServiceDiscovery.class)
+            );
+            serverInstance.addFilter(servletFilter);
+        } else {
+            ServletFilter servletFilter = ServiceProvider.of(ServletFilter.class).getNewExtension(setting.getSystemServerSettingType());
+            serverInstance.addFilter(servletFilter);
+        }
         log.debug("应用配置到服务器实例: settingType={}, settingName={}",
                 setting.getSystemServerSettingType(), setting.getSystemServerSettingName());
     }
