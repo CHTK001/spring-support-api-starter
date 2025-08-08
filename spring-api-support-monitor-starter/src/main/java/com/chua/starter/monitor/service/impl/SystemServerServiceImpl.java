@@ -38,7 +38,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      * 存储已启动的服务器实例
      * Key: 服务器ID, Value: 服务器实例对象
      */
-    private final Map<Integer, Object> runningServerInstances = new ConcurrentHashMap<>();
+    private final Map<Integer, ProtocolServer> runningServerInstances = new ConcurrentHashMap<>();
     @Autowired
     @Lazy
     private SystemServerSettingService systemServerSettingService;
@@ -284,7 +284,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Override
     public ReturnResult<Boolean> applyConfigChanges(Integer serverId) {
         try {
-            Object serverInstance = runningServerInstances.get(serverId);
+            ProtocolServer serverInstance = runningServerInstances.get(serverId);
             if (serverInstance == null) {
                 return ReturnResult.error("服务器未运行，无需应用配置");
             }
