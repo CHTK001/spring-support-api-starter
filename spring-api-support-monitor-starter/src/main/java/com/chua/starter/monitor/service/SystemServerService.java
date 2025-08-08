@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServer;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public interface SystemServerService extends IService<SystemServer> {
      *
      * @return 服务器类型列表
      */
-    ReturnResult<List<String>> getAvailableServerTypes();
+    ReturnResult<List<SpiOption>> getAvailableServerTypes();
 
     /**
      * 获取服务器统计信息

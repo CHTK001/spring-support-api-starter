@@ -3,6 +3,7 @@ package com.chua.starter.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.SpiOption;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
@@ -209,7 +210,7 @@ public class SystemServerController {
      */
     @GetMapping("/types")
     @ApiOperation("获取可用的服务器类型")
-    public ReturnResult<List<String>> getAvailableServerTypes() {
+    public ReturnResult<List<SpiOption>> getAvailableServerTypes() {
         return systemServerService.getAvailableServerTypes();
     }
 

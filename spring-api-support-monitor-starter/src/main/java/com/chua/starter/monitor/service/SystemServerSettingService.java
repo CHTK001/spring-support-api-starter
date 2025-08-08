@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @param serverId 服务器ID（可选，用于获取特定协议的Filter）
      * @return ServletFilter对象列表
      */
-    ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects(Integer serverId);
+    ReturnResult<List<SpiOption>> getAvailableServletFilterObjects(Integer serverId);
 
     /**
      * 获取服务器已安装的ServletFilter配置
