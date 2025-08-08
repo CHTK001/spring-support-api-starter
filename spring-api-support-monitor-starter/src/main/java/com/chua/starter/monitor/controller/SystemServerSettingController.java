@@ -83,12 +83,12 @@ public class SystemServerSettingController {
     }
 
     /**
-     * 根据服务器ID查询配置列表
+     * 根据服务器ID查询已安装的ServletFilter配置
      */
     @GetMapping("/server/{serverId}")
-    @ApiOperation("根据服务器ID查询配置列表")
-    public ReturnResult<List<SystemServerSetting>> getByServerId(@ApiParam("服务器ID") @PathVariable Integer serverId) {
-        return systemServerSettingService.getByServerId(serverId);
+    @ApiOperation("根据服务器ID查询已安装的ServletFilter配置")
+    public ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(@ApiParam("服务器ID") @PathVariable Integer serverId) {
+        return systemServerSettingService.getServerInstalledFilters(serverId);
     }
 
     /**
@@ -160,10 +160,11 @@ public class SystemServerSettingController {
     /**
      * 获取可用的ServletFilter对象列表
      */
-    @GetMapping("/servlet-filters/objects")
+    @GetMapping("/objects")
     @ApiOperation("获取可用的ServletFilter对象列表")
-    public ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects() {
-        return systemServerSettingService.getAvailableServletFilterObjects();
+    public ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects(
+            @ApiParam("服务器ID") @RequestParam(required = false) Integer serverId) {
+        return systemServerSettingService.getAvailableServletFilterObjects(serverId);
     }
 
     /**

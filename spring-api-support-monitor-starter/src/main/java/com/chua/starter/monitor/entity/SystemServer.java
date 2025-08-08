@@ -142,5 +142,7 @@ public class SystemServer extends SysBase {
             this.code = code;
             this.description = description;
         }
+
+
     }
 }

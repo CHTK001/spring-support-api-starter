@@ -37,9 +37,18 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
     /**
      * 获取可用的ServletFilter对象列表
      *
+     * @param serverId 服务器ID（可选，用于获取特定协议的Filter）
      * @return ServletFilter对象列表
      */
-    ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects();
+    ReturnResult<List<Map<String, Object>>> getAvailableServletFilterObjects(Integer serverId);
+
+    /**
+     * 获取服务器已安装的ServletFilter配置
+     *
+     * @param serverId 服务器ID
+     * @return 已安装的ServletFilter配置列表
+     */
+    ReturnResult<List<Map<String, Object>>> getServerInstalledFilters(Integer serverId);
 
     /**
      * 为服务器安装ServletFilter
