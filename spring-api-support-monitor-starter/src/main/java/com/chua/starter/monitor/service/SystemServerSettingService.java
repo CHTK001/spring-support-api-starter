@@ -119,6 +119,14 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
     ReturnResult<Boolean> applyConfigToRunningServer(Integer serverId);
 
     /**
+     * 应用配置到运行中的服务器
+     *
+     * @param serverId 服务器ID
+     * @return 应用结果
+     */
+    ReturnResult<Boolean> applyDeleteConfigToRunningServer(Integer serverId);
+
+    /**
      * 克隆服务器配置
      *
      * @param sourceServerId 源服务器ID

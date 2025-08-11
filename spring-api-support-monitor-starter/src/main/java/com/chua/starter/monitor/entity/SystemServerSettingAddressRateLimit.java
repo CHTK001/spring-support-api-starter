@@ -50,10 +50,27 @@ public class SystemServerSettingAddressRateLimit extends SysBase {
     @Schema(description = "每秒请求阈值")
     private Integer addressRateLimitQps;
 
+    /**
+     * 类型: RATE_LIMIT/WHITELIST/BLACKLIST
+     */
+    @TableField("address_rate_limit_type")
+    @ApiModelProperty("类型: RATE_LIMIT/WHITELIST/BLACKLIST")
+    @Schema(description = "类型: RATE_LIMIT/WHITELIST/BLACKLIST")
+    @Size(max = 32)
+    private String addressRateLimitType;
+
     /** 是否启用 */
     @TableField("address_rate_limit_enabled")
     @ApiModelProperty("是否启用")
     @Schema(description = "是否启用")
     private Boolean addressRateLimitEnabled;
+
+    /**
+     * 关联的系统配置ID（SystemServerSettingId，用于同一服务器多个同类Filter区分）
+     */
+    @TableField("address_rate_limit_setting_id")
+    @ApiModelProperty("关联的系统配置ID(SystemServerSettingId)")
+    @Schema(description = "关联的系统配置ID(SystemServerSettingId)")
+    private Integer addressRateLimitSettingId;
 }
 

@@ -1,0 +1,30 @@
+package com.chua.starter.monitor.handler;
+
+import com.chua.common.support.protocol.server.ServletFilter;
+import com.chua.starter.monitor.entity.SystemServerSetting;
+
+/**
+ * ServletFilter处理器
+ *
+ * @author CH
+ * @since 2025/8/11 17:02
+ */
+public interface ServletFilterHandler {
+
+
+    /**
+     * 创建
+     *
+     * @param setting 设置
+     * @return ServletFilter
+     */
+    ServletFilter handle(SystemServerSetting setting);
+
+    /**
+     * 更新
+     *
+     * @param filter  过滤器
+     * @param setting 设置
+     */
+    void update(ServletFilter filter, SystemServerSetting setting);
+}

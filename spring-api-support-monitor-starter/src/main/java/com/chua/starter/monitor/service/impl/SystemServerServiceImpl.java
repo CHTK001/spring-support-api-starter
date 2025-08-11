@@ -1,25 +1,32 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.discovery.ServiceDiscovery;
+import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ServerSetting;
-import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
 import com.chua.common.support.protocol.server.ProtocolServer;
 import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
-import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServer;
 import com.chua.starter.monitor.entity.SystemServerSetting;
+import com.chua.starter.monitor.handler.HotloadingDeleteServletFilterHandler;
+import com.chua.starter.monitor.handler.HotloadingServletFilterHandler;
+import com.chua.starter.monitor.handler.ServletFilterHandler;
 import com.chua.starter.monitor.mapper.SystemServerMapper;
+import com.chua.starter.monitor.mapper.SystemServerSettingAddressRateLimitMapper;
+import com.chua.starter.monitor.mapper.SystemServerSettingIPRateLimitMapper;
 import com.chua.starter.monitor.service.SystemServerService;
+import com.chua.starter.monitor.service.SystemServerSettingFileStorageService;
+import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -29,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 系统服务器配置服务实现类
@@ -39,16 +48,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService {
+public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService, InitializingBean {
+
 
     /**
      * 存储已启动的服务器实例
      * Key: 服务器ID, Value: 服务器实例对象
      */
     private final Map<Integer, ProtocolServer> runningServerInstances = new ConcurrentHashMap<>();
+
+    final ExecutorService executorService = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("server-initial-execute").factory());
     @Autowired
     @Lazy
     private SystemServerSettingService systemServerSettingService;
+    @Autowired
+    private SystemServerSettingIPRateLimitMapper systemServerSettingIPRateLimitMapper;
+    @Autowired
+    private SystemServerSettingAddressRateLimitMapper systemServerSettingAddressRateLimitMapper;
+    @Autowired
+    private SystemServerSettingItemService systemServerSettingItemService;
+    private SystemServerSettingFileStorageService systemServerSettingFileStorageService;
 
     @Override
     public IPage<SystemServer> pageFor(Page<SystemServer> page, SystemServer entity) {
@@ -108,7 +127,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 ProtocolServer serverInstance = createServerInstance(server);
 
                 // 应用配置
-                applyServerConfiguration(serverId, serverInstance);
+                applyServerConfiguration(serverId, serverInstance, Action.CREATE);
 
                 // 启动服务器
                 startServerInstance(serverInstance);
@@ -155,7 +174,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
             try {
                 // 获取服务器实例
-                Object serverInstance = runningServerInstances.get(serverId);
+                ProtocolServer serverInstance = runningServerInstances.get(serverId);
                 if (serverInstance != null) {
                     // 停止服务器
                     stopServerInstance(serverInstance);
@@ -293,7 +312,26 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             }
 
             // 重新应用配置
-            applyServerConfiguration(serverId, serverInstance);
+            applyServerConfiguration(serverId, serverInstance, Action.UPDATE);
+
+            log.info("应用配置更改成功: serverId={}", serverId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("应用配置更改失败: serverId={}", serverId, e);
+            return ReturnResult.error("应用配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> applyDeleteConfigToRunningServer(Integer serverId) {
+        try {
+            ProtocolServer serverInstance = runningServerInstances.get(serverId);
+            if (serverInstance == null) {
+                return ReturnResult.error("服务器未运行，无需应用配置");
+            }
+
+            // 重新应用配置
+            applyServerConfiguration(serverId, serverInstance, Action.DELETE);
 
             log.info("应用配置更改成功: serverId={}", serverId);
             return ReturnResult.ok(true);
@@ -313,11 +351,11 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 .serverName(server.getSystemServerName())
                 .host(server.getSystemServerHost())
                 .port(server.getSystemServerPort());
-        if(null != server.getSystemServerMaxConnections()) {
+        if (null != server.getSystemServerMaxConnections()) {
             builder.maxConnections(server.getSystemServerMaxConnections());
         }
 
-        if(null != server.getSystemServerTimeout()) {
+        if (null != server.getSystemServerTimeout()) {
             builder.connectionTimeoutMillis(server.getSystemServerTimeout());
         }
         ServerSetting serverSetting = builder.build();
@@ -327,13 +365,17 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     /**
      * 应用服务器配置
      */
-    private void applyServerConfiguration(Integer serverId, ProtocolServer serverInstance) throws Exception {
+    private void applyServerConfiguration(Integer serverId, ProtocolServer serverInstance, Action action) throws Exception {
         // 获取服务器配置
         ReturnResult<List<SystemServerSetting>> settingsResult = systemServerSettingService.getByServerIdAndEnabled(serverId, true);
         if (settingsResult.isOk() && settingsResult.getData() != null) {
-            for (SystemServerSetting setting : settingsResult.getData()) {
+            List<SystemServerSetting> settingsResultData = settingsResult.getData();
+            for (SystemServerSetting setting : settingsResultData) {
                 // 通过反射或其他方式应用配置到服务器实例
-                applySettingToServerInstance(serverInstance, setting);
+                applySettingToServerInstance(serverInstance, setting, action);
+            }
+            if (action == Action.CREATE || action == Action.UPDATE) {
+                systemServerSettingService.updateBatchById(settingsResultData);
             }
         }
     }
@@ -341,34 +383,43 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     /**
      * 应用单个配置到服务器实例
      */
-    private void applySettingToServerInstance(ProtocolServer serverInstance, SystemServerSetting setting) throws Exception {
-        if("serviceDiscovery".equalsIgnoreCase(setting.getSystemServerSettingType())) {
-            ServletFilter servletFilter = new ServiceDiscoveryServletFilter(
-                    SpringBeanUtils.getBean(ServiceDiscovery.class)
-            );
-            serverInstance.addFilter(servletFilter);
-        } else {
-            ServletFilter servletFilter = ServiceProvider.of(ServletFilter.class).getNewExtension(setting.getSystemServerSettingType());
-            serverInstance.addFilter(servletFilter);
+    private void applySettingToServerInstance(ProtocolServer serverInstance, SystemServerSetting setting, Action action) throws Exception {
+        String systemServerSettingType = setting.getSystemServerSettingType();
+        try {
+            if (action == Action.CREATE) {
+                ServletFilterHandler servletFilterHandler = ServiceProvider.of(ServletFilterHandler.class).getNewExtension(
+                        systemServerSettingType
+                );
+                ServletFilter servletFilter = servletFilterHandler.handle(setting);
+                setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
+                serverInstance.addFilter(servletFilter);
+                return;
+            }
+            if (action == Action.UPDATE) {
+                new HotloadingServletFilterHandler(serverInstance, systemServerSettingType).update(setting);
+                return;
+            }
+            if (action == Action.DELETE) {
+                new HotloadingDeleteServletFilterHandler(serverInstance, systemServerSettingType).update(setting);
+            }
+        } finally {
+            log.debug("应用配置到服务器实例: 类型：{}, 配置名称{}",
+                    systemServerSettingType, setting.getSystemServerSettingName());
         }
-        log.debug("应用配置到服务器实例: settingType={}, settingName={}",
-                setting.getSystemServerSettingType(), setting.getSystemServerSettingName());
     }
 
     /**
      * 启动服务器实例
      */
-    private void startServerInstance(Object serverInstance) throws Exception {
-        // 通过反射调用启动方法
-        serverInstance.getClass().getMethod("start").invoke(serverInstance);
+    private void startServerInstance(ProtocolServer serverInstance) throws Exception {
+        serverInstance.start();
     }
 
     /**
      * 停止服务器实例
      */
-    private void stopServerInstance(Object serverInstance) throws Exception {
-        // 通过反射调用停止方法
-        serverInstance.getClass().getMethod("stop").invoke(serverInstance);
+    private void stopServerInstance(ProtocolServer serverInstance) throws Exception {
+        serverInstance.stop();
     }
 
     /**
@@ -380,5 +431,18 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         } catch (java.io.IOException e) {
             return true;
         }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        executorService.execute(() -> {
+            for (SystemServer systemServer : this.list(
+                    Wrappers.<SystemServer>lambdaQuery()
+                            .eq(SystemServer::getSystemServerStatus, SystemServer.SystemServerStatus.RUNNING)
+            )) {
+                restartServer(systemServer.getSystemServerId());
+            }
+
+        });
     }
 }

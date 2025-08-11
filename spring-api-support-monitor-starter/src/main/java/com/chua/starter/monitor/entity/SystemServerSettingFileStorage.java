@@ -91,6 +91,14 @@ public class SystemServerSettingFileStorage extends SysBase {
     @ApiModelProperty("是否启用")
     @Schema(description = "是否启用")
     private Boolean fileStorageEnabled;
+
+    /**
+     * 连接超时
+     */
+    @TableField("file_storage_connection_timeout")
+    @ApiModelProperty("连接超时")
+    @Schema(description = "连接超时")
+    private Long fileStorageConnectionTimeout;
 }
 
 
