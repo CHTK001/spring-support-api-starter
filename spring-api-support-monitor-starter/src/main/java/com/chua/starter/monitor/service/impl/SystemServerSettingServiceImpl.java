@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -9,6 +10,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.starter.monitor.entity.SystemServerSetting;
+import com.chua.starter.monitor.entity.SystemServerSettingItem;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.service.SystemServerService;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 系统服务器配置表服务实现类
@@ -245,10 +248,17 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
 
             // 更新配置项
             for (Map.Entry<String, Object> entry : config.entrySet()) {
-                Map<String, Object> update = new HashMap<>();
-                update.put("itemId", entry.getKey());
-                update.put("value", entry.getValue());
-                systemServerSettingItemService.batchUpdateItemValues(Collections.singletonList(update));
+                SystemServerSettingItem item = new SystemServerSettingItem();
+                item.setSystemServerSettingItemSettingId(settingId);
+                item.setSystemServerSettingItemName(entry.getKey());
+                item.setSystemServerSettingItemValue(entry.getValue().toString());
+                item.setSystemServerSettingItemOrder(1);
+                systemServerSettingItemService.remove(
+                        Wrappers.<SystemServerSettingItem>lambdaQuery()
+                                .eq(SystemServerSettingItem::getSystemServerSettingItemSettingId, settingId)
+                                .eq(SystemServerSettingItem::getSystemServerSettingItemName, entry.getKey())
+                );
+                systemServerSettingItemService.save(item);
             }
 
             // 应用配置到运行中的服务器
@@ -343,6 +353,15 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             return ReturnResult.error("排序失败: " + e.getMessage());
         }
         return ReturnResult.ok(true);
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getServletFilterConfig(Integer id) {
+        List<SystemServerSettingItem> list = systemServerSettingItemService.list(
+                Wrappers.lambdaQuery(SystemServerSettingItem.class)
+                        .eq(SystemServerSettingItem::getSystemServerSettingItemSettingId, id)
+        );
+        return ReturnResult.ok(list.stream().collect(Collectors.toMap(SystemServerSettingItem::getSystemServerSettingItemName, SystemServerSettingItem::getSystemServerSettingItemValue)));
     }
 
     /**
