@@ -152,4 +152,12 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @return 排序结果
      */
     ReturnResult<Boolean> orderServerInstalledFilters(List<ServerSettingOrderRequest> settingOrders);
+
+    /**
+     * 获取ServletFilter配置
+     *
+     * @param id 配置ID
+     * @return 配置数据
+     */
+    ReturnResult<Map<String, Object>> getServletFilterConfig(Integer id);
 }
