@@ -25,7 +25,7 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
      */
     @Override
     public ServletFilter handle(SystemServerSetting setting) {
-        ServletFilter servletFilter = new ServiceDiscoveryServletFilter(
+        ServiceDiscoveryServletFilter servletFilter = new ServiceDiscoveryServletFilter(
                 SpringBeanUtils.getBean(ServiceDiscovery.class)
         );
         return servletFilter;
