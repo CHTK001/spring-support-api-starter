@@ -247,6 +247,16 @@ public class SystemServerSettingController {
     }
 
     /**
+     * 获取ServletFilter配置
+     */
+    @GetMapping("/{id}/config")
+    @ApiOperation("获取ServletFilter配置")
+    public ReturnResult<Map<String, Object>>getServletFilterConfig(
+            @ApiParam("配置ID") @PathVariable Integer id) {
+        return systemServerSettingService.getServletFilterConfig(id);
+    }
+
+    /**
      * 应用配置到运行中的服务器
      */
     @PostMapping("/server/{serverId}/apply")
