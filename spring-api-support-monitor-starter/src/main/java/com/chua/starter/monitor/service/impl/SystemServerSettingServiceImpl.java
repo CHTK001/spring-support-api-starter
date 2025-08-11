@@ -22,7 +22,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -141,7 +143,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             removeById(settingId);
 
             // 应用配置到运行中的服务器
-            applyConfigToRunningServer(serverId);
+            applyDeleteConfigToRunningServer(serverId);
 
             log.info("卸载ServletFilter成功: settingId={}, filterType={}", settingId, setting.getSystemServerSettingType());
             return ReturnResult.ok(true);
@@ -283,6 +285,16 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     }
 
     @Override
+    public ReturnResult<Boolean> applyDeleteConfigToRunningServer(Integer serverId) {
+        try {
+            return systemServerService.applyDeleteConfigToRunningServer(serverId);
+        } catch (Exception e) {
+            log.error("应用配置到运行中的服务器失败: serverId={}", serverId, e);
+            return ReturnResult.error("应用配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
     @Transactional
     public ReturnResult<Boolean> cloneServerSettings(Integer sourceServerId, Integer targetServerId) {
         try {
@@ -342,10 +354,11 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     public ReturnResult<Boolean> orderServerInstalledFilters(List<ServerSettingOrderRequest> settingOrders) {
         try {
             List<SystemServerSetting> systemServerSettings = this.listByIds(settingOrders.stream().map(ServerSettingOrderRequest::getId).toList());
-            for (int i = 0; i < systemServerSettings.size(); i++) {
-                SystemServerSetting systemServerSetting = systemServerSettings.get(i);
-                ServerSettingOrderRequest settingOrder = settingOrders.get(i);
-                systemServerSetting.setSystemServerSettingOrder(settingOrder.getSortOrder());
+            int index = 1;
+            for (ServerSettingOrderRequest settingOrder : settingOrders) {
+                SystemServerSetting systemServerSetting = systemServerSettings.stream()
+                        .filter(item -> item.getSystemServerSettingId().equals(settingOrder.getId())).findFirst().get();
+                systemServerSetting.setSystemServerSettingOrder(index++);
             }
             this.updateBatchById(systemServerSettings);
         } catch (Exception e) {
