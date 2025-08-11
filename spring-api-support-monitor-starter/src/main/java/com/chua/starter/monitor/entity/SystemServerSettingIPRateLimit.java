@@ -50,10 +50,27 @@ public class SystemServerSettingIPRateLimit extends SysBase {
     @Schema(description = "每秒请求阈值")
     private Integer ipRateLimitQps;
 
+    /**
+     * 类型: RATE_LIMIT/WHITELIST/BLACKLIST
+     */
+    @TableField("ip_rate_limit_type")
+    @ApiModelProperty("类型: RATE_LIMIT/WHITELIST/BLACKLIST")
+    @Schema(description = "类型: RATE_LIMIT/WHITELIST/BLACKLIST")
+    @Size(max = 32)
+    private String ipRateLimitType;
+
     /** 是否启用 */
     @TableField("ip_rate_limit_enabled")
     @ApiModelProperty("是否启用")
     @Schema(description = "是否启用")
     private Boolean ipRateLimitEnabled;
+
+    /**
+     * 关联的系统配置ID（SystemServerSettingId，用于同一服务器多个同类Filter区分）
+     */
+    @TableField("ip_rate_limit_setting_id")
+    @ApiModelProperty("关联的系统配置ID(SystemServerSettingId)")
+    @Schema(description = "关联的系统配置ID(SystemServerSettingId)")
+    private Integer ipRateLimitSettingId;
 }
 

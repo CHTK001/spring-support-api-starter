@@ -114,4 +114,12 @@ public interface SystemServerService extends IService<SystemServer> {
      * @return 应用结果
      */
     ReturnResult<Boolean> applyConfigChanges(Integer serverId);
+
+    /**
+     * 删除配置到运行中的服务器
+     *
+     * @param serverId 运行中的服务器ID
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> applyDeleteConfigToRunningServer(Integer serverId);
 }

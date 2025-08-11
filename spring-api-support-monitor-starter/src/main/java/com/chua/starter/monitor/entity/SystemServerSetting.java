@@ -117,4 +117,11 @@ public class SystemServerSetting extends SysBase {
     @ApiModelProperty(value = "配置JSON数据")
     @Schema(description = "配置JSON数据")
     private String systemServerSettingConfig;
+    /**
+     * 启动的时候生成
+     */
+    @TableField(value = "system_server_setting_filter_id")
+    @ApiModelProperty(value = "启动的时候生成")
+    @Schema(description = "启动的时候生成")
+    private String systemServerSettingFilterId;
 }
