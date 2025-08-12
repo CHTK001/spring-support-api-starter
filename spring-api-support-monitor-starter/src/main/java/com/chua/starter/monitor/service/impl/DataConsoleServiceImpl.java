@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.backup.Backup;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
+import com.chua.common.support.document.DocQuery;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandMetadata;
@@ -13,14 +14,19 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
+import com.chua.common.support.oss.result.GetObjectResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.IoUtils;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.service.DataConsoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,7 +104,7 @@ public class DataConsoleServiceImpl implements DataConsoleService {
     }
 
     @Override
-    public ReturnResult<Object> generateDocument(Integer settingId) {
+    public ReturnResult<ResponseEntity<byte[]>> generateDocument(Integer settingId) {
         try {
             SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
             if (setting == null) return ReturnResult.error("配置不存在");
@@ -106,9 +112,15 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             if (!support) return ReturnResult.error("文档不支持");
             Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType());
             if (document == null) return ReturnResult.error("文档组件不可用");
-            // 直接返回HTML字符串
-            String html = document.create();
-            return ReturnResult.ok(html);
+            GetObjectResult getObjectResult = document.create(DocQuery.builder()
+                    .type(DocQuery.Type.HTML)
+                    .build());
+            try (InputStream inputStream = getObjectResult.getInputStream()) {
+                return ReturnResult.ok(ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(getObjectResult.getMediaType().toString()))
+                        .body(IoUtils.toByteArray(inputStream))
+                );
+            }
         } catch (Exception e) {
             log.error("生成文档失败", e);
             return ReturnResult.error(e.getMessage());
