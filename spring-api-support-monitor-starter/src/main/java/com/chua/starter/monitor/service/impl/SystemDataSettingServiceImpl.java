@@ -1,11 +1,18 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetAddress;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.service.SystemDataSettingService;
+import com.chua.starter.monitor.pojo.SystemCapabilities;
+import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import com.chua.common.support.backup.Backup;
+import com.chua.common.support.document.Document;
+import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -79,6 +86,50 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             log.error("保存控制台配置失败", e);
             return ReturnResult.error("保存失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public ReturnResult<Page<SystemDataSettingPageItem>> pageWithCapabilities(long current, long size, String name, String type) {
+        Page<SystemDataSetting> page = new Page<>(current, size);
+        LambdaQueryWrapper<SystemDataSetting> qw = new LambdaQueryWrapper<>();
+        if (name != null && !name.isEmpty()) {
+            qw.like(SystemDataSetting::getSystemDataSettingName, name);
+        }
+        if (type != null && !type.isEmpty()) {
+            qw.eq(SystemDataSetting::getSystemDataSettingType, type);
+        }
+        this.page(page, qw);
+
+        Page<SystemDataSettingPageItem> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        result.setRecords(page.getRecords().stream().map(setting -> {
+            SystemDataSettingPageItem item = new SystemDataSettingPageItem();
+            // 拷贝基础字段
+            item.setSystemDataSettingId(setting.getSystemDataSettingId());
+            item.setSystemDataSettingName(setting.getSystemDataSettingName());
+            item.setSystemDataSettingType(setting.getSystemDataSettingType());
+            item.setSystemDataSettingServer(setting.getSystemDataSettingServer());
+            item.setSystemDataSettingHost(setting.getSystemDataSettingHost());
+            item.setSystemDataSettingPort(setting.getSystemDataSettingPort());
+            item.setSystemDataSettingUsername(setting.getSystemDataSettingUsername());
+            item.setSystemDataSettingPassword(setting.getSystemDataSettingPassword());
+            item.setSystemDataSettingAuthType(setting.getSystemDataSettingAuthType());
+            item.setSystemDataSettingIcon(setting.getSystemDataSettingIcon());
+            item.setSystemDataSettingConsoleType(setting.getSystemDataSettingConsoleType());
+            item.setSystemDataSettingTimeoutMs(setting.getSystemDataSettingTimeoutMs());
+            item.setSystemDataSettingIsFile(setting.getSystemDataSettingIsFile());
+            item.setSystemDataSettingEnabled(setting.getSystemDataSettingEnabled());
+            item.setSystemDataSettingConfig(setting.getSystemDataSettingConfig());
+
+            // 能力判断（SPI）
+            boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
+            boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
+            boolean isFile = Boolean.TRUE.equals(setting.getSystemDataSettingIsFile());
+            item.setCapabilitiesBackup(backup);
+            item.setCapabilitiesDocument(document);
+            item.setCapabilitiesFile(isFile);
+            return item;
+        }).toList());
+        return ReturnResult.ok(result);
     }
 }
 
