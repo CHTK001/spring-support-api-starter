@@ -153,12 +153,9 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
             // 构建WebSocket消息
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType(ServerWebSocketMessage.MessageType.SERVER_LATENCY)
-                    .serverId(serverId)
-                    .serverName(server.getMonitorSysGenServerName())
-                    .data(latencyData)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
+                    .messageType(ServerWebSocketMessage.MessageType.SERVER_LATENCY).serverId(serverId)
+                    .serverName(server.getMonitorSysGenServerName()).data(latencyData)
+                    .timestamp(System.currentTimeMillis()).build();
 
             // 发送到前端
             socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
@@ -198,10 +195,8 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
 
             if (!batchData.isEmpty()) {
                 ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                        .messageType(ServerWebSocketMessage.MessageType.BATCH_SERVER_LATENCY)
-                        .data(batchData)
-                        .timestamp(System.currentTimeMillis())
-                        .build();
+                        .messageType(ServerWebSocketMessage.MessageType.BATCH_SERVER_LATENCY).data(batchData)
+                        .timestamp(System.currentTimeMillis()).build();
 
                 socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
                 log.debug("批量推送 {} 个服务器延迟数据到前端", batchData.size());
@@ -246,7 +241,8 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
     }
 
     @Override
-    public ReturnResult<List<Map<String, Object>>> getServerLatencyHistory(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
+    public ReturnResult<List<Map<String, Object>>> getServerLatencyHistory(Integer serverId, LocalDateTime startTime,
+            LocalDateTime endTime) {
         // 不再支持历史数据查询，只返回当前最新数据
         try {
             if (serverId == null) {
@@ -291,29 +287,51 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
     public ReturnResult<Map<String, Object>> getLatencyStatistics() {
         try {
             Map<String, Object> statistics = new HashMap<>();
-            
-            // 统计当前在线服务器数量和延迟分布
-            int totalServers = latencyCache.size();
+
+            int totalServers = 0;
             int normalCount = 0;
             int highCount = 0;
             int abnormalCount = 0;
-            
-            for (Long latency : latencyCache.values()) {
-                if (latency < 100) {
-                    normalCount++;
-                } else if (latency < 500) {
-                    highCount++;
-                } else {
-                    abnormalCount++;
+
+            if (!latencyCache.isEmpty()) {
+                // 优先使用内存缓存（由Redis/推送更新）
+                totalServers = latencyCache.size();
+                for (Long latency : latencyCache.values()) {
+                    if (latency < 100) {
+                        normalCount++;
+                    } else if (latency < 500) {
+                        highCount++;
+                    } else {
+                        abnormalCount++;
+                    }
+                }
+            } else {
+                // 兜底：从数据库字段统计，避免前端看到空数据
+                List<MonitorSysGenServer> servers = serverService.list();
+                totalServers = servers != null ? servers.size() : 0;
+                if (servers != null) {
+                    for (MonitorSysGenServer s : servers) {
+                        Long latency = s.getMonitorSysGenServerLatency();
+                        if (latency == null) {
+                            continue;
+                        }
+                        if (latency < 100) {
+                            normalCount++;
+                        } else if (latency < 500) {
+                            highCount++;
+                        } else {
+                            abnormalCount++;
+                        }
+                    }
                 }
             }
-            
+
             statistics.put("totalServers", totalServers);
             statistics.put("normalCount", normalCount);
             statistics.put("highCount", highCount);
             statistics.put("abnormalCount", abnormalCount);
             statistics.put("timestamp", System.currentTimeMillis());
-            
+
             return ReturnResult.ok(statistics);
 
         } catch (Exception e) {
@@ -326,11 +344,11 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
     public ReturnResult<List<Map<String, Object>>> checkLatencyAlerts() {
         try {
             List<Map<String, Object>> alerts = new ArrayList<>();
-            
+
             for (Map.Entry<Integer, Long> entry : latencyCache.entrySet()) {
                 Integer serverId = entry.getKey();
                 Long latency = entry.getValue();
-                
+
                 if (latency >= 500) { // 异常延迟
                     MonitorSysGenServer server = serverService.getById(serverId);
                     if (server != null) {
@@ -345,7 +363,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
                     }
                 }
             }
-            
+
             return ReturnResult.ok(alerts);
 
         } catch (Exception e) {
