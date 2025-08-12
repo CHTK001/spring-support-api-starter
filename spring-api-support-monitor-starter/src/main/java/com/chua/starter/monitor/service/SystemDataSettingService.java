@@ -1,10 +1,11 @@
 package com.chua.starter.monitor.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemDataSetting;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface SystemDataSettingService extends IService<SystemDataSetting> {
     ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting);
@@ -18,6 +19,9 @@ public interface SystemDataSettingService extends IService<SystemDataSetting> {
 
     /** 分页查询并附带能力 */
     ReturnResult<Page<SystemDataSettingPageItem>> pageWithCapabilities(long current, long size, String name, String type);
+
+    /** 上传 JDBC 驱动，返回落盘路径 */
+    ReturnResult<String> uploadJdbcDriver(Integer id, MultipartFile file);
 }
 
 
