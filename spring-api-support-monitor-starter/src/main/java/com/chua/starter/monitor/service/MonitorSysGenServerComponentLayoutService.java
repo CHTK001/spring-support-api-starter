@@ -83,10 +83,11 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 批量更新组件布局位置信息
      *
-     * @param layouts 布局列表
+     * @param serverId
+     * @param layouts  布局列表
      * @return 操作结果
      */
-    ReturnResult<Boolean> batchUpdatePosition(List<MonitorSysGenServerComponentLayout> layouts);
+    ReturnResult<Boolean> batchUpdatePosition(Integer serverId, List<MonitorSysGenServerComponentLayout> layouts);
 
     /**
      * 创建组件布局配置

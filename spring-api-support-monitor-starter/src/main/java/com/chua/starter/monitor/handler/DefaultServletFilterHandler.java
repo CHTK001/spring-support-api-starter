@@ -3,6 +3,7 @@ package com.chua.starter.monitor.handler;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.protocol.server.UpgradeServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
@@ -16,12 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 负载均衡
+ * 默认处理器：按 SPI 类型创建对应的 ServletFilter，并应用通用配置项
  *
  * @author CH
  * @since 2025/8/11 17:01
  */
-@Spi("serviceDiscovery")
+@Spi("default")
+@SpiDefault
 public class DefaultServletFilterHandler implements ServletFilterHandler {
     final SystemServerSettingItemService systemServerSettingItemService;
 
