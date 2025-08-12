@@ -150,13 +150,13 @@ public class GuacamoleProtocolHandler {
             while (index < data.length()) {
                 // 查找长度
                 int dotIndex = data.indexOf('.', index);
-                if (dotIndex == -1) break;
+                if (dotIndex == -1) { break; }
                 
                 int length = Integer.parseInt(data.substring(index, dotIndex));
                 int startIndex = dotIndex + 1;
                 int endIndex = startIndex + length;
                 
-                if (endIndex > data.length()) break;
+                if (endIndex > data.length()) { break; }
                 
                 String element = data.substring(startIndex, endIndex);
                 elements.add(element);

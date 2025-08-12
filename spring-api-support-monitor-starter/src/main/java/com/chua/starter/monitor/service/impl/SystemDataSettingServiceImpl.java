@@ -84,7 +84,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     public ReturnResult<Boolean> saveConsoleConfig(Integer id, String jsonConfig) {
         try {
             SystemDataSetting setting = getById(id);
-            if (setting == null) return ReturnResult.error("配置不存在");
+            if (setting == null) { return ReturnResult.error("配置不存在"); }
             setting.setSystemDataSettingConfig(jsonConfig);
             updateById(setting);
             return ReturnResult.ok(true);
@@ -144,7 +144,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     public ReturnResult<String> uploadJdbcDriver(Integer id, MultipartFile file) {
         try {
             SystemDataSetting setting = getById(id);
-            if (setting == null) return ReturnResult.error("配置不存在");
+            if (setting == null) { return ReturnResult.error("配置不存在"); }
             String baseDir = System.getProperty("user.home") + File.separator + "data-drivers";
             Files.createDirectories(Path.of(baseDir));
             String filename = file.getOriginalFilename();

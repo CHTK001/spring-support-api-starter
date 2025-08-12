@@ -199,7 +199,7 @@ public class MetricsThresholdConfig {
      * @return 是否超过警告阈值
      */
     public boolean isWarningLevel(String metricType, Double value) {
-        if (value == null) return false;
+        if (value == null) { return false; }
         ThresholdLevel threshold = getThreshold(metricType);
         return value >= threshold.getWarning();
     }
@@ -212,7 +212,7 @@ public class MetricsThresholdConfig {
      * @return 是否超过危险阈值
      */
     public boolean isCriticalLevel(String metricType, Double value) {
-        if (value == null) return false;
+        if (value == null) { return false; }
         ThresholdLevel threshold = getThreshold(metricType);
         return value >= threshold.getCritical();
     }

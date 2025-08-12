@@ -82,9 +82,9 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
         public void close() {
             connected = false;
             try {
-                if (inputStream != null) inputStream.close();
-                if (outputStream != null) outputStream.close();
-                if (process != null) process.destroyForcibly();
+                if (inputStream != null) { inputStream.close(); }
+                if (outputStream != null) { outputStream.close(); }
+                if (process != null) { process.destroyForcibly(); }
             } catch (IOException e) {
                 log.warn("关闭串口连接时发生异常: {}", e.getMessage());
             }
@@ -655,9 +655,9 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             String parity = serial.getMonitorSysGenSerialParity();
 
             // 设置默认值
-            if (baudRate == null) baudRate = 9600;
-            if (dataBits == null) dataBits = 8;
-            if (stopBits == null) stopBits = 1;
+            if (baudRate == null) { baudRate = 9600; }
+            if (dataBits == null) { dataBits = 8; }
+            if (stopBits == null) { stopBits = 1; }
             if (StringUtils.isEmpty(parity)) parity = "NONE";
 
             // 在Windows系统上使用mode命令配置串口
