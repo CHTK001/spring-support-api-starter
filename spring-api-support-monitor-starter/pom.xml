@@ -29,6 +29,17 @@
             <version>${hutool.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.118.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-netty-starter</artifactId>
+        </dependency>
+
         <!-- 熔断器依赖暂时注释，因为依赖包不存在 -->
         <!--
         <dependency>
@@ -124,12 +135,6 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-report-client-starter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-netty-starter</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
