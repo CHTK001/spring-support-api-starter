@@ -8,13 +8,16 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.service.SystemDataSettingService;
+import com.chua.starter.monitor.service.DataConsoleService;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,6 +36,7 @@ import java.util.List;
 public class SystemDataSettingController {
 
     private final SystemDataSettingService systemDataSettingService;
+    private final DataConsoleService dataConsoleService;
 
     /**
      * 查询全部数据配置
@@ -89,11 +93,50 @@ public class SystemDataSettingController {
         // 通过 SPI 判断能力
         boolean backup = ServiceProvider.of(Backup.class ).isSupport(setting.getSystemDataSettingType());
         boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-        boolean isFile = Boolean.TRUE.equals(setting.getSystemDataSettingIsFile());
+        boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
         capabilities.setBackup(backup);
         capabilities.setDocument(document);
         capabilities.setFile(isFile);
         return ReturnResult.ok(capabilities);
+    }
+
+    /**
+     * 上传 JDBC 驱动
+     */
+    @PostMapping(value = "/{id}/driver/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation("上传 JDBC 驱动")
+    public ReturnResult<String> uploadDriver(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
+        return systemDataSettingService.uploadJdbcDriver(id, file);
+    }
+
+    /**
+     * 生成文档HTML（iframe嵌入）
+     */
+    @GetMapping(value = "/{id}/document/html", produces = MediaType.TEXT_HTML_VALUE)
+    @ApiOperation("生成文档HTML")
+    public String documentHtml(@PathVariable Integer id) {
+        return String.valueOf(dataConsoleService.generateDocument(id).getData());
+    }
+
+    /** 启动备份 */
+    @PostMapping("/{id}/backup/start")
+    @ApiOperation("启动备份")
+    public ReturnResult<Boolean> startBackup(@PathVariable Integer id) {
+        return dataConsoleService.startBackup(id);
+    }
+
+    /** 停止备份 */
+    @PostMapping("/{id}/backup/stop")
+    @ApiOperation("停止备份")
+    public ReturnResult<Boolean> stopBackup(@PathVariable Integer id) {
+        return dataConsoleService.stopBackup(id);
+    }
+
+    /** 备份状态 */
+    @GetMapping("/{id}/backup/status")
+    @ApiOperation("备份状态")
+    public ReturnResult<Boolean> backupStatus(@PathVariable Integer id) {
+        return dataConsoleService.backupStatus(id);
     }
 
     /**
