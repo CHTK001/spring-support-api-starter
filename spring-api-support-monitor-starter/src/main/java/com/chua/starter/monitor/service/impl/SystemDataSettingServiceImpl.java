@@ -15,6 +15,12 @@ import com.chua.common.support.document.Document;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 /**
  * 数据管理配置服务实现
@@ -115,21 +121,45 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             item.setSystemDataSettingAuthType(setting.getSystemDataSettingAuthType());
             item.setSystemDataSettingIcon(setting.getSystemDataSettingIcon());
             item.setSystemDataSettingConsoleType(setting.getSystemDataSettingConsoleType());
+            item.setSystemDataSettingChartType(setting.getSystemDataSettingChartType());
             item.setSystemDataSettingTimeoutMs(setting.getSystemDataSettingTimeoutMs());
-            item.setSystemDataSettingIsFile(setting.getSystemDataSettingIsFile());
+            item.setSystemDataSettingMode(setting.getSystemDataSettingMode());
             item.setSystemDataSettingEnabled(setting.getSystemDataSettingEnabled());
             item.setSystemDataSettingConfig(setting.getSystemDataSettingConfig());
+            item.setSystemDataSettingImageUrl(setting.getSystemDataSettingImageUrl());
 
             // 能力判断（SPI）
             boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
             boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-            boolean isFile = Boolean.TRUE.equals(setting.getSystemDataSettingIsFile());
+            boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
             item.setCapabilitiesBackup(backup);
             item.setCapabilitiesDocument(document);
             item.setCapabilitiesFile(isFile);
             return item;
         }).toList());
         return ReturnResult.ok(result);
+    }
+
+    @Override
+    public ReturnResult<String> uploadJdbcDriver(Integer id, MultipartFile file) {
+        try {
+            SystemDataSetting setting = getById(id);
+            if (setting == null) return ReturnResult.error("配置不存在");
+            String baseDir = System.getProperty("user.home") + File.separator + "data-drivers";
+            Files.createDirectories(Path.of(baseDir));
+            String filename = file.getOriginalFilename();
+            if (filename == null || filename.isEmpty()) {
+                filename = "driver-" + id + ".jar";
+            }
+            Path target = Path.of(baseDir, id + "-" + filename);
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            setting.setSystemDataSettingDriverPath(target.toAbsolutePath().toString());
+            updateById(setting);
+            return ReturnResult.ok(setting.getSystemDataSettingDriverPath());
+        } catch (Exception e) {
+            log.error("上传驱动失败", e);
+            return ReturnResult.error("上传失败: " + e.getMessage());
+        }
     }
 }
 

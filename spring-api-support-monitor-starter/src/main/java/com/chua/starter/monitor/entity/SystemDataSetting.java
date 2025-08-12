@@ -85,15 +85,20 @@ public class SystemDataSetting extends SysBase {
     @TableField("system_data_setting_console_type")
     private String systemDataSettingConsoleType;
 
+    /** 图表类型：自定义前端展示用途 */
+    @Schema(description = "图表类型")
+    @TableField("system_data_setting_chart_type")
+    private String systemDataSettingChartType;
+
     /** 超时毫秒 */
     @Schema(description = "超时毫秒")
     @TableField("system_data_setting_timeout_ms")
     private Integer systemDataSettingTimeoutMs;
 
-    /** 是否文件型数据源 */
-    @Schema(description = "是否文件型数据源")
-    @TableField("system_data_setting_is_file")
-    private Boolean systemDataSettingIsFile;
+    /** 模式：REMOTE/FILE */
+    @Schema(description = "模式：REMOTE/FILE")
+    @TableField("system_data_setting_mode")
+    private String systemDataSettingMode;
 
     /** 是否启用 */
     @Schema(description = "是否启用")
@@ -105,8 +110,25 @@ public class SystemDataSetting extends SysBase {
     @TableField("system_data_setting_config")
     private String systemDataSettingConfig;
 
+    /** 协议 */
+    @Schema(description = "协议")
     @TableField("system_data_setting_protocol")
     private String systemDataSettingProtocol;
+
+    /** JDBC 驱动类名（数据库类型可选） */
+    @Schema(description = "JDBC 驱动类名")
+    @TableField("system_data_setting_driver_class")
+    private String systemDataSettingDriverClass;
+
+    /** JDBC 驱动文件路径（数据库类型可选） */
+    @Schema(description = "JDBC 驱动文件路径")
+    @TableField("system_data_setting_driver_path")
+    private String systemDataSettingDriverPath;
+
+    /** 远程图片地址（卡片背景或展示） */
+    @Schema(description = "远程图片地址")
+    @TableField("system_data_setting_image_url")
+    private String systemDataSettingImageUrl;
 }
 
 

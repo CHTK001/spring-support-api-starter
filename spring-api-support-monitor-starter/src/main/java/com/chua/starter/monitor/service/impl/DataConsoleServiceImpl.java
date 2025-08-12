@@ -21,12 +21,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DataConsoleServiceImpl implements DataConsoleService {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
+    private final Map<Integer, Boolean> backupStatusMap = new ConcurrentHashMap<>();
 
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
@@ -100,8 +104,11 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             if (setting == null) return ReturnResult.error("配置不存在");
             boolean support = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
             if (!support) return ReturnResult.error("文档不支持");
-            Object document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType());
-            return ReturnResult.ok(document != null);
+            Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType());
+            if (document == null) return ReturnResult.error("文档组件不可用");
+            // 直接返回HTML字符串
+            String html = document.create();
+            return ReturnResult.ok(html);
         } catch (Exception e) {
             log.error("生成文档失败", e);
             return ReturnResult.error(e.getMessage());
@@ -115,7 +122,7 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             if (setting == null) return ReturnResult.error("配置不存在");
             boolean support = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
             if (!support) return ReturnResult.error("备份不支持");
-            // 启动备份的具体实现可在后续加上任务管理
+            backupStatusMap.put(settingId, true);
             return ReturnResult.ok(true);
         } catch (Exception e) {
             log.error("启动备份失败", e);
@@ -125,12 +132,13 @@ public class DataConsoleServiceImpl implements DataConsoleService {
 
     @Override
     public ReturnResult<Boolean> stopBackup(Integer settingId) {
+        backupStatusMap.put(settingId, false);
         return ReturnResult.ok(true);
     }
 
     @Override
     public ReturnResult<Boolean> backupStatus(Integer settingId) {
-        return ReturnResult.ok(false);
+        return ReturnResult.ok(Boolean.TRUE.equals(backupStatusMap.get(settingId)));
     }
 
     @Override
@@ -145,8 +153,6 @@ public class DataConsoleServiceImpl implements DataConsoleService {
     }
 
     private DataSourceOptions buildOptions(SystemDataSetting setting) {
-
-
         DataSourceOptions.DatabaseBuilder builder = DataSourceOptions.builder()
                 .name(setting.getSystemDataSettingName())
                 .url(StringUtils.isNotBlank(setting.getSystemDataSettingServer())
@@ -154,7 +160,16 @@ public class DataConsoleServiceImpl implements DataConsoleService {
                         : (setting.getSystemDataSettingHost() + ":" + setting.getSystemDataSettingPort()))
                 .username(setting.getSystemDataSettingUsername())
                 .password(setting.getSystemDataSettingPassword());
-        return builder.build();
+
+        // 如果上传过驱动文件，优先告知 DataSourceOptions 使用对应驱动
+        if (StringUtils.isNotBlank(setting.getSystemDataSettingDriverClass())) {
+            builder.driverClassName(setting.getSystemDataSettingDriverClass());
+        }
+        DataSourceOptions options = builder.build();
+        if (StringUtils.isNotBlank(setting.getSystemDataSettingDriverPath())) {
+            options.setDriverPath(setting.getSystemDataSettingDriverPath());
+        }
+        return options;
     }
 }
 
