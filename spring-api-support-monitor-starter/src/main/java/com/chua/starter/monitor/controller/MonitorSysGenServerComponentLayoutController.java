@@ -119,10 +119,11 @@ public class MonitorSysGenServerComponentLayoutController {
     @ApiOperation("批量更新组件布局位置信息")
     @Operation(summary = "批量更新组件布局位置信息", description = "批量更新多个组件的布局位置信息")
     public ReturnResult<Boolean> batchUpdatePosition(
+            @RequestParam(required = false) Integer serverId,
             @ApiParam(value = "布局列表", required = true) 
             @Parameter(description = "布局列表", required = true)
             @RequestBody List<MonitorSysGenServerComponentLayout> layouts) {
-        return layoutService.batchUpdatePosition(layouts);
+        return layoutService.batchUpdatePosition(serverId, layouts);
     }
 
     @PostMapping("/create")

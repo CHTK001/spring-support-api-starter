@@ -37,12 +37,19 @@ public class SystemServerSettingServiceDiscovery extends SysBase {
     @Schema(description = "服务器ID")
     private Integer serviceDiscoveryServerId;
 
-    /** 模式: SPRING/DEFAULT */
+    /** 模式: SPRING/TABLE/HAZELCAST */
     @TableField("service_discovery_mode")
-    @ApiModelProperty("服务发现模式: SPRING/DEFAULT")
-    @Schema(description = "服务发现模式: SPRING/DEFAULT")
+    @ApiModelProperty("服务发现模式: SPRING/TABLE/HAZELCAST")
+    @Schema(description = "服务发现模式: SPRING/TABLE/HAZELCAST")
     @Size(max = 50)
     private String serviceDiscoveryMode;
+
+    /** 负载均衡策略（如：weight/round/…） */
+    @TableField("service_discovery_balance")
+    @ApiModelProperty("默认负载均衡策略")
+    @Schema(description = "默认负载均衡策略")
+    @Size(max = 50)
+    private String serviceDiscoveryBalance;
 
     /** 当模式为SPRING时的Bean名称 */
     @TableField("service_discovery_bean_name")

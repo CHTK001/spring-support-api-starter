@@ -172,10 +172,15 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ReturnResult<Boolean> batchUpdatePosition(List<MonitorSysGenServerComponentLayout> layouts) {
+    public ReturnResult<Boolean> batchUpdatePosition(Integer serverId, List<MonitorSysGenServerComponentLayout> layouts) {
         try {
             if (layouts == null || layouts.isEmpty()) {
-                return ReturnResult.error("布局列表不能为空");
+                if(null == serverId) {
+                    return ReturnResult.error("布局列表不能为空");
+                }
+
+                layoutMapper.deleteByServerId(serverId);
+                return ReturnResult.ok();
             }
             
             // 设置更新时间
