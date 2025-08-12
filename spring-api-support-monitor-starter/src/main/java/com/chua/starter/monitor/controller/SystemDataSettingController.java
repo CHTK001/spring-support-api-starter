@@ -1,21 +1,22 @@
 package com.chua.starter.monitor.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.backup.Backup;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.SystemCapabilities;
-import com.chua.starter.monitor.service.SystemDataSettingService;
-import com.chua.starter.monitor.service.DataConsoleService;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.monitor.service.SystemDataSettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -114,8 +115,8 @@ public class SystemDataSettingController {
      */
     @GetMapping(value = "/{id}/document/html", produces = MediaType.TEXT_HTML_VALUE)
     @ApiOperation("生成文档HTML")
-    public String documentHtml(@PathVariable Integer id) {
-        return String.valueOf(dataConsoleService.generateDocument(id).getData());
+    public ResponseEntity<byte[]> documentHtml(@PathVariable Integer id) {
+        return dataConsoleService.generateDocument(id).getData();
     }
 
     /** 启动备份 */
