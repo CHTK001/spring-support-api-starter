@@ -6,6 +6,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
+import org.springframework.http.ResponseEntity;
 
 /**
  * 数据控制台服务
@@ -22,7 +23,7 @@ public interface DataConsoleService {
 
     ReturnResult<CommandResult> execute(Integer settingId, String type, String command, MetadataQuery query);
 
-    ReturnResult<Object> generateDocument(Integer settingId);
+    ReturnResult<ResponseEntity<byte[]>> generateDocument(Integer settingId);
 
     ReturnResult<Boolean> startBackup(Integer settingId);
 
