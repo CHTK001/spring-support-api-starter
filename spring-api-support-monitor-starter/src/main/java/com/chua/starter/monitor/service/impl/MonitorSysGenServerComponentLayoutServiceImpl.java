@@ -242,10 +242,10 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
                 return ReturnResult.error("布局配置不存在");
             }
             
-            if (x != null) layout.setMonitorSysGenServerComponentLayoutX(x);
-            if (y != null) layout.setMonitorSysGenServerComponentLayoutY(y);
-            if (w != null) layout.setMonitorSysGenServerComponentLayoutW(w);
-            if (h != null) layout.setMonitorSysGenServerComponentLayoutH(h);
+            if (x != null) { layout.setMonitorSysGenServerComponentLayoutX(x); }
+            if (y != null) { layout.setMonitorSysGenServerComponentLayoutY(y); }
+            if (w != null) { layout.setMonitorSysGenServerComponentLayoutW(w); }
+            if (h != null) { layout.setMonitorSysGenServerComponentLayoutH(h); }
             
             return updateLayout(layout);
         } catch (Exception e) {
