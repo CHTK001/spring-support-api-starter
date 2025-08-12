@@ -3,10 +3,12 @@ package com.chua.starter.monitor.controller;
 import com.chua.common.support.backup.Backup;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.service.SystemDataSettingService;
+import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +41,20 @@ public class SystemDataSettingController {
     @ApiOperation("查询全部数据配置")
     public ReturnResult<List<SystemDataSetting>> list() {
         return ReturnResult.ok(systemDataSettingService.list());
+    }
+
+    /**
+     * 分页查询数据配置，直接携带能力
+     */
+    @GetMapping("/page")
+    @ApiOperation("分页查询数据配置")
+    public ReturnResult<Page<SystemDataSettingPageItem>> page(
+            @RequestParam(required = false, defaultValue = "1") long current,
+            @RequestParam(required = false, defaultValue = "20") long size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String type
+    ) {
+        return systemDataSettingService.pageWithCapabilities(current, size, name, type);
     }
 
     /**
