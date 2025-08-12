@@ -53,7 +53,7 @@ public class MonitorSysGenServerSetting extends SysBase {
     @TableId(value = "monitor_sys_gen_server_setting_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务器配置设置ID")
     @Schema(description = "服务器配置设置ID")
-    @NotNull(message = "配置ID不能为空", groups = {UpdateGroup.class})
+    @NotNull(message = "配置ID不能为空", groups = { UpdateGroup.class })
     private Integer monitorSysGenServerSettingId;
 
     /**
@@ -69,7 +69,7 @@ public class MonitorSysGenServerSetting extends SysBase {
     @TableField(value = "monitor_sys_gen_server_id")
     @ApiModelProperty(value = "服务器ID")
     @Schema(description = "服务器ID")
-    @NotNull(message = "服务器ID不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    @NotNull(message = "服务器ID不能为空", groups = { AddGroup.class, UpdateGroup.class })
     private Integer monitorSysGenServerId;
 
     /**
@@ -507,6 +507,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 文件管理方式 (NONE:不启用, SSH:SSH模式, API:API模式, NODE:NODE模式, LOCAL:本地模式)
+     * 
+     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getFileManagementConfigTemplate
+     *      获取配置模板
+     * @see com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl#getFileManagementService
+     *      实际选择实现
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_mode")
     @ApiModelProperty(value = "文件管理方式")
@@ -515,6 +520,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 文件管理API配置 (JSON格式，仅在API模式下使用)
+     * 
+     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#validateFileManagementConfig
+     *      验证配置
+     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getFileManagementConfigTemplate
+     *      模板
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_api_config")
     @ApiModelProperty(value = "文件管理API配置")
@@ -524,6 +534,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 选择的NODE客户端ID (仅在NODE模式下使用)
+     * 
+     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getAvailableNodeClients
+     *      获取可用客户端
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_node_client")
     @ApiModelProperty(value = "选择的NODE客户端ID")
@@ -533,6 +546,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用文件管理 0:否 1:是
+     * 
+     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#testFileManagementConnection
+     *      测试连接
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_enabled")
     @ApiModelProperty(value = "是否启用文件管理")
