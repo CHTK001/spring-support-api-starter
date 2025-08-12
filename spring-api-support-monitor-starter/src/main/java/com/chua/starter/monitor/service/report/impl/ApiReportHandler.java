@@ -309,20 +309,20 @@ public class ApiReportHandler implements ReportHandler {
                 extraInfo.append("rx_packets:").append(rxPackets);
             }
             if (txPackets != null) {
-                if (extraInfo.length() > 0) extraInfo.append(",");
+                if (extraInfo.length() > 0) { extraInfo.append(","); }
                 extraInfo.append("tx_packets:").append(txPackets);
             }
 
             // 添加主机名
             Object hostname = reportData.get("hostname");
             if (hostname != null) {
-                if (extraInfo.length() > 0) extraInfo.append(",");
+                if (extraInfo.length() > 0) { extraInfo.append(","); }
                 extraInfo.append("hostname:").append(hostname);
             }
 
             // 添加负载平均值到额外信息
             if (loadAverage != null) {
-                if (extraInfo.length() > 0) extraInfo.append(",");
+                if (extraInfo.length() > 0) { extraInfo.append(","); }
                 extraInfo.append("load_avg:").append(loadAverage);
             }
 
@@ -351,7 +351,7 @@ public class ApiReportHandler implements ReportHandler {
      * 安全解析BigDecimal值
      */
     private BigDecimal parseBigDecimal(Object value) {
-        if (value == null) return null;
+        if (value == null) { return null; }
         if (value instanceof Number) {
             return BigDecimal.valueOf(((Number) value).doubleValue());
         }
@@ -367,7 +367,7 @@ public class ApiReportHandler implements ReportHandler {
      * 安全解析Long值
      */
     private Long parseLong(Object value) {
-        if (value == null) return null;
+        if (value == null) { return null; }
         if (value instanceof Number) {
             return ((Number) value).longValue();
         }
@@ -383,7 +383,7 @@ public class ApiReportHandler implements ReportHandler {
      * 安全解析Integer值
      */
     private Integer parseInteger(Object value) {
-        if (value == null) return null;
+        if (value == null) { return null; }
         if (value instanceof Number) {
             return ((Number) value).intValue();
         }

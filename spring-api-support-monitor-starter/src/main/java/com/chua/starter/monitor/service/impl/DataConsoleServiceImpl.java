@@ -2,6 +2,11 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.backup.Backup;
+import com.chua.common.support.backup.BackupSetting;
+import com.chua.common.support.backup.listener.BackupData;
+import com.chua.common.support.backup.listener.BackupListener;
+import com.chua.common.support.backup.strategy.DayBackupStrategy;
+import com.chua.common.support.constant.EventType;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.document.DocQuery;
 import com.chua.common.support.document.Document;
@@ -36,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataConsoleServiceImpl implements DataConsoleService {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
-    private final Map<Integer, Boolean> backupStatusMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
 
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
@@ -86,7 +91,9 @@ public class DataConsoleServiceImpl implements DataConsoleService {
     public ReturnResult<CommandResult> execute(Integer settingId, String type, String command, MetadataQuery query) {
         try {
             SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) return ReturnResult.error("配置不存在");
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
 
             CommandMetadata metadata;
             DataSourceOptions options = buildOptions(setting);
@@ -107,11 +114,17 @@ public class DataConsoleServiceImpl implements DataConsoleService {
     public ReturnResult<ResponseEntity<byte[]>> generateDocument(Integer settingId) {
         try {
             SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) return ReturnResult.error("配置不存在");
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
             boolean support = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-            if (!support) return ReturnResult.error("文档不支持");
+            if (!support) {
+                return ReturnResult.error("文档不支持");
+            }
             Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType());
-            if (document == null) return ReturnResult.error("文档组件不可用");
+            if (document == null) {
+                return ReturnResult.error("文档组件不可用");
+            }
             GetObjectResult getObjectResult = document.create(DocQuery.builder()
                     .type(DocQuery.Type.HTML)
                     .build());
@@ -131,10 +144,32 @@ public class DataConsoleServiceImpl implements DataConsoleService {
     public ReturnResult<Boolean> startBackup(Integer settingId) {
         try {
             SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) return ReturnResult.error("配置不存在");
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
             boolean support = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
-            if (!support) return ReturnResult.error("备份不支持");
-            backupStatusMap.put(settingId, true);
+            if (!support) {
+                return ReturnResult.error("备份不支持");
+            }
+            DataSourceOptions databaseOptions = new DataSourceOptions();
+            databaseOptions.setDriverClass(setting.getSystemDataSettingDriverClass());
+            databaseOptions.setUrl(setting.getSystemDataSettingHost());
+            databaseOptions.setUsername(setting.getSystemDataSettingUsername());
+            databaseOptions.setPassword(setting.getSystemDataSettingPassword());
+            databaseOptions.setTimeout(setting.getSystemDataSettingTimeoutMs());
+            BackupSetting backupOptions = BackupSetting.builder()
+                    .build();
+            Backup backup = ServiceProvider.of(Backup.class).getNewExtension(setting.getSystemDataSettingType(), databaseOptions, backupOptions);
+            backup.addStrategy(new DayBackupStrategy());
+            backup.addListener(new BackupListener() {
+                @Override
+                public void listen(EventType event, BackupData backupData) {
+
+                }
+            });
+            backup.start();
+
+            backupStatusMap.put(settingId, backup);
             return ReturnResult.ok(true);
         } catch (Exception e) {
             log.error("启动备份失败", e);
@@ -144,13 +179,20 @@ public class DataConsoleServiceImpl implements DataConsoleService {
 
     @Override
     public ReturnResult<Boolean> stopBackup(Integer settingId) {
-        backupStatusMap.put(settingId, false);
+        Backup backup = backupStatusMap.get(settingId);
+        if (backup != null) {
+            try {
+                backup.stop();
+            } catch (Exception e) {
+                log.error("停止备份失败", e);
+            }
+        }
         return ReturnResult.ok(true);
     }
 
     @Override
     public ReturnResult<Boolean> backupStatus(Integer settingId) {
-        return ReturnResult.ok(Boolean.TRUE.equals(backupStatusMap.get(settingId)));
+        return ReturnResult.ok(backupStatusMap.containsKey(settingId));
     }
 
     @Override

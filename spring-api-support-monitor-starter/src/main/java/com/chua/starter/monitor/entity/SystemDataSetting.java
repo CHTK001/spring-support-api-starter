@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
  * 记录各类数据源的基础连接信息与控制台能力配置。
  *
  * @author CH
+ * @since 2025-04-05
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
