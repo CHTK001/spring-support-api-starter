@@ -19,6 +19,8 @@ import com.chua.starter.monitor.service.MonitorAppService;
 import com.chua.starter.mybatis.entity.Query;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +31,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
  * 监视器应用
@@ -104,6 +108,21 @@ public class MonitorAppServiceImpl extends ServiceImpl<MonitorAppMapper, Monitor
             result.add(openApi);
         }
         return ReturnResult.ok(result);
+    }
+
+    @Override
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "#application.monitorId", keyGenerator = "customTenantedKeyGenerator")
+    public ReturnResult<Boolean> saveOrUpdateApplication(MonitorApplication application) {
+        if(null != application.getMonitorId()) {
+            return ReturnResult.guess(updateById(application));
+        }
+        return ReturnResult.guess(save(application));
+    }
+
+    @Override
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "#monitorId", keyGenerator = "customTenantedKeyGenerator")
+    public ReturnResult<MonitorApplication> getByCacheId(Integer monitorId) {
+        return ReturnResult.guess(this.getById(monitorId));
     }
 
     /**
