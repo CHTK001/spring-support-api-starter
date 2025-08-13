@@ -130,6 +130,10 @@ public class SystemDataSetting extends SysBase {
     @Schema(description = "远程图片地址")
     @TableField("system_data_setting_image_url")
     private String systemDataSettingImageUrl;
+    /** 备份状态 */
+    @Schema(description = "备份状态;0:未启动; 1:已启动")
+    @TableField("system_data_setting_backup_status")
+    private Integer systemDataSettingBackupStatus;
 }
 
 

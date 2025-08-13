@@ -3,16 +3,17 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.backup.Backup;
+import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetAddress;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
-import com.chua.starter.monitor.service.SystemDataSettingService;
-import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
-import com.chua.common.support.backup.Backup;
-import com.chua.common.support.document.Document;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.starter.monitor.service.SystemDataSettingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,13 +40,14 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     public ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting) {
         try {
             String systemDataSettingServer = setting.getSystemDataSettingServer();
-            if(systemDataSettingServer != null) {
+            if(systemDataSettingServer != null && null == setting.getSystemDataSettingProtocol()) {
                 NetAddress netAddress = NetAddress.of(systemDataSettingServer);
                 setting.setSystemDataSettingProtocol(netAddress.getProtocol());
                 setting.setSystemDataSettingHost(netAddress.getHost());
                 setting.setSystemDataSettingPort(netAddress.getPort(8080));
             }
             if (setting.getSystemDataSettingId() == null) {
+                setting.setSystemDataSettingTimeoutMs(ObjectUtils.defaultIfNull(setting.getSystemDataSettingTimeoutMs(), 10_000));
                 save(setting);
             } else {
                 updateById(setting);
@@ -109,27 +111,9 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         Page<SystemDataSettingPageItem> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream().map(setting -> {
             SystemDataSettingPageItem item = new SystemDataSettingPageItem();
-            // 拷贝基础字段
-            item.setSystemDataSettingId(setting.getSystemDataSettingId());
-            item.setSystemDataSettingName(setting.getSystemDataSettingName());
-            item.setSystemDataSettingType(setting.getSystemDataSettingType());
-            item.setSystemDataSettingServer(setting.getSystemDataSettingServer());
-            item.setSystemDataSettingHost(setting.getSystemDataSettingHost());
-            item.setSystemDataSettingPort(setting.getSystemDataSettingPort());
-            item.setSystemDataSettingUsername(setting.getSystemDataSettingUsername());
-            item.setSystemDataSettingPassword(setting.getSystemDataSettingPassword());
-            item.setSystemDataSettingAuthType(setting.getSystemDataSettingAuthType());
-            item.setSystemDataSettingIcon(setting.getSystemDataSettingIcon());
-            item.setSystemDataSettingConsoleType(setting.getSystemDataSettingConsoleType());
-            item.setSystemDataSettingChartType(setting.getSystemDataSettingChartType());
-            item.setSystemDataSettingTimeoutMs(setting.getSystemDataSettingTimeoutMs());
-            item.setSystemDataSettingMode(setting.getSystemDataSettingMode());
-            item.setSystemDataSettingEnabled(setting.getSystemDataSettingEnabled());
-            item.setSystemDataSettingConfig(setting.getSystemDataSettingConfig());
-            item.setSystemDataSettingImageUrl(setting.getSystemDataSettingImageUrl());
-
+            BeanUtils.copyProperties(setting, item);
             // 能力判断（SPI）
-            boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
+            boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingProtocol());
             boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
             boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
             item.setCapabilitiesBackup(backup);
