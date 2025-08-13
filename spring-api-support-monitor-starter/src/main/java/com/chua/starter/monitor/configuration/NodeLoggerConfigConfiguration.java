@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.config;
+package com.chua.starter.monitor.configuration;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

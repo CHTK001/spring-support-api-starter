@@ -3,9 +3,11 @@ package com.chua.starter.monitor.job;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.report.client.starter.endpoint.ModuleType;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.entity.MonitorJob;
@@ -14,6 +16,7 @@ import com.chua.starter.monitor.job.lock.JobLock;
 import com.chua.starter.monitor.job.lock.RedisLock;
 import com.chua.starter.monitor.job.route.ExecutorRouter;
 import com.chua.starter.monitor.properties.ReportJobProperties;
+import com.chua.starter.monitor.sender.MonitorSender;
 import com.chua.starter.monitor.service.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorJobService;
 import org.redisson.api.RedissonClient;
@@ -34,7 +37,7 @@ public class JobConfig {
     private static final JobConfig INSTANCE = new JobConfig();
     private ReportJobProperties reportJobProperties;
     private ApplicationContext applicationContext;
-
+    private MonitorSender monitorSender;
     private MonitorJobService monitorJobService;
     private MonitorJobLogService monitorJobLogService;
     private DiscoveryService discoveryService;
@@ -87,6 +90,7 @@ public class JobConfig {
         // 从应用上下文中获取各种服务的实例
         this.discoveryService = applicationContext.getBean(DiscoveryService.class);
         this.monitorJobService = applicationContext.getBean(MonitorJobService.class);
+        this.monitorSender = applicationContext.getBean(MonitorSender.class);
         this.monitorJobLogService = applicationContext.getBean(MonitorJobLogService.class);
         this.redissonClient = applicationContext.getBean(RedissonClient.class);
     }
@@ -113,16 +117,16 @@ public class JobConfig {
      * 根据触发参数和监控作业信息获取执行地址列表。
      *
      * @param triggerParam 触发参数
-     * @param jobInfo 监控作业信息
+     * @param jobInfo      监控作业信息
      * @return 返回MonitorRequest对象列表，如果没有可用的执行地址则返回null。
      */
     public Set<Discovery> getAddress(TriggerParam triggerParam, MonitorJob jobInfo) {
         Set<Discovery> serviceInstance = discoveryService.getDiscoveryAll("monitor");
-        if(CollectionUtils.isEmpty(serviceInstance)) {
+        if (CollectionUtils.isEmpty(serviceInstance)) {
             return null;
         }
         ExecutorRouter executorRouter = ServiceProvider.of(ExecutorRouter.class).getNewExtension(jobInfo.getJobExecuteRouter());
-        if(null == executorRouter) {
+        if (null == executorRouter) {
             return null;
         }
         // 路由选择合适的执行地址
@@ -140,7 +144,7 @@ public class JobConfig {
     public ReturnResult<String> run(MonitorJobLog jobLog, Set<Discovery> address, TriggerParam triggerParam) {
         // 遍历地址列表，发送触发参数
         for (Discovery monitorRequest : address) {
-           // monitorSender.upload(jobLog, monitorRequest, Json.toJSONString(triggerParam), ModuleType.JOB);
+            monitorSender.send(jobLog, monitorRequest, Json.toJSONString(triggerParam), ModuleType.JOB);
         }
         // 执行成功
         return ReturnResult.success();

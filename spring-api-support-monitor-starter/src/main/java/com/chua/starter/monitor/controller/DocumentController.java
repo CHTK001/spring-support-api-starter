@@ -31,6 +31,7 @@ import java.util.Map;
 @Tag(name = "文档转发接口")
 @RequestMapping("/v2/document")
 @RequiredArgsConstructor
+@SuppressWarnings("ALL")
 public class DocumentController {
 
     private final RestTemplate restTemplate;
