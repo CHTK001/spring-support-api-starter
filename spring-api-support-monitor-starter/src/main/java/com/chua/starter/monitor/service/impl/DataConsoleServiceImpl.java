@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.backup.Backup;
 import com.chua.common.support.backup.BackupSetting;
 import com.chua.common.support.backup.listener.BackupData;
@@ -32,6 +33,7 @@ import com.chua.starter.monitor.service.DataConsoleService;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,13 +46,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DataConsoleServiceImpl implements DataConsoleService {
+public class DataConsoleServiceImpl implements DataConsoleService, InitializingBean {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
     private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
-
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
         try {
@@ -129,14 +130,16 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             if (!support) {
                 return ReturnResult.error("文档不支持");
             }
-            Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType());
+
+            DataSourceOptions options = buildOptions(setting);
+            Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType(), options);
             if (document == null) {
                 return ReturnResult.error("文档组件不可用");
             }
-            GetObjectResult getObjectResult = document.create(DocQuery.builder()
+            try ( GetObjectResult getObjectResult = document.create(DocQuery.builder()
                     .type(DocQuery.Type.HTML)
                     .build());
-            try (InputStream inputStream = getObjectResult.getInputStream()) {
+                  InputStream inputStream = getObjectResult.getInputStream()) {
                 return ReturnResult.ok(ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(getObjectResult.getMediaType().toString()))
                         .body(IoUtils.toByteArray(inputStream))
@@ -155,19 +158,19 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             if (setting == null) {
                 return ReturnResult.error("配置不存在");
             }
-            boolean support = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
+            boolean support = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingProtocol());
             if (!support) {
                 return ReturnResult.error("备份不支持");
             }
             DataSourceOptions databaseOptions = new DataSourceOptions();
             databaseOptions.setDriverClass(setting.getSystemDataSettingDriverClass());
-            databaseOptions.setUrl(setting.getSystemDataSettingHost());
+            databaseOptions.setUrl(setting.getSystemDataSettingServer());
             databaseOptions.setUsername(setting.getSystemDataSettingUsername());
             databaseOptions.setPassword(setting.getSystemDataSettingPassword());
             databaseOptions.setTimeout(setting.getSystemDataSettingTimeoutMs());
             BackupSetting backupOptions = BackupSetting.builder()
                     .build();
-            Backup backup = ServiceProvider.of(Backup.class).getNewExtension(setting.getSystemDataSettingType(), databaseOptions, backupOptions);
+            Backup backup = ServiceProvider.of(Backup.class).getNewExtension(setting.getSystemDataSettingProtocol(), databaseOptions, backupOptions);
             backup.addStrategy(new DayBackupStrategy());
             backup.addListener(new BackupListener() {
                 @Override
@@ -204,7 +207,9 @@ public class DataConsoleServiceImpl implements DataConsoleService {
                 }
             });
             backup.start();
-
+            log.info("启动备份成功: {}", setting.getSystemDataSettingName());
+            setting.setSystemDataSettingBackupStatus(1);
+            systemDataSettingMapper.updateById(setting);
             backupStatusMap.put(settingId, backup);
             return ReturnResult.ok(true);
         } catch (Exception e) {
@@ -215,10 +220,16 @@ public class DataConsoleServiceImpl implements DataConsoleService {
 
     @Override
     public ReturnResult<Boolean> stopBackup(Integer settingId) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            return ReturnResult.error("配置不存在");
+        }
         Backup backup = backupStatusMap.get(settingId);
         if (backup != null) {
             try {
                 backup.stop();
+                setting.setSystemDataSettingBackupStatus(0);
+                systemDataSettingMapper.updateById(setting);
             } catch (Exception e) {
                 log.error("停止备份失败", e);
             }
@@ -260,6 +271,22 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             options.setDriverPath(setting.getSystemDataSettingDriverPath());
         }
         return options;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Thread.startVirtualThread(() -> {
+            for (SystemDataSetting systemDataSetting : systemDataSettingMapper.selectList(
+                    Wrappers.<SystemDataSetting>lambdaQuery()
+                            .eq(SystemDataSetting::getSystemDataSettingBackupStatus, 1)
+            )) {
+
+                try {
+                    startBackup(systemDataSetting.getSystemDataSettingId());
+                } catch (Exception ignored) {
+                }
+            }
+        });
     }
 }
 
