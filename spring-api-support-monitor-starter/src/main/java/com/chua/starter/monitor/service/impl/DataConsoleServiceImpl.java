@@ -27,9 +27,11 @@ import com.chua.common.support.utils.IoUtils;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemDataBackupRecord;
+import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +42,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,13 +57,20 @@ public class DataConsoleServiceImpl implements DataConsoleService, InitializingB
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
     private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
+    private final SystemDataFieldCommentService systemDataFieldCommentService;
+
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
+        HierarchyMetadata metadata = null;
         try {
-            HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
+            metadata = getOrCreateHierarchy(settingId);
             return ReturnResult.ok(metadata.getRootNodes(query));
         } catch (Exception e) {
             log.error("获取根节点失败", e);
+            try {
+                metadata.close();
+            } catch (Exception ignored) {
+            }
             return ReturnResult.error(e.getMessage());
         }
     }
@@ -67,7 +79,24 @@ public class DataConsoleServiceImpl implements DataConsoleService, InitializingB
     public ReturnResult<HierarchyResult<HierarchyNode>> getChildren(Integer settingId, String parentPath, MetadataQuery query) {
         try {
             HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
-            return ReturnResult.ok(metadata.getChildNodes(parentPath, query));
+            HierarchyResult<HierarchyNode> childNodes = metadata.getChildNodes(parentPath, query);
+            List<HierarchyNode> data = childNodes.getData();
+            Set<String> paths = data.stream().map(HierarchyNode::getPath).collect(Collectors.toSet());
+            if(!paths.isEmpty()) {
+                List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
+                        Wrappers.<SystemDataFieldComment>lambdaQuery()
+                                .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
+                                .in(SystemDataFieldComment::getSystemDataFieldCommentNodePath, paths)
+                );
+                Map<String, SystemDataFieldComment> collect = list.stream().collect(Collectors.toMap(SystemDataFieldComment::getSystemDataFieldCommentNodePath, item -> item));
+                for (HierarchyNode datum : data) {
+                    SystemDataFieldComment systemDataFieldComment = collect.get(datum.getPath());
+                    if(systemDataFieldComment != null) {
+                        datum.getProperties().put("comment", systemDataFieldComment.getSystemDataFieldCommentComment());
+                    }
+                }
+            }
+            return ReturnResult.ok(childNodes);
         } catch (Exception e) {
             log.error("获取子节点失败", e);
             return ReturnResult.error(e.getMessage());
@@ -104,13 +133,8 @@ public class DataConsoleServiceImpl implements DataConsoleService, InitializingB
                 return ReturnResult.error("配置不存在");
             }
 
-            CommandMetadata metadata;
             DataSourceOptions options = buildOptions(setting);
-            if (StringUtils.isBlank(type)) {
-                metadata = CommandMetadataFactory.createCommandByDataSourceOptions(options);
-            } else {
-                metadata = CommandMetadataFactory.createCommand(type, options);
-            }
+            CommandMetadata metadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
             CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command);
             return ReturnResult.ok(result);
         } catch (Exception e) {
