@@ -48,4 +48,20 @@ public interface MonitorAppService extends IService<MonitorApplication>{
      * @return 渲染结果字符串
      */
     ReturnResult<List<OpenApi>> render(Integer monitorId, String index);
+
+    /**
+     * 保存或更新监视器应用信息
+     *
+     * @param application 监视器应用信息
+     * @return 保存或更新结果
+     */
+    ReturnResult<Boolean> saveOrUpdateApplication(MonitorApplication application);
+
+    /**
+     * 根据缓存ID获取监视器应用信息
+     *
+     * @param monitorId 缓存ID
+     * @return 监视器应用信息
+     */
+    ReturnResult<MonitorApplication> getByCacheId(Integer monitorId);
 }

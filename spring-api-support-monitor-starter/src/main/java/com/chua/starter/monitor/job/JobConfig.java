@@ -10,6 +10,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.report.client.starter.endpoint.ModuleType;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.discovery.support.service.DiscoveryService;
+import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.entity.MonitorJob;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.job.lock.JobLock;
@@ -17,13 +18,16 @@ import com.chua.starter.monitor.job.lock.RedisLock;
 import com.chua.starter.monitor.job.route.ExecutorRouter;
 import com.chua.starter.monitor.properties.ReportJobProperties;
 import com.chua.starter.monitor.sender.MonitorSender;
+import com.chua.starter.monitor.service.MonitorAppService;
 import com.chua.starter.monitor.service.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorJobService;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 作业配置
@@ -42,6 +46,7 @@ public class JobConfig {
     private MonitorJobLogService monitorJobLogService;
     private DiscoveryService discoveryService;
     private RedissonClient redissonClient;
+    private MonitorAppService monitorAppService;
 
     public static JobConfig getInstance() {
         return INSTANCE;
@@ -93,6 +98,7 @@ public class JobConfig {
         this.monitorSender = applicationContext.getBean(MonitorSender.class);
         this.monitorJobLogService = applicationContext.getBean(MonitorJobLogService.class);
         this.redissonClient = applicationContext.getBean(RedissonClient.class);
+        this.monitorAppService = applicationContext.getBean(MonitorAppService.class);
     }
 
     /**
@@ -121,7 +127,19 @@ public class JobConfig {
      * @return 返回MonitorRequest对象列表，如果没有可用的执行地址则返回null。
      */
     public Set<Discovery> getAddress(TriggerParam triggerParam, MonitorJob jobInfo) {
+        ReturnResult<MonitorApplication> monitorApplication = monitorAppService.getByCacheId(jobInfo.getMonitorId());
+        if(monitorApplication.isFailure()) {
+            return Collections.emptySet();
+        }
+        MonitorApplication application = monitorApplication.getData();
         Set<Discovery> serviceInstance = discoveryService.getDiscoveryAll("monitor");
+        serviceInstance = serviceInstance.stream().filter(discovery -> {
+            String monitorApplicationName = application.getMonitorApplicationName();
+            if(null == monitorApplicationName) {
+                return false;
+            }
+            return monitorApplicationName.equals(discovery.getMetadata().get("applicationName"));
+        }).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(serviceInstance)) {
             return null;
         }
