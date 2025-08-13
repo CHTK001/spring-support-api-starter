@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.config;
+package com.chua.starter.monitor.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

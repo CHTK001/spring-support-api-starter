@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.config;
+package com.chua.starter.monitor.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,4 +14,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class SchedulingConfig {
     // 配置类，启用@Scheduled注解
-} 
+}
