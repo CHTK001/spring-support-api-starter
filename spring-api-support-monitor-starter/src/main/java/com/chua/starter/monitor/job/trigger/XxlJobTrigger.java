@@ -117,9 +117,9 @@ public class XxlJobTrigger {
         // 6、save log trigger-info
         jobLog.setJobLogTriggerAddress(address.stream().map(it -> it.getHost() + ":" +it.getPort()).collect(Collectors.joining()));
         jobLog.setJobLogTriggerParam(jobInfo.getJobExecuteParam());
-        jobLog.setJobLogTriggerCode(triggerResult.getCode());
-        jobLog.setJobLogExecuteCode("PADDING");
-        jobLog.setJobLogTriggerMsg(triggerMsgSb);
+//        jobLog.setJobLogTriggerCode(triggerResult.getCode());
+//        jobLog.setJobLogExecuteCode("PADDING");
+//        jobLog.setJobLogTriggerMsg(triggerMsgSb);
         JobConfig.getInstance().updateLog(jobLog);
 
         logger.debug(">>>>>>>>>>> job trigger end, jobId:{}", jobLog.getJobLogId());
@@ -142,9 +142,9 @@ public class XxlJobTrigger {
             runResult = ReturnResult.illegal(e);
         }
 
-        String runResultSB = "任务运行：" + "<br>地址：" + address.stream().map(it -> it.getHost() + ":" + it.getPort()).collect(Collectors.toList()) +
-                "<br>状态码：" + runResult.getCode() +
-                "<br>消息：" + runResult.getMsg();
+        String runResultSB = "任务运行：" + "<br>地址：" + address.stream().map(it -> it.getHost() + ":" + it.getPort()).toList() +
+                "<br>状态码：" + jobLog.getJobLogExecuteCode() +
+                "<br>消息：" + jobLog.getJobLogTriggerMsg();
 
         runResult.setMsg(runResultSB);
         return runResult;
