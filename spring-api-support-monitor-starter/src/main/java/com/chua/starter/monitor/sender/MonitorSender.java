@@ -15,6 +15,7 @@ import com.chua.report.client.starter.setting.SettingFactory;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import org.springframework.boot.SpringBootConfiguration;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -57,8 +58,9 @@ public class MonitorSender {
                 .port(port)
                 .codec(SettingFactory.getInstance().getCodec())
                 .build();
+        ProtocolClient protocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
+        long startTime = System.currentTimeMillis();
         try {
-            ProtocolClient protocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
             CompletableFuture<ServletResponse> servletResponseCompletableFuture = protocolClient.sendAsync(
                     HttpServletRequest.builder()
                             .url(StringUtils.startWithAppend(moduleType.name().toLowerCase(), CommonConstant.SYMBOL_LEFT_SLASH))
@@ -66,14 +68,16 @@ public class MonitorSender {
                             .build()
             );
             ServletResponse servletResponse = servletResponseCompletableFuture.get(30, TimeUnit.SECONDS);
-            jobLog.setJobLogExecuteCode(servletResponse.isSuccess() ? "SUCCESS": "FAILURE");
+            jobLog.setJobLogExecuteCode(servletResponse.getStatusCode() == 200 ? "SUCCESS" : "FAILURE");
             jobLog.setJobLogTriggerMsg(servletResponse.getBodyAsString());
-            jobLog.setJobLogTriggerMsg(servletResponse.getErrorCode());
+            jobLog.setJobLogTriggerCode(servletResponse.getStatusCode() == 200 ? ReturnCode.SUCCESS.getCode() : ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
+            jobLog.setJobLogCost(new BigDecimal(System.currentTimeMillis() - startTime));
         } catch (Exception e) {
             e.printStackTrace();
             jobLog.setJobLogExecuteCode("FAILURE");
             jobLog.setJobLogCost(ZERO);
             jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
         }
+        jobLog.setJobLogCost(new BigDecimal(System.currentTimeMillis() - startTime));
     }
 }
