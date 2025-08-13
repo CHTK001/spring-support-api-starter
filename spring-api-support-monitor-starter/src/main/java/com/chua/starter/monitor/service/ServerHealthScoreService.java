@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service;
 
-import com.chua.starter.monitor.config.MetricsThresholdConfig;
+import com.chua.starter.monitor.configuration.MetricsThresholdConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

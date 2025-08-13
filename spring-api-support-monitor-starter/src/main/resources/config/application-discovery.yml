@@ -3,4 +3,6 @@ plugin:
     properties:
       - protocol: nacos
         address: 172.16.0.40:8848
+        node:
+          - namespace: monitor
     enable: true

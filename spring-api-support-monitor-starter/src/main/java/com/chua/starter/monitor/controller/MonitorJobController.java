@@ -29,6 +29,9 @@ import java.util.List;
 
 /**
  * 监控应用控制器
+ *
+ * @author CH
+ * @since 2024-03-08
  */
 @RestController
 @RequestMapping("v1/job")
@@ -99,6 +102,12 @@ public class MonitorJobController extends AbstractSwaggerController<MonitorJobSe
     }
 
 
+    /**
+     * 停止任务
+     *
+     * @param jobId 任务id
+     * @return {@link ReturnResult}<{@link String}>
+     */
     @Operation(summary = "更新数据")
     @GetMapping("/stop")
     @Permission("sys:monitor:job:stop")
@@ -106,6 +115,12 @@ public class MonitorJobController extends AbstractSwaggerController<MonitorJobSe
         return service.stop(jobId);
     }
 
+    /**
+     * 启动任务
+     *
+     * @param jobId 任务id
+     * @return {@link ReturnResult}<{@link String}>
+     */
     @Operation(summary = "启动")
     @RequestMapping(value = "/start", method = {RequestMethod.GET, RequestMethod.POST})
     @Permission("sys:monitor:job:start")

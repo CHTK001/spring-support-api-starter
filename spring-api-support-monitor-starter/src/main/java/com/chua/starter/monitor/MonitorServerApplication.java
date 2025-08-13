@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ServletComponentScan
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.monitor",
-        "com.chua.starter.monitor",
         "com.chua.starter.service.**"
 })
 public class MonitorServerApplication {
