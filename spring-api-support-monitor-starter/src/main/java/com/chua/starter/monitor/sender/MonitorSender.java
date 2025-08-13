@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.sender;
 
 import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.protocol.ProtocolSetting;
 import com.chua.common.support.protocol.client.ProtocolClient;
 import com.chua.common.support.protocol.client.ProtocolClientFactory;
@@ -16,6 +17,8 @@ import org.springframework.boot.SpringBootConfiguration;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
+import static com.chua.common.support.utils.MathUtils.ZERO;
 
 /**
  * 监控发送
@@ -42,6 +45,8 @@ public class MonitorSender {
             jobLog.setJobLogTriggerMsg("未获取到服务端口");
             jobLog.setJobLogTriggerCode("FAILURE");
             jobLog.setJobLogExecuteCode("FAILURE");
+            jobLog.setJobLogCost(ZERO);
+            jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
             return;
         }
 
@@ -65,6 +70,8 @@ public class MonitorSender {
         } catch (Exception e) {
             e.printStackTrace();
             jobLog.setJobLogExecuteCode("FAILURE");
+            jobLog.setJobLogCost(ZERO);
+            jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
         }
     }
 }
