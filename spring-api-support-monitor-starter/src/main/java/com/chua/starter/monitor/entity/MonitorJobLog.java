@@ -134,10 +134,15 @@ public class MonitorJobLog extends SysBase {
     @Schema(description="触发类型")
     @Size(max = 255,message = "触发类型最大长度要小于 255")
     private String jobLogTriggerType;
-
+    /**
+     * 触发时间
+     */
     @TableField(exist = false)
     private LocalDateTime startDate;
 
+    /**
+     * 结束时间
+     */
     @TableField(exist = false)
     private LocalDateTime endDate;
 
