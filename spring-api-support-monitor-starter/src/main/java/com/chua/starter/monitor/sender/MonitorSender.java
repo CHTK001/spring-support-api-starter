@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.sender;
 
+import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.protocol.ProtocolSetting;
@@ -60,12 +61,13 @@ public class MonitorSender {
             ProtocolClient protocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
             CompletableFuture<ServletResponse> servletResponseCompletableFuture = protocolClient.sendAsync(
                     HttpServletRequest.builder()
-                            .url(moduleType.name().toLowerCase())
+                            .url(StringUtils.startWithAppend(moduleType.name().toLowerCase(), CommonConstant.SYMBOL_LEFT_SLASH))
                             .body(jsonString.getBytes(StandardCharsets.UTF_8))
                             .build()
             );
             ServletResponse servletResponse = servletResponseCompletableFuture.get(30, TimeUnit.SECONDS);
             jobLog.setJobLogExecuteCode(servletResponse.isSuccess() ? "SUCCESS": "FAILURE");
+            jobLog.setJobLogTriggerMsg(servletResponse.getBodyAsString());
             jobLog.setJobLogTriggerMsg(servletResponse.getErrorCode());
         } catch (Exception e) {
             e.printStackTrace();
