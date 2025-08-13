@@ -3,9 +3,11 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.date.ComparableDateTime;
 import com.chua.common.support.lang.date.DateTime;
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.report.client.starter.endpoint.ModuleType;
 import com.chua.report.client.starter.entity.JobCat;
 import com.chua.starter.common.support.project.Project;
 import com.chua.starter.discovery.support.service.DiscoveryService;
@@ -13,6 +15,7 @@ import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.job.pojo.JobStatistic;
 import com.chua.starter.monitor.job.pojo.JobStatisticResult;
 import com.chua.starter.monitor.mapper.MonitorJobLogMapper;
+import com.chua.starter.monitor.sender.MonitorSender;
 import com.chua.starter.monitor.service.MonitorJobLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, MonitorJobLog> implements MonitorJobLogService {
 
     private final DiscoveryService discoveryService;
+    final MonitorSender monitorSender;
 
     @Override
     public JobStatisticResult time(MonitorJobLog entity) {
@@ -120,8 +124,8 @@ public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, M
         jobCat.setLogId(monitorJobLog.getJobLogId());
         jobCat.setFromLineNum(0);
         jobCat.setDate(monitorJobLog.getJobLogTriggerTime());
-//        return monitorSender.uploadSync(null, discovery, Json.toJson(jobCat), ModuleType.JOB_LOG_CAT).getData();
-        return null;
+        monitorSender.send(monitorJobLog, discovery, Json.toJson(jobCat), ModuleType.JOB_LOG_CAT);
+        return monitorJobLog.getJobLogTriggerMsg();
     }
 
     private Integer getNumberByClearType(Integer clearType) {
