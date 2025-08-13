@@ -10,8 +10,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
 
 /**
  * 数据控制台控制器
@@ -151,6 +156,26 @@ public class DataConsoleController {
     @GetMapping("/{id}/document")
     public ResponseEntity<byte[]> document(@PathVariable Integer id) {
         return dataConsoleService.generateDocument(id).getData();
+    }
+
+    /**
+     * 下载备份文件
+     */
+    @GetMapping("/{id}/backup/download")
+    public ResponseEntity<FileSystemResource> downloadBackup(@PathVariable Integer id, @RequestParam String path) {
+        try {
+            File file = new File(path);
+            if (!file.exists() || file.isDirectory()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            FileSystemResource resource = new FileSystemResource(file);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

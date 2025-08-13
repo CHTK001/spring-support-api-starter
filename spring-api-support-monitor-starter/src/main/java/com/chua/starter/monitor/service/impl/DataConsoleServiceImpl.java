@@ -10,6 +10,7 @@ import com.chua.common.support.constant.EventType;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.document.DocQuery;
 import com.chua.common.support.document.Document;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandMetadata;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
@@ -22,11 +23,16 @@ import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.common.support.oss.result.GetObjectResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
+import com.chua.redis.support.constant.RedisConstant;
+import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,6 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataConsoleServiceImpl implements DataConsoleService {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
+    private final SocketSessionTemplate socketSessionTemplate;
+    private final RedisSearchService redisSearchService;
     private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
 
     @Override
@@ -164,7 +172,35 @@ public class DataConsoleServiceImpl implements DataConsoleService {
             backup.addListener(new BackupListener() {
                 @Override
                 public void listen(EventType event, BackupData backupData) {
+                    try {
+                        // 构建记录实体
+                        SystemDataBackupRecord record = SystemDataBackupRecord.builder()
+                                .id(backupData.getId())
+                                .settingId(settingId)
+                                .event(event != null ? event.name() : "UNKNOWN")
+                                .timestamp(System.currentTimeMillis())
+                                .name(backupData.getMessage())
+                                .path(backupData.getAddress())
+                                .size(-1L)
+                                .message(backupData.getMessage())
+                                .build();
 
+                        // 保存到 RedisSearch
+                        String index = RedisConstant.REDIS_SEARCH_PREFIX + "system:data:backup";
+                        Map<String, String> doc = BeanMap.create(record);
+                        redisSearchService.addDocument(index, doc);
+
+                        // 推送到前端
+                        try {
+                            if (socketSessionTemplate != null) {
+                                socketSessionTemplate.send("system/data/backup", Json.toJson(record));
+                            }
+                        } catch (Exception ex) {
+                            log.warn("推送备份事件失败: {}", ex.getMessage());
+                        }
+                    } catch (Exception ex) {
+                        log.warn("处理备份事件失败: {}", ex.getMessage());
+                    }
                 }
             });
             backup.start();
