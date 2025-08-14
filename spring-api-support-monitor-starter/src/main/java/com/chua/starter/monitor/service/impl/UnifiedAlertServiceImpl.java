@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * 统一告警服务实现类
  * 负责统一管理所有告警相关功能，包括配置检查、告警检测、推送等
- * 
+ *
  * @author CH
  * @since 2024/12/25
  */
@@ -50,10 +50,12 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                 return ReturnResult.success(false);
             }
 
-            // 获取服务器配置
-            ReturnResult<MonitorSysGenServerSetting> settingResult = 
-                    serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
-            
+            // 获取服务器配置（默认路径，先尝试只读本地缓存）
+            ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getFromLocalCache(server.getMonitorSysGenServerId());
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                settingResult = serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+            }
+
             if (!settingResult.isOk() || settingResult.getData() == null) {
                 log.warn("获取服务器 {} 配置失败，跳过告警检测", server.getMonitorSysGenServerName());
                 return ReturnResult.error("获取服务器配置失败");
@@ -68,13 +70,13 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             }
 
             // 进行告警检测
-            ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult = 
+            ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
                     alertDetectionService.detectMetricsAlerts(server, setting, metrics);
 
             if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
                 // 推送告警信息
                 pushAlerts(server, alertResult.getData());
-                log.info("服务器 {} 检测到 {} 个告警并已推送", 
+                log.info("服务器 {} 检测到 {} 个告警并已推送",
                         server.getMonitorSysGenServerName(), alertResult.getData().size());
                 return ReturnResult.success(true);
             }
@@ -82,11 +84,44 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             return ReturnResult.success(false);
 
         } catch (Exception e) {
-            log.error("检查并推送服务器 {} 告警失败: {}", 
+            log.error("检查并推送服务器 {} 告警失败: {}",
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
             return ReturnResult.error("告警检查失败: " + e.getMessage());
         }
     }
+
+    @Override
+    public ReturnResult<Boolean> checkAndPushServerAlerts(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics, MonitorSysGenServerSetting setting) {
+        try {
+            if (!isAlertEnabled(server)) {
+                return ReturnResult.success(false);
+            }
+            MonitorSysGenServerSetting effective = setting;
+            if (effective == null) {
+                ReturnResult<MonitorSysGenServerSetting> rr = serverSettingService.getFromLocalCache(server.getMonitorSysGenServerId());
+                if (!rr.isOk() || rr.getData() == null) {
+                    rr = serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+                }
+                if (!rr.isOk() || rr.getData() == null) {
+                    return ReturnResult.error("获取服务器配置失败");
+                }
+                effective = rr.getData();
+            }
+            if (!isAlertEnabledInSetting(effective)) {
+                return ReturnResult.success(false);
+            }
+            ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult = alertDetectionService.detectMetricsAlerts(server, effective, metrics);
+            if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
+                pushAlerts(server, alertResult.getData());
+                return ReturnResult.success(true);
+            }
+            return ReturnResult.success(false);
+        } catch (Exception e) {
+            log.error("检查并推送服务器 {} 告警失败(重载): {}", server.getMonitorSysGenServerName(), e.getMessage(), e);
+            return ReturnResult.error("告警检查失败: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public ReturnResult<Boolean> checkAndPushApiReportAlerts(Integer serverId, Map<String, Object> reportData) {
@@ -103,10 +138,12 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                 return ReturnResult.success(false);
             }
 
-            // 检查配置中是否启用告警
-            ReturnResult<MonitorSysGenServerSetting> settingResult = 
-                    serverSettingService.getOrCreateSetting(serverId);
-            
+            // 检查配置中是否启用告警（先尝试只读本地缓存）
+            ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getFromLocalCache(serverId);
+            if (!settingResult.isOk() || settingResult.getData() == null) {
+                settingResult = serverSettingService.getOrCreateSetting(serverId);
+            }
+
             if (settingResult.isOk() && settingResult.getData() != null) {
                 MonitorSysGenServerSetting setting = settingResult.getData();
                 if (!isAlertEnabledInSetting(setting)) {
@@ -116,13 +153,13 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             }
 
             // 进行API上报数据告警检测
-            ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult = 
+            ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
                     alertDetectionService.detectApiReportAlerts(serverId, reportData);
 
             if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
                 // 推送告警信息
                 pushAlerts(server, alertResult.getData());
-                log.info("服务器 {} API上报数据检测到 {} 个告警并已推送", 
+                log.info("服务器 {} API上报数据检测到 {} 个告警并已推送",
                         server.getMonitorSysGenServerName(), alertResult.getData().size());
                 return ReturnResult.success(true);
             }
@@ -151,9 +188,43 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             }
 
             // 检查配置中是否启用告警
-            ReturnResult<MonitorSysGenServerSetting> settingResult = 
+
+    @Override
+    public ReturnResult<Boolean> checkAndPushConnectionAlerts(Integer serverId, Boolean isOnline, Long responseTime, MonitorSysGenServerSetting setting) {
+        try {
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server == null) {
+                return ReturnResult.error("服务器不存在");
+            }
+            if (!isAlertEnabled(server)) {
+                return ReturnResult.success(false);
+            }
+            MonitorSysGenServerSetting effective = setting;
+            if (effective == null) {
+                ReturnResult<MonitorSysGenServerSetting> rr = serverSettingService.getOrCreateSetting(serverId);
+                if (!rr.isOk() || rr.getData() == null) {
+                    return ReturnResult.error("获取服务器配置失败");
+                }
+                effective = rr.getData();
+            }
+            if (!isAlertEnabledInSetting(effective)) {
+                return ReturnResult.success(false);
+            }
+            ReturnResult<MonitorSysGenServerAlertHistory> alertResult = alertDetectionService.detectConnectionAlert(serverId, isOnline, responseTime);
+            if (alertResult.isOk() && alertResult.getData() != null) {
+                pushSingleAlert(server, alertResult.getData());
+                return ReturnResult.success(true);
+            }
+            return ReturnResult.success(false);
+        } catch (Exception e) {
+            log.error("检查并推送服务器 {} 连接告警失败(重载): {}", serverId, e.getMessage(), e);
+            return ReturnResult.error("连接告警检查失败: " + e.getMessage());
+        }
+    }
+
+            ReturnResult<MonitorSysGenServerSetting> settingResult =
                     serverSettingService.getOrCreateSetting(serverId);
-            
+
             if (settingResult.isOk() && settingResult.getData() != null) {
                 MonitorSysGenServerSetting setting = settingResult.getData();
                 if (!isAlertEnabledInSetting(setting)) {
@@ -163,13 +234,13 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             }
 
             // 进行连接告警检测
-            ReturnResult<MonitorSysGenServerAlertHistory> alertResult = 
+            ReturnResult<MonitorSysGenServerAlertHistory> alertResult =
                     alertDetectionService.detectConnectionAlert(serverId, isOnline, responseTime);
 
             if (alertResult.isOk() && alertResult.getData() != null) {
                 // 推送单个告警信息
                 pushSingleAlert(server, alertResult.getData());
-                log.info("服务器 {} 连接检测到告警并已推送: online={}, responseTime={}ms", 
+                log.info("服务器 {} 连接检测到告警并已推送: online={}, responseTime={}ms",
                         server.getMonitorSysGenServerName(), isOnline, responseTime);
                 return ReturnResult.success(true);
             }
@@ -198,9 +269,11 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     }
 
                     // 检查配置中是否启用告警
-                    ReturnResult<MonitorSysGenServerSetting> settingResult = 
-                            serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
-                    
+                    ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getFromLocalCache(server.getMonitorSysGenServerId());
+                    if (!settingResult.isOk() || settingResult.getData() == null) {
+                        settingResult = serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
+                    }
+
                     if (settingResult.isOk() && settingResult.getData() != null) {
                         MonitorSysGenServerSetting setting = settingResult.getData();
                         if (!isAlertEnabledInSetting(setting)) {
@@ -209,7 +282,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     }
 
                     // 检测Redis中的指标数据告警
-                    ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult = 
+                    ReturnResult<List<MonitorSysGenServerAlertHistory>> alertResult =
                             alertDetectionService.detectRedisMetricsAlerts(server.getMonitorSysGenServerId());
 
                     if (alertResult.isOk() && alertResult.getData() != null && !alertResult.getData().isEmpty()) {
@@ -218,7 +291,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     }
 
                 } catch (Exception e) {
-                    log.error("推送服务器 {} 告警信息失败: {}", 
+                    log.error("推送服务器 {} 告警信息失败: {}",
                             server.getMonitorSysGenServerName(), e.getMessage(), e);
                 }
             }
@@ -249,13 +322,13 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
      */
     private boolean isAlertEnabledInSetting(MonitorSysGenServerSetting setting) {
         // 检查监控是否启用
-        if (setting.getMonitorSysGenServerSettingMonitorEnabled() == null || 
+        if (setting.getMonitorSysGenServerSettingMonitorEnabled() == null ||
             setting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
             return false;
         }
 
         // 检查告警是否启用
-        if (setting.getMonitorSysGenServerSettingAlertEnabled() == null || 
+        if (setting.getMonitorSysGenServerSettingAlertEnabled() == null ||
             setting.getMonitorSysGenServerSettingAlertEnabled() != 1) {
             return false;
         }
@@ -280,11 +353,11 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     .build();
 
             socketSessionTemplate.send(TOPIC_SERVER_ALERTS, Json.toJson(message));
-            log.debug("推送服务器 {} 告警信息成功，告警数量: {}", 
+            log.debug("推送服务器 {} 告警信息成功，告警数量: {}",
                     server.getMonitorSysGenServerName(), alerts.size());
 
         } catch (Exception e) {
-            log.error("推送服务器 {} 告警信息失败: {}", 
+            log.error("推送服务器 {} 告警信息失败: {}",
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
         }
     }
@@ -306,11 +379,11 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     .build();
 
             socketSessionTemplate.send(TOPIC_SERVER_ALERTS, Json.toJson(message));
-            log.debug("推送服务器 {} 单个告警信息成功: {}", 
+            log.debug("推送服务器 {} 单个告警信息成功: {}",
                     server.getMonitorSysGenServerName(), alert.getMonitorSysGenServerAlertHistoryType());
 
         } catch (Exception e) {
-            log.error("推送服务器 {} 单个告警信息失败: {}", 
+            log.error("推送服务器 {} 单个告警信息失败: {}",
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
         }
     }

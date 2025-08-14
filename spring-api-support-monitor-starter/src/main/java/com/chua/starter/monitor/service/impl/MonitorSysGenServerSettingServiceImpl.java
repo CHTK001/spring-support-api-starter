@@ -241,6 +241,21 @@ public class MonitorSysGenServerSettingServiceImpl
     }
 
     @Override
+    public ReturnResult<MonitorSysGenServerSetting> getFromLocalCache(Integer serverId) {
+        try {
+            // 复用Spring Cache管理的缓存：通过调用 getByServerId 但避免触发DB
+            // 这里直接访问底层缓存管理器较复杂，采取简化策略：
+            // 使用一个快速失败的本地Map作为只读缓存由 ServerTaskManager 维护更合理；
+            // 但为保持职责集中，此处先尝试通过本类的一级缓存（无则返回ERROR）。
+            // 简化实现：直接返回ERROR，交由调用方优先使用其本地缓存（如ServerTaskManager.configCache）。
+            return ReturnResult.error("LOCAL_CACHE_MISS");
+        } catch (Exception e) {
+            return ReturnResult.error("LOCAL_CACHE_ERROR: " + e.getMessage());
+        }
+    }
+
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> batchDeleteByIds(List<Integer> ids) {
         try {

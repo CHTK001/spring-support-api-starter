@@ -9,6 +9,17 @@ import com.chua.starter.monitor.pojo.ServerMetricsData;
 import com.chua.starter.monitor.service.*;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
 import com.chua.starter.monitor.utils.ServerLogUtils;
+import com.chua.starter.monitor.service.ServerLatencyService;
+import com.chua.starter.monitor.task.manager.step.AlertDetectionStep;
+import com.chua.starter.monitor.task.manager.step.DataPushStep;
+import com.chua.starter.monitor.task.manager.step.MetricsCollectionStep;
+import com.chua.starter.monitor.task.manager.step.PortMonitorStep;
+import com.chua.starter.monitor.task.manager.step.HealthCheckStep;
+import com.chua.starter.monitor.task.manager.step.OnlineCheckStep;
+import com.chua.starter.monitor.task.manager.step.LatencyCheckStep;
+import com.chua.starter.monitor.task.manager.step.WebSocketCleanupStep;
+import com.chua.starter.monitor.task.manager.step.CacheCleanupStep;
+import com.chua.starter.monitor.task.manager.step.LogCleanupStep;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
@@ -52,6 +63,18 @@ public class ServerTaskManager {
     private final MonitorSysGenServerMetricsService metricsService;
     private final PrometheusDataCollectorService prometheusDataCollectorService;
     private final LocalSystemDataCollector localSystemDataCollector;
+    private final ServerLatencyService serverLatencyService;
+    // 拆分后的步骤组件
+    private final PortMonitorStep portMonitorStep;
+    private final HealthCheckStep healthCheckStep;
+    private final MetricsCollectionStep metricsCollectionStep;
+    private final AlertDetectionStep alertDetectionStep;
+    private final DataPushStep dataPushStep;
+    private final OnlineCheckStep onlineCheckStep;
+    private final LatencyCheckStep latencyCheckStep;
+    private final LogCleanupStep logCleanupStep;
+    private final CacheCleanupStep cacheCleanupStep;
+    private final WebSocketCleanupStep webSocketCleanupStep;
 
     // 虚拟线程执行器
     private ExecutorService executorService;
@@ -146,6 +169,7 @@ public class ServerTaskManager {
     /**
      * 启动全局任务
      */
+    @Deprecated
     private void startGlobalTasks() {
         // 服务器状态汇总推送 - 每分钟
         Future<?> statusSummaryTask = executorService.submit(() -> {
@@ -261,6 +285,7 @@ public class ServerTaskManager {
     /**
      * 启动配置刷新任务
      */
+    @Deprecated
     private void startConfigRefreshTask() {
         Future<?> configRefreshTask = executorService.submit(() -> {
             while (running) {
@@ -282,8 +307,53 @@ public class ServerTaskManager {
     }
 
     /**
+     * 全局调度器：将原多个全局任务合并为单线程循环触发
+     */
+    private void startGlobalDispatcher() {
+        Future<?> dispatcher = executorService.submit(() -> {
+            long lastStatusSummary = 0L;
+            long lastPerformanceTrends = 0L;
+            long lastConnectionStats = 0L;
+            long lastHealthStatus = 0L;
+            long lastGlobalAlert = 0L;
+            long lastCleanup = 0L;
+            long lastConfigRefresh = 0L;
+            long lastFileUploadCheck = 0L;
+            long lastDataCleanup = 0L;
+            long lastBackup = 0L;
+            while (running) {
+                try {
+                    long now = System.currentTimeMillis();
+                    if (now - lastStatusSummary >= 60_000) { pushServerStatusSummary(); lastStatusSummary = now; }
+                    if (now - lastPerformanceTrends >= 300_000) { pushPerformanceTrends(); lastPerformanceTrends = now; }
+                    if (now - lastConnectionStats >= 30_000) { pushConnectionStatistics(); lastConnectionStats = now; }
+                    if (now - lastHealthStatus >= 300_000) { pushHealthStatus(); lastHealthStatus = now; }
+                    if (now - lastGlobalAlert >= 120_000) { processGlobalAlerts(); lastGlobalAlert = now; }
+                    if (now - lastCleanup >= 3_600_000) { cleanupInvalidTasks(); lastCleanup = now; }
+                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) { refreshAllConfigs(); lastConfigRefresh = now; }
+                    if (now - lastFileUploadCheck >= 30_000) { checkUploadTaskStatus(); lastFileUploadCheck = now; }
+                    if (now - lastDataCleanup >= 24L * 3_600_000) { cleanupTempFilesAndCache(); lastDataCleanup = now; }
+                    if (now - lastBackup >= 1_800_000) { executeBackupTasks(); lastBackup = now; }
+                    Thread.sleep(1_000L);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    log.error("全局调度器异常", e);
+                    try { Thread.sleep(5_000L); } catch (InterruptedException ignore) { Thread.currentThread().interrupt(); break; }
+                }
+            }
+        });
+        globalTasks.clear();
+        globalTasks.put("globalDispatcher", dispatcher);
+        log.info("全局调度器启动完成");
+    }
+
+
+    /**
      * 启动统一任务（合并其他定时任务）
      */
+    @Deprecated
     private void startUnifiedTasks() {
 
         // 文件上传状态检查任务 - 每30秒
@@ -400,9 +470,7 @@ public class ServerTaskManager {
         try {
             // 启动全局任务（只启动一次）
             if (!globalTasksStarted) {
-                startGlobalTasks();
-                startConfigRefreshTask();
-                startUnifiedTasks();
+                startGlobalDispatcher();
                 globalTasksStarted = true;
                 log.info("全局任务和统一任务启动完成");
             }
@@ -447,6 +515,88 @@ public class ServerTaskManager {
                 log.warn("获取服务器配置失败，跳过任务创建: serverId={}", serverId);
                 return;
             }
+
+
+            // 启动每服务器的单线程 worker：串行执行该服务器所有步骤
+            Future<?> serverWorker = executorService.submit(() -> {
+                // 上次执行时间戳
+                long lastMetrics = 0L;
+                long lastAlerts = 0L;
+                long lastHealth = 0L;
+                long lastDataPush = 0L;
+                long lastPort = 0L;
+                long lastOnline = 0L;
+                long lastLatency = 0L;
+                long lastLogCleanup = 0L;
+                long lastCacheCleanup = 0L;
+                long lastWsCleanup = 0L;
+                while (taskInfo.isTaskRunning() && running) {
+                    try {
+                        MonitorSysGenServerSetting s = getCachedConfig(server.getMonitorSysGenServerId());
+                        if (s == null) { Thread.sleep(5_000L); continue; }
+                        long now = System.currentTimeMillis();
+                        // 指标采集（非API上报）
+                        String rm = s.getMonitorSysGenServerSettingDataReportMethod();
+                        if (!"API".equalsIgnoreCase(rm)) {
+                            int freq = getEffectiveCollectionFrequency(s);
+                            if (now - lastMetrics >= freq * 1000L) { metricsCollectionStep.run(server, s); lastMetrics = now; }
+                        }
+                        // 告警检测
+                        if (s.getMonitorSysGenServerSettingAlertEnabled() != null && s.getMonitorSysGenServerSettingAlertEnabled() == 1) {
+                            int ai = getEffectiveAlertInterval(s);
+                            if (now - lastAlerts >= ai * 1000L) { alertDetectionStep.run(server, s); lastAlerts = now; }
+                        }
+                        // 健康检查
+                        int hi = getEffectiveHealthCheckInterval(s);
+                        if (now - lastHealth >= hi * 1000L) { healthCheckStep.run(server, s); lastHealth = now; }
+                        // 数据推送（非API上报）
+                        if (!"API".equalsIgnoreCase(rm)) {
+                            int freq = getEffectiveCollectionFrequency(s);
+                            if (now - lastDataPush >= freq * 1000L) { dataPushStep.run(server, s); lastDataPush = now; }
+                        }
+                        // 端口监控
+                        if (s.getMonitorSysGenServerSettingPortMonitorEnabled() != null && s.getMonitorSysGenServerSettingPortMonitorEnabled() == 1) {
+                            Integer itv = s.getMonitorSysGenServerSettingPortCheckInterval();
+                            if (itv == null || itv <= 0) itv = 300;
+                            if (now - lastPort >= itv * 1000L) { portMonitorStep.run(server, s); lastPort = now; }
+                        }
+                        // 在线检测
+                        if (s.getMonitorSysGenServerSettingOnlineCheckEnabled() != null && s.getMonitorSysGenServerSettingOnlineCheckEnabled() == 1) {
+                            Integer itv = s.getMonitorSysGenServerSettingOnlineCheckInterval();
+                            if (itv == null || itv <= 0) itv = 30;
+                            if (now - lastOnline >= itv * 1000L) { onlineCheckStep.run(server, s); lastOnline = now; }
+                        }
+                        // 延迟检测
+                        if (s.getMonitorSysGenServerSettingLatencyCheckEnabled() != null && s.getMonitorSysGenServerSettingLatencyCheckEnabled() == 1) {
+                            Integer itv = s.getMonitorSysGenServerSettingLatencyCheckInterval();
+                            if (itv == null || itv <= 0) itv = 60;
+                            if (now - lastLatency >= itv * 1000L) { latencyCheckStep.run(server, s); lastLatency = now; }
+                        }
+                        // 日志清理（每日）
+                        if (s.getMonitorSysGenServerSettingLogCleanupEnabled() != null && s.getMonitorSysGenServerSettingLogCleanupEnabled() == 1) {
+                            if (now - lastLogCleanup >= 24L * 3_600_000) { logCleanupStep.run(server, s); lastLogCleanup = now; }
+                        }
+                        // 缓存清理（每小时）
+                        if (s.getMonitorSysGenServerSettingTempFileCleanupEnabled() != null && s.getMonitorSysGenServerSettingTempFileCleanupEnabled() == 1) {
+                            if (now - lastCacheCleanup >= 3_600_000) { cacheCleanupStep.run(server, s); lastCacheCleanup = now; }
+                        }
+                        // WebSocket 清理（默认每10分钟）
+                        if (s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() != null && s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() == 1) {
+                            Integer itv = s.getMonitorSysGenServerSettingWebSocketCleanupInterval();
+                            if (itv == null || itv <= 0) itv = 10;
+                            if (now - lastWsCleanup >= itv * 60_000L) { webSocketCleanupStep.run(server, s); lastWsCleanup = now; }
+                        }
+                        Thread.sleep(1_000L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Exception e) {
+                        log.error("服务器worker异常: serverId={}", server.getMonitorSysGenServerId(), e);
+                        try { Thread.sleep(5_000L); } catch (InterruptedException ignore) { Thread.currentThread().interrupt(); break; }
+                    }
+                }
+            });
+            taskInfo.setServerWorkerTask(serverWorker);
 
             MonitorSysGenServerSetting setting = settingResult.getData();
             configCache.put(serverId, setting);
@@ -511,44 +661,16 @@ public class ServerTaskManager {
         Future<?> task = executorService.submit(() -> {
             while (taskInfo.isTaskRunning() && running) {
                 try {
-                    // 从内存缓存获取最新配置
-                    MonitorSysGenServerSetting currentSetting = getCachedConfig(server.getMonitorSysGenServerId());
-                    if (currentSetting == null || currentSetting.getMonitorSysGenServerSettingMonitorEnabled() != 1) {
-                        Thread.sleep(30000); // 如果监控被禁用，等待30秒后重新检查
-                        continue;
-                    }
-
-                    Integer frequency = getEffectiveCollectionFrequency(currentSetting);
-
-                    // 执行指标收集
-                    collectAndPushMetrics(server, currentSetting);
-
-                    // 记录任务执行信息
-                    ServerLogUtils.logDebug(server.getMonitorSysGenServerId(),
-                            String.format("指标收集任务执行完成，下次执行间隔: %d秒", frequency));
-
-                    // 按配置的频率休眠
-                    Thread.sleep(frequency * 1000L);
-
+                    // 统一由 serverWorker 调度，此处保持兼容逻辑为轻量等待
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
-                } catch (Exception e) {
-                    log.error("指标收集任务异常: serverId={}", server.getMonitorSysGenServerId(), e);
-                    ServerLogUtils.logError(server.getMonitorSysGenServerId(), "指标收集任务执行异常", e);
-                    try {
-                        Thread.sleep(30000); // 异常时等待30秒
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
                 }
             }
         });
 
-        taskInfo.setMetricsCollectionTask(task);
-        log.info("为服务器 {} 创建指标收集任务，采集频率: {}秒", server.getMonitorSysGenServerName(),
-                getEffectiveCollectionFrequency(setting));
+        // 合并线程模型后，该任务已纳入 serverWorker 内部调度
     }
 
     /**
@@ -570,8 +692,8 @@ public class ServerTaskManager {
                         continue;
                     }
 
-                    // 执行告警检测
-                    detectAndPushAlerts(server, currentSetting);
+                    // 执行告警检测（委派到步骤类）
+                    alertDetectionStep.run(server, currentSetting);
 
                     // 使用配置的告警检测间隔，默认2分钟
                     Integer alertInterval = getEffectiveAlertInterval(currentSetting);
@@ -598,8 +720,7 @@ public class ServerTaskManager {
             }
         });
 
-        taskInfo.setAlertDetectionTask(task);
-        log.info("为服务器 {} 创建告警检测任务，检测间隔: {}秒", server.getMonitorSysGenServerName(), getEffectiveAlertInterval(setting));
+        // 合并线程模型后，该任务已纳入 serverWorker 内部调度
     }
 
     /**
@@ -620,8 +741,9 @@ public class ServerTaskManager {
                     // 执行健康检查
                     performHealthCheck(server, currentSetting);
 
-                    // 固定5分钟间隔
-                    Thread.sleep(300000);
+                    // 使用配置的健康检查间隔
+                    Integer interval = getEffectiveHealthCheckInterval(currentSetting);
+                    Thread.sleep(interval * 1000L);
 
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -629,7 +751,8 @@ public class ServerTaskManager {
                 } catch (Exception e) {
                     log.error("健康检查任务异常: serverId={}", server.getMonitorSysGenServerId(), e);
                     try {
-                        Thread.sleep(300000); // 异常时等待5分钟
+                        Integer interval = setting != null ? getEffectiveHealthCheckInterval(setting) : 300;
+                        Thread.sleep(interval * 1000L); // 异常时按配置等待
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
@@ -691,8 +814,8 @@ public class ServerTaskManager {
      */
     private void detectAndPushAlerts(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
-            // 使用统一告警服务检测单个服务器的告警
-            unifiedAlertService.checkAndPushServerAlerts(server, null);
+            // 使用统一告警服务检测单个服务器的告警（传入缓存配置，避免DB访问）
+            unifiedAlertService.checkAndPushServerAlerts(server, null, setting);
         } catch (Exception e) {
             log.error("检测推送告警失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -703,8 +826,8 @@ public class ServerTaskManager {
      */
     private void performHealthCheck(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
-            // 这里可以实现具体的健康检查逻辑
-            log.debug("执行服务器 {} 健康检查", server.getMonitorSysGenServerName());
+            // 使用拆分后的步骤组件执行
+            healthCheckStep.run(server, setting);
         } catch (Exception e) {
             log.error("健康检查失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -890,6 +1013,25 @@ public class ServerTaskManager {
         }
 
         return interval;
+    }
+
+
+    /**
+     * 获取有效的健康检查间隔（秒）
+     * 优先级：客户端健康检查间隔 > 监控间隔 > 默认300秒
+     */
+    private Integer getEffectiveHealthCheckInterval(MonitorSysGenServerSetting setting) {
+        if (setting == null) {
+            return 300;
+        }
+        Integer interval = setting.getMonitorSysGenServerSettingClientHealthCheckInterval();
+        if (interval == null || interval <= 0) {
+            interval = setting.getMonitorSysGenServerSettingMonitorInterval();
+        }
+        if (interval == null || interval <= 0) {
+            interval = 300;
+        }
+        return Math.max(10, Math.min(interval, 3600));
     }
 
     /**
@@ -1208,8 +1350,8 @@ public class ServerTaskManager {
 
                     Integer frequency = getEffectiveCollectionFrequency(currentSetting);
 
-                    // 执行数据推送
-                    executeDataPush(server, currentSetting, currentReportMethod);
+                    // 执行数据推送（委派到步骤类）
+                    dataPushStep.run(server, currentSetting);
 
                     // 记录任务执行信息
                     ServerLogUtils.logDebug(server.getMonitorSysGenServerId(),
@@ -1234,9 +1376,7 @@ public class ServerTaskManager {
             }
         });
 
-        taskInfo.setDataPushTask(task);
-        log.info("为服务器 {} 创建数据推送任务，推送方式: {}，推送频率: {}秒", server.getMonitorSysGenServerName(),
-                setting.getMonitorSysGenServerSettingDataReportMethod(), getEffectiveCollectionFrequency(setting));
+        // 合并线程模型后，该任务已纳入 serverWorker 内部调度
     }
 
     /**
@@ -1266,8 +1406,8 @@ public class ServerTaskManager {
                         frequency = 300; // 默认5分钟
                     }
 
-                    // 执行端口监控
-                    executePortMonitor(server, currentSetting);
+                    // 执行端口监控（委派到步骤类）
+                    portMonitorStep.run(server, currentSetting);
 
                     // 按配置的频率休眠
                     Thread.sleep(frequency * 1000L);
@@ -1287,8 +1427,7 @@ public class ServerTaskManager {
             }
         });
 
-        taskInfo.setPortMonitorTask(task);
-        log.debug("为服务器 {} 创建端口监控任务", server.getMonitorSysGenServerName());
+        // 合并线程模型后，该任务已纳入 serverWorker 内部调度
     }
 
     /**
@@ -1424,8 +1563,8 @@ public class ServerTaskManager {
                         interval = 30; // 默认30秒
                     }
 
-                    // 执行在线状态检测
-                    executeOnlineCheck(server, currentSetting);
+                    // 执行在线状态检测（委派到步骤类）
+                    onlineCheckStep.run(server, currentSetting);
 
                     // 按配置的间隔休眠
                     Thread.sleep(interval * 1000L);
@@ -1549,6 +1688,20 @@ public class ServerTaskManager {
         }
     }
 
+    /**
+     * ICMP可达性探测（不抛异常）
+     */
+    private boolean isHostReachable(String host, int timeoutMs) {
+        try {
+            if (host == null || host.isEmpty()) {
+                return false;
+            }
+            return java.net.InetAddress.getByName(host).isReachable(timeoutMs);
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
     // ==================== 新增任务创建方法 ====================
 
     /**
@@ -1582,8 +1735,8 @@ public class ServerTaskManager {
                         interval = 60; // 默认60秒
                     }
 
-                    // 执行延迟检测
-                    executeLatencyCheck(server, currentSetting);
+                    // 执行延迟检测（委派到步骤类）
+                    latencyCheckStep.run(server, currentSetting);
 
                     // 按配置的间隔休眠
                     Thread.sleep(interval * 1000L);
@@ -1628,8 +1781,8 @@ public class ServerTaskManager {
                         continue;
                     }
 
-                    // 执行日志清理
-                    executeLogCleanup(server, currentSetting);
+                    // 执行日志清理（委派到步骤类）
+                    logCleanupStep.run(server, currentSetting);
 
                     // 每天执行一次
                     Thread.sleep(24 * 3600000);
@@ -1679,8 +1832,8 @@ public class ServerTaskManager {
                         continue;
                     }
 
-                    // 执行缓存清理
-                    executeCacheCleanup(server, currentSetting);
+                    // 执行缓存清理（委派到步骤类）
+                    cacheCleanupStep.run(server, currentSetting);
 
                     // 每小时执行一次
                     Thread.sleep(3600000);
@@ -1735,8 +1888,8 @@ public class ServerTaskManager {
                         interval = 10; // 默认10分钟
                     }
 
-                    // 执行WebSocket清理
-                    executeWebSocketCleanup(server, currentSetting);
+                    // 执行WebSocket清理（委派到步骤类）
+                    webSocketCleanupStep.run(server, currentSetting);
 
                     // 按配置的间隔休眠
                     Thread.sleep(interval * 60000L);
@@ -1780,9 +1933,22 @@ public class ServerTaskManager {
      */
     private void executeOnlineCheck(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
-            log.debug("执行服务器 {} 在线状态检测", server.getMonitorSysGenServerName());
-            // 这里可以实现具体的在线状态检测逻辑
-            // 例如：ping检测、端口连接检测等
+            // 优先ICMP可达，其次端口连通
+            boolean reachable;
+            try {
+                reachable = isHostReachable(server.getMonitorSysGenServerHost(), 3000);
+            } catch (Throwable ignore) {
+                reachable = false;
+            }
+            boolean online = reachable;
+            if (!reachable) {
+                Integer port = server.getMonitorSysGenServerPort();
+                if (port != null) {
+                    online = checkPortStatus(server.getMonitorSysGenServerHost(), port);
+                }
+            }
+            serverService.updateServerOnlineStatus(server.getMonitorSysGenServerId(), online);
+            unifiedAlertService.checkAndPushConnectionAlerts(server.getMonitorSysGenServerId(), online, null, setting);
         } catch (Exception e) {
             log.error("在线状态检测失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -1793,9 +1959,31 @@ public class ServerTaskManager {
      */
     private void executeLatencyCheck(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
-            log.debug("执行服务器 {} 延迟检测", server.getMonitorSysGenServerName());
-            // 这里可以实现具体的延迟检测逻辑
-            // 例如：ping延迟、HTTP响应时间等
+            long start = System.nanoTime();
+            boolean reachable = false;
+            try {
+                reachable = isHostReachable(server.getMonitorSysGenServerHost(), 3000);
+            } catch (Throwable ignore) {}
+            long latency = (System.nanoTime() - start) / 1_000_000L;
+
+            if (!reachable) {
+                // 兜底：端口连接耗时
+                Integer port = server.getMonitorSysGenServerPort();
+                if (port != null) {
+                    start = System.nanoTime();
+                    boolean ok = checkPortStatus(server.getMonitorSysGenServerHost(), port);
+                    latency = (System.nanoTime() - start) / 1_000_000L;
+                    serverService.updateServerOnlineStatus(server.getMonitorSysGenServerId(), ok);
+                }
+            }
+
+            serverLatencyService.updateServerLatencyToRedis(server.getMonitorSysGenServerId(), latency);
+            serverLatencyService.pushLatencyToFrontend(server.getMonitorSysGenServerId(), latency);
+
+            Long threshold = setting.getMonitorSysGenServerSettingResponseTimeAlertThreshold();
+            if (threshold != null && threshold > 0 && latency >= threshold) {
+                unifiedAlertService.checkAndPushConnectionAlerts(server.getMonitorSysGenServerId(), null, latency, setting);
+            }
         } catch (Exception e) {
             log.error("延迟检测失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -1807,8 +1995,18 @@ public class ServerTaskManager {
     private void executeLogCleanup(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
             log.debug("执行服务器 {} 日志清理", server.getMonitorSysGenServerName());
-            // 这里可以实现具体的日志清理逻辑
-            // 例如：删除过期日志文件、压缩旧日志等
+            Integer retentionDays = setting.getMonitorSysGenServerSettingMetricsRetentionDays();
+            if (retentionDays == null || retentionDays <= 0) {
+                retentionDays = 30;
+            }
+            // 使用指标服务清理过期指标（日志相关索引同周期）
+            LocalDateTime expireTime = LocalDateTime.now().minusDays(retentionDays);
+            try {
+                // 调用指标服务清理（通过 MetricsService 接口）
+                var rr = metricsService.cleanupExpiredMetrics(expireTime);
+                log.debug("指标清理结果: {}", rr);
+            } catch (Throwable ignore) {
+            }
         } catch (Exception e) {
             log.error("日志清理失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -1820,8 +2018,9 @@ public class ServerTaskManager {
     private void executeCacheCleanup(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
             log.debug("执行服务器 {} 缓存清理", server.getMonitorSysGenServerName());
-            // 这里可以实现具体的缓存清理逻辑
-            // 例如：清理临时文件、清理过期缓存等
+            // 仅调用服务层预留的清理方法，避免直接操作文件系统
+            serverService.cleanupTempFiles();
+            serverService.cleanupCache();
         } catch (Exception e) {
             log.error("缓存清理失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -1833,8 +2032,8 @@ public class ServerTaskManager {
     private void executeWebSocketCleanup(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
             log.debug("执行服务器 {} WebSocket清理", server.getMonitorSysGenServerName());
-            // 这里可以实现具体的WebSocket清理逻辑
-            // 例如：清理无效连接、重置连接状态等
+            // 目前WebSocket会话由各Handler管理，这里触发状态统计推送，促使前端刷新
+            serverMetricsWebSocketService.pushConnectionStatistics();
         } catch (Exception e) {
             log.error("WebSocket清理失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }
@@ -2025,16 +2224,8 @@ public class ServerTaskManager {
     @AllArgsConstructor
     public static class ServerTaskInfo {
         private final Integer serverId;
-        private Future<?> metricsCollectionTask;
-        private Future<?> alertDetectionTask;
-        private Future<?> healthCheckTask;
-        private Future<?> dataPushTask;
-        private Future<?> portMonitorTask;
-        private Future<?> onlineCheckTask;
-        private Future<?> latencyCheckTask;
-        private Future<?> logCleanupTask;
-        private Future<?> cacheCleanupTask;
-        private Future<?> webSocketCleanupTask;
+        // 单线程 worker：合并该服务器所有任务到一个线程
+        private Future<?> serverWorkerTask;
 
         private MonitorSysGenServerSetting currentSetting;
         private volatile boolean taskRunning = true;
@@ -2046,17 +2237,7 @@ public class ServerTaskManager {
 
         public void cancelAllTasks() {
             taskRunning = false;
-            cancelTask(metricsCollectionTask);
-            cancelTask(alertDetectionTask);
-            cancelTask(healthCheckTask);
-            cancelTask(dataPushTask);
-            cancelTask(portMonitorTask);
-            cancelTask(onlineCheckTask);
-            cancelTask(latencyCheckTask);
-            cancelTask(logCleanupTask);
-            cancelTask(cacheCleanupTask);
-            cancelTask(webSocketCleanupTask);
-
+            cancelTask(serverWorkerTask);
         }
 
         private void cancelTask(Future<?> task) {
