@@ -36,7 +36,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         implements SystemDataSettingService {
 
     @Override
-    /** 保存或更新数据源配置 */
     public ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting) {
         try {
             String systemDataSettingServer = setting.getSystemDataSettingServer();
@@ -60,7 +59,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     }
 
     @Override
-    /** 删除数据源配置 */
     public ReturnResult<Boolean> deleteById(Integer id) {
         try {
             removeById(id);
@@ -72,7 +70,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     }
 
     @Override
-    /** 读取控制台权限配置 */
     public ReturnResult<String> getConsoleConfig(Integer id) {
         SystemDataSetting setting = getById(id);
         if (setting == null) {
@@ -82,7 +79,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     }
 
     @Override
-    /** 保存控制台权限配置 */
     public ReturnResult<Boolean> saveConsoleConfig(Integer id, String jsonConfig) {
         try {
             SystemDataSetting setting = getById(id);
