@@ -40,6 +40,11 @@
             <artifactId>utils-support-netty-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-view-starter</artifactId>
+        </dependency>
+
         <!-- 熔断器依赖暂时注释，因为依赖包不存在 -->
         <!--
         <dependency>

@@ -16,6 +16,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.task.manager.ServerTaskManager;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -615,6 +616,8 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用延迟检测 0:否 1:是
+     * @see ServerTaskManager#getServerTaskStatus(Integer)
+     * @see ServerTaskManager#createLatencyCheckTask(ServerTaskManager.ServerTaskInfo, MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
     @ApiModelProperty(value = "是否启用延迟检测")
@@ -623,6 +626,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 延迟检测间隔 (秒)
+     * @see ServerTaskManager#createLatencyCheckTask(ServerTaskManager.ServerTaskInfo, MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
     @ApiModelProperty(value = "延迟检测间隔")

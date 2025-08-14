@@ -161,6 +161,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-tencent-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-view-starter</artifactId>
                <version>${utils.version}</version>
             </dependency>
 
