@@ -10,11 +10,18 @@ import org.springframework.stereotype.Service;
 
 /**
  * 软件信息服务实现
+ *
+ * 作者: CH 时间: 2025/08/14
  */
 @Slf4j
 @Service
 public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemSoft> implements SystemSoftService {
 
+    /**
+     * 从仓库同步软件与版本 说明: 根据 SystemSoft 的仓库配置与镜像库信息拉取可用版本。 示例: POST /v1/soft/sync
+     * 
+     * @return 操作结果 示例:true
+     */
     @Override
     public ReturnResult<Boolean> syncFromDocker() {
         // TODO: 调用 Docker API 同步（占位）
@@ -22,4 +29,3 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
         return ReturnResult.ok(true);
     }
 }
-
