@@ -13,12 +13,21 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class SystemSoftRecordServiceImpl extends ServiceImpl<SystemSoftRecordMapper, SystemSoftRecord> implements SystemSoftRecordService {
+public class SystemSoftRecordServiceImpl extends ServiceImpl<SystemSoftRecordMapper, SystemSoftRecord>
+        implements SystemSoftRecordService {
 
     @Override
     public ReturnResult<Boolean> install(Integer systemSoftId, Integer systemSoftVersionId, Integer[] serverIds) {
-        // TODO: 实现安装逻辑（Docker/SSH）
-        log.info("安装软件，占位: softId={}, versionId={}, servers={}", systemSoftId, systemSoftVersionId, serverIds);
+        // 默认走无参数安装（兼容旧调用）
+        return install(systemSoftId, systemSoftVersionId, serverIds, null, null);
+    }
+
+    @Override
+    public ReturnResult<Boolean> install(Integer systemSoftId, Integer systemSoftVersionId, Integer[] serverIds,
+            String method, String params) {
+        // TODO: 实现安装逻辑（Docker/SSH），当前为占位
+        log.info("安装软件，占位: softId={}, versionId={}, servers={}, method={}, params={}", systemSoftId,
+                systemSoftVersionId, serverIds, method, params);
         return ReturnResult.ok(true);
     }
 
@@ -29,4 +38,3 @@ public class SystemSoftRecordServiceImpl extends ServiceImpl<SystemSoftRecordMap
         return ReturnResult.ok(true);
     }
 }
-

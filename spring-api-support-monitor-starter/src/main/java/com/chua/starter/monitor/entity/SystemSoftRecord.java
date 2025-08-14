@@ -18,6 +18,8 @@ import jakarta.validation.constraints.NotNull;
  * 软件安装记录
  *
  * 记录安装/卸载操作及状态
+ *
+ * 作者: CH 时间: 2025/08/14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

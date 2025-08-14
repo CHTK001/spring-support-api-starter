@@ -19,6 +19,8 @@ import jakarta.validation.constraints.Size;
  * 软件版本信息
  *
  * 记录不同版本的镜像标签、下载地址、安装脚本模板等
+ *
+ * 作者: CH 时间: 2025/08/14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

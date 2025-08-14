@@ -6,10 +6,15 @@ import com.chua.starter.monitor.entity.SystemSoft;
 
 /**
  * 软件信息服务
+ *
+ * 提供软件信息的CRUD与同步能力。
+ *
+ * 作者: CH 时间: 2025/08/14
  */
 public interface SystemSoftService extends IService<SystemSoft> {
 
-    /** 同步（从docker拉取软件信息） */
+    /**
+     * 从仓库同步软件与版本 说明: 根据 SystemSoft 的仓库配置与镜像库信息拉取可用版本。 示例: POST /v1/soft/sync
+     */
     ReturnResult<Boolean> syncFromDocker();
 }
-
