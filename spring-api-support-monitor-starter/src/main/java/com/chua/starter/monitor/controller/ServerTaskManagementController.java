@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 /**
  * 服务器任务管理控制器
  * 提供任务管理相关的API接口
@@ -57,30 +55,5 @@ public class ServerTaskManagementController {
         return serverTaskManagementService.removeServerTasks(serverId);
     }
 
-    /**
-     * 获取任务统计信息
-     */
-    @GetMapping("/statistics")
-    @ApiOperation("获取任务统计信息")
-    public ReturnResult<Map<String, Object>> getTaskStatistics() {
-        return serverTaskManagementService.getTaskStatistics();
-    }
 
-    /**
-     * 重新初始化所有服务器任务
-     */
-    @PostMapping("/reinitialize")
-    @ApiOperation("重新初始化所有服务器任务")
-    public ReturnResult<Boolean> reinitializeAllTasks() {
-        return serverTaskManagementService.reinitializeAllTasks();
-    }
-
-    /**
-     * 检查任务健康状态
-     */
-    @GetMapping("/health")
-    @ApiOperation("检查任务健康状态")
-    public ReturnResult<Map<String, Object>> checkTaskHealth() {
-        return serverTaskManagementService.checkTaskHealth();
-    }
 }
