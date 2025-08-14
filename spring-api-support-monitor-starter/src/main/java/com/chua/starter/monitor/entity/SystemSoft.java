@@ -79,4 +79,38 @@ public class SystemSoft extends SysBase {
     @ApiModelProperty("镜像名称")
     @Schema(description = "关联镜像名称（例如 nginx、redis）")
     private String systemSoftImage;
+
+    // ===== 仓库配置（可选） =====
+    @TableField("system_soft_registry_type")
+    @ApiModelProperty("仓库类型（dockerhub/harbor/aliyun等）")
+    private String systemSoftRegistryType;
+
+    @TableField("system_soft_registry_url")
+    @ApiModelProperty("仓库地址")
+    private String systemSoftRegistryUrl;
+
+    @TableField("system_soft_registry_namespace")
+    @ApiModelProperty("命名空间/组织")
+    private String systemSoftRegistryNamespace;
+
+    @TableField("system_soft_registry_repository")
+    @ApiModelProperty("仓库名/镜像库")
+    private String systemSoftRegistryRepository;
+
+    @TableField("system_soft_registry_username")
+    @ApiModelProperty("仓库用户名（私有仓库可选）")
+    private String systemSoftRegistryUsername;
+
+    @TableField("system_soft_registry_password")
+    @ApiModelProperty("仓库密码（私有仓库可选）")
+    private String systemSoftRegistryPassword;
+
+    // ===== 默认安装配置（可选） =====
+    @TableField("system_soft_default_install_method")
+    @ApiModelProperty("默认安装方式（DOCKER_CLI/COMPOSE/SWARM）")
+    private String systemSoftDefaultInstallMethod;
+
+    @TableField("system_soft_default_install_params")
+    @ApiModelProperty("默认安装参数（JSON文本）")
+    private String systemSoftDefaultInstallParams;
 }

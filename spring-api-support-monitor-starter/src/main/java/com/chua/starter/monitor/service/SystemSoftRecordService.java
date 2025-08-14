@@ -12,7 +12,10 @@ public interface SystemSoftRecordService extends IService<SystemSoftRecord> {
     /** 安装（多台服务器） */
     ReturnResult<Boolean> install(Integer systemSoftId, Integer systemSoftVersionId, Integer[] serverIds);
 
+    /** 安装（带方式与参数） */
+    ReturnResult<Boolean> install(Integer systemSoftId, Integer systemSoftVersionId, Integer[] serverIds, String method,
+            String params);
+
     /** 卸载（多台服务器） */
     ReturnResult<Boolean> uninstall(Integer systemSoftId, Integer systemSoftVersionId, Integer[] serverIds);
 }
-
