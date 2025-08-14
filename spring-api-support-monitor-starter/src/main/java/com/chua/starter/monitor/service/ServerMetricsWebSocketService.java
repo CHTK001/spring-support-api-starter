@@ -79,7 +79,7 @@ public class ServerMetricsWebSocketService {
                 try {
                     pushServerTrends(server.getMonitorSysGenServerId());
                 } catch (Exception e) {
-                    log.error("推送服务器 {} 趋势数据失败: {}", 
+                    log.error("推送服务器 {} 趋势数据失败: {}",
                             server.getMonitorSysGenServerName(), e.getMessage(), e);
                 }
             }
@@ -206,8 +206,8 @@ public class ServerMetricsWebSocketService {
         try {
             log.debug("开始根据配置推送服务器 {} 指标数据", server.getMonitorSysGenServerName());
 
-            // 收集最新指标数据
-            MonitorSysGenServerMetrics metrics = collectLatestMetrics(server);
+            // 收集最新指标数据（优先使用已传入的配置，避免数据库访问）
+            MonitorSysGenServerMetrics metrics = collectLatestMetrics(server, setting);
             if (metrics != null) {
                 pushServerMetrics(server, metrics);
                 log.debug("成功推送服务器 {} 指标数据，收集频率: {}秒",
@@ -264,7 +264,7 @@ public class ServerMetricsWebSocketService {
             // 获取最近24小时的指标数据
             LocalDateTime endTime = LocalDateTime.now();
             LocalDateTime startTime = endTime.minusHours(24);
-            
+
             var historyResult = metricsService.getHistoryMetrics(serverId, startTime, endTime);
             if (historyResult == null || historyResult.getData() == null) {
                 log.warn("服务器 {} 没有历史指标数据", server.getMonitorSysGenServerName());
@@ -272,12 +272,12 @@ public class ServerMetricsWebSocketService {
             }
 
             List<MonitorSysGenServerMetrics> historyMetrics = historyResult.getData();
-            
+
             Map<String, Object> trendsData = new HashMap<>();
             trendsData.put("serverId", serverId);
             trendsData.put("serverName", server.getMonitorSysGenServerName());
             trendsData.put("timeRange", Map.of("start", startTime, "end", endTime));
-            
+
             // 提取趋势数据
             trendsData.put("cpuTrend", extractCpuTrend(historyMetrics));
             trendsData.put("memoryTrend", extractMemoryTrend(historyMetrics));
@@ -324,6 +324,36 @@ public class ServerMetricsWebSocketService {
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
             return null;
         }
+
+    /**
+     * 重载：收集最新指标（尽量避免DB），优先根据传入的配置决定上报方式
+     */
+    private MonitorSysGenServerMetrics collectLatestMetrics(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
+        try {
+            String reportMethod = null;
+            if (setting != null && setting.getMonitorSysGenServerSettingDataReportMethod() != null) {
+                reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+            } else {
+                reportMethod = getServerReportMethod(server);
+            }
+            if (reportMethod == null) {
+                reportMethod = "local";
+            }
+            switch (reportMethod.toLowerCase()) {
+                case "prometheus":
+                    return collectMetricsFromPrometheus(server);
+                case "api":
+                    return collectMetricsFromDatabase(server);
+                case "local":
+                default:
+                    return collectMetricsFromLocal(server);
+            }
+        } catch (Exception e) {
+            log.error("收集服务器 {} 指标数据失败(重载): {}", server.getMonitorSysGenServerName(), e.getMessage(), e);
+            return null;
+        }
+    }
+
     }
 
     /**

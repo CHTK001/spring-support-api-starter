@@ -154,6 +154,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 监控间隔(秒)
+     * @see ServerTaskManager#getEffectiveMonitorInterval
+     * @see ServerTaskManager#getEffectiveCollectionFrequency
+     * @see ServerTaskManager#getEffectiveHealthCheckInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_monitor_interval")
     @ApiModelProperty(value = "监控间隔(秒)")
@@ -263,6 +266,8 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 数据收集频率 (秒) - 多久收集一次指标数据
+     * @see ServerTaskManager#createMetricsCollectionTask
+     * @see ServerTaskManager#createDataPushTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_data_collection_frequency")
     @ApiModelProperty(value = "数据收集频率")
@@ -574,6 +579,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 客户端健康状态检查间隔 (秒)
+     * @see ServerTaskManager#createHealthCheckTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_client_health_check_interval")
     @ApiModelProperty(value = "客户端健康状态检查间隔")
@@ -592,6 +598,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 端口检查间隔 (秒)
+     * @see ServerTaskManager#createPortMonitorTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_port_check_interval")
     @ApiModelProperty(value = "端口检查间隔")
@@ -600,6 +607,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用在线状态检查 0:否 1:是
+     * @see ServerTaskManager#createOnlineCheckTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_enabled")
     @ApiModelProperty(value = "是否启用在线状态检查")
@@ -608,6 +616,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 在线状态检查间隔 (秒)
+     * @see ServerTaskManager#createOnlineCheckTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_interval")
     @ApiModelProperty(value = "在线状态检查间隔")
@@ -659,6 +668,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用WebSocket清理 0:否 1:是
+     * @see ServerTaskManager#createWebSocketCleanupTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_enabled")
     @ApiModelProperty(value = "是否启用WebSocket清理")
@@ -667,6 +677,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * WebSocket清理间隔 (分钟)
+     * @see ServerTaskManager#createWebSocketCleanupTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_interval")
     @ApiModelProperty(value = "WebSocket清理间隔")
