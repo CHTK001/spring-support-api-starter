@@ -1,0 +1,38 @@
+// 备份片段：全局调度器与 per-server worker 关键片段
+
+/*
+    private void startGlobalDispatcher() {
+        Future<?> dispatcher = executorService.submit(() -> {
+            long lastStatusSummary = 0L;
+            long lastPerformanceTrends = 0L;
+            long lastConnectionStats = 0L;
+            long lastHealthStatus = 0L;
+            long lastGlobalAlert = 0L;
+            long lastCleanup = 0L;
+            long lastConfigRefresh = 0L;
+            long lastFileUploadCheck = 0L;
+            long lastDataCleanup = 0L;
+            long lastBackup = 0L;
+            while (running) {
+                try {
+                    long now = System.currentTimeMillis();
+                    if (now - lastStatusSummary >= 60_000) { pushServerStatusSummary(); lastStatusSummary = now; }
+                    if (now - lastPerformanceTrends >= 300_000) { pushPerformanceTrends(); lastPerformanceTrends = now; }
+                    if (now - lastConnectionStats >= 30_000) { pushConnectionStatistics(); lastConnectionStats = now; }
+                    if (now - lastHealthStatus >= 300_000) { pushHealthStatus(); lastHealthStatus = now; }
+                    if (now - lastGlobalAlert >= 120_000) { processGlobalAlerts(); lastGlobalAlert = now; }
+                    if (now - lastCleanup >= 3_600_000) { cleanupInvalidTasks(); lastCleanup = now; }
+                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) { refreshAllConfigs(); lastConfigRefresh = now; }
+                    if (now - lastFileUploadCheck >= 30_000) { checkUploadTaskStatus(); lastFileUploadCheck = now; }
+                    if (now - lastDataCleanup >= 24L * 3_600_000) { cleanupTempFilesAndCache(); lastDataCleanup = now; }
+                    if (now - lastBackup >= 1_800_000) { executeBackupTasks(); lastBackup = now; }
+                    Thread.sleep(1_000L);
+                } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
+                catch (Exception e) { log.error("全局调度器异常", e); try { Thread.sleep(5_000L);} catch (InterruptedException ignore) { Thread.currentThread().interrupt(); break; } }
+            }
+        });
+        globalTasks.clear();
+        globalTasks.put("globalDispatcher", dispatcher);
+    }
+*/
+

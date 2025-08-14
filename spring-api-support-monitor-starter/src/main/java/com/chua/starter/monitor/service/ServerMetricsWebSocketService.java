@@ -102,11 +102,13 @@ public class ServerMetricsWebSocketService {
                     List<Map<String, Object>> alerts = checkServerAlerts(server);
 
                     if (!alerts.isEmpty()) {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("alerts", alerts);
                         ServerWebSocketMessage message = ServerWebSocketMessage.builder()
                                 .messageType("server_alerts")
                                 .serverId(server.getMonitorSysGenServerId())
                                 .serverName(server.getMonitorSysGenServerName())
-                                .data(Map.of("alerts", alerts))
+                                .data(data)
                                 .timestamp(System.currentTimeMillis())
                                 .build();
 
@@ -195,7 +197,35 @@ public class ServerMetricsWebSocketService {
      * 由设备上报服务调用
      */
     public void pushSingleServerMetrics(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics) {
-        pushServerMetrics(server, metrics);
+        try {
+            // 兼容空指标：在空时主动收集一份再推送，避免NPE
+            if (metrics == null) {
+                metrics = collectLatestMetrics(server);
+                if (metrics == null) {
+                    log.warn("服务器 {} 指标为空，跳过推送", server.getMonitorSysGenServerName());
+                    return;
+                }
+            }
+            pushServerMetrics(server, metrics);
+        } catch (Exception e) {
+            log.error("推送服务器 {} 指标失败: {}", server.getMonitorSysGenServerName(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 重载：根据配置优先收集并推送（尽量避免额外DB访问）
+     */
+    public void pushSingleServerMetrics(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
+        try {
+            MonitorSysGenServerMetrics metrics = collectLatestMetrics(server, setting);
+            if (metrics == null) {
+                log.warn("服务器 {} 指标为空，跳过推送(基于配置)", server.getMonitorSysGenServerName());
+                return;
+            }
+            pushServerMetrics(server, metrics);
+        } catch (Exception e) {
+            log.error("推送服务器 {} 指标失败(基于配置): {}", server.getMonitorSysGenServerName(), e.getMessage(), e);
+        }
     }
 
     /**
@@ -265,7 +295,7 @@ public class ServerMetricsWebSocketService {
             LocalDateTime endTime = LocalDateTime.now();
             LocalDateTime startTime = endTime.minusHours(24);
 
-            var historyResult = metricsService.getHistoryMetrics(serverId, startTime, endTime);
+            ReturnResult<List<MonitorSysGenServerMetrics>> historyResult = metricsService.getHistoryMetrics(serverId, startTime, endTime);
             if (historyResult == null || historyResult.getData() == null) {
                 log.warn("服务器 {} 没有历史指标数据", server.getMonitorSysGenServerName());
                 return;
@@ -276,7 +306,10 @@ public class ServerMetricsWebSocketService {
             Map<String, Object> trendsData = new HashMap<>();
             trendsData.put("serverId", serverId);
             trendsData.put("serverName", server.getMonitorSysGenServerName());
-            trendsData.put("timeRange", Map.of("start", startTime, "end", endTime));
+            Map<String, Object> timeRange = new HashMap<>();
+            timeRange.put("start", startTime);
+            timeRange.put("end", endTime);
+            trendsData.put("timeRange", timeRange);
 
             // 提取趋势数据
             trendsData.put("cpuTrend", extractCpuTrend(historyMetrics));
@@ -304,7 +337,7 @@ public class ServerMetricsWebSocketService {
      * 收集最新指标数据
      * 支持三种数据获取方式：本地上传、接口推送、prometheus
      */
-    private MonitorSysGenServerMetrics collectLatestMetrics(MonitorSysGenServer server) {
+    public MonitorSysGenServerMetrics collectLatestMetrics(MonitorSysGenServer server) {
         try {
             // 根据服务器配置的数据上报方式选择不同的收集策略
             String reportMethod = getServerReportMethod(server);
@@ -324,11 +357,11 @@ public class ServerMetricsWebSocketService {
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
             return null;
         }
-
+    }
     /**
      * 重载：收集最新指标（尽量避免DB），优先根据传入的配置决定上报方式
      */
-    private MonitorSysGenServerMetrics collectLatestMetrics(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
+    public MonitorSysGenServerMetrics collectLatestMetrics(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
             String reportMethod = null;
             if (setting != null && setting.getMonitorSysGenServerSettingDataReportMethod() != null) {
@@ -352,8 +385,6 @@ public class ServerMetricsWebSocketService {
             log.error("收集服务器 {} 指标数据失败(重载): {}", server.getMonitorSysGenServerName(), e.getMessage(), e);
             return null;
         }
-    }
-
     }
 
     /**
@@ -414,7 +445,7 @@ public class ServerMetricsWebSocketService {
     private MonitorSysGenServerMetrics collectMetricsFromDatabase(MonitorSysGenServer server) {
         try {
             // 获取最新的指标数据（客户端推送的数据已存储在数据库中）
-            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+            ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
             if (latestMetrics != null && latestMetrics.getData() != null) {
                 log.debug("从数据库获取服务器 {} 最新指标数据", server.getMonitorSysGenServerName());
                 return latestMetrics.getData();
@@ -703,7 +734,7 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
                     if (latestMetrics != null && latestMetrics.getData() != null) {
                         MonitorSysGenServerMetrics metrics = latestMetrics.getData();
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
@@ -746,7 +777,7 @@ public class ServerMetricsWebSocketService {
         List<Map<String, Object>> alerts = new java.util.ArrayList<>();
 
         try {
-            var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+            ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
             if (latestMetrics != null && latestMetrics.getData() != null) {
                 MonitorSysGenServerMetrics metrics = latestMetrics.getData();
 
@@ -847,7 +878,7 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
                     if (latestMetrics != null && latestMetrics.getData() != null) {
                         MonitorSysGenServerMetrics metrics = latestMetrics.getData();
                         if (metrics.getMonitorSysGenServerMetricsStatus() == 1) {
@@ -891,7 +922,7 @@ public class ServerMetricsWebSocketService {
 
             for (MonitorSysGenServer server : servers) {
                 try {
-                    var latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
+                    ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
                     if (latestMetrics != null && latestMetrics.getData() != null) {
                         MonitorSysGenServerMetrics metrics = latestMetrics.getData();
 
@@ -962,7 +993,7 @@ public class ServerMetricsWebSocketService {
                 .map(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsCpuUsage)
                 .filter(java.util.Objects::nonNull)
                 .map(Number::doubleValue)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
 
         if (!values.isEmpty()) {
             cpuTrend.put("values", values);
@@ -988,7 +1019,7 @@ public class ServerMetricsWebSocketService {
                 .map(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsMemoryUsage)
                 .filter(java.util.Objects::nonNull)
                 .map(Number::doubleValue)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
 
         if (!values.isEmpty()) {
             memoryTrend.put("values", values);
@@ -1014,7 +1045,7 @@ public class ServerMetricsWebSocketService {
                 .map(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsDiskUsage)
                 .filter(java.util.Objects::nonNull)
                 .map(Number::doubleValue)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
 
         if (!values.isEmpty()) {
             diskTrend.put("values", values);
@@ -1039,12 +1070,12 @@ public class ServerMetricsWebSocketService {
         List<Long> inValues = historyMetrics.stream()
                 .map(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsNetworkIn)
                 .filter(java.util.Objects::nonNull)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
 
         List<Long> outValues = historyMetrics.stream()
                 .map(MonitorSysGenServerMetrics::getMonitorSysGenServerMetricsNetworkOut)
                 .filter(java.util.Objects::nonNull)
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
 
         networkTrend.put("inValues", inValues);
         networkTrend.put("outValues", outValues);

@@ -186,9 +186,12 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                 log.debug("服务器 {} 未启用告警功能，跳过连接告警检测", server.getMonitorSysGenServerName());
                 return ReturnResult.success(false);
             }
-
-            // 检查配置中是否启用告警
-
+        } catch (Exception e) {
+            log.error("检查并推送服务器 {} 连接告警失败: {}", serverId, e.getMessage(), e);
+            return ReturnResult.error("连接告警检查失败: " + e.getMessage());
+        }
+        return ReturnResult.success(false);
+    }
     @Override
     public ReturnResult<Boolean> checkAndPushConnectionAlerts(Integer serverId, Boolean isOnline, Long responseTime, MonitorSysGenServerSetting setting) {
         try {
@@ -222,36 +225,6 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
         }
     }
 
-            ReturnResult<MonitorSysGenServerSetting> settingResult =
-                    serverSettingService.getOrCreateSetting(serverId);
-
-            if (settingResult.isOk() && settingResult.getData() != null) {
-                MonitorSysGenServerSetting setting = settingResult.getData();
-                if (!isAlertEnabledInSetting(setting)) {
-                    log.debug("服务器 {} 配置中未启用告警功能，跳过连接告警检测", server.getMonitorSysGenServerName());
-                    return ReturnResult.success(false);
-                }
-            }
-
-            // 进行连接告警检测
-            ReturnResult<MonitorSysGenServerAlertHistory> alertResult =
-                    alertDetectionService.detectConnectionAlert(serverId, isOnline, responseTime);
-
-            if (alertResult.isOk() && alertResult.getData() != null) {
-                // 推送单个告警信息
-                pushSingleAlert(server, alertResult.getData());
-                log.info("服务器 {} 连接检测到告警并已推送: online={}, responseTime={}ms",
-                        server.getMonitorSysGenServerName(), isOnline, responseTime);
-                return ReturnResult.success(true);
-            }
-
-            return ReturnResult.success(false);
-
-        } catch (Exception e) {
-            log.error("检查并推送服务器 {} 连接告警失败: {}", serverId, e.getMessage(), e);
-            return ReturnResult.error("连接告警检查失败: " + e.getMessage());
-        }
-    }
 
     @Override
     public void pushAllServerAlerts() {
@@ -308,13 +281,9 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
      */
     private boolean isAlertEnabled(MonitorSysGenServer server) {
         // 检查服务器状态
-        if (server.getMonitorSysGenServerStatus() == null || server.getMonitorSysGenServerStatus() != 1) {
-            return false;
-        }
+        return server.getMonitorSysGenServerStatus() != null && server.getMonitorSysGenServerStatus() == 1;
 
         // 基础检查通过，详细检查在配置表中进行
-
-        return true;
     }
 
     /**
@@ -328,12 +297,8 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
         }
 
         // 检查告警是否启用
-        if (setting.getMonitorSysGenServerSettingAlertEnabled() == null ||
-            setting.getMonitorSysGenServerSettingAlertEnabled() != 1) {
-            return false;
-        }
-
-        return true;
+        return setting.getMonitorSysGenServerSettingAlertEnabled() != null &&
+                setting.getMonitorSysGenServerSettingAlertEnabled() == 1;
     }
 
     /**

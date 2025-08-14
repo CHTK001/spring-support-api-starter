@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.task.manager.step;
 
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.ServerMetricsWebSocketService;
@@ -46,7 +45,7 @@ public class PortMonitorStep implements TaskStep {
             message.put("data", portStatuses);
             message.put("timestamp", System.currentTimeMillis());
             try {
-                serverMetricsWebSocketService.pushSingleServerMetrics(server, null);
+                serverMetricsWebSocketService.pushSingleServerMetrics(server, MonitorSysGenServerSetting.EMPTY_SETTING);
             } catch (Exception e) {
                 log.warn("推送端口状态信息失败: serverId={}", server.getMonitorSysGenServerId(), e);
             }
