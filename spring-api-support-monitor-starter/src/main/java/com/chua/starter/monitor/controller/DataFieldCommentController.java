@@ -1,7 +1,6 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,17 +25,6 @@ public class DataFieldCommentController {
 
     private final SystemDataFieldCommentService commentService;
 
-    /**
-     * 查询字段注释
-     * @param settingId 数据源配置ID
-     * @param nodePath 节点路径（数据库/表/列的唯一定位路径）
-     */
-    @GetMapping("/comment")
-    @ApiOperation("查询字段注释")
-    public ReturnResult<SystemDataFieldComment> get(@PathVariable("id") Integer settingId,
-                                                    @RequestParam String nodePath) {
-        return commentService.getBySettingAndPath(settingId, nodePath);
-    }
 
     /**
      * 保存字段注释

@@ -105,6 +105,16 @@ public interface DataConsoleService {
      * @return 元数据实例
      */
     HierarchyMetadata getOrCreateHierarchy(Integer settingId);
+
+    /**
+     * 打开表：查询数据并合并字段注释（手动优先）
+     */
+    ReturnResult<com.chua.starter.monitor.pojo.TableOpenResponse> openTable(Integer settingId, String nodePath, Integer limit);
+
+    /**
+     * 表分析：对每个字段进行分组统计（频次）
+     */
+    ReturnResult<java.util.Map<String, java.util.List<com.chua.starter.monitor.pojo.ValueCount>>> analyzeTable(Integer settingId, String nodePath, Integer limit);
 }
 
 

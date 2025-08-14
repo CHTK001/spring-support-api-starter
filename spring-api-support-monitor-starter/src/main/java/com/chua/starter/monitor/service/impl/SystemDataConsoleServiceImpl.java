@@ -30,18 +30,22 @@ import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
+import com.chua.starter.monitor.pojo.TableOpenResponse;
+import com.chua.starter.monitor.pojo.ValueCount;
 import com.chua.starter.monitor.service.DataConsoleService;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,13 +55,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DataConsoleServiceImpl implements DataConsoleService, InitializingBean {
+public class SystemDataConsoleServiceImpl implements DataConsoleService, InitializingBean {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
     private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
-    private final SystemDataFieldCommentService systemDataFieldCommentService;
+    @Autowired
+    private SystemDataFieldCommentService systemDataFieldCommentService;
 
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
@@ -126,6 +131,102 @@ public class DataConsoleServiceImpl implements DataConsoleService, InitializingB
     }
 
     @Override
+    public ReturnResult<TableOpenResponse> openTable(Integer settingId, String nodePath, Integer limit) {
+        try {
+            String[] pathParts = nodePath.split("/");
+            String schemaName = pathParts[1];
+            String tableName = pathParts[2];
+            HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
+            MetadataQuery metadataQuery = new MetadataQuery();
+            // 1) 基于层级获取列（表结构=字段列表），而非强依赖自定义 action
+            List<HierarchyNode> columnNodes = new ArrayList<>();
+            try {
+                HierarchyResult<HierarchyNode> children = metadata.getChildNodes(nodePath, metadataQuery);
+                if (children != null && children.getData() != null) {
+                    columnNodes = children.getData();
+                }
+            } catch (Exception ignored) {
+            }
+
+            List<String> columns = new ArrayList<>();
+            Map<String, String> autoComments = new java.util.HashMap<>();
+            Map<String, String> pathToColumn = new java.util.HashMap<>();
+            for (HierarchyNode cn : columnNodes) {
+                String name = String.valueOf(cn.getName());
+                columns.add(name);
+                pathToColumn.put(cn.getPath(), name);
+                String cmt = cn.getProperties() != null ? String.valueOf(cn.getProperties().getOrDefault("comment", "")) : "";
+                if (StringUtils.isNotBlank(cmt)) {
+                    autoComments.put(name, cmt);
+                }
+            }
+            TableOpenResponse resp = new TableOpenResponse();
+            // 2) 查询数据：优先使用 metadata 的 data 行为，不可用则回退到 SQL 执行
+            try {
+                ReturnResult<CommandResult> data1 = execute(settingId, "data", "SELECT * FROM " + schemaName + "." + tableName, metadataQuery);
+
+                if (data1.isOk()) {
+                    CommandResult data = data1.getData();
+//                    resp.setRows(data.getData());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            // 3) 合并字段注释：手动优先
+            Map<String, String> columnComments = new java.util.HashMap<>(autoComments);
+            if (!pathToColumn.isEmpty()) {
+                List<SystemDataFieldComment> manual = systemDataFieldCommentService.list(
+                        Wrappers.<SystemDataFieldComment>lambdaQuery()
+                                .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
+                                .in(SystemDataFieldComment::getSystemDataFieldCommentNodePath, pathToColumn.keySet())
+                );
+                for (SystemDataFieldComment item : manual) {
+                    String path = item.getSystemDataFieldCommentNodePath();
+                    String col = pathToColumn.getOrDefault(path, item.getSystemDataFieldCommentColumnName());
+                    if (StringUtils.isNotBlank(col) && StringUtils.isNotBlank(item.getSystemDataFieldCommentComment())) {
+                        columnComments.put(col, item.getSystemDataFieldCommentComment());
+                    }
+                }
+            }
+
+            resp.setColumns(columns);
+            resp.setColumnComments(columnComments);
+            return ReturnResult.ok(resp);
+        } catch (Exception e) {
+            log.error("打开表失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, List<ValueCount>>> analyzeTable(Integer settingId, String nodePath, Integer limit) {
+        try {
+            // 复用 openTable 的数据获取逻辑，保证一致性
+            ReturnResult<TableOpenResponse> open = openTable(settingId, nodePath, limit);
+            if (open == null || open.getData() == null) {
+                return ReturnResult.error("无法获取表数据");
+            }
+            List<String> columns = open.getData().getColumns();
+            List<Map<String, Object>> rows = open.getData().getRows();
+            Map<String, List<ValueCount>> result = new java.util.HashMap<>();
+            for (String col : columns) {
+                Map<String, Long> freq = rows.stream()
+                        .collect(Collectors.groupingBy(o -> String.valueOf(o.get(col)), Collectors.counting()));
+                List<ValueCount> list = freq.entrySet().stream()
+                        .map(e -> new ValueCount(e.getKey(), e.getValue()))
+                        .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
+                        .collect(Collectors.toList());
+                result.put(col, list);
+            }
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("表分析失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
+    }
+
+    @Override
     public ReturnResult<CommandResult> execute(Integer settingId, String type, String command, MetadataQuery query) {
         try {
             SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
@@ -133,9 +234,14 @@ public class DataConsoleServiceImpl implements DataConsoleService, InitializingB
                 return ReturnResult.error("配置不存在");
             }
 
+            if (command.startsWith("\"") && command.endsWith("\"")) {
+                command = command.substring(1, command.length() - 1);
+            }
+
+            command = command.replace("\\n", " ");
             DataSourceOptions options = buildOptions(setting);
             CommandMetadata metadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
-            CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command);
+            CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command, true);
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("执行命令失败", e);

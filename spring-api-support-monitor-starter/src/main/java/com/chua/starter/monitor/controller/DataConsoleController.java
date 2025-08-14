@@ -5,6 +5,8 @@ import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
+import com.chua.starter.monitor.pojo.TableOpenResponse;
+import com.chua.starter.monitor.pojo.ValueCount;
 import com.chua.starter.monitor.service.DataConsoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,6 +80,28 @@ public class DataConsoleController {
                                             @RequestParam String nodePath,
                                             MetadataQuery query) {
         return dataConsoleService.getNode(id, nodePath, query);
+    }
+
+    /**
+     * 打开表（查询 + 合并注释）
+     */
+    @GetMapping("/{id}/table/open")
+    @ApiOperation("打开表")
+    public ReturnResult<TableOpenResponse> openTable(@PathVariable Integer id,
+                                                     @RequestParam String nodePath,
+                                                     @RequestParam(required = false, defaultValue = "100") Integer limit) {
+        return dataConsoleService.openTable(id, nodePath, limit);
+    }
+
+    /**
+     * 表分析：各字段分组统计
+     */
+    @GetMapping("/{id}/table/analyze")
+    @ApiOperation("表分析")
+    public ReturnResult<java.util.Map<String, java.util.List<ValueCount>>> analyze(@PathVariable Integer id,
+                                                                                   @RequestParam String nodePath,
+                                                                                   @RequestParam(required = false, defaultValue = "1000") Integer limit) {
+        return dataConsoleService.analyzeTable(id, nodePath, limit);
     }
 
     /**
