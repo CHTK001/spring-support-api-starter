@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 
 import java.util.Map;
 
@@ -26,6 +27,13 @@ public interface UnifiedAlertService {
     ReturnResult<Boolean> checkAndPushServerAlerts(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics);
 
     /**
+     * 降级重载：携带已缓存的配置，避免再次访问DB
+     */
+    ReturnResult<Boolean> checkAndPushServerAlerts(MonitorSysGenServer server,
+                                                   MonitorSysGenServerMetrics metrics,
+                                                   MonitorSysGenServerSetting setting);
+
+    /**
      * 检查并推送API上报数据告警
      * 只有在服务器配置中启用告警功能时才进行检测和推送
      * 
@@ -45,6 +53,11 @@ public interface UnifiedAlertService {
      * @return 是否检测到告警并推送
      */
     ReturnResult<Boolean> checkAndPushConnectionAlerts(Integer serverId, Boolean isOnline, Long responseTime);
+
+    /**
+     * 降级重载：携带已缓存的配置，避免再次访问DB
+     */
+    ReturnResult<Boolean> checkAndPushConnectionAlerts(Integer serverId, Boolean isOnline, Long responseTime, MonitorSysGenServerSetting setting);
 
     /**
      * 推送所有服务器的告警信息

@@ -2176,6 +2176,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
+    @Cacheable(value = "serverName", key = "#serverId", unless = "#result == null || #result.isEmpty()")
     public String getServerName(Integer serverId) {
         try {
             MonitorSysGenServer server = this.getById(serverId);

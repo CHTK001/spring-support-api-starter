@@ -240,6 +240,12 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
     ReturnResult<MonitorSysGenServerSetting> getOrCreateSetting(Integer serverId);
 
     /**
+     * 仅从本地缓存读取配置，不访问数据库
+     * 命中返回 OK(data)，未命中返回 ERROR
+     */
+    ReturnResult<MonitorSysGenServerSetting> getFromLocalCache(Integer serverId);
+
+    /**
      * 测试文件管理连接
      *
      * @param serverId 服务器ID
