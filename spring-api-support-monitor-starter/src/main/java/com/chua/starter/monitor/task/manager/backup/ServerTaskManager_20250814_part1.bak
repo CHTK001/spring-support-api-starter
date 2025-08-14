@@ -1,0 +1,33 @@
+// 备份片段：ServerTaskManager 头部重要片段（imports 与字段）
+// 说明：此 .bak 文件不参与编译，仅用于回滚参考
+
+/*
+package com.chua.starter.monitor.task.manager;
+
+import ...
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ServerTaskManager {
+
+    private final MonitorSysGenServerService serverService;
+    private final MonitorSysGenServerSettingService serverSettingService;
+    private final ServerMetricsWebSocketService serverMetricsWebSocketService;
+    private final UnifiedAlertService unifiedAlertService;
+    private final MonitorSysGenServerMetricsService metricsService;
+    private final PrometheusDataCollectorService prometheusDataCollectorService;
+    private final LocalSystemDataCollector localSystemDataCollector;
+    private final ServerLatencyService serverLatencyService;
+
+    private ExecutorService executorService;
+
+    private final Map<Integer, ServerTaskInfo> serverTasks = new ConcurrentHashMap<>();
+    private final Map<String, Future<?>> globalTasks = new ConcurrentHashMap<>();
+    private final Map<Integer, MonitorSysGenServerSetting> configCache = new ConcurrentHashMap<>();
+
+    private static final int CONFIG_REFRESH_INTERVAL = 60;
+    private volatile boolean running = true;
+    private volatile boolean globalTasksStarted = false;
+*/
+

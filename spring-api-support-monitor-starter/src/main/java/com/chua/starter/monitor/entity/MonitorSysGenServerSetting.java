@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 @TableName(value = "monitor_sys_gen_server_setting")
 public class MonitorSysGenServerSetting extends SysBase {
 
+    public static final MonitorSysGenServerSetting EMPTY_SETTING = new MonitorSysGenServerSetting();
     /**
      * 服务器配置设置ID
      *
@@ -625,7 +626,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用延迟检测 0:否 1:是
-     * @see ServerTaskManager#getServerTaskStatus(Integer)
      * @see ServerTaskManager#createLatencyCheckTask(ServerTaskManager.ServerTaskInfo, MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
