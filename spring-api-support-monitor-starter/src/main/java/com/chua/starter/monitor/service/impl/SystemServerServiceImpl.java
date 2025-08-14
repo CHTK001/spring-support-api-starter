@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.ServerSetting;
+import com.chua.common.support.protocol.event.ServletEvent;
+import com.chua.common.support.protocol.event.ServletListener;
+import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.protocol.server.ProtocolServer;
-import com.chua.common.support.protocol.server.ServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServer;
@@ -391,11 +393,15 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 ServletFilterHandler servletFilterHandler = ServiceProvider.of(ServletFilterHandler.class).getNewExtension(
                         systemServerSettingType
                 );
-                ServletFilter servletFilter = servletFilterHandler.handle(setting);
                 // 包装日志代理，采集执行日志
-                servletFilter = LoggingServletFilterProxy.wrap(
-                        servletFilter, setting.getSystemServerSettingServerId());
-                setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
+                ServletFilter servletFilter = servletFilterHandler.handle(setting);
+                servletFilter.addServletListener(new ServletListener() {
+
+                    @Override
+                    public void onEvent(ServletEvent event) {
+                        LoggingServletFilterProxy.wrap(setting, servletFilter, event);
+                    }
+                });
                 serverInstance.addFilter(servletFilter);
                 return;
             }
