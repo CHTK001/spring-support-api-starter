@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.handler;
 
-import com.chua.common.support.protocol.server.ServletFilter;
+import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 
 /**

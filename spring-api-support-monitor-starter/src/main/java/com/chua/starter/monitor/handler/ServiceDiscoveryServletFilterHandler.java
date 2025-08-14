@@ -2,14 +2,10 @@ package com.chua.starter.monitor.handler;
 
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
-import com.chua.common.support.discovery.DefaultServiceDiscovery;
-import com.chua.common.support.discovery.Discovery;
-import com.chua.common.support.discovery.DiscoveryOption;
-import com.chua.common.support.discovery.HazelcastServiceDiscovery;
-import com.chua.common.support.discovery.ServiceDiscovery;
+import com.chua.common.support.discovery.*;
 import com.chua.common.support.net.NetAddress;
 import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
-import com.chua.common.support.protocol.server.ServletFilter;
+import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServerSetting;
@@ -136,7 +132,7 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
 
     @Override
     public void update(ServletFilter filter, SystemServerSetting setting) {
-        if (!(filter instanceof ServiceDiscoveryServletFilter)) {
+        if (!(filter instanceof ServiceDiscoveryServletFilter sdf)) {
             return;
         }
 
@@ -153,7 +149,6 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
                 : "weight";
         boolean enabled = config == null || Boolean.TRUE.equals(config.getServiceDiscoveryEnabled());
 
-        ServiceDiscoveryServletFilter sdf = (ServiceDiscoveryServletFilter) filter;
         ServiceDiscovery serviceDiscovery = sdf.getServiceDiscovery();
         if(serviceDiscovery != null && null != HAZELCAST_SERVICE_DISCOVERY && serviceDiscovery instanceof HazelcastServiceDiscovery hazelcastableServiceDiscovery) {
             HAZELCAST_SERVICE_DISCOVERY = hazelcastableServiceDiscovery;
