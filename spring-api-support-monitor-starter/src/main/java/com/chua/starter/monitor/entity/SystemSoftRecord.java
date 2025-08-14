@@ -55,4 +55,12 @@ public class SystemSoftRecord extends SysBase {
     /** 结果/日志 */
     @TableField("message")
     private String message;
+
+    /** 实际安装方式（DOCKER_CLI/COMPOSE/SWARM） */
+    @TableField("method")
+    private String method;
+
+    /** 实际安装参数快照（JSON） */
+    @TableField("params")
+    private String params;
 }
