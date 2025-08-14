@@ -13,6 +13,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServer;
 import com.chua.starter.monitor.entity.SystemServerSetting;
+import com.chua.starter.monitor.filter.LoggingServletFilterProxy;
 import com.chua.starter.monitor.handler.HotloadingDeleteServletFilterHandler;
 import com.chua.starter.monitor.handler.HotloadingServletFilterHandler;
 import com.chua.starter.monitor.handler.ServletFilterHandler;
@@ -391,6 +392,9 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                         systemServerSettingType
                 );
                 ServletFilter servletFilter = servletFilterHandler.handle(setting);
+                // 包装日志代理，采集执行日志
+                servletFilter = LoggingServletFilterProxy.wrap(
+                        servletFilter, setting.getSystemServerSettingServerId());
                 setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
                 serverInstance.addFilter(servletFilter);
                 return;
