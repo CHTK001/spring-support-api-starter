@@ -6,6 +6,9 @@ import com.chua.starter.monitor.entity.FileSystemSetting;
 import com.chua.starter.monitor.mapper.FileSystemSettingMapper;
 import com.chua.starter.monitor.service.FileSystemSettingService;
 import lombok.RequiredArgsConstructor;
+import java.util.concurrent.CompletableFuture;
+import com.chua.starter.monitor.task.FileSystemMergeQueue;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FileSystemSettingServiceImpl extends ServiceImpl<FileSystemSettingMapper, FileSystemSetting>
         implements FileSystemSettingService {
+
+    @Autowired
+    private FileSystemMergeQueue fileSystemMergeQueue;
 
     @Override
     @Cacheable(value = "fileSystemSetting", key = "'enabled'")
@@ -106,6 +112,17 @@ public class FileSystemSettingServiceImpl extends ServiceImpl<FileSystemSettingM
             boolean result = updateById(setting);
             if (result) {
                 log.info("文件系统配置更新成功: settingId={}", setting.getFileSystemSettingId());
+                // 如果手动合并开启（即自动合并关闭），清空自动合并队列
+                if (Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
+                    try {
+                        // 延迟少许时间，等待缓存失效与新配置生效
+                        CompletableFuture.runAsync(() -> {
+                            try { Thread.sleep(200L); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+                            fileSystemMergeQueue.clear();
+                            log.info("检测到关闭自动合并，已清空合并队列");
+                        });
+                    } catch (Exception ignore) { }
+                }
                 return ReturnResult.ok(true);
             } else {
                 return ReturnResult.error("更新配置失败");
