@@ -24,6 +24,7 @@ import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.common.support.oss.result.GetObjectResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemDataBackupRecord;
@@ -45,10 +46,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -320,7 +318,8 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
 
                         // 保存到 RedisSearch
                         String index = RedisConstant.REDIS_SEARCH_PREFIX + "system:data:backup";
-                        Map<String, String> doc = BeanMap.create(record);
+                        Map<String, String> doc =new HashMap<>( BeanMap.create(record));
+                        MapUtils.clearNullValue(doc);
                         redisSearchService.addDocument(index, doc);
 
                         // 推送到前端

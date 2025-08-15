@@ -5,10 +5,8 @@ import com.chua.common.support.crypto.Codec;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
-import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -89,7 +87,9 @@ public abstract class AbstractAuthInformation implements AuthInformation{
 
     @Override
     public boolean isSuccessful() {
-        return success.get() && SignUtils.verifySignFromMap(this.sign, this.bodyData);
+        return success.get() && (
+                authServerProperties.isSignVerify() &&
+                SignUtils.verifySignFromMap(this.sign, this.bodyData));
     }
 
     @Override

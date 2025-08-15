@@ -402,6 +402,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                         LoggingServletFilterProxy.wrap(setting, servletFilter, event);
                     }
                 });
+                setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
                 serverInstance.addFilter(servletFilter);
                 return;
             }
