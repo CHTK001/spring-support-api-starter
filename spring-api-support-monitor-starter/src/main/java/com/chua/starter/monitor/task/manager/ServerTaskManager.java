@@ -157,7 +157,6 @@ public class ServerTaskManager {
     }
 
 
-
     /**
      * 全局调度器：将原多个全局任务合并为单线程循环触发
      */
@@ -176,23 +175,58 @@ public class ServerTaskManager {
             while (running) {
                 try {
                     long now = System.currentTimeMillis();
-                    if (now - lastStatusSummary >= 60_000) { pushServerStatusSummary(); lastStatusSummary = now; }
-                    if (now - lastPerformanceTrends >= 300_000) { pushPerformanceTrends(); lastPerformanceTrends = now; }
-                    if (now - lastConnectionStats >= 30_000) { pushConnectionStatistics(); lastConnectionStats = now; }
-                    if (now - lastHealthStatus >= 300_000) { pushHealthStatus(); lastHealthStatus = now; }
-                    if (now - lastGlobalAlert >= 120_000) { processGlobalAlerts(); lastGlobalAlert = now; }
-                    if (now - lastCleanup >= 3_600_000) { cleanupInvalidTasks(); lastCleanup = now; }
-                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) { refreshAllConfigs(); lastConfigRefresh = now; }
-                    if (now - lastFileUploadCheck >= 30_000) { checkUploadTaskStatus(); lastFileUploadCheck = now; }
-                    if (now - lastDataCleanup >= 24L * 3_600_000) { cleanupTempFilesAndCache(); lastDataCleanup = now; }
-                    if (now - lastBackup >= 1_800_000) { executeBackupTasks(); lastBackup = now; }
+                    if (now - lastStatusSummary >= 60_000) {
+                        pushServerStatusSummary();
+                        lastStatusSummary = now;
+                    }
+                    if (now - lastPerformanceTrends >= 300_000) {
+                        pushPerformanceTrends();
+                        lastPerformanceTrends = now;
+                    }
+                    if (now - lastConnectionStats >= 30_000) {
+                        pushConnectionStatistics();
+                        lastConnectionStats = now;
+                    }
+                    if (now - lastHealthStatus >= 300_000) {
+                        pushHealthStatus();
+                        lastHealthStatus = now;
+                    }
+                    if (now - lastGlobalAlert >= 120_000) {
+                        processGlobalAlerts();
+                        lastGlobalAlert = now;
+                    }
+                    if (now - lastCleanup >= 3_600_000) {
+                        cleanupInvalidTasks();
+                        lastCleanup = now;
+                    }
+                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) {
+                        refreshAllConfigs();
+                        lastConfigRefresh = now;
+                    }
+                    if (now - lastFileUploadCheck >= 30_000) {
+                        checkUploadTaskStatus();
+                        lastFileUploadCheck = now;
+                    }
+                    if (now - lastDataCleanup >= 24L * 3_600_000) {
+                        cleanupTempFilesAndCache();
+                        lastDataCleanup = now;
+                    }
+                    if (now - lastBackup >= 1_800_000) {
+                        executeBackupTasks();
+                        lastBackup = now;
+                    }
                     Thread.sleep(1_000L);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
                     log.error("全局调度器异常", e);
-                    try { Thread.sleep(5_000L); } catch (InterruptedException ignore) { Thread.currentThread().interrupt(); break; }
+                    try {
+                        Thread.sleep(5_000L);
+                    } catch (InterruptedException ignore) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             }
         });
@@ -200,7 +234,6 @@ public class ServerTaskManager {
         globalTasks.put("globalDispatcher", dispatcher);
         log.info("全局调度器启动完成");
     }
-
 
 
     /**
@@ -242,15 +275,15 @@ public class ServerTaskManager {
         return Objects.equals(old.getMonitorSysGenServerSettingDataCollectionFrequency(),
                 newSetting.getMonitorSysGenServerSettingDataCollectionFrequency())
                 && Objects.equals(old.getMonitorSysGenServerSettingMonitorEnabled(),
-                        newSetting.getMonitorSysGenServerSettingMonitorEnabled())
+                newSetting.getMonitorSysGenServerSettingMonitorEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingAlertEnabled(),
-                        newSetting.getMonitorSysGenServerSettingAlertEnabled())
+                newSetting.getMonitorSysGenServerSettingAlertEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingDataReportMethod(),
-                        newSetting.getMonitorSysGenServerSettingDataReportMethod())
+                newSetting.getMonitorSysGenServerSettingDataReportMethod())
                 && Objects.equals(old.getMonitorSysGenServerSettingPortMonitorEnabled(),
-                        newSetting.getMonitorSysGenServerSettingPortMonitorEnabled())
+                newSetting.getMonitorSysGenServerSettingPortMonitorEnabled())
                 && Objects.equals(old.getMonitorSysGenServerSettingPortCheckInterval(),
-                        newSetting.getMonitorSysGenServerSettingPortCheckInterval());
+                newSetting.getMonitorSysGenServerSettingPortCheckInterval());
     }
 
     /**
@@ -332,91 +365,108 @@ public class ServerTaskManager {
                 while (taskInfo.isTaskRunning() && running) {
                     try {
                         MonitorSysGenServerSetting s = getCachedConfig(server.getMonitorSysGenServerId());
-                        if (s == null) { Thread.sleep(5_000L); continue; }
+                        if (s == null) {
+                            Thread.sleep(5_000L);
+                            continue;
+                        }
                         long now = System.currentTimeMillis();
                         // 指标采集（非API上报）
                         String rm = s.getMonitorSysGenServerSettingDataReportMethod();
                         if (!"API".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
-                            if (now - lastMetrics >= freq * 1000L) { metricsCollectionStep.run(server, s); lastMetrics = now; }
+                            if (now - lastMetrics >= freq * 1000L) {
+                                metricsCollectionStep.run(server, s);
+                                lastMetrics = now;
+                            }
                         }
                         // 告警检测
                         if (s.getMonitorSysGenServerSettingAlertEnabled() != null && s.getMonitorSysGenServerSettingAlertEnabled() == 1) {
                             int ai = getEffectiveAlertInterval(s);
-                            if (now - lastAlerts >= ai * 1000L) { alertDetectionStep.run(server, s); lastAlerts = now; }
+                            if (now - lastAlerts >= ai * 1000L) {
+                                alertDetectionStep.run(server, s);
+                                lastAlerts = now;
+                            }
                         }
                         // 健康检查
                         int hi = getEffectiveHealthCheckInterval(s);
-                        if (now - lastHealth >= hi * 1000L) { healthCheckStep.run(server, s); lastHealth = now; }
+                        if (now - lastHealth >= hi * 1000L) {
+                            healthCheckStep.run(server, s);
+                            lastHealth = now;
+                        }
                         // 数据推送（非API上报）
                         if (!"API".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
-                            if (now - lastDataPush >= freq * 1000L) { dataPushStep.run(server, s); lastDataPush = now; }
+                            if (now - lastDataPush >= freq * 1000L) {
+                                dataPushStep.run(server, s);
+                                lastDataPush = now;
+                            }
                         }
                         // 端口监控
                         if (s.getMonitorSysGenServerSettingPortMonitorEnabled() != null && s.getMonitorSysGenServerSettingPortMonitorEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingPortCheckInterval();
                             if (itv == null || itv <= 0) itv = 300;
-                            if (now - lastPort >= itv * 1000L) { portMonitorStep.run(server, s); lastPort = now; }
+                            if (now - lastPort >= itv * 1000L) {
+                                portMonitorStep.run(server, s);
+                                lastPort = now;
+                            }
                         }
                         // 在线检测
                         if (s.getMonitorSysGenServerSettingOnlineCheckEnabled() != null && s.getMonitorSysGenServerSettingOnlineCheckEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingOnlineCheckInterval();
                             if (itv == null || itv <= 0) itv = 30;
-                            if (now - lastOnline >= itv * 1000L) { onlineCheckStep.run(server, s); lastOnline = now; }
+                            if (now - lastOnline >= itv * 1000L) {
+                                onlineCheckStep.run(server, s);
+                                lastOnline = now;
+                            }
                         }
                         // 延迟检测
                         if (s.getMonitorSysGenServerSettingLatencyCheckEnabled() != null && s.getMonitorSysGenServerSettingLatencyCheckEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingLatencyCheckInterval();
                             if (itv == null || itv <= 0) itv = 60;
-                            if (now - lastLatency >= itv * 1000L) { latencyCheckStep.run(server, s); lastLatency = now; }
+                            if (now - lastLatency >= itv * 1000L) {
+                                latencyCheckStep.run(server, s);
+                                lastLatency = now;
+                            }
                         }
                         // 日志清理（每日）
                         if (s.getMonitorSysGenServerSettingLogCleanupEnabled() != null && s.getMonitorSysGenServerSettingLogCleanupEnabled() == 1) {
-                            if (now - lastLogCleanup >= 24L * 3_600_000) { logCleanupStep.run(server, s); lastLogCleanup = now; }
+                            if (now - lastLogCleanup >= 24L * 3_600_000) {
+                                logCleanupStep.run(server, s);
+                                lastLogCleanup = now;
+                            }
                         }
                         // 缓存清理（每小时）
                         if (s.getMonitorSysGenServerSettingTempFileCleanupEnabled() != null && s.getMonitorSysGenServerSettingTempFileCleanupEnabled() == 1) {
-                            if (now - lastCacheCleanup >= 3_600_000) { cacheCleanupStep.run(server, s); lastCacheCleanup = now; }
+                            if (now - lastCacheCleanup >= 3_600_000) {
+                                cacheCleanupStep.run(server, s);
+                                lastCacheCleanup = now;
+                            }
                         }
                         // WebSocket 清理（默认每10分钟）
                         if (s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() != null && s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingWebSocketCleanupInterval();
                             if (itv == null || itv <= 0) itv = 10;
-                            if (now - lastWsCleanup >= itv * 60_000L) { webSocketCleanupStep.run(server, s); lastWsCleanup = now; }
+                            if (now - lastWsCleanup >= itv * 60_000L) {
+                                webSocketCleanupStep.run(server, s);
+                                lastWsCleanup = now;
+                            }
                         }
-                        Thread.sleep(1_000L);
+                        Thread.sleep(5_000L);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
                     } catch (Exception e) {
                         log.error("服务器worker异常: serverId={}", server.getMonitorSysGenServerId(), e);
-                        try { Thread.sleep(5_000L); } catch (InterruptedException ignore) { Thread.currentThread().interrupt(); break; }
+                        try {
+                            Thread.sleep(20_000L);
+                        } catch (InterruptedException ignore) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
                     }
                 }
             });
             taskInfo.setServerWorkerTask(serverWorker);
-
-            // 创建指标收集任务（仅对非API上报方式）
-            // 指标收集任务已合并至 per-server worker 调度
-
-            // 告警检测任务已合并至 per-server worker 调度
-
-            // 健康检查任务已合并至 per-server worker 调度
-
-            // 数据推送任务已合并至 per-server worker 调度
-
-            // 端口监控任务已合并至 per-server worker 调度
-
-            // 在线状态检测任务已合并至 per-server worker 调度
-
-            // 延迟检测任务已合并至 per-server worker 调度
-
-            // 日志清理任务已合并至 per-server worker 调度
-
-            // 缓存清理任务已合并至 per-server worker 调度
-
-            // WebSocket清理任务已合并至 per-server worker 调度
 
             serverTasks.put(serverId, taskInfo);
             log.info("为服务器 {} 创建任务完成", server.getMonitorSysGenServerName());
@@ -425,9 +475,6 @@ public class ServerTaskManager {
             log.error("为服务器创建任务失败: serverId={}", serverId, e);
         }
     }
-
-
-
 
     @SuppressWarnings("unused") // 保留用于未来扩展
     private void pushDailyHealthReport() {
@@ -724,7 +771,7 @@ public class ServerTaskManager {
      * 记录配置变更信息
      */
     private void logConfigurationChange(Integer serverId, MonitorSysGenServerSetting oldSetting,
-            MonitorSysGenServerSetting newSetting) {
+                                        MonitorSysGenServerSetting newSetting) {
         StringBuilder changeLog = new StringBuilder("服务器配置变更: ");
 
         // 检查数据采集频率变化

@@ -24,12 +24,14 @@ import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,6 +133,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      * 重写updateById方法，在特定字段变更时关闭设备连接 如果修改了地址、端口、账号、密码这四个字段中的任何一个，则关闭对应的client连接
      */
     @Override
+    @CacheEvict(value = "server", key = "#entity.monitorSysGenServerId", condition = "#entity != null && #entity.monitorSysGenServerId != null")
     public boolean updateById(MonitorSysGenServer entity) {
         if (entity == null || entity.getMonitorSysGenServerId() == null) {
             return false;
@@ -249,6 +252,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Cacheable(value = "server", key = "#serverId", unless = "#result == null")
     public MonitorSysGenServer getByIdWithCache(Integer serverId) {
         return this.getById(serverId);
+    }
+
+    @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "server", key = "#id", condition = "#id != null")
+    public boolean removeById(Serializable id) {
+        return super.removeById(id);
     }
 
     @Override
