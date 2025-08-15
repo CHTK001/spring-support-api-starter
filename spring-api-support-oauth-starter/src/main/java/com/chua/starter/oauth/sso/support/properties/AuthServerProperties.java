@@ -58,6 +58,10 @@ public class AuthServerProperties {
     public static final String PRE = "plugin.oauth.server";
 
     /**
+     * 签名验证
+     */
+    private boolean signVerify = true;
+    /**
      * 令牌请求头名称
      * <p>
      * 客户端在HTTP请求头中传递访问令牌时使用的字段名
