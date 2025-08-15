@@ -52,6 +52,9 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     private final SocketSessionTemplate socketSessionTemplate;
     @Autowired
     @Lazy
+    private DelayedUpdateService delayedUpdateService;
+    @Autowired
+    @Lazy
     private ReportManager reportManager;
     private final List<ServerConnectionService> connectionServices;
     @Autowired
@@ -1053,15 +1056,14 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             server.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());
             server.setMonitorSysGenServerConnectionError(errorMessage);
 
-            boolean result = this.updateById(server);
+            // 延迟更新改造：不直接入库，提交缓冲，并同步推送WS
+            delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), status, errorMessage);
 
-            if (result) {
-                // 发送WebSocket消息通知前端
-                sendConnectionStatusMessage(server, status, errorMessage);
-                log.info("服务器连接状态已更新: {} -> {}", server.getMonitorSysGenServerName(), status);
-            }
+            // 发送WebSocket消息通知前端
+            sendConnectionStatusMessage(server, status, errorMessage);
+            log.info("服务器连接状态(延迟写库)已提交: {} -> {}", server.getMonitorSysGenServerName(), status);
 
-            return ReturnResult.of(result, result ? "连接状态更新成功" : "连接状态更新失败");
+            return ReturnResult.success(true);
         } catch (Exception e) {
             log.error("更新服务器连接状态失败: {}", e.getMessage(), e);
             return ReturnResult.error("更新连接状态失败: " + e.getMessage());
@@ -1705,28 +1707,17 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
     @Override
     public boolean updateServerOnlineStatus(Integer serverId, boolean isOnline) {
+        // 延迟更新改造：只入缓冲，不直接写库；但仍同步推送WS
         try {
+            delayedUpdateService.submitOnlineStatus(serverId, isOnline);
             MonitorSysGenServer server = this.getById(serverId);
-            if (server == null) {
-                log.warn("服务器不存在: {}", serverId);
-                return false;
-            }
-
-            server.setMonitorSysGenServerConnectionStatus(isOnline ? 1 : 0);
-            server.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());
-
-            boolean result = this.updateById(server);
-
-            if (result) {
-                // 发送WebSocket消息通知状态变化
+            if (server != null) {
                 sendConnectionStatusMessage(server, isOnline ? 1 : 0, null);
-                log.debug("服务器 {} 在线状态已更新: {}", server.getMonitorSysGenServerName(), isOnline);
+                log.debug("服务器 {} 在线状态(延迟写库)已提交并推送: {}", server.getMonitorSysGenServerName(), isOnline);
             }
-
-            return result;
-
+            return true;
         } catch (Exception e) {
-            log.error("更新服务器在线状态失败: serverId={}, isOnline={}", serverId, isOnline, e);
+            log.error("提交在线状态到延迟缓冲失败: serverId={}, isOnline={}", serverId, isOnline, e);
             return false;
         }
     }
@@ -1783,43 +1774,27 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
     @Override
     public boolean updateServerHealthStatus(Integer serverId, boolean isHealthy) {
+        // 延迟更新改造：只入缓冲，不直接写库
         try {
+            delayedUpdateService.submitHealthStatus(serverId, isHealthy);
+            // 仍然同步向前端推送健康状态消息（不涉及DB）
+            Map<String, Object> healthData = new HashMap<>();
+            healthData.put("isHealthy", isHealthy);
+            healthData.put("checkTime", System.currentTimeMillis());
+
             MonitorSysGenServer server = this.getById(serverId);
-            if (server == null) {
-                log.warn("服务器不存在: {}", serverId);
-                return false;
-            }
-
-            // 可以添加健康状态字段到服务器表，或者通过其他方式记录
-            // 更新时间由SysBase自动处理
-
-            // 如果不健康，可以设置连接状态为离线
-            if (!isHealthy) {
-                server.setMonitorSysGenServerConnectionStatus(0);
-            }
-
-            boolean result = this.updateById(server);
-
-            if (result) {
-                // 发送健康状态变化消息
-                Map<String, Object> healthData = new HashMap<>();
-                healthData.put("isHealthy", isHealthy);
-                healthData.put("checkTime", System.currentTimeMillis());
-
+            if (server != null) {
                 ServerWebSocketMessage wsMessage = ServerWebSocketMessage.builder()
-                        .messageType(ServerWebSocketMessage.MessageType.SERVER_HEALTH).serverId(serverId)
-                        .serverName(server.getMonitorSysGenServerName()).data(healthData)
+                        .messageType(ServerWebSocketMessage.MessageType.SERVER_HEALTH)
+                        .serverId(serverId)
+                        .serverName(server.getMonitorSysGenServerName())
+                        .data(healthData)
                         .timestamp(System.currentTimeMillis()).build();
-
                 socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
-
-                log.debug("服务器 {} 健康状态已更新: {}", server.getMonitorSysGenServerName(), isHealthy);
             }
-
-            return result;
-
+            return true;
         } catch (Exception e) {
-            log.error("更新服务器健康状态失败: serverId={}, isHealthy={}", serverId, isHealthy, e);
+            log.error("提交健康状态到延迟缓冲失败: serverId={}, isHealthy={}", serverId, isHealthy, e);
             return false;
         }
     }
