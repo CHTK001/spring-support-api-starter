@@ -123,7 +123,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     @Override
     public boolean isSuccessful() {
-        return success.get() && SignUtils.verifySignFromMap(this.sign, this.bodyData);
+        return success.get() && (authServerProperties.isSignVerify() && SignUtils.verifySignFromMap(this.sign, this.bodyData));
     }
 
     @Override
