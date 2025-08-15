@@ -34,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 public class NodeRemoteController {
 
     private final NodeRemoteService nodeRemoteService;
+    private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
 
     /**
      * 执行远程操作
@@ -87,12 +88,35 @@ public class NodeRemoteController {
             @ApiParam(value = "节点ID", required = true) @RequestParam String nodeId,
             @ApiParam(value = "远程文件路径", required = true) @RequestParam String remoteFilePath,
             @ApiParam(value = "是否覆盖已存在文件") @RequestParam(defaultValue = "false") boolean overwrite,
-            @ApiParam(value = "上传的文件", required = true) @RequestParam("file") MultipartFile file) {
+            @ApiParam(value = "上传的文件", required = true) @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "脚本ID", required = false) @RequestParam(required = false) Integer scriptId) {
         try {
             log.info("上传文件到节点: nodeId={}, remoteFilePath={}, fileName={}",
                     nodeId, remoteFilePath, file.getOriginalFilename());
 
             RemoteOperationResponse response = nodeRemoteService.uploadFile(nodeId, file, remoteFilePath, overwrite);
+
+            // 保存上传记录（NODE）
+            try {
+                com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
+                record.setMonitorSysGenScriptId(scriptId);
+                record.setMonitorSysGenScriptUploadType("NODE");
+                record.setMonitorSysGenScriptUploadNodeId(nodeId);
+                record.setMonitorSysGenScriptUploadTargetPath(remoteFilePath);
+                record.setMonitorSysGenScriptUploadFileName(file.getOriginalFilename());
+                record.setMonitorSysGenScriptUploadFileSize(file.getSize());
+                record.setMonitorSysGenScriptUploadStatus(response != null && "SUCCESS".equalsIgnoreCase(response.getStatus()) ? "SUCCESS" : "FAILED");
+                record.setMonitorSysGenScriptUploadErrorMessage(response != null ? response.getErrorMessage() : "未知错误");
+
+                org.springframework.context.ApplicationContext context = com.chua.common.support.utils.ContextUtils.getApplicationContext();
+                if (context != null) {
+                    com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService service = context.getBean(com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService.class);
+                    service.save(record);
+                }
+            } catch (Exception ex) {
+                log.warn("保存脚本上传记录失败(NODE)", ex);
+            }
+
             return ReturnResult.ok(response);
 
         } catch (Exception e) {

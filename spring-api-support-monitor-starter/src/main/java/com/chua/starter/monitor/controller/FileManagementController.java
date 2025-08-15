@@ -39,6 +39,7 @@ import java.util.List;
 public class FileManagementController {
 
     private final FileManagementFacadeServiceImpl fileManagementFacadeService;
+    private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")
@@ -73,9 +74,27 @@ public class FileManagementController {
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
             @Parameter(description = "目标路径", required = true) @RequestParam String targetPath,
             @Parameter(description = "上传文件", required = true) @RequestParam("file") MultipartFile file,
-            @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite) {
+            @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite,
+            @Parameter(description = "脚本ID（可选）") @RequestParam(required = false) Integer scriptId) {
 
-        return fileManagementFacadeService.uploadFile(serverId, targetPath, file, overwrite);
+        ReturnResult<FileOperationResponse> result = fileManagementFacadeService.uploadFile(serverId, targetPath, file, overwrite);
+        try {
+            // 保存上传记录（REMOTE）
+            com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
+            record.setMonitorSysGenScriptId(scriptId);
+            record.setMonitorSysGenScriptUploadType("REMOTE");
+            record.setMonitorSysGenScriptUploadServerId(serverId);
+            record.setMonitorSysGenScriptUploadTargetPath(targetPath);
+            record.setMonitorSysGenScriptUploadFileName(file.getOriginalFilename());
+            record.setMonitorSysGenScriptUploadFileSize(file.getSize());
+            record.setMonitorSysGenScriptUploadStatus(result != null && result.isOk() ? "SUCCESS" : "FAILED");
+            record.setMonitorSysGenScriptUploadErrorMessage(result != null && result.isOk() ? null : (result != null ? result.getMsg() : "未知错误"));
+            uploadRecordService.save(record);
+        } catch (Exception e) {
+            log.warn("保存脚本上传记录失败(REMOTE)", e);
+        }
+
+        return result;
     }
 
     @Operation(summary = "下载文件", description = "下载指定文件")
