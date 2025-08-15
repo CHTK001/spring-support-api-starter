@@ -19,6 +19,7 @@ public class MonitorSysGenAlertPushConfigServiceImpl extends ServiceImpl<Monitor
         implements MonitorSysGenAlertPushConfigService {
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "alertPushConfig", key = "#serverId + ':' + (#type == null ? 'ALL' : #type.code)", unless = "#result == null || !#result.isOk() || #result.data == null || #result.data.isEmpty()")
     public ReturnResult<List<MonitorSysGenAlertPushConfig>> listEnabledByServerAndType(Integer serverId, AlertType type) {
         try {
             List<MonitorSysGenAlertPushConfig> list = this.baseMapper.selectEnabledByServerAndType(serverId, type == null ? null : type.getCode());
