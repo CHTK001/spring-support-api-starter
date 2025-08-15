@@ -107,12 +107,7 @@ public class NodeRemoteController {
                 record.setMonitorSysGenScriptUploadFileSize(file.getSize());
                 record.setMonitorSysGenScriptUploadStatus(response != null && "SUCCESS".equalsIgnoreCase(response.getStatus()) ? "SUCCESS" : "FAILED");
                 record.setMonitorSysGenScriptUploadErrorMessage(response != null ? response.getErrorMessage() : "未知错误");
-
-                org.springframework.context.ApplicationContext context = com.chua.common.support.utils.ContextUtils.getApplicationContext();
-                if (context != null) {
-                    com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService service = context.getBean(com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService.class);
-                    service.save(record);
-                }
+                uploadRecordService.save(record);
             } catch (Exception ex) {
                 log.warn("保存脚本上传记录失败(NODE)", ex);
             }
