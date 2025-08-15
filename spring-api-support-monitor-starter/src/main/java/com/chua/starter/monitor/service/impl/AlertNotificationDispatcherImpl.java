@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.MonitorSysGenAlertPushConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
@@ -10,7 +11,6 @@ import com.chua.starter.monitor.service.AlertMessagePushBridge;
 import com.chua.starter.monitor.service.AlertNotificationDispatcher;
 import com.chua.starter.monitor.service.MonitorSysGenMessagePushTemplateService;
 import com.chua.starter.monitor.spi.MessagePushSender;
-import com.chua.common.support.spi.ServiceProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -95,6 +95,7 @@ public class AlertNotificationDispatcherImpl implements AlertNotificationDispatc
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "alertPushConfig", key = "#serverId + ':' + (#type == null ? 'ALL' : #type.code)", unless = "#result == null || #result.isEmpty()")
     public List<MonitorSysGenAlertPushConfig> loadEnabledConfigs(Integer serverId, AlertType type) {
         try {
             if (type == null) return Collections.emptyList();

@@ -36,7 +36,7 @@ monitor:
 server:
   # 延迟更新配置（毫秒）
   delay-update:
-    flush-interval-ms: 1000
+    flush-interval-ms: 3000
   monitor:
     # 默认数据收集频率（秒）
     default-collection-frequency: 30
@@ -69,11 +69,16 @@ server:
       # 状态汇总推送频率（秒）
       status-summary-frequency: 60
       # 性能趋势推送频率（秒）
-      performance-trends-frequency: 300
+      performance-trends-frequency: 600
       # 连接统计推送频率（秒）
-      connection-stats-frequency: 30
+      connection-stats-frequency: 120
       # 健康状态推送频率（秒）
       health-status-frequency: 300
+
+    # 服务器调试日志
+    server-log:
+      enabled: false
+      sample-rate: 0.1
 
     # 数据清理配置
     cleanup:
