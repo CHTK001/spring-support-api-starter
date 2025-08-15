@@ -319,7 +319,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             // 发送测试结果消息
             sendServerMessage(server, "test", testResult, testResult ? null : "连接测试失败");
             server.setMonitorSysGenServerConnectionStatus(testResult ? 1 : 0);
-            this.updateById(server);
+            // 使用延迟更新，避免触发任务重建
+            delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), testResult ? 1 : 0, testResult ? null : "连接测试失败");
 
             return ReturnResult.of(testResult, testResult ? "连接测试成功" : "连接测试失败");
         } catch (Exception e) {
@@ -362,7 +363,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 server.setMonitorSysGenServerConnectionStatus(1); // ONLINE
                 server.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());
                 server.setMonitorSysGenServerConnectionError(null);
-                this.updateById(server);
+                // 使用延迟更新，避免触发任务重建
+                delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), 1, null);
 
                 // 广播连接成功状态
                 webSocketService.broadcastServerConnectionStatus(server.getMonitorSysGenServerId(), 1, // ONLINE状态
@@ -374,7 +376,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 // 更新服务器连接状态
                 server.setMonitorSysGenServerConnectionStatus(3); // FAILED
                 server.setMonitorSysGenServerConnectionError("连接失败");
-                this.updateById(server);
+                // 使用延迟更新，避免触发任务重建
+                delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), 3, "连接失败");
 
                 // 广播连接失败状态
                 webSocketService.broadcastServerConnectionStatus(server.getMonitorSysGenServerId(), 3, // FAILED状态
@@ -388,7 +391,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             // 更新服务器连接状态
             server.setMonitorSysGenServerConnectionStatus(3); // FAILED
             server.setMonitorSysGenServerConnectionError("连接异常: " + e.getMessage());
-            this.updateById(server);
+            // 使用延迟更新，避免触发任务重建
+            delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), 3, "连接异常: " + e.getMessage());
 
             // 广播连接异常状态
             webSocketService.broadcastServerConnectionStatus(server.getMonitorSysGenServerId(), 3, // FAILED状态
@@ -420,7 +424,8 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             // 更新服务器连接状态
             server.setMonitorSysGenServerConnectionStatus(0); // OFFLINE
             server.setMonitorSysGenServerConnectionError(null);
-            this.updateById(server);
+            // 使用延迟更新，避免触发任务重建
+            delayedUpdateService.submitConnectionStatus(server.getMonitorSysGenServerId(), 0, null);
 
             // 广播断开连接状态
             webSocketService.broadcastServerConnectionStatus(server.getMonitorSysGenServerId(), 0, // OFFLINE状态

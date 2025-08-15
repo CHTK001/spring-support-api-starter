@@ -498,7 +498,7 @@ public class FileSystemController {
     @ApiOperation("获取文件系统配置")
     @Operation(summary = "获取文件系统配置", description = "获取当前启用的文件系统配置")
     @GetMapping("/config")
-    public ReturnResult<Map<String, Object>> getFileSystemConfig() {
+    public ReturnResult<FileSystemSetting> getFileSystemConfig() {
 
         log.info("获取文件系统配置");
 
@@ -510,22 +510,7 @@ public class FileSystemController {
             }
 
             // 转换为前端期望的格式
-            Map<String, Object> config = new HashMap<>();
-            config.put("chunkSize",
-                    setting.getFileSystemSettingChunkSizeMb() != null ? setting.getFileSystemSettingChunkSizeMb() : 5);
-            config.put("maxConcurrent",
-                    setting.getFileSystemSettingMergeTaskLimit() != null ? setting.getFileSystemSettingMergeTaskLimit()
-                            : 3);
-            config.put("retryCount", 3); // 固定值，可以后续添加到数据库
-            config.put("autoMerge", !Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled()));
-            config.put("enableHttpAccess", Boolean.TRUE.equals(setting.getFileSystemSettingHttpAccessEnabled()));
-            config.put("allowedFileTypes", parseAllowedFileTypes(setting.getFileSystemSettingAllowedFileTypes()));
-            config.put("maxFileSize",
-                    setting.getFileSystemSettingMaxFileSizeMb() != null ? setting.getFileSystemSettingMaxFileSizeMb()
-                            : 1024);
-            config.put("storageQuota", 100); // 固定值，可以后续添加到数据库
-
-            return ReturnResult.ok(config);
+            return ReturnResult.ok(setting);
         } catch (Exception e) {
             log.error("获取文件系统配置失败", e);
             return ReturnResult.error("获取配置失败: " + e.getMessage());

@@ -70,6 +70,11 @@ public class FileSystemMergeTaskProcessor {
                 log.debug("未找到启用的文件系统配置，跳过合并处理");
                 return;
             }
+            // 当开启“手动合并”时，关闭自动合并处理
+            if (Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
+                log.debug("自动合并已关闭（手动合并开启），跳过合并处理");
+                return;
+            }
 
             log.debug("开始处理自动合并队列");
 
@@ -136,6 +141,12 @@ public class FileSystemMergeTaskProcessor {
     private void refreshQueueFromDatabase() {
         long currentTime = System.currentTimeMillis();
 
+        // 手动合并开启时，不从数据库拉取待合并任务
+        FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
+        if (setting == null || Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
+            return;
+        }
+
         // 只有在队列为空或者距离上次查询超过间隔时间才查询数据库
         if (!mergeQueue.isEmpty() && (currentTime - lastDatabaseQueryTime) < DATABASE_QUERY_INTERVAL) {
             return;
@@ -174,6 +185,11 @@ public class FileSystemMergeTaskProcessor {
             // 获取系统配置
             FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
             if (setting == null) {
+                return;
+            }
+            // 手动合并开启时，跳过失败任务的自动重试
+            if (Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
+                log.debug("自动合并已关闭（手动合并开启），跳过失败任务重试");
                 return;
             }
 
