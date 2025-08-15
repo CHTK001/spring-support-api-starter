@@ -76,6 +76,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否需要上报 0:否 1:是 (默认上报)
+     *
+     * @see MonitorSysGenServerSettingController#getReportEnabledSettings
+     * @see MonitorSysGenServerSettingService#getReportEnabledSettings
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_report_enabled")
     @ApiModelProperty(value = "是否需要上报")
@@ -98,6 +103,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Prometheus服务器地址
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
+     * @see MonitorSysGenServerSettingService#testReportConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_prometheus_host")
     @ApiModelProperty(value = "Prometheus服务器地址")
@@ -107,6 +117,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Prometheus服务器端口
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
+     * @see MonitorSysGenServerSettingService#testReportConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_prometheus_port")
     @ApiModelProperty(value = "Prometheus服务器端口")
@@ -115,6 +130,11 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 指标存储时间(天)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSettingService#getByServerId
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_metrics_retention_days")
     @ApiModelProperty(value = "指标存储时间(天)")
@@ -123,6 +143,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * CPU指标存储时间(天)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_cpu_retention_days")
     @ApiModelProperty(value = "CPU指标存储时间(天)")
@@ -131,6 +155,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 内存指标存储时间(天)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_memory_retention_days")
     @ApiModelProperty(value = "内存指标存储时间(天)")
@@ -139,6 +167,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 磁盘指标存储时间(天)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_disk_retention_days")
     @ApiModelProperty(value = "磁盘指标存储时间(天)")
@@ -147,6 +179,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 网络指标存储时间(天)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_network_retention_days")
     @ApiModelProperty(value = "网络指标存储时间(天)")
@@ -180,6 +216,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * CPU告警阈值 (百分比)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_cpu_alert_threshold")
     @ApiModelProperty(value = "CPU告警阈值")
@@ -188,6 +228,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 内存告警阈值 (百分比)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_memory_alert_threshold")
     @ApiModelProperty(value = "内存告警阈值")
@@ -196,6 +240,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 磁盘告警阈值 (百分比)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_disk_alert_threshold")
     @ApiModelProperty(value = "磁盘告警阈值")
@@ -204,6 +252,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 网络告警阈值 (Mbps)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_network_alert_threshold")
     @ApiModelProperty(value = "网络告警阈值")
@@ -212,6 +264,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 响应时间告警阈值 (毫秒)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_response_time_alert_threshold")
     @ApiModelProperty(value = "响应时间告警阈值")
@@ -233,6 +289,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 告警通知方式 (EMAIL:邮件, SMS:短信, WEBHOOK:Webhook)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
      */
     @TableField(value = "monitor_sys_gen_server_setting_alert_notification_method")
     @ApiModelProperty(value = "告警通知方式")
@@ -242,6 +301,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 告警通知地址 (邮箱地址、手机号、Webhook URL等)
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
      */
     @TableField(value = "monitor_sys_gen_server_setting_alert_notification_address")
     @ApiModelProperty(value = "告警通知地址")
@@ -251,6 +313,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 告警静默时间 (分钟) - 同一类型告警在此时间内不重复发送
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_alert_silence_duration")
     @ApiModelProperty(value = "告警静默时间")
@@ -259,6 +325,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用自动恢复通知 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#testAlert
+     * @see MonitorSysGenServerSettingService#testAlertConfiguration
+     * @see MonitorSysGenServerSetting#getDefaultSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_auto_recovery_enabled")
     @ApiModelProperty(value = "是否启用自动恢复通知")
@@ -313,6 +383,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否支持Docker 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_enabled")
     @ApiModelProperty(value = "是否支持Docker")
@@ -321,6 +394,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用Docker监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_monitor_enabled")
     @ApiModelProperty(value = "是否启用Docker监控")
@@ -329,6 +405,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker API版本
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_api_version")
     @ApiModelProperty(value = "Docker API版本")
@@ -338,6 +417,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker连接方式 (SHELL:命令行, TCP:TCP连接, SOCKET:Unix Socket)
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
+     * @see DockerConnectionType
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_connection_type")
     @ApiModelProperty(value = "Docker连接方式")
@@ -347,6 +430,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker TCP连接地址
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_host")
     @ApiModelProperty(value = "Docker TCP连接地址")
@@ -356,6 +442,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker TCP连接端口
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_port")
     @ApiModelProperty(value = "Docker TCP连接端口")
@@ -364,6 +453,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker Socket路径 (Unix Socket连接使用)
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_socket_path")
     @ApiModelProperty(value = "Docker Socket路径")
@@ -373,6 +465,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker TLS验证 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_tls_enabled")
     @ApiModelProperty(value = "Docker TLS验证")
@@ -381,6 +476,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * Docker证书路径
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
      */
     @TableField(value = "monitor_sys_gen_server_setting_docker_cert_path")
     @ApiModelProperty(value = "Docker证书路径")
@@ -392,6 +490,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否使用代理 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_enabled")
     @ApiModelProperty(value = "是否使用代理")
@@ -400,6 +501,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 代理类型 (HTTP, SOCKS4, SOCKS5)
+     *
+     * @see MonitorSysGenServerSettingController#getTemplate
+     * @see MonitorSysGenServerSettingService#getSettingTemplate
+     * @see ProxyType
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_type")
     @ApiModelProperty(value = "代理类型")
@@ -409,6 +514,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 代理服务器地址
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_host")
     @ApiModelProperty(value = "代理服务器地址")
@@ -418,6 +526,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 代理服务器端口
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_port")
     @ApiModelProperty(value = "代理服务器端口")
@@ -426,6 +537,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 代理用户名
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_username")
     @ApiModelProperty(value = "代理用户名")
@@ -435,6 +549,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 代理密码
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_proxy_password")
     @ApiModelProperty(value = "代理密码")
@@ -446,6 +563,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用进程监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_process_monitor_enabled")
     @ApiModelProperty(value = "是否启用进程监控")
@@ -454,6 +574,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用服务监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_service_monitor_enabled")
     @ApiModelProperty(value = "是否启用服务监控")
@@ -462,6 +585,10 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用端口监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_port_monitor_enabled")
     @ApiModelProperty(value = "是否启用端口监控")
@@ -470,6 +597,8 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 监控的端口列表 (逗号分隔)
+     *
+     * @see com.chua.starter.monitor.task.manager.step.PortMonitorStep#run
      */
     @TableField(value = "monitor_sys_gen_server_setting_monitor_ports")
     @ApiModelProperty(value = "监控的端口列表")
@@ -479,6 +608,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用日志监控 0:否 1:是
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_log_monitor_enabled")
     @ApiModelProperty(value = "是否启用日志监控")
@@ -487,6 +619,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 日志文件路径列表 (JSON格式)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
      */
     @TableField(value = "monitor_sys_gen_server_setting_log_file_paths")
     @ApiModelProperty(value = "日志文件路径列表")
@@ -496,6 +631,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 连接超时时间 (秒)
+     *
+     * @see ServerTaskManager#getEffectiveHealthCheckInterval
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_connection_timeout")
     @ApiModelProperty(value = "连接超时时间")
@@ -504,6 +642,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 读取超时时间 (秒)
+     *
+     * @see ServerTaskManager#getEffectiveHealthCheckInterval
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_read_timeout")
     @ApiModelProperty(value = "读取超时时间")
@@ -599,7 +740,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 端口检查间隔 (秒)
-     * @see ServerTaskManager#createPortMonitorTask
+     *
+     * @see com.chua.starter.monitor.task.manager.step.PortMonitorStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_port_check_interval")
     @ApiModelProperty(value = "端口检查间隔")
@@ -608,7 +751,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用在线状态检查 0:否 1:是
-     * @see ServerTaskManager#createOnlineCheckTask
+     *
+     * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_enabled")
     @ApiModelProperty(value = "是否启用在线状态检查")
@@ -617,7 +762,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 在线状态检查间隔 (秒)
-     * @see ServerTaskManager#createOnlineCheckTask
+     *
+     * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_interval")
     @ApiModelProperty(value = "在线状态检查间隔")
@@ -626,7 +773,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用延迟检测 0:否 1:是
-     * @see ServerTaskManager#createLatencyCheckTask(ServerTaskManager.ServerTaskInfo, MonitorSysGenServer, MonitorSysGenServerSetting)
+     *
+     * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
     @ApiModelProperty(value = "是否启用延迟检测")
@@ -635,7 +784,9 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 延迟检测间隔 (秒)
-     * @see ServerTaskManager#createLatencyCheckTask(ServerTaskManager.ServerTaskInfo, MonitorSysGenServer, MonitorSysGenServerSetting)
+     *
+     * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
     @ApiModelProperty(value = "延迟检测间隔")

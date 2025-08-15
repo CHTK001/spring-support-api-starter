@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class LogCleanupStep implements TaskStep {
 
     private final MonitorSysGenServerMetricsService metricsService;
+    private final com.chua.starter.monitor.service.DelayedUpdateService delayedUpdateService;
 
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
@@ -25,7 +26,8 @@ public class LogCleanupStep implements TaskStep {
                 retentionDays = 30;
             }
             LocalDateTime expireTime = LocalDateTime.now().minusDays(retentionDays);
-            try { metricsService.cleanupExpiredMetrics(expireTime); } catch (Throwable ignore) {}
+            // 改为延迟清理：按 serverId 合并，最终采用全局最小的过期时间执行一次清理
+            delayedUpdateService.submitMetricsCleanup(server.getMonitorSysGenServerId(), expireTime);
         } catch (Exception e) {
             log.error("日志清理失败: serverId={}", server.getMonitorSysGenServerId(), e);
         }

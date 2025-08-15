@@ -36,8 +36,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
-    // TODO: 集成AlertNotificationService
-    // private final AlertNotificationService alertNotificationService;
+    private final com.chua.starter.monitor.service.AlertNotificationDispatcher alertNotificationDispatcher;
 
     private static final String TOPIC_SERVER_ALERTS = "gen/server";
 
@@ -321,6 +320,9 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             log.debug("推送服务器 {} 告警信息成功，告警数量: {}",
                     server.getMonitorSysGenServerName(), alerts.size());
 
+            // 非网页通道：根据配置分发
+            try { alertNotificationDispatcher.dispatch(server, alerts); } catch (Throwable ignore) {}
+
         } catch (Exception e) {
             log.error("推送服务器 {} 告警信息失败: {}",
                     server.getMonitorSysGenServerName(), e.getMessage(), e);
@@ -346,6 +348,9 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
             socketSessionTemplate.send(TOPIC_SERVER_ALERTS, Json.toJson(message));
             log.debug("推送服务器 {} 单个告警信息成功: {}",
                     server.getMonitorSysGenServerName(), alert.getMonitorSysGenServerAlertHistoryType());
+
+            // 非网页通道：根据配置分发
+            try { alertNotificationDispatcher.dispatchSingle(server, alert); } catch (Throwable ignore) {}
 
         } catch (Exception e) {
             log.error("推送服务器 {} 单个告警信息失败: {}",
