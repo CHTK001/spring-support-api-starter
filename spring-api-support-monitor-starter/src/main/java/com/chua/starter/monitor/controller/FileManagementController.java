@@ -1,9 +1,11 @@
 package com.chua.starter.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileOperationRequest;
 import com.chua.report.client.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
+import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
 import com.chua.starter.monitor.pojo.RemoteOperationResponse;
 import com.chua.starter.monitor.service.MonitorSysGenScriptService;
 import com.chua.starter.monitor.service.NodeRemoteService;
@@ -177,6 +179,32 @@ public class FileManagementController {
         } catch (Exception e) {
             log.error("上传脚本至节点失败: nodeId={}, remoteFilePath={}, scriptId={}", nodeId, remoteFilePath, scriptId, e);
             return ReturnResult.error("上传脚本至节点失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询脚本上传记录
+     */
+    @GetMapping("/upload-records")
+    @Operation(summary = "分页查询脚本上传记录", description = "按脚本ID可选过滤，按记录ID倒序")
+    public com.chua.common.support.lang.code.ReturnResult<IPage<MonitorSysGenScriptUploadRecord>> getUploadRecords(
+            @Parameter(description = "脚本ID，可选") @RequestParam(required = false) Integer scriptId,
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "页大小") @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> page =
+                    new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
+            com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> qw =
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+            if (scriptId != null) {
+                qw.eq(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptId, scriptId);
+            }
+            qw.orderByDesc(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadRecordId);
+            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> data = uploadRecordService.page(page, qw);
+            return ReturnResult.ok(data);
+        } catch (Exception e) {
+            log.error("查询上传记录失败", e);
+            return ReturnResult.error("查询上传记录失败: " + e.getMessage());
         }
     }
 
