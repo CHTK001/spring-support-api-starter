@@ -1,6 +1,9 @@
 package com.chua.starter.monitor.configuration;
 
-import com.chua.starter.monitor.websocket.*;
+import com.chua.starter.monitor.websocket.GuacamoleWebSocketInterceptor;
+import com.chua.starter.monitor.websocket.RdpWebSocketHandler;
+import com.chua.starter.monitor.websocket.TestWebSocketHandler;
+import com.chua.starter.monitor.websocket.VncWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -43,7 +46,7 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
                 try {
                         var arthasHandler = com.chua.starter.monitor.arthas.ws.ArthasWebSocketProxyHandlerHolder.get();
                         if (arthasHandler != null) {
-                                registry.addHandler(arthasHandler, "/v1/arthas/console/**/ws")
+                                registry.addHandler(arthasHandler, "/v1/arthas/console/ws")
                                                 .addInterceptors(webSocketInterceptor).setAllowedOrigins("*");
                         }
                 } catch (Throwable ignored) {
