@@ -116,5 +116,55 @@ public class MonitorSysGenScriptUploadRecord extends SysBase {
     @TableField("monitor_sys_gen_script_upload_error_message")
     @ApiModelProperty("错误信息")
     private String monitorSysGenScriptUploadErrorMessage;
+
+    /**
+     * 脚本名称（持久化字段）
+     */
+    @TableField("monitor_sys_gen_script_upload_script_name")
+    @ApiModelProperty("脚本名称")
+    @Schema(description = "脚本名称")
+    private String monitorSysGenScriptUploadScriptName;
+
+    /**
+     * 脚本描述（持久化字段）
+     */
+    @TableField("monitor_sys_gen_script_upload_script_description")
+    @ApiModelProperty("脚本描述")
+    @Schema(description = "脚本描述")
+    private String monitorSysGenScriptUploadScriptDescription;
+
+    /**
+     * 实际IP（持久化字段；REMOTE 为服务器IP，NODE 为节点IP）
+     */
+    @TableField("monitor_sys_gen_script_upload_ip")
+    @ApiModelProperty("实际IP")
+    @Schema(description = "实际IP（REMOTE 为服务器IP，NODE 为节点IP）")
+    private String monitorSysGenScriptUploadIp;
+
+
+    /**
+     * 非数据库字段：脚本名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty("脚本名称")
+    @Schema(description = "脚本名称")
+    private String scriptName;
+
+    /**
+     * 非数据库字段：脚本描述
+     */
+    @TableField(exist = false)
+    @ApiModelProperty("脚本描述")
+    @Schema(description = "脚本描述")
+    private String scriptDescription;
+
+    /**
+     * 非数据库字段：服务器IP
+     */
+    @TableField(exist = false)
+    @ApiModelProperty("服务器IP")
+    @Schema(description = "服务器IP")
+    private String serverIp;
+
 }
 
