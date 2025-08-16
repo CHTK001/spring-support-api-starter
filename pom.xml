@@ -146,6 +146,14 @@
                <version>${module.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-report-client-arthas-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-websockify-starter</artifactId>
@@ -193,14 +201,6 @@
                 <artifactId>utils-support-ssh-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
-
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-support-report-client-arthas-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
 
             <dependency>
                 <groupId>com.chua</groupId>
