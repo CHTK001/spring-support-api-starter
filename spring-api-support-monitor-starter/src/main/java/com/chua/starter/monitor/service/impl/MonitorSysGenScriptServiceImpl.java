@@ -5,10 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptExecution;
-import com.chua.starter.monitor.mapper.MonitorSysGenScriptMapper;
+import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
 import com.chua.starter.monitor.mapper.MonitorSysGenScriptExecutionMapper;
+import com.chua.starter.monitor.mapper.MonitorSysGenScriptMapper;
 import com.chua.starter.monitor.pojo.ScriptManagementDTO;
 import com.chua.starter.monitor.service.MonitorSysGenScriptService;
+import com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.SshCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,7 +29,7 @@ import java.util.concurrent.Executors;
 
 /**
  * 脚本管理服务实现
- * 
+ *
  * @author CH
  * @since 2024/12/19
  */
@@ -36,6 +40,9 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
 
     private final MonitorSysGenScriptMapper scriptMapper;
     private final MonitorSysGenScriptExecutionMapper executionMapper;
+    private final MonitorSysGenScriptUploadRecordService uploadRecordService;
+    private final MonitorSysGenServerService monitorSysGenServerService;
+    private final SshCommandService sshCommandService;
 
     // 异步执行器
     private final ExecutorService asyncExecutor = Executors.newCachedThreadPool(r -> {
@@ -577,10 +584,32 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
 
     @Override
     public int cleanExpiredExecutions(Integer days) {
-        // TODO: 实现清理过期执行记录逻辑
-        log.info("清理过期执行记录: days={}", days);
-        throw new UnsupportedOperationException("清理过期执行记录功能待实现");
+        if (days == null || days <= 0) {
+            days = 30;
+        }
+        LocalDateTime expireBefore = LocalDateTime.now().minusDays(days);
+        LambdaQueryWrapper<MonitorSysGenScriptExecution> wrapper = new LambdaQueryWrapper<>();
+        wrapper.lt(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionEndTime, expireBefore);
+        // 只清理非运行中的记录
+        wrapper.ne(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStatus,
+                MonitorSysGenScriptExecution.ExecutionStatus.RUNNING);
+        return executionMapper.delete(wrapper);
     }
+
+    @Override
+    public boolean batchDeleteExecutions(List<Long> executionIds) {
+        if (executionIds == null || executionIds.isEmpty()) {
+            return false;
+        }
+        // 不允许删除运行中的记录
+        LambdaQueryWrapper<MonitorSysGenScriptExecution> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionId, executionIds);
+        wrapper.ne(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStatus,
+                MonitorSysGenScriptExecution.ExecutionStatus.RUNNING);
+        int deleted = executionMapper.delete(wrapper);
+        return deleted > 0;
+    }
+
 
     // ==================== 私有方法 ====================
 
@@ -655,16 +684,68 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
                 log.info("开始异步执行脚本: scriptId={}, executionId={}", script.getMonitorSysGenScriptId(),
                         execution.getMonitorSysGenScriptExecutionId());
 
-                // TODO: 实现实际的脚本执行逻辑
-                // 这里暂时模拟脚本执行
-                Thread.sleep(2000); // 模拟执行时间
+                // 1) 解析执行所需信息：服务器ID、工作目录、文件名与参数
+                Integer serverId = requestDTO.getServerId();
+                String workingDir = requestDTO.getWorkingDirectory();
 
-                // 模拟成功执行
-                execution.setExecutionCompleted(MonitorSysGenScriptExecution.ExecutionStatus.SUCCESS, 0, // 退出码
-                        "脚本执行成功", // 标准输出
-                        "" // 错误输出
-                );
+                // 若未显式指定，则从最近一次成功上传记录中推断（REMOTE）
+                if (serverId == null || !StringUtils.hasText(workingDir)) {
+                    LambdaQueryWrapper<MonitorSysGenScriptUploadRecord> qw = new LambdaQueryWrapper<>();
+                    qw.eq(MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptId, script.getMonitorSysGenScriptId());
+                    qw.eq(MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadType, "REMOTE");
+                    qw.eq(MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadStatus, "SUCCESS");
+                    qw.orderByDesc(MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadRecordId);
+                    qw.last("LIMIT 1");
+                    MonitorSysGenScriptUploadRecord last = uploadRecordService.getBaseMapper().selectOne(qw);
+                    if (last != null) {
+                        if (serverId == null) {
+                            serverId = last.getMonitorSysGenScriptUploadServerId();
+                        }
+                        if (!StringUtils.hasText(workingDir)) {
+                            workingDir = last.getMonitorSysGenScriptUploadTargetPath();
+                        }
+                    }
+                }
 
+                if (!StringUtils.hasText(workingDir)) {
+                    workingDir = "/opt/monitor/scripts";
+                }
+                if (serverId == null) {
+                    throw new IllegalStateException("无法确定执行服务器，请先上传脚本或在执行时指定serverId");
+                }
+
+                String ext = script.getScriptTypeEnum() != null ? script.getScriptTypeEnum().getExtension() : ".sh";
+                String fileName = script.getMonitorSysGenScriptName() + ext;
+                String params = (requestDTO.getParameters() != null && requestDTO.getParameters().length > 0)
+                        ? String.join(" ", requestDTO.getParameters()) : "";
+
+                // 2) 根据脚本类型构建命令
+                String cmd;
+                MonitorSysGenScript.ScriptType type = script.getScriptTypeEnum();
+                if (type == MonitorSysGenScript.ScriptType.PYTHON) {
+                    cmd = String.format("cd %s && python3 %s %s", workingDir, fileName, params).trim();
+                } else if (type == MonitorSysGenScript.ScriptType.POWERSHELL) {
+                    // Windows场景：根据环境调整；此处给出参考命令
+                    cmd = String.format("powershell -ExecutionPolicy Bypass -File \"%s\\%s\" %s", workingDir, fileName, params).trim();
+                } else if (type == MonitorSysGenScript.ScriptType.BATCH) {
+                    cmd = String.format("cd %s && chmod +x %s && ./%s %s", workingDir, fileName, fileName, params).trim();
+                } else {
+                    // 默认按Shell执行
+                    cmd = String.format("cd %s && chmod +x %s && ./%s %s", workingDir, fileName, fileName, params).trim();
+                }
+
+                // 3) 确保SSH连接并执行
+                if (!sshCommandService.isSSHConnected(serverId)) {
+                    com.chua.starter.monitor.entity.MonitorSysGenServer server = monitorSysGenServerService.getByIdWithCache(serverId);
+                    if (server == null || !sshCommandService.connectSSH(server)) {
+                        throw new IllegalStateException("SSH连接失败，无法执行脚本");
+                    }
+                }
+
+                String result = sshCommandService.executeSSHCommand(serverId, cmd);
+
+                // 4) 更新执行记录为成功
+                execution.setExecutionCompleted(MonitorSysGenScriptExecution.ExecutionStatus.SUCCESS, 0, result, "");
                 executionMapper.updateById(execution);
                 log.info("脚本执行完成: executionId={}", execution.getMonitorSysGenScriptExecutionId());
 
