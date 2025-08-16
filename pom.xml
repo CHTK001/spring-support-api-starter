@@ -194,6 +194,14 @@
                 <version>${utils.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-report-client-arthas-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-sshj-starter</artifactId>

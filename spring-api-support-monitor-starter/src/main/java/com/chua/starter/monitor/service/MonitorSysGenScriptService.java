@@ -68,9 +68,28 @@ public interface MonitorSysGenScriptService {
     boolean stopScriptExecution(Long executionId);
 
     /**
-     * 获取脚本执行历史
+     * 获取脚本执行历史（支持多条件筛选）
      */
-    IPage<MonitorSysGenScriptExecution> getExecutionHistory(Integer scriptId, Integer pageNum, Integer pageSize);
+    IPage<MonitorSysGenScriptExecution> getExecutionHistory(Integer scriptId,
+                                                            Integer serverId,
+                                                            String status,
+                                                            String triggerType,
+                                                            String triggerUser,
+                                                            java.time.LocalDateTime startTime,
+                                                            java.time.LocalDateTime endTime,
+                                                            Integer pageNum,
+                                                            Integer pageSize);
+
+    /**
+     * 获取所有脚本执行历史（不分页，支持多条件筛选）
+     */
+    java.util.List<MonitorSysGenScriptExecution> getAllExecutionHistory(Integer scriptId,
+                                                                        Integer serverId,
+                                                                        String status,
+                                                                        String triggerType,
+                                                                        String triggerUser,
+                                                                        java.time.LocalDateTime startTime,
+                                                                        java.time.LocalDateTime endTime);
 
     /**
      * 获取脚本执行详情
