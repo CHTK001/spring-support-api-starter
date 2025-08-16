@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileOperationRequest;
 import com.chua.report.client.starter.pojo.FileOperationResponse;
@@ -46,6 +45,9 @@ public class FileManagementController {
 
     private final FileManagementFacadeServiceImpl fileManagementFacadeService;
     private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
+    private final com.chua.starter.monitor.service.MonitorSysGenServerService monitorSysGenServerService;
+    private final com.chua.starter.monitor.service.NodeSystemService nodeSystemService;
+
     private final MonitorSysGenScriptService monitorSysGenScriptService;
     private final NodeRemoteService nodeRemoteService;
 
@@ -97,7 +99,7 @@ public class FileManagementController {
                 fileSizeForRecord = file.getSize();
             } else if (scriptId != null) {
                 // 新需求：根据脚本ID生成文件并上传
-                com.chua.starter.monitor.entity.MonitorSysGenScript script = monitorSysGenScriptService.getScriptById(scriptId);
+                MonitorSysGenScript script = monitorSysGenScriptService.getScriptById(scriptId);
                 if (script == null) {
                     return ReturnResult.error("脚本不存在: " + scriptId);
                 }
@@ -121,7 +123,7 @@ public class FileManagementController {
 
         try {
             // 保存上传记录（REMOTE）
-            com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
+            MonitorSysGenScriptUploadRecord record = new MonitorSysGenScriptUploadRecord();
             record.setMonitorSysGenScriptId(scriptId);
             record.setMonitorSysGenScriptUploadType("REMOTE");
             record.setMonitorSysGenScriptUploadServerId(serverId);
@@ -130,6 +132,24 @@ public class FileManagementController {
             record.setMonitorSysGenScriptUploadFileSize(fileSizeForRecord);
             record.setMonitorSysGenScriptUploadStatus(result != null && result.isOk() ? "SUCCESS" : "FAILED");
             record.setMonitorSysGenScriptUploadErrorMessage(result != null && result.isOk() ? null : (result != null ? result.getMsg() : "未知错误"));
+            // 直接记录脚本名称/描述与实际IP
+            if (scriptId != null) {
+                try {
+                    MonitorSysGenScript sc = monitorSysGenScriptService.getScriptById(scriptId);
+                    if (sc != null) {
+                        record.setMonitorSysGenScriptUploadScriptName(sc.getMonitorSysGenScriptName());
+                        record.setMonitorSysGenScriptUploadScriptDescription(sc.getMonitorSysGenScriptDescription());
+                    }
+                } catch (Exception ignore) {
+                }
+            }
+            try {
+                var sv = monitorSysGenServerService.getByIdWithCache(serverId);
+                if (sv != null) {
+                    record.setMonitorSysGenScriptUploadIp(sv.getMonitorSysGenServerHost());
+                }
+            } catch (Exception ignore) {
+            }
             uploadRecordService.save(record);
         } catch (Exception e) {
         }
@@ -161,7 +181,7 @@ public class FileManagementController {
 
             try {
                 // 保存上传记录（NODE）
-                com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
+                com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new MonitorSysGenScriptUploadRecord();
                 record.setMonitorSysGenScriptId(scriptId);
                 record.setMonitorSysGenScriptUploadType("NODE");
                 record.setMonitorSysGenScriptUploadNodeId(nodeId);
@@ -170,6 +190,21 @@ public class FileManagementController {
                 record.setMonitorSysGenScriptUploadFileSize((long) content.length);
                 record.setMonitorSysGenScriptUploadStatus(resp != null ? resp.getStatus() : "SUCCESS");
                 record.setMonitorSysGenScriptUploadErrorMessage(resp != null ? resp.getErrorMessage() : "未知错误");
+                // 直接记录脚本名称/描述与实际IP（节点）
+                if (script != null) {
+                    try {
+                        record.setMonitorSysGenScriptUploadScriptName(script.getMonitorSysGenScriptName());
+                        record.setMonitorSysGenScriptUploadScriptDescription(script.getMonitorSysGenScriptDescription());
+                    } catch (Exception ignore) {
+                    }
+                }
+                try {
+                    var nodeSystem = nodeSystemService.getById(nodeId);
+                    if (nodeSystem != null) {
+                        record.setMonitorSysGenScriptUploadIp(nodeSystem.getNodeSystemIpAddress());
+                    }
+                } catch (Exception ignore) {
+                }
                 uploadRecordService.save(record);
             } catch (Exception e) {
                 log.warn("保存脚本上传记录失败(NODE)", e);
@@ -182,31 +217,6 @@ public class FileManagementController {
         }
     }
 
-    /**
-     * 分页查询脚本上传记录
-     */
-    @GetMapping("/upload-records")
-    @Operation(summary = "分页查询脚本上传记录", description = "按脚本ID可选过滤，按记录ID倒序")
-    public com.chua.common.support.lang.code.ReturnResult<IPage<MonitorSysGenScriptUploadRecord>> getUploadRecords(
-            @Parameter(description = "脚本ID，可选") @RequestParam(required = false) Integer scriptId,
-            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
-            @Parameter(description = "页大小") @RequestParam(defaultValue = "10") Integer pageSize) {
-        try {
-            com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> page =
-                    new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
-            com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> qw =
-                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
-            if (scriptId != null) {
-                qw.eq(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptId, scriptId);
-            }
-            qw.orderByDesc(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadRecordId);
-            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> data = uploadRecordService.page(page, qw);
-            return ReturnResult.ok(data);
-        } catch (Exception e) {
-            log.error("查询上传记录失败", e);
-            return ReturnResult.error("查询上传记录失败: " + e.getMessage());
-        }
-    }
 
     @Operation(summary = "下载文件", description = "下载指定文件")
     @GetMapping("/download")
