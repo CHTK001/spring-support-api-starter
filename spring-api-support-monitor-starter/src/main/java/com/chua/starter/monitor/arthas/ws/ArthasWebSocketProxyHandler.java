@@ -1,13 +1,16 @@
 package com.chua.starter.monitor.arthas.ws;
 
-import com.chua.starter.common.support.result.ReturnResult;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.service.NodeManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.BinaryMessage;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.net.URI;
@@ -15,10 +18,10 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
 
 /**
  * Arthas 控制台 WebSocket 反向代理处理器
@@ -84,13 +87,14 @@ public class ArthasWebSocketProxyHandler extends AbstractWebSocketHandler {
             CompletableFuture<WebSocket> fut = client.newWebSocketBuilder().connectTimeout(Duration.ofSeconds(10))
                     .buildAsync(URI.create(upstream), new UpstreamListener(session));
 
+            String finalUpstream = upstream;
             fut.whenComplete((ws, ex) -> {
                 if (ex != null) {
-                    log.error("连接上游 Arthas WS 失败: {}", upstream, ex);
+                    log.error("连接上游 Arthas WS 失败: {}", finalUpstream, ex);
                     tryClose(session, CloseStatus.SERVER_ERROR.withReason("上游连接失败"));
                 } else {
                     sessionToUpstream.put(session.getId(), ws);
-                    log.info("上游 Arthas WS 已连接: {}", upstream);
+                    log.info("上游 Arthas WS 已连接: {}", finalUpstream);
                 }
             });
         } catch (Exception e) {
@@ -111,7 +115,7 @@ public class ArthasWebSocketProxyHandler extends AbstractWebSocketHandler {
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
         WebSocket upstream = sessionToUpstream.get(session.getId());
         if (upstream != null) {
-            upstream.sendBinary(message.getPayload().asByteBuffer(), true);
+            upstream.sendBinary(message.getPayload(), true);
         }
     }
 

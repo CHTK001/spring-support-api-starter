@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -228,8 +229,8 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "状态") @RequestParam(required = false) String status,
             @Parameter(description = "触发类型") @RequestParam(required = false) String triggerType,
             @Parameter(description = "触发用户") @RequestParam(required = false) String triggerUser,
-            @Parameter(description = "开始时间") @RequestParam(required = false) java.time.LocalDateTime startTime,
-            @Parameter(description = "结束时间") @RequestParam(required = false) java.time.LocalDateTime endTime,
+            @Parameter(description = "开始时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endTime,
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "页大小") @RequestParam(defaultValue = "10") Integer pageSize) {
         try {
@@ -253,8 +254,8 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "状态") @RequestParam(required = false) String status,
             @Parameter(description = "触发类型") @RequestParam(required = false) String triggerType,
             @Parameter(description = "触发用户") @RequestParam(required = false) String triggerUser,
-            @Parameter(description = "开始时间") @RequestParam(required = false) java.time.LocalDateTime startTime,
-            @Parameter(description = "结束时间") @RequestParam(required = false) java.time.LocalDateTime endTime) {
+            @Parameter(description = "开始时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endTime) {
         try {
             java.util.List<MonitorSysGenScriptExecution> list = monitorSysGenScriptService.getAllExecutionHistory(
                     scriptId, serverId, status, triggerType, triggerUser, startTime, endTime);
