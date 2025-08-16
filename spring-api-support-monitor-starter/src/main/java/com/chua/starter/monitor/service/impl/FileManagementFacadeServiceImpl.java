@@ -6,10 +6,6 @@ import com.chua.report.client.starter.pojo.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.FileManagementService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.impl.ApiFileManagementServiceImpl;
-import com.chua.starter.monitor.service.impl.LocalFileManagementServiceImpl;
-import com.chua.starter.monitor.service.impl.NodeFileManagementServiceImpl;
-import com.chua.starter.monitor.service.impl.SshFileManagementServiceImpl;
 import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -114,6 +110,23 @@ public class FileManagementFacadeServiceImpl {
 
         } catch (Exception e) {
             log.error("上传文件失败: serverId={}, targetPath={}", serverId, targetPath, e);
+            return ReturnResult.error("上传文件失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 上传文件（流方式）
+     */
+    public ReturnResult<FileOperationResponse> uploadFile(Integer serverId, String targetPath, String fileName,
+                                                          java.io.InputStream inputStream, Boolean overwrite) {
+        try {
+            FileManagementService service = getFileManagementService(serverId);
+            if (service == null) {
+                return ReturnResult.error("服务器文件管理模式未配置或未启用");
+            }
+            return service.uploadFile(serverId, targetPath, fileName, inputStream, overwrite);
+        } catch (Exception e) {
+            log.error("上传文件(流)失败: serverId={}, targetPath={}, fileName={}", serverId, targetPath, fileName, e);
             return ReturnResult.error("上传文件失败: " + e.getMessage());
         }
     }
