@@ -421,16 +421,87 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
     }
 
     @Override
-    public IPage<MonitorSysGenScriptExecution> getExecutionHistory(Integer scriptId, Integer pageNum,
+    public IPage<MonitorSysGenScriptExecution> getExecutionHistory(Integer scriptId,
+                                                                   Integer serverId,
+                                                                   String status,
+                                                                   String triggerType,
+                                                                   String triggerUser,
+                                                                   java.time.LocalDateTime startTime,
+                                                                   java.time.LocalDateTime endTime,
+                                                                   Integer pageNum,
             Integer pageSize) {
         LambdaQueryWrapper<MonitorSysGenScriptExecution> queryWrapper = new LambdaQueryWrapper<>();
         if (scriptId != null) {
             queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptId, scriptId);
         }
+        if (serverId != null) {
+            queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionServerId, serverId);
+        }
+        if (org.springframework.util.StringUtils.hasText(status)) {
+            MonitorSysGenScriptExecution.ExecutionStatus st = MonitorSysGenScriptExecution.ExecutionStatus
+                    .fromCode(status.toUpperCase());
+            if (st != null) {
+                queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStatus, st);
+            }
+        }
+        if (org.springframework.util.StringUtils.hasText(triggerType)) {
+            MonitorSysGenScriptExecution.TriggerType tt = MonitorSysGenScriptExecution.TriggerType
+                    .fromCode(triggerType.toUpperCase());
+            if (tt != null) {
+                queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionTriggerType, tt);
+            }
+        }
+        // 触发用户字段暂未在实体中定义，忽略 triggerUser 过滤
+        if (startTime != null) {
+            queryWrapper.ge(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime, startTime);
+        }
+        if (endTime != null) {
+            queryWrapper.le(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime, endTime);
+        }
+
         queryWrapper.orderByDesc(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime);
 
         Page<MonitorSysGenScriptExecution> page = new Page<>(pageNum, pageSize);
         return executionMapper.selectPage(page, queryWrapper);
+    }
+
+    @Override
+    public java.util.List<MonitorSysGenScriptExecution> getAllExecutionHistory(Integer scriptId,
+                                                                               Integer serverId,
+                                                                               String status,
+                                                                               String triggerType,
+                                                                               String triggerUser,
+                                                                               java.time.LocalDateTime startTime,
+                                                                               java.time.LocalDateTime endTime) {
+        LambdaQueryWrapper<MonitorSysGenScriptExecution> queryWrapper = new LambdaQueryWrapper<>();
+        if (scriptId != null) {
+            queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptId, scriptId);
+        }
+        if (serverId != null) {
+            queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionServerId, serverId);
+        }
+        if (org.springframework.util.StringUtils.hasText(status)) {
+            MonitorSysGenScriptExecution.ExecutionStatus st = MonitorSysGenScriptExecution.ExecutionStatus
+                    .fromCode(status.toUpperCase());
+            if (st != null) {
+                queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStatus, st);
+            }
+        }
+        if (org.springframework.util.StringUtils.hasText(triggerType)) {
+            MonitorSysGenScriptExecution.TriggerType tt = MonitorSysGenScriptExecution.TriggerType
+                    .fromCode(triggerType.toUpperCase());
+            if (tt != null) {
+                queryWrapper.eq(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionTriggerType, tt);
+            }
+        }
+        if (startTime != null) {
+            queryWrapper.ge(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime, startTime);
+        }
+        if (endTime != null) {
+            queryWrapper.le(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime, endTime);
+        }
+        queryWrapper.orderByDesc(MonitorSysGenScriptExecution::getMonitorSysGenScriptExecutionStartTime);
+        return executionMapper.selectList(queryWrapper);
     }
 
     @Override
