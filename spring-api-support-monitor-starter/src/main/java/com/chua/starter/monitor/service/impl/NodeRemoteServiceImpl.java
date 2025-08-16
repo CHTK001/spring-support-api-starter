@@ -14,8 +14,6 @@ import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.NodeRemoteService;
 import com.chua.starter.monitor.service.NodeSystemService;
-import com.chua.starter.monitor.service.impl.ApiFileManagementServiceImpl;
-import com.chua.starter.monitor.service.impl.NodeFileManagementServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,41 +105,15 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     public RemoteOperationResponse uploadFile(String nodeId, MultipartFile file, String remoteFilePath,
             boolean overwrite) {
         try {
-            RemoteOperationRequest request = new RemoteOperationRequest();
-            request.setNodeId(nodeId);
-            request.setOperationType("FILE_UPLOAD");
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("fileName", file.getOriginalFilename());
-            params.put("fileSize", file.getSize());
-            params.put("remoteFilePath", remoteFilePath);
-            params.put("overwrite", overwrite);
-            request.setParameters(params);
-
-            // 构建上传请求
-            String uploadUrl = buildNodeUrl(nodeId, "/api/file/upload");
-
-            // 执行文件上传
-            HttpResponse response = HttpClient.post().url(uploadUrl).form("remoteFilePath", remoteFilePath)
-                    .form("overwrite", String.valueOf(overwrite)).newInvoker().execute();
-
-            // 使用ReturnResult处理响应
-            ReturnResult<String> result = ReturnResult.of(response);
-            if (result.isOk()) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> responseData = Json.fromJson(result.getData(), Map.class);
-
-                RemoteOperationResponse.FileUploadResponse uploadResponse = new RemoteOperationResponse.FileUploadResponse();
-                uploadResponse.setFilePath(remoteFilePath);
-                uploadResponse.setFileSize(file.getSize());
-                uploadResponse.setOverwritten(overwrite);
-
-                return RemoteOperationResponse.success(generateOperationId(), nodeId, "FILE_UPLOAD", uploadResponse);
-            } else {
-                return RemoteOperationResponse.failed(generateOperationId(), nodeId, "FILE_UPLOAD",
-                        "上传失败: " + result.getMsg());
+            // 将 nodeId 映射为 serverId，复用已有的文件上传实现（API/NODE 模式均已正确处理 multipart + targetPath）
+            Integer serverId = getServerIdByNodeId(nodeId);
+            ReturnResult<FileOperationResponse> result = super.uploadFile(serverId, remoteFilePath, file, overwrite);
+            if (result.isSuccess()) {
+                return RemoteOperationResponse.success(
+                        generateOperationId(), nodeId, "FILE_UPLOAD", result.getData());
             }
-
+            return RemoteOperationResponse.failed(
+                    generateOperationId(), nodeId, "FILE_UPLOAD", "上传失败: " + result.getMsg());
         } catch (Exception e) {
             log.error("文件上传失败: nodeId={}, remoteFilePath={}", nodeId, remoteFilePath, e);
             return RemoteOperationResponse.failed(generateOperationId(), nodeId, "FILE_UPLOAD", e.getMessage());
@@ -152,23 +124,14 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     public RemoteOperationResponse uploadFile(String nodeId, InputStream inputStream, String fileName,
             String remoteFilePath, boolean overwrite) {
         try {
-            String uploadUrl = buildNodeUrl(nodeId, "/api/file/upload");
-
-            HttpResponse response = HttpClient.post().url(uploadUrl).form("remoteFilePath", remoteFilePath)
-                    .form("overwrite", String.valueOf(overwrite)).newInvoker().execute();
-
-            ReturnResult<String> result = ReturnResult.of(response);
-            if (result.isOk()) {
-                RemoteOperationResponse.FileUploadResponse uploadResponse = new RemoteOperationResponse.FileUploadResponse();
-                uploadResponse.setFilePath(remoteFilePath);
-                uploadResponse.setOverwritten(overwrite);
-
-                return RemoteOperationResponse.success(generateOperationId(), nodeId, "FILE_UPLOAD", uploadResponse);
-            } else {
-                return RemoteOperationResponse.failed(generateOperationId(), nodeId, "FILE_UPLOAD",
-                        "上传失败: " + result.getMsg());
+            Integer serverId = getServerIdByNodeId(nodeId);
+            ReturnResult<FileOperationResponse> result = super.uploadFile(serverId, remoteFilePath, fileName, inputStream, overwrite);
+            if (result.isSuccess()) {
+                return RemoteOperationResponse.success(
+                        generateOperationId(), nodeId, "FILE_UPLOAD", result.getData());
             }
-
+            return RemoteOperationResponse.failed(
+                    generateOperationId(), nodeId, "FILE_UPLOAD", "上传失败: " + result.getMsg());
         } catch (Exception e) {
             log.error("文件上传失败: nodeId={}, fileName={}", nodeId, fileName, e);
             return RemoteOperationResponse.failed(generateOperationId(), nodeId, "FILE_UPLOAD", e.getMessage());

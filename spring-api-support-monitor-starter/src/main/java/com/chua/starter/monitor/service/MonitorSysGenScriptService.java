@@ -146,4 +146,9 @@ public interface MonitorSysGenScriptService {
      * 清理过期的执行记录
      */
     int cleanExpiredExecutions(Integer days);
+
+    /**
+     * 批量删除执行记录
+     */
+    boolean batchDeleteExecutions(java.util.List<Long> executionIds);
 }

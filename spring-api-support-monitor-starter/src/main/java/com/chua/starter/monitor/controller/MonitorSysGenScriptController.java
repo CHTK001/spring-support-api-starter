@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * 脚本管理控制器
- * 
+ *
  * @author CH
  * @since 2024/12/19
  */
@@ -233,6 +233,36 @@ public class MonitorSysGenScriptController {
         } catch (Exception e) {
             log.error("获取脚本执行历史失败: scriptId={}", scriptId, e);
             return Result.error("获取脚本执行历史失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清理过期执行记录
+     */
+    @DeleteMapping("/execution/clean")
+    @Operation(summary = "清理过期执行记录", description = "清理早于指定天数的执行记录（不包含运行中）")
+    public ReturnResult<Integer> cleanExpiredExecutions(@Parameter(description = "保留天数") @RequestParam(defaultValue = "30") Integer days) {
+        try {
+            int count = monitorSysGenScriptService.cleanExpiredExecutions(days);
+            return Result.ok(count);
+        } catch (Exception e) {
+            log.error("清理执行记录失败", e);
+            return Result.error("清理执行记录失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量删除执行记录
+     */
+    @DeleteMapping("/execution/batch")
+    @Operation(summary = "批量删除执行记录", description = "批量删除选中的执行记录（不包含运行中）")
+    public ReturnResult<Boolean> batchDeleteExecutions(@RequestBody java.util.List<Long> executionIds) {
+        try {
+            boolean ok = monitorSysGenScriptService.batchDeleteExecutions(executionIds);
+            return Result.ok(ok);
+        } catch (Exception e) {
+            log.error("批量删除执行记录失败", e);
+            return Result.error("批量删除执行记录失败: " + e.getMessage());
         }
     }
 
