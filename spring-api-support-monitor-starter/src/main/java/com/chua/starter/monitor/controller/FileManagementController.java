@@ -1,8 +1,14 @@
 package com.chua.starter.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.pojo.FileOperationRequest;
 import com.chua.report.client.starter.pojo.FileOperationResponse;
+import com.chua.starter.monitor.entity.MonitorSysGenScript;
+import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
+import com.chua.starter.monitor.pojo.RemoteOperationResponse;
+import com.chua.starter.monitor.service.MonitorSysGenScriptService;
+import com.chua.starter.monitor.service.NodeRemoteService;
 import com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +33,7 @@ import java.util.List;
 
 /**
  * 文件管理控制器
- * 
+ *
  * @author CH
  * @since 2024/12/13
  */
@@ -40,6 +46,8 @@ public class FileManagementController {
 
     private final FileManagementFacadeServiceImpl fileManagementFacadeService;
     private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
+    private final MonitorSysGenScriptService monitorSysGenScriptService;
+    private final NodeRemoteService nodeRemoteService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")
@@ -72,12 +80,45 @@ public class FileManagementController {
     @PostMapping("/upload")
     public ReturnResult<FileOperationResponse> uploadFile(
             @Parameter(description = "服务器ID", required = true) @RequestParam Integer serverId,
-            @Parameter(description = "目标路径", required = true) @RequestParam String targetPath,
-            @Parameter(description = "上传文件", required = true) @RequestParam("file") MultipartFile file,
+            @Parameter(description = "目标目录(可选，缺省将使用默认脚本目录)") @RequestParam(required = false) String targetPath,
+            @Parameter(description = "上传文件，可选。如果不传则根据scriptId生成文件", required = false) @RequestParam(value = "file", required = false) MultipartFile file,
             @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") Boolean overwrite,
             @Parameter(description = "脚本ID（可选）") @RequestParam(required = false) Integer scriptId) {
 
-        ReturnResult<FileOperationResponse> result = fileManagementFacadeService.uploadFile(serverId, targetPath, file, overwrite);
+        ReturnResult<FileOperationResponse> result;
+        String fileNameForRecord = null;
+        Long fileSizeForRecord = null;
+        try {
+            String targetDir = (targetPath == null || targetPath.trim().isEmpty()) ? "/opt/monitor/scripts" : targetPath;
+            if (file != null && !file.isEmpty()) {
+                // 常规路径：直接传文件
+                result = fileManagementFacadeService.uploadFile(serverId, targetDir, file, overwrite);
+                fileNameForRecord = file.getOriginalFilename();
+                fileSizeForRecord = file.getSize();
+            } else if (scriptId != null) {
+                // 新需求：根据脚本ID生成文件并上传
+                com.chua.starter.monitor.entity.MonitorSysGenScript script = monitorSysGenScriptService.getScriptById(scriptId);
+                if (script == null) {
+                    return ReturnResult.error("脚本不存在: " + scriptId);
+                }
+                String scriptName = script.getMonitorSysGenScriptName();
+                String ext = script.getScriptTypeEnum() != null ? script.getScriptTypeEnum().getExtension() : ".sh";
+                String fileName = scriptName + ext;
+
+                byte[] content = (script.getMonitorSysGenScriptContent() != null ? script.getMonitorSysGenScriptContent() : "").getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(content);
+
+                result = fileManagementFacadeService.uploadFile(serverId, targetDir, fileName, inputStream, overwrite);
+                fileNameForRecord = fileName;
+                fileSizeForRecord = (long) content.length;
+            } else {
+                return ReturnResult.error("参数错误: file与scriptId至少提供一个");
+            }
+        } catch (Exception e) {
+            log.error("上传文件失败", e);
+            result = ReturnResult.error("上传文件失败: " + e.getMessage());
+        }
+
         try {
             // 保存上传记录（REMOTE）
             com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
@@ -85,16 +126,86 @@ public class FileManagementController {
             record.setMonitorSysGenScriptUploadType("REMOTE");
             record.setMonitorSysGenScriptUploadServerId(serverId);
             record.setMonitorSysGenScriptUploadTargetPath(targetPath);
-            record.setMonitorSysGenScriptUploadFileName(file.getOriginalFilename());
-            record.setMonitorSysGenScriptUploadFileSize(file.getSize());
+            record.setMonitorSysGenScriptUploadFileName(fileNameForRecord);
+            record.setMonitorSysGenScriptUploadFileSize(fileSizeForRecord);
             record.setMonitorSysGenScriptUploadStatus(result != null && result.isOk() ? "SUCCESS" : "FAILED");
             record.setMonitorSysGenScriptUploadErrorMessage(result != null && result.isOk() ? null : (result != null ? result.getMsg() : "未知错误"));
             uploadRecordService.save(record);
         } catch (Exception e) {
-            log.warn("保存脚本上传记录失败(REMOTE)", e);
         }
-
         return result;
+    }
+
+    /**
+     * 上传脚本至节点
+     */
+    @Operation(summary = "上传脚本至节点", description = "根据脚本ID生成文件并上传到节点")
+    @PostMapping("/upload-to-node")
+    public ReturnResult<RemoteOperationResponse> uploadScriptToNode(
+            @Parameter(description = "节点ID", required = true) @RequestParam String nodeId,
+            @Parameter(description = "目标路径", required = true) @RequestParam String remoteFilePath,
+            @Parameter(description = "是否覆盖") @RequestParam(defaultValue = "false") boolean overwrite,
+            @Parameter(description = "脚本ID", required = true) @RequestParam Integer scriptId) {
+        try {
+            MonitorSysGenScript script = monitorSysGenScriptService.getScriptById(scriptId);
+            if (script == null) {
+                return ReturnResult.error("脚本不存在: " + scriptId);
+            }
+            String scriptName = script.getMonitorSysGenScriptName();
+            String ext = script.getScriptTypeEnum() != null ? script.getScriptTypeEnum().getExtension() : ".sh";
+            String fileName = scriptName + ext;
+            byte[] content = (script.getMonitorSysGenScriptContent() != null ? script.getMonitorSysGenScriptContent() : "").getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.io.InputStream inputStream = new java.io.ByteArrayInputStream(content);
+
+            RemoteOperationResponse resp = nodeRemoteService.uploadFile(nodeId, inputStream, fileName, remoteFilePath, overwrite);
+
+            try {
+                // 保存上传记录（NODE）
+                com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord record = new com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord();
+                record.setMonitorSysGenScriptId(scriptId);
+                record.setMonitorSysGenScriptUploadType("NODE");
+                record.setMonitorSysGenScriptUploadNodeId(nodeId);
+                record.setMonitorSysGenScriptUploadTargetPath(remoteFilePath);
+                record.setMonitorSysGenScriptUploadFileName(fileName);
+                record.setMonitorSysGenScriptUploadFileSize((long) content.length);
+                record.setMonitorSysGenScriptUploadStatus(resp != null ? resp.getStatus() : "SUCCESS");
+                record.setMonitorSysGenScriptUploadErrorMessage(resp != null ? resp.getErrorMessage() : "未知错误");
+                uploadRecordService.save(record);
+            } catch (Exception e) {
+                log.warn("保存脚本上传记录失败(NODE)", e);
+            }
+
+            return ReturnResult.of(resp);
+        } catch (Exception e) {
+            log.error("上传脚本至节点失败: nodeId={}, remoteFilePath={}, scriptId={}", nodeId, remoteFilePath, scriptId, e);
+            return ReturnResult.error("上传脚本至节点失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询脚本上传记录
+     */
+    @GetMapping("/upload-records")
+    @Operation(summary = "分页查询脚本上传记录", description = "按脚本ID可选过滤，按记录ID倒序")
+    public com.chua.common.support.lang.code.ReturnResult<IPage<MonitorSysGenScriptUploadRecord>> getUploadRecords(
+            @Parameter(description = "脚本ID，可选") @RequestParam(required = false) Integer scriptId,
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "页大小") @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            com.baomidou.mybatisplus.extension.plugins.pagination.Page<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> page =
+                    new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
+            com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> qw =
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+            if (scriptId != null) {
+                qw.eq(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptId, scriptId);
+            }
+            qw.orderByDesc(com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord::getMonitorSysGenScriptUploadRecordId);
+            com.baomidou.mybatisplus.core.metadata.IPage<com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord> data = uploadRecordService.page(page, qw);
+            return ReturnResult.ok(data);
+        } catch (Exception e) {
+            log.error("查询上传记录失败", e);
+            return ReturnResult.error("查询上传记录失败: " + e.getMessage());
+        }
     }
 
     @Operation(summary = "下载文件", description = "下载指定文件")
