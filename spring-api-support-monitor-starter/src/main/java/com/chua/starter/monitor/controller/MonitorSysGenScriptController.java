@@ -218,21 +218,50 @@ public class MonitorSysGenScriptController {
     }
 
     /**
-     * 获取脚本执行历史
+     * 获取脚本执行历史（支持多条件筛选）
      */
     @GetMapping("/execution/history")
-    @Operation(summary = "获取脚本执行历史", description = "分页查询脚本执行历史记录")
+    @Operation(summary = "获取脚本执行历史", description = "分页查询脚本执行历史记录，支持脚本ID、服务器ID、状态、触发类型、时间范围筛选")
     public ReturnResult<IPage<MonitorSysGenScriptExecution>> getExecutionHistory(
             @Parameter(description = "脚本ID") @RequestParam(required = false) Integer scriptId,
+            @Parameter(description = "服务器ID") @RequestParam(required = false) Integer serverId,
+            @Parameter(description = "状态") @RequestParam(required = false) String status,
+            @Parameter(description = "触发类型") @RequestParam(required = false) String triggerType,
+            @Parameter(description = "触发用户") @RequestParam(required = false) String triggerUser,
+            @Parameter(description = "开始时间") @RequestParam(required = false) java.time.LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) java.time.LocalDateTime endTime,
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "页大小") @RequestParam(defaultValue = "10") Integer pageSize) {
         try {
-            IPage<MonitorSysGenScriptExecution> page = monitorSysGenScriptService.getExecutionHistory(scriptId, pageNum,
-                    pageSize);
+            IPage<MonitorSysGenScriptExecution> page = monitorSysGenScriptService.getExecutionHistory(
+                    scriptId, serverId, status, triggerType, triggerUser, startTime, endTime, pageNum, pageSize);
             return Result.ok(page);
         } catch (Exception e) {
             log.error("获取脚本执行历史失败: scriptId={}", scriptId, e);
             return Result.error("获取脚本执行历史失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取所有脚本执行历史（不分页）
+     */
+    @GetMapping("/execution/history/all")
+    @Operation(summary = "获取所有脚本执行历史", description = "不分页地获取执行历史，支持同分页接口的筛选条件")
+    public ReturnResult<java.util.List<MonitorSysGenScriptExecution>> getAllExecutionHistory(
+            @Parameter(description = "脚本ID") @RequestParam(required = false) Integer scriptId,
+            @Parameter(description = "服务器ID") @RequestParam(required = false) Integer serverId,
+            @Parameter(description = "状态") @RequestParam(required = false) String status,
+            @Parameter(description = "触发类型") @RequestParam(required = false) String triggerType,
+            @Parameter(description = "触发用户") @RequestParam(required = false) String triggerUser,
+            @Parameter(description = "开始时间") @RequestParam(required = false) java.time.LocalDateTime startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) java.time.LocalDateTime endTime) {
+        try {
+            java.util.List<MonitorSysGenScriptExecution> list = monitorSysGenScriptService.getAllExecutionHistory(
+                    scriptId, serverId, status, triggerType, triggerUser, startTime, endTime);
+            return Result.ok(list);
+        } catch (Exception e) {
+            log.error("获取所有脚本执行历史失败", e);
+            return Result.error("获取所有脚本执行历史失败: " + e.getMessage());
         }
     }
 
