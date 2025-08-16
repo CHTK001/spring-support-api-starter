@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>spring-api-support-monitor-starter</artifactId>
-    <description>治理端</description>
+    <description>运维端</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
