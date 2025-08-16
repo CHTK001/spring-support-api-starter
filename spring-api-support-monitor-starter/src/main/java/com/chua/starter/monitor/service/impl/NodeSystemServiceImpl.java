@@ -43,7 +43,7 @@ public class NodeSystemServiceImpl extends ServiceImpl<NodeSystemMapper, NodeSys
 
             // 获取所有在线节点的ID
             List<String> onlineNodeIds = onlineNodes.stream()
-                    .map(node -> generateNodeId(node.getIpAddress(), node.getPort())).collect(Collectors.toList());
+                    .map(node -> generateNodeId(node.getIpAddress(), node.getPort())).toList();
 
             // 将不在在线列表中的节点标记为离线
             if (!onlineNodeIds.isEmpty()) {
