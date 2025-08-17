@@ -155,6 +155,15 @@ public class FileSystem extends SysBase implements Serializable {
     private String fileSystemHttpAccessUrl;
 
     /**
+     * 绑定的服务ID（Service Management）
+     */
+    @ColumnDesc("绑定的服务ID")
+    @TableField(value = "file_system_http_service_id")
+    @ApiModelProperty(value = "绑定的服务ID")
+    @Schema(description = "绑定的服务ID")
+    private Integer fileSystemHttpServiceId;
+
+    /**
      * 上传开始时间
      */
     @ColumnDesc("上传开始时间")

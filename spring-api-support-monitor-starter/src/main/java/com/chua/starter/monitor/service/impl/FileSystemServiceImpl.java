@@ -15,11 +15,7 @@ import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatusCountDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
 import com.chua.starter.monitor.pojo.response.FileSystemResponse;
-import com.chua.starter.monitor.service.FileSystemGroupService;
-import com.chua.starter.monitor.service.FileSystemPartService;
-import com.chua.starter.monitor.service.FileSystemService;
-import com.chua.starter.monitor.service.FileSystemSettingService;
-import com.chua.starter.monitor.service.FileSystemSseService;
+import com.chua.starter.monitor.service.*;
 import com.chua.starter.monitor.task.FileSystemMergeQueue;
 import com.chua.starter.monitor.task.FileSystemMergeTaskProcessor;
 import com.chua.starter.mybatis.entity.Query;
@@ -39,11 +35,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 文件系统管理服务实现类
@@ -896,6 +888,83 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             return ReturnResult.error("切换文件HTTP访问状态失败: " + e.getMessage());
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> configHttpAccess(Integer fileId, com.chua.starter.monitor.pojo.request.FileHttpAccessConfigRequest request) {
+        log.info("配置并开启HTTP访问: fileId={}, request={}", fileId, request);
+        try {
+            FileSystem fileSystem = getById(fileId);
+            if (fileSystem == null) {
+                return ReturnResult.error("文件不存在");
+            }
+            if (fileSystem.getFileSystemStatus() != FileSystem.FileStatus.COMPLETED) {
+                return ReturnResult.error("文件未完成，无法开启HTTP访问");
+            }
+
+            // 校验系统配置已启用HTTP访问
+            FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
+            if (setting == null || !Boolean.TRUE.equals(setting.getFileSystemSettingHttpAccessEnabled())) {
+                return ReturnResult.error("系统HTTP访问功能未启用");
+            }
+
+            Integer targetServiceId = request.getServiceId();
+            Integer port = request.getPort();
+            if (port == null) {
+                return ReturnResult.error("端口不能为空");
+            }
+
+            // 创建或更新 SystemServer
+            com.chua.starter.monitor.entity.SystemServer server = new com.chua.starter.monitor.entity.SystemServer();
+            server.setSystemServerHost(StringUtils.hasText(request.getHost()) ? request.getHost() : "0.0.0.0");
+            server.setSystemServerPort(port);
+            server.setSystemServerType(StringUtils.hasText(request.getType()) ? request.getType() : "HTTP");
+            server.setSystemServerContextPath(StringUtils.hasText(request.getContextPath()) ? request.getContextPath() : "/");
+
+            if (targetServiceId != null) {
+                // 更新已有服务
+                server.setSystemServerId(targetServiceId);
+                var check = ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                        .checkPortAvailable(port, targetServiceId);
+                if (!check.isOk() || Boolean.FALSE.equals(check.getData())) {
+                    return ReturnResult.error("端口 " + port + " 不可用");
+                }
+                ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                        .updateById(server);
+            } else {
+                // 新建服务
+                server.setSystemServerName(StringUtils.hasText(request.getName()) ? request.getName() : (fileSystem.getFileSystemOriginalName() + "-HTTP服务"));
+                server.setSystemServerStatus(com.chua.starter.monitor.entity.SystemServer.SystemServerStatus.STOPPED);
+                var check = ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                        .checkPortAvailable(port, null);
+                if (!check.isOk() || Boolean.FALSE.equals(check.getData())) {
+                    return ReturnResult.error("端口 " + port + " 不可用");
+                }
+                ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                        .save(server);
+                targetServiceId = server.getSystemServerId();
+            }
+
+            // 绑定服务ID并启用HTTP
+            fileSystem.setFileSystemHttpServiceId(targetServiceId);
+            fileSystem.setFileSystemHttpAccessEnabled(true);
+            if (!StringUtils.hasText(fileSystem.getFileSystemHttpAccessUrl())) {
+                String domain = setting.getFileSystemSettingHttpAccessDomain();
+                if (!StringUtils.hasText(domain)) {
+                    domain = "http://localhost:8080";
+                }
+                String accessUrl = domain + "/api/v1/filesystem/access/" + fileId;
+                fileSystem.setFileSystemHttpAccessUrl(accessUrl);
+            }
+            updateById(fileSystem);
+
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("配置并开启HTTP访问失败: fileId={}", fileId, e);
+            return ReturnResult.error("配置失败: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public ReturnResult<FileSystemStatisticsDTO> getFileStatistics() {
