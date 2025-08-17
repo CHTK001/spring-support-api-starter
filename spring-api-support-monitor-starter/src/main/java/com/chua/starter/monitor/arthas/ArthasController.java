@@ -16,9 +16,8 @@ import java.util.Map;
 /**
  * Arthas 管理接口
  *
- * 提供：
- * - 查询节点端 Arthas 配置（是否启用、tunnel 地址）
- * - 查询/设置服务器级别的 Arthas tunnel 地址（保存在服务器自定义标签中）
+ * 提供： - 查询节点端 Arthas 配置（是否启用、tunnel 地址） - 查询/设置服务器级别的 Arthas tunnel
+ * 地址（保存在服务器自定义标签中）
  */
 @Slf4j
 @RestController
@@ -40,27 +39,31 @@ public class ArthasController {
         }
     }
 
-    @Operation(summary = "获取服务器 Tunnel 地址", description = "从服务器设置自定义标签读取 arthasTunnelAddress")
-    @GetMapping("/tunnel-address")
-    public ReturnResult<String> getTunnelAddress(@RequestParam Integer serverId) {
+    @Operation(summary = "获取服务器 Arthas Tunnel 配置", description = "包含地址与认证信息")
+    @GetMapping("/tunnel-config")
+    public ReturnResult<ArthasTunnelConfig> getTunnelConfig(@RequestParam Integer serverId) {
         try {
-            return ReturnResult.ok(arthasService.getServerTunnelAddress(serverId));
+            return ReturnResult.ok(arthasService.getServerTunnelConfig(serverId));
         } catch (Exception e) {
-            log.error("获取服务器 Tunnel 地址失败: serverId={}", serverId, e);
-            return ReturnResult.error("获取服务器 Tunnel 地址失败: " + e.getMessage());
+            log.error("获取服务器 Tunnel 配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取服务器 Tunnel 配置失败: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "设置服务器 Tunnel 地址", description = "写入服务器设置自定义标签 arthasTunnelAddress")
-    @PostMapping("/tunnel-address/set")
-    public ReturnResult<Boolean> setTunnelAddress(@RequestParam Integer serverId, @RequestParam String tunnelAddress) {
+    @Operation(summary = "设置服务器 Arthas Tunnel 配置", description = "包含地址与认证信息")
+    @PostMapping("/tunnel-config/set")
+    public ReturnResult<Boolean> setTunnelConfig(@RequestParam Integer serverId,
+            @RequestParam(required = false) String address, @RequestParam(required = false) String username,
+            @RequestParam(required = false) String password) {
         try {
-            return ReturnResult.ok(arthasService.setServerTunnelAddress(serverId, tunnelAddress));
+            ArthasTunnelConfig cfg = new ArthasTunnelConfig();
+            cfg.setAddress(address);
+            cfg.setUsername(username);
+            cfg.setPassword(password);
+            return ReturnResult.ok(arthasService.setServerTunnelConfig(serverId, cfg));
         } catch (Exception e) {
-            log.error("设置服务器 Tunnel 地址失败: serverId={}, tunnelAddress={}", serverId, tunnelAddress, e);
-            return ReturnResult.error("设置服务器 Tunnel 地址失败: " + e.getMessage());
+            log.error("设置服务器 Tunnel 配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("设置服务器 Tunnel 配置失败: " + e.getMessage());
         }
     }
 }
-
-
