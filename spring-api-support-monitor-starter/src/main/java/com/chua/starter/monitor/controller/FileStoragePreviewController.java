@@ -5,7 +5,8 @@ import com.chua.common.support.oss.FileStorage;
 import com.chua.common.support.oss.request.ListObjectRequest;
 import com.chua.common.support.oss.result.ListObjectResult;
 import com.chua.common.support.oss.setting.BucketSetting;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.protocol.filter.FileStorageServletFilter;
+import com.chua.common.support.protocol.server.ProtocolServer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+
+import static com.chua.starter.monitor.service.impl.SystemServerServiceImpl.runningServerInstances;
 
 /**
  * 文件存储预览接口
@@ -61,13 +64,13 @@ public class FileStoragePreviewController {
                     .region(region)
                     .build();
 
-            // 根据类型创建存储
-            FileStorage storage = ServiceProvider.of(FileStorage.class).getNewExtension(type, bucketSetting);
-            if (storage == null) {
-                log.warn("无法创建FileStorage实例, type={}", type);
+            ProtocolServer protocolServer = runningServerInstances.get(serverId);
+            if (protocolServer == null) {
+                log.warn("服务未启动, server={}, type={}", serverId, type);
                 return ReturnResult.error("无法创建FileStorage实例");
             }
-
+            FileStorageServletFilter filter = protocolServer.getFilter(FileStorageServletFilter.class);
+            FileStorage fileStorage = filter.getFileStorage(bucket);
             // 组装请求
             ListObjectRequest request = ListObjectRequest.builder()
                     .filePath(Optional.ofNullable(filePath).orElse("/"))
@@ -76,9 +79,11 @@ public class FileStoragePreviewController {
                     .build();
 
             // 查询
-            ListObjectResult result = storage.listObject(request);
+            ListObjectResult result = fileStorage.listObject(request);
             // 直接返回数组，方便前端 axios 直接使用 res.data 作为数组
             return ReturnResult.of(result);
+//            return ReturnResult.error("无法创建FileStorage实例");
+
         } catch (Throwable e) {
             log.error("列出文件存储对象失败", e);
             // 失败时返回空数组，保证前端容错
