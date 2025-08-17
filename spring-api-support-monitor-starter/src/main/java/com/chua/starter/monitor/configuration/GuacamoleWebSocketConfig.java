@@ -30,25 +30,37 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
         @Override
         public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
-                // RDP WebSocket端点 (原有实现，保留用于对比测试)
-                registry.addHandler(rdpWebSocketHandler, "/websocket/rdp").addInterceptors(webSocketInterceptor)
-                                .setAllowedOrigins("*");
+                // RDP WebSocket端点（支持带/不带 /monitor/api 前缀，便于前端代理/网关转发）
+                registry.addHandler(rdpWebSocketHandler,
+                                "/websocket/rdp",
+                                "/monitor/api/websocket/rdp")
+                        .addInterceptors(webSocketInterceptor)
+                        .setAllowedOriginPatterns("*");
 
-                // VNC WebSocket端点 (原有实现，保留用于对比测试)
-                registry.addHandler(vncWebSocketHandler, "/websocket/vnc").addInterceptors(webSocketInterceptor)
-                                .setAllowedOrigins("*");
+                // VNC WebSocket端点（同上）
+                registry.addHandler(vncWebSocketHandler,
+                                "/websocket/vnc",
+                                "/monitor/api/websocket/vnc")
+                        .addInterceptors(webSocketInterceptor)
+                        .setAllowedOriginPatterns("*");
 
-                // 测试 WebSocket端点
-                registry.addHandler(testWebSocketHandler, "/websocket/test").addInterceptors(webSocketInterceptor)
-                                .setAllowedOrigins("*");
+                // 测试 WebSocket端点（同上）
+                registry.addHandler(testWebSocketHandler,
+                                "/websocket/test",
+                                "/monitor/api/websocket/test")
+                        .addInterceptors(webSocketInterceptor)
+                        .setAllowedOriginPatterns("*");
 
                 // Arthas 控制台 WebSocket 代理端点
                 // 路径模式：/v1/arthas/console/{nodeId}/ws
                 try {
                         var arthasHandler = ArthasWebSocketProxyHandlerHolder.get();
                         if (arthasHandler != null) {
-                                registry.addHandler(arthasHandler, "/v1/arthas/console/ws")
-                                                .addInterceptors(webSocketInterceptor).setAllowedOrigins("*");
+                                registry.addHandler(arthasHandler,
+                                                "/v1/arthas/console/ws",
+                                                "/monitor/api/v1/arthas/console/ws")
+                                        .addInterceptors(webSocketInterceptor)
+                                        .setAllowedOriginPatterns("*");
                         }
                 } catch (Throwable ignored) {
                 }
