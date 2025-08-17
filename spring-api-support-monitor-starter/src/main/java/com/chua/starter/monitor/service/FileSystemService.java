@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystem;
+import com.chua.starter.monitor.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
-import com.chua.starter.monitor.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.pojo.response.FileSystemResponse;
 import com.chua.starter.mybatis.entity.Query;
 import org.springframework.web.multipart.MultipartFile;
@@ -174,4 +174,14 @@ public interface FileSystemService extends IService<FileSystem> {
      * @return 存储统计信息
      */
     Map<String, Object> getStorageStatistics();
+
+    /**
+     * 配置并开启HTTP访问（绑定服务ID，必要时创建或更新服务）
+     *
+     * @param fileId  文件ID
+     * @param request 配置请求
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> configHttpAccess(Integer fileId, com.chua.starter.monitor.pojo.request.FileHttpAccessConfigRequest request);
+
 }
