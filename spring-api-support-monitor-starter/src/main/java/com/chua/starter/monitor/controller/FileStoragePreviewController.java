@@ -2,7 +2,6 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.FileStorage;
-import com.chua.common.support.oss.metadata.Metadata;
 import com.chua.common.support.oss.request.ListObjectRequest;
 import com.chua.common.support.oss.result.ListObjectResult;
 import com.chua.common.support.oss.setting.BucketSetting;
@@ -12,10 +11,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * 文件存储预览接口
@@ -38,7 +39,7 @@ public class FileStoragePreviewController {
      */
     @PostMapping("/list")
     @ApiOperation("列出文件存储对象")
-    public Object list(
+    public ReturnResult<ListObjectResult> list(
             @ApiParam("服务器ID(可选)") @RequestParam(required = false) Integer serverId,
             @ApiParam("存储类型，如 FILESYSTEM/S3/MINIO/ALIYUN 等") @RequestParam String type,
             @ApiParam("端点") @RequestParam(required = false) String endpoint,
@@ -64,7 +65,7 @@ public class FileStoragePreviewController {
             FileStorage storage = ServiceProvider.of(FileStorage.class).getNewExtension(type, bucketSetting);
             if (storage == null) {
                 log.warn("无法创建FileStorage实例, type={}", type);
-                return Collections.emptyList();
+                return ReturnResult.error("无法创建FileStorage实例");
             }
 
             // 组装请求
@@ -76,32 +77,12 @@ public class FileStoragePreviewController {
 
             // 查询
             ListObjectResult result = storage.listObject(request);
-            List<Metadata> metadata = result == null ? Collections.emptyList() : Optional.ofNullable(result.getMetadata()).orElse(Collections.emptyList());
-
-            // 转换为前端友好的结构
-            List<Map<String, Object>> list = metadata.stream().map(m -> {
-                Map<String, Object> map = new LinkedHashMap<>();
-                try {
-                    map.put("id", m.getFileId());
-                    map.put("name", m.getSafeFilename());
-                    map.put("size", m.getFileSize());
-                    map.put("modified", m.getLastModified());
-                    map.put("ext", m.getSafeSuffix());
-                    map.put("path", m.getFilePath());
-                    map.put("absolutePath", m.getAbsolutePath());
-                    // 预留URL（需要结合FileStorageServletFilter生成可访问地址）
-                    map.put("url", null);
-                } catch (Throwable ignored) {
-                }
-                return map;
-            }).collect(Collectors.toList());
-
             // 直接返回数组，方便前端 axios 直接使用 res.data 作为数组
-            return list;
+            return ReturnResult.of(result);
         } catch (Throwable e) {
             log.error("列出文件存储对象失败", e);
             // 失败时返回空数组，保证前端容错
-            return Collections.emptyList();
+            return ReturnResult.of(ListObjectResult.EMPTY);
         }
     }
 }
