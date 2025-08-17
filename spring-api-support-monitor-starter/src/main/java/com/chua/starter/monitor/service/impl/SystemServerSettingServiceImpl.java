@@ -434,7 +434,59 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
                 // 具体实现在SystemServerSettingItemServiceImpl中
             }
         } catch (Exception e) {
-            log.warn("创建默认配置项失败: settingId={}, filterType={}", settingId, filterType, e);
         }
     }
+
+    @Override
+    public ReturnResult<SystemServerSetting> getHttpsConfigByServerId(Integer serverId) {
+        SystemServerSetting setting = baseMapper.selectByServerIdAndType(serverId, "HTTPS_CONFIG");
+        if (setting == null) {
+            setting = new SystemServerSetting();
+            setting.setSystemServerSettingServerId(serverId);
+            setting.setSystemServerSettingType("HTTPS_CONFIG");
+            setting.setSystemServerSettingEnabled(false); // 配置项本身先禁用，避免无处理器时报错
+            setting.setSystemServerSettingName("HTTPS配置");
+            Integer maxOrder = baseMapper.getMaxOrderByServerId(serverId);
+            setting.setSystemServerSettingOrder(maxOrder == null ? 1 : maxOrder + 1);
+            save(setting);
+        }
+        return ReturnResult.ok(setting);
+    }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> saveHttpsConfig(Integer serverId, Boolean enabled, SystemServerSetting.HttpsCertType certType, byte[] pemCert, byte[] pemKey, String keyPassword, byte[] keystore, String keystorePassword) {
+        try {
+            SystemServerSetting setting = baseMapper.selectByServerIdAndType(serverId, "HTTPS_CONFIG");
+            if (setting == null) {
+                setting = new SystemServerSetting();
+                setting.setSystemServerSettingServerId(serverId);
+                setting.setSystemServerSettingType("HTTPS_CONFIG");
+                setting.setSystemServerSettingEnabled(true);
+                setting.setSystemServerSettingName("HTTPS配置");
+                Integer maxOrder = baseMapper.getMaxOrderByServerId(serverId);
+                setting.setSystemServerSettingOrder(maxOrder == null ? 1 : maxOrder + 1);
+                save(setting);
+            }
+            // 同步启用状态到配置开关（是否加载该配置作为Filter）
+            setting.setSystemServerSettingEnabled(Boolean.TRUE.equals(enabled));
+            // 业务内部HTTPS启用标记
+            setting.setSystemServerSettingHttpsEnabled(Boolean.TRUE.equals(enabled));
+            // 证书类型直接赋值（枚举）
+            setting.setSystemServerSettingHttpsCertType(certType == null ? SystemServerSetting.HttpsCertType.PEM : certType);
+            if (pemCert != null && pemCert.length > 0) setting.setSystemServerSettingHttpsPemCert(pemCert);
+            if (pemKey != null && pemKey.length > 0) setting.setSystemServerSettingHttpsPemKey(pemKey);
+            setting.setSystemServerSettingHttpsPemKeyPassword(keyPassword);
+            if (keystore != null && keystore.length > 0) setting.setSystemServerSettingHttpsKeystore(keystore);
+            setting.setSystemServerSettingHttpsKeystorePassword(keystorePassword);
+            updateById(setting);
+            // 热应用
+            applyConfigToRunningServer(serverId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("保存HTTPS证书配置失败", e);
+            return ReturnResult.error("保存失败: " + e.getMessage());
+        }
+    }
+
 }

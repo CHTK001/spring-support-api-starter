@@ -168,4 +168,22 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @return 配置数据
      */
     ReturnResult<Map<String, Object>> getServletFilterConfig(Integer id);
+
+    /**
+     * 获取指定服务器的HTTPS配置（若不存在返回占位对象，enabled=false）
+     */
+    ReturnResult<SystemServerSetting> getHttpsConfigByServerId(Integer serverId);
+
+    /**
+     * 保存或更新HTTPS证书配置（证书以BLOB保存到 SystemServerSetting 实体上）
+     */
+    ReturnResult<Boolean> saveHttpsConfig(Integer serverId,
+                                          Boolean enabled,
+                                          SystemServerSetting.HttpsCertType certType,
+                                          byte[] pemCert,
+                                          byte[] pemKey,
+                                          String keyPassword,
+                                          byte[] keystore,
+                                          String keystorePassword);
+
 }
