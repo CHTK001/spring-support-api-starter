@@ -26,5 +26,13 @@ public class ArthasProxyProperties {
 
     /** 上游 WebSocket 连接超时（秒） */
     private int connectTimeoutSeconds = 10;
-}
 
+    /** 是否启用代理安全校验（默认关闭） */
+    private boolean securityEnabled = false;
+
+    /** 简单的访问令牌（可选）；当 securityEnabled=true 时生效 */
+    private String token;
+
+    /** IP 白名单（可选）；当 securityEnabled=true 且非空时生效 */
+    private List<String> ipWhitelist = new ArrayList<>();
+}
