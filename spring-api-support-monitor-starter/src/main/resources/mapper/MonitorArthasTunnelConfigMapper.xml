@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorArthasTunnelConfig">
+        <id property="monitorArthasTunnelConfigId" column="monitor_arthas_tunnel_config_id" />
+        <result property="monitorArthasTunnelConfigServerId" column="monitor_arthas_tunnel_config_server_id" />
+        <result property="monitorArthasTunnelConfigAddress" column="monitor_arthas_tunnel_config_address" />
+        <result property="monitorArthasTunnelConfigUsername" column="monitor_arthas_tunnel_config_username" />
+        <result property="monitorArthasTunnelConfigPassword" column="monitor_arthas_tunnel_config_password" />
+    </resultMap>
+
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT *
+        FROM monitor_arthas_tunnel_config
+        WHERE monitor_arthas_tunnel_config_server_id = #{serverId}
+        LIMIT 1
+    </select>
+
+</mapper>
+
