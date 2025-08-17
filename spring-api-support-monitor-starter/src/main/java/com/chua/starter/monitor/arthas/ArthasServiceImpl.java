@@ -4,11 +4,10 @@ import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.entity.NodeSystem;
 import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
+import com.chua.starter.monitor.entity.NodeSystem;
 import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
 import com.chua.starter.monitor.service.NodeSystemService;
-import com.chua.starter.monitor.arthas.ArthasTunnelConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +49,7 @@ public class ArthasServiceImpl implements ArthasService {
     }
 
     @Override
-    public ArthasTunnelConfig getServerTunnelConfig(Integer serverId) {
+    public ArthasTunnelConfig getServerTunnelConfig(String serverId) {
         ArthasTunnelConfig cfg = new ArthasTunnelConfig();
         MonitorArthasTunnelConfig rec = arthasTunnelConfigMapper.selectByServerId(serverId);
         if (rec != null) {
@@ -62,7 +61,7 @@ public class ArthasServiceImpl implements ArthasService {
     }
 
     @Override
-    public boolean setServerTunnelConfig(Integer serverId, ArthasTunnelConfig config) {
+    public boolean setServerTunnelConfig(String serverId, ArthasTunnelConfig config) {
         MonitorArthasTunnelConfig rec = arthasTunnelConfigMapper.selectByServerId(serverId);
         if (rec == null) {
             rec = new MonitorArthasTunnelConfig();

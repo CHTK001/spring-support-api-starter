@@ -16,6 +16,7 @@ import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.service.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -486,6 +488,62 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         } catch (Exception e) {
             log.error("保存HTTPS证书配置失败", e);
             return ReturnResult.error("保存失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getFilterConfig(Integer settingId) {
+        try {
+            SystemServerSetting setting = getById(settingId);
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
+
+            // 从systemServerSettingConfig字段解析JSON配置
+            String configJson = setting.getSystemServerSettingConfig();
+            Map<String, Object> config = new HashMap<>();
+
+            if (configJson != null && !configJson.trim().isEmpty()) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    config = objectMapper.readValue(configJson, Map.class);
+                } catch (Exception e) {
+                    log.warn("解析配置JSON失败，使用空配置: settingId={}", settingId, e);
+                }
+            }
+
+            log.info("获取ServletFilter配置成功: settingId={}", settingId);
+            return ReturnResult.ok(config);
+        } catch (Exception e) {
+            log.error("获取ServletFilter配置失败: settingId={}", settingId, e);
+            return ReturnResult.error("获取配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> saveFilterConfig(Integer settingId, Map<String, Object> config) {
+        try {
+            SystemServerSetting setting = getById(settingId);
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
+
+            // 将配置转换为JSON字符串保存到systemServerSettingConfig字段
+            ObjectMapper objectMapper = new ObjectMapper();
+            String configJson = objectMapper.writeValueAsString(config);
+
+            setting.setSystemServerSettingConfig(configJson);
+            updateById(setting);
+
+            // 应用配置到运行中的服务器
+            applyConfigToRunningServer(setting.getSystemServerSettingServerId());
+
+            log.info("保存ServletFilter配置成功: settingId={}", settingId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("保存ServletFilter配置失败: settingId={}", settingId, e);
+            return ReturnResult.error("保存配置失败: " + e.getMessage());
         }
     }
 

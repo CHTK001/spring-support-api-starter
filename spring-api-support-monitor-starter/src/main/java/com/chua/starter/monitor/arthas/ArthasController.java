@@ -5,11 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -41,7 +37,7 @@ public class ArthasController {
 
     @Operation(summary = "获取服务器 Arthas Tunnel 配置", description = "包含地址与认证信息")
     @GetMapping("/tunnel-config")
-    public ReturnResult<ArthasTunnelConfig> getTunnelConfig(@RequestParam Integer serverId) {
+    public ReturnResult<ArthasTunnelConfig> getTunnelConfig(@RequestParam String serverId) {
         try {
             return ReturnResult.ok(arthasService.getServerTunnelConfig(serverId));
         } catch (Exception e) {
@@ -52,7 +48,7 @@ public class ArthasController {
 
     @Operation(summary = "设置服务器 Arthas Tunnel 配置", description = "包含地址与认证信息")
     @PostMapping("/tunnel-config/set")
-    public ReturnResult<Boolean> setTunnelConfig(@RequestParam Integer serverId,
+    public ReturnResult<Boolean> setTunnelConfig(@RequestParam String serverId,
             @RequestParam(required = false) String address, @RequestParam(required = false) String username,
             @RequestParam(required = false) String password) {
         try {
