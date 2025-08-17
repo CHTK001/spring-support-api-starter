@@ -4,10 +4,11 @@ import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.entity.NodeSystem;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
+import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
 import com.chua.starter.monitor.service.NodeSystemService;
+import com.chua.starter.monitor.arthas.ArthasTunnelConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ArthasServiceImpl implements ArthasService {
 
-    private static final String CUSTOM_TAGS_KEY = "arthasTunnelAddress";
-
     private final NodeSystemService nodeSystemService;
-    private final MonitorSysGenServerSettingService serverSettingService;
+    private final MonitorArthasTunnelConfigMapper arthasTunnelConfigMapper;
 
     @Override
     public Map<String, Object> getNodeArthasConfig(String nodeId) {
@@ -35,8 +34,8 @@ public class ArthasServiceImpl implements ArthasService {
             throw new IllegalArgumentException("节点不存在: " + nodeId);
         }
 
-        String baseUrl = String.format("http://%s:%s/arthas-config",
-                node.getNodeSystemIpAddress(), node.getNodeSystemPort());
+        String baseUrl = String.format("http://%s:%s/arthas-config", node.getNodeSystemIpAddress(),
+                node.getNodeSystemPort());
         HttpResponse response = HttpClient.get().url(baseUrl).newInvoker().execute();
         ReturnResult<String> rr = ReturnResult.of(response);
         if (!rr.isOk()) {
@@ -51,52 +50,33 @@ public class ArthasServiceImpl implements ArthasService {
     }
 
     @Override
-    public String getServerTunnelAddress(Integer serverId) {
-        ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getOrCreateSetting(serverId);
-        if (!settingResult.isOk() || settingResult.getData() == null) {
-            throw new IllegalArgumentException("服务器配置不存在: " + serverId);
+    public ArthasTunnelConfig getServerTunnelConfig(Integer serverId) {
+        ArthasTunnelConfig cfg = new ArthasTunnelConfig();
+        MonitorArthasTunnelConfig rec = arthasTunnelConfigMapper.selectByServerId(serverId);
+        if (rec != null) {
+            cfg.setAddress(rec.getMonitorArthasTunnelConfigAddress());
+            cfg.setUsername(rec.getMonitorArthasTunnelConfigUsername());
+            cfg.setPassword(rec.getMonitorArthasTunnelConfigPassword());
         }
-        MonitorSysGenServerSetting setting = settingResult.getData();
-        String tags = setting.getMonitorSysGenServerSettingCustomTags();
-        if (tags == null || tags.isEmpty()) {
-            return null;
-        }
-        try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = Json.fromJson(tags, Map.class);
-            Object val = map.get(CUSTOM_TAGS_KEY);
-            return val == null ? null : String.valueOf(val);
-        } catch (Exception e) {
-            log.warn("解析服务器自定义标签失败: serverId={}", serverId, e);
-            return null;
-        }
+        return cfg;
     }
 
     @Override
-    public boolean setServerTunnelAddress(Integer serverId, String tunnelAddress) {
-        ReturnResult<MonitorSysGenServerSetting> settingResult = serverSettingService.getOrCreateSetting(serverId);
-        if (!settingResult.isOk() || settingResult.getData() == null) {
-            throw new IllegalArgumentException("服务器配置不存在: " + serverId);
+    public boolean setServerTunnelConfig(Integer serverId, ArthasTunnelConfig config) {
+        MonitorArthasTunnelConfig rec = arthasTunnelConfigMapper.selectByServerId(serverId);
+        if (rec == null) {
+            rec = new MonitorArthasTunnelConfig();
+            rec.setMonitorArthasTunnelConfigServerId(serverId);
         }
-        MonitorSysGenServerSetting setting = settingResult.getData();
-
-        Map<String, Object> map = new HashMap<>();
-        try {
-            if (setting.getMonitorSysGenServerSettingCustomTags() != null && !setting.getMonitorSysGenServerSettingCustomTags().isEmpty()) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> exist = Json.fromJson(setting.getMonitorSysGenServerSettingCustomTags(), Map.class);
-                if (exist != null) {
-                    map.putAll(exist);
-                }
-            }
-        } catch (Exception e) {
-            log.warn("解析自定义标签失败，将覆盖写入: serverId={}", serverId, e);
+        if (config != null) {
+            rec.setMonitorArthasTunnelConfigAddress(config.getAddress());
+            rec.setMonitorArthasTunnelConfigUsername(config.getUsername());
+            rec.setMonitorArthasTunnelConfigPassword(config.getPassword());
         }
-        map.put(CUSTOM_TAGS_KEY, tunnelAddress);
-        setting.setMonitorSysGenServerSettingCustomTags(Json.toJson(map));
-
-        return serverSettingService.updateById(setting);
+        if (rec.getMonitorArthasTunnelConfigId() == null) {
+            return arthasTunnelConfigMapper.insert(rec) > 0;
+        } else {
+            return arthasTunnelConfigMapper.updateById(rec) > 0;
+        }
     }
 }
-
-
