@@ -58,7 +58,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      * 存储已启动的服务器实例
      * Key: 服务器ID, Value: 服务器实例对象
      */
-    private final Map<Integer, ProtocolServer> runningServerInstances = new ConcurrentHashMap<>();
+    public static final Map<Integer, ProtocolServer> runningServerInstances = new ConcurrentHashMap<>();
 
     final ExecutorService executorService = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("server-initial-execute").factory());
     @Autowired
