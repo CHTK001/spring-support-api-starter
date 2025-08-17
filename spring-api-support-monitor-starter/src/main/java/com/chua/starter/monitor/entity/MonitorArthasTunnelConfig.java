@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Arthas Tunnel 独立配置实体
@@ -24,7 +27,7 @@ public class MonitorArthasTunnelConfig {
 
     /** 服务器ID */
     @Schema(description = "服务器ID")
-    private Integer monitorArthasTunnelConfigServerId;
+    private String monitorArthasTunnelConfigServerId;
 
     /** Tunnel 地址（例如 ws://host:port/ws） */
     @Schema(description = "Tunnel 地址（例如 ws://host:port/ws）")

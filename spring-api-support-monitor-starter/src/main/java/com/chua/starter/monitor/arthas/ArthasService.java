@@ -17,10 +17,10 @@ public interface ArthasService {
     /**
      * 获取服务器 Arthas Tunnel 配置（包含地址与账号密码）
      */
-    ArthasTunnelConfig getServerTunnelConfig(Integer serverId);
+    ArthasTunnelConfig getServerTunnelConfig(String serverId);
 
     /**
      * 设置服务器 Arthas Tunnel 配置（包含地址与账号密码）
      */
-    boolean setServerTunnelConfig(Integer serverId, ArthasTunnelConfig config);
+    boolean setServerTunnelConfig(String serverId, ArthasTunnelConfig config);
 }
