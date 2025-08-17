@@ -147,9 +147,9 @@ public class ArthasConsoleProxyController {
             byte[] body = resp.getBody();
             if (body != null && ct != null && (MediaType.TEXT_HTML.includes(ct) || MediaType.TEXT_PLAIN.includes(ct))) {
                 String html = new String(body, java.nio.charset.StandardCharsets.UTF_8);
-                String proxyPrefix = "/v1/arthas/console/" + nodeId;
-                html = html.replace("\"/ws\"", "\"" + proxyPrefix + "/ws\"").replace("'/ws'",
-                        "'" + proxyPrefix + "/ws'");
+                String proxyWs = "/v1/arthas/console/ws?nodeId="
+                        + java.net.URLEncoder.encode(nodeId, java.nio.charset.StandardCharsets.UTF_8);
+                html = html.replace("\"/ws\"", "\"" + proxyWs + "\"").replace("'/ws'", "'" + proxyWs + "'");
                 body = html.getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 respHeaders.setContentLength(body.length);
             }

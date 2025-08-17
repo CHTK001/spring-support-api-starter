@@ -146,13 +146,31 @@ public class ArthasWebSocketProxyHandler extends AbstractWebSocketHandler {
     }
 
     /**
-     * 从路径 /v1/arthas/console/{nodeId}/ws 中提取 nodeId
+     * 优先从 query 参数 nodeId 提取；兼容旧路径 /v1/arthas/console/{nodeId}/ws
      */
     private String extractNodeId(URI uri) {
         if (uri == null)
             return null;
+        // query: nodeId=xxx
+        String query = uri.getQuery();
+        if (StringUtils.isNotBlank(query)) {
+            String[] parts = query.split("&");
+            for (String p : parts) {
+                int idx = p.indexOf('=');
+                if (idx > 0) {
+                    String k = p.substring(0, idx);
+                    String v = p.substring(idx + 1);
+                    if ("nodeId".equals(k)) {
+                        try {
+                            return java.net.URLDecoder.decode(v, java.nio.charset.StandardCharsets.UTF_8);
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+        }
+        // 兼容旧路径：/v1/arthas/console/{nodeId}/ws
         String path = uri.getPath();
-        // 简单解析：/v1/arthas/console/{nodeId}/ws
         String prefix = "/v1/arthas/console/";
         String suffix = "/ws";
         int i = StringUtils.indexOf(path, prefix);
