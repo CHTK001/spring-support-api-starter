@@ -50,6 +50,7 @@ public class FileManagementController {
 
     private final MonitorSysGenScriptService monitorSysGenScriptService;
     private final NodeRemoteService nodeRemoteService;
+    private final com.chua.starter.monitor.service.FileSystemService fileSystemService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")
@@ -383,5 +384,97 @@ public class FileManagementController {
 
         return fileManagementFacadeService.writeFileContent(serverId, filePath, content, encoding, createBackup);
     }
+
+    @Operation(summary = "分发文件", description = "从源服务器读取文件并分发到目标服务器/节点")
+    @PostMapping("/distribute")
+    public ReturnResult<FileOperationResponse> distribute(@RequestBody com.chua.starter.monitor.pojo.request.FileDistributeRequest req) {
+        try {
+            if (req == null || req.getSourceServerId() == null || req.getSourceFilePath() == null
+                    || req.getTargetType() == null || req.getTargetIds() == null || req.getTargetIds().isEmpty()
+                    || req.getTargetDir() == null || req.getTargetDir().isEmpty()) {
+                return ReturnResult.error("参数不完整");
+            }
+
+            // 1) 读取源文件
+            ReturnResult<FileOperationResponse> dl = fileManagementFacadeService
+                    .downloadFile(req.getSourceServerId(), req.getSourceFilePath());
+            if (!dl.isSuccess() || dl.getData() == null) {
+                return ReturnResult.error("读取源文件失败: " + dl.getMsg());
+            }
+            FileOperationResponse src = dl.getData();
+            byte[] data = null;
+            if (src.getContentBytes() != null && src.getContentBytes().length > 0) {
+                data = src.getContentBytes();
+            } else if (src.getDownloadUrl() != null) {
+                String url = src.getDownloadUrl();
+                if (url.startsWith("data:")) {
+                    int comma = url.indexOf(',');
+                    if (comma > 0) {
+                        String b64 = url.substring(comma + 1);
+                        data = java.util.Base64.getDecoder().decode(b64);
+                    }
+                } else {
+                    java.nio.file.Path p = java.nio.file.Paths.get(url);
+                    if (java.nio.file.Files.exists(p)) {
+                        data = java.nio.file.Files.readAllBytes(p);
+                    }
+                }
+            }
+            if (data == null || data.length == 0) {
+                return ReturnResult.error("无法获取源文件内容");
+            }
+
+            String fileName = req.getSourceFilePath();
+            int idx = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+            if (idx >= 0 && idx + 1 < fileName.length()) {
+                fileName = fileName.substring(idx + 1);
+            }
+
+            boolean overwrite = Boolean.TRUE.equals(req.getOverwrite());
+
+            int total = req.getTargetIds().size();
+            int success = 0;
+            java.util.List<String> failed = new java.util.ArrayList<>();
+
+            // 2) 分发到目标
+            if ("SERVER".equalsIgnoreCase(req.getTargetType())) {
+                for (String sidStr : req.getTargetIds()) {
+                    try {
+                        Integer sid = Integer.valueOf(sidStr);
+                        var res = fileManagementFacadeService.uploadFile(sid, req.getTargetDir(), fileName,
+                                new java.io.ByteArrayInputStream(data), overwrite);
+                        if (res != null && res.isSuccess()) success++;
+                        else failed.add("S:" + sidStr);
+                    } catch (Exception ex) {
+                        failed.add("S:" + sidStr + "(" + ex.getMessage() + ")");
+                    }
+                }
+            } else if ("NODE".equalsIgnoreCase(req.getTargetType())) {
+                for (String nid : req.getTargetIds()) {
+                    try {
+                        var resp = nodeRemoteService.uploadFile(nid, new java.io.ByteArrayInputStream(data), fileName,
+                                req.getTargetDir(), overwrite);
+                        if (resp != null && "SUCCESS".equalsIgnoreCase(resp.getStatus())) success++;
+                        else failed.add("N:" + nid);
+                    } catch (Exception ex) {
+                        failed.add("N:" + nid + "(" + ex.getMessage() + ")");
+                    }
+                }
+            } else {
+                return ReturnResult.error("不支持的目标类型: " + req.getTargetType());
+            }
+
+            String msg = String.format("分发完成：成功 %d / 总计 %d%s", success, total,
+                    failed.isEmpty() ? "" : ("，失败：" + String.join(", ", failed)));
+            FileOperationResponse out = FileOperationResponse.success("DISTRIBUTE", msg);
+            out.setTotalCount(total);
+            out.setProcessedCount(success);
+            return ReturnResult.ok(out);
+        } catch (Exception e) {
+            log.error("分发文件失败", e);
+            return ReturnResult.error("分发文件失败: " + e.getMessage());
+        }
+    }
+
 
 }

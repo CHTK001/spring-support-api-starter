@@ -4,12 +4,13 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystem;
 import com.chua.starter.monitor.entity.FileSystemSetting;
+import com.chua.starter.monitor.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
-import com.chua.starter.monitor.pojo.FileInitUploadDTO;
 import com.chua.starter.monitor.service.FileSystemService;
 import com.chua.starter.monitor.service.FileSystemSettingService;
 import com.chua.starter.monitor.service.FileSystemSseService;
+import com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl;
 import com.chua.starter.monitor.task.FileSystemMergeQueue;
 import com.chua.starter.mybatis.entity.Query;
 import io.swagger.annotations.Api;
@@ -26,6 +27,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +51,7 @@ public class FileSystemController {
     private final FileSystemSettingService fileSystemSettingService;
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
-
+    final FileManagementFacadeServiceImpl fileManagementFacadeService;
     /**
      * 分页查询文件列表
      */
@@ -217,13 +220,80 @@ public class FileSystemController {
     }
 
     /**
+     * 分发（以文件系统 fileId 为源）到服务器/节点
+     */
+    @ApiOperation("分发文件")
+    @Operation(summary = "分发文件", description = "以文件系统 fileId 为源，分发至服务器或节点")
+    @PostMapping("/distribute")
+    public ReturnResult<Map<String, Object>> distributeFromFileSystem(
+            @ApiParam("文件ID") @Parameter(description = "文件ID") @RequestBody Map<String, Object> body) {
+        try {
+            Integer fileId = body.get("fileId") != null ? Integer.valueOf(body.get("fileId").toString()) : null;
+            String targetType = body.get("targetType") != null ? body.get("targetType").toString() : null;
+            @SuppressWarnings("unchecked")
+            List<Object> ids = (List<Object>) body.get("targetIds");
+            String targetDir = body.get("targetDir") != null ? body.get("targetDir").toString() : null;
+            Boolean overwrite = body.get("overwrite") != null ? Boolean.valueOf(body.get("overwrite").toString()) : false;
+            if (fileId == null || targetType == null || ids == null || ids.isEmpty() || targetDir == null) {
+                return ReturnResult.error("参数不完整");
+            }
+
+            // 读取文件字节
+            ReturnResult<byte[]> down = fileSystemService.downloadFile(fileId);
+            if (!down.isSuccess() || down.getData() == null) {
+                return ReturnResult.error("读取源文件失败: " + down.getMsg());
+            }
+            byte[] data = down.getData();
+
+            // 获取文件名
+            ReturnResult<FileSystem> detail = fileSystemService.getFileDetail(fileId);
+            String fileName = detail.isSuccess() && detail.getData() != null
+                    ? detail.getData().getFileSystemOriginalName()
+                    : ("file-" + fileId);
+
+            int total = ids.size();
+            int success = 0;
+            List<String> failed = new java.util.ArrayList<>();
+
+            if ("SERVER".equalsIgnoreCase(targetType)) {
+                for (Object sidObj : ids) {
+                    try {
+                        Integer sid = Integer.valueOf(String.valueOf(sidObj));
+                        // 复用文件管理上传接口（以流形式）
+                        var res = fileManagementFacadeService.uploadFile(sid, targetDir, fileName, new ByteArrayInputStream(data), overwrite);
+                        if (res != null && res.isSuccess()) success++;
+                        else failed.add("S:" + sid);
+                    } catch (Exception ex) {
+                        failed.add("S:" + sidObj + "(" + ex.getMessage() + ")");
+                    }
+                }
+            } else if ("NODE".equalsIgnoreCase(targetType)) {
+                // 需要 NodeRemoteService，这里直接通过 FileManagementController 的 nodeRemoteService 更合理
+                return ReturnResult.error("请使用 /v1/file-management/distribute 进行节点分发");
+            } else {
+                return ReturnResult.error("不支持的目标类型: " + targetType);
+            }
+
+            Map<String, Object> out = new HashMap<>();
+            out.put("total", total);
+            out.put("success", success);
+            out.put("message", String.format("分发完成：成功 %d / 总计 %d%s", success, total,
+                    failed.isEmpty() ? "" : ("，失败：" + String.join(", ", failed))));
+            return ReturnResult.ok(out);
+        } catch (Exception e) {
+            log.error("分发文件失败(fileSystem)", e);
+            return ReturnResult.error("分发文件失败: " + e.getMessage());
+        }
+
+    }
+
+    /**
      * 下载文件
      */
     @ApiOperation("下载文件")
     @Operation(summary = "下载文件", description = "下载指定文件")
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<byte[]> downloadFile(
-            @ApiParam("文件ID") @Parameter(description = "文件ID") @PathVariable Integer fileId) {
+    public ResponseEntity<byte[]> downloadFile(@ApiParam("文件ID") @Parameter(description = "文件ID") @PathVariable Integer fileId) {
 
         log.info("下载文件: fileId={}", fileId);
 
@@ -290,6 +360,25 @@ public class FileSystemController {
             return ReturnResult.error("操作失败: " + e.getMessage());
         }
     }
+
+    /**
+     * 绑定服务并开启HTTP访问（参考服务管理）
+     */
+    @ApiOperation("配置并开启HTTP访问")
+    @Operation(summary = "配置并开启HTTP访问", description = "根据传入的服务ID或端口创建/更新服务，并绑定到文件后开启HTTP访问")
+    @PutMapping("/http-access/{fileId}/config")
+    public ReturnResult<Boolean> configHttpAccess(
+            @ApiParam("文件ID") @Parameter(description = "文件ID") @PathVariable Integer fileId,
+            @RequestBody com.chua.starter.monitor.pojo.request.FileHttpAccessConfigRequest request
+    ) {
+        try {
+            return fileSystemService.configHttpAccess(fileId, request);
+        } catch (Exception e) {
+            log.error("配置并开启HTTP访问失败", e);
+            return ReturnResult.error("配置失败: " + e.getMessage());
+        }
+    }
+
 
     /**
      * 获取文件统计信息
