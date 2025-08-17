@@ -186,4 +186,21 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
                                           byte[] keystore,
                                           String keystorePassword);
 
+    /**
+     * 获取ServletFilter配置
+     *
+     * @param settingId 配置ID
+     * @return 配置数据
+     */
+    ReturnResult<Map<String, Object>> getFilterConfig(Integer settingId);
+
+    /**
+     * 保存ServletFilter配置
+     *
+     * @param settingId 配置ID
+     * @param config    配置数据
+     * @return 保存结果
+     */
+    ReturnResult<Boolean> saveFilterConfig(Integer settingId, Map<String, Object> config);
+
 }

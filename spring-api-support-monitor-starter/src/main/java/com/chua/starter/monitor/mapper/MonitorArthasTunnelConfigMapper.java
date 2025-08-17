@@ -14,5 +14,5 @@ public interface MonitorArthasTunnelConfigMapper extends BaseMapper<MonitorArtha
     /**
      * 根据服务器ID查询配置
      */
-    MonitorArthasTunnelConfig selectByServerId(@Param("serverId") Integer serverId);
+    MonitorArthasTunnelConfig selectByServerId(@Param("serverId") String serverId);
 }
