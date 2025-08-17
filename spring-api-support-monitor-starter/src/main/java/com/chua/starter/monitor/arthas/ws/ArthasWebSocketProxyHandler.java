@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.arthas.ws;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.arthas.support.ArthasProxyUtils;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.service.NodeManagementService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ArthasWebSocketProxyHandler extends AbstractWebSocketHandler {
 
     /** 节点元数据中的 Arthas Tunnel 地址键名 */
-    private static final String ARTHAS_META_KEY = com.chua.starter.monitor.arthas.support.ArthasProxyUtils.ARTHAS_META_KEY;
+    private static final String ARTHAS_META_KEY = ArthasProxyUtils.ARTHAS_META_KEY;
 
     private final NodeManagementService nodeManagementService;
 
