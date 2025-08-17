@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.starter.monitor.arthas.ws.ArthasWebSocketProxyHandlerHolder;
 import com.chua.starter.monitor.websocket.GuacamoleWebSocketInterceptor;
 import com.chua.starter.monitor.websocket.RdpWebSocketHandler;
 import com.chua.starter.monitor.websocket.TestWebSocketHandler;
@@ -44,7 +45,7 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
                 // Arthas 控制台 WebSocket 代理端点
                 // 路径模式：/v1/arthas/console/{nodeId}/ws
                 try {
-                        var arthasHandler = com.chua.starter.monitor.arthas.ws.ArthasWebSocketProxyHandlerHolder.get();
+                        var arthasHandler = ArthasWebSocketProxyHandlerHolder.get();
                         if (arthasHandler != null) {
                                 registry.addHandler(arthasHandler, "/v1/arthas/console/ws")
                                                 .addInterceptors(webSocketInterceptor).setAllowedOrigins("*");
