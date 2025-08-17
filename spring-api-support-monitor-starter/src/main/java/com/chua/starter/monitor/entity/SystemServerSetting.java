@@ -124,4 +124,69 @@ public class SystemServerSetting extends SysBase {
     @ApiModelProperty(value = "启动的时候生成")
     @Schema(description = "启动的时候生成")
     private String systemServerSettingFilterId;
+
+    /** ================= HTTPS 证书配置（直接字段+BLOB，非JSON） ================= */
+    /**
+     * 是否启用HTTPS
+     */
+    @TableField("system_server_setting_https_enabled")
+    @ApiModelProperty("是否启用HTTPS")
+    @Schema(description = "是否启用HTTPS")
+    private Boolean systemServerSettingHttpsEnabled;
+
+    /**
+     * 证书类型: PEM/PFX/JKS
+     */
+    @TableField("system_server_setting_https_cert_type")
+    @ApiModelProperty("证书类型: PEM/PFX/JKS")
+    @Schema(description = "证书类型: PEM/PFX/JKS")
+    private HttpsCertType systemServerSettingHttpsCertType;
+
+    /**
+     * PEM证书(BLOB)
+     */
+    @TableField("system_server_setting_https_pem_cert")
+    @ApiModelProperty("PEM证书(BLOB)")
+    @Schema(description = "PEM证书(BLOB)")
+    private byte[] systemServerSettingHttpsPemCert;
+
+    /**
+     * PEM私钥(BLOB)
+     */
+    @TableField("system_server_setting_https_pem_key")
+    @ApiModelProperty("PEM私钥(BLOB)")
+    @Schema(description = "PEM私钥(BLOB)")
+    private byte[] systemServerSettingHttpsPemKey;
+
+    /**
+     * PEM私钥密码
+     */
+    @TableField("system_server_setting_https_pem_key_password")
+    @ApiModelProperty("PEM私钥密码")
+    @Schema(description = "PEM私钥密码")
+    private String systemServerSettingHttpsPemKeyPassword;
+
+    /**
+     * Keystore容器(BLOB) - PFX/JKS
+     */
+    @TableField("system_server_setting_https_keystore")
+    @ApiModelProperty("Keystore容器(BLOB)")
+    @Schema(description = "Keystore容器(BLOB)")
+    private byte[] systemServerSettingHttpsKeystore;
+
+    /**
+     * Keystore密码 - PFX/JKS
+     */
+    @TableField("system_server_setting_https_keystore_password")
+    @ApiModelProperty("Keystore密码")
+    @Schema(description = "Keystore密码")
+    private String systemServerSettingHttpsKeystorePassword;
+
+    /**
+     * HTTPS 证书类型枚举
+     */
+    public enum HttpsCertType {
+        PEM, PFX, JKS
+    }
 }
+
