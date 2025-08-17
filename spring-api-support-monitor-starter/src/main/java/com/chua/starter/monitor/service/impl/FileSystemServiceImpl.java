@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.FileSystem;
 import com.chua.starter.monitor.entity.FileSystemGroup;
 import com.chua.starter.monitor.entity.FileSystemPart;
@@ -924,23 +925,23 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             if (targetServiceId != null) {
                 // 更新已有服务
                 server.setSystemServerId(targetServiceId);
-                var check = ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                var check = SpringBeanUtils.getBean(SystemServerService.class)
                         .checkPortAvailable(port, targetServiceId);
                 if (!check.isOk() || Boolean.FALSE.equals(check.getData())) {
                     return ReturnResult.error("端口 " + port + " 不可用");
                 }
-                ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                SpringBeanUtils.getBean(SystemServerService.class)
                         .updateById(server);
             } else {
                 // 新建服务
                 server.setSystemServerName(StringUtils.hasText(request.getName()) ? request.getName() : (fileSystem.getFileSystemOriginalName() + "-HTTP服务"));
                 server.setSystemServerStatus(com.chua.starter.monitor.entity.SystemServer.SystemServerStatus.STOPPED);
-                var check = ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                var check = SpringBeanUtils.getBean(SystemServerService.class)
                         .checkPortAvailable(port, null);
                 if (!check.isOk() || Boolean.FALSE.equals(check.getData())) {
                     return ReturnResult.error("端口 " + port + " 不可用");
                 }
-                ((com.chua.starter.monitor.service.SystemServerService) com.chua.starter.mybatis.utils.SpringBeanUtils.getBean(com.chua.starter.monitor.service.SystemServerService.class))
+                SpringBeanUtils.getBean(SystemServerService.class)
                         .save(server);
                 targetServiceId = server.getSystemServerId();
             }
