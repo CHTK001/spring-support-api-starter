@@ -54,6 +54,7 @@ public class ArthasServiceImpl implements ArthasService {
         MonitorArthasTunnelConfig rec = arthasTunnelConfigMapper.selectByServerId(serverId);
         if (rec != null) {
             cfg.setArthasTunnelConfigAddress(rec.getMonitorArthasTunnelConfigAddress());
+            cfg.setArthasTunnelConfigHttp(rec.getArthasTunnelConfigHttp());
             cfg.setArthasTunnelConfigUsername(rec.getMonitorArthasTunnelConfigUsername());
             cfg.setArthasTunnelConfigPassword(rec.getMonitorArthasTunnelConfigPassword());
         }
@@ -70,6 +71,7 @@ public class ArthasServiceImpl implements ArthasService {
         if (config != null) {
             rec.setMonitorArthasTunnelConfigAddress(config.getArthasTunnelConfigAddress());
             rec.setMonitorArthasTunnelConfigUsername(config.getArthasTunnelConfigUsername());
+            rec.setArthasTunnelConfigHttp(config.getArthasTunnelConfigHttp());
             rec.setMonitorArthasTunnelConfigPassword(config.getArthasTunnelConfigPassword());
         }
         if (rec.getMonitorArthasTunnelConfigId() == null) {
