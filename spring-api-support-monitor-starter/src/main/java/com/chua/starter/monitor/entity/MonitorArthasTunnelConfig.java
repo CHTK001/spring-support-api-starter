@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Arthas Tunnel 独立配置")
 public class MonitorArthasTunnelConfig {
 
+    public static final MonitorArthasTunnelConfig EMPTY = new MonitorArthasTunnelConfig();
     /** 主键ID */
     @TableId(value = "monitor_arthas_tunnel_config_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
