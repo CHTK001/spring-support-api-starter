@@ -106,9 +106,16 @@ public class ArthasWebSocketHandler {
 
     @OnMessage
     public void onMessage(String message, Session session) {
+        log.info("Arthas WS 发送: {}", message);
         WebSocket upstream = sessionToUpstream.get(session.getId());
         if (upstream != null) {
-            upstream.sendText(message, true);
+            if(message.contains("\"action\"")) {
+                upstream.sendText(message, true);
+                return;
+            }
+            upstream.sendText("""
+                    {"action":"read","data":"%s"}
+                    """.formatted(message), true);
         }
     }
     @OnMessage

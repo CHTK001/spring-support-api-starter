@@ -19,14 +19,17 @@ public class ArthasTunnelConfig {
 
     /** Tunnel 服务器地址，例如：ws://arthas-tunnel:7777/ws */
     @Schema(description = "Tunnel 服务器地址，例如：ws://arthas-tunnel:7777/ws")
-    private String address;
+    private String arthasTunnelConfigAddress;
+    /** HTTP 请求地址（可选），用于 HTTP 方式连接 Arthas */
+    @Schema(description = "HTTP 请求地址（可选），用于 HTTP 方式连接 Arthas")
+    private String arthasTunnelConfigHttp;
 
     /** 认证用户名（可选） */
     @Schema(description = "认证用户名（可选）")
-    private String username;
+    private String arthasTunnelConfigUsername;
 
     /** 认证密码（可选） */
     @Schema(description = "认证密码（可选）")
-    private String password;
+    private String arthasTunnelConfigPassword;
 }
 
