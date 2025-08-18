@@ -185,11 +185,14 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
             if (StringUtils.hasText(setting.getFileSystemSettingAllowedFileTypes())) {
                 String fileExtension = getFileExtension(fileName);
                 if (StringUtils.hasText(fileExtension)) {
-                    String[] allowedTypes = setting.getFileSystemSettingAllowedFileTypes().split(",");
-                    boolean isAllowed = Arrays.stream(allowedTypes).map(String::trim)
-                            .anyMatch(type -> type.equalsIgnoreCase(fileExtension));
-                    if (!isAllowed) {
-                        return ReturnResult.error("不支持的文件类型: " + fileExtension);
+                    String fileSystemSettingAllowedFileTypes = setting.getFileSystemSettingAllowedFileTypes();
+                    if(!"*".equals(fileSystemSettingAllowedFileTypes)) {
+                        String[] allowedTypes = fileSystemSettingAllowedFileTypes.split(",");
+                        boolean isAllowed = Arrays.stream(allowedTypes).map(String::trim)
+                                .anyMatch(type -> type.equalsIgnoreCase(fileExtension));
+                        if (!isAllowed) {
+                            return ReturnResult.error("不支持的文件类型: " + fileExtension);
+                        }
                     }
                 }
             }
@@ -774,9 +777,9 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
 
             // 检查下载权限
             FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
-            if (setting == null || !Boolean.TRUE.equals(setting.getFileSystemSettingDownloadEnabled())) {
-                return ReturnResult.error("文件下载功能未启用");
-            }
+//            if (setting == null || !Boolean.TRUE.equals(setting.getFileSystemSettingDownloadEnabled())) {
+//                return ReturnResult.error("文件下载功能未启用");
+//            }
 
             if (!StringUtils.hasText(fileSystem.getFileSystemPath())) {
                 return ReturnResult.error("文件路径不存在");

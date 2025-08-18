@@ -52,6 +52,7 @@ public class FileSystemController {
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
     final FileManagementFacadeServiceImpl fileManagementFacadeService;
+
     /**
      * 分页查询文件列表
      */
@@ -261,8 +262,11 @@ public class FileSystemController {
                         Integer sid = Integer.valueOf(String.valueOf(sidObj));
                         // 复用文件管理上传接口（以流形式）
                         var res = fileManagementFacadeService.uploadFile(sid, targetDir, fileName, new ByteArrayInputStream(data), overwrite);
-                        if (res != null && res.isSuccess()) success++;
-                        else failed.add("S:" + sid);
+                        if (res != null && res.isSuccess()) {
+                            success++;
+                        } else {
+                            failed.add("S:" + sid);
+                        }
                     } catch (Exception ex) {
                         failed.add("S:" + sidObj + "(" + ex.getMessage() + ")");
                     }
@@ -531,33 +535,33 @@ public class FileSystemController {
         }
 
         switch (fileExtension.toLowerCase()) {
-        case "jpg":
-        case "jpeg":
-            return "image/jpeg";
-        case "png":
-            return "image/png";
-        case "gif":
-            return "image/gif";
-        case "pdf":
-            return "application/pdf";
-        case "txt":
-            return "text/plain";
-        case "html":
-            return "text/html";
-        case "css":
-            return "text/css";
-        case "js":
-            return "application/javascript";
-        case "json":
-            return "application/json";
-        case "xml":
-            return "application/xml";
-        case "mp4":
-            return "video/mp4";
-        case "mp3":
-            return "audio/mpeg";
-        default:
-            return "application/octet-stream";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+                return "text/plain";
+            case "html":
+                return "text/html";
+            case "css":
+                return "text/css";
+            case "js":
+                return "application/javascript";
+            case "json":
+                return "application/json";
+            case "xml":
+                return "application/xml";
+            case "mp4":
+                return "video/mp4";
+            case "mp3":
+                return "audio/mpeg";
+            default:
+                return "application/octet-stream";
         }
     }
 
@@ -570,14 +574,14 @@ public class FileSystemController {
         }
 
         switch (fileType.toLowerCase()) {
-        case "image":
-        case "video":
-        case "audio":
-        case "pdf":
-        case "text":
-            return true;
-        default:
-            return false;
+            case "image":
+            case "video":
+            case "audio":
+            case "pdf":
+            case "text":
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -611,7 +615,7 @@ public class FileSystemController {
      */
     private String[] parseAllowedFileTypes(String allowedFileTypes) {
         if (allowedFileTypes == null || allowedFileTypes.trim().isEmpty() || "*".equals(allowedFileTypes.trim())) {
-            return new String[] { "*" };
+            return new String[]{"*"};
         }
         return allowedFileTypes.split(",");
     }
