@@ -55,17 +55,32 @@ public class MonitorArthasSessionService {
     }
 
     /**
+     * 更新session信息
+     */
+    public boolean updateSession(MonitorArthasSession session) {
+        if (session == null || !StringUtils.hasText(session.getSessionId())) {
+            return false;
+        }
+        session.setUpdateTime(LocalDateTime.now());
+        int result = sessionMapper.updateById(session);
+        if (result > 0) {
+            log.info("更新Arthas session信息: sessionId={}", session.getSessionId());
+        }
+        return result > 0;
+    }
+
+    /**
      * 更新session状态
      */
     public boolean updateSessionStatus(String sessionId, String status) {
         if (!StringUtils.hasText(sessionId)) {
             return false;
         }
-        int result = sessionMapper.updateStatusBySessionId(sessionId, status, LocalDateTime.now());
-        if (result > 0) {
-            log.info("更新Arthas session状态: sessionId={}, status={}", sessionId, status);
-        }
-        return result > 0;
+
+        MonitorArthasSession monitorArthasSession = sessionMapper.selectBySessionId(sessionId);
+        monitorArthasSession.setStatus(status);
+        sessionMapper.updateById(monitorArthasSession);
+        return true;
     }
 
     /**
