@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = "数据控制台-字段注释")
 @Tag(name = "数据控制台-字段注释")
 @RequiredArgsConstructor
-public class DataFieldCommentController {
+public class SystemDataFieldCommentController {
 
     private final SystemDataFieldCommentService commentService;
 

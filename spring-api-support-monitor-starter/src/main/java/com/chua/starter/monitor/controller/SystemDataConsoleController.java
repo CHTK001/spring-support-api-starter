@@ -7,7 +7,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.starter.monitor.pojo.TableOpenResponse;
 import com.chua.starter.monitor.pojo.ValueCount;
-import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.monitor.service.SystemDataConsoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,9 +32,9 @@ import java.io.File;
 @Api(tags = "数据控制台")
 @Tag(name = "数据控制台")
 @RequiredArgsConstructor
-public class DataConsoleController {
+public class SystemDataConsoleController {
 
-    private final DataConsoleService dataConsoleService;
+    private final SystemDataConsoleService systemDataConsoleService;
 
     /**
      * 获取指定配置的根节点信息
@@ -47,7 +47,7 @@ public class DataConsoleController {
     @ApiOperation("获取根节点")
     public ReturnResult<HierarchyResult<HierarchyNode>> root(@PathVariable Integer id,
                                                              MetadataQuery query) {
-        return dataConsoleService.getRoot(id, query);
+        return systemDataConsoleService.getRoot(id, query);
     }
 
     /**
@@ -63,7 +63,7 @@ public class DataConsoleController {
     public ReturnResult<HierarchyResult<HierarchyNode>> children(@PathVariable Integer id,
                                                                  @RequestParam String parentPath,
                                                                  MetadataQuery query) {
-        return dataConsoleService.getChildren(id, parentPath, query);
+        return systemDataConsoleService.getChildren(id, parentPath, query);
     }
 
     /**
@@ -79,7 +79,7 @@ public class DataConsoleController {
     public ReturnResult<HierarchyNode> node(@PathVariable Integer id,
                                             @RequestParam String nodePath,
                                             MetadataQuery query) {
-        return dataConsoleService.getNode(id, nodePath, query);
+        return systemDataConsoleService.getNode(id, nodePath, query);
     }
 
     /**
@@ -90,7 +90,7 @@ public class DataConsoleController {
     public ReturnResult<TableOpenResponse> openTable(@PathVariable Integer id,
                                                      @RequestParam String nodePath,
                                                      @RequestParam(required = false, defaultValue = "100") Integer limit) {
-        return dataConsoleService.openTable(id, nodePath, limit);
+        return systemDataConsoleService.openTable(id, nodePath, limit);
     }
 
     /**
@@ -101,7 +101,7 @@ public class DataConsoleController {
     public ReturnResult<java.util.Map<String, java.util.List<ValueCount>>> analyze(@PathVariable Integer id,
                                                                                    @RequestParam String nodePath,
                                                                                    @RequestParam(required = false, defaultValue = "1000") Integer limit) {
-        return dataConsoleService.analyzeTable(id, nodePath, limit);
+        return systemDataConsoleService.analyzeTable(id, nodePath, limit);
     }
 
     /**
@@ -117,7 +117,7 @@ public class DataConsoleController {
     public ReturnResult<HierarchyResult<HierarchyNode>> search(@PathVariable Integer id,
                                                                @RequestParam String pattern,
                                                                MetadataQuery query) {
-        return dataConsoleService.search(id, pattern, query);
+        return systemDataConsoleService.search(id, pattern, query);
     }
 
     /**
@@ -135,7 +135,7 @@ public class DataConsoleController {
                                                @RequestParam(required = false) String type,
                                                @RequestBody String command,
                                                MetadataQuery query) {
-        return dataConsoleService.execute(id, type, command, query);
+        return systemDataConsoleService.execute(id, type, command, query);
     }
 
     /**
@@ -146,7 +146,7 @@ public class DataConsoleController {
      */
     @PostMapping("/{id}/backup/start")
     public ReturnResult<Boolean> startBackup(@PathVariable Integer id) {
-        return dataConsoleService.startBackup(id);
+        return systemDataConsoleService.startBackup(id);
     }
 
     /**
@@ -157,7 +157,7 @@ public class DataConsoleController {
      */
     @PostMapping("/{id}/backup/stop")
     public ReturnResult<Boolean> stopBackup(@PathVariable Integer id) {
-        return dataConsoleService.stopBackup(id);
+        return systemDataConsoleService.stopBackup(id);
     }
 
     /**
@@ -168,7 +168,7 @@ public class DataConsoleController {
      */
     @GetMapping("/{id}/backup/status")
     public ReturnResult<Boolean> backupStatus(@PathVariable Integer id) {
-        return dataConsoleService.backupStatus(id);
+        return systemDataConsoleService.backupStatus(id);
     }
 
     /**
@@ -179,7 +179,7 @@ public class DataConsoleController {
      */
     @GetMapping("/{id}/document")
     public ResponseEntity<byte[]> document(@PathVariable Integer id) {
-        return dataConsoleService.generateDocument(id).getData();
+        return systemDataConsoleService.generateDocument(id).getData();
     }
 
     /**

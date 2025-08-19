@@ -16,7 +16,7 @@ import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataFieldCommentMapper;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
-import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import com.google.common.base.Splitter;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class SystemDataFieldCommentServiceImpl
         extends ServiceImpl<SystemDataFieldCommentMapper, SystemDataFieldComment>
         implements SystemDataFieldCommentService {
 
-    final DataConsoleService systemDataConsoleService;
+    final SystemDataConsoleService systemDataConsoleService;
     private final SystemDataSettingMapper systemDataSettingMapper;
 
     @Override

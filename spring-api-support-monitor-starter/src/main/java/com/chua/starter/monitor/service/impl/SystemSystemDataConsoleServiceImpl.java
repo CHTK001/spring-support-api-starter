@@ -7,12 +7,14 @@ import com.chua.common.support.backup.BackupSetting;
 import com.chua.common.support.backup.listener.BackupData;
 import com.chua.common.support.backup.listener.BackupListener;
 import com.chua.common.support.backup.strategy.DayBackupStrategy;
+import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.constant.EventType;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.document.DocQuery;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.metadata.base.ConstructMetadata;
 import com.chua.common.support.metadata.command.CommandMetadata;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
@@ -33,7 +35,7 @@ import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.pojo.TableOpenResponse;
 import com.chua.starter.monitor.pojo.ValueCount;
-import com.chua.starter.monitor.service.DataConsoleService;
+import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
@@ -47,18 +49,17 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemDataConsoleServiceImpl implements DataConsoleService, InitializingBean {
+public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleService, InitializingBean {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
-    private final Map<Integer, Backup> backupStatusMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Backup> backupStatusMap = new ConcurrentReferenceHashMap<>();
     @Autowired
     private SystemDataFieldCommentService systemDataFieldCommentService;
 
@@ -147,8 +148,8 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
             }
 
             List<String> columns = new ArrayList<>();
-            Map<String, String> autoComments = new java.util.HashMap<>();
-            Map<String, String> pathToColumn = new java.util.HashMap<>();
+            Map<String, String> autoComments = new HashMap<>();
+            Map<String, String> pathToColumn = new HashMap<>();
             for (HierarchyNode cn : columnNodes) {
                 String name = String.valueOf(cn.getName());
                 columns.add(name);
@@ -172,7 +173,7 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
             }
 
             // 3) 合并字段注释：手动优先
-            Map<String, String> columnComments = new java.util.HashMap<>(autoComments);
+            Map<String, String> columnComments = new HashMap<>(autoComments);
             if (!pathToColumn.isEmpty()) {
                 List<SystemDataFieldComment> manual = systemDataFieldCommentService.list(
                         Wrappers.<SystemDataFieldComment>lambdaQuery()
@@ -207,7 +208,7 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
             }
             List<String> columns = open.getData().getColumns();
             List<Map<String, Object>> rows = open.getData().getRows();
-            Map<String, List<ValueCount>> result = new java.util.HashMap<>();
+            Map<String, List<ValueCount>> result = new HashMap<>();
             for (String col : columns) {
                 Map<String, Long> freq = rows.stream()
                         .collect(Collectors.groupingBy(o -> String.valueOf(o.get(col)), Collectors.counting()));
@@ -222,6 +223,38 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
             log.error("表分析失败", e);
             return ReturnResult.error(e.getMessage());
         }
+    }
+
+    @Override
+    public Boolean renameTable(Integer settingId, String nodePath, String newName) {
+        HierarchyMetadata orCreateHierarchy = getOrCreateHierarchy(settingId);
+        if (orCreateHierarchy instanceof ConstructMetadata constructMetaData) {
+            String[] pathParts = nodePath.split("/");
+            String schemaName = pathParts[1];
+            String tableName = pathParts[2];
+            try {
+                return !constructMetaData.renameTable(schemaName, tableName, newName).hasError();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Boolean backupTable(Integer settingId, String nodePath, String backupName) {
+        HierarchyMetadata orCreateHierarchy = getOrCreateHierarchy(settingId);
+        if (orCreateHierarchy instanceof ConstructMetadata constructMetaData) {
+            String[] pathParts = nodePath.split("/");
+            String schemaName = pathParts[1];
+            String tableName = pathParts[2];
+            try {
+                return !constructMetaData.copyTableStructure(schemaName, tableName, backupName).hasError();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
     }
 
     @Override
