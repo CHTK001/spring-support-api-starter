@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.starter.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.starter.common.support.entity.SysBase;
+import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
