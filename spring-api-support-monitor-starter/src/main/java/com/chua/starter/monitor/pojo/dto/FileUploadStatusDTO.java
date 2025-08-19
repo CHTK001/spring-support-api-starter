@@ -1,9 +1,9 @@
-package com.chua.starter.monitor.starter.pojo.dto;
+package com.chua.starter.monitor.pojo.dto;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 文件上传状态DTO

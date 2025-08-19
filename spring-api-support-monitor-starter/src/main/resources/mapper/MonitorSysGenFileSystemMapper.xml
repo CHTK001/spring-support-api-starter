@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenFileSystemMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenFileSystemMapper">
 
     <!-- 根据MD5查询文件 -->
-    <select id="selectByMd5" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem">
+    <select id="selectByMd5" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystem">
         SELECT * FROM monitor_sys_gen_file_system
         WHERE monitor_sys_gen_file_system_md5 = #{md5}
         AND monitor_sys_gen_file_system_status != 3
@@ -11,14 +11,14 @@
     </select>
 
     <!-- 根据状态查询文件列表 -->
-    <select id="selectByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem">
+    <select id="selectByStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystem">
         SELECT * FROM monitor_sys_gen_file_system
         WHERE monitor_sys_gen_file_system_status = #{status}
         ORDER BY create_time DESC
     </select>
 
     <!-- 查询待合并的文件列表 -->
-    <select id="selectPendingMergeFiles" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem">
+    <select id="selectPendingMergeFiles" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystem">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_file_system
         WHERE monitor_sys_gen_file_system_status = 0
@@ -76,7 +76,7 @@
     </select>
 
     <!-- 根据上传用户查询文件列表 -->
-    <select id="selectByUploadUser" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem">
+    <select id="selectByUploadUser" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystem">
         SELECT * FROM monitor_sys_gen_file_system
         WHERE monitor_sys_gen_file_system_upload_user = #{uploadUser}
         AND monitor_sys_gen_file_system_status != 3
@@ -84,7 +84,7 @@
     </select>
 
     <!-- 查询热门下载文件 -->
-    <select id="selectPopularFiles" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem">
+    <select id="selectPopularFiles" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystem">
         <![CDATA[
         SELECT * FROM monitor_sys_gen_file_system
         WHERE monitor_sys_gen_file_system_status = 1
