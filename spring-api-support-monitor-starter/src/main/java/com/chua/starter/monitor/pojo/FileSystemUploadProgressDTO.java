@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.starter.pojo;
+package com.chua.starter.monitor.pojo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

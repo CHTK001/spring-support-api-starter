@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.monitor.starter.mapper.MonitorSysGenFileSystemSettingMapper">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenFileSystemSettingMapper">
 
     <!-- 根据配置键查询配置 -->
-    <select id="selectByKey" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting">
+    <select id="selectByKey" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting">
         SELECT * FROM monitor_sys_gen_file_system_setting
         WHERE monitor_sys_gen_file_system_setting_key = #{key}
         LIMIT 1
     </select>
 
     <!-- 根据配置分组查询配置列表 -->
-    <select id="selectByGroup" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting">
+    <select id="selectByGroup" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting">
         SELECT * FROM monitor_sys_gen_file_system_setting
         WHERE monitor_sys_gen_file_system_setting_group = #{group}
         ORDER BY monitor_sys_gen_file_system_setting_sort ASC, create_time ASC
     </select>
 
     <!-- 根据状态查询配置列表 -->
-    <select id="selectByStatus" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting">
+    <select id="selectByStatus" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting">
         SELECT * FROM monitor_sys_gen_file_system_setting
         WHERE monitor_sys_gen_file_system_setting_status = #{status}
         ORDER BY monitor_sys_gen_file_system_setting_sort ASC, create_time ASC
@@ -48,14 +48,14 @@
     </select>
 
     <!-- 获取所有启用的配置 -->
-    <select id="selectAllEnabled" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting">
+    <select id="selectAllEnabled" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting">
         SELECT * FROM monitor_sys_gen_file_system_setting
         WHERE monitor_sys_gen_file_system_setting_status = 1
         ORDER BY monitor_sys_gen_file_system_setting_sort ASC, create_time ASC
     </select>
 
     <!-- 根据配置类型查询配置列表 -->
-    <select id="selectByType" resultType="com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting">
+    <select id="selectByType" resultType="com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting">
         SELECT * FROM monitor_sys_gen_file_system_setting
         WHERE monitor_sys_gen_file_system_setting_type = #{type}
         ORDER BY monitor_sys_gen_file_system_setting_sort ASC, create_time ASC

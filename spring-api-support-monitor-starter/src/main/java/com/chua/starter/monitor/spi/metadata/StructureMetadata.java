@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.starter.spi.metadata;
+package com.chua.starter.monitor.spi.metadata;
 
 import lombok.Data;
 
