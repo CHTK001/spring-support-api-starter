@@ -26,7 +26,6 @@
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-common-video-starter</module>
-        <module>spring-api-support-video-starter</module>
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-school-starter</module>
         <module>spring-api-support-school-starter</module>

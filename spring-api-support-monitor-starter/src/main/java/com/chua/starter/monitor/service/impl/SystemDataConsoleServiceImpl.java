@@ -165,7 +165,7 @@ public class SystemDataConsoleServiceImpl implements DataConsoleService, Initial
 
                 if (data1.isOk()) {
                     CommandResult data = data1.getData();
-//                    resp.setRows(data.getData());
+                    resp.setRows(data.getData().getRows());
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
