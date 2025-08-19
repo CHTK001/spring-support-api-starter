@@ -1,6 +1,7 @@
-package com.chua.starter.monitor.starter.service;
+package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.entity.MonitorSysGenFileSystem;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ public interface MonitorSysGenFileSystemMergeTaskService {
      * @param limit 限制数量
      * @return 文件列表
      */
-    ReturnResult<List<com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystem>> getPendingMergeFiles(Integer limit);
+    ReturnResult<List<MonitorSysGenFileSystem>> getPendingMergeFiles(Integer limit);
 
     /**
      * 处理合并队列

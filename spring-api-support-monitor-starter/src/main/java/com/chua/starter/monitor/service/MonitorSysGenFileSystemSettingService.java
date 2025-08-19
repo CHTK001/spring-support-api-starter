@@ -1,8 +1,8 @@
-package com.chua.starter.monitor.starter.service;
+package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.starter.entity.MonitorSysGenFileSystemSetting;
+import com.chua.starter.monitor.entity.MonitorSysGenFileSystemSetting;
 
 import java.util.List;
 

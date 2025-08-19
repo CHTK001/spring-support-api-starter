@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.starter.entity;
+package com.chua.starter.monitor.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
