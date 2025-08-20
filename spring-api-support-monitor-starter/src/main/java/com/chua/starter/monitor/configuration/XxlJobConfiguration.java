@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableConfigurationProperties(ReportJobProperties.class)
-@ConditionalOnProperty(prefix = ReportJobProperties.PRE, name = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = ReportJobProperties.PRE, name = "enable", havingValue = "true")
 public class XxlJobConfiguration {
 
     /**
