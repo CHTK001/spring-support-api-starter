@@ -16,3 +16,4 @@ target/
 *.jar
 *.html
 rebel.xml
+*.db
