@@ -62,7 +62,13 @@ public class SystemDataConsoleController {
     @ApiOperation("获取子节点")
     public ReturnResult<HierarchyResult<HierarchyNode>> children(@PathVariable Integer id,
                                                                  @RequestParam String parentPath,
+                                                                 @RequestParam(required = false) Integer page,
+                                                                 @RequestParam(required = false) Integer size,
                                                                  MetadataQuery query) {
+        if (page != null && size != null) {
+            query = query == null ? new MetadataQuery() : query;
+            query.setPage(page, size);
+        }
         return systemDataConsoleService.getChildren(id, parentPath, query);
     }
 
