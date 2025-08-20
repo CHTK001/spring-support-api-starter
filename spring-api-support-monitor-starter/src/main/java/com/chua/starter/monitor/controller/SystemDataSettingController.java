@@ -1,60 +1,169 @@
 package com.chua.starter.monitor.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.backup.Backup;
+import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.SystemDataSetting;
-import io.swagger.v3.oas.annotations.Operation;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.starter.monitor.entity.SystemDataSetting;
+import com.chua.starter.monitor.pojo.SystemCapabilities;
+import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import com.chua.starter.monitor.service.SystemDataConsoleService;
+import com.chua.starter.monitor.service.SystemDataSettingService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
- * 系统数据源配置 控制器（最小实现）
- * - 提供保存接口，并进行基础校验
+ * 数据管理配置
+ *
+ * 提供数据源配置的增删改查、能力查询与控制台权限配置的读写接口。
+ *
+ * @author CH
  */
 @Slf4j
 @RestController
 @RequestMapping("/system/data/setting")
-@Tag(name = "系统数据源配置", description = "数据管理-数据源配置")
+@Api(tags = "数据管理配置")
+@Tag(name = "数据管理配置")
+@RequiredArgsConstructor
 public class SystemDataSettingController {
 
+    private final SystemDataSettingService systemDataSettingService;
+    private final SystemDataConsoleService dataConsoleService;
+
+    /**
+     * 查询全部数据配置
+     */
+    @GetMapping("/list")
+    @ApiOperation("查询全部数据配置")
+    public ReturnResult<List<SystemDataSetting>> list() {
+        return ReturnResult.ok(systemDataSettingService.list());
+    }
+
+    /**
+     * 分页查询数据配置，直接携带能力
+     */
+    @GetMapping("/page")
+    @ApiOperation("分页查询数据配置")
+    public ReturnResult<Page<SystemDataSettingPageItem>> page(
+            @RequestParam(required = false, defaultValue = "1") long current,
+            @RequestParam(required = false, defaultValue = "20") long size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String type
+    ) {
+        return systemDataSettingService.pageWithCapabilities(current, size, name, type);
+    }
+
+    /**
+     * 保存或更新数据配置
+     */
     @PostMapping("/save")
-    @Operation(summary = "保存配置", description = "保存系统数据源配置；远程模式下校验 Server 或 Host+Port")
-    public ReturnResult<SystemDataSetting> save(@RequestBody SystemDataSetting setting) {
-        try {
-            if (setting == null) {
-                return ReturnResult.error("参数为空");
-            }
-            if (!StringUtils.hasText(setting.getSystemDataSettingName())) {
-                return ReturnResult.error("名称必填");
-            }
-            if (!StringUtils.hasText(setting.getSystemDataSettingMode())) {
-                return ReturnResult.error("模式必填");
-            }
-            if (!StringUtils.hasText(setting.getSystemDataSettingType())) {
-                return ReturnResult.error("类型必填");
-            }
-            // 远程模式下校验：地址 或 主机+端口
-            if ("REMOTE".equalsIgnoreCase(setting.getSystemDataSettingMode())) {
-                boolean hasServer = StringUtils.hasText(setting.getSystemDataSettingServer());
-                boolean hasHost = StringUtils.hasText(setting.getSystemDataSettingHost());
-                Integer port = setting.getSystemDataSettingPort();
-                if (!hasServer) {
-                    if (!hasHost || port == null || port <= 0) {
-                        return ReturnResult.error("远程模式下需填写“地址”或同时填写“主机+端口”");
-                    }
-                }
-            }
-            // 控制台启用/禁用：后端仅接收字段，不做强逻辑处理（为空表示禁用）
-            // TODO: 在真实项目中应将配置持久化到数据库，这里简化为直接返回
-            return ReturnResult.ok(setting);
-        } catch (Exception e) {
-            log.error("保存配置异常", e);
-            return ReturnResult.error("保存异常: " + e.getMessage());
+    @ApiOperation("保存或更新数据配置")
+    public ReturnResult<Boolean> save(@RequestBody @Schema(description = "数据源配置") SystemDataSetting setting) {
+        return systemDataSettingService.saveOrUpdateSetting(setting);
+    }
+
+    /**
+     * 按ID删除数据配置
+     */
+    @DeleteMapping("/{id}")
+    @ApiOperation("删除数据配置")
+    public ReturnResult<Boolean> delete(@PathVariable Integer id) {
+        return systemDataSettingService.deleteById(id);
+    }
+
+    /**
+     * 查询能力支持：是否支持备份/文档/文件
+     */
+    @GetMapping("/{id}/capabilities")
+    @ApiOperation("查询能力支持：是否支持备份/文档/文件")
+    public ReturnResult<SystemCapabilities> capabilities(@PathVariable Integer id) {
+        SystemDataSetting setting = systemDataSettingService.getById(id);
+        if (setting == null) {
+            return ReturnResult.error("不存在");
         }
+        SystemCapabilities capabilities = new SystemCapabilities();
+        // 通过 SPI 判断能力
+        boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
+        boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
+        boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
+        capabilities.setBackup(backup);
+        capabilities.setDocument(document);
+        capabilities.setFile(isFile);
+        return ReturnResult.ok(capabilities);
+    }
+
+    /**
+     * 上传 JDBC 驱动
+     */
+    @PostMapping(value = "/{id}/driver/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation("上传 JDBC 驱动")
+    public ReturnResult<String> uploadDriver(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
+        return systemDataSettingService.uploadJdbcDriver(id, file);
+    }
+
+    /**
+     * 生成文档HTML（iframe嵌入）
+     */
+    @GetMapping(value = "/{id}/document/html", produces = MediaType.TEXT_HTML_VALUE)
+    @ApiOperation("生成文档HTML")
+    public ResponseEntity<byte[]> documentHtml(@PathVariable Integer id) {
+        return dataConsoleService.generateDocument(id).getData();
+    }
+
+    /**
+     * 启动备份
+     */
+    @PostMapping("/{id}/backup/start")
+    @ApiOperation("启动备份")
+    public ReturnResult<Boolean> startBackup(@PathVariable Integer id) {
+        return dataConsoleService.startBackup(id);
+    }
+
+    /**
+     * 停止备份
+     */
+    @PostMapping("/{id}/backup/stop")
+    @ApiOperation("停止备份")
+    public ReturnResult<Boolean> stopBackup(@PathVariable Integer id) {
+        return dataConsoleService.stopBackup(id);
+    }
+
+    /**
+     * 备份状态
+     */
+    @GetMapping("/{id}/backup/status")
+    @ApiOperation("备份状态")
+    public ReturnResult<Boolean> backupStatus(@PathVariable Integer id) {
+        return dataConsoleService.backupStatus(id);
+    }
+
+    /**
+     * 读取控制台权限配置(JSON)
+     */
+    @GetMapping("/{id}/console/config")
+    @ApiOperation("读取控制台权限配置(JSON)")
+    public ReturnResult<String> getConsoleConfig(@PathVariable Integer id) {
+        return systemDataSettingService.getConsoleConfig(id);
+    }
+
+    /**
+     * 保存控制台权限配置(JSON)
+     */
+    @PostMapping("/{id}/console/config")
+    @ApiOperation("保存控制台权限配置(JSON)")
+    public ReturnResult<Boolean> saveConsoleConfig(@PathVariable Integer id, @RequestBody String config) {
+        return systemDataSettingService.saveConsoleConfig(id, config);
     }
 }
 
