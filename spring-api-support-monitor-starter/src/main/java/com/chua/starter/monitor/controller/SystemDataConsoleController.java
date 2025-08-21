@@ -67,7 +67,7 @@ public class SystemDataConsoleController {
                                                                  MetadataQuery query) {
         if (page != null && size != null) {
             query = query == null ? new MetadataQuery() : query;
-            query.setPage(page, size);
+            query.setPageNumber(page, size);
         }
         return systemDataConsoleService.getChildren(id, parentPath, query);
     }
