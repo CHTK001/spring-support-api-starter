@@ -70,13 +70,13 @@ public class ServerTaskManager {
     private ExecutorService executorService;
 
     // 存储每个服务器的任务信息
-    private final Map<Integer, ServerTaskInfo> serverTasks = new ConcurrentHashMap<>();
+    private static final Map<Integer, ServerTaskInfo> serverTasks = new ConcurrentHashMap<>();
 
     // 全局任务（不依赖特定服务器）
-    private final Map<String, Future<?>> globalTasks = new ConcurrentHashMap<>();
+    private static final Map<String, Future<?>> globalTasks = new ConcurrentHashMap<>();
 
     // 内存中的配置缓存
-    private final Map<Integer, MonitorSysGenServerSetting> configCache = new ConcurrentHashMap<>();
+    private static final Map<Integer, MonitorSysGenServerSetting> configCache = new ConcurrentHashMap<>();
 
     // 配置刷新间隔（秒）
     private static final int CONFIG_REFRESH_INTERVAL = 60;
