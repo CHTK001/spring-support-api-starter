@@ -1,11 +1,11 @@
-package com.chua.starter.system.mapper;
+package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.common.support.annotations.DataScope;
+import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.system.entity.SysTenant;
 import com.chua.starter.system.entity.SysUser;
-import com.chua.starter.system.query.SysUserQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
