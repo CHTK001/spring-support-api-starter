@@ -58,18 +58,6 @@
         </rollingPolicy>
     </appender>
 
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-        <http>
-            <url>http://localhost:3100/loki/api/v1/push</url>
-        </http>
-        <format>
-            <label>
-                <pattern>application=${applicationName},env=${env},host=${HOSTNAME},level=%level</pattern>
-            </label>
-            <message class="com.github.loki4j.logback.JsonLayout"/>
-        </format>
-    </appender>
-
 
     <!-- 把日志异步输出到磁盘文件中，避免每次都进行磁盘IO操作 -->
     <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
