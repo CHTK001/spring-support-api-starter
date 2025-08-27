@@ -1,11 +1,11 @@
-package com.chua.starter.scheduler.device;
+package com.chua.starter.project.scheduler.device;
 
 import com.chua.common.support.utils.ThreadUtils;
+import com.chua.starter.project.mapper.SysProjectMapper;
+import com.chua.starter.project.service.support.CameraService;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysProject;
-import com.chua.starter.system.mapper.SysProjectMapper;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.system.service.support.CameraService;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.chua.starter.system.service.impl.SysDeviceServiceImpl.reload;
+import static com.chua.starter.project.service.impl.SysDeviceServiceImpl.reload;
+
 
 /**
  * 门禁设备
