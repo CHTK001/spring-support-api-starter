@@ -37,6 +37,9 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
      */
     private volatile MailSender mailSender;
 
+    /**
+     * 是否加载
+     */
     private volatile boolean isLoaded;
 
 

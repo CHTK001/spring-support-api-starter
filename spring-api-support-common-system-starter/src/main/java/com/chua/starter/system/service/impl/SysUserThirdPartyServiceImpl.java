@@ -1,9 +1,9 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.service.SysUserThirdPartyService;
-import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.entity.SysUserThirdParty;
+import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
+import com.chua.starter.system.service.SysUserThirdPartyService;
 import org.springframework.stereotype.Service;
 /**
  *
@@ -11,6 +11,6 @@ import org.springframework.stereotype.Service;
  * @author CH    
  */
 @Service
-public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService{
+public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
 
 }

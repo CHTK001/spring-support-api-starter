@@ -1,8 +1,8 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.service.SysDictItemPropertyService;
 import com.chua.starter.system.pojo.dict.DictItemPropertyV1Request;
-import com.chua.starter.system.service.SysDictItemPropertyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

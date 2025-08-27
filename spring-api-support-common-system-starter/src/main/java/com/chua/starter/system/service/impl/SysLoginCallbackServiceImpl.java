@@ -1,8 +1,8 @@
 package com.chua.starter.system.service.impl;
 
-import com.chua.starter.service.SimpleSysUserService;
-import com.chua.starter.service.SysLoginCallbackService;
 import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.system.service.SimpleSysUserService;
+import com.chua.starter.system.service.SysLoginCallbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

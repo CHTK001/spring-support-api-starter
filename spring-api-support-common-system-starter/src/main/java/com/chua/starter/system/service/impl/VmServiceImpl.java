@@ -1,7 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.chua.common.support.utils.ThreadUtils;
-import com.chua.starter.service.VmService;
+import com.chua.starter.system.service.VmService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 

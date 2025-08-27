@@ -12,9 +12,9 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.system.result.LoginResult;
+import com.chua.starter.system.service.SimpleSysUserService;
 import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_ERROR;
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
-import static com.chua.starter.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_FACTORY;
+import static com.chua.starter.system.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_FACTORY;
 
 /**
  * 默认登录处理器
