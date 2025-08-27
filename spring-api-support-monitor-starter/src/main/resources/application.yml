@@ -4,6 +4,8 @@ spring:
   profiles:
     active: dev
     include: mybatis,swagger,socket,control,codec,ip,discovery,options,report
+  main:
+    allow-bean-definition-overriding: true
 plugin:
   parameter:
     enable: true
