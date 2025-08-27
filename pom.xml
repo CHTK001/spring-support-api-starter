@@ -22,7 +22,6 @@
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-common-system-starter</module>
-        <module>spring-api-support-pay-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-common-video-starter</module>
