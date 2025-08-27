@@ -111,11 +111,106 @@ public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleServ
     public ReturnResult<HierarchyNode> getNode(Integer settingId, String nodePath, MetadataQuery query) {
         try {
             HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
-            return ReturnResult.ok(metadata.getNodeDetails(nodePath, query));
+            HierarchyNode node = metadata.getNodeDetails(nodePath, query);
+            
+            // 增强节点：为时序数据和 JSON 数据注入 valueType
+            if (node != null && node.getProperties() != null) {
+                enhanceNodeWithValueType(node, nodePath);
+            }
+            
+            return ReturnResult.ok(node);
         } catch (Exception e) {
             log.error("获取节点失败", e);
             return ReturnResult.error(e.getMessage());
         }
+    }
+
+    /**
+     * 为节点增强 valueType 信息，支持时序数据和 JSON 数据的检测
+     */
+    private void enhanceNodeWithValueType(HierarchyNode node, String nodePath) {
+        try {
+            String path = nodePath != null ? nodePath : "";
+            Map<String, Object> properties = node.getProperties();
+            
+            // 检测时序数据前缀
+            if (path.startsWith("monitor:timeseries:") || path.startsWith("monitor:simple:series:")) {
+                properties.put("valueType", "timeserial");
+                properties.put("chartType", "line");
+                return;
+            }
+            
+            // 检测 JSON 数据
+            Object value = properties.get("value");
+            if (value == null) {
+                value = properties.get("data");
+            }
+            
+            if (value instanceof String) {
+                String strValue = (String) value;
+                if (isJsonLike(strValue)) {
+                    properties.put("valueType", "json");
+                    return;
+                }
+                
+                // 检测其他类型
+                if (strValue.equalsIgnoreCase("true") || strValue.equalsIgnoreCase("false")) {
+                    properties.put("valueType", "boolean");
+                } else if (isEmailLike(strValue)) {
+                    properties.put("valueType", "email");
+                } else if (isColorLike(strValue)) {
+                    properties.put("valueType", "color");
+                } else if (isPasswordLike(strValue)) {
+                    properties.put("valueType", "password");
+                }
+            } else if (value instanceof Number) {
+                properties.put("valueType", "number");
+            } else if (value instanceof Boolean) {
+                properties.put("valueType", "boolean");
+            } else if (value instanceof java.util.List) {
+                properties.put("valueType", "array");
+            } else if (value instanceof java.util.Map) {
+                properties.put("valueType", "object");
+            }
+            
+        } catch (Exception e) {
+            log.debug("增强节点 valueType 失败: {}", e.getMessage());
+        }
+    }
+    
+    /**
+     * 检测是否为 JSON 格式字符串
+     */
+    private boolean isJsonLike(String str) {
+        if (str == null || str.trim().isEmpty()) return false;
+        String trimmed = str.trim();
+        return (trimmed.startsWith("{") && trimmed.endsWith("}")) || 
+               (trimmed.startsWith("[") && trimmed.endsWith("]"));
+    }
+    
+    /**
+     * 检测是否为邮箱格式
+     */
+    private boolean isEmailLike(String str) {
+        if (str == null) return false;
+        return str.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+    
+    /**
+     * 检测是否为颜色格式
+     */
+    private boolean isColorLike(String str) {
+        if (str == null) return false;
+        return str.matches("^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$");
+    }
+    
+    /**
+     * 检测是否为密码格式（简单检测包含特定关键词）
+     */
+    private boolean isPasswordLike(String str) {
+        if (str == null) return false;
+        String lower = str.toLowerCase();
+        return lower.contains("password") || lower.contains("secret") || lower.contains("key");
     }
 
     @Override
