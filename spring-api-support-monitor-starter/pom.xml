@@ -193,6 +193,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-project-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-image-starter</artifactId>
         </dependency>
 
@@ -253,11 +258,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-influxdb-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-aspose-diagram-starter</artifactId>
         </dependency>
 
         <dependency>
