@@ -1,9 +1,9 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.service.SysTaskSsoItemService;
-import com.chua.starter.service.mapper.SysTaskSsoItemMapper;
 import com.chua.starter.system.entity.SysTaskSsoItem;
+import com.chua.starter.system.mapper.SysTaskSsoItemMapper;
+import com.chua.starter.system.service.SysTaskSsoItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

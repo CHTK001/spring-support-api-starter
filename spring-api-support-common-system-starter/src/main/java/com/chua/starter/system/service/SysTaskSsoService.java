@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.result.PutObjectResult;
 import com.chua.starter.system.entity.SysTaskSso;
+import com.chua.starter.system.pojo.sso.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;

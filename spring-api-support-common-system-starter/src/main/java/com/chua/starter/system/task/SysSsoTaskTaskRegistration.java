@@ -2,12 +2,12 @@ package com.chua.starter.system.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.ThreadUtils;
-import com.chua.starter.service.SysTaskSsoItemService;
-import com.chua.starter.service.SysTaskSsoService;
 import com.chua.starter.service.properties.SsoProperties;
 import com.chua.starter.system.entity.SysTaskSso;
 import com.chua.starter.system.entity.SysTaskSsoItem;
 import com.chua.starter.system.pojo.sso.SysFileUploadRequest;
+import com.chua.starter.system.service.SysTaskSsoItemService;
+import com.chua.starter.system.service.SysTaskSsoService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
