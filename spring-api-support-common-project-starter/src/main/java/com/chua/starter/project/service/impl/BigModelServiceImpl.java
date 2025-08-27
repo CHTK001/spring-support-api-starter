@@ -83,12 +83,12 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        BigModelSetting binModelSetting = new BigModelSetting();
-        binModelSetting.setAppId(sysProject.getSysProjectAppId());
-        binModelSetting.setAppSecret(sysProject.getSysProjectAppSecret());
-        binModelSetting.setAppKey(sysProject.getSysProjectAppKey());
-        binModelSetting.setHost(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()));
-
+        BigModelSetting binModelSetting = BigModelSetting.builder()
+                .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
+                .appId(sysProject.getSysProjectAppId())
+                .appSecret(sysProject.getSysProjectAppSecret())
+                .appKey(sysProject.getSysProjectAppKey())
+                .build();
 
         BigModelClient bigModelClient = ServiceProvider.of(BigModelClient.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(), binModelSetting);
@@ -189,7 +189,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        GlobalSettingFactory.getInstance().register("llm", new BigModelSetting());
+        GlobalSettingFactory.getInstance().register("llm", BigModelSetting.builder().build());
         this.executorService = ThreadUtils.newVirtualThreadExecutor();
     }
 }
