@@ -78,6 +78,9 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
         sysLog.setSysLogBrowser(event.getBrowser());
         sysLog.setSysLogContent(event.getLogContent());
 
-        baseMapper.insert(sysLog);
+        try {
+            baseMapper.insert(sysLog);
+        } catch (Exception ignored) {
+        }
     }
 }
