@@ -1,4 +1,4 @@
-package com.chua.starter.system.controller;
+package com.chua.starter.service.controller;
 
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.result.Result;
