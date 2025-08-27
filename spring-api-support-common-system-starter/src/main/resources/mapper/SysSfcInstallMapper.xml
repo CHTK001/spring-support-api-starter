@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysSfcInstallMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysSfcInstall">
-    <!--@mbg.generated-->
-    <!--@Table sys_sfc_install-->
-    <id column="sys_sfc_install_id" jdbcType="INTEGER" property="sysSfcInstallId" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="sys_sfc_id" jdbcType="VARCHAR" property="sysSfcId" />
-    <result column="create_name" jdbcType="VARCHAR" property="createName" />
-    <result column="create_by" jdbcType="INTEGER" property="createBy" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
-    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    sys_sfc_install_id, user_id, sys_sfc_id, create_name, create_by, create_time, update_time, 
-    update_name, update_by
-  </sql>
 </mapper>
