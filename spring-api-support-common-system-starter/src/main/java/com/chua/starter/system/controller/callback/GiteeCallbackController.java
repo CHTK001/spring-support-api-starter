@@ -12,12 +12,12 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.chua.starter.service.SysLoginCallbackService;
-import com.chua.starter.service.SysLoginService;
-import com.chua.starter.service.SysUserThirdPartyService;
 import com.chua.starter.system.entity.SysUser;
 import com.chua.starter.system.entity.SysUserThirdParty;
 import com.chua.starter.system.result.LoginResult;
+import com.chua.starter.system.service.SysLoginCallbackService;
+import com.chua.starter.system.service.SysLoginService;
+import com.chua.starter.system.service.SysUserThirdPartyService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class GiteeCallbackController {
 
 
     @Autowired(required = false)
-    private  SysLoginCallbackService sysLoginCallbackService;
+    private SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService;
     final SysLoginService sysLoginService;
     final AuthClientProperties authProperties;
