@@ -13,16 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.Base64;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.io.Serializable;
-import java.util.Collection;
 
 /**
  * 系统服务器配置项详情表服务实现类
@@ -158,17 +157,6 @@ public class SystemServerSettingItemServiceImpl extends ServiceImpl<SystemServer
         return entities;
     }
 
-    /**
-     * 重写page方法，在查询后解密敏感数据
-     */
-    @Override
-    public IPage<SystemServerSettingItem> page(IPage<SystemServerSettingItem> page) {
-        IPage<SystemServerSettingItem> result = super.page(page);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
 
     /**
      * 加密SystemServerSettingItem中的敏感数据
