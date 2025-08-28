@@ -41,6 +41,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 系统服务器配置服务实现类
@@ -53,6 +60,15 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService, InitializingBean {
 
+    /**
+     * AES加密算法
+     */
+    private static final String ALGORITHM = "AES";
+    
+    /**
+     * AES加密密钥（实际项目中应该从配置文件或环境变量中获取）
+     */
+    private static final String SECRET_KEY = "MySecretKey12345"; // 16字节密钥
 
     /**
      * 存储已启动的服务器实例
@@ -389,17 +405,22 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     private void applySettingToServerInstance(ProtocolServer serverInstance, SystemServerSetting setting, Action action) throws Exception {
         String systemServerSettingType = setting.getSystemServerSettingType();
         try {
+            // 在使用配置之前先解密密码字段
+            SystemServerSetting decryptedSetting = new SystemServerSetting();
+            BeanUtils.copyProperties(setting, decryptedSetting);
+            decryptSettingPasswords(decryptedSetting);
+            
             if (action == Action.CREATE) {
                 ServletFilterHandler servletFilterHandler = ServiceProvider.of(ServletFilterHandler.class).getNewExtension(
                         systemServerSettingType
                 );
                 // 包装日志代理，采集执行日志
-                ServletFilter servletFilter = servletFilterHandler.handle(setting);
+                ServletFilter servletFilter = servletFilterHandler.handle(decryptedSetting);
                 servletFilter.addServletListener(new ServletListener() {
 
                     @Override
                     public void onEvent(ServletEvent event) {
-                        LoggingServletFilterProxy.wrap(setting, servletFilter, event);
+                        LoggingServletFilterProxy.wrap(decryptedSetting, servletFilter, event);
                     }
                 });
                 setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
@@ -407,11 +428,11 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 return;
             }
             if (action == Action.UPDATE) {
-                new HotloadingServletFilterHandler(serverInstance, systemServerSettingType).update(setting);
+                new HotloadingServletFilterHandler(serverInstance, systemServerSettingType).update(decryptedSetting);
                 return;
             }
             if (action == Action.DELETE) {
-                new HotloadingDeleteServletFilterHandler(serverInstance, systemServerSettingType).update(setting);
+                new HotloadingDeleteServletFilterHandler(serverInstance, systemServerSettingType).update(decryptedSetting);
             }
         } finally {
             log.debug("应用配置到服务器实例: 类型：{}, 配置名称{}",
@@ -455,5 +476,194 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             }
 
         });
+    }
+
+    /**
+     * 重写save方法，在保存前加密敏感数据
+     */
+    @Override
+    public boolean save(SystemServer entity) {
+        if (entity != null) {
+            encryptServerSensitiveData(entity);
+        }
+        return super.save(entity);
+    }
+
+    /**
+     * 重写updateById方法，在更新前加密敏感数据
+     */
+    @Override
+    public boolean updateById(SystemServer entity) {
+        if (entity != null) {
+            encryptServerSensitiveData(entity);
+        }
+        return super.updateById(entity);
+    }
+
+    /**
+     * 重写getById方法，在查询后解密敏感数据
+     */
+    @Override
+    public SystemServer getById(java.io.Serializable id) {
+        SystemServer entity = super.getById(id);
+        if (entity != null) {
+            decryptServerSensitiveData(entity);
+        }
+        return entity;
+    }
+
+    /**
+     * 重写list方法，在查询后解密敏感数据
+     */
+    @Override
+    public List<SystemServer> list() {
+        List<SystemServer> entities = super.list();
+        if (entities != null) {
+            entities.forEach(this::decryptServerSensitiveData);
+        }
+        return entities;
+    }
+
+    /**
+     * 重写list方法，在查询后解密敏感数据
+     */
+    @Override
+    public List<SystemServer> list(com.baomidou.mybatisplus.core.conditions.Wrapper<SystemServer> queryWrapper) {
+        List<SystemServer> entities = super.list(queryWrapper);
+        if (entities != null) {
+            entities.forEach(this::decryptServerSensitiveData);
+        }
+        return entities;
+    }
+
+    /**
+     * 加密SystemServer中的敏感数据
+     *
+     * @param server 服务器对象
+     */
+    private void encryptServerSensitiveData(SystemServer server) {
+        if (server == null) {
+            return;
+        }
+        
+        // 如果有需要加密的字段，在这里添加
+        // 例如：如果SystemServer有密码字段
+        // if (server.getPassword() != null) {
+        //     server.setPassword(encryptPassword(server.getPassword()));
+        // }
+    }
+
+    /**
+     * 解密SystemServer中的敏感数据
+     *
+     * @param server 服务器对象
+     */
+    private void decryptServerSensitiveData(SystemServer server) {
+        if (server == null) {
+            return;
+        }
+        
+        // 如果有需要解密的字段，在这里添加
+        // 例如：如果SystemServer有密码字段
+        // if (server.getPassword() != null) {
+        //     server.setPassword(decryptPassword(server.getPassword()));
+        // }
+    }
+
+    /**
+     * 加密密码
+     *
+     * @param password 明文密码
+     * @return 加密后的密码（Base64编码）
+     */
+    public String encryptPassword(String password) {
+        if (password == null || password.isEmpty()) {
+            return password;
+        }
+        
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedBytes = cipher.doFinal(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            log.error("密码加密失败", e);
+            throw new RuntimeException("密码加密失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 解密密码
+     *
+     * @param encryptedPassword 加密后的密码（Base64编码）
+     * @return 明文密码
+     */
+    public String decryptPassword(String encryptedPassword) {
+        if (encryptedPassword == null || encryptedPassword.isEmpty()) {
+            return encryptedPassword;
+        }
+        
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decodedBytes = Base64.getDecoder().decode(encryptedPassword);
+            byte[] decryptedBytes = cipher.doFinal(decodedBytes);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("密码解密失败", e);
+            throw new RuntimeException("密码解密失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 加密SystemServerSetting中的密码字段
+     *
+     * @param setting 服务器设置对象
+     */
+    public void encryptSettingPasswords(SystemServerSetting setting) {
+        if (setting == null) {
+            return;
+        }
+        
+        // 加密PEM私钥密码
+        if (setting.getSystemServerSettingHttpsPemKeyPassword() != null) {
+            setting.setSystemServerSettingHttpsPemKeyPassword(
+                encryptPassword(setting.getSystemServerSettingHttpsPemKeyPassword())
+            );
+        }
+        
+        // 加密Keystore密码
+        if (setting.getSystemServerSettingHttpsKeystorePassword() != null) {
+            setting.setSystemServerSettingHttpsKeystorePassword(
+                encryptPassword(setting.getSystemServerSettingHttpsKeystorePassword())
+            );
+        }
+    }
+
+    /**
+     * 解密SystemServerSetting中的密码字段
+     *
+     * @param setting 服务器设置对象
+     */
+    public void decryptSettingPasswords(SystemServerSetting setting) {
+        if (setting == null) {
+            return;
+        }
+        
+        // 解密PEM私钥密码
+        if (setting.getSystemServerSettingHttpsPemKeyPassword() != null) {
+            setting.setSystemServerSettingHttpsPemKeyPassword(
+                decryptPassword(setting.getSystemServerSettingHttpsPemKeyPassword())
+            );
+        }
+        
+        // 解密Keystore密码
+        if (setting.getSystemServerSettingHttpsKeystorePassword() != null) {
+            setting.setSystemServerSettingHttpsKeystorePassword(
+                decryptPassword(setting.getSystemServerSettingHttpsKeystorePassword())
+            );
+        }
     }
 }

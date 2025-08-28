@@ -17,6 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * 系统服务器配置项详情表服务实现类
@@ -28,6 +34,16 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class SystemServerSettingItemServiceImpl extends ServiceImpl<SystemServerSettingItemMapper, SystemServerSettingItem> implements SystemServerSettingItemService {
+
+    /**
+     * AES加密算法
+     */
+    private static final String ALGORITHM = "AES";
+    
+    /**
+     * AES加密密钥（实际项目中应该从配置文件或环境变量中获取）
+     */
+    private static final String SECRET_KEY = "MySecretKey12345"; // 16字节密钥
 
     @Override
     public IPage<SystemServerSettingItem> pageFor(Page<SystemServerSettingItem> page, SystemServerSettingItem entity) {
@@ -93,6 +109,162 @@ public class SystemServerSettingItemServiceImpl extends ServiceImpl<SystemServer
         } catch (Exception e) {
             log.error("更新配置项值失败: itemId={}, value={}", itemId, value, e);
             return ReturnResult.error("更新配置项值失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 重写save方法，在保存前加密敏感数据
+     */
+    @Override
+    public boolean save(SystemServerSettingItem entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.save(entity);
+    }
+
+    /**
+     * 重写updateById方法，在更新前加密敏感数据
+     */
+    @Override
+    public boolean updateById(SystemServerSettingItem entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.updateById(entity);
+    }
+
+    /**
+     * 重写getById方法，在查询后解密敏感数据
+     */
+    @Override
+    public SystemServerSettingItem getById(Serializable id) {
+        SystemServerSettingItem entity = super.getById(id);
+        if (entity != null) {
+            decryptSensitiveData(entity);
+        }
+        return entity;
+    }
+
+    /**
+     * 重写list方法，在查询后解密敏感数据
+     */
+    @Override
+    public List<SystemServerSettingItem> list() {
+        List<SystemServerSettingItem> entities = super.list();
+        if (entities != null) {
+            entities.forEach(this::decryptSensitiveData);
+        }
+        return entities;
+    }
+
+    /**
+     * 重写page方法，在查询后解密敏感数据
+     */
+    @Override
+    public IPage<SystemServerSettingItem> page(IPage<SystemServerSettingItem> page) {
+        IPage<SystemServerSettingItem> result = super.page(page);
+        if (result != null && result.getRecords() != null) {
+            result.getRecords().forEach(this::decryptSensitiveData);
+        }
+        return result;
+    }
+
+    /**
+     * 加密SystemServerSettingItem中的敏感数据
+     *
+     * @param item 配置项对象
+     */
+    private void encryptSensitiveData(SystemServerSettingItem item) {
+        if (item == null) {
+            return;
+        }
+        
+        // 加密配置项值（如果包含敏感信息）
+        if (item.getSystemServerSettingItemValue() != null && !item.getSystemServerSettingItemValue().isEmpty()) {
+            String itemName = item.getSystemServerSettingItemName();
+            // 判断是否为敏感字段
+            if (isSensitiveField(itemName)) {
+                item.setSystemServerSettingItemValue(encrypt(item.getSystemServerSettingItemValue()));
+            }
+        }
+    }
+
+    /**
+     * 解密SystemServerSettingItem中的敏感数据
+     *
+     * @param item 配置项对象
+     */
+    private void decryptSensitiveData(SystemServerSettingItem item) {
+        if (item == null) {
+            return;
+        }
+        
+        // 解密配置项值（如果包含敏感信息）
+        if (item.getSystemServerSettingItemValue() != null && !item.getSystemServerSettingItemValue().isEmpty()) {
+            String itemName = item.getSystemServerSettingItemName();
+            // 判断是否为敏感字段
+            if (isSensitiveField(itemName)) {
+                item.setSystemServerSettingItemValue(decrypt(item.getSystemServerSettingItemValue()));
+            }
+        }
+    }
+
+    /**
+     * 判断字段是否为敏感字段
+     *
+     * @param fieldName 字段名称
+     * @return 是否为敏感字段
+     */
+    private boolean isSensitiveField(String fieldName) {
+        if (fieldName == null) {
+            return false;
+        }
+        
+        String lowerFieldName = fieldName.toLowerCase();
+        return lowerFieldName.contains("password") || 
+               lowerFieldName.contains("secret") || 
+               lowerFieldName.contains("key") || 
+               lowerFieldName.contains("token") || 
+               lowerFieldName.contains("credential");
+    }
+
+    /**
+     * AES加密
+     *
+     * @param data 待加密数据
+     * @return 加密后的数据
+     */
+    private String encrypt(String data) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedData = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedData);
+        } catch (Exception e) {
+            log.error("加密失败", e);
+            return data; // 加密失败时返回原数据
+        }
+    }
+
+    /**
+     * AES解密
+     *
+     * @param encryptedData 待解密数据
+     * @return 解密后的数据
+     */
+    private String decrypt(String encryptedData) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decodedData = Base64.getDecoder().decode(encryptedData);
+            byte[] decryptedData = cipher.doFinal(decodedData);
+            return new String(decryptedData, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("解密失败", e);
+            return encryptedData; // 解密失败时返回原数据
         }
     }
 
