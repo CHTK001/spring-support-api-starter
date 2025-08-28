@@ -71,6 +71,19 @@ public class SystemDataSetting extends SysBase {
     @TableField("system_data_setting_password")
     private String systemDataSettingPassword;
 
+    /**
+     * 数据库名称
+     */
+    @Schema(description = "数据库名称")
+    @TableField("system_data_setting_database")
+    private String systemDataSettingDatabase;
+    /**
+     * 策略
+     */
+    @Schema(description = "策略")
+    @TableField("system_data_setting_policy")
+    private String systemDataSettingPolicy;
+
     /** 认证方式 */
     @Schema(description = "认证方式")
     @TableField("system_data_setting_auth_type")
