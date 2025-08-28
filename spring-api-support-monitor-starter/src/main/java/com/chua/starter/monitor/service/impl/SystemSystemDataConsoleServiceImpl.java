@@ -18,6 +18,7 @@ import com.chua.common.support.metadata.base.ConstructMetadata;
 import com.chua.common.support.metadata.command.CommandMetadata;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
+import com.chua.common.support.metadata.command.ResultItem;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
@@ -367,6 +368,18 @@ public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleServ
             DataSourceOptions options = buildOptions(setting);
             CommandMetadata metadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
             CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command, true);
+            if (result.isSuccess() && StringUtils.isNotBlank(query.getQueryId())) {
+                ResultItem data = result.getData();
+                List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
+                        Wrappers.<SystemDataFieldComment>lambdaQuery()
+                                .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
+                                .likeRight(SystemDataFieldComment::getSystemDataFieldCommentNodePath, query.getQueryId())
+                );
+                Map<String, String> columnComments = list.stream().collect(Collectors.toMap(SystemDataFieldComment::getSystemDataFieldCommentColumnName, SystemDataFieldComment::getSystemDataFieldCommentComment));
+                data.getColumns().forEach(column -> {
+                    column.setComment(columnComments.getOrDefault(column.getName(), column.getComment()));
+                });
+            }
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("执行命令失败", e);
