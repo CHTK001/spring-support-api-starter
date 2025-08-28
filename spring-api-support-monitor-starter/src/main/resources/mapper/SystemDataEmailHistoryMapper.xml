@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemDataEmailHistoryMapper">
+
+    <!-- 根据数据源配置ID查询邮件列表 -->
+    <select id="selectBySettingId" resultType="com.chua.starter.monitor.entity.SystemDataEmailHistory">
+        SELECT * FROM system_data_email_history 
+        WHERE system_data_email_history_setting_id = #{settingId} 
+        ORDER BY system_data_email_history_received_date DESC
+    </select>
+
+    <!-- 根据邮件ID查询邮件 -->
+    <select id="selectByMessageId" resultType="com.chua.starter.monitor.entity.SystemDataEmailHistory">
+        SELECT * FROM system_data_email_history 
+        WHERE system_data_email_history_message_id = #{messageId} 
+        AND system_data_email_history_setting_id = #{settingId}
+    </select>
+
+    <!-- 更新邮件已读状态 -->
+    <update id="updateReadStatus">
+        UPDATE system_data_email_history 
+        SET system_data_email_history_is_read = #{isRead} 
+        WHERE system_data_email_history_id = #{id}
+    </update>
+
+    <!-- 更新邮件收藏状态 -->
+    <update id="updateStarredStatus">
+        UPDATE system_data_email_history 
+        SET system_data_email_history_is_starred = #{isStarred} 
+        WHERE system_data_email_history_id = #{id}
+    </update>
+
+    <!-- 更新邮件标签 -->
+    <update id="updateLabels">
+        UPDATE system_data_email_history 
+        SET system_data_email_history_labels = #{labels} 
+        WHERE system_data_email_history_id = #{id}
+    </update>
+
+    <!-- 根据标签查询邮件 -->
+    <select id="selectByLabel" resultType="com.chua.starter.monitor.entity.SystemDataEmailHistory">
+        SELECT * FROM system_data_email_history 
+        WHERE system_data_email_history_setting_id = #{settingId} 
+        AND system_data_email_history_labels LIKE CONCAT('%', #{label}, '%') 
+        ORDER BY system_data_email_history_received_date DESC
+    </select>
+
+    <!-- 查询未读邮件 -->
+    <select id="selectUnreadEmails" resultType="com.chua.starter.monitor.entity.SystemDataEmailHistory">
+        SELECT * FROM system_data_email_history 
+        WHERE system_data_email_history_setting_id = #{settingId} 
+        AND system_data_email_history_is_read = false 
+        ORDER BY system_data_email_history_received_date DESC
+    </select>
+
+    <!-- 查询收藏邮件 -->
+    <select id="selectStarredEmails" resultType="com.chua.starter.monitor.entity.SystemDataEmailHistory">
+        SELECT * FROM system_data_email_history 
+        WHERE system_data_email_history_setting_id = #{settingId} 
+        AND system_data_email_history_is_starred = true 
+        ORDER BY system_data_email_history_received_date DESC
+    </select>
+
+    <!-- 更新同步状态 -->
+    <update id="updateSyncStatus">
+        UPDATE system_data_email_history 
+        SET system_data_email_history_sync_status = #{syncStatus}, 
+            system_data_email_history_error_message = #{errorMessage}, 
+            system_data_email_history_sync_time = NOW() 
+        WHERE system_data_email_history_id = #{id}
+    </update>
+
+</mapper>
