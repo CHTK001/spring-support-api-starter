@@ -22,10 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import java.io.Serializable;
-import java.util.Collection;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,33 +80,6 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         return entities;
     }
 
-    @Override
-    public List<SystemServerSetting> list(QueryWrapper<SystemServerSetting> queryWrapper) {
-        List<SystemServerSetting> entities = super.list(queryWrapper);
-        if (entities != null) {
-            entities.forEach(this::decryptSensitiveData);
-        }
-        return entities;
-    }
-
-    @Override
-    public IPage<SystemServerSetting> page(IPage<SystemServerSetting> page) {
-        IPage<SystemServerSetting> result = super.page(page);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
-
-    @Override
-    public IPage<SystemServerSetting> page(IPage<SystemServerSetting> page, QueryWrapper<SystemServerSetting> queryWrapper) {
-        IPage<SystemServerSetting> result = super.page(page, queryWrapper);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
-
     /**
      * 加密敏感数据
      */
@@ -119,8 +90,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         
         try {
             // 使用SystemServerServiceImpl中的加密方法
-            if (systemServerService instanceof SystemServerServiceImpl) {
-                SystemServerServiceImpl serverServiceImpl = (SystemServerServiceImpl) systemServerService;
+            if (systemServerService instanceof SystemServerServiceImpl serverServiceImpl) {
                 serverServiceImpl.encryptSettingPasswords(entity);
             }
         } catch (Exception e) {
@@ -138,8 +108,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         
         try {
             // 使用SystemServerServiceImpl中的解密方法
-            if (systemServerService instanceof SystemServerServiceImpl) {
-                SystemServerServiceImpl serverServiceImpl = (SystemServerServiceImpl) systemServerService;
+            if (systemServerService instanceof SystemServerServiceImpl serverServiceImpl) {
                 serverServiceImpl.decryptSettingPasswords(entity);
             }
         } catch (Exception e) {
