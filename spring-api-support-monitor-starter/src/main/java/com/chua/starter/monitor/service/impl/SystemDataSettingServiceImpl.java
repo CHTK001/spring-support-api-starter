@@ -18,14 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 
 /**
  * 数据管理配置服务实现
@@ -333,29 +333,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         return entities;
     }
 
-    /**
-     * 重写page方法，在查询后解密敏感数据
-     */
-    @Override
-    public com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page(com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page) {
-        com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> result = super.page(page);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
-
-    /**
-     * 重写page方法，在查询后解密敏感数据
-     */
-    @Override
-    public com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page(com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page, com.baomidou.mybatisplus.core.conditions.Wrapper<SystemDataSetting> queryWrapper) {
-        com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> result = super.page(page, queryWrapper);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
 }
 
 
