@@ -146,8 +146,7 @@ public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleServ
                 value = properties.get("data");
             }
             
-            if (value instanceof String) {
-                String strValue = (String) value;
+            if (value instanceof String strValue) {
                 if (isJsonLike(strValue)) {
                     properties.put("valueType", "json");
                     return;
@@ -516,6 +515,8 @@ public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleServ
                 .url(StringUtils.isNotBlank(setting.getSystemDataSettingServer())
                         ? setting.getSystemDataSettingServer()
                         : (setting.getSystemDataSettingHost() + ":" + setting.getSystemDataSettingPort()))
+                .databaseName(setting.getSystemDataSettingDatabase())
+                .policy(setting.getSystemDataSettingPolicy())
                 .username(setting.getSystemDataSettingUsername())
                 .password(setting.getSystemDataSettingPassword());
 
