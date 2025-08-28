@@ -166,6 +166,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-email-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-qiniu-starter</artifactId>
         </dependency>
 
