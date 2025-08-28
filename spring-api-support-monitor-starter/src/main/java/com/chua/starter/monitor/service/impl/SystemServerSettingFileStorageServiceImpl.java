@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemServerSettingFileStorage;
@@ -12,13 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.io.Serializable;
-import java.util.Collection;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -84,17 +82,6 @@ public class SystemServerSettingFileStorageServiceImpl extends ServiceImpl<Syste
         return entities;
     }
 
-    /**
-     * 重写page方法，在查询后解密敏感数据
-     */
-    @Override
-    public IPage<SystemServerSettingFileStorage> page(IPage<SystemServerSettingFileStorage> page) {
-        IPage<SystemServerSettingFileStorage> result = super.page(page);
-        if (result != null && result.getRecords() != null) {
-            result.getRecords().forEach(this::decryptSensitiveData);
-        }
-        return result;
-    }
 
     /**
      * 加密SystemServerSettingFileStorage中的敏感数据
