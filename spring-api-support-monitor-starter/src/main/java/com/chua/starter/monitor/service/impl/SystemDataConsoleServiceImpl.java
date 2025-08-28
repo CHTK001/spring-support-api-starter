@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleService, InitializingBean {
+public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, InitializingBean {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
@@ -522,7 +522,7 @@ public class SystemSystemDataConsoleServiceImpl implements SystemDataConsoleServ
         return HierarchyMetadataFactory.createHierarchy(setting.getSystemDataSettingType().toLowerCase(), options);
     }
 
-    private DataSourceOptions buildOptions(SystemDataSetting setting) {
+    public static DataSourceOptions buildOptions(SystemDataSetting setting) {
         DataSourceOptions.DatabaseBuilder builder = DataSourceOptions.builder()
                 .name(setting.getSystemDataSettingName())
                 .url(StringUtils.isNotBlank(setting.getSystemDataSettingServer())
