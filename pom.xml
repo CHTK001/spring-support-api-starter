@@ -357,11 +357,6 @@
                <version>${module.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-support-oauth-client-starter</artifactId>
-                <version>${module.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
@@ -385,6 +380,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ollama-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-email-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 
