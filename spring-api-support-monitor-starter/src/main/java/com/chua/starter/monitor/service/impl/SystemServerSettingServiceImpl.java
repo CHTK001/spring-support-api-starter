@@ -22,6 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.io.Serializable;
+import java.util.Collection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +46,106 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
 
     private final SystemServerService systemServerService;
     private final SystemServerSettingItemService systemServerSettingItemService;
+
+    // 重写基础方法以支持加密解密
+    @Override
+    public boolean save(SystemServerSetting entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.save(entity);
+    }
+
+    @Override
+    public boolean updateById(SystemServerSetting entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.updateById(entity);
+    }
+
+    @Override
+    public SystemServerSetting getById(Serializable id) {
+        SystemServerSetting entity = super.getById(id);
+        if (entity != null) {
+            decryptSensitiveData(entity);
+        }
+        return entity;
+    }
+
+    @Override
+    public List<SystemServerSetting> list() {
+        List<SystemServerSetting> entities = super.list();
+        if (entities != null) {
+            entities.forEach(this::decryptSensitiveData);
+        }
+        return entities;
+    }
+
+    @Override
+    public List<SystemServerSetting> list(QueryWrapper<SystemServerSetting> queryWrapper) {
+        List<SystemServerSetting> entities = super.list(queryWrapper);
+        if (entities != null) {
+            entities.forEach(this::decryptSensitiveData);
+        }
+        return entities;
+    }
+
+    @Override
+    public IPage<SystemServerSetting> page(IPage<SystemServerSetting> page) {
+        IPage<SystemServerSetting> result = super.page(page);
+        if (result != null && result.getRecords() != null) {
+            result.getRecords().forEach(this::decryptSensitiveData);
+        }
+        return result;
+    }
+
+    @Override
+    public IPage<SystemServerSetting> page(IPage<SystemServerSetting> page, QueryWrapper<SystemServerSetting> queryWrapper) {
+        IPage<SystemServerSetting> result = super.page(page, queryWrapper);
+        if (result != null && result.getRecords() != null) {
+            result.getRecords().forEach(this::decryptSensitiveData);
+        }
+        return result;
+    }
+
+    /**
+     * 加密敏感数据
+     */
+    private void encryptSensitiveData(SystemServerSetting entity) {
+        if (entity == null) {
+            return;
+        }
+        
+        try {
+            // 使用SystemServerServiceImpl中的加密方法
+            if (systemServerService instanceof SystemServerServiceImpl) {
+                SystemServerServiceImpl serverServiceImpl = (SystemServerServiceImpl) systemServerService;
+                serverServiceImpl.encryptSettingPasswords(entity);
+            }
+        } catch (Exception e) {
+            log.error("加密SystemServerSetting敏感数据失败", e);
+        }
+    }
+
+    /**
+     * 解密敏感数据
+     */
+    private void decryptSensitiveData(SystemServerSetting entity) {
+        if (entity == null) {
+            return;
+        }
+        
+        try {
+            // 使用SystemServerServiceImpl中的解密方法
+            if (systemServerService instanceof SystemServerServiceImpl) {
+                SystemServerServiceImpl serverServiceImpl = (SystemServerServiceImpl) systemServerService;
+                serverServiceImpl.decryptSettingPasswords(entity);
+            }
+        } catch (Exception e) {
+            log.error("解密SystemServerSetting敏感数据失败", e);
+        }
+    }
 
     @Override
     public IPage<SystemServerSetting> pageFor(Page<SystemServerSetting> page, SystemServerSetting entity) {
