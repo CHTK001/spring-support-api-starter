@@ -22,6 +22,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 数据管理配置服务实现
@@ -35,6 +39,16 @@ import java.nio.file.StandardCopyOption;
 public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingMapper, SystemDataSetting>
         implements SystemDataSettingService {
 
+    /**
+     * AES加密算法
+     */
+    private static final String ALGORITHM = "AES";
+    
+    /**
+     * AES加密密钥（实际项目中应该从配置文件或环境变量中获取）
+     */
+    private static final String SECRET_KEY = "MySecretKey12345"; // 16字节密钥
+
     @Override
     public ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting) {
         try {
@@ -45,6 +59,10 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
                 setting.setSystemDataSettingHost(netAddress.getHost());
                 setting.setSystemDataSettingPort(netAddress.getPort(8080));
             }
+            
+            // 在保存前加密敏感数据
+            encryptSensitiveData(setting);
+            
             if (setting.getSystemDataSettingId() == null) {
                 setting.setSystemDataSettingTimeoutMs(ObjectUtils.defaultIfNull(setting.getSystemDataSettingTimeoutMs(), 10_000));
                 save(setting);
@@ -75,6 +93,8 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         if (setting == null) {
             return ReturnResult.error("配置不存在");
         }
+        // 在返回前解密敏感数据
+        decryptSensitiveData(setting);
         return ReturnResult.ok(setting.getSystemDataSettingConfig());
     }
 
@@ -84,6 +104,8 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             SystemDataSetting setting = getById(id);
             if (setting == null) { return ReturnResult.error("配置不存在"); }
             setting.setSystemDataSettingConfig(jsonConfig);
+            // 在保存前加密敏感数据
+            encryptSensitiveData(setting);
             updateById(setting);
             return ReturnResult.ok(true);
         } catch (Exception e) {
@@ -106,6 +128,8 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
 
         Page<SystemDataSettingPageItem> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream().map(setting -> {
+            // 在返回前解密敏感数据
+            decryptSensitiveData(setting);
             SystemDataSettingPageItem item = new SystemDataSettingPageItem();
             BeanUtils.copyProperties(setting, item);
             // 能力判断（SPI）
@@ -140,6 +164,197 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             log.error("上传驱动失败", e);
             return ReturnResult.error("上传失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 加密字符串
+     *
+     * @param plainText 明文
+     * @return 加密后的字符串（Base64编码）
+     */
+    private String encrypt(String plainText) {
+        if (plainText == null || plainText.isEmpty()) {
+            return plainText;
+        }
+        
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            log.error("数据加密失败", e);
+            throw new RuntimeException("数据加密失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 解密字符串
+     *
+     * @param encryptedText 加密后的字符串（Base64编码）
+     * @return 明文
+     */
+    private String decrypt(String encryptedText) {
+        if (encryptedText == null || encryptedText.isEmpty()) {
+            return encryptedText;
+        }
+        
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
+            byte[] decryptedBytes = cipher.doFinal(decodedBytes);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("数据解密失败", e);
+            // 如果解密失败，可能是未加密的数据，直接返回原值
+            return encryptedText;
+        }
+    }
+
+    /**
+     * 加密SystemDataSetting中的敏感数据字段
+     *
+     * @param setting 数据设置对象
+     */
+    private void encryptSensitiveData(SystemDataSetting setting) {
+        if (setting == null) {
+            return;
+        }
+        
+        // 加密密码
+        if (setting.getSystemDataSettingPassword() != null && !setting.getSystemDataSettingPassword().isEmpty()) {
+            setting.setSystemDataSettingPassword(encrypt(setting.getSystemDataSettingPassword()));
+        }
+        
+        // 加密连接字符串（可能包含敏感信息）
+        if (setting.getSystemDataSettingServer() != null && !setting.getSystemDataSettingServer().isEmpty()) {
+            // 只有当连接字符串包含密码信息时才加密
+            if (setting.getSystemDataSettingServer().contains("password=") || 
+                setting.getSystemDataSettingServer().contains("pwd=")) {
+                setting.setSystemDataSettingServer(encrypt(setting.getSystemDataSettingServer()));
+            }
+        }
+        
+        // 加密配置JSON（可能包含敏感信息）
+        if (setting.getSystemDataSettingConfig() != null && !setting.getSystemDataSettingConfig().isEmpty()) {
+            // 只有当配置包含密码相关信息时才加密
+            if (setting.getSystemDataSettingConfig().contains("password") || 
+                setting.getSystemDataSettingConfig().contains("secret") ||
+                setting.getSystemDataSettingConfig().contains("token")) {
+                setting.setSystemDataSettingConfig(encrypt(setting.getSystemDataSettingConfig()));
+            }
+        }
+    }
+
+    /**
+     * 解密SystemDataSetting中的敏感数据字段
+     *
+     * @param setting 数据设置对象
+     */
+    private void decryptSensitiveData(SystemDataSetting setting) {
+        if (setting == null) {
+            return;
+        }
+        
+        // 解密密码
+        if (setting.getSystemDataSettingPassword() != null && !setting.getSystemDataSettingPassword().isEmpty()) {
+            setting.setSystemDataSettingPassword(decrypt(setting.getSystemDataSettingPassword()));
+        }
+        
+        // 解密连接字符串
+        if (setting.getSystemDataSettingServer() != null && !setting.getSystemDataSettingServer().isEmpty()) {
+            setting.setSystemDataSettingServer(decrypt(setting.getSystemDataSettingServer()));
+        }
+        
+        // 解密配置JSON
+        if (setting.getSystemDataSettingConfig() != null && !setting.getSystemDataSettingConfig().isEmpty()) {
+            setting.setSystemDataSettingConfig(decrypt(setting.getSystemDataSettingConfig()));
+        }
+    }
+
+    /**
+     * 重写save方法，在保存前加密敏感数据
+     */
+    @Override
+    public boolean save(SystemDataSetting entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.save(entity);
+    }
+
+    /**
+     * 重写updateById方法，在更新前加密敏感数据
+     */
+    @Override
+    public boolean updateById(SystemDataSetting entity) {
+        if (entity != null) {
+            encryptSensitiveData(entity);
+        }
+        return super.updateById(entity);
+    }
+
+    /**
+     * 重写getById方法，在查询后解密敏感数据
+     */
+    @Override
+    public SystemDataSetting getById(java.io.Serializable id) {
+        SystemDataSetting entity = super.getById(id);
+        if (entity != null) {
+            decryptSensitiveData(entity);
+        }
+        return entity;
+    }
+
+    /**
+     * 重写list方法，在查询后解密敏感数据
+     */
+    @Override
+    public java.util.List<SystemDataSetting> list() {
+        java.util.List<SystemDataSetting> entities = super.list();
+        if (entities != null) {
+            entities.forEach(this::decryptSensitiveData);
+        }
+        return entities;
+    }
+
+    /**
+     * 重写list方法，在查询后解密敏感数据
+     */
+    @Override
+    public java.util.List<SystemDataSetting> list(com.baomidou.mybatisplus.core.conditions.Wrapper<SystemDataSetting> queryWrapper) {
+        java.util.List<SystemDataSetting> entities = super.list(queryWrapper);
+        if (entities != null) {
+            entities.forEach(this::decryptSensitiveData);
+        }
+        return entities;
+    }
+
+    /**
+     * 重写page方法，在查询后解密敏感数据
+     */
+    @Override
+    public com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page(com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page) {
+        com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> result = super.page(page);
+        if (result != null && result.getRecords() != null) {
+            result.getRecords().forEach(this::decryptSensitiveData);
+        }
+        return result;
+    }
+
+    /**
+     * 重写page方法，在查询后解密敏感数据
+     */
+    @Override
+    public com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page(com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> page, com.baomidou.mybatisplus.core.conditions.Wrapper<SystemDataSetting> queryWrapper) {
+        com.baomidou.mybatisplus.core.metadata.IPage<SystemDataSetting> result = super.page(page, queryWrapper);
+        if (result != null && result.getRecords() != null) {
+            result.getRecords().forEach(this::decryptSensitiveData);
+        }
+        return result;
     }
 }
 
