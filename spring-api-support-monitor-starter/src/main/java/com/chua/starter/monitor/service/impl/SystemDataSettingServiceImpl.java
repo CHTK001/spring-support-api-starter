@@ -172,7 +172,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
      * @param plainText 明文
      * @return 加密后的字符串（Base64编码）
      */
-    private String encrypt(String plainText) {
+    private static String encrypt(String plainText) {
         if (plainText == null || plainText.isEmpty()) {
             return plainText;
         }
@@ -195,7 +195,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
      * @param encryptedText 加密后的字符串（Base64编码）
      * @return 明文
      */
-    private String decrypt(String encryptedText) {
+    private static String decrypt(String encryptedText) {
         if (encryptedText == null || encryptedText.isEmpty()) {
             return encryptedText;
         }
@@ -219,7 +219,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
      *
      * @param setting 数据设置对象
      */
-    private void encryptSensitiveData(SystemDataSetting setting) {
+    public static void encryptSensitiveData(SystemDataSetting setting) {
         if (setting == null) {
             return;
         }
@@ -254,7 +254,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
      *
      * @param setting 数据设置对象
      */
-    private void decryptSensitiveData(SystemDataSetting setting) {
+    public static void decryptSensitiveData(SystemDataSetting setting) {
         if (setting == null) {
             return;
         }
@@ -295,7 +295,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     public java.util.List<SystemDataSetting> list() {
         java.util.List<SystemDataSetting> entities = super.list();
         if (entities != null) {
-            entities.forEach(this::decryptSensitiveData);
+            entities.forEach(SystemDataSettingServiceImpl::decryptSensitiveData);
         }
         return entities;
     }
@@ -307,7 +307,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     public java.util.List<SystemDataSetting> list(com.baomidou.mybatisplus.core.conditions.Wrapper<SystemDataSetting> queryWrapper) {
         java.util.List<SystemDataSetting> entities = super.list(queryWrapper);
         if (entities != null) {
-            entities.forEach(this::decryptSensitiveData);
+            entities.forEach(SystemDataSettingServiceImpl::decryptSensitiveData);
         }
         return entities;
     }
