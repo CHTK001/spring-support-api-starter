@@ -61,7 +61,7 @@ public class SystemDataFieldCommentServiceImpl
         one.setSystemDataFieldCommentTableName(tableName);
         one.setSystemDataFieldCommentColumnName(columnName);
         if (!strings.isEmpty() && StringUtils.isEmpty(databaseName)) {
-            databaseName = strings.get(0);
+            databaseName = strings.getFirst();
             one.setSystemDataFieldCommentDatabaseName(databaseName);
         }
 
@@ -71,7 +71,7 @@ public class SystemDataFieldCommentServiceImpl
         }
 
         if (strings.size() > 2 && StringUtils.isEmpty(columnName)) {
-            columnName = strings.get(2);
+            columnName = strings.getLast();
             one.setSystemDataFieldCommentColumnName(columnName);
         }
 

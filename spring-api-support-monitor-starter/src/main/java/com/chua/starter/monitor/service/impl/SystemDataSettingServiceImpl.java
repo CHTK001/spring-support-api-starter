@@ -275,27 +275,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         }
     }
 
-    /**
-     * 重写save方法，在保存前加密敏感数据
-     */
-    @Override
-    public boolean save(SystemDataSetting entity) {
-        if (entity != null) {
-            encryptSensitiveData(entity);
-        }
-        return super.save(entity);
-    }
-
-    /**
-     * 重写updateById方法，在更新前加密敏感数据
-     */
-    @Override
-    public boolean updateById(SystemDataSetting entity) {
-        if (entity != null) {
-            encryptSensitiveData(entity);
-        }
-        return super.updateById(entity);
-    }
 
     /**
      * 重写getById方法，在查询后解密敏感数据
