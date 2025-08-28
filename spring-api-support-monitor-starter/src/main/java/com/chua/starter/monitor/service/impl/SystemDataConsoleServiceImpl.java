@@ -523,7 +523,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
     }
 
     public static DataSourceOptions buildOptions(SystemDataSetting setting) {
-        decryptSensitiveData(setting);
+        SystemDataSettingServiceImpl.decryptSensitiveData(setting);
         DataSourceOptions.DatabaseBuilder builder = DataSourceOptions.builder()
                 .name(setting.getSystemDataSettingName())
                 .url(StringUtils.isNotBlank(setting.getSystemDataSettingServer())
