@@ -60,6 +60,9 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
             // 获取邮件
             CommandResult commandResult = emailService.executeCommand(command + " " + folderName + " " + pageNumber + " " + limit);
             ObjectResultItem data = (ObjectResultItem) commandResult.getData();
+            if (null == data) {
+                return ReturnResult.error("拉取邮件失败: 获取邮件失败");
+            }
             com.chua.common.support.lang.page.Page<MailMessage> page = (com.chua.common.support.lang.page.Page<MailMessage>) data.getNewRows();
             // 保存到数据库
             int savedCount = 0;
