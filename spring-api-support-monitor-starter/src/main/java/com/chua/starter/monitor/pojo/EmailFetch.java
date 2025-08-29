@@ -42,8 +42,8 @@ public class EmailFetch {
      * 
      * @example 50
      */
-    @Schema(description = "每页限制数量，默认50条")
-    private Integer limit = 50;
+    @Schema(description = "每页限制数量，默认10条")
+    private Integer limit = 10;
     /**
      * 消息ID
      *
