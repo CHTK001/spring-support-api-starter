@@ -3,6 +3,7 @@ package com.chua.starter.monitor.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemDataEmailHistory;
+import com.chua.starter.monitor.pojo.EmailFetch;
 import com.chua.starter.monitor.pojo.response.EmailBackupResponse;
 import com.chua.starter.monitor.pojo.response.EmailFetchResponse;
 import com.chua.starter.monitor.service.SystemDataEmailHistoryService;
@@ -19,7 +20,7 @@ import java.util.List;
 
 /**
  * 邮件数据管理控制器
- *
+ * <p>
  * 提供邮件拉取、云备份、云同步等功能。
  *
  * @author CH
@@ -38,33 +39,30 @@ public class SystemDataEmailController {
     /**
      * 拉取邮件
      *
-     * @param settingId 数据源配置ID
+     * @param settingId  数据源配置ID
      * @param folderName 邮件文件夹名称，默认为INBOX
-     * @param limit 拉取邮件数量限制，默认为50
+     * @param limit      拉取邮件数量限制，默认为50
      * @return 拉取结果
      */
     @PostMapping("/{settingId}/fetch")
     @ApiOperation("拉取邮件")
     public ReturnResult<EmailFetchResponse> fetchEmails(
             @PathVariable Integer settingId,
-            @RequestParam(required = false, defaultValue = "INBOX") String folderName,
-            @RequestParam(required = false, defaultValue = "list-folder") String command,
-            @RequestParam(required = false, defaultValue = "1") Integer pageNumber,
-            @RequestParam(required = false, defaultValue = "50") Integer limit
+            EmailFetch emailFetch
     ) {
 
-        return emailHistoryService.fetchEmails(settingId, folderName, command, pageNumber, limit);
+        return emailHistoryService.fetchEmails(settingId, emailFetch);
     }
 
     /**
      * 分页查询邮件历史
      *
      * @param settingId 数据源配置ID
-     * @param current 当前页码
-     * @param size 每页大小
-     * @param isRead 是否已读（可选）
+     * @param current   当前页码
+     * @param size      每页大小
+     * @param isRead    是否已读（可选）
      * @param isStarred 是否收藏（可选）
-     * @param label 标签（可选）
+     * @param label     标签（可选）
      * @return 分页结果
      */
     @GetMapping("/{settingId}/history")
@@ -76,7 +74,7 @@ public class SystemDataEmailController {
             @RequestParam(required = false) Boolean isRead,
             @RequestParam(required = false) Boolean isStarred,
             @RequestParam(required = false) String label) {
-        
+
         return emailHistoryService.getEmailHistory(settingId, current, size, isRead, isStarred, label);
     }
 
@@ -84,7 +82,7 @@ public class SystemDataEmailController {
      * 邮件云备份（前端上传邮件保存到数据库）
      *
      * @param settingId 数据源配置ID
-     * @param file 邮件文件
+     * @param file      邮件文件
      * @return 备份结果
      */
     @PostMapping(value = "/{settingId}/backup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -92,14 +90,14 @@ public class SystemDataEmailController {
     public ReturnResult<EmailBackupResponse> backupEmail(
             @PathVariable Integer settingId,
             @RequestParam("file") MultipartFile file) {
-        
+
         return emailHistoryService.backupEmail(settingId, file);
     }
 
     /**
      * 同步邮件
      *
-     * @param settingId 数据源配置ID
+     * @param settingId  数据源配置ID
      * @param folderName 邮件文件夹名称，默认为INBOX
      * @return 同步结果
      */
@@ -108,10 +106,9 @@ public class SystemDataEmailController {
     public ReturnResult<List<SystemDataEmailHistory>> syncEmails(
             @PathVariable Integer settingId,
             @RequestParam(required = false, defaultValue = "INBOX") String folderName) {
-        
+
         return emailHistoryService.syncEmails(settingId, folderName);
     }
-
 
 
 }
