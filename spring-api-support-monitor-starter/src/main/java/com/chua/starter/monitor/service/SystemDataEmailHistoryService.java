@@ -21,12 +21,14 @@ public interface SystemDataEmailHistoryService extends IService<SystemDataEmailH
     /**
      * 拉取邮件
      *
-     * @param settingId 数据源配置ID
+     * @param settingId  数据源配置ID
      * @param folderName 邮件文件夹名称
-     * @param limit 拉取邮件数量限制
+     * @param command
+     * @param pageNumber
+     * @param limit      拉取邮件数量限制
      * @return 拉取结果
      */
-    ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, String folderName, Integer limit);
+    ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, String folderName, String command, Integer pageNumber, Integer limit);
 
     /**
      * 分页查询邮件历史
