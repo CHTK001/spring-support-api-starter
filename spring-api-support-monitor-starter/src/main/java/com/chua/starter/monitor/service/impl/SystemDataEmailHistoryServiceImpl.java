@@ -15,6 +15,7 @@ import com.chua.email.support.metadata.MailMessage;
 import com.chua.starter.monitor.entity.SystemDataEmailHistory;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataEmailHistoryMapper;
+import com.chua.starter.monitor.pojo.EmailFetch;
 import com.chua.starter.monitor.pojo.response.EmailBackupResponse;
 import com.chua.starter.monitor.pojo.response.EmailFetchResponse;
 import com.chua.starter.monitor.service.SystemDataEmailHistoryService;
@@ -45,7 +46,7 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
     private final SystemDataEmailHistoryMapper emailHistoryMapper;
 
     @Override
-    public ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, String folderName, String command, Integer pageNumber, Integer limit) {
+    public ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, EmailFetch emailFetch) {
         try {
             SystemDataSetting setting = systemDataSettingService.getById(settingId);
             if (setting == null) {
@@ -55,13 +56,17 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
             EmailServiceMetadata emailService = (EmailServiceMetadata) CommandMetadataFactory.create(setting.getSystemDataSettingId(),
                     setting.getSystemDataSettingType(), options);
 
-            folderName = "收件箱".equals(folderName) ? "INBOX" : folderName;
+            emailFetch.setFolderName("收件箱".equals(emailFetch.getFolderName()) ? "INBOX" : emailFetch.getFolderName());
             // 获取邮件
-            String finalFolderName = folderName;
             CommandResult commandResult = SimpleRetry.with(
                             it -> {
                                 try {
-                                    return it.executeCommand(command + " " + finalFolderName + " " + pageNumber + " " + limit);
+                                    return it.executeCommand("%s %s %s %s %s".formatted(emailFetch.getCommand(),
+                                            emailFetch.getFolderName(),
+                                            emailFetch.getPageNumber(),
+                                            emailFetch.getLimit(),
+                                            emailFetch.getMessageId()
+                                            ));
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
@@ -89,12 +94,12 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
             List<MailMessage> emails = page.getData();
             for (MailMessage email : emails) {
                 SystemDataEmailHistory existing = emailHistoryMapper.selectByMessageId(
-                        email.getMessageId(), settingId);
+                        email.getUid(), settingId);
 
                 if (existing == null) {
                     existing = new SystemDataEmailHistory();
                     existing.setSystemDataEmailHistorySettingId(settingId);
-                    existing.setSystemDataEmailHistoryMessageId(email.getMessageId());
+                    existing.setSystemDataEmailHistoryMessageId(email.getUid());
                     existing.setSystemDataEmailHistorySubject(email.getSubject());
                     existing.setSystemDataEmailHistoryFrom(email.getFrom());
                     existing.setSystemDataEmailHistoryTo(StringUtils.join(email.getTo(), ","));
@@ -102,6 +107,7 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
                     existing.setSystemDataEmailHistoryBcc(StringUtils.join(email.getBcc(), ","));
                     existing.setSystemDataEmailHistoryContent(email.getContent());
                     existing.setSystemDataEmailHistorySentDate(email.getSentDate());
+                    existing.setSystemDataEmailHistoryContentType(email.getContentType());
                     existing.setSystemDataEmailHistoryReceivedDate(email.getReceivedDate());
                     emailHistoryMapper.insert(existing);
                     savedCount++;
@@ -117,7 +123,7 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
                     .status("success")
                     .message("邮件拉取成功")
                     .record(page)
-                    .folderName(folderName)
+                    .folderName(emailFetch.getFolderName())
                     .settingId(settingId)
                     .build();
 
