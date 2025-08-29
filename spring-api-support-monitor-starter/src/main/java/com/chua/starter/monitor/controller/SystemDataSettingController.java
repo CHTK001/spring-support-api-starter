@@ -2,14 +2,19 @@ package com.chua.starter.monitor.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.backup.Backup;
+import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.metadata.base.SchemaMetadata;
+import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
+import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.service.SystemDataSettingService;
+import com.chua.starter.monitor.service.impl.SystemDataConsoleServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 数据管理配置
@@ -126,6 +132,16 @@ public class SystemDataSettingController {
         capabilities.setBackup(backup);
         capabilities.setDocument(document);
         capabilities.setFile(isFile);
+        DataSourceOptions options = SystemDataConsoleServiceImpl.buildOptions(setting);
+        if (setting.getSystemDataSettingServer() != null && setting.getSystemDataSettingServer().toLowerCase().startsWith("jdbc:")) {
+            HierarchyMetadata jdbcHierarchy = HierarchyMetadataFactory.createJdbcHierarchy(options);
+            if(jdbcHierarchy instanceof SchemaMetadata schemaMetadata) {
+                Map<String, Boolean> ability = schemaMetadata.ability();
+                capabilities.setEmailExists(ability.getOrDefault("idle", false));
+                capabilities.setEmailExists(ability.getOrDefault("exists", false));
+
+            }
+        }
         return ReturnResult.ok(capabilities);
     }
 
