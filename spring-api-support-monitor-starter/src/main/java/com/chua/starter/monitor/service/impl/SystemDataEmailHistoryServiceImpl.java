@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.metadata.command.CommandMetadata;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.command.ObjectResultItem;
+import com.chua.common.support.utils.SimpleRetry;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.email.support.metadata.EmailServiceMetadata;
 import com.chua.email.support.metadata.MailMessage;
@@ -52,13 +52,32 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
                 return ReturnResult.error("数据源配置不存在");
             }
             DataSourceOptions options = SystemDataConsoleServiceImpl.buildOptions(setting);
-            CommandMetadata metadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(),
+            EmailServiceMetadata emailService = (EmailServiceMetadata) CommandMetadataFactory.create(setting.getSystemDataSettingId(),
                     setting.getSystemDataSettingType(), options);
 
-            EmailServiceMetadata emailService = (EmailServiceMetadata) metadata;
             folderName = "收件箱".equals(folderName) ? "INBOX" : folderName;
             // 获取邮件
-            CommandResult commandResult = emailService.executeCommand(command + " " + folderName + " " + pageNumber + " " + limit);
+            String finalFolderName = folderName;
+            CommandResult commandResult = SimpleRetry.with(
+                            it -> {
+                                try {
+                                    return it.executeCommand(command + " " + finalFolderName + " " + pageNumber + " " + limit);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            },
+                            () -> (EmailServiceMetadata) CommandMetadataFactory.create(setting.getSystemDataSettingId(),
+                                    setting.getSystemDataSettingType(), options))
+                    .retryCount(3)
+                    .sleepTime(1000)
+                    .onException((it, ex) -> {
+                        try {
+                            it.close();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .buildAndRun();
             ObjectResultItem data = (ObjectResultItem) commandResult.getData();
             if (null == data) {
                 return ReturnResult.error("拉取邮件失败: 获取邮件失败");
