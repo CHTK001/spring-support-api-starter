@@ -50,6 +50,7 @@ public class SystemDataConsoleController {
         return systemDataConsoleService.getRoot(id, query);
     }
 
+
     /**
      * 获取指定路径下的子节点信息
      *
