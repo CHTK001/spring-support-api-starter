@@ -8,9 +8,7 @@ import com.chua.starter.monitor.pojo.response.EmailFetchResponse;
 import com.chua.starter.monitor.service.SystemDataEmailHistoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -50,9 +48,12 @@ public class SystemDataEmailController {
     public ReturnResult<EmailFetchResponse> fetchEmails(
             @PathVariable Integer settingId,
             @RequestParam(required = false, defaultValue = "INBOX") String folderName,
-            @RequestParam(required = false, defaultValue = "50") Integer limit) {
-        
-        return emailHistoryService.fetchEmails(settingId, folderName, limit);
+            @RequestParam(required = false, defaultValue = "list-folder") String command,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "50") Integer limit
+    ) {
+
+        return emailHistoryService.fetchEmails(settingId, folderName, command, pageNumber, limit);
     }
 
     /**
