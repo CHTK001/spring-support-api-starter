@@ -25,4 +25,13 @@ public class SystemCapabilities {
     /** 是否支持文件 */
     @Schema(description = "是否支持文件")
     private boolean file;
+
+    /** 是否会主动推送新邮件 */
+    @Schema(description = "邮箱 是否支持 IDLE")
+    private boolean emailIdle;
+
+    /** 是否会主动推送新邮件 */
+    @Schema(description = "是否会主动推送新邮件")
+    private boolean emailExists;
+
 }
