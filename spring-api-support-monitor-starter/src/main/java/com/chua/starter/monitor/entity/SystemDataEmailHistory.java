@@ -82,6 +82,10 @@ public class SystemDataEmailHistory extends SysBase {
     @Schema(description = "邮件内容（纯文本）")
     @TableField("system_data_email_history_content")
     private String systemDataEmailHistoryContent;
+    /** 邮件内容类型 */
+    @Schema(description = "邮件内容类型")
+    @TableField("system_data_email_history_content_type")
+    private String systemDataEmailHistoryContentType;
 
     /** 邮件内容（HTML） */
     @Schema(description = "邮件内容（HTML）")

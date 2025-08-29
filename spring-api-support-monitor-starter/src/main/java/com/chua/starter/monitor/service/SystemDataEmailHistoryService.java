@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemDataEmailHistory;
+import com.chua.starter.monitor.pojo.EmailFetch;
 import com.chua.starter.monitor.pojo.response.EmailBackupResponse;
 import com.chua.starter.monitor.pojo.response.EmailFetchResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,13 +23,10 @@ public interface SystemDataEmailHistoryService extends IService<SystemDataEmailH
      * 拉取邮件
      *
      * @param settingId  数据源配置ID
-     * @param folderName 邮件文件夹名称
-     * @param command
-     * @param pageNumber
-     * @param limit      拉取邮件数量限制
+     * @param emailFetch 邮件文件夹名称
      * @return 拉取结果
      */
-    ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, String folderName, String command, Integer pageNumber, Integer limit);
+    ReturnResult<EmailFetchResponse> fetchEmails(Integer settingId, EmailFetch emailFetch);
 
     /**
      * 分页查询邮件历史

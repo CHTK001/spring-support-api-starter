@@ -208,8 +208,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             byte[] decryptedBytes = cipher.doFinal(decodedBytes);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            log.error("数据解密失败", e);
-            // 如果解密失败，可能是未加密的数据，直接返回原值
             return encryptedText;
         }
     }
