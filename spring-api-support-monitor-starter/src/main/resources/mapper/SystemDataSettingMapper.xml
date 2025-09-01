@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemDataSettingMapper">
+
+    <select id="getServerStatic" resultType="com.chua.starter.monitor.pojo.ServerStatic">
+        SELECT
+            (SELECT COUNT(system_data_setting_protocol) FROM system_data_setting) dataSourceType,
+            (SELECT COUNT(*) FROM system_data_setting) dataSourceTotal,
+            (SELECT COUNT(*) FROM system_data_setting WHERE system_data_setting_enabled = '1') dataSourceOnline,
+            (SELECT COUNT(*) FROM system_data_setting WHERE system_data_setting_enabled = '0') dataSourceOffline
+    </select>
+</mapper>
