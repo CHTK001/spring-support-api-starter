@@ -6,6 +6,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
+import com.chua.starter.monitor.pojo.ServerStatic;
 import com.chua.starter.monitor.pojo.ValueCount;
 import org.springframework.http.ResponseEntity;
 
@@ -179,6 +180,13 @@ public interface SystemDataConsoleService {
      * @return 操作结果，true表示操作成功，false表示操作失败
      */
     Boolean backupTable(Integer settingId, String nodePath, String backupName);
+
+    /**
+     * 获取服务器静态信息
+     *
+     * @return 服务器静态信息
+     */
+    ServerStatic getServerStatic();
 }
 
 

@@ -10,6 +10,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
+import com.chua.starter.monitor.pojo.ServerStatic;
 import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
@@ -184,6 +185,18 @@ public class SystemDataSettingController {
     @ApiOperation("启动备份")
     public ReturnResult<Boolean> startBackup(@PathVariable Integer id) {
         return dataConsoleService.startBackup(id);
+    }
+
+
+    /**
+     * 获取服务器静态信息
+     *
+     * @return 服务器静态信息
+     */
+    @GetMapping("/server/static")
+    @ApiOperation("获取服务器静态信息")
+    public ReturnResult<ServerStatic> getServerStatic() {
+        return ReturnResult.ok(dataConsoleService.getServerStatic());
     }
 
     /**

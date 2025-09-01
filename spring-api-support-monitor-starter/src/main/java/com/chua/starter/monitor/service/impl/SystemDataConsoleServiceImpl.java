@@ -34,6 +34,7 @@ import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
+import com.chua.starter.monitor.pojo.ServerStatic;
 import com.chua.starter.monitor.pojo.TableOpenResponse;
 import com.chua.starter.monitor.pojo.ValueCount;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
@@ -350,6 +351,11 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             }
         }
         return null;
+    }
+
+    @Override
+    public ServerStatic getServerStatic() {
+        return systemDataSettingMapper.getServerStatic();
     }
 
     @Override
