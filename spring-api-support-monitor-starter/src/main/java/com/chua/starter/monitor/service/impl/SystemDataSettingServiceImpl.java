@@ -7,13 +7,16 @@ import com.chua.common.support.backup.Backup;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.document.Document;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.common.support.net.NetAddress;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.service.SystemDataSettingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +39,7 @@ import java.util.Base64;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingMapper, SystemDataSetting>
         implements SystemDataSettingService {
 
@@ -48,6 +52,8 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
      * AES加密密钥（实际项目中应该从配置文件或环境变量中获取）
      */
     private static final String SECRET_KEY = "MySecretKey12345"; // 16字节密钥
+
+    final SystemDataConsoleService systemDataConsoleService;
 
     @Override
     public ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting) {
@@ -67,7 +73,12 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
                 setting.setSystemDataSettingTimeoutMs(ObjectUtils.defaultIfNull(setting.getSystemDataSettingTimeoutMs(), 10_000));
                 save(setting);
             } else {
-                updateById(setting);
+                Boolean systemDataSettingIdle = setting.getSystemDataSettingIdle();
+                Boolean systemDataSettingEnabled = setting.getSystemDataSettingEnabled();
+                if (updateById(setting) && null != systemDataSettingEnabled && systemDataSettingEnabled && null != systemDataSettingIdle && systemDataSettingIdle) {
+                    systemDataConsoleService.getRoot(setting.getSystemDataSettingId(), new MetadataQuery());
+                }
+
             }
             return ReturnResult.ok(true);
         } catch (Exception e) {
@@ -309,7 +320,6 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         }
         return entities;
     }
-
 }
 
 
