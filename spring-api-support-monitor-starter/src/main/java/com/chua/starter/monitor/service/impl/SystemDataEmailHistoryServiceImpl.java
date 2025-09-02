@@ -53,8 +53,6 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
                 return ReturnResult.error("数据源配置不存在");
             }
             DataSourceOptions options = SystemDataConsoleServiceImpl.buildOptions(setting);
-            EmailServiceMetadata emailService = (EmailServiceMetadata) CommandMetadataFactory.create(setting.getSystemDataSettingId(),
-                    setting.getSystemDataSettingType(), options);
 
             emailFetch.setFolderName("收件箱".equals(emailFetch.getFolderName()) ? "INBOX" : emailFetch.getFolderName());
             // 获取邮件
