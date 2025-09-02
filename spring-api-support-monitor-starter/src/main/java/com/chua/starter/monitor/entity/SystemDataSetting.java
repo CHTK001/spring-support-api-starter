@@ -147,6 +147,12 @@ public class SystemDataSetting extends SysBase {
     @Schema(description = "备份状态;0:未启动; 1:已启动")
     @TableField("system_data_setting_backup_status")
     private Integer systemDataSettingBackupStatus;
+    /**
+     * 是否支持监听
+     */
+    @Schema(description = "是否支持监听")
+    @TableField("system_data_setting_idle")
+    private Boolean systemDataSettingIdle;
 }
 
 

@@ -12,7 +12,7 @@ spring:
   sql:
     init:
       continue-on-error: true
-      #      data-locations: classpath*:sql/*.sql
+      #      data-locations: classpath*:db/*.db
       mode: always
 logging:
   level:

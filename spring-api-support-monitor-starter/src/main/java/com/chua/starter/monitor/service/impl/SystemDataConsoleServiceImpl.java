@@ -23,6 +23,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
+import com.chua.common.support.metadata.listen.ListenMetadata;
 import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.common.support.oss.result.GetObjectResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -88,7 +89,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             HierarchyResult<HierarchyNode> childNodes = metadata.getChildNodes(parentPath, query);
             List<HierarchyNode> data = childNodes.getData();
             Set<String> paths = data.stream().map(HierarchyNode::getPath).collect(Collectors.toSet());
-            if(!paths.isEmpty()) {
+            if (!paths.isEmpty()) {
                 List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
                         Wrappers.<SystemDataFieldComment>lambdaQuery()
                                 .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
@@ -97,7 +98,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 Map<String, SystemDataFieldComment> collect = list.stream().collect(Collectors.toMap(SystemDataFieldComment::getSystemDataFieldCommentNodePath, item -> item));
                 for (HierarchyNode datum : data) {
                     SystemDataFieldComment systemDataFieldComment = collect.get(datum.getPath());
-                    if(systemDataFieldComment != null) {
+                    if (systemDataFieldComment != null) {
                         datum.getProperties().put("comment", systemDataFieldComment.getSystemDataFieldCommentComment());
                     }
                 }
@@ -114,12 +115,12 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         try {
             HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
             HierarchyNode node = metadata.getNodeDetails(nodePath, query);
-            
+
             // 增强节点：为时序数据和 JSON 数据注入 valueType
             if (node != null && node.getProperties() != null) {
                 enhanceNodeWithValueType(node, nodePath);
             }
-            
+
             return ReturnResult.ok(node);
         } catch (Exception e) {
             log.error("获取节点失败", e);
@@ -134,26 +135,26 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         try {
             String path = nodePath != null ? nodePath : "";
             Map<String, Object> properties = node.getProperties();
-            
+
             // 检测时序数据前缀
             if (path.startsWith("monitor:timeseries:") || path.startsWith("monitor:simple:series:")) {
                 properties.put("valueType", "timeserial");
                 properties.put("chartType", "line");
                 return;
             }
-            
+
             // 检测 JSON 数据
             Object value = properties.get("value");
             if (value == null) {
                 value = properties.get("data");
             }
-            
+
             if (value instanceof String strValue) {
                 if (isJsonLike(strValue)) {
                     properties.put("valueType", "json");
                     return;
                 }
-                
+
                 // 检测其他类型
                 if (strValue.equalsIgnoreCase("true") || strValue.equalsIgnoreCase("false")) {
                     properties.put("valueType", "boolean");
@@ -173,22 +174,22 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             } else if (value instanceof java.util.Map) {
                 properties.put("valueType", "object");
             }
-            
+
         } catch (Exception e) {
             log.debug("增强节点 valueType 失败: {}", e.getMessage());
         }
     }
-    
+
     /**
      * 检测是否为 JSON 格式字符串
      */
     private boolean isJsonLike(String str) {
         if (str == null || str.trim().isEmpty()) return false;
         String trimmed = str.trim();
-        return (trimmed.startsWith("{") && trimmed.endsWith("}")) || 
-               (trimmed.startsWith("[") && trimmed.endsWith("]"));
+        return (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+                (trimmed.startsWith("[") && trimmed.endsWith("]"));
     }
-    
+
     /**
      * 检测是否为邮箱格式
      */
@@ -196,7 +197,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (str == null) return false;
         return str.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
-    
+
     /**
      * 检测是否为颜色格式
      */
@@ -204,7 +205,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (str == null) return false;
         return str.matches("^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$");
     }
-    
+
     /**
      * 检测是否为密码格式（简单检测包含特定关键词）
      */
@@ -410,10 +411,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             if (document == null) {
                 return ReturnResult.error("文档组件不可用");
             }
-            try ( GetObjectResult getObjectResult = document.create(DocQuery.builder()
+            try (GetObjectResult getObjectResult = document.create(DocQuery.builder()
                     .type(DocQuery.Type.HTML)
                     .build());
-                  InputStream inputStream = getObjectResult.getInputStream()) {
+                 InputStream inputStream = getObjectResult.getInputStream()) {
                 return ReturnResult.ok(ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(getObjectResult.getMediaType().toString()))
                         .body(IoUtils.toByteArray(inputStream))
@@ -464,7 +465,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
 
                         // 保存到 RedisSearch
                         String index = RedisConstant.REDIS_SEARCH_PREFIX + "system:data:backup";
-                        Map<String, String> doc =new HashMap<>( BeanMap.create(record));
+                        Map<String, String> doc = new HashMap<>(BeanMap.create(record));
                         MapUtils.clearNullValue(doc);
                         redisSearchService.addDocument(index, doc);
 
@@ -521,11 +522,30 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
     public HierarchyMetadata getOrCreateHierarchy(Integer settingId) {
         SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
         DataSourceOptions options = buildOptions(setting);
-        if (setting.getSystemDataSettingServer() != null && setting.getSystemDataSettingServer().toLowerCase().startsWith("jdbc:")) {
-            return HierarchyMetadataFactory.createJdbcHierarchy(options);
+        HierarchyMetadata hierarchy = HierarchyMetadataFactory.createHierarchy(String.valueOf(setting.getSystemDataSettingId()), setting.getSystemDataSettingType(), options);
+        registerIdle(hierarchy, setting);
+        return hierarchy;
+    }
+
+    /**
+     * 注册idle检测
+     *
+     * @param hierarchy hierarchy
+     * @param setting   setting
+     */
+    private void registerIdle(HierarchyMetadata hierarchy, SystemDataSetting setting) {
+        Boolean dataSettingIdle = setting.getSystemDataSettingIdle();
+        if (null == dataSettingIdle || !dataSettingIdle) {
+            return;
         }
-        // 通用 SPI
-        return HierarchyMetadataFactory.createHierarchy(setting.getSystemDataSettingType().toLowerCase(), options);
+
+        if (hierarchy instanceof ListenMetadata listenMetadata) {
+            listenMetadata.enableSupported((p1, p2, actionType, it) -> {
+                socketSessionTemplate.send("system/data/listen/" + actionType + "/" + setting.getSystemDataSettingId(),
+                        Json.toJSONString(it));
+            });
+        }
+
     }
 
     public static DataSourceOptions buildOptions(SystemDataSetting setting) {
@@ -555,13 +575,21 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
     public void afterPropertiesSet() throws Exception {
         Thread.startVirtualThread(() -> {
             for (SystemDataSetting systemDataSetting : systemDataSettingMapper.selectList(
-                    Wrappers.<SystemDataSetting>lambdaQuery()
-                            .eq(SystemDataSetting::getSystemDataSettingBackupStatus, 1)
+                    Wrappers.lambdaQuery()
             )) {
 
+                Integer systemDataSettingId = systemDataSetting.getSystemDataSettingId();
                 try {
-                    startBackup(systemDataSetting.getSystemDataSettingId());
+                    if (systemDataSetting.getSystemDataSettingBackupStatus() == 1) {
+                        startBackup(systemDataSettingId);
+                        continue;
+                    }
                 } catch (Exception ignored) {
+                }
+
+                Boolean systemDataSettingIdle = systemDataSetting.getSystemDataSettingIdle();
+                if (null != systemDataSettingIdle && systemDataSettingIdle) {
+                    getRoot(systemDataSettingId, new MetadataQuery());
                 }
             }
         });

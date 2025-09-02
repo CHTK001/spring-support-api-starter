@@ -4,7 +4,7 @@ spring:
     include: mybatis,socket,report,ip
   sql:
     init:
-      data-locations: classpath:*.sql
+      data-locations: classpath:*.db
       mode: always
       continue-on-error: true
   application:

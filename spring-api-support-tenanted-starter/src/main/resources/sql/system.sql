@@ -195,7 +195,10 @@ INSERT INTO `sys_menu` VALUES (17, 'demo', '/demo/index', '', '自定义弹框�
 INSERT INTO `sys_menu` VALUES (18, 'demo', '/demo', '', '测试demo', '', 0, '0,18', '', 'ep:add-location', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:08:38', '2024-09-02 15:08:45', 'sa', 1, '');
 INSERT INTO `sys_menu` VALUES (20, 'template', '/manage/template', '', '模板管理', '', 1, '0,1,20', '/manage/template/index', 'ep:cellphone', NULL, 0, 997, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', NULL, '2024-09-02 15:59:48', '2024-09-02 16:00:05', 'sa', NULL, '');
 INSERT INTO `sys_menu` VALUES (21, '/monitor', '/monitor', '', '系统监控', '', 0, '0,21', '', 'ep:monitor', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:00:57', '2024-09-06 15:01:08', 'sa', 1, '');
-INSERT INTO `sys_menu` VALUES (22, 'sql', '/monitor/sql', '', 'SQL', '', 21, '0,21,22', '/monitor/sql/index', 'simple-icons:themoviedatabase', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:02:12', '2024-09-06 15:03:09', 'sa', 1, 'SUPER_ADMIN');
+INSERT INTO `sys_menu`
+VALUES (22, 'db', '/monitor/db', '', 'SQL', '', 21, '0,21,22', '/monitor/db/index', 'simple-icons:themoviedatabase',
+        NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 15:02:12', '2024-09-06 15:03:09', 'sa', 1,
+        'SUPER_ADMIN');
 INSERT INTO `sys_menu` VALUES (23, 'log', '/monitor/log', '', '实时日志', '', 21, '0,21,23', '/monitor/log/index', 'humbleicons:logout', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, '2024-09-06 17:23:07', '2024-09-07 14:23:09', 'sa', 1, 'SUPER_ADMIN');
 
 -- ----------------------------
