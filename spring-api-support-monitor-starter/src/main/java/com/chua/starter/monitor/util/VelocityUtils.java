@@ -186,8 +186,8 @@
 //            fileName = StringUtils.format("{}/controller/{}Controller.java", javaPath, className);
 //        } else if (template.contains("mapper.xml.vm")) {
 //            fileName = StringUtils.format("{}/{}Mapper.xml", mybatisPath, className);
-//        } else if (template.contains("sql.vm")) {
-//            fileName = businessName + "Menu.sql";
+//        } else if (template.contains("db.vm")) {
+//            fileName = businessName + "Menu.db";
 //        } else if (template.contains("api.js.vm")) {
 //            fileName = StringUtils.format("{}/api/{}/{}.js", vuePath, moduleName, businessName);
 //        } else if (template.contains("index.vue.vm")) {

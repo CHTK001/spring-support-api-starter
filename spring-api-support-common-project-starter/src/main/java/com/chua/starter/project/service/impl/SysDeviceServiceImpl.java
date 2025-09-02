@@ -28,6 +28,7 @@ import com.github.yulichang.toolkit.MPJWrappers;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -48,7 +49,8 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
     final SysDeviceOrgMapper sysDeviceOrgMapper;
     final SysProjectMapper sysProjectMapper;
     final SysDeviceChannelMapper sysDeviceChannelMapper;
-    final IptablesService iptablesService;
+    @Autowired(required = false)
+    IptablesService iptablesService;
 
     @Override
     public IPage<SysDeviceCameraRecord> pageForLog(TemplatePageV1Request request) {
@@ -204,7 +206,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
                 sysDevice.setSysDeviceLongitude(Converter.convertIfNecessary(listDTO.getLongitude(), BigDecimal.class));
                 sysDevice.setSysDeviceLatitude(Converter.convertIfNecessary(listDTO.getLatitude(), BigDecimal.class));
                 sysDevice.setSysDeviceNetAddress(listDTO.getNetAddress());
-                if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+                if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress()) && null != iptablesService) {
                     ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
                     if (returnResult.isOk()) {
                         GeoCity geoCity = returnResult.getData();
@@ -394,7 +396,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
         if (null == sysDevice1) {
             return ReturnResult.illegal("项目不存在");
         }
-        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress()) && null != iptablesService) {
             ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
             if (returnResult.isOk()) {
                 GeoCity geoCity = returnResult.getData();
@@ -410,7 +412,7 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
 
     @Override
     public ReturnResult<SysDevice> saveFor(SysDevice sysDevice) {
-        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress())) {
+        if (StringUtils.isNotBlank(sysDevice.getSysDeviceNetAddress()) && null != iptablesService) {
             ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysDevice.getSysDeviceNetAddress());
             if (returnResult.isOk()) {
                 GeoCity geoCity = returnResult.getData();

@@ -532,7 +532,7 @@ public class MonitorSysGenServerController {
      * 根据配置查询数据
      *
      * @param id         服务器ID
-     * @param queryType  查询类型 (prometheus/sql)
+     * @param queryType  查询类型 (prometheus/db)
      * @param expression 查询表达式
      * @param timeRange  时间范围参数
      * @return 查询结果
