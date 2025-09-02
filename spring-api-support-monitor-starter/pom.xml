@@ -300,7 +300,7 @@
     <!--                        <exclude>**/*.properties</exclude>-->
     <!--                        <exclude>**/*.yml</exclude>-->
     <!--                        <exclude>**/*.yaml</exclude>-->
-    <!--                        <exclude>**/*.sql</exclude>-->
+    <!--                        <exclude>**/*.db</exclude>-->
     <!--                        <exclude>**/*.json</exclude>-->
     <!--                        <exclude>**/*.xml</exclude>-->
     <!--                        <exclude>**/*.sh</exclude>-->
@@ -308,7 +308,7 @@
     <!--                        <exclude>**/*.dat</exclude>-->
     <!--                        <exclude>static/**/*.*</exclude>-->
     <!--                        <exclude>mapper/**/*.*</exclude>-->
-    <!--                        <exclude>sql/**/*.*</exclude>-->
+    <!--                        <exclude>db/**/*.*</exclude>-->
     <!--                        <exclude>bin/**/*.*</exclude>-->
     <!--                    </excludes>-->
     <!--                    <archive>-->
