@@ -21,6 +21,7 @@ import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
 import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -39,6 +40,7 @@ import static com.chua.common.support.constant.CommonConstant.EMPTY;
  * @author CH
  * @since 2024/9/10
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageGenerationServiceImpl implements ImageGenerationService {
@@ -93,6 +95,7 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
                         .style(request.getParameters().getStyle()).build()
                 )
                 .build();
+        log.info("当前任务模型:{}", taskV1Request.getModel());
         ImageGenerationsAddTaskV1Response vincentDiagramAddTaskV1Response = vincentDiagramClient.addTask(taskV1Request);
         SysAiVincentTask task = new SysAiVincentTask();
         task.setSysProjectId(sysProjectId);

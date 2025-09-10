@@ -92,12 +92,12 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
             List<MailMessage> emails = page.getData();
             for (MailMessage email : emails) {
                 SystemDataEmailHistory existing = emailHistoryMapper.selectByMessageId(
-                        email.getUid(), settingId);
+                        email.getMessageId(), settingId);
 
                 if (existing == null) {
                     existing = new SystemDataEmailHistory();
                     existing.setSystemDataEmailHistorySettingId(settingId);
-                    existing.setSystemDataEmailHistoryMessageId(email.getUid());
+                    existing.setSystemDataEmailHistoryMessageId(email.getMessageId());
                     existing.setSystemDataEmailHistorySubject(email.getSubject());
                     existing.setSystemDataEmailHistoryFrom(email.getFrom());
                     existing.setSystemDataEmailHistoryTo(StringUtils.join(email.getTo(), ","));

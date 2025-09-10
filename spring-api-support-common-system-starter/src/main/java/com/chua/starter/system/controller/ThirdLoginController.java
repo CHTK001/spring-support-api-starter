@@ -2,6 +2,7 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.result.Result;
+import com.chua.starter.oauth.client.support.annotation.AuthIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
@@ -49,6 +50,7 @@ public class ThirdLoginController {
      */
     @Operation(summary = "三方登录码")
     @PostMapping("/third/login/code")
+    @AuthIgnore
     public ReturnResult<String> thirdLoginCode(@Valid @RequestBody ThirdLoginData loginData,
                                                HttpServletRequest request,
                                                HttpServletResponse response,

@@ -67,7 +67,6 @@ public class OpenDeviceOnofflineMessageHandler implements MessageHandler {
      */
     private void updateDeviceInfo(OpenDeviceOnofflineMessageEvent openDeviceOnofflineMessageEvent) {
         try {
-            updateDeviceInfo(openDeviceOnofflineMessageEvent);
             SysDevice sysDevice = sysDeviceService.getOne(
                     Wrappers.<SysDevice>lambdaQuery()
                             .eq(SysDevice::getSysDeviceSerialNumber, openDeviceOnofflineMessageEvent.getDeviceSerial())
