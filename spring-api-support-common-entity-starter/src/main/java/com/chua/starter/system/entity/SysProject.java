@@ -133,6 +133,13 @@ public class SysProject extends SysBase {
     @ApiModelProperty(value="端点")
     @Schema(description="端点")
     private String sysProjectEndpoint;
+    /**
+     * 本地路径
+     */
+    @TableField(value = "sys_project_local_path")
+    @ApiModelProperty(value = "本地路径")
+    @Schema(description = "本地路径")
+    private String sysProjectLocalPath;
 
     /**
      * api地址

@@ -44,7 +44,7 @@ public class SysProjectController {
      *
      * @return 项目列表
      */
-    @Operation(summary = "角色项目列表")
+    @Operation(summary = "项目列表")
     @GetMapping("/page")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnPageResult<SysProject> page(@ParameterObject Query<SysProject> query, @ParameterObject SysProject sysProject, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {

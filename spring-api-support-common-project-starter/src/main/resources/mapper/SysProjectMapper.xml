@@ -80,7 +80,7 @@
             </where>
         </trim>
         ) T
-        ORDER BY sys_project_sort
+        ORDER BY sysProjectFunctionDefault desc, sys_project_sort
     </select>
 
     <select id="getDefaultByType" resultType="com.chua.starter.system.entity.SysProject">

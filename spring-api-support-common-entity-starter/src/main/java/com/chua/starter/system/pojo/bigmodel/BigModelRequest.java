@@ -60,6 +60,11 @@ public class BigModelRequest {
     private Long seed = -1L;
 
     /**
+     * 文件分组
+     */
+    private String groupId;
+
+    /**
      * 文件base64
      */
     private com.chua.common.support.bigmodel.BigModelRequest.FileInfo[] files;
