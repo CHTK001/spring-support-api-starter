@@ -143,7 +143,13 @@ public class SysAiModule extends SysBase {
     @ApiModelProperty(value = "说明")
     @Schema(description = "说明")
     private String sysAiModuleRemark;
-
+    /**
+     * 是否支持异步任务;0:不支持
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否支持异步任务;0:不支持")
+    @Schema(description = "是否支持异步任务;0:不支持")
+    private Integer sysAiVincentSupportAsync;
 
     /**
      * 文生图模型配置

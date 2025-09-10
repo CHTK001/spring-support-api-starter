@@ -1,7 +1,9 @@
 package com.chua.starter.project.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bigmodel.BigModelCallback;
 import com.chua.common.support.bigmodel.BigModelClient;
+import com.chua.common.support.bigmodel.BigModelRequest.HistoryMessage;
 import com.chua.common.support.bigmodel.BigModelResponse;
 import com.chua.common.support.bigmodel.BigModelSetting;
 import com.chua.common.support.json.Json;
@@ -13,7 +15,9 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.project.entity.SysAiGroupMessage;
 import com.chua.starter.project.service.BigModelService;
+import com.chua.starter.project.service.SysAiGroupMessageService;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.sse.support.Emitter;
@@ -29,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -46,6 +52,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     private final SseTemplate sseTemplate;
     final SysProjectService sysProjectService;
     final SysAiModuleService sysAiModuleService;
+    final SysAiGroupMessageService sysAiGroupMessageService;
 
     @Override
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
@@ -95,6 +102,22 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         if (null == bigModelClient) {
             throw new RuntimeException("暂不支持");
         }
+
+        List<HistoryMessage> historyMessages = new ArrayList<>();
+        String requestGroupId = request.getGroupId();
+        if (null != requestGroupId) {
+            List<SysAiGroupMessage> list = sysAiGroupMessageService.list(
+                    Wrappers.<SysAiGroupMessage>lambdaQuery()
+                            .eq(SysAiGroupMessage::getSysAiGroupId, sysProjectId)
+                            .eq(SysAiGroupMessage::getSysAiGroupId, requestGroupId)
+                            .eq(SysAiGroupMessage::getSysAiGroupMessageRole, "user")
+                            .orderByDesc(SysAiGroupMessage::getCreateTime)
+            );
+            historyMessages.addAll(list.stream().map(item -> HistoryMessage.builder()
+                    .role(item.getSysAiGroupMessageRole())
+                    .content(item.getSysAiGroupMessageContent())
+                    .build()).toList());
+        }
         String event = "bigModel_" + request.getRequestId();
         String clientId = request.getRequestId();
         Emitter emitter = Emitter.builder()
@@ -111,6 +134,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                                 .system(request.getSystem())
                                 .model(request.getModel())
                                 .temperature(request.getTemperature())
+                        .historyMessages(historyMessages)
                                 .tokens(request.getTokens())
                         .seed(request.getSeed())
                                 .version(sysAiModule.getSysAiModuleVersion())

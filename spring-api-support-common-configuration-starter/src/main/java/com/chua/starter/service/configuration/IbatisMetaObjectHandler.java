@@ -50,7 +50,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("createBy")) {
-                registerField(metaObject, "createBy",  userLoginInfo.getOption("sysUserId"), CREATE);
+                registerField(metaObject, "createBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), CREATE);
             }
 
             if (metaObject.hasGetter("createName")) {
@@ -86,7 +86,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("updateBy")) {
-                registerField(metaObject, "updateBy",  userLoginInfo.getOption("sysUserId"), UPDATE);
+                registerField(metaObject, "updateBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), UPDATE);
             }
             if (metaObject.hasGetter("updateName")) {
                 registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);

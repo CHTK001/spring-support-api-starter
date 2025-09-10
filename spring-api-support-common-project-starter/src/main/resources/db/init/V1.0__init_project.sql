@@ -11,7 +11,7 @@
  Target Server Version : 80027 (8.0.27)
  File Encoding         : 65001
 
- Date: 03/09/2025 09:22:16
+ Date: 08/09/2025 22:05:07
 */
 
 SET NAMES utf8mb4;
@@ -588,6 +588,10 @@ CREATE TABLE `sys_device`
   ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
+-- Records of sys_device
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for sys_device_card_event
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_device_card_event`;
@@ -643,6 +647,9 @@ CREATE TABLE `sys_device_channel`
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '设备管道'
   ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
+-- Records of sys_device_channel
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_device_message_event
@@ -712,6 +719,10 @@ CREATE TABLE `sys_device_org`
   ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
+-- Records of sys_device_org
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for sys_device_record
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_device_record`;
@@ -767,6 +778,24 @@ CREATE TABLE `sys_email_log`
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '邮件下发日志表'
   ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
+-- Records of sys_email_log
+-- ----------------------------
+INSERT INTO `sys_email_log`
+VALUES (6, 'yemengzhidiandi@163.com', '1', '{}', '<p><strong>测试</strong></p>', 2392.00, '00000', NULL,
+        'NEI_BU_XI_TONG', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `sys_email_log`
+VALUES (7, 'yemengzhidiandi@163.com', '1', '{}', '<p><strong>测试</strong></p>', 1348.00, 'SUCCESS', NULL,
+        'NEI_BU_XI_TONG', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
+INSERT INTO `sys_email_log`
+VALUES (8, 'yemengzhidiandi@163.com', '1', NULL, '<p><strong>测试</strong></p>', 893.00, 'SUCCESS', NULL,
+        'NEI_BU_XI_TONG', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
+INSERT INTO `sys_email_log`
+VALUES (9, 'request.getParams()', '1', NULL, '<p><strong>测试</strong></p>', 40.00, 'FAILURE', NULL, 'NEI_BU_XI_TONG',
+        NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
+INSERT INTO `sys_email_log`
+VALUES (10, 'yemengzhidiandi@163.com', '1', NULL, '<p><strong>测试</strong></p>', 917.00, 'SUCCESS', NULL,
+        'NEI_BU_XI_TONG', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 2);
 
 -- ----------------------------
 -- Table structure for sys_email_template
@@ -835,6 +864,7 @@ CREATE TABLE `sys_project`
     `sys_project_sort`                 int                                                           NULL DEFAULT NULL COMMENT '优先级',
     `sys_project_cdn`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'cdn',
     `sys_project_endpoint`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '端点',
+    `sys_project_local_path`           varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '本地路径',
     `sys_project_api_address`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'api地址',
     `sys_project_vender`               int                                                           NULL DEFAULT NULL COMMENT '厂家(字典1)',
     `sys_project_remark`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
@@ -864,94 +894,94 @@ CREATE TABLE `sys_project`
 INSERT INTO `sys_project`
 VALUES (1, '阿里', 'https://img1.baidu.com/it/u=2383102008,2259360939&fm=253&fmt=auto?w=800&h=800', '阿里系', 'ALI',
         'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '', '犀鸟校园', 0, 1, NULL, 2, NULL, NULL, NULL,
-        2, NULL, '13,15', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12',
-        'sa', 1);
+        NULL, 2, NULL, '13,15', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21',
+        '2024-09-06 13:36:12', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, NULL, 0, 1, NULL, 3, NULL, NULL,
-        NULL, 18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', NULL, NULL, 'sa', 1,
-        '2025-01-27 13:50:49', '2025-01-27 13:56:48', 'sa', 1);
+        NULL, NULL, 18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', NULL, NULL, 'sa',
+        1, '2025-01-27 13:50:49', '2025-01-27 13:56:48', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (4, '海康安防', 'https://open.hikvision.com/fileserver/opsimgs/综合安防.png', NULL, '01jk9zrhcnzsxrm71ybxh85abj',
-        '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, 3, NULL, '112.124.44.21:443', NULL, 19, NULL, '17',
-        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
+        '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, 3, NULL, '112.124.44.21:443', NULL, NULL, 19, NULL,
+        '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (5, '海康云曜', 'https://static.hikyun.com/portal/vportalimages/brand-logo.png', NULL,
         '01jkczk8ns06derb1m0t6aptb5', '16643603898674415', 'VQYaHTWVmatXVdCbrKZJ', NULL, '651515588253424', 0, 1,
-        '1664360485020781', 3, NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        '1664360485020781', 3, NULL, NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2025-02-06 14:36:44', '2025-02-06 14:37:46', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (6, '讯飞', 'https://www.xfyun.cn/static/img/layout/header/logo.svg', NULL, '01jkfjbnn8tvqj03938qkvb2ga',
         '7d9dec86', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', '4f810aad8b96224fc2aae62d8d440123', '', 0, 1, NULL, 3, NULL,
-        'http://spark-api.xf-yun.com/v1.1/chat', NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2025-02-07 14:43:07', '2025-02-07 14:47:17', 'sa', 1);
+        'http://spark-api.xf-yun.com/v1.1/chat', NULL, NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
+        1, '2025-02-07 14:43:07', '2025-02-07 14:47:17', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (7, 'deepseek',
         'https://gimg3.baidu.com/search/src=http%3A%2F%2Fgips0.baidu.com%2Fit%2Fu%3D501085362%2C3268784142%26fm%3D3030%26app%3D3030%26f%3DJPEG%3Fw%3D338%26h%3D225%26s%3D46F088725076FF8208BF9FDD020080AC&refer=http%3A%2F%2Fwww.baidu.com&app=2021&size=f242,150&n=0&g=0n&q=100&fmt=auto?sec=1739120400&t=07d69eb6c8aa160d9c89849bb067310c',
         NULL, '01jkj3yxzmzppaj8c3afphentc', NULL, NULL,
         'EWSNmypiPVPCzRVlcIdKsyNLGJNuw8CTSR+8IcKrheTl1rqvC2QFB8YUaJ8MaP7v', NULL, 0, 1, NULL, 3, NULL,
-        'https://api.deepseek.com/chat/completions', NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
-        '2025-02-08 14:29:12', '2025-02-08 15:02:56', 'sa', 1);
+        'https://api.deepseek.com/chat/completions', NULL, NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2025-02-08 14:29:12', '2025-02-08 15:02:56', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (8, 'kimi', 'https://platform.moonshot.cn/logo.png', NULL, '01jkjb2jc4grwqtv0vn9tjjayw', NULL, NULL,
         'sk-2KiwJ1D0DLOpdb6cozbY5R0H8ydum7YYcDIONGetw4bu6jsy', NULL, 0, 1, NULL, 3, NULL,
-        'https://api.moonshot.cn/v1/chat/completions', NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
+        'https://api.moonshot.cn/v1/chat/completions', NULL, NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (9, 'ollama', 'https://ollama.com/public/ollama.png', NULL, '01jkpta36f0yds272z1g81qs5r', NULL, NULL, NULL, NULL,
-        0, 1, NULL, 3, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, 23, NULL, '20', NULL, NULL, NULL, NULL,
-        NULL, NULL, 'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
+        0, 1, NULL, 3, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, NULL, 23, NULL, '20', NULL, NULL, NULL,
+        NULL, NULL, NULL, 'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (10, '测试', NULL, NULL, '01jkszw2aj1ht2pyr971fv2bz0', '28282971', 'q4S7VR7AXTcSpLuKsMlF', '', NULL, 0, 1, NULL,
-        3, NULL, '39.170.78.27:1443', NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
+        3, NULL, '39.170.78.27:1443', NULL, NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1,
         '2025-02-11 15:51:40', '2025-02-11 15:52:37', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (11, 'Cloudflare', 'https://developers.cloudflare.com/_astro/logo.p_ySeMR1.svg', NULL,
         '01jm8rp81pxz21ys3a7jtjw17w', NULL, NULL, 'ac4ctLVeplrjya5eT5ax024mgnT8hz1U-G-JF5ZR', NULL, 0, 1, NULL, 3, NULL,
-        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/v1', NULL, 32, NULL, '20,27',
-        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-17 09:34:45', '2025-02-17 09:36:25', 'sa', 1);
+        'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/v1', NULL, NULL, 32, NULL,
+        '20,27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-17 09:34:45', '2025-02-17 09:36:25', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (12, '豆包', 'https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/samantha/logo-icon-white-bg.png', NULL,
         '01jmh1ctzzqxk5pgxc5mv50h81', NULL, NULL, 'd3eec490-7aaf-468c-9e08-71021807460e1', NULL, 0, 1, NULL, 3, NULL,
-        NULL, NULL, 26, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-20 14:40:50',
+        NULL, NULL, NULL, 26, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-20 14:40:50',
         '2025-02-20 14:41:05', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (13, '阿里百炼', 'https://gw.alicdn.com/imgextra/i1/O1CN01gAwVtW296IdlNcfkW_!!6000000008018-2-tps-264-104.png',
         NULL, '01jn01sjfvgm9a9v2qjbm5ywtn', NULL, NULL, 'sk-8e1cd4c8176b494b97c361b5a1d78ea3', NULL, 0, 1, NULL, 3,
-        NULL, NULL, NULL, 2, NULL, '27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-26 10:36:23',
+        NULL, NULL, NULL, NULL, 2, NULL, '27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-26 10:36:23',
         '2025-02-26 10:39:46', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (14, '硅基流动', 'https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg', NULL,
         '01jn3803z7e41x7fjzvj539j20', NULL, NULL, 'sk-fqfxjiyhpadgvdlkousbnztmuttiegwmgaymubnaxofwoxhx', NULL, 0, 1,
-        NULL, 3, NULL, 'https://api.siliconflow.cn/v1/images/generations', NULL, 28, NULL, '27,20', NULL, NULL, NULL,
-        NULL, NULL, NULL, 'sa', 1, '2025-02-27 16:22:33', '2025-02-27 16:23:53', 'sa', 1);
+        NULL, 3, NULL, 'https://api.siliconflow.cn/v1/images/generations', NULL, NULL, 28, NULL, '27,20', NULL, NULL,
+        NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-27 16:22:33', '2025-02-27 16:23:53', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (16, 'openrouter', ' https://openrouter.ai/favicon.ico', NULL, '01jn5j39e1h4yqnw4qs801jzqn', NULL, NULL,
         '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', NULL, 0, 1, NULL, 3, NULL,
-        'https://openrouter.ai/api/v1/chat/completions', NULL, 29, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa',
-        1, '2025-02-28 13:57:31', '2025-03-25 14:11:37', 'sa', 1);
+        'https://openrouter.ai/api/v1/chat/completions', NULL, NULL, 29, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL,
+        'sa', 1, '2025-02-28 13:57:31', '2025-03-25 14:11:37', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (17, '智谱清言', 'https://bigmodel.cn/img/icons/android-chrome-192x192.png', NULL, '01jn5qbe49btdqzc2fe17rjysf',
-        NULL, NULL, '29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, 30,
-        NULL, '27,20,33', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 15:29:21', '2025-02-28 15:29:36',
+        NULL, NULL, '29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL,
+        30, NULL, '27,20,33', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 15:29:21', '2025-02-28 15:29:36',
         'sa', 1);
 INSERT INTO `sys_project`
 VALUES (18, '无问芯穹', 'https://content.cloud.infini-ai.com/platform-web-prod/assets/svg/logo_new.ceae5ff6.svg', NULL,
-        '01jn8yb4ak2amap9qsc3amj4js', NULL, NULL, 'sk-daulbrd77wpadaw6', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, 31,
-        NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-01 21:29:14', NULL, NULL, NULL);
+        '01jn8yb4ak2amap9qsc3amj4js', NULL, NULL, 'sk-daulbrd77wpadaw6', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL,
+        31, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-01 21:29:14', NULL, NULL, NULL);
 INSERT INTO `sys_project`
 VALUES (19, '腾讯', 'https://pic.rmb.bdstatic.com/bjh/news/87715fa6e1758590fc4b076538d704ad.png', NULL,
         '01jnqrnw0z28t5bhkf6a2qkc2d', 'AKIDOgokSxEI8pIYaP1RedPxKTSEn8GAtPp1', '1rUt9E7mETWMyQhlbEetwpV0KXXKtEMJ',
-        'sk-RBopn00LV7WB5KMQHdDAaV256zyjjQGuVA9DftZrUWTFsM0w', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, 34, NULL, '20,27',
-        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-07 15:38:51', '2025-03-07 15:42:17', 'sa', 1);
+        'sk-RBopn00LV7WB5KMQHdDAaV256zyjjQGuVA9DftZrUWTFsM0w', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, 34, NULL,
+        '20,27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-07 15:38:51', '2025-03-07 15:42:17', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (20, '海康云眸', ' https://pic.hik-cloud.com/favicon.ico', NULL, '01jpgs1jm6tbvdp6tq9zfw59ss',
         'e431e02c369b4adbad8f72c1eafbe8f7', '492c2864b59d459ebdb64795119e062b', NULL, NULL, 0, 1, NULL, NULL, NULL,
-        NULL, NULL, 35, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 08:46:16',
+        NULL, NULL, NULL, 35, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 08:46:16',
         '2025-03-17 08:51:09', 'sa', 1);
 INSERT INTO `sys_project`
 VALUES (21, '佐糖', 'https://qncdn.aoscdn.com/astro/picwish/_astro/logo-zh.Bv2rokLa.svg', NULL,
-        '01jps1ab36ykbgd6mkygprmcmd', NULL, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, 38, NULL, '39,40',
-        NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-20 13:44:47', '2025-03-21 10:30:34', 'sa', 1);
+        '01jps1ab36ykbgd6mkygprmcmd', NULL, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, 38, NULL,
+        '39,40', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-20 13:44:47', '2025-03-21 10:30:34', 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_project_default
@@ -1094,5 +1124,9 @@ CREATE TABLE `sys_sms_template`
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理'
   ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_sms_template
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

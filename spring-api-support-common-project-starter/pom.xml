@@ -63,19 +63,16 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-zhipu-starter</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-tencent-starter</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
