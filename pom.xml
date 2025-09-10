@@ -421,6 +421,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>spring-support-webrtc-starter</artifactId>
+                <version>4.0.0.33</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>spring-support-tencent-starter</artifactId>
                <version>${module.version}</version>
             </dependency>
