@@ -31,10 +31,17 @@
             <artifactId>fastjson2</artifactId>
             <version>2.0.54</version>
         </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-configuration-starter</artifactId>
             <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-arc-starter</artifactId>
+            <version>${utils.version}</version>
         </dependency>
 
         <dependency>

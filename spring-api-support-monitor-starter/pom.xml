@@ -79,6 +79,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-support-webrtc-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-configcenter-starter</artifactId>
         </dependency>
 
