@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "银行BIN对照表")
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "kuntu.sys_bank_bins")
+@TableName(value = "sys_bank_bins")
 public class SysBankBins extends SysBase {
     @TableId(value = "sys_blank_bin_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")

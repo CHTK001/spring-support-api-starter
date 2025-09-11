@@ -451,6 +451,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-deeplearning-arc-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>spring-support-oauth-client-starter</artifactId>
                <version>${module.version}</version>
             </dependency>
