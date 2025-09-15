@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftContainerMapper">
+
+    <!-- 根据状态统计容器数量 -->
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT 
+            system_soft_container_status as status, 
+            COUNT(*) as count 
+        FROM system_soft_container 
+        <where>
+            <if test="serverId != null">
+                AND system_server_id = #{serverId}
+            </if>
+        </where>
+        GROUP BY system_soft_container_status
+    </select>
+
+    <!-- 根据容器状态统计容器数量 -->
+    <select id="countByContainerStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_soft_container_status = #{containerStatus}
+    </select>
+
+    <!-- 根据服务器ID和状态统计容器数量 -->
+    <select id="countByServerIdAndStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_server_id = #{serverId} 
+        AND system_soft_container_status = #{containerStatus}
+    </select>
+
+    <!-- 根据软件ID统计容器数量 -->
+    <select id="countBySoftId" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_soft_id = #{softId}
+    </select>
+
+    <!-- 根据服务器ID统计容器数量 -->
+    <select id="countByServerId" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_server_id = #{serverId}
+    </select>
+
+    <!-- 检查容器名称是否存在 -->
+    <select id="checkContainerNameExists" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_soft_container_name = #{containerName}
+        AND system_server_id = #{serverId}
+        <if test="excludeId != null">
+            AND system_soft_container_id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 批量更新容器状态 -->
+    <update id="batchUpdateContainerStatus">
+        UPDATE system_soft_container 
+        SET system_soft_container_status = #{containerStatus},
+            update_time = NOW()
+        WHERE system_soft_container_id IN
+        <foreach collection="containerIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 根据软件ID删除容器 -->
+    <delete id="deleteBySoftId">
+        DELETE FROM system_soft_container 
+        WHERE system_soft_id = #{softId}
+    </delete>
+
+    <!-- 根据服务器ID删除容器 -->
+    <delete id="deleteByServerId">
+        DELETE FROM system_soft_container 
+        WHERE system_server_id = #{serverId}
+    </delete>
+
+</mapper>
