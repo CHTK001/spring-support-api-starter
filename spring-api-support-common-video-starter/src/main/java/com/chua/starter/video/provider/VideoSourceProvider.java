@@ -1,7 +1,7 @@
 package com.chua.starter.video.provider;
 
-import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.starter.video.pojo.VideoInfoResult;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,7 +31,7 @@ public interface VideoSourceProvider {
      * @param config   同步配置
      * @param consumer 视频信息消费
      */
-    void fetchVideos(VideoSyncConfig config, Consumer<VideoInfo> consumer);
+    void fetchVideos(VideoSyncConfig config, Consumer<VideoInfoResult> consumer);
 
     /**
      * 获取视频下载地址
@@ -40,6 +40,6 @@ public interface VideoSourceProvider {
      * @param config    同步配置
      * @return 下载地址列表
      */
-    List<String> getDownloadUrls(VideoInfo videoInfo, VideoSyncConfig config);
+    List<String> getDownloadUrls(VideoInfoResult videoInfo, VideoSyncConfig config);
 
 }

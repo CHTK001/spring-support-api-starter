@@ -1,4 +1,4 @@
-package com.chua.starter.system.controller;
+package com.chua.starter.service.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;

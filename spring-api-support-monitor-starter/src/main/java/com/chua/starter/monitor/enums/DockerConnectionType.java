@@ -9,7 +9,9 @@ package com.chua.starter.monitor.enums;
 public enum DockerConnectionType {
     SHELL("SHELL", "命令行"),
     TCP("TCP", "TCP连接"),
-    SOCKET("SOCKET", "Unix Socket");
+    SOCKET("SOCKET", "Unix Socket"),
+    UNIX_SOCKET("UNIX_SOCKET", "Unix Socket连接"),
+    LOCAL("LOCAL", "本地连接");
 
     private final String code;
     private final String desc;

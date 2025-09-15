@@ -1,0 +1,318 @@
+package com.chua.starter.video.provider.impl;
+
+import com.chua.common.support.converter.Converter;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.video.config.PanSouConfig;
+import com.chua.starter.video.entity.PanResource;
+import com.chua.starter.video.entity.VideoInfo;
+import com.chua.starter.video.enums.PanType;
+import com.chua.starter.video.provider.ResourceProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * PanSou 网盘资源提供者实现
+ * 基于 PanSou API 进行网盘资源搜索
+ *
+ * @author CH
+ * @version 1.0
+ * @since 2024/12/19
+ */
+@Component
+@Slf4j
+public class PanSouResourceProvider implements ResourceProvider {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final RestTemplate restTemplate = new RestTemplate();
+
+    /**
+     * 网盘链接正则表达式模式
+     */
+    private static final Pattern BAIDU_PATTERN = Pattern.compile("(https?://pan\\.baidu\\.com/s/[A-Za-z0-9_-]+)");
+    private static final Pattern ALIYUN_PATTERN = Pattern.compile("(https?://www\\.aliyundrive\\.com/s/[A-Za-z0-9_-]+)");
+    private static final Pattern QUARK_PATTERN = Pattern.compile("(https?://pan\\.quark\\.cn/s/[A-Za-z0-9_-]+)");
+    private static final Pattern TIANYI_PATTERN = Pattern.compile("(https?://cloud\\.189\\.cn/t/[A-Za-z0-9_-]+)");
+    private static final Pattern MAGNET_PATTERN = Pattern.compile("(magnet:\\?xt=urn:[a-z0-9]+:[a-z0-9]{32,40})");
+
+    @Autowired
+    private PanSouConfig panSouConfig;
+
+    @Override
+    public ReturnResult<List<VideoInfo>> searchResource(String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return ReturnResult.error("关键词不能为空");
+        }
+
+        if (!panSouConfig.isValid()) {
+            return ReturnResult.error("PanSou配置无效");
+        }
+
+        log.info("使用PanSou搜索网盘资源: {}", keyword);
+        List<VideoInfo> results = new ArrayList<>();
+
+        try {
+            // 构建搜索请求
+            List<PanResource> panResources = searchPanResources(keyword);
+
+            // 转换为VideoInfo对象
+            for (PanResource panResource : panResources) {
+                VideoInfo videoInfo = convertToVideoInfo(panResource);
+                if (videoInfo != null) {
+                    results.add(videoInfo);
+                }
+
+                // 限制结果数量
+                if (results.size() >= panSouConfig.getMaxResults()) {
+                    break;
+                }
+            }
+
+            if (results.isEmpty()) {
+                return ReturnResult.error("未找到相关网盘资源");
+            }
+
+            log.info("PanSou搜索完成，找到{}个资源", results.size());
+            return ReturnResult.success(results);
+
+        } catch (Exception e) {
+            log.error("PanSou资源搜索失败", e);
+            return ReturnResult.error("网盘资源搜索失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 搜索网盘资源
+     *
+     * @param keyword 搜索关键词
+     * @return 网盘资源列表
+     * @throws Exception 搜索异常
+     */
+    private List<PanResource> searchPanResources(String keyword) throws Exception {
+        List<PanResource> resources = new ArrayList<>();
+
+        // 构建请求URL
+        URI uri = UriComponentsBuilder.fromHttpUrl(panSouConfig.getSearchUrl())
+                .queryParam("keyword", keyword)
+                .queryParam("page", 1)
+                .queryParam("size", panSouConfig.getPageSize())
+                .queryParam("plugins", panSouConfig.getEnabledPluginsString())
+                .queryParam("channels", panSouConfig.getChannelsString())
+                .queryParam("async", panSouConfig.isAsyncEnabled())
+                .build()
+                .encode()
+                .toUri();
+
+        // 设置请求头
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", panSouConfig.getUserAgent());
+        headers.set("Accept", "application/json");
+        headers.set("Content-Type", "application/json");
+
+        if (StringUtils.hasText(panSouConfig.getApiKey())) {
+            headers.set("Authorization", "Bearer " + panSouConfig.getApiKey());
+        }
+
+        // 发送请求
+        ResponseEntity<String> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                String.class
+        );
+
+        // 解析响应
+        String responseBody = response.getBody();
+        if (responseBody != null) {
+            JsonNode rootNode = objectMapper.readTree(responseBody);
+
+            // 检查响应状态
+            if (rootNode.has("code") && rootNode.get("code").asInt() == 200) {
+                JsonNode dataNode = rootNode.path("data");
+                JsonNode resultsNode = dataNode.path("results");
+
+                // 解析搜索结果
+                if (resultsNode.isArray()) {
+                    for (JsonNode resultNode : resultsNode) {
+                        PanResource resource = parseResourceFromJson(resultNode);
+                        if (resource != null) {
+                            resources.add(resource);
+                        }
+                    }
+                }
+            } else {
+                String message = rootNode.path("message").asText("未知错误");
+                throw new RuntimeException("PanSou API返回错误: " + message);
+            }
+        }
+
+        return resources;
+    }
+
+    /**
+     * 从JSON节点解析网盘资源
+     *
+     * @param jsonNode JSON节点
+     * @return 网盘资源对象
+     */
+    private PanResource parseResourceFromJson(JsonNode jsonNode) {
+        try {
+            String title = jsonNode.path("title").asText();
+            String url = jsonNode.path("url").asText();
+            String typeCode = jsonNode.path("type").asText();
+            String size = jsonNode.path("size").asText();
+            String source = jsonNode.path("source").asText();
+            String description = jsonNode.path("description").asText();
+            double score = jsonNode.path("score").asDouble(0.0);
+            String timeStr = jsonNode.path("time").asText();
+
+            // 确定网盘类型
+            PanType panType = determinePanType(url, typeCode);
+
+            // 创建资源对象
+            PanResource resource = new PanResource(title, url, panType, size, source);
+            resource.setDescription(description);
+            resource.setScore(score);
+
+            // 解析时间
+            if (StringUtils.hasText(timeStr)) {
+                try {
+                    LocalDateTime publishTime = LocalDateTime.parse(timeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                    resource.setPublishTime(publishTime);
+                } catch (Exception e) {
+                    log.debug("时间解析失败: {}", timeStr);
+                }
+            }
+
+            return resource;
+
+        } catch (Exception e) {
+            log.warn("解析网盘资源失败", e);
+            return null;
+        }
+    }
+
+    /**
+     * 确定网盘类型
+     *
+     * @param url      资源链接
+     * @param typeCode 类型代码
+     * @return 网盘类型
+     */
+    private PanType determinePanType(String url, String typeCode) {
+        // 优先使用API返回的类型代码
+        if (StringUtils.hasText(typeCode)) {
+            PanType type = PanType.fromCode(typeCode);
+            if (type != PanType.OTHERS) {
+                return type;
+            }
+        }
+
+        // 根据URL模式判断
+        if (StringUtils.hasText(url)) {
+            if (BAIDU_PATTERN.matcher(url).find()) {
+                return PanType.BAIDU;
+            } else if (ALIYUN_PATTERN.matcher(url).find()) {
+                return PanType.ALIYUN;
+            } else if (QUARK_PATTERN.matcher(url).find()) {
+                return PanType.QUARK;
+            } else if (TIANYI_PATTERN.matcher(url).find()) {
+                return PanType.TIANYI;
+            } else if (MAGNET_PATTERN.matcher(url).find()) {
+                return PanType.MAGNET;
+            }
+        }
+
+        return PanType.OTHERS;
+    }
+
+    /**
+     * 将网盘资源转换为VideoInfo对象
+     *
+     * @param panResource 网盘资源
+     * @return VideoInfo对象
+     */
+    private VideoInfo convertToVideoInfo(PanResource panResource) {
+        if (panResource == null || !StringUtils.hasText(panResource.getTitle())) {
+            return null;
+        }
+
+        VideoInfo videoInfo = new VideoInfo();
+        videoInfo.setVideoName(panResource.getTitle());
+        videoInfo.setVideoTitle(panResource.getTitle());
+        videoInfo.setVideoAliasName(panResource.getTitle());
+        videoInfo.setVideoUrl(panResource.getUrl());
+        videoInfo.setVideoPlatform("网盘资源-" + panResource.getPanType().getName());
+        videoInfo.setVideoDescription(panResource.getDescription());
+        videoInfo.setVideoSize(panResource.getSize());
+        videoInfo.setVideoAuthor(panResource.getSource());
+
+        // 设置评分
+        if (panResource.getScore() != null) {
+            videoInfo.setVideoScore(Converter.convertIfNecessary(panResource.getScore(), java.math.BigDecimal.class));
+        }
+
+        // 设置发布时间
+        if (panResource.getPublishTime() != null) {
+            videoInfo.setVideoPublishDate(panResource.getPublishTime());
+        }
+
+        // 设置创建和更新时间
+        videoInfo.setCreateTime(LocalDateTime.now());
+        videoInfo.setUpdateTime(LocalDateTime.now());
+
+        return videoInfo;
+    }
+
+    @Override
+    public String getProviderName() {
+        return "PanSou网盘搜索";
+    }
+
+    @Override
+    public int getPriority() {
+        return 1; // 高优先级
+    }
+
+    @Override
+    public boolean isAvailable() {
+        try {
+            if (!panSouConfig.isValid()) {
+                return false;
+            }
+
+            // 检查PanSou API是否可用
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", panSouConfig.getUserAgent());
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    panSouConfig.getBaseUrl() + "/api/health",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            return response.getStatusCode().is2xxSuccessful();
+
+        } catch (Exception e) {
+            log.warn("PanSou服务不可用", e);
+            return false;
+        }
+    }
+}

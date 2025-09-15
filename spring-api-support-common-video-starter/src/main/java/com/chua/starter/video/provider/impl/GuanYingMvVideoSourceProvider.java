@@ -8,9 +8,9 @@ import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.RegexUtils;
 import com.chua.starter.video.entity.VideoDownload;
-import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoMark;
 import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.provider.VideoSourceProvider;
 import com.google.common.base.Joiner;
 import com.google.gson.annotations.SerializedName;
@@ -28,6 +28,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_ERROR;
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
+
 /**
  * GuanYing视频源提供者
  *
@@ -36,7 +39,7 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Spi("guanying")
-public class GuanYingMvSourceProvider implements VideoSourceProvider {
+public class GuanYingMvVideoSourceProvider implements VideoSourceProvider {
 
     static File file = null;
     static String[] TAG = new String[]{
@@ -60,7 +63,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
     }
 
     @Override
-    public void fetchVideos(VideoSyncConfig config, Consumer<VideoInfo> consumer) {
+    public void fetchVideos(VideoSyncConfig config, Consumer<VideoInfoResult> consumer) {
         log.info("从观影获取视频列表，配置: {}", config.getVideoSyncConfigName());
 
         try {
@@ -75,6 +78,13 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                             .content(EmbeddedVideoInfo.class);
                     Integer pages = embeddedVideoInfo.getPage().getPages();
                     log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get(), count.get() - 1, pages);
+
+                    String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
+                    if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
+                            SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
+                    ) {
+                        break;
+                    }
 
                     if (embeddedVideoInfo == null || embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
                         break;
@@ -97,7 +107,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
                                 names.size() + 1);
 
                         List o = (List) yearAndType.get(i);
-                        VideoInfo video = new VideoInfo();
+                        VideoInfoResult video = new VideoInfoResult();
                         video.setVideoTitle(names.get(i));
                         video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
                         video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
@@ -150,7 +160,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
 
     }
 
-    private void registerDownload(VideoInfo video, String dataId, VideoSyncConfig config) {
+    private void registerDownload(VideoInfoResult video, String dataId, VideoSyncConfig config) {
         //https://www.gyg.la/res/downurl/mv/mXr4
         EmbeddedDownload embeddedDownload = HttpClient.get(mvDownloadUrl + dataId)
                 .cookie(config.getVideoSyncConfigCookie())
@@ -226,7 +236,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
 
     }
 
-    private void registerDetail(VideoInfo video, String dataId, VideoSyncConfig config) {
+    private void registerDetail(VideoInfoResult video, String dataId, VideoSyncConfig config) {
         String detailHtml = HttpClient.get(mvDetailUrl + dataId)
                 .cookie(config.getVideoSyncConfigCookie())
                 .newInvoker()
@@ -240,7 +250,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
 
     }
 
-    private void registerDetailMoreBase(VideoInfo video, String baseJson) {
+    private void registerDetailMoreBase(VideoInfoResult video, String baseJson) {
         try {
             BaseDetail baseDetail = Json.fromJson(baseJson, BaseDetail.class);
             video.setVideoName(null == baseDetail.getName() ? null : baseDetail.getName().trim());
@@ -288,7 +298,7 @@ public class GuanYingMvSourceProvider implements VideoSourceProvider {
     }
 
     @Override
-    public List<String> getDownloadUrls(VideoInfo videoInfo, VideoSyncConfig config) {
+    public List<String> getDownloadUrls(VideoInfoResult videoInfo, VideoSyncConfig config) {
         log.info("获取YouTube视频下载地址: {}", videoInfo.getVideoTitle());
         List<String> downloadUrls = new ArrayList<>();
 
