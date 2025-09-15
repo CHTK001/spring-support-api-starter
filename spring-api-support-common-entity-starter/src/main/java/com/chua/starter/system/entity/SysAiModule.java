@@ -84,6 +84,13 @@ public class SysAiModule extends SysBase {
     @Schema(description = "是否是vlm模型;0:否")
     private Integer sysAiModuleVlm;
     /**
+     * 是否本地模型
+     */
+    @TableField(value = "sys_ai_module_location")
+    @ApiModelProperty(value = "是否本地模型")
+    @Schema(description = "是否本地模型")
+    private Boolean sysAiModuleLocation;
+    /**
      * 项目名称
      */
     @TableField(exist = false)

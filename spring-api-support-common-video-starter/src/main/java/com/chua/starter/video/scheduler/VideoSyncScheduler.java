@@ -23,7 +23,7 @@ public class VideoSyncScheduler {
      * 定时同步视频信息
      * 每天凌晨2点执行
      */
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void syncVideoInfo() {
         log.info("开始执行视频同步定时任务");
         try {

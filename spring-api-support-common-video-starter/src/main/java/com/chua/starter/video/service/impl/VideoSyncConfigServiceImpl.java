@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
+
 /**
  * 视频同步配置服务实现
  *
@@ -70,7 +72,6 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
         }
 
         config.setUpdateTime(LocalDateTime.now());
-
         return this.updateById(config);
     }
 
@@ -84,11 +85,44 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
     }
 
     @Override
-    public ReturnResult<Boolean> syncConfig(String id) {
+    public ReturnResult<Boolean> syncConfig(String id, boolean doYouWantToManuallySynchronize) {
         VideoSyncConfig videoSyncConfig = getById(id);
         if (null == videoSyncConfig) {
             return ReturnResult.error("同步配置不存在");
         }
-        return ReturnResult.guess(videoSyncTaskService.syncByConfig(videoSyncConfig) > 0);
+        return ReturnResult.guess(videoSyncTaskService.syncByConfig(videoSyncConfig, doYouWantToManuallySynchronize) > 0);
+    }
+
+    @Override
+    public ReturnResult<Boolean> toggleStatus(String id) {
+        VideoSyncConfig videoSyncConfig = getById(id);
+        if (null == videoSyncConfig) {
+            return ReturnResult.error("同步配置不存在");
+        }
+        Boolean videoSyncConfigEnabled = videoSyncConfig.getVideoSyncConfigEnabled();
+        if (null == videoSyncConfigEnabled) {
+            videoSyncConfigEnabled = true;
+        }
+        videoSyncConfig.setVideoSyncConfigEnabled(!videoSyncConfigEnabled);
+        return ReturnResult.of(updateById(videoSyncConfig));
+    }
+
+    @Override
+    public ReturnResult<String> getSyncStatus(String id) {
+        VideoSyncConfig videoSyncConfig = getById(id);
+        if (null == videoSyncConfig) {
+            return ReturnResult.error("同步配置不存在");
+        }
+        return ReturnResult.success(videoSyncConfig.getVideoSyncConfigStatus());
+    }
+
+    @Override
+    public ReturnResult<Boolean> stopSync(String id, boolean doYouWantToManuallySynchronize) {
+        VideoSyncConfig videoSyncConfig = getById(id);
+        if (null == videoSyncConfig) {
+            return ReturnResult.error("同步配置不存在");
+        }
+        videoSyncConfig.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
+        return ReturnResult.of(updateById(videoSyncConfig));
     }
 }

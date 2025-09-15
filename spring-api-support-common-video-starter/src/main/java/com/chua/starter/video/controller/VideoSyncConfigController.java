@@ -55,10 +55,7 @@ public class VideoSyncConfigController {
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = "video:sync:config:detail", key = "#id", unless = "#result.data == null")
     public ReturnResult<VideoSyncConfig> getConfigById(@PathVariable String id) {
         VideoSyncConfig config = videoSyncConfigService.getConfigById(id);
-        if (config == null) {
-            return ReturnResult.error("同步配置不存在");
-        }
-        return ReturnResult.success(config);
+        return ReturnResult.ofNone(config);
     }
 
     /**
@@ -108,14 +105,49 @@ public class VideoSyncConfigController {
     }
 
     /**
-     * 删除同步配置
+     * 启用/禁用
      *
      * @param id 配置ID
      * @return 删除结果
      */
-    @PostMapping("/{id}/execute")
+    @PutMapping("/toggle-status/{id}")
+    @Operation(summary = "启用/禁用")
+    public ReturnResult<Boolean> toggleStatus(@PathVariable String id) {
+        return videoSyncConfigService.toggleStatus(id);
+    }
+    /**
+     * 同步
+     *
+     * @param id 配置ID
+     * @return 删除结果
+     */
+    @PostMapping("/execute/{id}")
     @Operation(summary = "同步")
     public ReturnResult<Boolean> syncConfig(@PathVariable String id) {
-        return videoSyncConfigService.syncConfig(id);
+        return videoSyncConfigService.syncConfig(id, true);
+    }
+
+    /**
+     * 停止同步
+     *
+     * @param id 配置ID
+     * @return 删除结果
+     */
+    @PostMapping("/stop/{id}")
+    @Operation(summary = "停止同步")
+    public ReturnResult<Boolean> stopSync(@PathVariable String id) {
+        return videoSyncConfigService.stopSync(id, true);
+    }
+
+    /**
+     * 获取同步状态
+     *
+     * @param id 配置ID
+     * @return 删除结果
+     */
+    @GetMapping("/status/{id}")
+    @Operation(summary = "获取同步状态")
+    public ReturnResult<String> getStatus(@PathVariable String id) {
+        return videoSyncConfigService.getSyncStatus(id);
     }
 }

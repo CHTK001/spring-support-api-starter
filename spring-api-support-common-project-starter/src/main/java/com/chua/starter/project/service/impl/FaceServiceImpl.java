@@ -141,7 +141,7 @@ public class FaceServiceImpl implements FaceService {
         }
 
 
-        Integer sysProjectId = Integer.valueOf(request.getRequestId());
+        Integer sysProjectId = Integer.valueOf(request.getProvider());
         SysAiModule sysAiModule = sysAiModuleService.getOneByCode(sysProjectId, request.getModel());
         if (null == sysAiModule) {
             throw new RuntimeException("模型不存在");

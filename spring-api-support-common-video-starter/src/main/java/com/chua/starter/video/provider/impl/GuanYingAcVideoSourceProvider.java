@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Spi("guanying")
-public class GuanYingAcSourceProvider extends GuanYingMvSourceProvider {
+public class GuanYingAcVideoSourceProvider extends GuanYingMvVideoSourceProvider {
 
-    public GuanYingAcSourceProvider() {
+    public GuanYingAcVideoSourceProvider() {
         mvUrl = "https://www.gyg.la/res/ac";
         mvCoverUrl = "https://s.tutu.pm/img/ac";
         mvDownloadUrl = "https://www.gyg.la/res/downurl/ac/";
