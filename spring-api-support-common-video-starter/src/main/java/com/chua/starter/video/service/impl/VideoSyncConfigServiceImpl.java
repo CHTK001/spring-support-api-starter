@@ -37,7 +37,6 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
         return this.page(
                 query.createPage(),
                 Wrappers.<VideoSyncConfig>lambdaQuery()
-                        .eq(VideoSyncConfig::getVideoSyncConfigEnabled, true)
                         .orderByDesc(VideoSyncConfig::getVideoSyncConfigEnabled)
                         .orderByDesc(VideoSyncConfig::getCreateTime)
         );
