@@ -13,10 +13,11 @@ public interface VideoSyncTaskService {
     /**
      * 根据同步配置执行同步任务
      *
-     * @param config 同步配置
+     * @param config                         同步配置
+     * @param doYouWantToManuallySynchronize 是否手动同步
      * @return 同步的视频数量
      */
-    int syncByConfig(VideoSyncConfig config);
+    int syncByConfig(VideoSyncConfig config, boolean doYouWantToManuallySynchronize);
 
     /**
      * 同步所有启用的配置

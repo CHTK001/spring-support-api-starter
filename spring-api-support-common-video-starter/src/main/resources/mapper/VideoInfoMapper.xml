@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.video.mapper.VideoInfoMapper">
     <!-- 搜索视频 -->
-    <select id="searchVideos" resultType="com.chua.starter.video.entity.VideoInfo">
+    <select id="searchVideos" resultType="com.chua.starter.video.pojo.VideoInfoResult">
         SELECT *
         FROM video_info
         <where>

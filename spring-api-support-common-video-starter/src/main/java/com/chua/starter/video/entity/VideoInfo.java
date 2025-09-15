@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 视频表
@@ -239,20 +238,4 @@ public class VideoInfo extends SysBase {
     @Schema(description = "视频描述内容")
     private String videoDescription;
 
-
-    /**
-     * 视频标签
-     */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "视频标签")
-    @Schema(description = "视频标签")
-    private List<VideoMark> videoMarkList;
-
-    /**
-     * 视频下载地址
-     */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "视频下载地址")
-    @Schema(description = "视频下载地址")
-    private List<VideoDownload> downloadList;
 }

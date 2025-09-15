@@ -46,6 +46,12 @@
             <version>1.15.3</version>
         </dependency>
 
+        <!-- SocketIO支持 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socketio-starter</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

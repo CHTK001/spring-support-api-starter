@@ -213,6 +213,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-video-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-datasource-starter</artifactId>
         </dependency>
 
@@ -288,6 +293,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-aspose-starter</artifactId>
+        </dependency>
+
+        <!-- Docker支持模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-docker-starter</artifactId>
         </dependency>
     </dependencies>
 

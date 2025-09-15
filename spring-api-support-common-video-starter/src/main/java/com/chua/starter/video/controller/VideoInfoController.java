@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoKeyword;
+import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoDownloadService;
 import com.chua.starter.video.service.VideoInfoService;
@@ -49,7 +50,7 @@ public class VideoInfoController {
      */
     @PostMapping("/page")
     @Operation(summary = "视频搜索与分页查询")
-    public ReturnPageResult<VideoInfo> searchVideos(@RequestBody VideoSearchRequest request) {
+    public ReturnPageResult<VideoInfoResult> searchVideos(@RequestBody VideoSearchRequest request) {
         return ReturnPageResultUtils.ok(videoInfoService.searchVideos(request));
     }
     /**
@@ -61,7 +62,7 @@ public class VideoInfoController {
     @GetMapping("/{id}")
     @Operation(summary = "获取视频详情")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = "video:info:detail", key = "#id", unless = "#result.data == null")
-    public ReturnResult<VideoInfo> getVideoById(@PathVariable String id) {
+    public ReturnResult<VideoInfoResult> getVideoById(@PathVariable String id) {
         return videoInfoService.getVideoById(id);
     }
 

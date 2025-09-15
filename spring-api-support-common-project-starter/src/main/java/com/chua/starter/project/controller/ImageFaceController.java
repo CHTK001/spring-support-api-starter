@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,7 +49,7 @@ public class ImageFaceController {
     @Operation(summary = "检测")
     public ReturnResult<PredictResult> detect(
             @Parameter(description = "人脸图片文件") MultipartFile file,
-            @RequestBody ImageRequest request) {
+            ImageRequest request) {
         try {
             File imageFile = MultipartFileUtils.toFile(file);
             return faceService.detect(imageFile, request);
@@ -75,7 +74,7 @@ public class ImageFaceController {
     @Operation(summary = "特征")
     public ReturnResult<PredictResult> feature(
             @Parameter(description = "人脸图片文件") MultipartFile file,
-            @RequestBody ImageRequest request) {
+            ImageRequest request) {
         try {
             File imageFile = MultipartFileUtils.toFile(file);
             return faceService.feature(imageFile, request);
@@ -100,7 +99,7 @@ public class ImageFaceController {
     @Operation(summary = "识别")
     public ReturnResult<PredictResult> recognizer(
             @Parameter(description = "人脸图片文件") MultipartFile file,
-            @RequestBody ImageRequest request) {
+            ImageRequest request) {
         try {
             File imageFile = MultipartFileUtils.toFile(file);
             return faceService.recognizer(imageFile, request);
@@ -128,7 +127,7 @@ public class ImageFaceController {
     public ReturnResult<PredictResult> compare(
             @Parameter(description = "第一张人脸图片文件") MultipartFile file,
             @Parameter(description = "第二张人脸图片文件") MultipartFile file2,
-            @RequestBody ImageRequest request) {
+            ImageRequest request) {
         try {
             File imageFile1 = MultipartFileUtils.toFile(file);
             File imageFile2 = MultipartFileUtils.toFile(file2);
