@@ -17,3 +17,9 @@ target/
 *.html
 rebel.xml
 *.db
+*.png
+*.jpg
+*.jpeg
+.cache*.json
+*.class
+*Test.java

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftImageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftImage">
+        <id column="system_soft_image_id" property="systemSoftImageId" jdbcType="INTEGER"/>
+        <result column="system_soft_id" property="systemSoftId" jdbcType="INTEGER"/>
+        <result column="system_soft_image_server_id" property="systemSoftImageServerId" jdbcType="INTEGER"/>
+        <result column="system_soft_image_server_name" property="systemSoftImageServerName" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_image_id" property="systemSoftImageImageId" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_name" property="systemSoftImageName" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_tag" property="systemSoftImageTag" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_full_name" property="systemSoftImageFullName" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_repository" property="systemSoftImageRepository" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_size" property="systemSoftImageSize" jdbcType="BIGINT"/>
+        <result column="system_soft_image_created" property="systemSoftImageCreated" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_image_architecture" property="systemSoftImageArchitecture" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_os_type" property="systemSoftImageOsType" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_digest" property="systemSoftImageDigest" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_status" property="systemSoftImageStatus" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_is_official" property="systemSoftImageIsOfficial" jdbcType="INTEGER"/>
+        <result column="system_soft_image_description" property="systemSoftImageDescription" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_tag_count" property="systemSoftImageTagCount" jdbcType="INTEGER"/>
+        <result column="system_soft_image_pull_count" property="systemSoftImagePullCount" jdbcType="BIGINT"/>
+        <result column="system_soft_image_star_count" property="systemSoftImageStarCount" jdbcType="BIGINT"/>
+        <result column="system_soft_image_last_pulled" property="systemSoftImageLastPulled" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_image_last_pushed" property="systemSoftImageLastPushed" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_image_remark" property="systemSoftImageRemark" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_ext_field1" property="systemSoftImageExtField1" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_ext_field2" property="systemSoftImageExtField2" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_ext_field3" property="systemSoftImageExtField3" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        system_soft_image_id, system_soft_id, system_soft_image_server_id, system_soft_image_server_name,
+        system_soft_image_image_id, system_soft_image_name, system_soft_image_tag, system_soft_image_full_name,
+        system_soft_image_repository, system_soft_image_size, system_soft_image_created, system_soft_image_architecture,
+        system_soft_image_os_type, system_soft_image_digest, system_soft_image_status, system_soft_image_is_official,
+        system_soft_image_description, system_soft_image_tag_count, system_soft_image_pull_count, system_soft_image_star_count,
+        system_soft_image_last_pulled, system_soft_image_last_pushed, system_soft_image_remark,
+        system_soft_image_ext_field1, system_soft_image_ext_field2, system_soft_image_ext_field3,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+    <!-- 根据软件ID查询镜像列表 -->
+    <select id="selectBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_id = #{softId}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据服务器ID查询镜像列表 -->
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_server_id = #{serverId}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据Docker镜像ID查询镜像信息 -->
+    <select id="selectByDockerImageId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_image_id = #{dockerImageId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据镜像名称和标签查询镜像信息 -->
+    <select id="selectByImageNameAndTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_name = #{imageName}
+        AND system_soft_image_tag = #{imageTag}
+        LIMIT 1
+    </select>
+
+    <!-- 根据软件ID和服务器ID查询镜像列表 -->
+    <select id="selectBySoftIdAndServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_id = #{softId}
+        AND system_soft_image_server_id = #{serverId}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据镜像状态查询镜像列表 -->
+    <select id="selectByImageStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_status = #{imageStatus}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据服务器ID和状态查询镜像列表 -->
+    <select id="selectByServerIdAndStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_server_id = #{serverId}
+        AND system_soft_image_status = #{imageStatus}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据镜像名称查询镜像列表 -->
+    <select id="selectByImageName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_name = #{imageName}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据镜像标签查询镜像列表 -->
+    <select id="selectByImageTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_tag = #{imageTag}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据软件ID统计镜像数量 -->
+    <select id="countBySoftId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_id = #{softId}
+    </select>
+
+    <!-- 根据服务器ID统计镜像数量 -->
+    <select id="countByServerId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_image_server_id = #{serverId}
+    </select>
+
+    <!-- 根据状态统计镜像数量 -->
+    <select id="countByImageStatus" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_image_status = #{imageStatus}
+    </select>
+
+    <!-- 根据软件ID和状态统计镜像数量 -->
+    <select id="countBySoftIdAndStatus" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_id = #{softId}
+        AND system_soft_image_status = #{imageStatus}
+    </select>
+
+    <!-- 根据服务器ID和状态统计镜像数量 -->
+    <select id="countByServerIdAndStatus" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_image_server_id = #{serverId}
+        AND system_soft_image_status = #{imageStatus}
+    </select>
+
+    <!-- 检查镜像是否存在 -->
+    <select id="checkImageExists" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM system_soft_image
+        WHERE system_soft_image_name = #{imageName}
+        AND system_soft_image_tag = #{imageTag}
+        AND system_soft_image_server_id = #{serverId}
+        <if test="excludeId != null">
+            AND system_soft_image_id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 根据关键字搜索镜像 -->
+    <select id="searchByKeyword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_name LIKE CONCAT('%', #{keyword}, '%')
+        OR system_soft_image_description LIKE CONCAT('%', #{keyword}, '%')
+        OR system_soft_image_tag LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 获取可用的镜像列表 -->
+    <select id="selectAvailableImages" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_status = 'available'
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 获取异常状态的镜像列表 -->
+    <select id="selectAbnormalImages" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_status NOT IN ('available', 'running')
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 根据大小范围查询镜像列表 -->
+    <select id="selectBySizeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_size BETWEEN #{minSize} AND #{maxSize}
+        ORDER BY system_soft_image_size DESC
+    </select>
+
+    <!-- 根据创建时间范围查询镜像列表 -->
+    <select id="selectByCreateTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_created BETWEEN #{startTime} AND #{endTime}
+        ORDER BY system_soft_image_created DESC
+    </select>
+
+    <!-- 获取最新拉取的镜像列表 -->
+    <select id="selectLatestImages" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_image_last_pulled IS NOT NULL
+        ORDER BY system_soft_image_last_pulled DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 根据软件ID和镜像标签查询镜像信息 -->
+    <select id="selectBySoftIdAndImageTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_image
+        WHERE system_soft_id = #{softId}
+        AND system_soft_image_tag = #{imageTag}
+        LIMIT 1
+    </select>
+
+</mapper>
