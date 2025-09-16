@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.video.mapper.VideoSourceMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.video.entity.VideoSource">
+    <!--@mbg.generated-->
+    <!--@Table video_source-->
+    <id column="video_source_id" jdbcType="INTEGER" property="videoSourceId" />
+    <result column="video_source_name" jdbcType="VARCHAR" property="videoSourceName" />
+    <result column="video_source_platform" jdbcType="VARCHAR" property="videoSourcePlatform" />
+    <result column="video_source_url" jdbcType="VARCHAR" property="videoSourceUrl" />
+    <result column="video_source_enable" jdbcType="INTEGER" property="videoSourceEnable" />
+    <result column="video_source_token" jdbcType="VARCHAR" property="videoSourceToken" />
+    <result column="video_source_max_resource" jdbcType="INTEGER" property="videoSourceMaxResource" />
+    <result column="video_source_user_agent" jdbcType="VARCHAR" property="videoSourceUserAgent" />
+    <result column="video_source_cookie" jdbcType="LONGVARCHAR" property="videoSourceCookie" />
+    <result column="video_source_icon" jdbcType="VARCHAR" property="videoSourceIcon" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    video_source_id, video_source_name, video_source_platform, video_source_url, video_source_enable, 
+    video_source_token, video_source_max_resource, video_source_user_agent, video_source_cookie, 
+    video_source_icon, create_name, create_by, create_time, update_time, update_name, 
+    update_by
+  </sql>
+</mapper>

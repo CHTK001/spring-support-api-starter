@@ -36,7 +36,7 @@ public class VideoSyncMessageService {
     public void sendGlobalMessage(VideoSyncMessage message) {
         try {
             log.debug("推送全局视频同步消息: {}", message.getMessage());
-            socketSessionTemplate.send(TOPIC_VIDEO_SYNC_GLOBAL, message);
+            socketSessionTemplate.sendObject(TOPIC_VIDEO_SYNC_GLOBAL, message);
         } catch (Exception e) {
             log.error("推送全局视频同步消息失败: {}", e.getMessage(), e);
         }
@@ -52,7 +52,7 @@ public class VideoSyncMessageService {
         try {
             String destination = TOPIC_VIDEO_SYNC_CONFIG + configId;
             log.debug("推送配置[{}]视频同步消息: {}", configId, message.getMessage());
-            socketSessionTemplate.send(destination, message);
+            socketSessionTemplate.sendObject(destination, message);
         } catch (Exception e) {
             log.error("推送配置[{}]视频同步消息失败: {}", configId, e.getMessage(), e);
         }
@@ -67,7 +67,7 @@ public class VideoSyncMessageService {
     public void sendUserMessage(String userId, VideoSyncMessage message) {
         try {
             log.debug("推送用户[{}]视频同步消息: {}", userId, message.getMessage());
-            socketSessionTemplate.send(userId, QUEUE_VIDEO_SYNC_USER, message);
+            socketSessionTemplate.sendObject(userId, QUEUE_VIDEO_SYNC_USER, message);
         } catch (Exception e) {
             log.error("推送用户[{}]视频同步消息失败: {}", userId, e.getMessage(), e);
         }

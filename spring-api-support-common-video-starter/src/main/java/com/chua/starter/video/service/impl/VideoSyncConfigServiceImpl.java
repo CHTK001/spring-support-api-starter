@@ -2,20 +2,28 @@ package com.chua.starter.video.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.VideoSyncConfig;
 import com.chua.starter.video.mapper.VideoSyncConfigMapper;
+import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.service.VideoSyncConfigService;
 import com.chua.starter.video.service.VideoSyncTaskService;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC;
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
 
 /**
@@ -29,17 +37,31 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMapper, VideoSyncConfig> implements VideoSyncConfigService {
 
     @Lazy
-    @Resource
+    @Autowired
     VideoSyncTaskService videoSyncTaskService;
+    @Lazy
+    @Autowired
+    VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
 
     @Override
     public IPage<VideoSyncConfig> getAllConfigs(Query<VideoSyncConfig> query) {
-        return this.page(
+        Page<VideoSyncConfig> page = this.page(
                 query.createPage(),
                 Wrappers.<VideoSyncConfig>lambdaQuery()
                         .orderByDesc(VideoSyncConfig::getVideoSyncConfigEnabled)
                         .orderByDesc(VideoSyncConfig::getCreateTime)
         );
+
+        List<VideoSyncConfig> records = page.getRecords();
+        if (records != null && !records.isEmpty()) {
+            Set<String> collect = records.stream().map(VideoSyncConfig::getVideoSyncConfigId).collect(Collectors.toSet());
+            Map<String, Integer> count = videoSyncConfigRecordMapper.countByConfigId(collect);
+            records.forEach(record -> {
+                record.setSyncCount(count.getOrDefault(record.getVideoSyncConfigId(), 0));
+            });
+        }
+
+        return page;
     }
 
     @Override
@@ -53,6 +75,7 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
             return false;
         }
 
+        config.setVideoSyncConfigId(IdUtils.createSnowflakeId());
         // 设置默认值
         if (config.getVideoSyncConfigEnabled() == null) {
             config.setVideoSyncConfigEnabled(true);
@@ -122,6 +145,7 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
             return ReturnResult.error("同步配置不存在");
         }
         videoSyncConfig.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
+        SYNC.remove(videoSyncConfig.getVideoSyncConfigId());
         return ReturnResult.of(updateById(videoSyncConfig));
     }
 }

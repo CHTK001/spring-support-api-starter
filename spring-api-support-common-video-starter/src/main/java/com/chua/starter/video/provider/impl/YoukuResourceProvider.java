@@ -1,14 +1,14 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.entity.VideoInfo;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSearch;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.net.URLEncoder;
@@ -22,22 +22,25 @@ import java.util.List;
  *
  * @author CH
  */
-@Component
 @Slf4j
-public class YoukuResourceProvider implements ResourceProvider {
+public class YoukuResourceProvider extends AbstractResourceProvider {
 
     private static final String YOUKU_SEARCH_URL = "https://so.youku.com/search_video/q_";
     private static final int TIMEOUT = 10000; // 10秒超时
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
-    @Override
-    public ReturnResult<List<VideoInfo>> searchResource(String keyword) {
+    public YoukuResourceProvider(VideoSource videoSource) {
+        super(videoSource);
+    }
+
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnResult.error("关键词不能为空");
+            return ReturnPageResult.error("关键词不能为空");
         }
 
         log.info("从优酷资源检索视频: {}", keyword);
-        List<VideoInfo> results = new ArrayList<>();
+        List<VideoInfoResult> results = new ArrayList<>();
 
         try {
             // URL编码关键词
@@ -89,7 +92,7 @@ public class YoukuResourceProvider implements ResourceProvider {
                     }
 
                     // 创建VideoInfo对象
-                    VideoInfo videoInfo = new VideoInfo();
+                    VideoInfoResult videoInfo = new VideoInfoResult();
                     videoInfo.setVideoName(title);
                     videoInfo.setVideoAliasName(title);
                     videoInfo.setVideoDirector(uploader);
@@ -112,38 +115,14 @@ public class YoukuResourceProvider implements ResourceProvider {
             }
 
             if (results.isEmpty()) {
-                return ReturnResult.error("优酷资源未找到相关视频");
+                return ReturnPageResult.error("优酷资源未找到相关视频");
             }
 
-            return ReturnResult.success(results);
+            return ReturnPageResult.ok(results);
         } catch (Exception e) {
             log.error("优酷资源检索失败", e);
-            return ReturnResult.error("优酷资源检索失败: " + e.getMessage());
+            return ReturnPageResult.error("优酷资源检索失败: " + e.getMessage());
         }
     }
 
-    @Override
-    public String getProviderName() {
-        return "优酷资源";
-    }
-
-    @Override
-    public int getPriority() {
-        return 3;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        try {
-            // 简单检查优酷网站是否可访问
-            Jsoup.connect("https://www.youku.com")
-                    .userAgent(USER_AGENT)
-                    .timeout(5000)
-                    .execute();
-            return true;
-        } catch (Exception e) {
-            log.warn("优酷资源不可用", e);
-            return false;
-        }
-    }
-} 
+}

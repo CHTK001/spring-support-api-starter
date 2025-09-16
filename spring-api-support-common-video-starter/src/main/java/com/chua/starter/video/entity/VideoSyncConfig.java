@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -13,112 +14,91 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 视频同步配置
  *
  * @author CH
- * @since 2024/6/21
+ * @since 2025/9/16 9:05
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
-@TableName(value = "video_sync_config")
-@Schema(description = "视频同步配置")
-public class VideoSyncConfig extends SysBase {
 
+/**
+ * 视频同步配置表
+ */
+@ApiModel(description = "视频同步配置表")
+@Schema(description = "视频同步配置表")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName(value = "video_sync_config")
+public class VideoSyncConfig extends SysBase {
     /**
-     * 主键ID
+     * 配置ID
      */
-    @TableId(value = "video_sync_config_id", type = IdType.ASSIGN_UUID)
+    @TableId(value = "video_sync_config_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "配置ID")
     @Schema(description = "配置ID")
     private String videoSyncConfigId;
 
     /**
      * 同步名称
      */
-    @TableField("video_sync_config_name")
+    @TableField(value = "video_sync_config_name")
+    @ApiModelProperty(value = "同步名称")
     @Schema(description = "同步名称")
     private String videoSyncConfigName;
 
     /**
-     * 同步方式
+     * 数据来源ID
      */
-    @TableField("video_sync_config_type")
-    @Schema(description = "同步方式")
-    private String videoSyncConfigType;
-
-    /**
-     * 同步地址
-     */
-    @TableField("video_sync_config_url")
-    @Schema(description = "同步地址")
-    private String videoSyncConfigUrl;
-
-    /**
-     * 同步密钥
-     */
-    @TableField("video_sync_config_key")
-    @Schema(description = "同步密钥")
-    private String videoSyncConfigKey;
-
-    /**
-     * 同步Cookie
-     */
-    @TableField("video_sync_config_cookie")
-    @Schema(description = "同步Cookie")
-    private String videoSyncConfigCookie;
-
-    /**
-     * 额外参数(JSON格式)
-     */
-    @TableField("video_sync_config_extra")
-    @Schema(description = "额外参数")
-    private String videoSyncConfigExtra;
+    @TableField(value = "video_source_id")
+    @ApiModelProperty(value = "数据来源ID")
+    @Schema(description = "数据来源ID")
+    private String videoSourceId;
 
     /**
      * 是否启用
      */
-    @TableField("video_sync_config_enabled")
+    @TableField(value = "video_sync_config_enabled")
+    @ApiModelProperty(value = "是否启用")
     @Schema(description = "是否启用")
     private Boolean videoSyncConfigEnabled;
 
     /**
-     * 同步来源(用于SPI实现类型)
-     */
-    @TableField("video_sync_config_source")
-    @Schema(description = "同步来源")
-    private String videoSyncConfigSource;
-    /**
      * 同步周期(分钟)
      */
-    @TableField("video_sync_interval")
+    @TableField(value = "video_sync_interval")
+    @ApiModelProperty(value = "同步周期(分钟)")
     @Schema(description = "同步周期(分钟)")
     private Integer videoSyncInterval;
 
     /**
      * 最后同步时间
      */
-    @TableField("video_sync_config_last_async_time")
+    @TableField(value = "video_sync_config_last_async_time")
+    @ApiModelProperty(value = "最后同步时间")
     @Schema(description = "最后同步时间")
-    private LocalDateTime videoSyncConfigLastSyncTime;
+    private LocalDateTime videoSyncConfigLastAsyncTime;
 
     /**
      * 请求头
      */
-    @TableField("video_sync_config_headers")
+    @TableField(value = "video_sync_config_headers")
+    @ApiModelProperty(value = "请求头")
     @Schema(description = "请求头")
     private String videoSyncConfigHeaders;
+
     /**
      * 备注
      */
-    @TableField("video_sync_config_remark")
+    @TableField(value = "video_sync_config_remark")
+    @ApiModelProperty(value = "备注")
     @Schema(description = "备注")
     private String videoSyncConfigRemark;
-    /**
-     * 状态
-     */
-    @TableField("video_sync_config_status")
-    @Schema(description = "状态")
-    private String videoSyncConfigStatus;
 
+    /**
+     * 同步状态
+     */
+    @TableField(value = "video_sync_config_status")
+    @ApiModelProperty(value = "同步状态")
+    @Schema(description = "同步状态")
+    private String videoSyncConfigStatus;
     /**
      * 同步次数
      */

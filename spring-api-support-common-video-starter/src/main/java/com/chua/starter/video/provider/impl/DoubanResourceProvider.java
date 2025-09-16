@@ -2,16 +2,16 @@ package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.entity.VideoInfo;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSearch;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -30,22 +30,26 @@ import java.util.regex.Pattern;
  *
  * @author CH
  */
-@Component
 @Slf4j
-public class DoubanResourceProvider implements ResourceProvider {
+public class DoubanResourceProvider extends AbstractResourceProvider {
 
     private static final String DOUBAN_SEARCH_URL = "https://www.douban.com/search?cat=1002&q=";
     private static final int TIMEOUT = 10000; // 10秒超时
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
+    public DoubanResourceProvider(VideoSource videoSource) {
+        super(videoSource);
+    }
+
     @Override
-    public ReturnResult<List<VideoInfo>> searchResource(String keyword) {
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnResult.error("关键词不能为空");
+            return ReturnPageResult.error("关键词不能为空");
         }
 
         log.info("从豆瓣资源检索视频: {}", keyword);
-        List<VideoInfo> results = new ArrayList<>();
+        List<VideoInfoResult> results = new ArrayList<>();
 
         try {
             // URL编码关键词
@@ -94,7 +98,7 @@ public class DoubanResourceProvider implements ResourceProvider {
                         Matcher matcher = pattern.matcher(html);
 
                         if (!matcher.find()) {
-                            return ReturnResult.ok(Collections.emptyList());
+                            return ReturnPageResult.ok(Collections.emptyList());
                         }
                         String url = matcher.group(1);
                         detailDoc = Jsoup.connect(url)
@@ -176,7 +180,10 @@ public class DoubanResourceProvider implements ResourceProvider {
 
                             if (infoText.contains("语言:")) {
                                 int i = infoText.indexOf("语言:");
-                                language = infoText.substring(i + 3, infoText.indexOf("上映日期", i + 1));
+                                try {
+                                    language = infoText.substring(i + 3, infoText.indexOf("上映日期", i + 1));
+                                } catch (Exception ignored) {
+                                }
                             }
 
                             if (infoText.contains("又名:")) {
@@ -188,7 +195,7 @@ public class DoubanResourceProvider implements ResourceProvider {
                     }
 
                     // 创建VideoInfo对象
-                    VideoInfo videoInfo = new VideoInfo();
+                    VideoInfoResult videoInfo = new VideoInfoResult();
                     videoInfo.setVideoName(title);
                     videoInfo.setVideoAliasName(title);
                     videoInfo.setVideoDirector(Joiner.on(",").join(director.split("/")));
@@ -223,41 +230,16 @@ public class DoubanResourceProvider implements ResourceProvider {
             }
 
             if (results.isEmpty()) {
-                return ReturnResult.error("豆瓣资源未找到相关视频");
+                return ReturnPageResult.error("豆瓣资源未找到相关视频");
             }
 
-            return ReturnResult.success(results);
+            return ReturnPageResult.ok(results);
         } catch (IOException e) {
             log.error("豆瓣资源检索失败", e);
-            return ReturnResult.error("豆瓣资源检索失败: " + e.getMessage());
+            return ReturnPageResult.error("豆瓣资源检索失败: " + e.getMessage());
         } catch (Exception e) {
             log.error("豆瓣资源检索过程中发生未知错误", e);
-            return ReturnResult.error("豆瓣资源检索失败: " + e.getMessage());
+            return ReturnPageResult.error("豆瓣资源检索失败: " + e.getMessage());
         }
     }
-
-    @Override
-    public String getProviderName() {
-        return "豆瓣资源";
-    }
-
-    @Override
-    public int getPriority() {
-        return 1; // 优先级较高
-    }
-
-    @Override
-    public boolean isAvailable() {
-        try {
-            // 简单检查豆瓣网站是否可访问
-            Jsoup.connect("https://www.douban.com")
-                    .userAgent(USER_AGENT)
-                    .timeout(5000)
-                    .execute();
-            return true;
-        } catch (Exception e) {
-            log.warn("豆瓣资源不可用", e);
-            return false;
-        }
-    }
-} 
+}
