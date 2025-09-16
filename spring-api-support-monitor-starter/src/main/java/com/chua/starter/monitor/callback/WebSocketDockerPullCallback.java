@@ -1,8 +1,6 @@
 package com.chua.starter.monitor.callback;
 
-import com.chua.docker.support.callback.DockerBuildResponseItem;
 import com.chua.docker.support.callback.DockerPullResponseItem;
-import com.chua.docker.support.callback.DockerPushResponseItem;
 import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.github.dockerjava.api.model.ResponseItem;
@@ -91,8 +89,7 @@ public class WebSocketDockerPullCallback<T> implements DockerResultCallback {
             message.put("timestamp", LocalDateTime.now());
 
             // 根据不同类型的响应项处理
-            if (item instanceof DockerPullResponseItem) {
-                DockerPullResponseItem pullItem = (DockerPullResponseItem) item;
+            if (item instanceof DockerPullResponseItem pullItem) {
                 message.put("status", pullItem.getStatus());
                 message.put("progress", pullItem.getProgress());
                 message.put("id", pullItem.getId());
@@ -106,7 +103,7 @@ public class WebSocketDockerPullCallback<T> implements DockerResultCallback {
             }
 
             // 发送WebSocket消息
-            socketSessionTemplate.send("docker_progress", message);
+            socketSessionTemplate.sendObject("docker_progress", message);
 
         } catch (Exception e) {
             log.error("发送Docker进度WebSocket消息失败", e);
@@ -126,7 +123,7 @@ public class WebSocketDockerPullCallback<T> implements DockerResultCallback {
             log.info("Docker拉取操作开始 - 镜像: {}", imageName);
 
             // 发送WebSocket消息
-            socketSessionTemplate.send("docker_start", message);
+            socketSessionTemplate.sendObject("docker_start", message);
 
         } catch (Exception e) {
             log.error("发送Docker开始WebSocket消息失败", e);
@@ -149,7 +146,7 @@ public class WebSocketDockerPullCallback<T> implements DockerResultCallback {
             log.error("Docker拉取操作失败 - 镜像: {}, 错误: {}", imageName, throwable.getMessage(), throwable);
 
             // 发送WebSocket消息
-            socketSessionTemplate.send("docker_error", message);
+            socketSessionTemplate.sendObject("docker_error", message);
 
         } catch (Exception e) {
             log.error("发送Docker错误WebSocket消息失败", e);
@@ -176,7 +173,7 @@ public class WebSocketDockerPullCallback<T> implements DockerResultCallback {
             }
 
             // 发送WebSocket消息
-            socketSessionTemplate.send("docker_complete", message);
+            socketSessionTemplate.sendObject("docker_complete", message);
 
         } catch (Exception e) {
             log.error("发送Docker完成WebSocket消息失败", e);

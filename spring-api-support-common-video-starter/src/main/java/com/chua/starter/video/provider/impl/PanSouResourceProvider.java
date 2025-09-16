@@ -1,21 +1,20 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.converter.Converter;
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.config.PanSouConfig;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.PanResource;
-import com.chua.starter.video.entity.VideoInfo;
+import com.chua.starter.video.entity.VideoDownload;
+import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.enums.PanType;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -35,9 +34,8 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @since 2024/12/19
  */
-@Component
 @Slf4j
-public class PanSouResourceProvider implements ResourceProvider {
+public class PanSouResourceProvider extends AbstractResourceProvider {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final RestTemplate restTemplate = new RestTemplate();
@@ -51,82 +49,80 @@ public class PanSouResourceProvider implements ResourceProvider {
     private static final Pattern TIANYI_PATTERN = Pattern.compile("(https?://cloud\\.189\\.cn/t/[A-Za-z0-9_-]+)");
     private static final Pattern MAGNET_PATTERN = Pattern.compile("(magnet:\\?xt=urn:[a-z0-9]+:[a-z0-9]{32,40})");
 
-    @Autowired
-    private PanSouConfig panSouConfig;
+    public PanSouResourceProvider(VideoSource videoSource) {
+        super(videoSource);
+    }
 
     @Override
-    public ReturnResult<List<VideoInfo>> searchResource(String keyword) {
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnResult.error("关键词不能为空");
-        }
-
-        if (!panSouConfig.isValid()) {
-            return ReturnResult.error("PanSou配置无效");
+            return ReturnPageResult.error("关键词不能为空");
         }
 
         log.info("使用PanSou搜索网盘资源: {}", keyword);
-        List<VideoInfo> results = new ArrayList<>();
+        List<VideoInfoResult> results = new ArrayList<>();
 
         try {
             // 构建搜索请求
-            List<PanResource> panResources = searchPanResources(keyword);
+            List<PanResource> panResources = searchPanResources(videoSearch);
 
             // 转换为VideoInfo对象
             for (PanResource panResource : panResources) {
-                VideoInfo videoInfo = convertToVideoInfo(panResource);
+                VideoInfoResult videoInfo = convertToVideoInfo(panResource);
                 if (videoInfo != null) {
                     results.add(videoInfo);
                 }
 
                 // 限制结果数量
-                if (results.size() >= panSouConfig.getMaxResults()) {
+                if (results.size() >= videoSource.getVideoSourceMaxResource()) {
                     break;
                 }
             }
 
             if (results.isEmpty()) {
-                return ReturnResult.error("未找到相关网盘资源");
+                return ReturnPageResult.error("未找到相关网盘资源");
             }
 
             log.info("PanSou搜索完成，找到{}个资源", results.size());
-            return ReturnResult.success(results);
+            return ReturnPageResult.ok(results);
 
         } catch (Exception e) {
             log.error("PanSou资源搜索失败", e);
-            return ReturnResult.error("网盘资源搜索失败: " + e.getMessage());
+            return ReturnPageResult.error("网盘资源搜索失败: " + e.getMessage());
         }
     }
 
     /**
      * 搜索网盘资源
      *
-     * @param keyword 搜索关键词
+     * @param videoSearch 搜索关键词
      * @return 网盘资源列表
      * @throws Exception 搜索异常
      */
-    private List<PanResource> searchPanResources(String keyword) throws Exception {
+    private List<PanResource> searchPanResources(VideoSearch videoSearch) throws Exception {
         List<PanResource> resources = new ArrayList<>();
 
         // 构建请求URL
-        URI uri = UriComponentsBuilder.fromHttpUrl(panSouConfig.getSearchUrl())
-                .queryParam("keyword", keyword)
+        URI uri = UriComponentsBuilder.fromHttpUrl(videoSource.getVideoSourceUrl())
+                .queryParam("kw", videoSearch.getKeyword())
                 .queryParam("page", 1)
-                .queryParam("size", panSouConfig.getPageSize())
-                .queryParam("plugins", panSouConfig.getEnabledPluginsString())
-                .queryParam("channels", panSouConfig.getChannelsString())
-                .queryParam("async", panSouConfig.isAsyncEnabled())
+                .queryParam("size", videoSearch.getPageSize())
+//                .queryParam("plugins", panSouConfig.getEnabledPluginsString())
+//                .queryParam("channels", panSouConfig.getChannelsString())
+//                .queryParam("async", panSouConfig.isAsyncEnabled())
                 .build()
                 .encode()
                 .toUri();
 
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", panSouConfig.getUserAgent());
+        headers.set("User-Agent", videoSource.getVideoSourceUserAgent());
         headers.set("Accept", "application/json");
         headers.set("Content-Type", "application/json");
 
-        if (StringUtils.hasText(panSouConfig.getApiKey())) {
-            headers.set("Authorization", "Bearer " + panSouConfig.getApiKey());
+        if (StringUtils.hasText(videoSource.getVideoSourceToken())) {
+            headers.set("Authorization", "Bearer " + videoSource.getVideoSourceToken());
         }
 
         // 发送请求
@@ -248,20 +244,22 @@ public class PanSouResourceProvider implements ResourceProvider {
      * @param panResource 网盘资源
      * @return VideoInfo对象
      */
-    private VideoInfo convertToVideoInfo(PanResource panResource) {
+    private VideoInfoResult convertToVideoInfo(PanResource panResource) {
         if (panResource == null || !StringUtils.hasText(panResource.getTitle())) {
             return null;
         }
 
-        VideoInfo videoInfo = new VideoInfo();
+        VideoInfoResult videoInfo = new VideoInfoResult();
         videoInfo.setVideoName(panResource.getTitle());
         videoInfo.setVideoTitle(panResource.getTitle());
         videoInfo.setVideoAliasName(panResource.getTitle());
         videoInfo.setVideoUrl(panResource.getUrl());
-        videoInfo.setVideoPlatform("网盘资源-" + panResource.getPanType().getName());
+        videoInfo.setVideoPlatform(panResource.getPanType().getName());
         videoInfo.setVideoDescription(panResource.getDescription());
         videoInfo.setVideoSize(panResource.getSize());
         videoInfo.setVideoAuthor(panResource.getSource());
+        List<VideoDownload> downloadList = createDownloadList(panResource);
+        videoInfo.setDownloadList(downloadList);
 
         // 设置评分
         if (panResource.getScore() != null) {
@@ -280,39 +278,20 @@ public class PanSouResourceProvider implements ResourceProvider {
         return videoInfo;
     }
 
-    @Override
-    public String getProviderName() {
-        return "PanSou网盘搜索";
+    private List<VideoDownload> createDownloadList(PanResource panResource) {
+        List<VideoDownload> downloadList = new ArrayList<>();
+
+        VideoDownload download = new VideoDownload();
+        download.setVideoDownloadUrl(panResource.getUrl());
+        download.setVideoDownloadName(panResource.getTitle());
+        download.setVideoDownloadType(panResource.getPanType().getName());
+        download.setVideoDownloadQuality("普通");
+        download.setVideoDownloadPlatform(panResource.getPanType().getName());
+        download.setVideoDownloadSize(panResource.getSize());
+        download.setVideoDownloadStatus((byte) 1);
+        downloadList.add(download);
+        return downloadList;
     }
 
-    @Override
-    public int getPriority() {
-        return 1; // 高优先级
-    }
 
-    @Override
-    public boolean isAvailable() {
-        try {
-            if (!panSouConfig.isValid()) {
-                return false;
-            }
-
-            // 检查PanSou API是否可用
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", panSouConfig.getUserAgent());
-
-            ResponseEntity<String> response = restTemplate.exchange(
-                    panSouConfig.getBaseUrl() + "/api/health",
-                    HttpMethod.GET,
-                    new HttpEntity<>(headers),
-                    String.class
-            );
-
-            return response.getStatusCode().is2xxSuccessful();
-
-        } catch (Exception e) {
-            log.warn("PanSou服务不可用", e);
-            return false;
-        }
-    }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.video.mapper.VideoSyncConfigRecordMapper">
+
+  <select id="countByConfigId" resultType="java.util.Map">
+
+    SELECT video_sync_config_id AS videoSyncConfigId, COUNT(1) AS count
+    FROM video_sync_config_record
+    WHERE video_sync_config_id IN
+    <foreach item="item" collection="videoSyncConfigIds" separator="," open="(" close=")" index="index">
+      #{item}
+    </foreach>
+    GROUP BY video_sync_config_id
+  </select>
+</mapper>
