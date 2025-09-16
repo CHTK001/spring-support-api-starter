@@ -5,10 +5,8 @@ import com.chua.starter.video.entity.VideoSyncConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 视频同步配置Mapper
- *
  * @author CH
- * @since 2024/6/21
+ * @since 2025/9/16 9:05
  */
 @Mapper
 public interface VideoSyncConfigMapper extends BaseMapper<VideoSyncConfig> {

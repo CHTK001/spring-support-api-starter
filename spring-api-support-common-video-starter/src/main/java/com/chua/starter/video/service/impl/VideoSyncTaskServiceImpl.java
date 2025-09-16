@@ -8,12 +8,8 @@ import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoInfoMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.provider.VideoSourceProvider;
-import com.chua.starter.video.service.VideoDownloadService;
-import com.chua.starter.video.service.VideoMarkService;
-import com.chua.starter.video.service.VideoSyncConfigService;
-import com.chua.starter.video.service.VideoSyncMessageService;
-import com.chua.starter.video.service.VideoSyncTaskService;
+import com.chua.starter.video.provider.SyncProvider;
+import com.chua.starter.video.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,7 +44,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
     private final VideoMarkService videoMarkService;
     private final VideoSyncMessageService videoSyncMessageService;
-    private static final List<String> SYNC = new CopyOnWriteArrayList<>();
+    public static final List<String> SYNC = new CopyOnWriteArrayList<>();
     private final VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
 
     @Override
@@ -72,20 +68,19 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
 
         if (videoSyncInterval == 0) {
             if (!doYouWantToManuallySynchronize) {
-                //手动同步
-                return 0;
+                throw new RuntimeException("请稍后再试");
             }
         } else {
-            LocalDateTime videoSyncConfigLastTime = config.getVideoSyncConfigLastSyncTime();
+            LocalDateTime videoSyncConfigLastTime = config.getVideoSyncConfigLastAsyncTime();
             if (null != videoSyncConfigLastTime) {
                 if (LocalDateTime.now().isBefore(videoSyncConfigLastTime)) {
-                    return 0;
+                    throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
                 }
             }
         }
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
         if (SYNC_STATUS_START.equals(videoSyncConfigStatus) || SYNC_STATUS_PROGRESS.equals(videoSyncConfigStatus)) {
-            return 0;
+            throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
 
         EXECUTOR_SERVICE.execute(() -> {
@@ -116,7 +111,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                         videoSyncConfigService.updateConfig(config);
                     }
                     // 设置来源信息
-                    video.setVideoPlatform(config.getVideoSyncConfigSource());
+                    video.setVideoPlatform(config.getVideoSourceId());
 
                     // 保存或更新视频信息
                     boolean saved = saveOrUpdateVideo(video);
@@ -167,10 +162,10 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
         videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
 
         videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
-
+        SYNC.remove(config.getVideoSyncConfigId());
 
         config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
-        config.setVideoSyncConfigLastSyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
+        config.setVideoSyncConfigLastAsyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
         videoSyncConfigService.updateConfig(config);
         return 1;
     }
@@ -202,21 +197,21 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      * @return 视频列表
      */
     private void fetchVideosFromSource(VideoSyncConfig config, Consumer<VideoInfoResult> consumer) {
-        String source = config.getVideoSyncConfigSource();
+        String source = config.getVideoSourceId();
         if (!StringUtils.hasText(source)) {
             log.warn("配置[{}]未指定同步来源", config.getVideoSyncConfigName());
             return;
         }
 
         // 通过ServiceProvider获取对应的视频源提供者
-        List<VideoSourceProvider> providers = ServiceProvider.of(VideoSourceProvider.class).getNewExtensions(source);
+        List<SyncProvider> providers = ServiceProvider.of(SyncProvider.class).getNewExtensions(source);
         if (CollectionUtils.isEmpty(providers)) {
             log.warn("未找到同步来源[{}]的提供者", source);
             return;
         }
 
         // 调用提供者获取视频列表
-        for (VideoSourceProvider provider : providers) {
+        for (SyncProvider provider : providers) {
             provider.fetchVideos(config, consumer);
         }
     }

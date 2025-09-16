@@ -1,9 +1,11 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.converter.Converter;
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.entity.VideoInfo;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -27,31 +28,36 @@ import java.util.List;
  *
  * @author CH
  */
-@Component
 @Slf4j
-public class BilibiliResourceProvider implements ResourceProvider {
+public class BilibiliResourceProvider extends AbstractResourceProvider {
 
     private static final String BILIBILI_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2";
     private static final String BILIBILI_VIDEO_URL = "https://www.bilibili.com/video/";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    public BilibiliResourceProvider(VideoSource videoSource) {
+        super(videoSource);
+    }
+
     @Override
-    public ReturnResult<List<VideoInfo>> searchResource(String keyword) {
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnResult.error("关键词不能为空");
+            return ReturnPageResult.error("关键词不能为空");
         }
 
         log.info("从B站资源检索视频: {}", keyword);
-        List<VideoInfo> results = new ArrayList<>();
+        List<VideoInfoResult> results = new ArrayList<>();
 
         try {
             // 构建请求URL
             URI uri = UriComponentsBuilder.fromHttpUrl(BILIBILI_SEARCH_API)
                     .queryParam("keyword", keyword)
-                    .queryParam("search_type", "video")  // 搜索类型为视频
-                    .queryParam("page", 1)
-                    .queryParam("order", "totalrank")    // 按综合排序
+                    //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
+                    .queryParam("search_type", ObjectUtils.defaultIfNull(getSearchType(videoSearch), "1"))
+                    .queryParam("page", videoSearch.getPage())
+                    .queryParam("order", ObjectUtils.defaultIfNull(videoSearch.getOrder(), "totalrank"))
                     .queryParam("platform", "pc")
                     .build()
                     .encode()
@@ -98,7 +104,7 @@ public class BilibiliResourceProvider implements ResourceProvider {
                                 String pubDate = video.path("pubdate").asText();
 
                                 // 创建VideoInfo对象
-                                VideoInfo videoInfo = new VideoInfo();
+                                VideoInfoResult videoInfo = new VideoInfoResult();
                                 videoInfo.setVideoName(title);
                                 videoInfo.setVideoAliasName(title);
                                 videoInfo.setVideoDirector(author);
@@ -123,51 +129,38 @@ public class BilibiliResourceProvider implements ResourceProvider {
                     }
                 } else {
                     String message = rootNode.path("message").asText("未知错误");
-                    return ReturnResult.error("B站API返回错误: " + message);
+                    return ReturnPageResult.error("B站API返回错误: " + message);
                 }
             }
 
             if (results.isEmpty()) {
-                return ReturnResult.error("B站资源未找到相关视频");
+                return ReturnPageResult.error("B站资源未找到相关视频");
             }
 
-            return ReturnResult.success(results);
+            return ReturnPageResult.ok(results);
         } catch (Exception e) {
             log.error("B站资源检索失败", e);
-            return ReturnResult.error("B站资源检索失败: " + e.getMessage());
+            return ReturnPageResult.error("B站资源检索失败: " + e.getMessage());
         }
     }
 
-    @Override
-    public String getProviderName() {
-        return "B站资源";
-    }
-
-    @Override
-    public int getPriority() {
-        return 2;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        try {
-            // 检查B站API是否可用
-            ResponseEntity<String> response = restTemplate.getForEntity(
-                    "https://api.bilibili.com/x/web-interface/nav",
-                    String.class
-            );
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String body = response.getBody();
-                if (body != null) {
-                    JsonNode rootNode = objectMapper.readTree(body);
-                    return rootNode.path("code").asInt(-1) == 0;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.warn("B站资源不可用", e);
-            return false;
+    private String getSearchType(VideoSearch videoSearch) {
+        //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
+        String category = videoSearch.getVideoType();
+        if (StringUtils.hasText(category)) {
+            return switch (category) {
+                case "video" -> "1";
+                case "anime" -> "2";
+                case "movie" -> "3";
+                case "user" -> "5";
+                case "column" -> "6";
+                case "live" -> "7";
+                case "album" -> "8";
+                case "topic" -> "9";
+                case "course" -> "12";
+                default -> "0";
+            };
         }
+        return "0";
     }
-} 
+}

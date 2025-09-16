@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.video.mapper.VideoSyncConfigMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.video.entity.VideoSyncConfig">
+    <!--@mbg.generated-->
+    <!--@Table video_sync_config-->
+    <id column="video_sync_config_id" jdbcType="VARCHAR" property="videoSyncConfigId" />
+    <result column="video_sync_config_name" jdbcType="VARCHAR" property="videoSyncConfigName" />
+    <result column="video_source_id" jdbcType="VARCHAR" property="videoSourceId" />
+    <result column="video_sync_config_enabled" jdbcType="BOOLEAN" property="videoSyncConfigEnabled" />
+    <result column="video_sync_interval" jdbcType="INTEGER" property="videoSyncInterval" />
+    <result column="video_sync_config_last_async_time" jdbcType="TIMESTAMP" property="videoSyncConfigLastAsyncTime" />
+    <result column="video_sync_config_headers" jdbcType="LONGVARCHAR" property="videoSyncConfigHeaders" />
+    <result column="video_sync_config_remark" jdbcType="VARCHAR" property="videoSyncConfigRemark" />
+    <result column="video_sync_config_status" jdbcType="VARCHAR" property="videoSyncConfigStatus" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    video_sync_config_id, video_sync_config_name, video_source_id, video_sync_config_enabled, 
+    video_sync_interval, video_sync_config_last_async_time, video_sync_config_headers, 
+    video_sync_config_remark, video_sync_config_status, create_name, create_by, create_time, 
+    update_time, update_name, update_by
+  </sql>
+</mapper>
