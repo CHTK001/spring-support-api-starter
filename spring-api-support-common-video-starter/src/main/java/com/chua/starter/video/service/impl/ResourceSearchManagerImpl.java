@@ -51,10 +51,6 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
                             ReturnPageResult<VideoInfoResult> searchResult = provider.searchResource(videoSearch);
                             if (searchResult.isOk() && !searchResult.isEmpty()) {
                                 result.addAll(searchResult.getData().getData());
-                                // 找到结果后可以选择是否继续检索其他资源
-                                // 如果需要合并所有资源结果，则不break
-                                // 如果只需要第一个有结果的资源，则可以break
-                                // break;
                             }
                         } catch (Exception e) {
                             log.error("从资源 [{}] 检索视频时发生错误", videoSearch.getPlatform(), e);

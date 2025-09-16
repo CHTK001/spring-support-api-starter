@@ -53,13 +53,18 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
         );
 
         List<VideoSyncConfig> records = page.getRecords();
-        if (records != null && !records.isEmpty()) {
-            Set<String> collect = records.stream().map(VideoSyncConfig::getVideoSyncConfigId).collect(Collectors.toSet());
-            Map<String, Integer> count = videoSyncConfigRecordMapper.countByConfigId(collect);
-            records.forEach(record -> {
-                record.setSyncCount(count.getOrDefault(record.getVideoSyncConfigId(), 0));
-            });
+        if (records == null || records.isEmpty()) {
+            return page;
         }
+
+        Set<String> collect = records.stream().map(VideoSyncConfig::getVideoSyncConfigId).collect(Collectors.toSet());
+        Map<String, Integer> count = videoSyncConfigRecordMapper.countByConfigId(collect);
+        if(null == count) {
+            return page;
+        }
+        records.forEach(record -> {
+            record.setSyncCount(count.getOrDefault(record.getVideoSyncConfigId(), 0));
+        });
 
         return page;
     }
