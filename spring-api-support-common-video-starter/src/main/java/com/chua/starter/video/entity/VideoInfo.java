@@ -1,6 +1,9 @@
 package com.chua.starter.video.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,10 +15,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 视频表
+ *
+ * @author CH
+ * @since 2025/9/16 17:35
  */
-@ApiModel(description = "视频表")
-@Schema(description = "视频表")
+
+/**
+ * 视频信息表
+ */
+@ApiModel(description = "视频信息表")
+@Schema(description = "视频信息表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "video_info")
@@ -35,6 +44,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频标题")
     @Schema(description = "视频标题")
     private String videoTitle;
+
     /**
      * 视频名称
      */
@@ -42,6 +52,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频名称")
     @Schema(description = "视频名称")
     private String videoName;
+
     /**
      * 视频别名
      */
@@ -65,6 +76,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频年份")
     @Schema(description = "视频年份")
     private Integer videoYear;
+
     /**
      * 视频所属平台
      */
@@ -72,6 +84,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频所属平台")
     @Schema(description = "视频所属平台")
     private String videoPlatform;
+
     /**
      * 视频语言
      */
@@ -79,6 +92,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频语言")
     @Schema(description = "视频语言")
     private String videoLanguage;
+
     /**
      * 视频清晰度
      */
@@ -118,6 +132,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频观看次数")
     @Schema(description = "视频观看次数")
     private BigDecimal videoViews;
+
     /**
      * 视频点赞数
      */
@@ -127,27 +142,29 @@ public class VideoInfo extends SysBase {
     private Integer videoLikes;
 
     /**
-     * 视频状态
+     * 视频状态是否禁用;0:启用
      */
     @TableField(value = "video_status")
     @ApiModelProperty(value = "视频状态是否禁用;0:启用")
-    @Schema(description = "视频状态")
+    @Schema(description = "视频状态是否禁用;0:启用")
     private Integer videoStatus;
+
     /**
-     * 视频时长
+     * 视频时长(分)
      */
     @TableField(value = "video_duration")
     @ApiModelProperty(value = "视频时长(分)")
-    @Schema(description = "视频时长")
+    @Schema(description = "视频时长(分)")
     private Integer videoDuration;
+
     /**
      * 视频版本
      */
     @TableField(value = "video_version")
     @ApiModelProperty(value = "视频版本")
     @Schema(description = "视频版本")
-    @Version
     private Integer videoVersion;
+
     /**
      * 豆瓣视频ID
      */
@@ -165,12 +182,13 @@ public class VideoInfo extends SysBase {
     private LocalDateTime videoPublishDate;
 
     /**
-     * 视频类型
+     * 视频种类;MV;TV
      */
     @TableField(value = "video_category")
     @ApiModelProperty(value = "视频种类;MV;TV")
     @Schema(description = "视频种类;MV;TV")
     private String videoCategory;
+
     /**
      * 视频类型
      */
@@ -178,6 +196,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频类型")
     @Schema(description = "视频类型")
     private String videoType;
+
     /**
      * 视频上映日期
      */
@@ -185,6 +204,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频上映日期")
     @Schema(description = "视频上映日期")
     private String videoRelease;
+
     /**
      * 视频地区
      */
@@ -208,6 +228,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频作者")
     @Schema(description = "视频作者")
     private String videoAuthor;
+
     /**
      * 视频导演
      */
@@ -215,6 +236,7 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频导演")
     @Schema(description = "视频导演")
     private String videoDirector;
+
     /**
      * 视频编剧
      */
@@ -222,8 +244,9 @@ public class VideoInfo extends SysBase {
     @ApiModelProperty(value = "视频编剧")
     @Schema(description = "视频编剧")
     private String videoWriter;
+
     /**
-     * 视频演员
+     * 视频主演
      */
     @TableField(value = "video_actor")
     @ApiModelProperty(value = "视频主演")
@@ -238,4 +261,25 @@ public class VideoInfo extends SysBase {
     @Schema(description = "视频描述内容")
     private String videoDescription;
 
+    /**
+     * 视频原始ID
+     */
+    @TableField(value = "video_origin_id")
+    @ApiModelProperty(value = "视频原始ID")
+    @Schema(description = "视频原始ID")
+    private String videoOriginId;
+    /**
+     * 人气
+     */
+    @TableField(value = "video_popularity")
+    @ApiModelProperty(value = "人气")
+    private String videoPopularity;
+
+    /**
+     * 投票人数
+     */
+    @TableField(value = "video_vote_count")
+    @ApiModelProperty(value = "投票人数")
+    @Schema(description = "投票人数")
+    private Integer videoVoteCount;
 }

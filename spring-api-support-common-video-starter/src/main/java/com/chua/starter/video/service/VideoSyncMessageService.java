@@ -94,8 +94,23 @@ public class VideoSyncMessageService {
      * @param totalCount  总数量
      */
     public void sendSyncProgressMessage(String configId, String configName,
+                                        Integer syncedCount, Integer totalCount, String messageString) {
+        VideoSyncMessage message = VideoSyncMessage.syncProgress(configId, configName, syncedCount, totalCount, messageString);
+        sendGlobalMessage(message);
+        sendConfigMessage(configId, message);
+    }
+
+    /**
+     * 推送同步进度消息
+     *
+     * @param configId    配置ID
+     * @param configName  配置名称
+     * @param syncedCount 已同步数量
+     * @param totalCount  总数量
+     */
+    public void sendSyncProgressMessage(String configId, String configName,
                                         Integer syncedCount, Integer totalCount) {
-        VideoSyncMessage message = VideoSyncMessage.syncProgress(configId, configName, syncedCount, totalCount);
+        VideoSyncMessage message = VideoSyncMessage.syncProgress(configId, configName, syncedCount, totalCount, null);
         sendGlobalMessage(message);
         sendConfigMessage(configId, message);
     }
@@ -147,7 +162,7 @@ public class VideoSyncMessageService {
         VideoSyncMessage notification = VideoSyncMessage.builder()
                 .type(VideoSyncMessage.MessageType.SYSTEM_NOTIFICATION)
                 .message(message)
-                .timestamp(java.time.LocalDateTime.now())
+                .lastSyncTime(java.time.LocalDateTime.now())
                 .build();
         sendGlobalMessage(notification);
     }

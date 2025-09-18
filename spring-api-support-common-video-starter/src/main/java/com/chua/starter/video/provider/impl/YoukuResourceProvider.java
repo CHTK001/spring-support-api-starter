@@ -1,5 +1,6 @@
 package com.chua.starter.video.provider.impl;
 
+import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
@@ -23,10 +24,11 @@ import java.util.List;
  * @author CH
  */
 @Slf4j
+@Spi("youku")
 public class YoukuResourceProvider extends AbstractResourceProvider {
 
     private static final String YOUKU_SEARCH_URL = "https://so.youku.com/search_video/q_";
-    private static final int TIMEOUT = 10000; // 10秒超时
+    private static final int TIMEOUT = 10000;
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
     public YoukuResourceProvider(VideoSource videoSource) {

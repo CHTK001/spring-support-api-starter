@@ -10,13 +10,11 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * 视频信息Mapper
- *
  * @author CH
+ * @since 2025/9/16 17:35
  */
 @Mapper
 public interface VideoInfoMapper extends BaseMapper<VideoInfo> {
-
     /**
      * 搜索视频
      *

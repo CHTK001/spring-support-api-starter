@@ -1,5 +1,6 @@
 package com.chua.starter.video.provider.impl;
 
+import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.lang.code.ReturnPageResult;
@@ -31,10 +32,11 @@ import java.util.regex.Pattern;
  * @author CH
  */
 @Slf4j
+@Spi("douban")
 public class DoubanResourceProvider extends AbstractResourceProvider {
 
     private static final String DOUBAN_SEARCH_URL = "https://www.douban.com/search?cat=1002&q=";
-    private static final int TIMEOUT = 10000; // 10秒超时
+    private static final int TIMEOUT = 10000;
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
     public DoubanResourceProvider(VideoSource videoSource) {

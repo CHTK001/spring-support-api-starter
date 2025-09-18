@@ -1,5 +1,6 @@
 package com.chua.starter.video.entity;
 
+import com.chua.common.support.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,12 +30,12 @@ public class VideoSyncMessage {
     /**
      * 同步配置ID
      */
-    private String configId;
+    private String videoSyncConfigId;
 
     /**
      * 同步配置名称
      */
-    private String configName;
+    private String videoSyncConfigName;
 
     /**
      * 消息内容
@@ -49,7 +50,7 @@ public class VideoSyncMessage {
     /**
      * 已同步视频数量
      */
-    private Integer syncedCount;
+    private Integer syncCount;
 
     /**
      * 总视频数量
@@ -69,7 +70,7 @@ public class VideoSyncMessage {
     /**
      * 消息时间戳
      */
-    private LocalDateTime timestamp;
+    private LocalDateTime lastSyncTime;
 
     /**
      * 额外数据
@@ -86,36 +87,37 @@ public class VideoSyncMessage {
     public static VideoSyncMessage syncStart(String configId, String configName) {
         return VideoSyncMessage.builder()
                 .type(MessageType.SYNC_START)
-                .configId(configId)
-                .configName(configName)
+                .videoSyncConfigId(configId)
+                .videoSyncConfigName(configName)
                 .message("开始同步配置[" + configName + "]的视频信息")
                 .progress(0)
-                .syncedCount(0)
-                .timestamp(LocalDateTime.now())
+                .syncCount(0)
+                .lastSyncTime(LocalDateTime.now())
                 .build();
     }
 
     /**
      * 创建同步进度消息
      *
-     * @param configId    配置ID
-     * @param configName  配置名称
-     * @param syncedCount 已同步数量
-     * @param totalCount  总数量
+     * @param configId      配置ID
+     * @param configName    配置名称
+     * @param syncedCount   已同步数量
+     * @param totalCount    总数量
+     * @param messageString
      * @return 同步进度消息
      */
     public static VideoSyncMessage syncProgress(String configId, String configName,
-                                                Integer syncedCount, Integer totalCount) {
+                                                Integer syncedCount, Integer totalCount, String messageString) {
         int progress = totalCount > 0 ? (syncedCount * 100 / totalCount) : 0;
         return VideoSyncMessage.builder()
                 .type(MessageType.SYNC_PROGRESS)
-                .configId(configId)
-                .configName(configName)
-                .message("同步进度: " + syncedCount + "/" + totalCount)
+                .videoSyncConfigId(configId)
+                .videoSyncConfigName(configName)
+                .message(StringUtils.defaultString(messageString, "同步进度: " + syncedCount + "/" + totalCount))
                 .progress(progress)
-                .syncedCount(syncedCount)
+                .syncCount(syncedCount)
                 .totalCount(totalCount)
-                .timestamp(LocalDateTime.now())
+                .lastSyncTime(LocalDateTime.now())
                 .build();
     }
 
@@ -130,12 +132,12 @@ public class VideoSyncMessage {
     public static VideoSyncMessage syncComplete(String configId, String configName, Integer syncedCount) {
         return VideoSyncMessage.builder()
                 .type(MessageType.SYNC_COMPLETE)
-                .configId(configId)
-                .configName(configName)
+                .videoSyncConfigId(configId)
+                .videoSyncConfigName(configName)
                 .message("配置[" + configName + "]同步完成，共同步" + syncedCount + "个视频")
                 .progress(100)
-                .syncedCount(syncedCount)
-                .timestamp(LocalDateTime.now())
+                .syncCount(syncedCount)
+                .lastSyncTime(LocalDateTime.now())
                 .build();
     }
 
@@ -150,11 +152,11 @@ public class VideoSyncMessage {
     public static VideoSyncMessage syncError(String configId, String configName, String error) {
         return VideoSyncMessage.builder()
                 .type(MessageType.SYNC_ERROR)
-                .configId(configId)
-                .configName(configName)
+                .videoSyncConfigId(configId)
+                .videoSyncConfigName(configName)
                 .message("同步配置[" + configName + "]失败")
                 .error(error)
-                .timestamp(LocalDateTime.now())
+                .lastSyncTime(LocalDateTime.now())
                 .build();
     }
 
@@ -169,11 +171,11 @@ public class VideoSyncMessage {
     public static VideoSyncMessage videoProcessing(String configId, String configName, String currentVideo) {
         return VideoSyncMessage.builder()
                 .type(MessageType.VIDEO_PROCESSING)
-                .configId(configId)
-                .configName(configName)
+                .videoSyncConfigId(configId)
+                .videoSyncConfigName(configName)
                 .message("正在处理视频: " + currentVideo)
                 .currentVideo(currentVideo)
-                .timestamp(LocalDateTime.now())
+                .lastSyncTime(LocalDateTime.now())
                 .build();
     }
 

@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.video.mapper.VideoInfoMapper">
+  <resultMap id="BaseResultMap" type="com.chua.starter.video.entity.VideoInfo">
+    <!--@mbg.generated-->
+    <!--@Table video_info-->
+    <id column="video_id" jdbcType="INTEGER" property="videoId" />
+    <result column="video_title" jdbcType="VARCHAR" property="videoTitle" />
+    <result column="video_name" jdbcType="VARCHAR" property="videoName" />
+    <result column="video_alias_name" jdbcType="VARCHAR" property="videoAliasName" />
+    <result column="video_score" jdbcType="DECIMAL" property="videoScore" />
+    <result column="video_year" jdbcType="INTEGER" property="videoYear" />
+    <result column="video_platform" jdbcType="VARCHAR" property="videoPlatform" />
+    <result column="video_language" jdbcType="VARCHAR" property="videoLanguage" />
+    <result column="video_quality" jdbcType="VARCHAR" property="videoQuality" />
+    <result column="video_thumbnail" jdbcType="VARCHAR" property="videoThumbnail" />
+    <result column="video_cover" jdbcType="VARCHAR" property="videoCover" />
+    <result column="video_url" jdbcType="VARCHAR" property="videoUrl" />
+    <result column="video_views" jdbcType="DECIMAL" property="videoViews" />
+    <result column="video_likes" jdbcType="INTEGER" property="videoLikes" />
+    <result column="video_status" jdbcType="INTEGER" property="videoStatus" />
+    <result column="video_duration" jdbcType="INTEGER" property="videoDuration" />
+    <result column="video_version" jdbcType="INTEGER" property="videoVersion" />
+    <result column="video_dou_ban_id" jdbcType="VARCHAR" property="videoDouBanId" />
+    <result column="video_publish_date" jdbcType="TIMESTAMP" property="videoPublishDate" />
+    <result column="video_category" jdbcType="VARCHAR" property="videoCategory" />
+    <result column="video_type" jdbcType="VARCHAR" property="videoType" />
+    <result column="video_release" jdbcType="VARCHAR" property="videoRelease" />
+    <result column="video_district" jdbcType="VARCHAR" property="videoDistrict" />
+    <result column="video_size" jdbcType="VARCHAR" property="videoSize" />
+    <result column="video_author" jdbcType="VARCHAR" property="videoAuthor" />
+    <result column="video_director" jdbcType="VARCHAR" property="videoDirector" />
+    <result column="video_writer" jdbcType="VARCHAR" property="videoWriter" />
+    <result column="video_actor" jdbcType="LONGVARCHAR" property="videoActor" />
+    <result column="video_description" jdbcType="LONGVARCHAR" property="videoDescription" />
+    <result column="video_origin_id" jdbcType="VARCHAR" property="videoOriginId" />
+    <result column="video_vote_count" jdbcType="INTEGER" property="videoVoteCount" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    video_id, video_title, video_name, video_alias_name, video_score, video_year, video_platform, 
+    video_language, video_quality, video_thumbnail, video_cover, video_url, video_views, 
+    video_likes, video_status, video_duration, video_version, video_dou_ban_id, video_publish_date, 
+    video_category, video_type, video_release, video_district, video_size, video_author, 
+    video_director, video_writer, video_actor, video_description, video_origin_id, video_vote_count, 
+    create_name, create_by, create_time, update_time, update_name, update_by
+  </sql>
     <!-- 搜索视频 -->
     <select id="searchVideos" resultType="com.chua.starter.video.pojo.VideoInfoResult">
         SELECT *
@@ -24,8 +74,7 @@
             <trim>
                 <if test="request.selectedType != null and request.selectedType != ''">
                     AND (
-                    <foreach collection="request.selectedType.split(',')" item="type" separator=" AND " open="("
-                             close=")">
+                    <foreach close=")" collection="request.selectedType.split(',')" item="type" open="(" separator=" AND ">
                         FIND_IN_SET(#{type}, video_type)
                     </foreach>
                     )
@@ -35,8 +84,7 @@
                 <!-- 多地区筛选 -->
                 <if test="request.districts != null and request.districts != ''">
                     AND (
-                    <foreach collection="request.districts.split(',')" item="district" separator=" OR " open="("
-                             close=")">
+                    <foreach close=")" collection="request.districts.split(',')" item="district" open="(" separator=" OR ">
                         FIND_IN_SET(#{district}, video_district)
                     </foreach>
                     )
@@ -46,8 +94,7 @@
                 <!-- 多语言筛选 -->
                 <if test="request.languages != null and request.languages != ''">
                     AND (
-                    <foreach collection="request.languages.split(',')" item="language" separator=" OR " open="("
-                             close=")">
+                    <foreach close=")" collection="request.languages.split(',')" item="language" open="(" separator=" OR ">
                         FIND_IN_SET(#{language}, video_language)
                     </foreach>
                     )
@@ -57,8 +104,7 @@
                 <!-- 多类型筛选 -->
                 <if test="request.videoTypes != null and request.videoTypes != ''">
                     AND (
-                    <foreach collection="request.videoTypes.split(',')" item="videoType" separator=" AND " open="("
-                             close=")">
+                    <foreach close=")" collection="request.videoTypes.split(',')" item="videoType" open="(" separator=" AND ">
                         FIND_IN_SET(#{videoType}, video_type)
                     </foreach>
                     )
@@ -69,7 +115,7 @@
                 <!-- 上映年份筛选，支持多个年份 -->
                 <if test="request.years != null and request.years != ''">
                     AND (
-                    <foreach collection="request.years.split(',')" item="year" separator=" OR " open="(" close=")">
+                    <foreach close=")" collection="request.years.split(',')" item="year" open="(" separator=" OR ">
                         FIND_IN_SET(#{year}, video_year)
                     </foreach>
                     )
