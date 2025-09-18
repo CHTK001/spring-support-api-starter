@@ -1,6 +1,9 @@
 package com.chua.starter.video.provider.impl;
 
+import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
+import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
@@ -9,10 +12,7 @@ import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.RegexUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.video.entity.VideoDownload;
-import com.chua.starter.video.entity.VideoMark;
-import com.chua.starter.video.entity.VideoSource;
-import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSearch;
@@ -47,6 +47,7 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
  * @since 2025/9/15 23:27
  */
 @Slf4j
+@Spi("guanying")
 public class GuanYingResourceProvider extends AbstractResourceProvider implements SyncProvider {
     /**
      * 视频封面存储路径
@@ -168,46 +169,79 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             video.setVideoTitle(names.get(i));
             video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
             video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
-            Object o1 = o.get(1);
-            if (o1 instanceof Number n) {
-                video.setVideoDistrict(TAG[n.intValue()]);
-            } else {
-                String value = o1.toString();
-                if (NumberUtils.isNumber(value)) {
-                    video.setVideoDistrict(TAG[Integer.parseInt(value)]);
-                } else {
-                    video.setVideoDistrict(value);
-                }
-            }
-            List<String> tags = new LinkedList<>();
-            for (int j = 2; j < o.size(); j++) {
-                Object s = o.get(j);
-                if (s instanceof Number n) {
-                    tags.add(TAG[n.intValue()]);
-                } else {
-                    String value = s.toString();
-                    if (NumberUtils.isNumber(value)) {
-                        tags.add(TAG[Integer.parseInt(value)]);
-                    } else {
-                        tags.add(value);
-                    }
-                }
-
-            }
-            video.setVideoType(Joiner.on(",").join(tags));
+            registerDistrict(video, o.get(1));
+            registerTag(video, o);
             video.setVideoCategory(baseConfig.getApiVideoType().toUpperCase());
             video.setVideoPlatform("GUANYING");
             video.setVideoQuality(Joiner.on(",").join(q.get(i)));
             String dataId = image.get(i);
-            String cover = baseConfig.getCoverUrl() + "/%s/220.avif".formatted(dataId);
-            video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
-            downloadCover(cover, "/%s/220.avif".formatted(dataId));
+            registerCover(video, dataId, baseConfig);
             video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(i)).orElse(-1D)));
             video.setVideoStatus(0);
             registerDetail(video, dataId, baseConfig);
             registerDownload(video, dataId, baseConfig);
 
             videoInfoResults.add(video);
+        }
+    }
+
+    /**
+     * 注册封面信息
+     *
+     * @param video      视频信息对象
+     * @param dataId     数据ID
+     * @param baseConfig 基础配置对象
+     */
+    private void registerCover(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
+        String cover = baseConfig.getCoverUrl() + "/%s/220.avif".formatted(dataId);
+        video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
+        try {
+            downloadCover(cover, "/%s/220.avif".formatted(dataId));
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * 注册标签信息
+     *
+     * @param video 视频信息对象
+     * @param o     标签信息对象
+     */
+    private void registerTag(VideoInfoResult video, List o) {
+        List<String> tags = new LinkedList<>();
+        for (int j = 2; j < o.size(); j++) {
+            Object s = o.get(j);
+            if (s instanceof Number n) {
+                tags.add(TAG[n.intValue()]);
+            } else {
+                String value = s.toString();
+                if (NumberUtils.isNumber(value)) {
+                    tags.add(TAG[Integer.parseInt(value)]);
+                } else {
+                    tags.add(value);
+                }
+            }
+
+        }
+        video.setVideoType(Joiner.on(",").join(tags));
+    }
+
+    /**
+     * 注册地区信息
+     *
+     * @param video 视频信息对象
+     * @param o1    地区信息对象
+     */
+    private void registerDistrict(VideoInfoResult video, Object o1) {
+        if (o1 instanceof Number n) {
+            video.setVideoDistrict(TAG[n.intValue()]);
+            return;
+        }
+        String value = o1.toString();
+        if (NumberUtils.isNumber(value)) {
+            video.setVideoDistrict(TAG[Integer.parseInt(value)]);
+        } else {
+            video.setVideoDistrict(value);
         }
     }
 
@@ -357,10 +391,39 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                 .content(EmbeddedDownload.class);
 
         List<VideoDownload> videoDownloads = new ArrayList<>();
+        List<VideoPlayAddress> playAddresses = new ArrayList<>();
         registerClDownload(videoDownloads, embeddedDownload.getDownlist());
         registerPanDownload(videoDownloads, embeddedDownload.getPanlist());
-
+        registerPlayAddress(playAddresses, embeddedDownload.getPlaylist());
         video.setDownloadList(videoDownloads);
+        video.setPlayAddressesList(playAddresses);
+    }
+
+    /**
+     * 注册播放地址信息
+     *
+     * @param videoPlayAddresses 视频下载列表
+     * @param playlist           播放列表数据传输对象
+     */
+    private void registerPlayAddress(List<VideoPlayAddress> videoPlayAddresses, List<EmbeddedDownload.PlaylistDTO> playlist) {
+        for (EmbeddedDownload.PlaylistDTO playlistDTO : playlist) {
+            VideoPlayAddress videoPlayAddress = new VideoPlayAddress();
+            videoPlayAddress.setVideoPlayAddressName(playlistDTO.getT());
+            videoPlayAddress.setVideoPlayAddressCode(playlistDTO.getI());
+            videoPlayAddress.setVideoPlayAddressUnique(playlistDTO.getM());
+
+            List<String> list = playlistDTO.getList();
+            List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>(list.size());
+            for (String s : list) {
+                VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                videoPlayAddressChannel.setVideoPlayAddressChannelName(s);
+                videoPlayAddressChannels.add(videoPlayAddressChannel);
+            }
+
+            videoPlayAddress.setVideoPlayAddressChannels(videoPlayAddressChannels);
+            videoPlayAddresses.add(videoPlayAddress);
+        }
+
     }
 
     /**
@@ -483,15 +546,21 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                 List<VideoMark> videoMarks = new ArrayList<>();
                 VideoMark videoMark = new VideoMark();
                 videoMark.setVideoMarkType("豆瓣");
-                videoMark.setVideoMarkScore(new BigDecimal(pf.getDb().getS()));
+                try {
+                    videoMark.setVideoMarkScore(Converter.convertIfNecessary(pf.getDb().getS(), BigDecimal.class));
+                } catch (Exception ignored) {
+                }
                 videoMark.setVideoMarkPeople(pf.getDb().getR());
 
                 videoMarks.add(videoMark);
 
                 VideoMark videoMark1 = new VideoMark();
                 videoMark1.setVideoMarkType("IMDb");
-                videoMark1.setVideoMarkScore(new BigDecimal(pf.getIm().getS()));
-                videoMark1.setVideoMarkPeople(pf.getIm().getR());
+                videoMark1.setVideoMarkScore(Converter.convertIfNecessary(pf.getIm().getS(), BigDecimal.class));
+                try {
+                    videoMark1.setVideoMarkPeople(pf.getIm().getR());
+                } catch (Exception ignored) {
+                }
 
                 videoMarks.add(videoMark1);
                 video.setVideoMarkList(videoMarks);
@@ -533,6 +602,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         String[] mvType = new String[]{"film", "tv", "ac"};
         while (year.get() >= MIN_YEAR) {
             AtomicInteger count = new AtomicInteger(1);
+            root:
             for (String s : mvType) {
                 VideoSearch videoSearch = new VideoSearch();
                 videoSearch.setVideoType(s);
@@ -541,25 +611,33 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
                 while (true) {
                     String mvUrl = baseConfig.getApiUrl() + "?year=" + (year.get()) + "&page=" + count.get();
-                    EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(mvUrl)
+                    HttpResponse httpResponse = HttpClient.get(mvUrl)
                             .cookie(videoSource1.getVideoSourceToken())
                             .newInvoker()
-                            .execute()
-                            .content(EmbeddedVideoInfo.class);
-                    Integer pages = embeddedVideoInfo.getPage().getPages();
+                            .execute();
+                    if (httpResponse.code() == 500) {
+                        break root;
+                    }
+                    EmbeddedVideoInfo embeddedVideoInfo = httpResponse.content(EmbeddedVideoInfo.class);
+                    EmbeddedVideoInfo.PageDTO page = embeddedVideoInfo.getPage();
+                    if (null == page) {
+                        break;
+                    }
+                    Integer pages = page.getPages();
                     log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get(), count.get() - 1, pages);
 
                     String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
                     if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
                             SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
                     ) {
-                        break;
+                        break root;
                     }
 
                     List<VideoInfoResult> videoInfoResults = new LinkedList<>();
                     createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, videoSearch, pages);
                     videoInfoResults.forEach(consumer);
                 }
+                year.decrementAndGet();
             }
         }
     }

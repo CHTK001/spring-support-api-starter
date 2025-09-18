@@ -6,6 +6,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoInfoMapper;
+import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.provider.SyncProvider;
@@ -46,6 +47,8 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private final VideoSyncMessageService videoSyncMessageService;
     public static final List<String> SYNC = new CopyOnWriteArrayList<>();
     private final VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
+    private final VideoSourceMapper videoSourceMapper;
+    private final VideoPlayAddressService videoPlayAddressService;
 
     @Override
     public int syncByConfig(VideoSyncConfig config, boolean doYouWantToManuallySynchronize) {
@@ -90,17 +93,18 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
 
             // 推送同步开始消息
             videoSyncMessageService.sendSyncStartMessage(config.getVideoSyncConfigId(), config.getVideoSyncConfigName());
-            
+
             try {
                 config.setVideoSyncConfigStatus(SYNC_STATUS_START);
                 videoSyncConfigService.updateConfig(config);
                 // 根据配置获取视频列表
                 fetchVideosFromSource(config, video -> {
-                    // 推送视频处理消息
-                    videoSyncMessageService.sendVideoProcessingMessage(
+                    videoSyncMessageService.sendSyncProgressMessage(
                             config.getVideoSyncConfigId(),
                             config.getVideoSyncConfigName(),
-                            video.getVideoName()
+                            syncCount.get(),
+                            null,
+                            "开始同步视频【%s】".formatted(video.getVideoName())
                     );
                     config.setVideoSyncConfigStatus(SYNC_STATUS_PROGRESS);
                     if (syncCount.get() % 10 == 0) {
@@ -112,26 +116,37 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                     }
                     // 设置来源信息
                     video.setVideoPlatform(config.getVideoSourceId());
-
                     // 保存或更新视频信息
                     boolean saved = saveOrUpdateVideo(video);
+                    int currentCount = syncCount.incrementAndGet();
 
                     if (saved) {
                         // 处理下载地址
                         processDownloadUrls(video);
+                        videoSyncMessageService.sendSyncProgressMessage(
+                                config.getVideoSyncConfigId(),
+                                config.getVideoSyncConfigName(),
+                                currentCount,
+                                null,
+                                "完成同步视频【链接】【%s】".formatted(video.getVideoName())
+                        );
                         processMarker(video);
-                        int currentCount = syncCount.incrementAndGet();
+                        videoSyncMessageService.sendSyncProgressMessage(
+                                config.getVideoSyncConfigId(),
+                                config.getVideoSyncConfigName(),
+                                currentCount,
+                                null,
+                                "完成同步视频【标记】【%s】".formatted(video.getVideoName())
+                        );
 
-                        // 每处理10个视频推送一次进度消息
-                        if (currentCount % 10 == 0) {
-                            videoSyncMessageService.sendSyncProgressMessage(
-                                    config.getVideoSyncConfigId(),
-                                    config.getVideoSyncConfigName(),
-                                    currentCount,
-                                    null // 总数暂时未知
-                            );
-                        }
                     }
+                    videoSyncMessageService.sendSyncProgressMessage(
+                            config.getVideoSyncConfigId(),
+                            config.getVideoSyncConfigName(),
+                            currentCount,
+                            null,
+                            "完成同步视频【%s】".formatted(video.getVideoName())
+                    );
                 });
 
                 log.info("配置[{}]同步完成，共同步{}个视频", config.getVideoSyncConfigName(), syncCount.get());
@@ -142,7 +157,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                         config.getVideoSyncConfigName(),
                         syncCount.get()
                 );
-                
+
             } catch (Exception e) {
                 log.error("同步配置[{}]视频信息失败: {}", config.getVideoSyncConfigName(), e.getMessage(), e);
 
@@ -197,16 +212,22 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      * @return 视频列表
      */
     private void fetchVideosFromSource(VideoSyncConfig config, Consumer<VideoInfoResult> consumer) {
-        String source = config.getVideoSourceId();
-        if (!StringUtils.hasText(source)) {
+        String sourceId = config.getVideoSourceId();
+        if (!StringUtils.hasText(sourceId)) {
             log.warn("配置[{}]未指定同步来源", config.getVideoSyncConfigName());
             return;
         }
 
+        VideoSource videoSource = videoSourceMapper.selectById(sourceId);
+        if (null == videoSource) {
+            log.warn("未找到同步来源[{}]", sourceId);
+            return;
+        }
+
         // 通过ServiceProvider获取对应的视频源提供者
-        List<SyncProvider> providers = ServiceProvider.of(SyncProvider.class).getNewExtensions(source);
+        List<SyncProvider> providers = ServiceProvider.of(SyncProvider.class).getNewExtensions(videoSource.getVideoSourcePlatform(), videoSource);
         if (CollectionUtils.isEmpty(providers)) {
-            log.warn("未找到同步来源[{}]的提供者", source);
+            log.warn("未找到同步来源[{}]的提供者", sourceId);
             return;
         }
 
@@ -217,8 +238,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     }
 
     /**
-
-    /**
+     * /**
      * 保存或更新视频信息
      *
      * @param video 视频信息
@@ -253,13 +273,41 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     /**
      * 处理下载地址
      *
-     * @param video  视频信息
+     * @param video 视频信息
      */
     private void processDownloadUrls(VideoInfoResult video) {
         try {
-            // 获取下载地址
-            List<VideoDownload> downloadUrls = video.getDownloadList();
+            processFileDownload(video, video.getDownloadList());
+            processPlayAddress(video, video.getPlayAddressesList());
+        } catch (Exception e) {
+            log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
+        }
+    }
 
+    private void processPlayAddress(VideoInfoResult video, List<VideoPlayAddress> playAddressesList) {
+        try {
+            if (null == playAddressesList || playAddressesList.isEmpty()) {
+                log.info("视频[{}]没有可用的播放地址", video.getVideoTitle());
+                return;
+            }
+            for (VideoPlayAddress playAddress : playAddressesList) {
+                playAddress.setVideoId(video.getVideoId());
+            }
+            videoPlayAddressService.remove(Wrappers.<VideoPlayAddress>lambdaQuery().eq(VideoPlayAddress::getVideoId, video.getVideoId()));
+            videoPlayAddressService.saveBatch(playAddressesList);
+        } catch (Exception e) {
+            log.error("处理视频[{}]播放地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理文件下载
+     *
+     * @param downloadUrls 下载列表
+     * @param video        视频信息
+     */
+    private void processFileDownload(VideoInfoResult video, List<VideoDownload> downloadUrls) {
+        try {
             if (null == downloadUrls || downloadUrls.isEmpty()) {
                 log.info("视频[{}]没有可用的下载地址", video.getVideoTitle());
                 return;
@@ -276,6 +324,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }
     }
+
     /**
      * 处理标记
      *

@@ -1,5 +1,6 @@
 package com.chua.starter.video.provider.impl;
 
+import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.utils.ObjectUtils;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author CH
  */
 @Slf4j
+@Spi("bilibili")
 public class BilibiliResourceProvider extends AbstractResourceProvider {
 
     private static final String BILIBILI_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2";

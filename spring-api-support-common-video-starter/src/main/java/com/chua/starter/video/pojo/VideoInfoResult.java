@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoMark;
+import com.chua.starter.video.entity.VideoPlayAddress;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -36,5 +37,12 @@ public class VideoInfoResult extends VideoInfo {
     @ApiModelProperty(value = "视频下载地址")
     @Schema(description = "视频下载地址")
     private List<VideoDownload> downloadList;
+    /**
+     * 播放地址
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "播放地址")
+    @Schema(description = "播放地址")
+    private List<VideoPlayAddress> playAddressesList;
 
 }
