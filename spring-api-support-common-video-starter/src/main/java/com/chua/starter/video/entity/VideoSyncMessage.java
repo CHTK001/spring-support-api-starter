@@ -108,7 +108,7 @@ public class VideoSyncMessage {
      */
     public static VideoSyncMessage syncProgress(String configId, String configName,
                                                 Integer syncedCount, Integer totalCount, String messageString) {
-        int progress = totalCount > 0 ? (syncedCount * 100 / totalCount) : 0;
+        int progress = totalCount != null && totalCount > 0 ? (syncedCount * 100 / totalCount) : 0;
         return VideoSyncMessage.builder()
                 .type(MessageType.SYNC_PROGRESS)
                 .videoSyncConfigId(configId)

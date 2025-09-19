@@ -13,6 +13,7 @@
     <result column="video_sync_config_headers" jdbcType="LONGVARCHAR" property="videoSyncConfigHeaders" />
     <result column="video_sync_config_remark" jdbcType="VARCHAR" property="videoSyncConfigRemark" />
     <result column="video_sync_config_status" jdbcType="VARCHAR" property="videoSyncConfigStatus" />
+    <result column="video_sync_config_last_offset" jdbcType="VARCHAR" property="videoSyncConfigLastOffset" />
     <result column="create_name" jdbcType="VARCHAR" property="createName" />
     <result column="create_by" jdbcType="INTEGER" property="createBy" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -24,7 +25,7 @@
     <!--@mbg.generated-->
     video_sync_config_id, video_sync_config_name, video_source_id, video_sync_config_enabled, 
     video_sync_interval, video_sync_config_last_async_time, video_sync_config_headers, 
-    video_sync_config_remark, video_sync_config_status, create_name, create_by, create_time, 
-    update_time, update_name, update_by
+    video_sync_config_remark, video_sync_config_status, video_sync_config_last_offset, 
+    create_name, create_by, create_time, update_time, update_name, update_by
   </sql>
 </mapper>

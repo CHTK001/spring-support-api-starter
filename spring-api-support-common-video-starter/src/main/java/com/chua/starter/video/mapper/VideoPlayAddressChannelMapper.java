@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author CH
- * @since 2025/9/18 9:19
+ * @since 2025/9/18 17:25
  */
 @Mapper
 public interface VideoPlayAddressChannelMapper extends BaseMapper<VideoPlayAddressChannel> {
