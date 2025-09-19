@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 /**
  *
  * @author CH
- * @since 2025/9/16 9:05
+ * @since 2025/9/18 21:44
  */
 
 /**
@@ -99,6 +99,21 @@ public class VideoSyncConfig extends SysBase {
     @ApiModelProperty(value = "同步状态")
     @Schema(description = "同步状态")
     private String videoSyncConfigStatus;
+
+    /**
+     * 最后一次的位置
+     */
+    @TableField(value = "video_sync_config_last_offset")
+    @ApiModelProperty(value = "最后一次的位置")
+    @Schema(description = "最后一次的位置")
+    private String videoSyncConfigLastOffset;
+    /**
+     * 最后一次的日志
+     */
+    @TableField(value = "video_sync_config_last_log")
+    @ApiModelProperty(value = "最后一次的日志")
+    @Schema(description = "最后一次的日志")
+    private String videoSyncConfigLastLog;
     /**
      * 同步次数
      */

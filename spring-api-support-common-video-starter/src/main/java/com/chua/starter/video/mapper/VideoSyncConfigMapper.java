@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author CH
- * @since 2025/9/16 9:05
+ * @since 2025/9/18 21:44
  */
 @Mapper
 public interface VideoSyncConfigMapper extends BaseMapper<VideoSyncConfig> {

@@ -7,6 +7,9 @@
     <id column="video_play_address_channel_id" jdbcType="INTEGER" property="videoPlayAddressChannelId" />
     <result column="video_play_address_channel_name" jdbcType="VARCHAR" property="videoPlayAddressChannelName" />
     <result column="video_play_address_id" jdbcType="INTEGER" property="videoPlayAddressId" />
+    <result column="video_play_address_url" jdbcType="VARCHAR" property="videoPlayAddressUrl" />
+    <result column="video_play_address_start_index" jdbcType="INTEGER" property="videoPlayAddressStartIndex" />
+    <result column="video_play_address_end_index" jdbcType="INTEGER" property="videoPlayAddressEndIndex" />
     <result column="create_name" jdbcType="VARCHAR" property="createName" />
     <result column="create_by" jdbcType="INTEGER" property="createBy" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -17,6 +20,7 @@
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     video_play_address_channel_id, video_play_address_channel_name, video_play_address_id, 
+    video_play_address_url, video_play_address_start_index, video_play_address_end_index, 
     create_name, create_by, create_time, update_time, update_name, update_by
   </sql>
 </mapper>

@@ -5,17 +5,17 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
+import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.utils.NumberUtils;
-import com.chua.common.support.utils.RegexUtils;
+import com.chua.common.support.utils.*;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoSourceMapper;
+import com.chua.starter.video.mapper.VideoSyncConfigMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSearch;
+import com.chua.starter.video.pojo.VideoSyncProcessConfig;
 import com.chua.starter.video.provider.SyncProvider;
 import com.google.common.base.Joiner;
 import com.google.gson.annotations.SerializedName;
@@ -32,7 +32,8 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 import static com.chua.common.support.constant.CommonConstant.EMPTY_STRING;
 import static com.chua.starter.video.provider.impl.GuanYingResourceProvider.EmbeddedDownload.DownlistDTO;
@@ -69,19 +70,21 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     File file = null;
     @AutoInject
     private VideoSourceMapper videoSourceMapper;
+    @AutoInject
+    private VideoSyncConfigMapper videoSyncConfigMapper;
 
     /**
      * 构造方法
      *
      * @param videoSource 视频源配置信息
      *                    <pre>
-     *                                       {@code
-     *                                       VideoSource videoSource = new VideoSource();
-     *                                       videoSource.setVideoSourcePlatform("GUANYING");
-     *                                       videoSource.setVideoSourceToken("your_token_here");
-     *                                       GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
-     *                                       }
-     *                                       </pre>
+     *                                                                                                                                      {@code
+     *                                                                                                                                      VideoSource videoSource = new VideoSource();
+     *                                                                                                                                      videoSource.setVideoSourcePlatform("GUANYING");
+     *                                                                                                                                      videoSource.setVideoSourceToken("your_token_here");
+     *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
+     *                                                                                                                                      }
+     *                                                                                                                                      </pre>
      */
     public GuanYingResourceProvider(VideoSource videoSource) {
         super(videoSource);
@@ -94,14 +97,14 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *
      * @param videoSearch 视频搜索条件，包含关键词、年份、分类等信息
      *                    <pre>
-     *                    {@code
-     *                    VideoSearch videoSearch = new VideoSearch();
-     *                    videoSearch.setKeyword("复仇者联盟");
-     *                    videoSearch.setYear(2012);
-     *                    videoSearch.setCategory("movie");
-     *                    ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
-     *                    }
-     *                    </pre>
+     *                                                                                                                   {@code
+     *                                                                                                                   VideoSearch videoSearch = new VideoSearch();
+     *                                                                                                                   videoSearch.setKeyword("复仇者联盟");
+     *                                                                                                                   videoSearch.setYear(2012);
+     *                                                                                                                   videoSearch.setCategory("movie");
+     *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
+     *                                                                                                                   }
+     *                                                                                                                   </pre>
      * @return 分页结果，包含匹配的视频信息列表
      */
     @Override
@@ -130,7 +133,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             return ReturnPageResult.empty();
         }
         List<VideoInfoResult> videoInfoResults = new LinkedList<>();
-        createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, videoSearch, pages);
+        createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, 1, pages, null);
         return ReturnPageResultUtils.ok(videoInfoResults, videoSearch.getPage(), videoSearch.getPageSize(), pages);
     }
 
@@ -140,13 +143,16 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param embeddedVideoInfo 嵌入视频信息对象
      * @param videoInfoResults  视频信息结果列表
      * @param baseConfig        基础配置对象
-     * @param videoSearch       视频搜索条件对象
+     * @param page              当前页码
      * @param pages             总页数
+     * @param consumer          消费者对象
      */
     private void createAndSearchVideo(EmbeddedVideoInfo embeddedVideoInfo,
                                       List<VideoInfoResult> videoInfoResults,
                                       BaseConfig baseConfig,
-                                      VideoSearch videoSearch, Integer pages) {
+                                      int page,
+                                      Integer pages,
+                                      BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
         EmbeddedVideoInfo.InlistDTO inlist = embeddedVideoInfo.getInlist();
         List<String> names = inlist.getT();
         List<Double> readPeople = inlist.getR();
@@ -154,15 +160,16 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         List<String> image = inlist.getI();
         List<List<String>> q = inlist.getQ();
         List yearAndType = inlist.getA();
-        for (int i = 0; i < names.size(); i++) {
-            log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页, 数据{}/{}",
-                    baseConfig.getApiVideoType(),
+        String apiVideoType = baseConfig.getApiVideoType();
+        int totalInPage = names.size();
+        for (int i = 0; i < totalInPage; i++) {
+            log.info("从观影获取视频{}列表，配置: {},  {}/{}页, 数据{}/{}",
+                    apiVideoType,
                     videoSource.getVideoSourcePlatform(),
-                    videoSearch.getYear(),
-                    videoSearch.getPage() - 1,
+                    page,
                     pages,
                     i + 1,
-                    names.size() + 1);
+                    totalInPage + 1);
 
             List o = (List) yearAndType.get(i);
             VideoInfoResult video = new VideoInfoResult();
@@ -171,7 +178,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
             registerDistrict(video, o.get(1));
             registerTag(video, o);
-            video.setVideoCategory(baseConfig.getApiVideoType().toUpperCase());
+            video.setVideoCategory(apiVideoType.toUpperCase());
             video.setVideoPlatform("GUANYING");
             video.setVideoQuality(Joiner.on(",").join(q.get(i)));
             String dataId = image.get(i);
@@ -182,6 +189,16 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             registerDownload(video, dataId, baseConfig);
 
             videoInfoResults.add(video);
+            if (null != consumer) {
+                consumer.accept(video, VideoSyncProcessConfig.builder()
+                        .videoType(apiVideoType)
+                        .totalPages(pages)
+                        .page(page)
+                        .currentPageInPage(i)
+                        .totalInPage(totalInPage)
+                        .build()
+                );
+            }
         }
     }
 
@@ -193,10 +210,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param baseConfig 基础配置对象
      */
     private void registerCover(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
-        String cover = baseConfig.getCoverUrl() + "/%s/220.avif".formatted(dataId);
-        video.setVideoCover(cover + ",cover/%s/220.avif".formatted(dataId));
+        String cover = baseConfig.getCoverUrl() + "/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix());
+        video.setVideoCover(cover + ",cover/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix()));
         try {
-            downloadCover(cover, "/%s/220.avif".formatted(dataId));
+            downloadCover(cover, "/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix()));
         } catch (Exception ignored) {
         }
     }
@@ -257,7 +274,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         String downloadUrl = getDownloadUrl(videoSearch);
         String detailUrl = getDetailUrl(videoSearch);
         String mvType = getApiVideoType(videoSearch);
-        return new BaseConfig(apiUrl, detailUrl, coverUrl, downloadUrl, mvType);
+        return new BaseConfig(apiUrl, detailUrl, coverUrl, videoSource.getVideoSourceCoverSuffix(), downloadUrl, mvType);
     }
 
     /**
@@ -268,15 +285,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     private String getApiVideoType(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("movie".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
             return "mv";
         }
 
-        if ("tv".equalsIgnoreCase(videoType)) {
+        if ("TV".equalsIgnoreCase(videoType)) {
             return "tv";
         }
 
-        if ("anime".equalsIgnoreCase(videoType)) {
+        if ("AC".equalsIgnoreCase(videoType)) {
             return "ac";
         }
 
@@ -291,15 +308,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     private String getDetailUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("movie".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/mv/";
         }
 
-        if ("tv".equalsIgnoreCase(videoType)) {
+        if ("TV".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/tv/";
         }
 
-        if ("anime".equalsIgnoreCase(videoType)) {
+        if ("AC".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/ac/";
         }
 
@@ -314,15 +331,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     private String getDownloadUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("movie".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/downurl/mv/";
         }
 
-        if ("tv".equalsIgnoreCase(videoType)) {
+        if ("TV".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/downurl/tv/";
         }
 
-        if ("anime".equalsIgnoreCase(videoType)) {
+        if ("AC".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/downurl/ac/";
         }
 
@@ -337,15 +354,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     private String getCoverUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("movie".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
             return "https://s.tutu.pm/img/mv";
         }
 
-        if ("tv".equalsIgnoreCase(videoType)) {
+        if ("TV".equalsIgnoreCase(videoType)) {
             return "https://s.tutu.pm/img/tv";
         }
 
-        if ("anime".equalsIgnoreCase(videoType)) {
+        if ("AC".equalsIgnoreCase(videoType)) {
             return "https://s.tutu.pm/img/ac";
         }
 
@@ -360,15 +377,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     private String getApiUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("movie".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/mv";
         }
 
-        if ("tv".equalsIgnoreCase(videoType)) {
+        if ("TV".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/tv";
         }
 
-        if ("anime".equalsIgnoreCase(videoType)) {
+        if ("AC".equalsIgnoreCase(videoType)) {
             return "https://www.gyg.la/res/ac";
         }
 
@@ -378,8 +395,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     /**
      * 注册下载信息
      *
-     * @param video    视频信息结果对象
-     * @param dataId   数据ID
+     * @param video      视频信息结果对象
+     * @param dataId     数据ID
      * @param baseConfig 基础配置对象
      */
     private void registerDownload(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
@@ -406,18 +423,53 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param playlist           播放列表数据传输对象
      */
     private void registerPlayAddress(List<VideoPlayAddress> videoPlayAddresses, List<EmbeddedDownload.PlaylistDTO> playlist) {
+        if (null == playlist) {
+            return;
+        }
         for (EmbeddedDownload.PlaylistDTO playlistDTO : playlist) {
             VideoPlayAddress videoPlayAddress = new VideoPlayAddress();
             videoPlayAddress.setVideoPlayAddressName(playlistDTO.getT());
             videoPlayAddress.setVideoPlayAddressCode(playlistDTO.getI());
             videoPlayAddress.setVideoPlayAddressUnique(playlistDTO.getM());
 
-            List<String> list = playlistDTO.getList();
+            List list = playlistDTO.getList();
             List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>(list.size());
-            for (String s : list) {
-                VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
-                videoPlayAddressChannel.setVideoPlayAddressChannelName(s);
-                videoPlayAddressChannels.add(videoPlayAddressChannel);
+            for (Object s : list) {
+                ThreadUtils.sleep(500);
+                if (s instanceof String str) {
+                    VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                    videoPlayAddressChannel.setVideoPlayAddressChannelName(str);
+                    videoPlayAddressChannel.setVideoPlayAddressStartIndex(1);
+                    videoPlayAddressChannel.setVideoPlayAddressEndIndex(1);
+                    videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, 1));
+                    videoPlayAddressChannels.add(videoPlayAddressChannel);
+                    continue;
+                }
+
+                if (s instanceof List list1) {
+                    Object object = list1.get(1);
+                    if (object instanceof List o1) {
+                        Integer start = (Integer) o1.get(0);
+                        Integer end = (Integer) o1.get(1);
+                        IntStream.rangeClosed(start, end).forEach(i -> {
+                            VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                            videoPlayAddressChannel.setVideoPlayAddressChannelName("第%s集".formatted(i));
+                            videoPlayAddressChannel.setVideoPlayAddressStartIndex(i);
+                            videoPlayAddressChannel.setVideoPlayAddressEndIndex(i);
+                            videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, i));
+                            videoPlayAddressChannels.add(videoPlayAddressChannel);
+                        });
+                        continue;
+                    }
+                    if (object instanceof Number number) {
+                        VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                        videoPlayAddressChannel.setVideoPlayAddressChannelName("第%s集".formatted(number));
+                        videoPlayAddressChannel.setVideoPlayAddressStartIndex(number.intValue());
+                        videoPlayAddressChannel.setVideoPlayAddressEndIndex(number.intValue());
+                        videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, number.intValue()));
+                        videoPlayAddressChannels.add(videoPlayAddressChannel);
+                    }
+                }
             }
 
             videoPlayAddress.setVideoPlayAddressChannels(videoPlayAddressChannels);
@@ -426,6 +478,25 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
     }
 
+    private String createVideoPlayAddressUrl(EmbeddedDownload.PlaylistDTO playlistDTO, int index) {
+        try {
+            String s = playlistDTO.getI();
+
+            HttpResponse httpResponse = HttpClient.post(
+                            "https://www.gyg.la/py/%s/%s".formatted(s, index)
+                    ).header("Content-Type", "application/x-www-form-urlencoded")
+                    .cookie(videoSource.getVideoSourceToken())
+                    .form("ajax", 1)
+                    .execute();
+            JsonObject content = httpResponse.content(JsonObject.class);
+            return MapUtils.getString(content, "url");
+        } catch (Exception e) {
+        }
+
+        return null;
+    }
+
+
     /**
      * 注册网盘下载信息
      *
@@ -433,6 +504,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param panlist        网盘列表数据传输对象
      */
     private void registerPanDownload(List<VideoDownload> videoDownloads, PanlistDTO panlist) {
+        if (null == panlist) {
+            return;
+        }
         try {
             List<String> name = panlist.getName();
             List<String> tname = panlist.getTname();
@@ -466,6 +540,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param downlist       下载列表数据传输对象
      */
     private void registerClDownload(List<VideoDownload> videoDownloads, DownlistDTO downlist) {
+        if (null == downlist) {
+            return;
+        }
         try {
             DownlistDTO.ListDTO list = downlist.getList();
             DownlistDTO.TypeDTO type = downlist.getType();
@@ -523,8 +600,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     /**
      * 注册更多基础详细信息
      *
-     * @param video     视频信息结果对象
-     * @param baseJson  基础JSON字符串
+     * @param video    视频信息结果对象
+     * @param baseJson 基础JSON字符串
      */
     private void registerDetailMoreBase(VideoInfoResult video, String baseJson) {
         try {
@@ -586,8 +663,13 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     @Override
-    public void fetchVideos(VideoSyncConfig config, Consumer<VideoInfoResult> consumer) {
-        AtomicInteger year = new AtomicInteger(LocalDateTime.now().getYear());
+    public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
+        String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
+        if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
+                SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
+        ) {
+            return;
+        }
         String videoSourceId = config.getVideoSourceId();
         if (null == videoSourceId) {
             log.warn("视频源ID为空: {}", config.getVideoSyncConfigName());
@@ -599,47 +681,134 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             return;
         }
 
-        String[] mvType = new String[]{"film", "tv", "ac"};
-        while (year.get() >= MIN_YEAR) {
-            AtomicInteger count = new AtomicInteger(1);
-            root:
-            for (String s : mvType) {
+        String videoSyncConfigLastOffset = config.getVideoSyncConfigLastOffset();
+        JsonObject jsonObject = Json.getJsonObject(videoSyncConfigLastOffset);
+        String[] mvType = createMvType(jsonObject);
+        int minYear = ObjectUtils.defaultIfNull(videoSource.getVideoSourceMinYear(), MIN_YEAR);
+        root:
+        for (String videoType : mvType) {
+            AtomicInteger searchPage = new AtomicInteger(createCount(jsonObject, videoType));
+            AtomicInteger year = createYear(jsonObject, videoType);
+            while (year.get() >= minYear) {
                 VideoSearch videoSearch = new VideoSearch();
-                videoSearch.setVideoType(s);
+                videoSearch.setVideoType(videoType.toUpperCase());
                 String apiUrl = getApiUrl(videoSearch);
                 BaseConfig baseConfig = createBaseConfig(apiUrl, videoSearch);
 
-                while (true) {
-                    String mvUrl = baseConfig.getApiUrl() + "?year=" + (year.get()) + "&page=" + count.get();
-                    HttpResponse httpResponse = HttpClient.get(mvUrl)
-                            .cookie(videoSource1.getVideoSourceToken())
-                            .newInvoker()
-                            .execute();
-                    if (httpResponse.code() == 500) {
-                        break root;
-                    }
-                    EmbeddedVideoInfo embeddedVideoInfo = httpResponse.content(EmbeddedVideoInfo.class);
-                    EmbeddedVideoInfo.PageDTO page = embeddedVideoInfo.getPage();
-                    if (null == page) {
-                        break;
-                    }
-                    Integer pages = page.getPages();
-                    log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页", mvType, config.getVideoSyncConfigName(), year.get(), count.get() - 1, pages);
-
-                    String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
-                    if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
-                            SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
-                    ) {
-                        break root;
-                    }
-
-                    List<VideoInfoResult> videoInfoResults = new LinkedList<>();
-                    createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, videoSearch, pages);
-                    videoInfoResults.forEach(consumer);
+                String mvUrl = baseConfig.getApiUrl() + "?year=" + (year.get()) + "&page=" + searchPage.get();
+                HttpResponse httpResponse = HttpClient.get(mvUrl)
+                        .cookie(videoSource1.getVideoSourceToken())
+                        .newInvoker()
+                        .execute();
+                if (httpResponse.code() == 500) {
+                    break root;
                 }
-                year.decrementAndGet();
+                EmbeddedVideoInfo embeddedVideoInfo = httpResponse.content(EmbeddedVideoInfo.class);
+                EmbeddedVideoInfo.PageDTO page = embeddedVideoInfo.getPage();
+                if (null == page) {
+                    break;
+                }
+                Integer pages = page.getPages();
+                if (searchPage.get() > pages) {
+                    countdownYear(year, searchPage);
+                    continue;
+                }
+                String logMessage = StringUtils.format("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页",
+                        videoType,
+                        config.getVideoSyncConfigName(),
+                        year.get(),
+                        searchPage.get(),
+                        pages);
+                log.info(logMessage);
+
+
+                videoSyncConfigStatus = config.getVideoSyncConfigStatus();
+                if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
+                        SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
+                ) {
+                    break root;
+                }
+
+                List<VideoInfoResult> videoInfoResults = new LinkedList<>();
+                createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, searchPage.get(), pages, consumer);
+                searchPage.incrementAndGet();
+                JsonObject jsonObject1 = new JsonObject();
+                jsonObject1.fluentPut(videoType + "_page", searchPage.get());
+                jsonObject1.fluentPut(videoType + "_year", year.get());
+                jsonObject1.fluentPut("videoType", videoType);
+                config.setVideoSyncConfigLastOffset(jsonObject1.toJSONString());
+                config.setVideoSyncConfigLastLog(logMessage);
+                videoSyncConfigMapper.updateById(config);
+                if (searchPage.get() > pages) {
+                    countdownYear(year, searchPage);
+                }
             }
         }
+    }
+
+    private void countdownYear(AtomicInteger year, AtomicInteger searchPage) {
+        year.decrementAndGet();
+        searchPage.set(1);
+    }
+
+    /**
+     * 创建年份
+     *
+     * @param jsonObject
+     * @param videoType
+     * @return
+     */
+    private AtomicInteger createYear(JsonObject jsonObject, String videoType) {
+        return new AtomicInteger(jsonObject.getInteger(videoType + "_year", LocalDateTime.now().getYear()));
+    }
+
+    /**
+     * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
+     *
+     * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
+     *                   <pre><code>
+     *                                                                         JsonObject offset = new JsonObject();
+     *                                                                         offset.put("MV", 3);
+     *                                                                         int count = provider.createCount(offset, "MV"); // 返回3
+     *                                                                         </code></pre>
+     * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
+     *                   <pre><code>
+     *                                                                         String videoType = "TV";
+     *                                                                         int count = provider.createCount(offset, videoType);
+     *                                                                         </code></pre>
+     * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
+     * @author CH
+     * @since 2025/9/18 22:15
+     */
+    private int createCount(JsonObject jsonObject, String videoType) {
+        return jsonObject.getIntValue(videoType + "_page", 1);
+    }
+
+    /**
+     * 根据视频同步配置中的偏移量信息创建视频类型数组
+     *
+     * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
+     *                                  <pre>{@code
+     *                                                                                                                                     JsonObject offset = new JsonObject();
+     *                                                                                                                                     offset.put("videoType", "TV");
+     *                                                                                                                                     String[] types = provider.createMvType(offset);
+     *                                                                                                                                     }</pre>
+     * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
+     * @author CH
+     * @since 2025/9/18 14:30
+     */
+    private String[] createMvType(JsonObject videoSyncConfigLastOffset) {
+        String videoType = videoSyncConfigLastOffset.getString("videoType");
+        if (StringUtils.isEmpty(videoType)) {
+            return videoSource.getVideoSourceTypeForList();
+        }
+
+        return switch (videoType.toUpperCase()) {
+            case "MV" -> videoSource.getVideoSourceTypeForList();
+            case "TV" -> videoSource.getVideoSourceTypeForListAfter("MV");
+            case "AC" -> videoSource.getVideoSourceTypeForListAfter("TV");
+            default -> new String[0];
+        };
     }
 
     /**
@@ -660,6 +829,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * 封面URL
          */
         String coverUrl;
+        /**
+         * 封面后缀
+         */
+        String coverSuffix;
         /**
          * 下载URL
          */
@@ -761,7 +934,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             @SerializedName("m")
             private String m;
             @SerializedName("list")
-            private List<String> list;
+            private List list;
         }
     }
 
