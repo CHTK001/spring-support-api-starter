@@ -77,7 +77,7 @@ public class VideoSearchRequest extends Query<VideoInfo> implements Serializable
      * @return 是否为全部
      */
     public boolean isAll(String value) {
-        return value == null || "全部".equals(value);
+        return value == null || "全部".equals(value) || "ALL".equals(value);
     }
 
     /**
@@ -99,6 +99,10 @@ public class VideoSearchRequest extends Query<VideoInfo> implements Serializable
      */
     public String getVideoTypes() {
         return isAll(videoTypes) ? null : videoTypes;
+    }
+
+    public String getCategory() {
+        return isAll(category) ? null : category;
     }
 
     /**

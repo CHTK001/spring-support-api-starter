@@ -9,6 +9,7 @@ import com.chua.starter.video.mapper.VideoInfoMapper;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSyncProcessConfig;
 import com.chua.starter.video.provider.SyncProvider;
 import com.chua.starter.video.service.*;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+
+import static com.chua.common.support.utils.StringUtils.format;
 
 /**
  * 视频同步任务服务实现
@@ -49,11 +53,30 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private final VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
     private final VideoSourceMapper videoSourceMapper;
     private final VideoPlayAddressService videoPlayAddressService;
+    private final VideoPlayAddressChannelService videoPlayAddressChannelService;
 
     @Override
     public int syncByConfig(VideoSyncConfig config, boolean doYouWantToManuallySynchronize) {
         if (config == null) {
             return 0;
+        }
+
+        Integer videoSyncInterval = config.getVideoSyncInterval();
+        if (null == videoSyncInterval) {
+            videoSyncInterval = 0;
+        }
+
+        if (videoSyncInterval == 0) {
+            if (!doYouWantToManuallySynchronize) {
+                return 0;
+            }
+        } else {
+            LocalDateTime videoSyncConfigLastTime = config.getVideoSyncConfigLastAsyncTime();
+            if (null != videoSyncConfigLastTime) {
+                if (LocalDateTime.now().isBefore(videoSyncConfigLastTime)) {
+                    throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
+                }
+            }
         }
 
         if (!Boolean.TRUE.equals(config.getVideoSyncConfigEnabled())) {
@@ -64,47 +87,45 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
 
-        Integer videoSyncInterval = config.getVideoSyncInterval();
-        if (null == videoSyncInterval) {
-            videoSyncInterval = 0;
-        }
-
-        if (videoSyncInterval == 0) {
-            if (!doYouWantToManuallySynchronize) {
-                throw new RuntimeException("请稍后再试");
-            }
-        } else {
-            LocalDateTime videoSyncConfigLastTime = config.getVideoSyncConfigLastAsyncTime();
-            if (null != videoSyncConfigLastTime) {
-                if (LocalDateTime.now().isBefore(videoSyncConfigLastTime)) {
-                    throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
-                }
-            }
-        }
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
         if (SYNC_STATUS_START.equals(videoSyncConfigStatus) || SYNC_STATUS_PROGRESS.equals(videoSyncConfigStatus)) {
             throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
+        SYNC.add(config.getVideoSyncConfigId());
+        config.setVideoSyncConfigStatus(SYNC_STATUS_START);
+        videoSyncConfigService.updateConfig(config);
 
         EXECUTOR_SERVICE.execute(() -> {
             log.info("开始同步配置[{}]的视频信息", config.getVideoSyncConfigName());
             AtomicInteger syncCount = new AtomicInteger(0);
-            SYNC.add(config.getVideoSyncConfigId());
 
             // 推送同步开始消息
             videoSyncMessageService.sendSyncStartMessage(config.getVideoSyncConfigId(), config.getVideoSyncConfigName());
 
             try {
-                config.setVideoSyncConfigStatus(SYNC_STATUS_START);
-                videoSyncConfigService.updateConfig(config);
                 // 根据配置获取视频列表
-                fetchVideosFromSource(config, video -> {
+                config.setVideoSyncConfigStatus(SYNC_STATUS_START);
+                fetchVideosFromSource(config, (video, videoSyncProcessConfig) -> {
+                    String videoType = videoSyncProcessConfig.getVideoType();
+                    int totalPages = videoSyncProcessConfig.getTotalPages();
+                    int page = videoSyncProcessConfig.getPage();
+                    int totalInPage = videoSyncProcessConfig.getTotalInPage();
+                    int currentPageInPage = videoSyncProcessConfig.getCurrentPageInPage();
+                    String message = format("开始同步视频({})【{}】, 进度{}/{}, 当页页内进度{}/{}, 当前同步的视频数量:{}",
+                            videoType,
+                            com.chua.common.support.utils.StringUtils.defaultString(video.getVideoName(), video.getVideoTitle()),
+                            page,
+                            totalPages,
+                            currentPageInPage,
+                            totalInPage,
+                            syncCount.get());
+
                     videoSyncMessageService.sendSyncProgressMessage(
                             config.getVideoSyncConfigId(),
                             config.getVideoSyncConfigName(),
                             syncCount.get(),
                             null,
-                            "开始同步视频【%s】".formatted(video.getVideoName())
+                            message
                     );
                     config.setVideoSyncConfigStatus(SYNC_STATUS_PROGRESS);
                     if (syncCount.get() % 10 == 0) {
@@ -112,41 +133,20 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                         if (null != newConfig) {
                             config.setVideoSyncConfigStatus(newConfig.getVideoSyncConfigStatus());
                         }
+                        config.setVideoSyncConfigLastLog(message);
                         videoSyncConfigService.updateConfig(config);
                     }
                     // 设置来源信息
                     video.setVideoPlatform(config.getVideoSourceId());
                     // 保存或更新视频信息
                     boolean saved = saveOrUpdateVideo(video);
-                    int currentCount = syncCount.incrementAndGet();
+                    syncCount.incrementAndGet();
 
                     if (saved) {
                         // 处理下载地址
                         processDownloadUrls(video);
-                        videoSyncMessageService.sendSyncProgressMessage(
-                                config.getVideoSyncConfigId(),
-                                config.getVideoSyncConfigName(),
-                                currentCount,
-                                null,
-                                "完成同步视频【链接】【%s】".formatted(video.getVideoName())
-                        );
                         processMarker(video);
-                        videoSyncMessageService.sendSyncProgressMessage(
-                                config.getVideoSyncConfigId(),
-                                config.getVideoSyncConfigName(),
-                                currentCount,
-                                null,
-                                "完成同步视频【标记】【%s】".formatted(video.getVideoName())
-                        );
-
                     }
-                    videoSyncMessageService.sendSyncProgressMessage(
-                            config.getVideoSyncConfigId(),
-                            config.getVideoSyncConfigName(),
-                            currentCount,
-                            null,
-                            "完成同步视频【%s】".formatted(video.getVideoName())
-                    );
                 });
 
                 log.info("配置[{}]同步完成，共同步{}个视频", config.getVideoSyncConfigName(), syncCount.get());
@@ -169,19 +169,19 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                 );
             }
             SYNC.remove(config.getVideoSyncConfigId());
+            VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
+            videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
+            videoSyncConfigRecord.setVideoSyncConfigResult("SUCCESS");
+            videoSyncConfigRecord.setVideoSyncConfigErrorMessage("");
+            videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
+
+            videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
+            SYNC.remove(config.getVideoSyncConfigId());
+
+            config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
+            config.setVideoSyncConfigLastAsyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
+            videoSyncConfigService.updateConfig(config);
         });
-        VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
-        videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
-        videoSyncConfigRecord.setVideoSyncConfigResult("SUCCESS");
-        videoSyncConfigRecord.setVideoSyncConfigErrorMessage("");
-        videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
-
-        videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
-        SYNC.remove(config.getVideoSyncConfigId());
-
-        config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
-        config.setVideoSyncConfigLastAsyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
-        videoSyncConfigService.updateConfig(config);
         return 1;
     }
 
@@ -211,7 +211,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      * @param config 同步配置
      * @return 视频列表
      */
-    private void fetchVideosFromSource(VideoSyncConfig config, Consumer<VideoInfoResult> consumer) {
+    private void fetchVideosFromSource(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
         String sourceId = config.getVideoSourceId();
         if (!StringUtils.hasText(sourceId)) {
             log.warn("配置[{}]未指定同步来源", config.getVideoSyncConfigName());
@@ -295,6 +295,23 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             }
             videoPlayAddressService.remove(Wrappers.<VideoPlayAddress>lambdaQuery().eq(VideoPlayAddress::getVideoId, video.getVideoId()));
             videoPlayAddressService.saveBatch(playAddressesList);
+
+            List<VideoPlayAddressChannel> tmp = new ArrayList<>();
+            for (VideoPlayAddress playAddress : playAddressesList) {
+                List<VideoPlayAddressChannel> videoPlayAddressChannels = playAddress.getVideoPlayAddressChannels();
+                if (null == videoPlayAddressChannels) {
+                    continue;
+                }
+                for (VideoPlayAddressChannel videoPlayAddressChannel : videoPlayAddressChannels) {
+                    videoPlayAddressChannel.setVideoPlayAddressId(playAddress.getVideoPlayAddressId());
+                    tmp.add(videoPlayAddressChannel);
+                }
+            }
+
+            videoPlayAddressChannelService.remove(Wrappers.<VideoPlayAddressChannel>lambdaQuery()
+                    .in(VideoPlayAddressChannel::getVideoPlayAddressId, tmp.stream().map(VideoPlayAddressChannel::getVideoPlayAddressId).toList()));
+
+            videoPlayAddressChannelService.saveBatch(tmp);
         } catch (Exception e) {
             log.error("处理视频[{}]播放地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }

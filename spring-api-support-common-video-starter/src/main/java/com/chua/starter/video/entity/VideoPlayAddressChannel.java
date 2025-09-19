@@ -12,8 +12,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
+ *
  * @author CH
- * @since 2025/9/18 9:19
+ * @since 2025/9/18 17:25
  */
 
 /**
@@ -45,4 +46,28 @@ public class VideoPlayAddressChannel extends SysBase {
     @ApiModelProperty(value = "地址ID")
     @Schema(description = "地址ID")
     private Integer videoPlayAddressId;
+
+    /**
+     * 地址
+     */
+    @TableField(value = "video_play_address_url")
+    @ApiModelProperty(value = "地址")
+    @Schema(description = "地址")
+    private String videoPlayAddressUrl;
+
+    /**
+     * 开始索引
+     */
+    @TableField(value = "video_play_address_start_index")
+    @ApiModelProperty(value = "开始索引")
+    @Schema(description = "开始索引")
+    private Integer videoPlayAddressStartIndex;
+
+    /**
+     * 结束索引
+     */
+    @TableField(value = "video_play_address_end_index")
+    @ApiModelProperty(value = "结束索引")
+    @Schema(description = "结束索引")
+    private Integer videoPlayAddressEndIndex;
 }
