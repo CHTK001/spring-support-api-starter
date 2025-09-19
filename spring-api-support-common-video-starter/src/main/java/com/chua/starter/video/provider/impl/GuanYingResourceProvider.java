@@ -767,15 +767,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *
      * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
      *                   <pre><code>
-     *                                                                         JsonObject offset = new JsonObject();
-     *                                                                         offset.put("MV", 3);
-     *                                                                         int count = provider.createCount(offset, "MV"); // 返回3
-     *                                                                         </code></pre>
+     *                                                                                           JsonObject offset = new JsonObject();
+     *                                                                                           offset.put("MV", 3);
+     *                                                                                           int count = provider.createCount(offset, "MV"); // 返回3
+     *                                                                                           </code></pre>
      * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
      *                   <pre><code>
-     *                                                                         String videoType = "TV";
-     *                                                                         int count = provider.createCount(offset, videoType);
-     *                                                                         </code></pre>
+     *                                                                                           String videoType = "TV";
+     *                                                                                           int count = provider.createCount(offset, videoType);
+     *                                                                                           </code></pre>
      * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
      * @author CH
      * @since 2025/9/18 22:15
@@ -789,10 +789,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *
      * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
      *                                  <pre>{@code
-     *                                                                                                                                     JsonObject offset = new JsonObject();
-     *                                                                                                                                     offset.put("videoType", "TV");
-     *                                                                                                                                     String[] types = provider.createMvType(offset);
-     *                                                                                                                                     }</pre>
+     *                                                                                                                                                                      JsonObject offset = new JsonObject();
+     *                                                                                                                                                                      offset.put("videoType", "TV");
+     *                                                                                                                                                                      String[] types = provider.createMvType(offset);
+     *                                                                                                                                                                      }</pre>
      * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
      * @author CH
      * @since 2025/9/18 14:30
