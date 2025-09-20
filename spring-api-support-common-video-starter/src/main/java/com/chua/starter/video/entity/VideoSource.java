@@ -134,6 +134,20 @@ public class VideoSource extends SysBase {
     @ApiModelProperty(value = "最小年份")
     private Integer videoSourceMinYear;
     /**
+     * 支持搜索
+     */
+    @TableField(value = "video_source_support_search")
+    @ApiModelProperty(value = "支持搜索")
+    @Schema(description = "支持搜索")
+    private Integer videoSourceSupportSearch;
+    /**
+     * 支持同步
+     */
+    @TableField(value = "video_source_support_sync")
+    @ApiModelProperty(value = "支持同步")
+    @Schema(description = "支持同步")
+    private Integer videoSourceSupportSync;
+    /**
      * 类型
      */
     @TableField(value = "video_source_type")

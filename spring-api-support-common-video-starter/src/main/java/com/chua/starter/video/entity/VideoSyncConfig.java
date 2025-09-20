@@ -127,4 +127,10 @@ public class VideoSyncConfig extends SysBase {
     @TableField(exist = false)
     @ApiModelProperty(value = "同步次数")
     private Integer syncCount;
+    /**
+     * 同步视频数量
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "同步视频数量")
+    private Long syncVideoCount;
 }

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.chua.starter.video.pojo.FunctionType.SEARCH;
+
 /**
  * 资源检索管理服务实现
  *
@@ -36,7 +38,7 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
         }
 
         List<VideoInfoResult> result = new ArrayList<>();
-        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders(SEARCH);
 
         if (availableProviders.isEmpty()) {
             return ReturnPageResult.error("没有可用的资源提供者");

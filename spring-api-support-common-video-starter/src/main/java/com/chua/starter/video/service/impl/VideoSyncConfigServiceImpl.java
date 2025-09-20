@@ -7,11 +7,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoSyncConfig;
 import com.chua.starter.video.mapper.VideoSyncConfigMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
+import com.chua.starter.video.service.VideoInfoService;
 import com.chua.starter.video.service.VideoSyncConfigService;
 import com.chua.starter.video.service.VideoSyncTaskService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -34,6 +37,7 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMapper, VideoSyncConfig> implements VideoSyncConfigService {
 
     @Lazy
@@ -42,6 +46,8 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
     @Lazy
     @Autowired
     VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
+
+    final VideoInfoService videoInfoService;
 
     @Override
     public IPage<VideoSyncConfig> getAllConfigs(Query<VideoSyncConfig> query) {
@@ -64,6 +70,7 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
         }
         records.forEach(record -> {
             record.setSyncCount(count.getOrDefault(record.getVideoSyncConfigId(), 0));
+            record.setSyncVideoCount(videoInfoService.count(Wrappers.lambdaQuery(VideoInfo.class).eq(VideoInfo::getVideoPlatform, record.getVideoSourceId())));
         });
 
         return page;
