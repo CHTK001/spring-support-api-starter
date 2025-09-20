@@ -96,6 +96,13 @@ public class VideoSource extends SysBase {
     @ApiModelProperty(value = "最大结果数")
     @Schema(description = "最大结果数")
     private Integer videoSourceMaxResource;
+    /**
+     * 连接超时
+     */
+    @TableField(value = "video_source_connect_timeout")
+    @ApiModelProperty(value = "连接超时")
+    @Schema(description = "连接超时")
+    private Integer videoSourceConnectTimeout;
 
     /**
      * user agent

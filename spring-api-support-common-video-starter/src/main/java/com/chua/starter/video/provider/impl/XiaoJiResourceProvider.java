@@ -47,7 +47,9 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String videoSourceUrl = StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://www.xiaojitv.com/?s=%s").formatted(videoSearch.getKeyword());
 
-        HttpResponse httpResponse = HttpClient.get(videoSourceUrl).execute();
+        HttpResponse httpResponse = HttpClient.get(videoSourceUrl)
+                .userAgent(videoSource.getVideoSourceUserAgent())
+                .execute();
         JsoupResponse jsoupResponse = httpResponse.toJsoup(JsoupResponse.Mappings.builder()
                 .parentXpath("//*[@class='poster-grid']/article")
                 .addMapping(JsoupResponse.MappingsPath.builder()
@@ -62,7 +64,7 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
                         .field("videoTitle")
                         .build())
                 .addMapping(JsoupResponse.MappingsPath.builder()
-                        .path(".poster-image img")
+                        .path(".poster-link img")
                         .css()
                         .isFirst()
                         .src()
@@ -100,7 +102,7 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
     }
 
     private void findDetail(String downloadUrls, VideoInfoResult videoInfoResult) {
-        HttpResponse httpResponse = HttpClient.get(downloadUrls).execute();
+        HttpResponse httpResponse = HttpClient.get(downloadUrls).userAgent(videoSource.getVideoSourceUserAgent()).execute();
         JsoupResponse jsoup = httpResponse.toJsoup(JsoupResponse.Mappings.builder().build());
         videoInfoResult.setVideoDirector(MapUtils.getString(jsoup.eval(JsoupResponse.MappingsPath.builder()
                 .css()
@@ -136,6 +138,7 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
     private void registerDownloadUrl(VideoInfoResult videoInfoResult, String doubanId) {
         HttpResponse httpResponse = HttpClient.post("https://www.xiaojitv.com/wp-admin/admin-ajax.php")
                 .formUrlencoded()
+                .userAgent(videoSource.getVideoSourceUserAgent())
                 .form("action", "douban_get_download_resources")
                 .form("douban_id", doubanId)
                 .execute();
