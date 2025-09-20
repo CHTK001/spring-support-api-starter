@@ -1,83 +1,122 @@
 package com.chua.starter.monitor.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统软件镜像管理服务接口
  *
  * @author CH
- * @version 1.0
  * @since 2025/01/15
  */
-public interface SystemSoftImageService extends IService<SystemSoftImage> {
+public interface SystemSoftImageService {
 
     /**
-     * 分页查询镜像列表
+     * 根据条件查询镜像列表
      *
-     * @param current  当前页
-     * @param size     每页大小
-     * @param serverId 服务器ID（可选）
-     * @param status   镜像状态（可选）
-     * @param keyword  关键词（可选）
-     * @return 分页结果
-     */
-    IPage<SystemSoftImage> getImagePage(Long current, Long size, Integer serverId, String status, String keyword);
-
-    /**
-     * 根据软件ID查询镜像列表
-     *
-     * @param softId 软件ID
+     * @param serverId  服务器ID
+     * @param softId    软件ID
+     * @param status    镜像状态
+     * @param imageName 镜像名称
      * @return 镜像列表
      */
-    List<SystemSoftImage> getImagesBySoftId(Integer softId);
+    ReturnResult<List<SystemSoftImage>> selectImageList(Integer serverId, Integer softId, String status, String imageName);
 
     /**
-     * 根据服务器ID查询镜像列表
+     * 保存或更新镜像信息
      *
-     * @param serverId 服务器ID
-     * @return 镜像列表
+     * @param systemSoftImage 镜像信息
+     * @return 保存结果
      */
-    List<SystemSoftImage> getImagesByServerId(Integer serverId);
+    ReturnResult<SystemSoftImage> saveOrUpdate(SystemSoftImage systemSoftImage);
 
     /**
-     * 同步单个镜像状态
-     * 从远程Docker服务器获取最新镜像状态并同步到数据库
+     * 根据ID删除镜像
      *
      * @param imageId 镜像ID
-     * @return 同步结果
+     * @return 删除结果
      */
-    boolean syncImageStatus(Integer imageId);
+    ReturnResult<Boolean> removeById(Integer imageId);
 
     /**
-     * 同步所有镜像状态
-     * 从远程Docker服务器获取最新镜像状态并同步到数据库
+     * 批量删除镜像
      *
-     * @param serverId 服务器ID（可选，为null时同步所有服务器）
-     * @return 同步的镜像数量
+     * @param imageIds 镜像ID列表
+     * @return 删除结果
      */
-    int syncAllImageStatus(Integer serverId);
+    ReturnResult<Boolean> removeByIds(List<Integer> imageIds);
 
     /**
-     * 同步指定服务器的所有镜像状态
+     * 从软件拉取镜像到服务器
+     *
+     * @param softId    软件ID
+     * @param serverId  服务器ID
+     * @param imageTag  镜像标签
+     * @param params    拉取参数
+     * @return 拉取结果
+     */
+    ReturnResult<SystemSoftImage> pullImage(Integer softId, Integer serverId, String imageTag, Map<String, Object> params);
+
+    /**
+     * 启动镜像（创建容器）
+     *
+     * @param imageId 镜像ID
+     * @param params  启动参数（端口映射、环境变量、数据卷等）
+     * @return 启动结果
+     */
+    ReturnResult<Boolean> startImage(Integer imageId, Map<String, Object> params);
+
+    /**
+     * 停止镜像（停止容器）
+     *
+     * @param imageId 镜像ID
+     * @return 停止结果
+     */
+    ReturnResult<Boolean> stopImage(Integer imageId);
+
+    /**
+     * 重启镜像（重启容器）
+     *
+     * @param imageId 镜像ID
+     * @return 重启结果
+     */
+    ReturnResult<Boolean> restartImage(Integer imageId);
+
+    /**
+     * 删除镜像（从服务器中删除）
+     *
+     * @param imageId 镜像ID
+     * @param force   是否强制删除
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> deleteImage(Integer imageId, Boolean force);
+
+    /**
+     * 获取镜像详情
+     *
+     * @param imageId 镜像ID
+     * @return 镜像详情
+     */
+    ReturnResult<SystemSoftImage> getImageDetails(Integer imageId);
+
+    /**
+     * 获取镜像日志
+     *
+     * @param imageId 镜像ID
+     * @return 镜像日志
+     */
+    ReturnResult<String> getImageLogs(Integer imageId);
+
+    /**
+     * 同步镜像状态
      *
      * @param serverId 服务器ID
      * @return 同步结果
      */
-    boolean syncAllImagesByServerId(Integer serverId);
-
-    /**
-     * 根据镜像名称和标签查询镜像
-     *
-     * @param imageName 镜像名称
-     * @param imageTag  镜像标签
-     * @param serverId  服务器ID
-     * @return 镜像信息
-     */
-    SystemSoftImage getImageByNameAndTag(String imageName, String imageTag, Integer serverId);
+    ReturnResult<Integer> syncImageStatus(Integer serverId);
 
     /**
      * 检查镜像是否存在
@@ -87,38 +126,7 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @param serverId  服务器ID
      * @return 是否存在
      */
-    boolean checkImageExists(String imageName, String imageTag, Integer serverId);
-
-    /**
-     * 获取可用的镜像列表
-     *
-     * @return 可用镜像列表
-     */
-    List<SystemSoftImage> getAvailableImages();
-
-    /**
-     * 获取异常状态的镜像列表
-     *
-     * @return 异常镜像列表
-     */
-    List<SystemSoftImage> getAbnormalImages();
-
-    /**
-     * 根据关键字搜索镜像
-     *
-     * @param keyword 关键字
-     * @return 镜像列表
-     */
-    List<SystemSoftImage> searchImagesByKeyword(String keyword);
-
-    /**
-     * 更新镜像状态
-     *
-     * @param imageId 镜像ID
-     * @param status  新状态
-     * @return 更新结果
-     */
-    boolean updateImageStatus(Integer imageId, String status);
+    ReturnResult<Boolean> checkImageExists(String imageName, String imageTag, Integer serverId);
 
     /**
      * 批量更新镜像状态
@@ -127,46 +135,29 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @param status   新状态
      * @return 更新结果
      */
-    boolean batchUpdateImageStatus(List<Integer> imageIds, String status);
+    ReturnResult<Boolean> batchUpdateStatus(List<Integer> imageIds, String status);
 
     /**
-     * 删除镜像记录
-     *
-     * @param imageId 镜像ID
-     * @return 删除结果
-     */
-    boolean deleteImage(Integer imageId);
-
-    /**
-     * 根据软件ID删除所有镜像记录
+     * 根据软件ID获取镜像列表
      *
      * @param softId 软件ID
-     * @return 删除结果
+     * @return 镜像列表
      */
-    boolean deleteImagesBySoftId(Integer softId);
+    ReturnResult<List<SystemSoftImage>> getImagesBySoftId(Integer softId);
 
     /**
-     * 根据服务器ID删除所有镜像记录
+     * 根据服务器ID获取镜像列表
      *
      * @param serverId 服务器ID
-     * @return 删除结果
+     * @return 镜像列表
      */
-    boolean deleteImagesByServerId(Integer serverId);
+    ReturnResult<List<SystemSoftImage>> getImagesByServerId(Integer serverId);
 
     /**
-     * 统计镜像数量
+     * 获取镜像统计信息
      *
      * @param serverId 服务器ID（可选）
-     * @param status   状态（可选）
-     * @return 镜像数量
+     * @return 统计信息
      */
-    Long countImages(Integer serverId, String status);
-
-    /**
-     * 获取最新拉取的镜像列表
-     *
-     * @param limit 限制数量
-     * @return 最新镜像列表
-     */
-    List<SystemSoftImage> getLatestImages(Integer limit);
+    ReturnResult<Map<String, Object>> getImageStatistics(Integer serverId);
 }
