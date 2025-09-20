@@ -249,9 +249,10 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             // 检查视频是否已存在
             VideoInfo existingVideo = videoInfoMapper.selectOne(
                     Wrappers.<VideoInfo>lambdaQuery()
-                            .eq(VideoInfo::getVideoName, video.getVideoName())
-                            .eq(VideoInfo::getVideoActor, video.getVideoActor())
+                            .eq(VideoInfo::getVideoTitle, video.getVideoTitle())
+                            .eq(VideoInfo::getVideoDirector, video.getVideoDirector())
                             .eq(VideoInfo::getVideoCategory, video.getVideoCategory())
+                            .eq(VideoInfo::getVideoYear, video.getVideoYear())
                     , false);
 
             if (existingVideo != null) {
