@@ -52,7 +52,7 @@
     create_name, create_by, create_time, update_time, update_name, update_by
   </sql>
     <!-- 搜索视频 -->
-    <select id="searchVideos" resultType="com.chua.starter.video.pojo.VideoInfoResult">
+    <select id="searchVideos" resultType="com.chua.starter.video.pojo.VideoInfoResponse">
         SELECT *
         FROM video_info
         <where>

@@ -25,10 +25,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URL;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -655,9 +654,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     private void downloadCover(String cover, String name) {
         File file1 = new File(file, name);
         FileUtils.forceMkdirParent(file1);
-        try (InputStream is = new URL(cover).openStream()) {
+        try (InputStream is = new URI(cover).toURL().openStream()) {
             FileUtils.writeTo(is, file1);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("下载封面图片失败: " + e.getMessage(), e);
         }
     }
@@ -701,6 +700,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                         .newInvoker()
                         .execute();
                 if (httpResponse.code() == 500) {
+                    config.setVideoSyncConfigStatus(SYNC_STATUS_ERROR);
+                    config.setVideoSyncConfigMessage(httpResponse.message());
                     break root;
                 }
                 EmbeddedVideoInfo embeddedVideoInfo = httpResponse.content(EmbeddedVideoInfo.class);
@@ -847,12 +848,66 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     @Data
     static class EmbeddedDownload {
 
+        /**
+         * 响应状态码
+         *
+         * @author CH
+         * @see #getCode()
+         * @see #setCode(Integer)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * download.setCode(200);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
         @SerializedName("code")
         private Integer code;
+
+        /**
+         * 磁力链接下载列表数据传输对象
+         *
+         * @author CH
+         * @see #getDownlist()
+         * @see #setDownlist(DownlistDTO)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * DownlistDTO downlist = new DownlistDTO();
+         * download.setDownlist(downlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
         @SerializedName("downlist")
         private DownlistDTO downlist;
+
+        /**
+         * 播放列表数据传输对象集合
+         *
+         * @author CH
+         * @see #getPlaylist()
+         * @see #setPlaylist(List)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * List<PlaylistDTO> playlist = new ArrayList<>();
+         * download.setPlaylist(playlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
         @SerializedName("playlist")
         private List<PlaylistDTO> playlist;
+
+        /**
+         * 网盘资源列表数据传输对象
+         *
+         * @author CH
+         * @see #getPanlist()
+         * @see #setPanlist(PanlistDTO)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * PanlistDTO panlist = new PanlistDTO();
+         * download.setPanlist(panlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
         @SerializedName("panlist")
         private PanlistDTO panlist;
 
@@ -901,25 +956,102 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             }
         }
 
+        /**
+         * 网盘列表数据传输对象
+         *
+         * @author CH
+         * @since 2025/9/19 14:20
+         */
         @NoArgsConstructor
         @Data
         public static class PanlistDTO {
+            /**
+             * 网盘资源ID列表
+             * <pre>{@code
+             * List<String> ids = Arrays.asList("1", "2", "3");
+             * panlistDTO.setId(ids);
+             * }</pre>
+             */
             @SerializedName("id")
             private List<String> id;
+
+            /**
+             * 网盘资源名称列表
+             * <pre>{@code
+             * List<String> names = Arrays.asList("资源1", "资源2");
+             * panlistDTO.setName(names);
+             * }</pre>
+             */
             @SerializedName("name")
             private List<String> name;
+
+            /**
+             * 网盘资源路径列表
+             * <pre>{@code
+             * List<String> paths = Arrays.asList("/path1", "/path2");
+             * panlistDTO.setP(paths);
+             * }</pre>
+             */
             @SerializedName("p")
             private List<String> p;
+
+            /**
+             * 网盘资源链接列表
+             * <pre>{@code
+             * List<String> urls = Arrays.asList("http://example.com/1", "http://example.com/2");
+             * panlistDTO.setUrl(urls);
+             * }</pre>
+             */
             @SerializedName("url")
             private List<String> url;
+
+            /**
+             * 网盘资源类型列表（对应tname的索引）
+             * <pre>{@code
+             * List<Integer> types = Arrays.asList(0, 1);
+             * panlistDTO.setType(types);
+             * }</pre>
+             */
             @SerializedName("type")
             private List<Integer> type;
+
+            /**
+             * 网盘资源分享用户列表
+             * <pre>{@code
+             * List<String> users = Arrays.asList("user1", "user2");
+             * panlistDTO.setUser(users);
+             * }</pre>
+             */
             @SerializedName("user")
             private List<String> user;
+
+            /**
+             * 网盘资源分享时间列表
+             * <pre>{@code
+             * List<String> times = Arrays.asList("2025-01-01", "2025-01-02");
+             * panlistDTO.setTime(times);
+             * }</pre>
+             */
             @SerializedName("time")
             private List<String> time;
+
+            /**
+             * 网盘资源扩展信息列表
+             * <pre>{@code
+             * List<Integer> extras = Arrays.asList(1, 2);
+             * panlistDTO.setE(extras);
+             * }</pre>
+             */
             @SerializedName("e")
             private List<Integer> e;
+
+            /**
+             * 网盘资源类型名称列表
+             * <pre>{@code
+             * List<String> typeNames = Arrays.asList("百度网盘", "阿里云盘");
+             * panlistDTO.setTname(typeNames);
+             * }</pre>
+             */
             @SerializedName("tname")
             private List<String> tname;
         }
