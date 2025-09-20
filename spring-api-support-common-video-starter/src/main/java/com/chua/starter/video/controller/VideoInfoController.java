@@ -6,6 +6,7 @@ import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoKeyword;
 import com.chua.starter.video.entity.VideoPlayAddress;
+import com.chua.starter.video.pojo.VideoInfoResponse;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoDownloadService;
@@ -63,7 +64,7 @@ public class VideoInfoController {
      */
     @PostMapping("/page")
     @Operation(summary = "视频搜索与分页查询")
-    public ReturnPageResult<VideoInfoResult> searchVideos(@RequestBody VideoSearchRequest request) {
+    public ReturnPageResult<VideoInfoResponse> searchVideos(@RequestBody VideoSearchRequest request) {
         return ReturnPageResultUtils.ok(videoInfoService.searchVideos(request));
     }
     /**

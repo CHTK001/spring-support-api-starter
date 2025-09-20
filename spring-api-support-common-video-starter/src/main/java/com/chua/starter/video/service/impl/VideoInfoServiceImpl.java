@@ -8,6 +8,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.DS;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.*;
+import com.chua.starter.video.pojo.VideoInfoResponse;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoInfoService;
@@ -41,26 +42,23 @@ public class VideoInfoServiceImpl extends ServiceImpl<VideoInfoMapper, VideoInfo
 
     @Override
     @DS("video")
-    public IPage<VideoInfoResult> searchVideos(VideoSearchRequest request) {
+    public IPage<VideoInfoResponse> searchVideos(VideoSearchRequest request) {
         // 使用自定义Mapper方法进行查询
-        IPage<VideoInfoResult> videoInfoIPage = baseMapper.searchVideos(request.createPage(), request);
-        List<VideoInfoResult> records = videoInfoIPage.getRecords();
+        IPage<VideoInfoResponse> searchVideos = baseMapper.searchVideos(request.createPage(), request);
+        List<VideoInfoResponse> records = searchVideos.getRecords();
         if (records.isEmpty()) {
-            return videoInfoIPage;
+            return searchVideos;
         }
 
         List<Integer> videoIds = records.stream().map(VideoInfo::getVideoId).toList();
-        List<VideoDownload> videoDownloads = videoDownloadMapper.selectList(Wrappers.<VideoDownload>lambdaQuery().in(VideoDownload::getVideoId, videoIds));
-        Map<Integer, List<VideoDownload>> videoDownloadMap = videoDownloads.stream().collect(java.util.stream.Collectors.groupingBy(VideoDownload::getVideoId));
         List<VideoMark> videoMarks = videoMarkMapper.selectList(Wrappers.<VideoMark>lambdaQuery().in(VideoMark::getVideoId, videoIds));
         Map<Integer, List<VideoMark>> videoMarkMap = videoMarks.stream().collect(java.util.stream.Collectors.groupingBy(VideoMark::getVideoId));
 
         records.forEach(videoInfo -> {
-            videoInfo.setDownloadList(videoDownloadMap.getOrDefault(videoInfo.getVideoId(), List.of()));
             videoInfo.setVideoMarkList(videoMarkMap.getOrDefault(videoInfo.getVideoId(), List.of()));
         });
 
-        return videoInfoIPage;
+        return searchVideos;
     }
 
     @Override

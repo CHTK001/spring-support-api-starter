@@ -57,4 +57,5 @@ public interface VideoDownloadService extends IService<VideoDownload> {
      * @return 下载链接列表
      */
     ListReturnResult<String> searchDownloadUrls(String keyword);
+
 }

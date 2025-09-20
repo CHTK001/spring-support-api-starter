@@ -99,6 +99,13 @@ public class VideoSyncConfig extends SysBase {
     @ApiModelProperty(value = "同步状态")
     @Schema(description = "同步状态")
     private String videoSyncConfigStatus;
+    /**
+     * 同步消息
+     */
+    @TableField(value = "video_sync_config_message")
+    @ApiModelProperty(value = "同步消息")
+    @Schema(description = "同步消息")
+    private String videoSyncConfigMessage;
 
     /**
      * 最后一次的位置
