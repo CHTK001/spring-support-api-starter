@@ -6,6 +6,7 @@ import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.http.JsoupResponse;
 import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoSource;
@@ -51,11 +52,12 @@ public class CldiResourceProvider extends AbstractResourceProvider implements Do
         JsoupResponse jsoupResponse = httpResponse.toJsoup(JsoupResponse.Mappings.builder()
                 .parentXpath("//*[@class='ssbox']")
                 .addMapping(JsoupResponse.MappingsPath.builder()
-                        .path(".title h3 span.red").css().field("videoTitle")
+                        .path(".title h3").css().field("videoTitle")
                         .build())
                 .addMapping(JsoupResponse.MappingsPath.builder()
                         .path(".slist .lightColor")
                         .css()
+                        .isFirst()
                         .field("videoSize")
                         .build())
                 .addMapping(JsoupResponse.MappingsPath.builder()
@@ -72,8 +74,15 @@ public class CldiResourceProvider extends AbstractResourceProvider implements Do
                         .build())
                 .build());
 
-        List<VideoInfoResult> videoInfoResult = jsoupResponse.eval(VideoInfoResult.class);
-        return ReturnPageResultUtils.ok(videoInfoResult, videoSearch.getPage(), videoSearch.getPageSize());
+        List<VideoInfoResult> videoInfoResults = jsoupResponse.eval(VideoInfoResult.class);
+        return ReturnPageResultUtils.ok(videoInfoResults, videoSearch.getPage(), videoSearch.getPageSize(),
+                MapUtils.getInteger(jsoupResponse.eval(JsoupResponse.MappingsPath.builder()
+                        .path(".tbox .msg .orange")
+                        .isLast()
+                        .css()
+                        .field("total")
+                        .build()), "total", videoSearch.getPageSize())
+        );
     }
 
     @Override
