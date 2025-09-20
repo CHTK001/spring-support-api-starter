@@ -7,6 +7,7 @@ import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoInfoMapper;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
+import com.chua.starter.video.pojo.FunctionType;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSyncProcessConfig;
 import com.chua.starter.video.provider.ResourceProvider;
@@ -59,6 +60,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     @Override
     public int syncByConfig(VideoSyncConfig config, boolean doYouWantToManuallySynchronize) {
         if (config == null) {
+            log.warn("同步配置为空");
             return 0;
         }
 
@@ -69,27 +71,32 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
 
         if (videoSyncInterval == 0) {
             if (!doYouWantToManuallySynchronize) {
+                registerErrorRecord(config, "未配置同步周期，请配置同步周期！");
                 return 0;
             }
         } else {
             LocalDateTime videoSyncConfigLastTime = config.getVideoSyncConfigLastAsyncTime();
             if (null != videoSyncConfigLastTime) {
                 if (LocalDateTime.now().isBefore(videoSyncConfigLastTime)) {
+                    registerErrorRecord(config, "正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
                     throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
                 }
             }
         }
 
         if (!Boolean.TRUE.equals(config.getVideoSyncConfigEnabled())) {
+            registerErrorRecord(config, "配置[" + config.getVideoSyncConfigName() + "]未启用");
             throw new RuntimeException("配置[" + config.getVideoSyncConfigName() + "]未启用");
         }
 
         if (SYNC.contains(config.getVideoSyncConfigId())) {
+            registerErrorRecord(config, "正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
             throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
 
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
         if (SYNC_STATUS_START.equals(videoSyncConfigStatus) || SYNC_STATUS_PROGRESS.equals(videoSyncConfigStatus)) {
+            registerErrorRecord(config, "正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
             throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
 
@@ -172,22 +179,31 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                 config.setVideoSyncConfigStatus(SYNC_STATUS_ERROR);
             }
             SYNC.remove(config.getVideoSyncConfigId());
-            VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
-            videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
-            videoSyncConfigRecord.setVideoSyncConfigResult("SUCCESS");
-            videoSyncConfigRecord.setVideoSyncConfigErrorMessage("");
-            videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
-
-            videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
-            SYNC.remove(config.getVideoSyncConfigId());
 
             if (!SYNC_STATUS_ERROR.equals(config.getVideoSyncConfigStatus())) {
                 config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
             }
+            VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
+            videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
+            videoSyncConfigRecord.setVideoSyncConfigResult(config.getVideoSyncConfigStatus());
+            videoSyncConfigRecord.setVideoSyncConfigErrorMessage(config.getVideoSyncConfigMessage());
+            videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
+
+            videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
             config.setVideoSyncConfigLastAsyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
             videoSyncConfigService.updateConfig(config);
         });
         return 1;
+    }
+
+    private void registerErrorRecord(VideoSyncConfig config, String message) {
+        VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
+        videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
+        videoSyncConfigRecord.setVideoSyncConfigResult("ERROR");
+        videoSyncConfigRecord.setVideoSyncConfigErrorMessage(message);
+        videoSyncConfigRecord.setVideoSyncConfigRecordTime(LocalDateTime.now());
+
+        videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
     }
 
 
@@ -228,7 +244,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             log.warn("未找到同步来源[{}]", sourceId);
             return;
         }
-        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders(FunctionType.SYNC);
         // 通过ServiceProvider获取对应的视频源提供者
         List<SyncProvider> providers = availableProviders.stream().filter(it -> {
             return it instanceof SyncProvider;

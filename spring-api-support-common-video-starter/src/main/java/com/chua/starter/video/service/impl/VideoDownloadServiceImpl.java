@@ -7,6 +7,7 @@ import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.mapper.VideoDownloadMapper;
+import com.chua.starter.video.pojo.FunctionType;
 import com.chua.starter.video.provider.DownloadLinkProvider;
 import com.chua.starter.video.provider.ResourceProvider;
 import com.chua.starter.video.service.VideoDownloadService;
@@ -96,7 +97,7 @@ public class VideoDownloadServiceImpl extends ServiceImpl<VideoDownloadMapper, V
             return ListReturnResult.empty();
         }
 
-        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders(FunctionType.SEARCH);
         ListReturnResult<String> listReturnResult = new ListReturnResult<>();
         for (ResourceProvider resourceProvider : availableProviders) {
             if (resourceProvider instanceof DownloadLinkProvider downloadLinkProvider) {
