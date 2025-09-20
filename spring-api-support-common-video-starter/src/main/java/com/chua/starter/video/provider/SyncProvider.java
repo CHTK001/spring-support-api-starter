@@ -2,8 +2,9 @@ package com.chua.starter.video.provider;
 
 import com.chua.starter.video.entity.VideoSyncConfig;
 import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSyncProcessConfig;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * 视频同步提供者接口
@@ -31,5 +32,5 @@ public interface SyncProvider {
      *                             </code></pre>
      * @throws RuntimeException 当同步过程中发生错误时抛出
      */
-    void fetchVideos(VideoSyncConfig config, Consumer<VideoInfoResult> consumer);
+    void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer);
 }

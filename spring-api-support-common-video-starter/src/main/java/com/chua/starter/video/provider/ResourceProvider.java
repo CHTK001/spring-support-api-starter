@@ -18,4 +18,6 @@ public interface ResourceProvider {
      * @return 视频资源列表
      */
     ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch);
+
+
 }

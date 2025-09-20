@@ -1,6 +1,7 @@
 package com.chua.starter.video.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
 
@@ -48,4 +49,12 @@ public interface VideoDownloadService extends IService<VideoDownload> {
      * @return 是否更新成功
      */
     boolean updateDownloadStatus(String downloadId, Integer status);
+
+    /**
+     * 搜索下载链接
+     *
+     * @param keyword 关键词
+     * @return 下载链接列表
+     */
+    ListReturnResult<String> searchDownloadUrls(String keyword);
 }
