@@ -45,4 +45,9 @@ public class VideoInfoResult extends VideoInfo {
     @Schema(description = "播放地址")
     private List<VideoPlayAddress> playAddressesList;
 
+    /**
+     * 下载地址
+     */
+    private String downloadUrls;
+
 }

@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoKeyword;
+import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoDownloadService;
@@ -42,6 +43,18 @@ public class VideoInfoController {
     private final VideoDownloadService videoDownloadService;
     private final VideoKeywordService videoKeywordService;
 
+
+    /**
+     * 获取视频信息
+     *
+     * @param videoId 视频id
+     * @return 视频信息
+     */
+    @Operation(summary = "获取视频播放地址")
+    @GetMapping("/play/{videoId}")
+    public ReturnResult<List<VideoPlayAddress>> playAddress(@PathVariable("videoId") Integer videoId) {
+        return ReturnResult.success(videoInfoService.playAddress(videoId));
+    }
     /**
      * 视频搜索与分页查询
      *

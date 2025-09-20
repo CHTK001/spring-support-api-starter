@@ -36,7 +36,7 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
         }
 
         List<VideoInfoResult> result = new ArrayList<>();
-        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders(videoSearch);
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
 
         if (availableProviders.isEmpty()) {
             return ReturnPageResult.error("没有可用的资源提供者");

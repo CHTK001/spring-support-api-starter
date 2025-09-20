@@ -3,10 +3,14 @@ package com.chua.starter.video.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.mapper.VideoDownloadMapper;
+import com.chua.starter.video.provider.DownloadLinkProvider;
+import com.chua.starter.video.provider.ResourceProvider;
 import com.chua.starter.video.service.VideoDownloadService;
+import com.chua.starter.video.service.VideoSourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VideoDownloadServiceImpl extends ServiceImpl<VideoDownloadMapper, VideoDownload> implements VideoDownloadService {
 
+
+    final VideoSourceService videoSourceService;
     @Override
     public List<VideoDownload> getDownloadsByVideoId(String videoId) {
         return baseMapper.selectList(Wrappers.<VideoDownload>lambdaQuery().eq(VideoDownload::getVideoId, videoId));
@@ -82,5 +88,22 @@ public class VideoDownloadServiceImpl extends ServiceImpl<VideoDownloadMapper, V
             return this.updateById(download);
         }
         return false;
+    }
+
+    @Override
+    public ListReturnResult<String> searchDownloadUrls(String keyword) {
+        if (keyword == null) {
+            return ListReturnResult.empty();
+        }
+
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
+        ListReturnResult<String> listReturnResult = new ListReturnResult<>();
+        for (ResourceProvider resourceProvider : availableProviders) {
+            if (resourceProvider instanceof DownloadLinkProvider downloadLinkProvider) {
+                ListReturnResult<String> searchDownloadUrls = downloadLinkProvider.searchDownloadUrls(keyword);
+                listReturnResult.addAll(searchDownloadUrls.getData());
+            }
+        }
+        return listReturnResult;
     }
 }

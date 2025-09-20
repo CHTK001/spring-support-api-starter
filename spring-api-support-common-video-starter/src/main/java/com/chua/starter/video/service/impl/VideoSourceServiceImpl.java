@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.mapper.VideoSourceMapper;
-import com.chua.starter.video.pojo.VideoSearch;
 import com.chua.starter.video.provider.ResourceProvider;
 import com.chua.starter.video.service.VideoSourceService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class VideoSourceServiceImpl extends ServiceImpl<VideoSourceMapper, Video
 
 
     @Override
-    public List<ResourceProvider> getAvailableProviders(VideoSearch videoSearch) {
+    public List<ResourceProvider> getAvailableProviders() {
         List<ResourceProvider> allResourceProviders = new ArrayList<>();
         List<VideoSource> list = list(Wrappers.lambdaQuery(VideoSource.class).eq(VideoSource::getVideoSourceEnable, 1));
         for (VideoSource videoSource : list) {

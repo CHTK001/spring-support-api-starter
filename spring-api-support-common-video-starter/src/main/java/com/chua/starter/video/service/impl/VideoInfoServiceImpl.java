@@ -6,19 +6,21 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.DS;
-import com.chua.starter.video.entity.VideoDownload;
-import com.chua.starter.video.entity.VideoInfo;
-import com.chua.starter.video.entity.VideoMark;
+import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.*;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 import com.chua.starter.video.service.VideoInfoService;
+import com.chua.starter.video.service.VideoPlayAddressChannelService;
+import com.chua.starter.video.service.VideoPlayAddressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 视频信息服务实现
@@ -34,6 +36,8 @@ public class VideoInfoServiceImpl extends ServiceImpl<VideoInfoMapper, VideoInfo
     final VideoMarkMapper videoMarkMapper;
     final VideoSyncConfigMapper videoSyncConfigMapper;
     final VideoSyncConfigRecordMapper videoSyncConfigRecordMapper;
+    final VideoPlayAddressService videoPlayAddressService;
+    final VideoPlayAddressChannelService videoPlayAddressChannelService;
 
     @Override
     @DS("video")
@@ -88,5 +92,14 @@ public class VideoInfoServiceImpl extends ServiceImpl<VideoInfoMapper, VideoInfo
     @Override
     public boolean deleteVideo(String id) {
         return this.removeById(id);
+    }
+
+    @Override
+    public List<VideoPlayAddress> playAddress(Integer videoId) {
+        List<VideoPlayAddress> list = videoPlayAddressService.list(Wrappers.lambdaQuery(VideoPlayAddress.class).eq(VideoPlayAddress::getVideoId, videoId));
+        Set<Integer> ids = list.stream().map(VideoPlayAddress::getVideoPlayAddressId).collect(Collectors.toSet());
+        List<VideoPlayAddressChannel> list1 = videoPlayAddressChannelService.list(Wrappers.lambdaQuery(VideoPlayAddressChannel.class).in(VideoPlayAddressChannel::getVideoPlayAddressId, ids));
+        list.forEach(item -> item.setVideoPlayAddressChannels(list1.stream().filter(item1 -> item1.getVideoPlayAddressId().equals(item.getVideoPlayAddressId())).collect(Collectors.toList())));
+        return list;
     }
 }

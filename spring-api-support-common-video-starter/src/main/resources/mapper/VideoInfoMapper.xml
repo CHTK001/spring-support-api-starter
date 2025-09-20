@@ -122,64 +122,45 @@
                 </if>
             </trim>
         </where>
+        <!--
+          { value: "original_title.asc", label: "标题升序" },
+          { value: "original_title.desc", label: "标题降序" },
+          { value: "popularity.asc", label: "受欢迎程度升序" },
+          { value: "popularity.desc", label: "受欢迎程度降序" },
+          { value: "revenue.asc", label: "票房升序" },
+          { value: "revenue.desc", label: "票房降序" },
+          { value: "primary_release_date.asc", label: "上映日期升序" },
+          { value: "primary_release_date.desc", label: "上映日期降序" },
+          { value: "vote_count.asc", label: "评分升序" },
+          { value: "vote_count.desc", label: "评分降序" },
+        -->
         <trim>
             <if test="request.order != null">
                 <choose>
-                    <when test="request.order == 'videoScore desc'">
+                    <when test="request.order == 'popularity.asc'">
+                        ORDER BY video_popularity ASC
+                    </when>
+
+                    <when test="request.order == 'popularity.desc'">
+                        ORDER BY video_popularity DESC
+                    </when>
+
+                    <when test="request.order == 'vote_count.desc'">
                         ORDER BY video_score DESC
                     </when>
 
-                    <when test="request.order == 'videoScore asc'">
+                    <when test="request.order == 'vote_count.asc'">
                         ORDER BY video_score ASC
                     </when>
 
-                    <when test="request.order == 'videoViews desc' or request.order == 'recommend'">
-                        ORDER BY video_views DESC
-                    </when>
-
-                    <when test="request.order == 'videoViews asc'">
-                        ORDER BY video_views ASC
-                    </when>
-
-                    <when test="request.order == 'videoPublishDate desc' or request.order == 'newest'">
+                    <when test="request.order == 'primary_release_date.desc' or request.order == 'newest'">
                         ORDER BY video_publish_date DESC
                     </when>
 
-                    <when test="request.order == 'videoPublishDate asc'">
+                    <when test="request.order == 'primary_release_date.asc'">
                         ORDER BY video_publish_date ASC
                     </when>
 
-                    <when test="request.order == 'videoYear desc'">
-                        ORDER BY video_year DESC
-                    </when>
-
-                    <when test="request.order == 'videoYear asc'">
-                        ORDER BY video_year ASC
-                    </when>
-
-                    <when test="request.order == 'videoLikes desc'">
-                        ORDER BY video_likes DESC
-                    </when>
-
-                    <when test="request.order == 'videoLikes asc'">
-                        ORDER BY video_likes ASC
-                    </when>
-
-                    <when test="request.order == 'createTime desc'">
-                        ORDER BY create_time DESC
-                    </when>
-
-                    <when test="request.order == 'createTime asc'">
-                        ORDER BY create_time ASC
-                    </when>
-
-                    <when test="request.order == 'updateTime desc'">
-                        ORDER BY update_time DESC
-                    </when>
-
-                    <when test="request.order == 'updateTime asc'">
-                        ORDER BY update_time ASC
-                    </when>
 
                     <otherwise>
                         ORDER BY video_id DESC
