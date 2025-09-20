@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.entity.VideoInfo;
+import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
+
+import java.util.List;
 
 /**
  * 视频信息服务接口
@@ -53,4 +56,12 @@ public interface VideoInfoService extends IService<VideoInfo> {
      * @return 删除结果
      */
     boolean deleteVideo(String id);
+
+    /**
+     * 获取视频播放地址
+     *
+     * @param videoId 视频ID
+     * @return 播放地址
+     */
+    List<VideoPlayAddress> playAddress(Integer videoId);
 }
