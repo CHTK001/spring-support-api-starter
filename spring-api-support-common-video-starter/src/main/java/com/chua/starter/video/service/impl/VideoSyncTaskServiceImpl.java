@@ -2,7 +2,6 @@ package com.chua.starter.video.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoInfoMapper;
@@ -10,6 +9,7 @@ import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSyncProcessConfig;
+import com.chua.starter.video.provider.ResourceProvider;
 import com.chua.starter.video.provider.SyncProvider;
 import com.chua.starter.video.service.*;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +54,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private final VideoSourceMapper videoSourceMapper;
     private final VideoPlayAddressService videoPlayAddressService;
     private final VideoPlayAddressChannelService videoPlayAddressChannelService;
+    final VideoSourceService videoSourceService;
 
     @Override
     public int syncByConfig(VideoSyncConfig config, boolean doYouWantToManuallySynchronize) {
@@ -91,6 +92,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
         if (SYNC_STATUS_START.equals(videoSyncConfigStatus) || SYNC_STATUS_PROGRESS.equals(videoSyncConfigStatus)) {
             throw new RuntimeException("正在同步配置[" + config.getVideoSyncConfigName() + "]的视频信息");
         }
+
         SYNC.add(config.getVideoSyncConfigId());
         config.setVideoSyncConfigStatus(SYNC_STATUS_START);
         videoSyncConfigService.updateConfig(config);
@@ -167,6 +169,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                         config.getVideoSyncConfigName(),
                         e.getMessage()
                 );
+                config.setVideoSyncConfigStatus(SYNC_STATUS_ERROR);
             }
             SYNC.remove(config.getVideoSyncConfigId());
             VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
@@ -178,7 +181,9 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             videoSyncConfigRecordMapper.insert(videoSyncConfigRecord);
             SYNC.remove(config.getVideoSyncConfigId());
 
-            config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
+            if (!SYNC_STATUS_ERROR.equals(config.getVideoSyncConfigStatus())) {
+                config.setVideoSyncConfigStatus(SYNC_STATUS_FINISH);
+            }
             config.setVideoSyncConfigLastAsyncTime(videoSyncConfigRecord.getVideoSyncConfigRecordTime());
             videoSyncConfigService.updateConfig(config);
         });
@@ -223,9 +228,13 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             log.warn("未找到同步来源[{}]", sourceId);
             return;
         }
-
+        List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders();
         // 通过ServiceProvider获取对应的视频源提供者
-        List<SyncProvider> providers = ServiceProvider.of(SyncProvider.class).getNewExtensions(videoSource.getVideoSourcePlatform(), videoSource);
+        List<SyncProvider> providers = availableProviders.stream().filter(it -> {
+            return it instanceof SyncProvider;
+        }).map(it -> {
+            return (SyncProvider) it;
+        }).toList();
         if (CollectionUtils.isEmpty(providers)) {
             log.warn("未找到同步来源[{}]的提供者", sourceId);
             return;

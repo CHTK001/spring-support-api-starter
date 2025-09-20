@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
@@ -73,6 +74,18 @@ public class VideoDownloadController {
         return ReturnResult.success();
     }
 
+
+    /**
+     * 搜索视频下载地址
+     *
+     * @param videoId 视频ID
+     * @return 视频下载地址列表
+     */
+    @GetMapping("/get/{videoId}")
+    @Operation(summary = "搜索视频下载地址")
+    public ReturnResult<List<VideoDownload>> get(@PathVariable String videoId) {
+        return ReturnResult.success(videoDownloadService.getDownloadsByVideoId(videoId));
+    }
 
     /**
      * 搜索下载地址
