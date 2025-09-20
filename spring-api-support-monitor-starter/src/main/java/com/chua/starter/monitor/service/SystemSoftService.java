@@ -1,36 +1,17 @@
 package com.chua.starter.monitor.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoft;
-import com.chua.starter.monitor.entity.SystemSoftImage;
-import com.chua.starter.monitor.entity.SystemSoftRecord;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * 系统软件服务接口
+ * 系统软件管理服务接口
  *
  * @author CH
- * @version 1.0.0
- * @since 2024/01/01
+ * @since 2025/01/15
  */
-public interface SystemSoftService extends IService<SystemSoft> {
-
-    /**
-     * 分页查询软件列表
-     *
-     * @param page 分页参数
-     * @param softCode 软件代码
-     * @param softName 软件名称
-     * @param softCategory 软件分类
-     * @param softStatus 软件状态
-     * @return 分页结果
-     */
-    IPage<SystemSoft> selectSoftPage(Page<SystemSoft> page, String softCode, String softName,
-                                     String softCategory, Integer softStatus);
+public interface SystemSoftService {
 
     /**
      * 根据软件代码查询软件信息
@@ -38,7 +19,103 @@ public interface SystemSoftService extends IService<SystemSoft> {
      * @param softCode 软件代码
      * @return 软件信息
      */
-    SystemSoft selectBySoftCode(String softCode);
+    ReturnResult<SystemSoft> getBySoftCode(String softCode);
+
+    /**
+     * 根据条件查询软件列表
+     *
+     * @param softCode 软件代码
+     * @param softName 软件名称
+     * @param category 软件分类
+     * @param status   软件状态
+     * @return 软件列表
+     */
+    ReturnResult<List<SystemSoft>> selectSoftList(String softCode, String softName, String category, Integer status);
+
+    /**
+     * 保存或更新软件信息
+     *
+     * @param systemSoft 软件信息
+     * @return 保存结果
+     */
+    ReturnResult<SystemSoft> saveOrUpdate(SystemSoft systemSoft);
+
+    /**
+     * 根据ID删除软件
+     *
+     * @param softId 软件ID
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> removeById(Integer softId);
+
+    /**
+     * 批量删除软件
+     *
+     * @param softIds 软件ID列表
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> removeByIds(List<Integer> softIds);
+
+    /**
+     * 从仓库同步软件信息
+     *
+     * @param registryId 仓库ID
+     * @return 同步的软件数量
+     */
+    ReturnResult<Integer> syncFromRegistry(Integer registryId);
+
+    /**
+     * 同步单个软件信息
+     *
+     * @param registryId   仓库ID
+     * @param softwareName 软件名称
+     * @return 同步的软件信息
+     */
+    ReturnResult<SystemSoft> syncSingleSoftware(Integer registryId, String softwareName);
+
+    /**
+     * 安装软件到指定服务器
+     *
+     * @param softId    软件ID
+     * @param serverIds 服务器ID列表
+     * @param imageTag  镜像标签
+     * @return 安装结果
+     */
+    ReturnResult<Boolean> installSoftware(Integer softId, List<Integer> serverIds, String imageTag);
+
+    /**
+     * 获取软件的可用标签列表
+     *
+     * @param softId 软件ID
+     * @return 标签列表
+     */
+    ReturnResult<List<String>> getAvailableTags(Integer softId);
+
+    /**
+     * 检查软件代码是否已存在
+     *
+     * @param softCode  软件代码
+     * @param excludeId 排除的ID
+     * @return 是否存在
+     */
+    ReturnResult<Boolean> checkSoftCodeExists(String softCode, Integer excludeId);
+
+    /**
+     * 批量更新软件状态
+     *
+     * @param softIds 软件ID列表
+     * @param status  新状态
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> batchUpdateStatus(List<Integer> softIds, Integer status);
+
+    /**
+     * 根据关键字搜索软件
+     *
+     * @param keyword 关键字
+     * @return 软件列表
+     */
+    ReturnResult<List<SystemSoft>> searchByKeyword(String keyword);
 
     /**
      * 根据分类查询软件列表
@@ -46,43 +123,21 @@ public interface SystemSoftService extends IService<SystemSoft> {
      * @param category 分类
      * @return 软件列表
      */
-    List<SystemSoft> selectByCategory(String category);
+    ReturnResult<List<SystemSoft>> getByCategory(String category);
 
     /**
-     * 同步软件镜像
+     * 获取热门软件列表
      *
-     * @param softId   软件ID
-     * @param serverId 服务器ID
-     * @return 同步结果
+     * @param limit 限制数量
+     * @return 热门软件列表
      */
-    boolean syncSoftImage(Long softId, Long serverId);
+    ReturnResult<List<SystemSoft>> getPopularSofts(Integer limit);
 
     /**
-     * 拉取软件镜像
+     * 获取最新软件列表
      *
-     * @param softId   软件ID
-     * @param serverId 服务器ID
-     * @param imageTag 镜像标签
-     * @return 拉取结果
+     * @param limit 限制数量
+     * @return 最新软件列表
      */
-    boolean pullSoftImage(Long softId, Long serverId, String imageTag);
-
-    /**
-     * 删除软件镜像
-     *
-     * @param softId   软件ID
-     * @param serverId 服务器ID
-     * @param imageId  镜像ID
-     * @return 删除结果
-     */
-    boolean deleteSoftImage(Long softId, Long serverId, String imageId);
-
-    /**
-     * 验证软件配置
-     *
-     * @param systemSoft 软件信息
-     * @return 验证结果
-     */
-    boolean validateSoftConfig(SystemSoft systemSoft);
-
+    ReturnResult<List<SystemSoft>> getLatestSofts(Integer limit);
 }
