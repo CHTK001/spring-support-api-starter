@@ -148,14 +148,8 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                     // 设置来源信息
                     video.setVideoPlatform(config.getVideoSourceId());
                     // 保存或更新视频信息
-                    boolean saved = saveOrUpdateVideo(video);
+                    saveOrUpdateForVideo(video);
                     syncCount.incrementAndGet();
-
-                    if (saved) {
-                        // 处理下载地址
-                        processDownloadUrls(video);
-                        processMarker(video);
-                    }
                 });
 
                 log.info("配置[{}]同步完成，共同步{}个视频", config.getVideoSyncConfigName(), syncCount.get());
@@ -194,6 +188,19 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             videoSyncConfigService.updateConfig(config);
         });
         return 1;
+    }
+
+    @Override
+    public boolean saveOrUpdateForVideo(VideoInfoResult videoInfoResult) {
+        // 保存或更新视频信息
+        boolean saved = saveOrUpdateVideo(videoInfoResult);
+
+        if (saved) {
+            // 处理下载地址
+            processDownloadUrls(videoInfoResult);
+            processMarker(videoInfoResult);
+        }
+        return false;
     }
 
     private void registerErrorRecord(VideoSyncConfig config, String message) {
@@ -270,6 +277,10 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      * @return 是否成功
      */
     private boolean saveOrUpdateVideo(VideoInfo video) {
+
+        if (null == video.getVideoDirector() || null == video.getVideoCategory() || null == video.getVideoTitle() || null == video.getVideoYear()) {
+            return false;
+        }
         try {
             // 检查视频是否已存在
             VideoInfo existingVideo = videoInfoMapper.selectOne(
