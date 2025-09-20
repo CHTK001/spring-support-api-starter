@@ -20,6 +20,9 @@ rebel.xml
 *.png
 *.jpg
 *.jpeg
+*.avif
+0
+*flow.md
 .cache*.json
 *.class
 *Test.java
