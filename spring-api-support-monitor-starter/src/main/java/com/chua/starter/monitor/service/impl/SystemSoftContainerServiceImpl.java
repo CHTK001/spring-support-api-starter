@@ -13,6 +13,8 @@ import com.chua.starter.monitor.service.SystemSoftContainerService;
 import com.chua.starter.monitor.service.SystemSoftContainerStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +35,9 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
 
     private final SystemSoftContainerMapper systemSoftContainerMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
-    private final DockerCallbackService dockerCallbackService;
+    @Autowired
+    @Lazy
+    private DockerCallbackService dockerCallbackService;
 
     // 用于存储日志推送任务的Map
     private final Map<Integer, LogPushTask> logPushTasks = new ConcurrentHashMap<>();
@@ -82,7 +86,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             }
 
             // 更新容器状态为启动中
-            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.STARTING); // 启动中
+            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.STARTING);
             systemSoftContainerMapper.updateById(container);
 
             // 获取Docker客户端
@@ -91,7 +95,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             if (dockerClient == null) {
                 log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
                 // 更新容器状态为启动失败
-                container.setSystemSoftContainerStatus(SystemSoftContainerStatus.START_FAILED); // 启动失败
+                container.setSystemSoftContainerStatus(SystemSoftContainerStatus.START_FAILED);
                 systemSoftContainerMapper.updateById(container);
                 return ReturnResult.error("无法创建Docker客户端");
             }
@@ -101,7 +105,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             dockerClient.startContainerById(container.getSystemSoftContainerDockerId());
 
             // 更新容器状态为运行中
-            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.RUNNING); // 运行中
+            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.RUNNING);
             systemSoftContainerMapper.updateById(container);
 
             log.info("启动容器成功 - 容器ID: {}", containerId);
@@ -111,7 +115,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             try {
                 SystemSoftContainer container = systemSoftContainerMapper.selectById(containerId);
                 if (container != null) {
-                    container.setSystemSoftContainerStatus(SystemSoftContainerStatus.START_FAILED); // 启动失败
+                    container.setSystemSoftContainerStatus(SystemSoftContainerStatus.START_FAILED);
                     systemSoftContainerMapper.updateById(container);
                 }
             } catch (Exception updateEx) {
@@ -142,7 +146,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             }
 
             // 更新容器状态为停止中
-            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.STOPPING); // 停止中
+            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.STOPPING);
             systemSoftContainerMapper.updateById(container);
 
             // 获取Docker客户端
@@ -405,12 +409,12 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             // 设置基本信息
             containerStats.setSystemSoftContainerStatsImage(stats.getConfig() != null ? stats.getConfig().getImage() : "");
             containerStats.setSystemSoftContainerStatsCommand(stats.getConfig() != null ? String.join(" ", stats.getConfig().getCmd() != null ? stats.getConfig().getCmd() : new String[0]) : "");
-            containerStats.setSystemSoftContainerStatsCreated(stats.getCreated() != null ? stats.getCreated().toString() : "");
+            containerStats.setSystemSoftContainerStatsCreated(stats.getCreated() != null ? stats.getCreated() : "");
 
             // 设置状态信息
             if (stats.getState() != null) {
                 containerStats.setSystemSoftContainerStatsStatus(stats.getState().getStatus());
-                containerStats.setSystemSoftContainerStatsStartedAt(stats.getState().getStartedAt() != null ? stats.getState().getStartedAt().toString() : "");
+                containerStats.setSystemSoftContainerStatsStartedAt(stats.getState().getStartedAt() != null ? stats.getState().getStartedAt() : "");
             }
 
             // 设置网络信息
