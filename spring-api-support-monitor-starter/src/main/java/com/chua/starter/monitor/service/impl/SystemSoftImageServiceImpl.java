@@ -7,16 +7,19 @@ import com.chua.docker.support.client.DockerCreateContainer;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.starter.monitor.callback.WebSocketContainerCreateCallback;
-import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.entity.SystemSoft;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
+import com.chua.starter.monitor.enums.OperationType;
+import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -34,11 +37,13 @@ import java.util.List;
 public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMapper, SystemSoftImage> implements SystemSoftImageService {
 
     private final SystemSoftImageMapper systemSoftImageMapper;
-    private final com.chua.starter.monitor.factory.DockerProtocolClientFactory dockerProtocolClientFactory;
-    private final DockerCallbackService dockerCallbackService;
+    private final DockerProtocolClientFactory dockerProtocolClientFactory;
     private final SystemSoftMapper systemSoftMapper;
 
     private final TransactionTemplate transactionTemplate;
+    @Autowired
+    @Lazy
+    private DockerCallbackService dockerCallbackService;
 
     /**
      * 根据条件查询镜像列表

@@ -8,17 +8,22 @@ import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
-import com.chua.starter.monitor.entity.*;
+import com.chua.starter.monitor.entity.SystemSoft;
+import com.chua.starter.monitor.entity.SystemSoftImage;
+import com.chua.starter.monitor.entity.SystemSoftImageStatus;
+import com.chua.starter.monitor.entity.SystemSoftRegistry;
+import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.mapper.SystemSoftRecordMapper;
 import com.chua.starter.monitor.mapper.SystemSoftRegistryMapper;
-import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +48,9 @@ public class SystemSoftServiceImpl implements SystemSoftService {
     private final SystemSoftRecordMapper systemSoftRecordMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
     private final SocketSessionTemplate socketSessionTemplate;
-    private final DockerCallbackService dockerCallbackService;
+    @Autowired
+    @Lazy
+    private DockerCallbackService dockerCallbackService;
 
     @Override
     public ReturnResult<SystemSoft> getBySoftCode(String softCode) {

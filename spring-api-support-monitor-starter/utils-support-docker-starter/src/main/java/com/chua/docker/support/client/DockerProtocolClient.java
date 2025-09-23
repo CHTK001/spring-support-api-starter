@@ -652,27 +652,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
     }
 
     /**
-     * 启动容器
-     *
-     * @param containerId 容器ID
-     * @return 是否启动成功
-     */
-    public boolean startContainer(String containerId) {
-        if (dockerClient == null) {
-            log.error("Docker客户端未连接");
-            return false;
-        }
-        try {
-            dockerClient.startContainerCmd(containerId).exec();
-            log.info("容器启动成功: {}", containerId);
-            return true;
-        } catch (Exception e) {
-            log.error("启动容器失败: {}", containerId, e);
-            return false;
-        }
-    }
-
-    /**
      * 根据容器ID启动容器
      *
      * @param containerId 容器ID
@@ -744,64 +723,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
             return false;
         }
     }
-
-    /**
-     * 根据容器ID重启容器
-     *
-     * @param containerId 容器ID
-     * @return 是否重启成功
-     * @see #restartContainer(String) 根据容器ID重启容器的方法
-     */
-    // 删除错误的restartContainerByName方法，应直接使用容器ID而不是名称
-    // public void restartContainerByName(String containerName) { ... }
-
-    /**
-     * 根据容器ID删除容器
-     *
-     * @param containerId 容器ID
-     * @param force 是否强制删除
-     * @return 是否删除成功
-     */
-    public boolean removeContainerById(String containerId, boolean force) {
-        if (dockerClient == null) {
-            log.error("Docker客户端未连接");
-            return false;
-        }
-        try {
-            dockerClient.stopContainerCmd(containerId).exec();
-            log.info("容器停止成功: {}", containerId);
-            return true;
-        } catch (Exception e) {
-            log.error("停止容器失败: {}", containerId, e);
-            return false;
-        }
-    }
-
-    /**
-     * 根据容器ID停止容器
-     *
-     * @param containerId 容器ID
-     * @see #removeContainer(String, boolean) 根据容器ID删除容器的方法
-     */
-    // 删除错误的removeContainerByName方法，应直接使用容器ID而不是名称
-    // public void removeContainerByName(String containerName, boolean force) { ... }
-
-    /**
-     * 根据容器ID获取容器详细信息
-     * <p>
-     * 获取指定ID的Docker容器的详细信息。该方法会：
-     * 1. 使用Docker客户端的inspectContainerCmd命令
-     * 2. 执行检查操作并返回容器详细信息
-     * <p>
-     * 返回的详细信息包括容器的配置、状态、网络设置等完整信息。
-     *
-     * @param containerId 容器ID
-     * @return
-     * @return 是否停止成功
-     * @see #stopContainer(String) 根据容器ID停止容器的方法
-     */
-    // 删除错误的stopContainerByName方法，应直接使用容器ID而不是名称
-    // public void stopContainerByName(String containerName) { ... }
 
     /**
      * 根据容器ID重启容器
@@ -955,7 +876,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
      * @throws IllegalStateException 当Docker客户端未连接时抛出
      * @throws RuntimeException      当构建过程中发生错误时抛出
      * 
-     * @see #buildImage(File, long, TimeUnit, DockerResultCallback, String...) 带回调的构建方法
      */
     public boolean buildImage(java.io.File dockerfileDir, long timeout, TimeUnit timeUnit, String... imageName) {
         if (dockerClient == null) {
@@ -1850,57 +1770,14 @@ public class DockerProtocolClient extends AbstractProtocolClient {
                 cmd.withName(config.getContainerName());
                 log.debug("设置容器名称: {}", config.getContainerName());
             }
+            return cmd.exec().getId();
         } catch (Exception e) {
             log.error("创建容器时发生错误", e);
             throw new RuntimeException("创建容器时发生错误", e);
         }
     }
 
-    /**
-     * 根据DockerContainerConfig更新现有容器
-     * <p>
-     * 注意：Docker不支持直接更新容器配置，此方法会停止并删除旧容器，然后创建新容器。
-     * 该方法会：
-     * 1. 停止指定的旧容器
-     * 2. 强制删除旧容器
-     * 3. 基于新的配置对象创建新容器
-     * <p>
-     * 注意：这是一个破坏性操作，旧容器会被完全删除，新容器会使用新的配置创建。
-     *
-     * @param oldContainerId 旧容器ID
-     * @param config         新的容器配置对象
-     * @return 新容器ID
-     * @throws IllegalArgumentException 当旧容器ID为空时抛出
-     * @throws RuntimeException      当更新过程中发生错误时抛出
-     * 
-     * @see DockerContainerConfig Docker容器配置对象
-     * @see #createContainer(DockerContainerConfig) 创建容器方法
-     */
-    public String updateContainer(String oldContainerId, DockerContainerConfig config) {
-        if (StringUtils.isEmpty(oldContainerId)) {
-            throw new IllegalArgumentException("旧容器ID不能为空");
-        }
-
-        try {
-            log.info("开始更新容器: oldContainerId={}", oldContainerId);
-
-            // 停止旧容器
-            dockerClient.stopContainerCmd(oldContainerId).exec();
-            log.debug("停止旧容器: oldContainerId={}", oldContainerId);
-
-            // 强制删除旧容器
-            dockerClient.removeContainerCmd(oldContainerId).withForce(true).exec();
-            log.debug("删除旧容器: oldContainerId={}", oldContainerId);
-
-            // 创建新容器
-            return createContainer(config);
-        } catch (Exception e) {
-            log.error("更新容器时发生错误", e);
-            throw new RuntimeException("更新容器时发生错误", e);
-        }
-    }
-
-    /**
+      /**
      * 启动指定的容器
      * <p>
      * 该方法会：
@@ -2031,143 +1908,7 @@ public class DockerProtocolClient extends AbstractProtocolClient {
         }
     }
 
-    /**
-     * 创建并启动容器
-     * <p>
-     * 该方法会：
-     * 1. 验证配置对象和必要参数
-     * 2. 构建Docker客户端的createContainerCmd命令
-     * 3. 应用所有配置选项
-     * 4. 执行创建操作并返回容器ID
-     * 5. 执行启动操作
-     * <p>
-     * 注意：该方法会创建并启动容器。
-     *
-     * @param config Docker容器配置对象，包含所有容器配置选项
-     * @return 容器ID
-     * @throws IllegalStateException 当Docker客户端未连接时抛出
-     * @throws IllegalArgumentException 当配置对象为空或镜像名称为空时抛出
-     * @throws RuntimeException      当创建或启动过程中发生错误时抛出
-     * 
-     * @see DockerContainerConfig Docker容器配置对象
-     * @see #createContainer(DockerContainerConfig) 创建容器方法
-     * @see #startContainer(String) 启动容器方法
-     */
-    public String createAndStartContainer(DockerContainerConfig config) {
-        if (dockerClient == null) {
-            throw new IllegalStateException("Docker客户端未连接");
-        }
-        if (config == null) {
-            throw new IllegalArgumentException("容器配置不能为空");
-        }
-        if (StringUtils.isEmpty(config.getImageName())) {
-            throw new IllegalArgumentException("镜像名称不能为空");
-        }
-
-        try {
-            log.info("开始创建并启动容器: image={}, name={}", config.getImageName(), config.getContainerName());
-
-            var cmd = dockerClient.createContainerCmd(config.getImageName());
-
-            // 设置容器名称
-            if (StringUtils.isNotEmpty(config.getContainerName())) {
-                cmd.withName(config.getContainerName());
-                log.debug("设置容器名称: {}", config.getContainerName());
-            }
-
-            // 设置环境变量
-            if (config.getEnvironmentVariables() != null && !config.getEnvironmentVariables().isEmpty()) {
-                String[] envArray = config.getEnvironmentVariables().toArray(new String[0]);
-                cmd.withEnv(envArray);
-                log.debug("设置环境变量: {}", config.getEnvironmentVariables());
-            }
-
-            // 创建HostConfig
-            var hostConfig = new HostConfig();
-            boolean hasHostConfig = false;
-
-            // 设置端口映射
-            if (config.getPortBindings() != null && !config.getPortBindings().isEmpty()) {
-                var portBindingMap = new HashMap<ExposedPort, Ports.Binding>();
-                var exposedPorts = new ArrayList<ExposedPort>();
-
-                for (Map.Entry<String, String> entry : config.getPortBindings().entrySet()) {
-                    String hostPort = entry.getKey();
-                    String containerPort = entry.getValue();
-
-                    var exposedPort = ExposedPort.tcp(Integer.parseInt(containerPort));
-                    var binding = Ports.Binding.bindPort(Integer.parseInt(hostPort));
-
-                    exposedPorts.add(exposedPort);
-                    portBindingMap.put(exposedPort, binding);
-                }
-
-                var ports = new Ports();
-                portBindingMap.forEach(ports::bind);
-
-                hostConfig.withPortBindings(ports);
-                cmd.withExposedPorts(exposedPorts.toArray(new ExposedPort[0]));
-                cmd.withHostConfig(hostConfig);
-                log.debug("设置端口映射: {}", config.getPortBindings());
-            }
-
-            // 设置卷映射
-            if (config.getVolumeBindings() != null && !config.getVolumeBindings().isEmpty()) {
-                var binds = config.getVolumeBindings().entrySet().stream()
-                        .map(entry -> new Bind(entry.getKey(), new Volume(entry.getValue())))
-                        .toArray(Bind[]::new);
-
-                hostConfig.withBinds(binds);
-                hasHostConfig = true;
-                log.debug("设置卷映射: {}", config.getVolumeBindings());
-            }
-
-            // 设置自动删除
-            if (config.getAutoRemove() != null && config.getAutoRemove()) {
-                hostConfig.withAutoRemove(true);
-                hasHostConfig = true;
-                log.debug("设置自动删除: true");
-            }
-
-            // 设置重启策略
-            if (StringUtils.isNotEmpty(config.getRestartPolicy())) {
-                RestartPolicy restartPolicy = RestartPolicy.parse(config.getRestartPolicy());
-                hostConfig.withRestartPolicy(restartPolicy);
-                hasHostConfig = true;
-                log.debug("设置重启策略: {}", config.getRestartPolicy());
-            }
-
-            // 应用HostConfig
-            if (hasHostConfig) {
-                cmd.withHostConfig(hostConfig);
-            }
-
-            // 设置启动命令
-            if (StringUtils.isNotEmpty(config.getCommand())) {
-                cmd.withCmd(config.getCommand().split(" "));
-                log.debug("设置启动命令: {}", config.getCommand());
-            }
-
-            // 设置启动参数（如果有的话，追加到命令后面）
-            if (StringUtils.isNotEmpty(config.getArgs())) {
-                String fullCommand = (StringUtils.isNotEmpty(config.getCommand()) ? config.getCommand() + " " : "") + config.getArgs();
-                cmd.withCmd(fullCommand.split(" "));
-                log.debug("设置启动参数: {}", config.getArgs());
-            }
-
-            var response = cmd.exec();
-            String containerId = response.getId();
-            log.info("容器创建成功: image={}, name={}, containerId={}",
-                    config.getImageName(), config.getContainerName(), containerId);
-            return containerId;
-
-        } catch (Exception e) {
-            log.error("创建容器失败: image={}, name={}", config.getImageName(), config.getContainerName(), e);
-            throw new RuntimeException("创建容器失败: " + e.getMessage(), e);
-        }
-    }
-
-    /**
+        /**
      * 使用DockerContainerConfig创建并启动容器
      * <p>
      * 基于DockerContainerConfig配置对象创建并启动Docker容器。该方法会：
@@ -2238,7 +1979,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
      * 
      * @see DockerCreateContainer Docker容器配置对象
      * @see DockerResultCallback Docker回调接口
-     * @see #createAndStartContainer(DockerCreateContainer, DockerResultCallback) 创建并启动容器方法
      */
     public com.github.dockerjava.api.command.CreateContainerResponse createContainer(DockerCreateContainer config, com.chua.docker.support.callback.CreateContainerCallback callback) {
         if (dockerClient == null) {
@@ -2425,7 +2165,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
      * 
      * @see DockerCreateContainer Docker容器配置对象
      * @see DockerResultCallback Docker回调接口
-     * @see #createContainer(DockerCreateContainer, DockerResultCallback) 创建容器方法
      */
     public String createAndStartContainer(DockerCreateContainer config, com.chua.docker.support.callback.CreateContainerCallback callback) {
         if (dockerClient == null) {
@@ -2521,66 +2260,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
         }
     }
 
-    /**
-     * 根据容器名称启动容器
-     * <p>
-     * 启动指定名称的Docker容器。该方法会：
-     * 1. 使用Docker客户端的startContainerCmd命令
-     * 2. 执行启动操作
-     *
-     * @param containerName 容器名称
-     * @throws IllegalArgumentException 当容器名称为空时抛出
-     * @throws RuntimeException      当启动过程中发生错误时抛出
-     * 
-     * @see #startContainer(String) 根据容器ID启动容器的方法
-     */
-    // public void startContainerByName(String containerName) { ... }
-
-    /**
-     * 根据容器名称停止容器
-     * <p>
-     * 停止指定名称的Docker容器。该方法会：
-     * 1. 使用Docker客户端的stopContainerCmd命令
-     * 2. 执行停止操作
-     *
-     * @param containerName 容器名称
-     * @throws IllegalArgumentException 当容器名称为空时抛出
-     * @throws RuntimeException      当停止过程中发生错误时抛出
-     * 
-     * @see #stopContainer(String) 根据容器ID停止容器的方法
-     */
-
-    /**
-     * 根据容器ID获取容器详细信息
-     * <p>
-     * 获取指定ID的Docker容器的详细信息。该方法会：
-     * 1. 使用Docker客户端的inspectContainerCmd命令
-     * 2. 执行检查操作并返回容器详细信息
-     * <p>
-     * 返回的详细信息包括容器的配置、状态、网络设置等完整信息。
-     *
-     * @param containerId 容器ID
-     * @return 容器详细信息对象
-     * @throws IllegalArgumentException 当容器ID为空时抛出
-     * @throws RuntimeException      当获取过程中发生错误时抛出
-     * 
-     * @see InspectContainerResponse 容器详细信息响应对象
-     */
-    public InspectContainerResponse inspectContainerById(String containerId) {
-        if (StringUtils.isBlank(containerId)) {
-            throw new IllegalArgumentException("容器ID不能为空");
-        }
-
-        try {
-            InspectContainerResponse response = dockerClient.inspectContainerCmd(containerId).exec();
-            log.info("获取容器详细信息成功: containerId={}", containerId);
-            return response;
-
-        } catch (Exception e) {
-            log.error("获取容器详细信息失败: containerId={}", containerId, e);
-            throw new RuntimeException("获取容器详细信息失败: " + e.getMessage(), e);
-        }
-    }
 
     /**
      * 根据容器名称获取容器详细信息
@@ -2654,7 +2333,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
      * @throws IllegalArgumentException 当容器名称为空时抛出
      * @throws RuntimeException      当删除过程中发生错误时抛出
      * 
-     * @see #removeContainer(String, boolean) 根据容器ID删除容器的方法
      */
     public void removeContainerByName(String containerName, boolean force) {
         if (StringUtils.isEmpty(containerName)) {
@@ -2740,29 +2418,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
     }
 
     /**
-     * 根据容器名称获取容器日志
-     * <p>
-     * 获取指定名称的Docker容器的日志信息。该方法支持多种日志获取选项：
-     * 1. 获取最后N行日志
-     * 2. 持续跟踪日志输出
-     * 3. 包含时间戳信息
-     * <p>
-     * 该方法会：
-     * 1. 使用Docker客户端的logContainerCmd命令
-     * 2. 根据参数配置日志选项
-     * 3. 执行日志获取操作并返回日志内容
-     *
-     * @param containerName 容器名称
-     * @param tail          获取最后多少行日志（0表示全部）
-     * @param follow        是否持续跟踪日志（true表示持续输出新日志）
-     * @return 日志内容字符串
-     * @throws IllegalArgumentException 当容器名称为空时抛出
-     * @throws RuntimeException      当获取过程中发生错误时抛出
-     */
-    // Delete错误的getContainerLogsByName方法，应直接使用容器ID而不是名称
-    // public String getContainerLogsByName(String containerName, int tail, boolean follow) { ... }
-
-    /**
      * 根据容器ID获取容器日志
      * <p>
      * 获取指定ID的Docker容器的日志信息。该方法支持多种日志获取选项：
@@ -2810,66 +2465,10 @@ public class DockerProtocolClient extends AbstractProtocolClient {
             }
 
             String logs = callback.toString();
-            log.debug("获取容器日志成功: name={}, logLength={}", containerName, logs.length());
+            log.debug("获取容器日志成功: name={}, logLength={}", containerId, logs.length());
             return logs;
         } catch (Exception e) {
-            log.error("获取容器日志失败: name={}", containerName, e);
-            throw new RuntimeException("获取容器日志失败: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 根据容器ID获取容器日志
-     * <p>
-     * 获取指定ID的Docker容器的日志信息。该方法支持多种日志获取选项：
-     * 1. 获取最后N行日志
-     * 2. 持续跟踪日志输出
-     * 3. 包含时间戳信息
-     * <p>
-     * 该方法会：
-     * 1. 使用Docker客户端的logContainerCmd命令
-     * 2. 根据参数配置日志选项
-     * 3. 执行日志获取操作并返回日志内容
-     *
-     * @param containerId 容器ID
-     * @param tail        获取最后多少行日志（0表示全部）
-     * @param follow      是否持续跟踪日志（true表示持续输出新日志）
-     * @return 日志内容字符串
-     * @throws IllegalArgumentException 当容器ID为空时抛出
-     * @throws RuntimeException      当获取过程中发生错误时抛出
-     */
-    public String getContainerLogsById(String containerId, int tail, boolean follow) {
-        if (StringUtils.isEmpty(containerId)) {
-            throw new IllegalArgumentException("容器ID不能为空");
-        }
-
-        try {
-            log.debug("获取容器日志: id={}, tail={}, follow={}", containerId, tail, follow);
-            var cmd = dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withTimestamps(true);
-
-            if (tail > 0) {
-                cmd.withTail(tail);
-            }
-
-            if (follow) {
-                cmd.withFollowStream(true);
-            }
-
-            var callback = new LogContainerResultCallback();
-            cmd.exec(callback);
-
-            if (!follow) {
-                callback.awaitCompletion();
-            }
-
-            String logs = callback.toString();
-            log.debug("获取容器日志成功: id={}, logLength={}", containerId, logs.length());
-            return logs;
-        } catch (Exception e) {
-            log.error("获取容器日志失败: id={}", containerId, e);
+            log.error("获取容器日志失败: name={}", containerId, e);
             throw new RuntimeException("获取容器日志失败: " + e.getMessage(), e);
         }
     }
@@ -2903,7 +2502,6 @@ public class DockerProtocolClient extends AbstractProtocolClient {
      * @param containerId 容器ID
      * @return 是否存在
      * @author CH
-     * @version 1.0
      * @since 2025/01/17
      */
     public boolean containerExistsById(String containerId) {

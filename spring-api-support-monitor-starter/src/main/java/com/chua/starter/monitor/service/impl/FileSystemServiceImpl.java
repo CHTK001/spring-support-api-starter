@@ -23,6 +23,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -54,7 +55,8 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
     private final FileSystemGroupService fileSystemGroupService;
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
-    private final FileSystemMergeTaskProcessor mergeTaskProcessor;
+    @Autowired(required = false)
+    private FileSystemMergeTaskProcessor mergeTaskProcessor;
 
     @Override
     public ReturnResult<List<FileSystemResponse>> list(String absolutePath, String name) {
@@ -625,7 +627,9 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
 
             // 手动合并直接调用合并处理器，不依赖定时任务
             log.info("手动合并直接调用合并处理器: fileId={}", fileId);
-            mergeTaskProcessor.processMergeFileAsync(fileId);
+            if (null != mergeTaskProcessor) {
+                mergeTaskProcessor.processMergeFileAsync(fileId);
+            }
 
             return ReturnResult.ok(true);
         } catch (Exception e) {
@@ -1108,7 +1112,9 @@ public class FileSystemServiceImpl extends ServiceImpl<FileSystemMapper, FileSys
 
             // 重试合并直接调用合并处理器
             log.info("重试合并直接调用合并处理器: fileId={}", fileId);
-            mergeTaskProcessor.processMergeFileAsync(fileId);
+            if (null != mergeTaskProcessor) {
+                mergeTaskProcessor.processMergeFileAsync(fileId);
+            }
 
             log.info("合并任务重试成功: fileId={}", fileId);
             return ReturnResult.ok(true);

@@ -42,7 +42,7 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "plugin.monitor.server.enable-file-merge-tasks", havingValue = "true")
+@ConditionalOnProperty(name = "plugin.monitor.server.enable-file-merge-tasks", havingValue = "true", matchIfMissing = true)
 public class FileSystemMergeTaskProcessor {
 
     @Autowired
