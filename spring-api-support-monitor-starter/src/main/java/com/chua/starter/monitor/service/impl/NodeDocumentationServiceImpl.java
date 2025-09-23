@@ -32,7 +32,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
 
     private final NodeManagementService nodeManagementService;
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public ReturnResult<List<NodeApiGroup>> getNodeApiDocs(String nodeId, String nodeAddress, String contextPath) {
@@ -169,7 +169,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
             Object requestBody = null;
             if (StringUtils.isNotEmpty(request.getRequestBody())) {
                 try {
-                    requestBody = objectMapper.readValue(request.getRequestBody(), Object.class);
+                    requestBody = OBJECT_MAPPER.readValue(request.getRequestBody(), Object.class);
                 } catch (Exception e) {
                     log.warn("解析请求体失败，使用原始字符串: {}", e.getMessage());
                     requestBody = request.getRequestBody();
@@ -196,7 +196,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
             // 解析响应体
             if (response.getBody() != null) {
                 try {
-                    Object responseData = objectMapper.readValue(response.getBody(), Object.class);
+                    Object responseData = OBJECT_MAPPER.readValue(response.getBody(), Object.class);
                     result.put("data", responseData);
                 } catch (Exception e) {
                     log.debug("响应体不是JSON格式，使用原始字符串");
@@ -253,7 +253,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
             ResponseEntity<String> response = restTemplate.exchange(healthUrl, HttpMethod.GET, entity, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                Map<String, Object> healthData = objectMapper.readValue(response.getBody(), Map.class);
+                Map<String, Object> healthData = OBJECT_MAPPER.readValue(response.getBody(), Map.class);
                 return ReturnResult.ok(healthData);
             } else {
                 return ReturnResult.error("获取健康状态失败");
@@ -289,7 +289,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
             ResponseEntity<String> response = restTemplate.exchange(infoUrl, HttpMethod.GET, entity, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                Map<String, Object> infoData = objectMapper.readValue(response.getBody(), Map.class);
+                Map<String, Object> infoData = OBJECT_MAPPER.readValue(response.getBody(), Map.class);
                 return ReturnResult.ok(infoData);
             } else {
                 return ReturnResult.error("获取节点信息失败");
@@ -333,7 +333,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
      */
     private List<NodeApiGroup> parseSwaggerDoc(String swaggerJson) {
         try {
-            JsonNode rootNode = objectMapper.readTree(swaggerJson);
+            JsonNode rootNode = OBJECT_MAPPER.readTree(swaggerJson);
             JsonNode pathsNode = rootNode.get("paths");
 
             if (pathsNode == null) {
@@ -510,7 +510,7 @@ public class NodeDocumentationServiceImpl implements NodeDocumentationService {
      */
     private List<Map<String, Object>> parseSwaggerResources(String responseBody) {
         try {
-            JsonNode rootNode = objectMapper.readTree(responseBody);
+            JsonNode rootNode = OBJECT_MAPPER.readTree(responseBody);
             List<Map<String, Object>> resources = new ArrayList<>();
 
             if (rootNode.isArray()) {
