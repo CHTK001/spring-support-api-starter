@@ -10,12 +10,12 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.ibatis.type.EnumOrdinalTypeHandler;
 
 import java.time.LocalDateTime;
 
@@ -160,11 +160,11 @@ public class SystemSoftImage extends SysBase {
     /**
      * 镜像状态
      */
-    @TableField(value = "system_soft_image_status")
+    @TableField(value = "system_soft_image_status", typeHandler = org.apache.ibatis.type.EnumTypeHandler.class)
     @ApiModelProperty(value = "镜像状态")
     @Schema(description = "镜像状态")
     @Size(max = 50, message = "镜像状态最大长度要小于 50")
-    private String systemSoftImageStatus;
+    private SystemSoftImageStatus systemSoftImageStatus;
 
     /**
      * 是否官方镜像

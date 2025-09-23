@@ -2,8 +2,10 @@ package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoft;
+import com.chua.starter.monitor.entity.SystemSoftImage;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统软件管理服务接口
@@ -140,4 +142,15 @@ public interface SystemSoftService {
      * @return 最新软件列表
      */
     ReturnResult<List<SystemSoft>> getLatestSofts(Integer limit);
+
+    /**
+     * 拉取Docker镜像（支持异步回调）
+     *
+     * @param softId   软件ID
+     * @param serverId 服务器ID
+     * @param imageTag 镜像标签
+     * @param params   拉取参数
+     * @return 拉取结果
+     */
+    ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, Map<String, Object> params);
 }

@@ -200,7 +200,7 @@ monitor:
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "success",
   "data": {
     "records": [
@@ -237,7 +237,7 @@ monitor:
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "镜像同步成功",
   "data": true
 }
@@ -257,7 +257,7 @@ monitor:
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "镜像拉取成功",
   "data": true
 }
@@ -283,7 +283,7 @@ monitor:
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "success",
   "data": {
     "records": [

@@ -5,8 +5,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.properties.MonitorProperties;
 import com.chua.starter.monitor.service.*;
 import com.chua.starter.monitor.task.manager.step.*;
+import com.chua.starter.monitor.task.manager.step.DockerStatsPushStep;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
 import com.chua.starter.monitor.utils.ServerLogUtils;
 import jakarta.annotation.PostConstruct;
@@ -54,6 +56,7 @@ public class ServerTaskManager {
     private final PrometheusDataCollectorService prometheusDataCollectorService;
     private final LocalSystemDataCollector localSystemDataCollector;
     private final ServerLatencyService serverLatencyService;
+    private final MonitorProperties monitorProperties;
     // 拆分后的步骤组件
     private final PortMonitorStep portMonitorStep;
     private final HealthCheckStep healthCheckStep;
@@ -65,6 +68,7 @@ public class ServerTaskManager {
     private final LogCleanupStep logCleanupStep;
     private final CacheCleanupStep cacheCleanupStep;
     private final WebSocketCleanupStep webSocketCleanupStep;
+    private final DockerStatsPushStep dockerStatsPushStep;
 
     // 虚拟线程执行器
     private ExecutorService executorService;
@@ -109,6 +113,12 @@ public class ServerTaskManager {
 
     @PostConstruct
     public void init() {
+        // 检查是否启用后端定时检测推送任务
+        if (!monitorProperties.isEnableScheduledTasks()) {
+            log.info("后端定时检测推送任务已禁用");
+            return;
+        }
+        
         // 创建虚拟线程执行器
         executorService = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -362,6 +372,7 @@ public class ServerTaskManager {
                 long lastLogCleanup = 0L;
                 long lastCacheCleanup = 0L;
                 long lastWsCleanup = 0L;
+                long lastDockerStats = 0L; // 添加Docker状态推送时间戳
                 while (taskInfo.isTaskRunning() && running) {
                     try {
                         MonitorSysGenServerSetting s = getCachedConfig(server.getMonitorSysGenServerId());
@@ -404,7 +415,9 @@ public class ServerTaskManager {
                         // 端口监控
                         if (s.getMonitorSysGenServerSettingPortMonitorEnabled() != null && s.getMonitorSysGenServerSettingPortMonitorEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingPortCheckInterval();
-                            if (itv == null || itv <= 0) itv = 300;
+                            if (itv == null || itv <= 0) {
+                                itv = 300;
+                            }
                             if (now - lastPort >= itv * 1000L) {
                                 portMonitorStep.run(server, s);
                                 lastPort = now;
@@ -413,7 +426,9 @@ public class ServerTaskManager {
                         // 在线检测
                         if (s.getMonitorSysGenServerSettingOnlineCheckEnabled() != null && s.getMonitorSysGenServerSettingOnlineCheckEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingOnlineCheckInterval();
-                            if (itv == null || itv <= 0) itv = 30;
+                            if (itv == null || itv <= 0) {
+                                itv = 30;
+                            }
                             if (now - lastOnline >= itv * 1000L) {
                                 onlineCheckStep.run(server, s);
                                 lastOnline = now;
@@ -422,7 +437,9 @@ public class ServerTaskManager {
                         // 延迟检测
                         if (s.getMonitorSysGenServerSettingLatencyCheckEnabled() != null && s.getMonitorSysGenServerSettingLatencyCheckEnabled() == 1) {
                             Integer itv = s.getMonitorSysGenServerSettingLatencyCheckInterval();
-                            if (itv == null || itv <= 0) itv = 60;
+                            if (itv == null || itv <= 0) {
+                                itv = 60;
+                            }
                             if (now - lastLatency >= itv * 1000L) {
                                 latencyCheckStep.run(server, s);
                                 lastLatency = now;
@@ -451,6 +468,21 @@ public class ServerTaskManager {
                                 lastWsCleanup = now;
                             }
                         }
+
+                        // Docker状态推送
+                        if (s.getMonitorSysGenServerSettingDockerEnabled() != null &&
+                                s.getMonitorSysGenServerSettingDockerEnabled() == 1) {
+                            Integer itv = s.getMonitorSysGenServerSettingDockerStatsInterval();
+                            // 如果未设置间隔，则使用默认值10秒
+                            if (itv == null || itv <= 0) {
+                                itv = 10;
+                            }
+                            if (now - lastDockerStats >= itv * 1000L) {
+                                dockerStatsPushStep.run(server, s);
+                                lastDockerStats = now;
+                            }
+                        }
+
                         Thread.sleep(5_000L);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
@@ -998,8 +1030,17 @@ public class ServerTaskManager {
     private void cleanupTempFilesAndCache() {
         try {
             log.debug("清理临时文件和缓存");
-            // 这里可以调用相关服务清理临时文件和缓存
-            // 暂时只记录日志
+            // 获取默认配置的临时文件保留时间
+            MonitorSysGenServerSetting defaultSetting = MonitorSysGenServerSetting.getDefaultSetting(null);
+            Integer tempFileRetentionHours = defaultSetting.getMonitorSysGenServerSettingTempFileRetentionHours();
+
+            if (tempFileRetentionHours != null && tempFileRetentionHours > 0) {
+                serverService.cleanupTempFiles(tempFileRetentionHours);
+            } else {
+                serverService.cleanupTempFiles();
+            }
+
+            serverService.cleanupCache();
         } catch (Exception e) {
             log.error("清理临时文件和缓存失败", e);
         }
@@ -1127,6 +1168,8 @@ public class ServerTaskManager {
         private MonitorSysGenServerSetting currentSetting;
         private volatile boolean taskRunning = true;
         private long lastConfigCheckTime = 0;
+        // 添加Docker状态推送时间戳
+        private long lastDockerStatsTime = 0;
 
         public ServerTaskInfo(Integer serverId) {
             this.serverId = serverId;
@@ -1149,6 +1192,14 @@ public class ServerTaskManager {
 
         public void updateConfigCheckTime() {
             this.lastConfigCheckTime = System.currentTimeMillis();
+        }
+
+        public long getLastDockerStatsTime() {
+            return lastDockerStatsTime;
+        }
+
+        public void updateLastDockerStatsTime() {
+            this.lastDockerStatsTime = System.currentTimeMillis();
         }
     }
 }

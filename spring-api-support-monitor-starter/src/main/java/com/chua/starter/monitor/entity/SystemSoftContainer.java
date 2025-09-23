@@ -10,12 +10,12 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.ibatis.type.EnumTypeHandler;
 
 import java.time.LocalDateTime;
 
@@ -68,6 +68,14 @@ public class SystemSoftContainer extends SysBase {
     private Integer systemServerId;
 
     /**
+     * 关联的镜像ID
+     */
+    @TableField(value = "system_soft_image_id")
+    @ApiModelProperty(value = "关联的镜像ID")
+    @Schema(description = "关联的镜像ID")
+    private Integer systemSoftImageId;
+
+    /**
      * Docker容器ID
      */
     @TableField(value = "system_soft_container_docker_id")
@@ -107,11 +115,10 @@ public class SystemSoftContainer extends SysBase {
     /**
      * 容器状态
      */
-    @TableField(value = "system_soft_container_status")
+    @TableField(value = "system_soft_container_status", typeHandler = EnumTypeHandler.class)
     @ApiModelProperty(value = "容器状态")
     @Schema(description = "容器状态")
-    @Size(max = 50, message = "容器状态最大长度要小于 50")
-    private String systemSoftContainerStatus;
+    private SystemSoftContainerStatus systemSoftContainerStatus;
 
     /**
      * 容器端口映射

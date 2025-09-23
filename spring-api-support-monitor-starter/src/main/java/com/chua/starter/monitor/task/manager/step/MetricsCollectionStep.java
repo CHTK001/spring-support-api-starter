@@ -8,6 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * 指标收集步骤
+ * <p>
+ * 负责收集服务器的性能指标数据
+ *
+ * @author CH
+ * @since 2025/09/22
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -15,6 +23,12 @@ public class MetricsCollectionStep implements TaskStep {
 
     private final ServerMetricsWebSocketService serverMetricsWebSocketService;
 
+    /**
+     * 执行指标收集任务
+     *
+     * @param server  服务器信息
+     * @param setting 服务器配置
+     */
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
@@ -24,4 +38,3 @@ public class MetricsCollectionStep implements TaskStep {
         }
     }
 }
-

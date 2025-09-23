@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -133,54 +132,6 @@ public class SystemSoftContainerWebSocketService {
         }
     }
 
-    /**
-     * 推送容器统计信息
-     *
-     * @param serverId 服务器ID
-     */
-    public void pushContainerStatistics(Integer serverId) {
-        try {
-            // 获取服务器下的容器统计信息
-            Map<String, Object> queryParams = new HashMap<>();
-            queryParams.put("serverId", serverId);
-            List<SystemSoftContainer> containers = containerService.listByCondition(queryParams);
-
-            Map<String, Object> statisticsData = new HashMap<>();
-            statisticsData.put("serverId", serverId);
-            statisticsData.put("totalContainers", containers.size());
-
-            // 按状态统计
-            Map<String, Long> statusCount = new HashMap<>();
-            containers.forEach(container -> {
-                String status = container.getSystemSoftContainerStatus();
-                statusCount.put(status, statusCount.getOrDefault(status, 0L) + 1);
-            });
-            statisticsData.put("statusCount", statusCount);
-
-            // 按软件统计
-            Map<String, Long> softCount = new HashMap<>();
-            containers.forEach(container -> {
-                String softId = String.valueOf(container.getSystemSoftId());
-                softCount.put(softId, softCount.getOrDefault(softId, 0L) + 1);
-            });
-            statisticsData.put("softCount", softCount);
-
-            statisticsData.put("updateTime", System.currentTimeMillis());
-
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("container_statistics")
-                    .serverId(serverId)
-                    .data(statisticsData)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-
-            socketSessionTemplate.send(TOPIC_CONTAINER_STATISTICS, Json.toJson(message));
-            log.debug("推送容器统计信息: serverId={}, totalContainers={}", serverId, containers.size());
-
-        } catch (Exception e) {
-            log.error("推送容器统计信息失败: serverId={}", serverId, e);
-        }
-    }
 
     /**
      * 推送容器事件
@@ -224,36 +175,6 @@ public class SystemSoftContainerWebSocketService {
         }
     }
 
-    /**
-     * 推送批量容器状态
-     *
-     * @param serverId 服务器ID
-     */
-    public void pushBatchContainerStatus(Integer serverId) {
-        try {
-            Map<String, Object> queryParams = new HashMap<>();
-            queryParams.put("serverId", serverId);
-            List<SystemSoftContainer> containers = containerService.listByCondition(queryParams);
-
-            Map<String, Object> batchData = new HashMap<>();
-            batchData.put("serverId", serverId);
-            batchData.put("containers", containers);
-            batchData.put("updateTime", System.currentTimeMillis());
-
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("batch_container_status")
-                    .serverId(serverId)
-                    .data(batchData)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-
-            socketSessionTemplate.send(TOPIC_CONTAINER_STATUS, Json.toJson(message));
-            log.debug("推送批量容器状态: serverId={}, containerCount={}", serverId, containers.size());
-
-        } catch (Exception e) {
-            log.error("推送批量容器状态失败: serverId={}", serverId, e);
-        }
-    }
 
     /**
      * 获取WebSocket主题列表
