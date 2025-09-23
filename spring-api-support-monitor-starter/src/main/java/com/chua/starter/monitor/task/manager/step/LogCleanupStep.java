@@ -10,6 +10,14 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/**
+ * 日志清理步骤
+ * <p>
+ * 负责清理过期的服务器指标日志数据
+ *
+ * @author CH
+ * @since 2025/09/22
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -18,6 +26,12 @@ public class LogCleanupStep implements TaskStep {
     private final MonitorSysGenServerMetricsService metricsService;
     private final com.chua.starter.monitor.service.DelayedUpdateService delayedUpdateService;
 
+    /**
+     * 执行日志清理任务
+     *
+     * @param server  服务器信息
+     * @param setting 服务器配置
+     */
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
@@ -33,4 +47,3 @@ public class LogCleanupStep implements TaskStep {
         }
     }
 }
-

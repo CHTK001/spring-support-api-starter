@@ -2,6 +2,7 @@ package com.chua.starter.monitor.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.monitor.entity.SystemSoftImage;
+import com.chua.starter.monitor.entity.SystemSoftImageStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -66,7 +67,7 @@ public interface SystemSoftImageMapper extends BaseMapper<SystemSoftImage> {
      * @param imageStatus 镜像状态
      * @return 镜像列表
      */
-    List<SystemSoftImage> selectByImageStatus(@Param("imageStatus") String imageStatus);
+    List<SystemSoftImage> selectByImageStatus(@Param("imageStatus") SystemSoftImageStatus imageStatus);
 
     /**
      * 根据服务器ID和状态查询镜像列表
@@ -76,7 +77,7 @@ public interface SystemSoftImageMapper extends BaseMapper<SystemSoftImage> {
      * @return 镜像列表
      */
     List<SystemSoftImage> selectByServerIdAndStatus(@Param("serverId") Integer serverId,
-                                                    @Param("imageStatus") String imageStatus);
+                                                    @Param("imageStatus") SystemSoftImageStatus imageStatus);
 
     /**
      * 根据镜像名称查询镜像列表
@@ -116,7 +117,7 @@ public interface SystemSoftImageMapper extends BaseMapper<SystemSoftImage> {
      * @param imageStatus 镜像状态
      * @return 镜像数量
      */
-    Long countByImageStatus(@Param("imageStatus") String imageStatus);
+    Long countByImageStatus(@Param("imageStatus") SystemSoftImageStatus imageStatus);
 
     /**
      * 根据服务器ID和状态统计镜像数量
@@ -126,7 +127,7 @@ public interface SystemSoftImageMapper extends BaseMapper<SystemSoftImage> {
      * @return 镜像数量
      */
     Long countByServerIdAndStatus(@Param("serverId") Integer serverId,
-                                  @Param("imageStatus") String imageStatus);
+                                  @Param("imageStatus") SystemSoftImageStatus imageStatus);
 
     /**
      * 批量更新镜像状态
@@ -136,7 +137,7 @@ public interface SystemSoftImageMapper extends BaseMapper<SystemSoftImage> {
      * @return 更新的记录数
      */
     Integer batchUpdateImageStatus(@Param("imageIds") List<Integer> imageIds,
-                                   @Param("imageStatus") String imageStatus);
+                                   @Param("imageStatus") SystemSoftImageStatus imageStatus);
 
     /**
      * 根据软件ID删除镜像

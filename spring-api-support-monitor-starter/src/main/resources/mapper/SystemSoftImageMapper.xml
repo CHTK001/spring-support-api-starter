@@ -18,7 +18,7 @@
         <result column="system_soft_image_architecture" property="systemSoftImageArchitecture" jdbcType="VARCHAR"/>
         <result column="system_soft_image_os_type" property="systemSoftImageOsType" jdbcType="VARCHAR"/>
         <result column="system_soft_image_digest" property="systemSoftImageDigest" jdbcType="VARCHAR"/>
-        <result column="system_soft_image_status" property="systemSoftImageStatus" jdbcType="VARCHAR"/>
+        <result column="system_soft_image_status" property="systemSoftImageStatus" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
         <result column="system_soft_image_is_official" property="systemSoftImageIsOfficial" jdbcType="INTEGER"/>
         <result column="system_soft_image_description" property="systemSoftImageDescription" jdbcType="VARCHAR"/>
         <result column="system_soft_image_tag_count" property="systemSoftImageTagCount" jdbcType="INTEGER"/>

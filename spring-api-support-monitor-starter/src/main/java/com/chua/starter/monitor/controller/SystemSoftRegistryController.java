@@ -97,7 +97,7 @@ public class SystemSoftRegistryController {
             // 验证配置
             ReturnResult<String> validateResult = systemSoftRegistryService.validateRegistryConfig(registry);
             if (!validateResult.isOk()) {
-                return ReturnResult.error(validateResult.getMessage());
+                return ReturnResult.error(validateResult.getMsg());
             }
 
             // 保存仓库
@@ -136,7 +136,7 @@ public class SystemSoftRegistryController {
             // 验证配置
             ReturnResult<String> validateResult = systemSoftRegistryService.validateRegistryConfig(registry);
             if (!validateResult.isOk()) {
-                return ReturnResult.error(validateResult.getMessage());
+                return ReturnResult.error(validateResult.getMsg());
             }
 
             // 更新仓库

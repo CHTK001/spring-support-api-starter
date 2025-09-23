@@ -420,6 +420,14 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     ReturnResult<Integer> cleanupTempFiles();
 
     /**
+     * 清理临时文件（指定保留时间）
+     *
+     * @param retentionHours 保留时间（小时）
+     * @return 清理的文件数
+     */
+    ReturnResult<Integer> cleanupTempFiles(int retentionHours);
+
+    /**
      * 清理缓存
      *
      * @return 清理结果

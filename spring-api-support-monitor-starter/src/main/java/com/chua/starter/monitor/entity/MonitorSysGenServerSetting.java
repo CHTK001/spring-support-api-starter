@@ -17,6 +17,9 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.task.manager.ServerTaskManager;
+import com.chua.starter.monitor.task.manager.step.CacheCleanupStep;
+import com.chua.starter.monitor.task.manager.step.HealthCheckStep;
+import com.chua.starter.monitor.task.manager.step.LogCleanupStep;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -486,6 +489,17 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Size(max = 500, message = "Docker证书路径最大长度要小于 500")
     private String monitorSysGenServerSettingDockerCertPath;
 
+    /**
+     * Docker状态推送间隔(秒)
+     *
+     * @see MonitorSysGenServerSettingController#saveOrUpdate
+     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_stats_interval")
+    @ApiModelProperty(value = "Docker状态推送间隔(秒)")
+    @Schema(description = "Docker状态推送间隔(秒)")
+    private Integer monitorSysGenServerSettingDockerStatsInterval;
+
     // ==================== 代理相关配置 ====================
 
     /**
@@ -721,6 +735,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 客户端健康状态检查间隔 (秒)
+     * @see HealthCheckStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
      * @see ServerTaskManager#createHealthCheckTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_client_health_check_interval")
@@ -729,7 +744,7 @@ public class MonitorSysGenServerSetting extends SysBase {
     private Integer monitorSysGenServerSettingClientHealthCheckInterval;
 
     /**
-     * 客户端健康状态超时时间 (秒)
+     * 客户端健康状态超时时间 (秒)(未使用)
      */
     @TableField(value = "monitor_sys_gen_server_setting_client_health_timeout")
     @ApiModelProperty(value = "客户端健康状态超时时间")
@@ -772,6 +787,17 @@ public class MonitorSysGenServerSetting extends SysBase {
     private Integer monitorSysGenServerSettingOnlineCheckInterval;
 
     /**
+     * 在线状态检查间隔 (秒)
+     *
+     * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
+     * @see ServerTaskManager#getEffectiveMonitorInterval
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_online_check_timeout")
+    @ApiModelProperty(value = "在线状态检查超时时间(ms)")
+    @Schema(description = "在线状态检查超时时间(ms)")
+    private Integer monitorSysGenServerSettingOnlineCheckTimeout;
+
+    /**
      * 是否启用延迟检测 0:否 1:是
      *
      * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
@@ -786,7 +812,7 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 延迟检测间隔 (秒)
      *
      * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
+     * @see ServerTaskManager#latencyCheckStep
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
     @ApiModelProperty(value = "延迟检测间隔")
@@ -795,6 +821,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用日志清理 0:否 1:是
+     * @see LogCleanupStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_log_cleanup_enabled")
     @ApiModelProperty(value = "是否启用日志清理")
@@ -803,6 +830,7 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用临时文件清理 0:否 1:是
+     * @see CacheCleanupStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_temp_file_cleanup_enabled")
     @ApiModelProperty(value = "是否启用临时文件清理")
@@ -936,6 +964,7 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingDockerConnectionType(DockerConnectionType.SHELL.getCode());
         setting.setMonitorSysGenServerSettingDockerApiVersion("1.40");
         setting.setMonitorSysGenServerSettingDockerTlsEnabled(0);
+        setting.setMonitorSysGenServerSettingDockerStatsInterval(10); // 默认10秒
 
         // 代理配置
         setting.setMonitorSysGenServerSettingProxyEnabled(0);
@@ -958,6 +987,9 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingFileManagementMaxRetries(3);
         setting.setMonitorSysGenServerSettingClientHealthCheckInterval(30);
         setting.setMonitorSysGenServerSettingClientHealthTimeout(10);
+
+        // 临时文件保留时间（小时）
+        setting.setMonitorSysGenServerSettingTempFileRetentionHours(24);
 
         // 其他配置
         setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);

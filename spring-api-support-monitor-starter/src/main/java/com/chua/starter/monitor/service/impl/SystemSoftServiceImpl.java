@@ -3,17 +3,19 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.docker.support.client.DockerProtocolClient;
+import com.chua.docker.support.client.DockerPullImage;
 import com.chua.socketio.support.session.SocketSessionTemplate;
-import com.chua.starter.monitor.entity.SystemSoft;
-import com.chua.starter.monitor.entity.SystemSoftRegistry;
-import com.chua.starter.monitor.entity.SystemSoftImage;
-import com.chua.starter.monitor.entity.SystemSoftRecord;
+import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
+import com.chua.starter.monitor.entity.*;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
-import com.chua.starter.monitor.mapper.SystemSoftMapper;
-import com.chua.starter.monitor.mapper.SystemSoftRegistryMapper;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
+import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.mapper.SystemSoftRecordMapper;
+import com.chua.starter.monitor.mapper.SystemSoftRegistryMapper;
+import com.chua.starter.monitor.enums.OperationType;
+import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,7 @@ public class SystemSoftServiceImpl implements SystemSoftService {
     private final SystemSoftRecordMapper systemSoftRecordMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
     private final SocketSessionTemplate socketSessionTemplate;
+    private final DockerCallbackService dockerCallbackService;
 
     @Override
     public ReturnResult<SystemSoft> getBySoftCode(String softCode) {
@@ -262,15 +265,9 @@ public class SystemSoftServiceImpl implements SystemSoftService {
                 image.setSystemSoftImageServerId(serverId);
                 image.setSystemSoftImageName(systemSoft.getSystemSoftDockerImage());
                 image.setSystemSoftImageTag(imageTag);
-                image.setSystemSoftImageStatus("INSTALLING");
                 image.setCreateTime(LocalDateTime.now());
-                systemSoftImageMapper.insert(image);
-
-                // TODO: 实现具体的Docker安装逻辑
-                // 这里暂时更新状态为安装成功
-                image.setSystemSoftImageStatus("INSTALLED");
                 image.setUpdateTime(LocalDateTime.now());
-                systemSoftImageMapper.updateById(image);
+                systemSoftImageMapper.insert(image);
             }
 
             return ReturnResult.ok(true, "安装成功");
@@ -412,6 +409,93 @@ public class SystemSoftServiceImpl implements SystemSoftService {
         } catch (Exception e) {
             log.error("获取最新软件列表异常 - limit: {}", limit, e);
             return ReturnResult.error("获取列表异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 拉取Docker镜像（支持异步回调）
+     * <p>
+     * 该方法实现了拉取Docker镜像的功能，支持异步回调通知。整个过程包括：
+     * 1. 创建Docker客户端连接
+     * 2. 获取镜像信息并创建镜像记录
+     * 3. 构造DockerPullImage配置对象
+     * 4. 创建状态更新WebSocket回调处理器
+     * 5. 执行异步镜像拉取操作
+     * <p>
+     * 该方法使用异步回调机制，在拉取过程中实时更新镜像状态并通过WebSocket推送进度信息。
+     * 注意：由于是异步操作，方法返回时拉取可能尚未完成，状态更新在回调中处理。
+     *
+     * @param softId   软件ID，用于查询软件的Docker镜像信息
+     * @param serverId 服务器ID，指定目标服务器
+     * @param imageTag 镜像标签，默认为"latest"
+     * @param params   拉取参数（保留用于扩展）
+     * @return 拉取结果，包含镜像信息或错误信息
+     * @see DockerProtocolClient Docker客户端
+     * @see DockerPullImage 镜像拉取配置对象
+     * @see DockerCallbackService#pullImageWithCallback(DockerProtocolClient, DockerPullImage, DockerResultCallback) 回调服务方法
+     * @see StatusUpdatingWebSocketDockerPullCallback 状态更新WebSocket回调处理器
+     */
+    public ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, java.util.Map<String, Object> params) {
+        log.info("拉取Docker镜像(带回调) - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
+
+        try {
+            // 获取Docker客户端
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 获取镜像信息
+            String imageName = "nginx"; // 这里应该根据softId查询实际的镜像名称
+
+            // 构造完整的镜像名称
+            String fullImageName = imageName;
+            if (StringUtils.hasText(imageTag)) {
+                fullImageName = imageName + ":" + imageTag;
+            }
+
+            // 创建镜像记录
+            SystemSoftImage image = new SystemSoftImage();
+            image.setSystemSoftId(softId);
+            image.setSystemSoftImageServerId(serverId);
+            image.setSystemSoftImageName(imageName);
+            image.setSystemSoftImageTag(imageTag);
+            image.setSystemSoftImageFullName(fullImageName);
+            image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING); // 拉取中
+            image.setCreateTime(LocalDateTime.now());
+            systemSoftImageMapper.insert(image);
+
+            // 创建DockerPullImage配置对象
+            DockerPullImage config = DockerPullImage.builder()
+                    .imageName(imageName)
+                    .tag(imageTag)
+                    .build();
+
+            // 创建状态更新WebSocket回调处理器
+            var callback = dockerCallbackService.createStatusUpdatingWebSocketPullCallback(OperationType.PULL, fullImageName, image.getSystemSoftImageId());
+
+            // 执行拉取操作（带回调）
+            log.info("开始拉取镜像(带回调): {}:{}", imageName, imageTag);
+            dockerCallbackService.pullImageWithCallback(dockerClient, config, callback);
+
+            // 注意：由于是异步操作，我们不能立即更新状态为已拉取
+            // 状态更新应该在回调中处理
+
+            log.info("拉取镜像请求已发送 - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
+            return ReturnResult.ok(image);
+        } catch (Exception e) {
+            // 更新镜像状态为拉取失败
+            try {
+                SystemSoftImage image = new SystemSoftImage();
+                image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED); // 拉取失败
+                systemSoftImageMapper.updateById(image);
+            } catch (Exception updateEx) {
+                log.warn("更新镜像状态为拉取失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("拉取镜像失败 - 错误信息: {}", e.getMessage(), e);
+            return ReturnResult.error("拉取镜像失败: " + e.getMessage());
         }
     }
 

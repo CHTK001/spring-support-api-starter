@@ -3,6 +3,7 @@ package com.chua.starter.monitor.task;
 import com.chua.starter.monitor.entity.FileSystem;
 import com.chua.starter.monitor.entity.FileSystemPart;
 import com.chua.starter.monitor.entity.FileSystemSetting;
+import com.chua.starter.monitor.properties.MonitorProperties;
 import com.chua.starter.monitor.service.FileSystemPartService;
 import com.chua.starter.monitor.service.FileSystemService;
 import com.chua.starter.monitor.service.FileSystemSettingService;
@@ -10,6 +11,7 @@ import com.chua.starter.monitor.service.FileSystemSseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,6 +42,7 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "plugin.monitor.server.enable-file-merge-tasks", havingValue = "true")
 public class FileSystemMergeTaskProcessor {
 
     @Autowired
@@ -49,20 +52,25 @@ public class FileSystemMergeTaskProcessor {
     private final FileSystemSettingService fileSystemSettingService;
     private final FileSystemSseService fileSystemSseService;
     private final FileSystemMergeQueue mergeQueue;
-
-    // 合并任务信号量，用于控制并发数量
-    private volatile Semaphore mergeSemaphore = new Semaphore(1); // 默认初始化为1个许可
+    // 10秒查询一次数据库
+    private static final long DATABASE_QUERY_INTERVAL = 10000;
+    private final MonitorProperties monitorProperties;
     private volatile int currentMergeTaskLimit = 1;
 
     // 数据库查询缓存，减少频繁查询
     private volatile long lastDatabaseQueryTime = 0;
-    private static final long DATABASE_QUERY_INTERVAL = 10000; // 10秒查询一次数据库
+    // 合并任务信号量，用于控制并发数量
+    // 默认初始化为1个许可
+    private volatile Semaphore mergeSemaphore = new Semaphore(1);
 
     /**
      * 定时处理合并队列中的文件 每1秒执行一次
      */
     @Scheduled(fixedDelay = 1000)
     public void processPendingMergeFiles() {
+        if (!monitorProperties.isEnableFileMergeTasks()) {
+            return;
+        }
         try {
             // 获取系统配置
             FileSystemSetting setting = fileSystemSettingService.getEnabledSetting();
@@ -97,7 +105,8 @@ public class FileSystemMergeTaskProcessor {
      */
     private void processQueuedMergeFiles() {
         // 批量处理队列中的文件ID
-        Integer[] fileIds = mergeQueue.dequeueBatch(5); // 每次最多处理5个
+        // 每次最多处理5个
+        Integer[] fileIds = mergeQueue.dequeueBatch(5);
 
         for (Integer fileId : fileIds) {
             if (fileId == null)
@@ -154,8 +163,9 @@ public class FileSystemMergeTaskProcessor {
 
         try {
             // 查询待合并的文件
+            // 限制查询数量
             List<FileSystem> pendingFiles = fileSystemService.lambdaQuery()
-                    .eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.PENDING_MERGE).last("LIMIT 50") // 限制查询数量
+                    .eq(FileSystem::getFileSystemStatus, FileSystem.FileStatus.PENDING_MERGE).last("LIMIT 50")
                     .list();
 
             if (!pendingFiles.isEmpty()) {
