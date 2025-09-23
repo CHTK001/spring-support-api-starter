@@ -11,6 +11,7 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.entity.FileSystemSetting;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -75,6 +76,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Autowired
     @Lazy
     private TimeSeriesService timeSeriesService;
+    @Autowired
+    @Lazy
+    private FileSystemSettingService fileSystemSettingService;
+    @Autowired
+    @Lazy
+    private FileSystemService fileSystemService;
 
     // Redis键前缀常量
     private static final String REDIS_METRICS_PREFIX = "monitor:metrics:";
@@ -2027,8 +2034,25 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
         try {
             log.info("开始清理临时文件");
 
-            // 清理临时文件逻辑
-            int deletedCount = 0;
+            // 获取文件系统配置
+            FileSystemSetting fileSystemSetting = getFileSystemSetting();
+            String tempStoragePath = fileSystemSetting != null ?
+                    fileSystemSetting.getFileSystemSettingTempStoragePath() :
+                    System.getProperty("java.io.tmpdir");
+
+            // 如果没有配置临时路径，使用系统默认临时目录
+            if (tempStoragePath == null || tempStoragePath.isEmpty()) {
+                tempStoragePath = System.getProperty("java.io.tmpdir");
+            }
+
+            File tempDir = new File(tempStoragePath);
+            if (!tempDir.exists()) {
+                log.info("临时目录不存在，无需清理: {}", tempStoragePath);
+                return ReturnResult.ok(0);
+            }
+
+            // 清理临时目录下的文件
+            int deletedCount = cleanupDirectory(tempDir, 24); // 默认保留24小时内的文件
 
             log.info("临时文件清理完成，删除了 {} 个文件", deletedCount);
             return ReturnResult.ok(deletedCount);
@@ -2037,6 +2061,93 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.error("清理临时文件失败", e);
             return ReturnResult.error("清理临时文件失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public ReturnResult<Integer> cleanupTempFiles(int retentionHours) {
+        try {
+            log.info("开始清理临时文件，保留时间: {} 小时", retentionHours);
+
+            // 获取文件系统配置
+            FileSystemSetting fileSystemSetting = getFileSystemSetting();
+            String tempStoragePath = fileSystemSetting != null ?
+                    fileSystemSetting.getFileSystemSettingTempStoragePath() :
+                    System.getProperty("java.io.tmpdir");
+
+            // 如果没有配置临时路径，使用系统默认临时目录
+            if (tempStoragePath == null || tempStoragePath.isEmpty()) {
+                tempStoragePath = System.getProperty("java.io.tmpdir");
+            }
+
+            File tempDir = new File(tempStoragePath);
+            if (!tempDir.exists()) {
+                log.info("临时目录不存在，无需清理: {}", tempStoragePath);
+                return ReturnResult.ok(0);
+            }
+
+            // 使用指定的保留时间清理临时目录下的文件
+            int deletedCount = cleanupDirectory(tempDir, retentionHours);
+
+            log.info("临时文件清理完成，删除了 {} 个文件", deletedCount);
+            return ReturnResult.ok(deletedCount);
+
+        } catch (Exception e) {
+            log.error("清理临时文件失败", e);
+            return ReturnResult.error("清理临时文件失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取文件系统配置
+     */
+    private FileSystemSetting getFileSystemSetting() {
+        try {
+            if (fileSystemSettingService != null) {
+                return fileSystemSettingService.getEnabledSetting();
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("获取文件系统配置失败", e);
+            return null;
+        }
+    }
+
+    /**
+     * 清理指定目录下的过期文件
+     *
+     * @param directory      要清理的目录
+     * @param retentionHours 保留时间（小时）
+     * @return 删除的文件数量
+     */
+    private int cleanupDirectory(File directory, int retentionHours) {
+        int deletedCount = 0;
+        long cutoffTime = System.currentTimeMillis() - (retentionHours * 60 * 60 * 1000L);
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.lastModified() < cutoffTime) {
+                    if (file.delete()) {
+                        deletedCount++;
+                        log.debug("删除临时文件: {}", file.getAbsolutePath());
+                    } else {
+                        log.warn("无法删除临时文件: {}", file.getAbsolutePath());
+                    }
+                } else if (file.isDirectory()) {
+                    // 递归清理子目录
+                    deletedCount += cleanupDirectory(file, retentionHours);
+
+                    // 如果子目录为空，尝试删除空目录
+                    if (file.listFiles() != null && file.listFiles().length == 0) {
+                        if (file.delete()) {
+                            log.debug("删除空目录: {}", file.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+        }
+
+        return deletedCount;
     }
 
     @Override

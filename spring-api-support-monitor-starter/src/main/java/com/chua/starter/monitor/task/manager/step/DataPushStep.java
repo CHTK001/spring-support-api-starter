@@ -8,6 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * 数据推送步骤
+ * <p>
+ * 负责将服务器指标数据推送到WebSocket客户端
+ *
+ * @author CH
+ * @since 2025/09/22
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -15,6 +23,12 @@ public class DataPushStep implements TaskStep {
 
     private final ServerMetricsWebSocketService serverMetricsWebSocketService;
 
+    /**
+     * 执行数据推送任务
+     *
+     * @param server  服务器信息
+     * @param setting 服务器配置
+     */
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
@@ -24,4 +38,3 @@ public class DataPushStep implements TaskStep {
         }
     }
 }
-

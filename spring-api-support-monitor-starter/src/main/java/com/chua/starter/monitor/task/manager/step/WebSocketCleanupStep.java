@@ -8,6 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * WebSocket清理
+ *
+ * @author CH
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

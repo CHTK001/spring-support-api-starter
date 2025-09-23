@@ -12,6 +12,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * 健康检查步骤
+ * <p>
+ * 负责检查服务器的在线状态、网络延迟和健康状况
+ *
+ * @author CH
+ * @since 2025/09/22
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,6 +29,12 @@ public class HealthCheckStep implements TaskStep {
     private final ServerLatencyService serverLatencyService;
     private final UnifiedAlertService unifiedAlertService;
 
+    /**
+     * 执行健康检查任务
+     *
+     * @param server  服务器信息
+     * @param setting 服务器配置
+     */
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
@@ -60,6 +74,13 @@ public class HealthCheckStep implements TaskStep {
         }
     }
 
+    /**
+     * 检查主机是否可达
+     *
+     * @param host      主机地址
+     * @param timeoutMs 超时时间(毫秒)
+     * @return 主机是否可达
+     */
     private boolean isHostReachable(String host, int timeoutMs) {
         try {
             if (host == null || host.isEmpty()) {
@@ -71,6 +92,13 @@ public class HealthCheckStep implements TaskStep {
         }
     }
 
+    /**
+     * 检查端口状态
+     *
+     * @param host 主机地址
+     * @param port 端口号
+     * @return 端口是否开放
+     */
     private boolean checkPortStatus(String host, int port) {
         try (java.net.Socket socket = new java.net.Socket()) {
             socket.connect(new java.net.InetSocketAddress(host, port), 3000);
@@ -80,4 +108,3 @@ public class HealthCheckStep implements TaskStep {
         }
     }
 }
-

@@ -659,7 +659,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "records": [
@@ -759,7 +759,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "镜像状态同步成功",
   "data": true
 }
@@ -787,7 +787,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "同步完成，更新了 5 个镜像状态",
   "data": 5
 }
@@ -809,7 +809,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "服务器镜像状态同步成功",
   "data": true
 }
@@ -833,7 +833,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": true
 }
@@ -891,7 +891,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "镜像状态更新成功",
   "data": true
 }
@@ -913,7 +913,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "镜像记录删除成功",
   "data": true
 }
@@ -936,7 +936,7 @@ SystemSoftImage实体用于管理Docker镜像信息，提供镜像的全生命�
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": 25
 }
@@ -1094,7 +1094,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "records": [
@@ -1135,7 +1135,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": [
     {
@@ -1178,7 +1178,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "systemSoftContainerId": 1,
@@ -1222,7 +1222,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": "2024-01-01 10:00:00 [INFO] Starting nginx\n2024-01-01 10:00:01 [INFO] nginx started successfully"
 }
@@ -1244,7 +1244,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "cpuUsage": 15.5,
@@ -1275,7 +1275,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "total": 10,
@@ -1348,7 +1348,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器配置更新成功",
   "data": true
 }
@@ -1396,7 +1396,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器创建成功",
   "data": true
 }
@@ -1418,7 +1418,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器启动成功",
   "data": true
 }
@@ -1440,7 +1440,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器停止成功",
   "data": true
 }
@@ -1462,7 +1462,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器重启成功",
   "data": true
 }
@@ -1490,7 +1490,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器删除成功",
   "data": true
 }
@@ -1512,7 +1512,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "同步完成",
   "data": 5
 }
@@ -1534,7 +1534,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "容器状态同步成功",
   "data": {
     "systemSoftContainerId": 123,
@@ -1582,7 +1582,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "批量操作完成",
   "data": {
     "total": 3,
@@ -1621,7 +1621,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "containerStatus": "/topic/container/status/{serverId}",
@@ -1642,7 +1642,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "操作成功",
   "data": {
     "enabled": true,
@@ -1669,7 +1669,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "推送成功",
   "data": "统计信息已推送到主题: /topic/container/statistics/1"
 }
@@ -1691,7 +1691,7 @@ curl -X POST "http://localhost:8080/v1/system/soft/image/sync"
 
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "message": "推送成功",
   "data": "容器状态已推送到主题: /topic/container/status/1"
 }

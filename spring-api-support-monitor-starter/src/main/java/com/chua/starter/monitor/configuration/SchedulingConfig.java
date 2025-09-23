@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.starter.monitor.properties.MonitorProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -12,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @Configuration
 @EnableScheduling
+@EnableConfigurationProperties(MonitorProperties.class)
 public class SchedulingConfig {
     // 配置类，启用@Scheduled注解
 }

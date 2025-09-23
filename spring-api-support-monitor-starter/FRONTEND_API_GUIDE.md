@@ -73,7 +73,7 @@ interface RegistryQueryParams {
 **响应示例：**
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "data": [
     {
       "systemSoftRegistryId": 1,
@@ -127,7 +127,7 @@ POST /api/monitor/system-soft-registry/{id}/test-connection
 **响应示例：**
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "data": true,
   "msg": "连接测试成功",
   "ok": true
@@ -197,7 +197,7 @@ interface SyncSoftwareRequest {
 **响应示例：**
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "data": 15,
   "msg": "同步成功，共同步15个软件",
   "ok": true
@@ -251,7 +251,7 @@ GET /api/monitor/system-soft/{id}/tags
 **响应示例：**
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "data": ["latest", "v1.0.0", "v1.1.0", "stable"],
   "msg": "获取成功",
   "ok": true
@@ -520,7 +520,7 @@ GET /api/monitor/system-soft-container/{id}/stats
 **响应示例：**
 ```json
 {
-  "code": 200,
+  "code": "00000",
   "data": {
     "cpuUsage": {
       "percentage": 15.5,

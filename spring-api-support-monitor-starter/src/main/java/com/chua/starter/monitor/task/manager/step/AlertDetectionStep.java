@@ -9,6 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * 告警检测步骤
+ * <p>
+ * 负责检测服务器的告警条件并推送告警信息
+ *
+ * @author CH
+ * @since 2025/09/22
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -16,6 +24,12 @@ public class AlertDetectionStep implements TaskStep {
 
     private final UnifiedAlertService unifiedAlertService;
 
+    /**
+     * 执行告警检测任务
+     *
+     * @param server  服务器信息
+     * @param setting 服务器配置
+     */
     @Override
     public void run(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
         try {
@@ -28,4 +42,3 @@ public class AlertDetectionStep implements TaskStep {
         }
     }
 }
-

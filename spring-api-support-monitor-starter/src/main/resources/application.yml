@@ -17,19 +17,3 @@ server:
     context-path: /monitor/api
   http2:
     enabled: true
-
-# Docker配置
-monitor:
-  docker:
-    # 是否启用Docker客户端
-    enabled: true
-    # Docker守护进程地址
-    host: tcp://localhost:2376
-    # 是否启用TLS验证
-    tls-verify: false
-    # TLS证书路径（当tls-verify为true时需要配置）
-    # cert-path: /path/to/docker/certs
-    # 连接超时时间（毫秒）
-    connect-timeout: 30000
-    # 读取超时时间（毫秒）
-    read-timeout: 60000
