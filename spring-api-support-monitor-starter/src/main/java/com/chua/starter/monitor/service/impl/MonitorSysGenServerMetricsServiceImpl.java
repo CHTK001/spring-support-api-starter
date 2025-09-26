@@ -181,7 +181,11 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
     public ReturnResult<MonitorSysGenServerMetrics> getLatestMetrics(Integer serverId) {
         try {
             String key = REDIS_LATEST_PREFIX + serverId;
-            Map<String, String> latestData = timeSeriesService.hGet(key);
+            Map<String, String> latestData = null;
+            try {
+                latestData = timeSeriesService.hGet(key);
+            } catch (Exception ignored) {
+            }
 
             if (latestData == null || latestData.isEmpty()) {
                 // 当指标数据为空时，触发指标推送
@@ -894,12 +898,8 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             return true;
         }
 
-        if (metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
-            metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > diskThreshold) {
-            return true;
-        }
-
-        return false;
+        return metrics.getMonitorSysGenServerMetricsDiskUsage() != null &&
+                metrics.getMonitorSysGenServerMetricsDiskUsage().doubleValue() > diskThreshold;
     }
 
     /**

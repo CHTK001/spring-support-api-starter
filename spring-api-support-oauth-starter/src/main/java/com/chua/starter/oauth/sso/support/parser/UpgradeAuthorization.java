@@ -3,7 +3,6 @@ package com.chua.starter.oauth.sso.support.parser;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
@@ -47,7 +46,7 @@ public final class UpgradeAuthorization implements Authorization {
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
         TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
         if (null == tokenResolver) {
-            return ReturnResult.error(null, "认证服务器无法认证");
+            return ReturnResult.error("认证服务器无法认证");
         }
 
         ReturnResult<UserResume> returnResult = null;
