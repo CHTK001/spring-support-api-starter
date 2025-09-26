@@ -25,7 +25,20 @@ public interface SystemSoftContainerService extends IService<SystemSoftContainer
      * @param containerName 容器名称
      * @return 容器列表
      */
-    ReturnResult<Object> selectContainerList(Integer serverId, Integer softId, String status, String containerName);
+    ReturnResult<List<SystemSoftContainer>> selectContainerList(Integer serverId, Integer softId, String status, String containerName);
+
+    /**
+     * 根据条件查询容器列表(ForContainer)
+     *
+     * @param serverId      服务器ID
+     * @param softId        软件ID
+     * @param status        容器状态
+     * @param containerName 容器名称
+     * @return 容器列表
+     */
+    default ReturnResult<List<SystemSoftContainer>> selectContainerListForContainer(Integer serverId, Integer softId, String status, String containerName) {
+        return selectContainerList(serverId, softId, status, containerName);
+    }
 
     /**
      * 创建容器
@@ -37,6 +50,7 @@ public interface SystemSoftContainerService extends IService<SystemSoftContainer
      * @param params        创建参数（端口映射、环境变量、数据卷等）
      * @return 创建结果
      */
+    ReturnResult<Boolean> createContainer(Integer softId, Integer serverId, String containerName, String imageTag, Map<String, Object> params);
 
     /**
      * 启动容器
@@ -45,6 +59,16 @@ public interface SystemSoftContainerService extends IService<SystemSoftContainer
      * @return 启动结果
      */
     ReturnResult<Boolean> startContainer(Integer containerId);
+
+    /**
+     * 启动容器(ForContainer)
+     *
+     * @param containerId 容器ID
+     * @return 启动结果
+     */
+    default ReturnResult<Boolean> startContainerForContainer(Integer containerId) {
+        return startContainer(containerId);
+    }
 
     /**
      * 停止容器

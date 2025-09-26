@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.docker.support.callback.DockerResultCallback;
@@ -40,7 +41,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemSoftServiceImpl implements SystemSoftService {
+public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemSoft> implements SystemSoftService {
 
     private final SystemSoftMapper systemSoftMapper;
     private final SystemSoftRegistryMapper systemSoftRegistryMapper;
@@ -94,7 +95,7 @@ public class SystemSoftServiceImpl implements SystemSoftService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ReturnResult<SystemSoft> saveOrUpdate(SystemSoft systemSoft) {
+    public ReturnResult<SystemSoft> saveOrUpdateForSoft(SystemSoft systemSoft) {
         log.debug("保存或更新软件信息 - softCode: {}", systemSoft.getSystemSoftCode());
 
         try {

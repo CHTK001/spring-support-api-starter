@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoft;
 import com.chua.starter.monitor.entity.SystemSoftImage;
@@ -13,7 +14,7 @@ import java.util.Map;
  * @author CH
  * @since 2025/01/15
  */
-public interface SystemSoftService {
+public interface SystemSoftService extends IService<SystemSoft> {
 
     /**
      * 根据软件代码查询软件信息
@@ -22,6 +23,16 @@ public interface SystemSoftService {
      * @return 软件信息
      */
     ReturnResult<SystemSoft> getBySoftCode(String softCode);
+
+    /**
+     * 根据软件代码查询软件信息(ForSoft)
+     *
+     * @param softCode 软件代码
+     * @return 软件信息
+     */
+    default ReturnResult<SystemSoft> getBySoftCodeForSoft(String softCode) {
+        return getBySoftCode(softCode);
+    }
 
     /**
      * 根据条件查询软件列表
@@ -35,12 +46,35 @@ public interface SystemSoftService {
     ReturnResult<List<SystemSoft>> selectSoftList(String softCode, String softName, String category, Integer status);
 
     /**
+     * 根据条件查询软件列表(ForSoft)
+     *
+     * @param softCode 软件代码
+     * @param softName 软件名称
+     * @param category 软件分类
+     * @param status   软件状态
+     * @return 软件列表
+     */
+    default ReturnResult<List<SystemSoft>> selectSoftListForSoft(String softCode, String softName, String category, Integer status) {
+        return selectSoftList(softCode, softName, category, status);
+    }
+
+    /**
      * 保存或更新软件信息
      *
      * @param systemSoft 软件信息
      * @return 保存结果
      */
-    ReturnResult<SystemSoft> saveOrUpdate(SystemSoft systemSoft);
+    ReturnResult<SystemSoft> saveOrUpdateForSoft(SystemSoft systemSoft);
+
+    /**
+     * 保存或更新软件信息(ForSoft)
+     *
+     * @param systemSoft 软件信息
+     * @return 保存结果
+     */
+    default ReturnResult<SystemSoft> saveOrUpdateForSoftBusiness(SystemSoft systemSoft) {
+        return saveOrUpdateForSoft(systemSoft);
+    }
 
     /**
      * 根据ID删除软件
