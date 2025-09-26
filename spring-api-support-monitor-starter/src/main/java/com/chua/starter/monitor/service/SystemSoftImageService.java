@@ -7,6 +7,8 @@ import com.chua.starter.monitor.entity.SystemSoftImageStatus;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.docker.support.client.DockerCreateContainer;
 
+import java.util.List;
+
 /**
  * 系统软件镜像管理服务接口
  *
@@ -24,7 +26,20 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @param imageName 镜像名称
      * @return 镜像列表
      */
-    ReturnResult<Object> selectImageList(Integer serverId, Integer softId, SystemSoftImageStatus status, String imageName);
+    ReturnResult<List<SystemSoftImage>> selectImageList(Integer serverId, Integer softId, SystemSoftImageStatus status, String imageName);
+
+    /**
+     * 根据条件查询镜像列表(ForImage)
+     *
+     * @param serverId  服务器ID
+     * @param softId    软件ID
+     * @param status    镜像状态
+     * @param imageName 镜像名称
+     * @return 镜像列表
+     */
+    default ReturnResult<List<SystemSoftImage>> selectImageListForImage(Integer serverId, Integer softId, SystemSoftImageStatus status, String imageName) {
+        return selectImageList(serverId, softId, status, imageName);
+    }
 
     /**
      * 从软件拉取镜像到服务器
@@ -36,6 +51,19 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @return 拉取结果
      */
     ReturnResult<SystemSoftImage> pullImage(Integer softId, Integer serverId, String imageTag, DockerPullImage config);
+
+    /**
+     * 从软件拉取镜像到服务器(ForImage)
+     *
+     * @param softId    软件ID
+     * @param serverId  服务器ID
+     * @param imageTag  镜像标签
+     * @param config    拉取配置
+     * @return 拉取结果
+     */
+    default ReturnResult<SystemSoftImage> pullImageForImage(Integer softId, Integer serverId, String imageTag, DockerPullImage config) {
+        return pullImage(softId, serverId, imageTag, config);
+    }
 
     /**
      * 创建容器
