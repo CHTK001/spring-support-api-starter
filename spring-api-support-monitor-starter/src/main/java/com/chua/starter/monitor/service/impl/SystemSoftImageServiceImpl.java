@@ -55,7 +55,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
      * @return 镜像列表
      */
     @Override
-    public ReturnResult<Object> selectImageList(Integer serverId, Integer softId, SystemSoftImageStatus status, String imageName) {
+    public ReturnResult<List<SystemSoftImage>> selectImageList(Integer serverId, Integer softId, SystemSoftImageStatus status, String imageName) {
         log.info("根据条件查询镜像列表 - 服务器ID: {}, 软件ID: {}, 状态: {}, 镜像名称: {}", serverId, softId, status, imageName);
 
         try {
@@ -352,3 +352,4 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     }
 
 }
+

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,6 +45,92 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
     private final SystemSoftContainerStatsService systemSoftContainerStatsService;
 
     /**
+     * 创建容器
+     *
+     * @param softId        软件ID
+     * @param serverId      服务器ID
+     * @param containerName 容器名称
+     * @param imageTag      镜像标签
+     * @param params        创建参数（端口映射、环境变量、数据卷等）
+     * @return 创建结果
+     */
+    @Override
+    public ReturnResult<Boolean> createContainer(Integer softId, Integer serverId, String containerName, String imageTag, Map<String, Object> params) {
+        log.info("创建容器 - 软件ID: {}, 服务器ID: {}, 容器名称: {}, 镜像标签: {}", softId, serverId, containerName, imageTag);
+
+        try {
+            // 获取Docker客户端
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 提取参数
+            Map<String, String> environment = extractStringMap(params, "env");
+            Map<String, String> portBindings = extractStringMap(params, "ports");
+            Map<String, String> volumeBindings = extractStringMap(params, "volumes");
+
+            // 创建容器
+            String dockerContainerId = dockerClient.createContainer(
+                imageTag, 
+                containerName, 
+                environment,     // 环境变量
+                portBindings,    // 端口映射
+                volumeBindings   // 数据卷
+            );
+
+            if (dockerContainerId == null || dockerContainerId.isEmpty()) {
+                log.error("创建容器失败 - 软件ID: {}, 服务器ID: {}", softId, serverId);
+                return ReturnResult.error("创建容器失败");
+            }
+
+            // 保存容器信息到数据库
+            SystemSoftContainer container = new SystemSoftContainer();
+            container.setSystemSoftId(softId);
+            container.setSystemServerId(serverId);
+            container.setSystemSoftContainerName(containerName);
+            container.setSystemSoftContainerDockerId(dockerContainerId);
+            container.setSystemSoftContainerStatus(SystemSoftContainerStatus.CREATED); // 已创建
+            container.setSystemSoftContainerImage(imageTag);
+
+            boolean saveResult = super.save(container);
+            if (!saveResult) {
+                log.error("保存容器信息到数据库失败 - 容器名称: {}", containerName);
+                return ReturnResult.error("保存容器信息失败");
+            }
+
+            log.info("创建容器成功 - 容器ID: {}, Docker容器ID: {}", container.getSystemSoftContainerId(), dockerContainerId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("创建容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("创建容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从参数中提取字符串映射
+     *
+     * @param params 参数映射
+     * @param key    键名
+     * @return 字符串映射
+     */
+    private Map<String, String> extractStringMap(Map<String, Object> params, String key) {
+        if (params == null) {
+            return null;
+        }
+
+        Object obj = params.get(key);
+        if (obj instanceof Map) {
+            Map<String, String> result = new HashMap<>();
+            ((Map<?, ?>) obj).forEach((k, v) -> result.put(k.toString(), v.toString()));
+            return result;
+        }
+
+        return null;
+    }
+
+    /**
      * 根据条件查询容器列表
      *
      * @param serverId      服务器ID
@@ -53,7 +140,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
      * @return 容器列表
      */
     @Override
-    public ReturnResult<Object> selectContainerList(Integer serverId, Integer softId, String status, String containerName) {
+    public ReturnResult<List<SystemSoftContainer>> selectContainerList(Integer serverId, Integer softId, String status, String containerName) {
         log.debug("根据条件查询容器列表 - 服务器ID: {}, 软件ID: {}, 状态: {}, 容器名称: {}", serverId, softId, status, containerName);
 
         try {
@@ -694,6 +781,8 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
         }
     }
 }
+
+
 
 
 

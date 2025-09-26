@@ -24,12 +24,32 @@ public interface SystemSoftRegistryService extends IService<SystemSoftRegistry> 
     ReturnResult<Boolean> testConnection(Integer registryId);
 
     /**
+     * 测试仓库连接(ForRegistry)
+     *
+     * @param registryId 仓库ID
+     * @return 连接测试结果
+     */
+    default ReturnResult<Boolean> testConnectionForRegistry(Integer registryId) {
+        return testConnection(registryId);
+    }
+
+    /**
      * 设置默认仓库
      *
      * @param registryId 仓库ID
      * @return 设置结果
      */
     ReturnResult<Boolean> setDefault(Integer registryId);
+
+    /**
+     * 设置默认仓库(ForRegistry)
+     *
+     * @param registryId 仓库ID
+     * @return 设置结果
+     */
+    default ReturnResult<Boolean> setDefaultForRegistry(Integer registryId) {
+        return setDefault(registryId);
+    }
 
     /**
      * 批量更新仓库状态

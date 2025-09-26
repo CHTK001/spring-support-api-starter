@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoftRegistry;
 import com.chua.starter.monitor.service.SystemSoftRegistryService;
@@ -50,6 +52,32 @@ public class SystemSoftRegistryController {
 
         } catch (Exception e) {
             log.error("查询仓库列表失败", e);
+            return ReturnResult.error("查询失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询仓库列表
+     *
+     * @param page 页码
+     * @param size 每页大小
+     * @return 分页仓库列表
+     */
+    @GetMapping("/page")
+    @Operation(summary = "分页查询仓库列表", description = "分页获取镜像仓库配置列表")
+    public ReturnResult<IPage<SystemSoftRegistry>> page(
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer page,
+            @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer size) {
+
+        try {
+            log.debug("分页查询仓库列表, page: {}, size: {}", page, size);
+
+            IPage<SystemSoftRegistry> pageResult = systemSoftRegistryService.page(new Page<>(page, size));
+            log.debug("分页查询仓库列表成功, count: {}", pageResult.getRecords().size());
+            return ReturnResult.ok(pageResult);
+
+        } catch (Exception e) {
+            log.error("分页查询仓库列表失败", e);
             return ReturnResult.error("查询失败: " + e.getMessage());
         }
     }
@@ -225,7 +253,7 @@ public class SystemSoftRegistryController {
         try {
             log.debug("测试仓库连接, id: {}", id);
 
-            ReturnResult<Boolean> result = systemSoftRegistryService.testConnection(id);
+            ReturnResult<Boolean> result = systemSoftRegistryService.testConnectionForRegistry(id);
             log.info("仓库连接测试完成, id: {}, result: {}", id, result.isOk());
             return result;
 
@@ -248,7 +276,7 @@ public class SystemSoftRegistryController {
         try {
             log.debug("设置默认仓库, id: {}", id);
 
-            ReturnResult<Boolean> result = systemSoftRegistryService.setDefault(id);
+            ReturnResult<Boolean> result = systemSoftRegistryService.setDefaultForRegistry(id);
             log.info("设置默认仓库完成, id: {}, result: {}", id, result.isOk());
             return result;
 
