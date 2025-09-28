@@ -18,7 +18,7 @@ alwaysApply: true
 14. 图标都使用 IconifyIconOnline 全局组件
 15. 涉及到后端 API 接口都采用异步回调的方式, 回调里 then 默认就是成功的, error 默认是失败的, 可以不用进行 code 判断
 16. 用全局的 iconifyIconOnline 代替图表, ScTable 代替表格和卡片
-17. ScTable必须全部采用url(函数)而不是data属性
+17. ScTable必须全部采用url(函数)而不是data属性, 如果是不是特别需要url请求的数据, 请使用data属性
 18. 前端color, backgroud等都要使用自定义变量(packages/assets/styles/colors)
 19. vue中的defineExpose和watch只允许放在最后面
 20. 函数命名必须使用小驼峰命名法
