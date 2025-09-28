@@ -547,4 +547,80 @@ INSERT INTO `sys_setting`
 VALUES (42, 1, 'OpenBaseLogin', 'true', 1, 'Boolean', 'default', NULL, 0, NULL, '基础登录', NULL, NULL, NULL, 'sa', 1,
         '2025-02-19 14:18:52', '2025-02-19 14:19:05', 'sa', 1);
 
+-- ----------------------------
+-- Table structure for sys_limit_configuration
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_limit_configuration`;
+CREATE TABLE `sys_limit_configuration`
+(
+    `sys_limit_configuration_id`           bigint                                                        NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `sys_limit_path`                       varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接口路径',
+    `sys_limit_name`                       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流规则名称',
+    `sys_limit_for_period`                 int                                                           NULL DEFAULT NULL COMMENT '每个周期的许可数量',
+    `sys_limit_refresh_period_seconds`     bigint                                                        NULL DEFAULT NULL COMMENT '限制刷新周期（秒）',
+    `sys_limit_timeout_duration_millis`    bigint                                                        NULL DEFAULT NULL COMMENT '获取许可的超时时间（毫秒）',
+    `sys_limit_dimension`                  varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '限流维度（GLOBAL, IP, USER, API）',
+    `sys_limit_key_expression`             varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '自定义键表达式（SpEL）',
+    `sys_limit_fallback_method`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '降级方法名称',
+    `sys_limit_message`                    varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误消息',
+    `sys_limit_status`                     int                                                           NULL DEFAULT NULL COMMENT '是否启用; 0: 禁用, 1: 启用',
+    `sys_limit_description`                varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述信息',
+    `sys_limit_sort`                       int                                                           NULL DEFAULT NULL COMMENT '排序',
+    `create_name`                          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                            int                                                           NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                          datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                          datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                            int                                                           NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_limit_configuration_id`) USING BTREE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流配置表'
+  ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_limit_configuration
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sys_limit_record
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_limit_record`;
+CREATE TABLE `sys_limit_record`
+(
+    `sys_limit_record_id`           bigint                                                        NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `sys_limit_configuration_id`    bigint                                                        NULL DEFAULT NULL COMMENT '限流配置ID',
+    `sys_limit_path`                varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接口路径',
+    `sys_limit_name`                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流规则名称',
+    `sys_limit_dimension`           varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '限流维度（GLOBAL, IP, USER, API）',
+    `sys_limit_key`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流键值（如IP地址、用户ID等）',
+    `sys_limit_time`                datetime                                                      NULL DEFAULT NULL COMMENT '限流时间',
+    `sys_user_id`                   bigint                                                        NULL DEFAULT NULL COMMENT '用户ID',
+    `sys_user_name`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名',
+    `client_ip`                     varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '客户端IP',
+    `request_url`                   varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求URL',
+    `request_method`                varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '请求方法',
+    `user_agent`                    varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
+    `create_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by`                     int                                                           NULL DEFAULT NULL COMMENT '创建人',
+    `create_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`                   datetime                                                      NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name`                   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by`                     int                                                           NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_limit_record_id`) USING BTREE,
+    INDEX `idx_sys_limit_configuration_id` (`sys_limit_configuration_id`),
+    INDEX `idx_sys_limit_time` (`sys_limit_time`),
+    INDEX `idx_sys_user_id` (`sys_user_id`),
+    INDEX `idx_client_ip` (`client_ip`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流记录表'
+  ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_limit_record
+-- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;
