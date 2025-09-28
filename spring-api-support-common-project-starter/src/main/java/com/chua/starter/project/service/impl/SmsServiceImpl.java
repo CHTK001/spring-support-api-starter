@@ -2,6 +2,7 @@ package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.lang.message.MessageCode;
 import com.chua.common.support.lang.message.MessagePush;
 import com.chua.common.support.lang.message.TemplateMessagePush;
 import com.chua.common.support.lang.message.config.PushSetting;
@@ -13,10 +14,13 @@ import com.chua.common.support.lang.message.result.TemplateResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.project.service.SmsService;
+import com.chua.starter.service.utils.SettingGroupUtils;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.sms.SmsRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +31,24 @@ import java.util.stream.Collectors;
  * @since 2024/9/6
  */
 @Service
+@RequiredArgsConstructor
 public class SmsServiceImpl implements SmsService {
+
+    private final SettingGroupUtils settingGroupUtils;
 
     @Override
     public ReturnResult<List<PushResult>> send(String sysTemplateCode, SysProject sysProject, SmsRequest request) {
+        // 检查是否使用项目接口
+        if (!settingGroupUtils.isSmsUseProjectInterface()) {
+            // 不使用项目接口，返回模拟成功数据
+            String[] target = request.getTarget();
+            List<PushResult> rs = new ArrayList<>(target.length);
+            for (String s : target) {
+                rs.add(PushResult.builder().code(MessageCode.SUCCESS).message("模拟发送成功").target(s).build());
+            }
+            return ReturnResult.of(rs);
+        }
+        
         String sysProjectDictItemCode = sysProject.getSysProjectDictItemCode();
         MessagePush messagePush = ServiceProvider.of(MessagePush.class).getNewExtension(sysProjectDictItemCode,
                 PushSetting.builder()
