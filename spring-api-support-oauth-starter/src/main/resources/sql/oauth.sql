@@ -42,7 +42,7 @@ create table sys_role
     create_time         datetime      null comment '创建时间',
     update_time         datetime      null comment '更新时间',
     update_name         varchar(255)  null comment '更新人姓名',
-    update_by           int           null comment '更新人'
+    update_by           int          null comment '更新人'
 )
     comment '角色表' row_format = DYNAMIC;
 
@@ -169,3 +169,23 @@ create table sys_user_third_party
 )
     comment '用户三方绑定表' row_format = DYNAMIC;
 
+create table sys_token
+(
+    sys_token_id                bigint auto_increment
+        primary key,
+    sys_user_id                 varchar(255)  null comment '用户ID',
+    sys_token_value             varchar(500)  null comment '令牌值',
+    sys_token_duration          bigint        null comment '持续时间(秒)',
+    sys_token_whitelist_ips     varchar(1000) null comment '白名单IP',
+    sys_token_enable_whitelist  int           null comment '是否开启白名单; 0: 关闭, 1: 开启',
+    sys_token_status            int           null comment '令牌状态; 0: 禁用, 1: 启用',
+    sys_token_description       varchar(500)  null comment '描述信息',
+    sys_token_deleted           int           null comment '是否删除; 0: 未删除, 1: 已删除',
+    create_name                 varchar(255)  null comment '创建人姓名',
+    create_by                   int           null comment '创建人',
+    create_time                 datetime      null comment '创建时间',
+    update_time                 datetime      null comment '更新时间',
+    update_name                 varchar(255)  null comment '更新人姓名',
+    update_by                   int           null comment '更新人'
+)
+    comment '系统令牌表' row_format = DYNAMIC;

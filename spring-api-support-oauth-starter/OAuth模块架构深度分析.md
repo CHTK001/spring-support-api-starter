@@ -198,15 +198,15 @@ plugin:
   - `login()`: 处理用户登录请求
   - `logout()`: 处理用户登出请求
   - `oauth()`: 处理权限验证请求
-  - `upgrade()`: 处理令牌升级请求
 
-#### 6.1.2 LoginAuthorization（登录授权处理器）
-- **位置**: `com.chua.starter.oauth.sso.support.parser.LoginAuthorization`
-- **功能**: 执行登录验证和日志记录
+#### 6.1.2 TokenBasedUserInfoService（令牌用户信息服务）
+- **位置**: `com.chua.starter.oauth.sso.service.impl.TokenBasedUserInfoService`
+- **功能**: 基于数据库令牌的用户信息验证服务
 - **关键特性**:
-  - 集成SysUserLogService进行异步日志记录
-  - 处理扩展参数中的客户端信息
-  - 支持多种登录类型验证
+  - 支持通过令牌值进行用户身份验证
+  - 支持IP白名单控制
+  - 支持令牌有效期管理
+  - 与SysToken实体类关联
 
 #### 6.1.3 SysUserLogService（用户日志服务）
 - **位置**: `com.chua.starter.oauth.sso.service.SysUserLogService`
@@ -395,7 +395,7 @@ public class ExtParameterService {
 ### 8.3 配置优化
 
 #### 8.3.1 服务端配置增强
-```yaml
+```
 plugin:
   oauth:
     server:
@@ -416,7 +416,7 @@ plugin:
 ```
 
 #### 8.3.2 客户端配置增强
-```yaml
+```
 plugin:
   oauth:
     client:
