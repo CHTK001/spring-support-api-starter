@@ -359,6 +359,32 @@ CREATE TABLE `sys_log`
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for sys_setting_group
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_setting_group`;
+CREATE TABLE `sys_setting_group` (
+  `sys_setting_group_id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sys_setting_group_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
+  `sys_setting_group_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '唯一编码',
+  `sys_setting_group_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标',
+  `sys_setting_group_enable` tinyint(1) NULL DEFAULT NULL COMMENT '是否启用',
+  `sys_setting_group_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
+  `sys_setting_group_sort` int NULL DEFAULT NULL COMMENT '排序',
+  `sys_setting_group_use_project_interface` tinyint(1) NULL DEFAULT NULL COMMENT '是否使用项目组接口',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_setting_group_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置组' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_setting_group
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for sys_setting
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_setting`;
