@@ -77,4 +77,12 @@ public class SysSettingGroup extends SysBase {
     @ApiModelProperty(value = "排序")
     @Schema(description = "排序")
     private Integer sysSettingGroupSort;
+
+    /**
+     * 是否使用项目组接口
+     */
+    @TableField(value = "sys_setting_group_use_project_interface")
+    @ApiModelProperty(value = "是否使用项目组接口")
+    @Schema(description = "是否使用项目组接口")
+    private Boolean sysSettingGroupUseProjectInterface;
 }

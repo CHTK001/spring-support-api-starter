@@ -15,6 +15,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.project.mapper.SysSmsTemplateMapper;
 import com.chua.starter.project.service.*;
 import com.chua.starter.service.SysDictItemService;
+import com.chua.starter.service.utils.SettingGroupUtils;
 import com.chua.starter.system.entity.SysDictItem;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.entity.SysSmsLog;
@@ -45,6 +46,7 @@ public class SysSmsServiceImpl implements SysSmsService {
     final SysProjectService sysProjectService;
     final SysSmsTemplateMapper sysSmsTemplateMapper;
     final SysSmsTemplateService sysSmsTemplateService;
+    final SettingGroupUtils settingGroupUtils;
     @Override
     public ReturnResult<List<PushResult>> send(SmsRequest request) {
         SysSmsTemplate smsTemplate = sysSmsTemplateService.getById(request.getSysSmsTemplateId());
