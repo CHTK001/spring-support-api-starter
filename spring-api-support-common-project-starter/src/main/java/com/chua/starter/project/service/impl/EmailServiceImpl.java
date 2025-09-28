@@ -11,9 +11,11 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.project.service.EmailService;
 import com.chua.starter.service.setting.SmtpSetting;
+import com.chua.starter.service.utils.SettingGroupUtils;
 import com.chua.starter.system.entity.SysEmailTemplate;
 import com.chua.starter.system.entity.SysProject;
 import com.chua.starter.system.pojo.email.EmailRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,11 +27,20 @@ import java.util.List;
  * @since 2024/9/4
  */
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+
+    private final SettingGroupUtils settingGroupUtils;
 
 
     @Override
     public ReturnResult<Boolean> send(Email email) {
+        // 检查是否使用项目接口
+        if (!settingGroupUtils.isEmailUseProjectInterface()) {
+            // 不使用项目接口，返回模拟成功
+            return ReturnResult.success(true);
+        }
+        
         if(StringUtils.isBlank(email.getTo())) {
             return ReturnResult.fail("收件人不能为空");
         }
@@ -64,6 +75,17 @@ public class EmailServiceImpl implements EmailService {
                                                SysEmailTemplate emailTemplate,
                                                EmailRequest request,
                                                Integer traceId) {
+        // 检查是否使用项目接口
+        if (!settingGroupUtils.isEmailUseProjectInterface()) {
+            // 不使用项目接口，返回模拟成功数据
+            String[] target = request.getTarget();
+            List<PushResult> rs = new ArrayList<>(target.length);
+            for (String s : target) {
+                rs.add(PushResult.builder().code(MessageCode.SUCCESS).message("模拟发送成功").target(s).build());
+            }
+            return ReturnResult.of(rs);
+        }
+        
         MailConfiguration mailConfiguration = new MailConfiguration();
         mailConfiguration.setSmtpHost(sysProject.getSysProjectSmtpHost());
         mailConfiguration.setPassword(sysProject.getSysProjectSmtpPassword());
