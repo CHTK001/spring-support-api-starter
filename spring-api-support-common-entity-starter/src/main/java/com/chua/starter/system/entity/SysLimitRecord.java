@@ -128,4 +128,12 @@ public class SysLimitRecord extends SysBase implements Serializable {
     @ApiModelProperty(value = "用户代理")
     @Schema(description = "用户代理")
     private String userAgent;
+    
+    /**
+     * 是否针对当前登录账号; 0: 否, 1: 是
+     */
+    @TableField(value = "sys_limit_current_user")
+    @ApiModelProperty(value = "是否针对当前登录账号; 0: 否, 1: 是")
+    @Schema(description = "是否针对当前登录账号; 0: 否, 1: 是")
+    private Integer sysLimitCurrentUser;
 }
