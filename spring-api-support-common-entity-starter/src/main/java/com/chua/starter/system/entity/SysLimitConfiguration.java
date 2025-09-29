@@ -141,4 +141,13 @@ public class SysLimitConfiguration extends SysBase implements Serializable {
     @ApiModelProperty(value = "排序")
     @Schema(description = "排序")
     private Integer sysLimitSort;
+    
+    /**
+     * 是否针对当前登录账号; 0: 否, 1: 是
+     */
+    @TableField(value = "sys_limit_current_user")
+    @ApiModelProperty(value = "是否针对当前登录账号; 0: 否, 1: 是")
+    @Schema(description = "是否针对当前登录账号; 0: 否, 1: 是")
+    private Integer sysLimitCurrentUser;
+    
 }
