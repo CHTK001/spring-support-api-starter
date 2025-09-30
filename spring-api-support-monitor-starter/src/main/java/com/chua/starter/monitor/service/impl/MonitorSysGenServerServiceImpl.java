@@ -2138,7 +2138,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     deletedCount += cleanupDirectory(file, retentionHours);
 
                     // 如果子目录为空，尝试删除空目录
-                    if (null != file && file.listFiles() != null && file.listFiles().length == 0) {
+                    if (null != file && file.isDirectory() && file.listFiles() != null && file.listFiles().length == 0) {
                         if (file.delete()) {
                             log.debug("删除空目录: {}", file.getAbsolutePath());
                         }
