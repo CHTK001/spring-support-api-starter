@@ -355,8 +355,15 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             }
             for (VideoPlayAddress playAddress : playAddressesList) {
                 playAddress.setVideoId(video.getVideoId());
+                if (videoPlayAddressService.exists(Wrappers.<VideoPlayAddress>lambdaQuery()
+                        .eq(VideoPlayAddress::getVideoId, playAddress.getVideoId())
+                        .eq(VideoPlayAddress::getVideoPlayAddressUnique, playAddress.getVideoPlayAddressUnique())
+                )) {
+                    videoPlayAddressService.updateById(playAddress);
+                } else {
+                    videoPlayAddressService.save(playAddress);
+                }
             }
-            videoPlayAddressService.saveBatch(playAddressesList);
 
             List<VideoPlayAddressChannel> tmp = new ArrayList<>();
             for (VideoPlayAddress playAddress : playAddressesList) {
