@@ -203,6 +203,18 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
         return false;
     }
 
+    @Override
+    public void saveOrUpdateInsertForVideo(VideoInfoResult videoInfoResult) {
+        // 保存或更新视频信息
+        boolean saved = saveOrUpdateVideo(videoInfoResult);
+
+        if (saved) {
+            // 处理下载地址
+            processRefreshDownloadUrls(videoInfoResult);
+            processMarker(videoInfoResult);
+        }
+    }
+
     private void registerErrorRecord(VideoSyncConfig config, String message) {
         VideoSyncConfigRecord videoSyncConfigRecord = new VideoSyncConfigRecord();
         videoSyncConfigRecord.setVideoSyncConfigId(config.getVideoSyncConfigId());
@@ -321,6 +333,52 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
         }
     }
 
+    /**
+     * 处理下载地址
+     *
+     * @param video 视频信息
+     */
+    private void processRefreshDownloadUrls(VideoInfoResult video) {
+        try {
+            processRefreshFileDownload(video, video.getDownloadList());
+            processRefreshPlayAddress(video, video.getPlayAddressesList());
+        } catch (Exception e) {
+            log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
+        }
+    }
+
+    private void processRefreshPlayAddress(VideoInfoResult video, List<VideoPlayAddress> playAddressesList) {
+        try {
+            if (null == playAddressesList || playAddressesList.isEmpty()) {
+                log.info("视频[{}]没有可用的播放地址", video.getVideoTitle());
+                return;
+            }
+            for (VideoPlayAddress playAddress : playAddressesList) {
+                playAddress.setVideoId(video.getVideoId());
+            }
+            videoPlayAddressService.saveBatch(playAddressesList);
+
+            List<VideoPlayAddressChannel> tmp = new ArrayList<>();
+            for (VideoPlayAddress playAddress : playAddressesList) {
+                List<VideoPlayAddressChannel> videoPlayAddressChannels = playAddress.getVideoPlayAddressChannels();
+                if (null == videoPlayAddressChannels) {
+                    continue;
+                }
+                for (VideoPlayAddressChannel videoPlayAddressChannel : videoPlayAddressChannels) {
+                    videoPlayAddressChannel.setVideoPlayAddressId(playAddress.getVideoPlayAddressId());
+                    tmp.add(videoPlayAddressChannel);
+                }
+            }
+
+            videoPlayAddressChannelService.remove(Wrappers.<VideoPlayAddressChannel>lambdaQuery()
+                    .in(VideoPlayAddressChannel::getVideoPlayAddressId, tmp.stream().map(VideoPlayAddressChannel::getVideoPlayAddressId).toList()));
+
+            videoPlayAddressChannelService.saveBatch(tmp);
+        } catch (Exception e) {
+            log.error("处理视频[{}]播放地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
+        }
+    }
+
     private void processPlayAddress(VideoInfoResult video, List<VideoPlayAddress> playAddressesList) {
         try {
             if (null == playAddressesList || playAddressesList.isEmpty()) {
@@ -351,6 +409,30 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
             videoPlayAddressChannelService.saveBatch(tmp);
         } catch (Exception e) {
             log.error("处理视频[{}]播放地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理文件下载
+     *
+     * @param downloadUrls 下载列表
+     * @param video        视频信息
+     */
+    private void processRefreshFileDownload(VideoInfoResult video, List<VideoDownload> downloadUrls) {
+        try {
+            if (null == downloadUrls || downloadUrls.isEmpty()) {
+                log.info("视频[{}]没有可用的下载地址", video.getVideoTitle());
+                return;
+            }
+
+            // 保存下载信息
+            for (VideoDownload download : downloadUrls) {
+                download.setVideoId(video.getVideoId());
+            }
+            videoDownloadService.saveBatch(downloadUrls);
+            log.info("视频[{}]的下载地址处理完成，共{}个地址", video.getVideoTitle(), downloadUrls.size());
+        } catch (Exception e) {
+            log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }
     }
 

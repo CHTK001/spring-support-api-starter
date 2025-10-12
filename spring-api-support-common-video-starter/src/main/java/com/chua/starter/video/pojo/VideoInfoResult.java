@@ -50,4 +50,6 @@ public class VideoInfoResult extends VideoInfo {
      */
     private String downloadUrls;
 
+    private String tags;
+
 }
