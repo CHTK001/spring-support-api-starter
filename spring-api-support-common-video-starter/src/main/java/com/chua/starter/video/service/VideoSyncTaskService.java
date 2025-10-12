@@ -36,6 +36,15 @@ public interface VideoSyncTaskService {
      * @since 2024/6/21
      */
     boolean saveOrUpdateForVideo(VideoInfoResult videoInfoResult);
+
+    /**
+     * 插入或更新视频信息
+     *
+     * @param videoInfoResult 待插入或更新的视频信息
+     * @return 是否插入或更新成功
+     */
+    void saveOrUpdateInsertForVideo(VideoInfoResult videoInfoResult);
+
     /**
      * 同步所有启用的配置
      *
