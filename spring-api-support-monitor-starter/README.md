@@ -21,6 +21,39 @@
 - `WS /v1/arthas/console/{nodeId}/ws`
   - 说明：Arthas 控制台 WebSocket 反向代理
 
+### v1 兼容接口（Docker/服务器）
+
+- `GET /v1/system/soft/page`：系统软件分页查询（与前端 docker-management.ts 保持一致）
+
+> 服务器分页接口请使用已存在的 `GET /v1/gen/server/page`
+> 注意：本模块默认 `server.servlet.context-path=/monitor/api`，因此最终访问路径示例：`/monitor/api/v1/system/soft/page`
+
+### 软件仓库管理 - 连接测试
+
+- `POST /v1/system/soft/registry/{id}/test`
+    - 说明：根据仓库ID，读取仓库URL并进行连通性检测；优先使用 HTTP HEAD，失败回退 GET；以 200-399 为成功。
+    - 入参：路径参数 `id`（整数，必填）
+    - 出参：`ReturnResult<Boolean>`，`true` 表示可达；同时会落库更新连接状态、错误信息与最后连接时间。
+
+### 软件仓库管理 - 同步软件到软件库
+
+- 新增实体字段：`system_soft_registry_support_sync`（是否支持同步，0/1）
+    - 前端需依据该字段控制“同步”按钮展示：为 0 时隐藏按钮。
+- `POST /v1/system/soft/registry/{id}/sync`
+    - 说明：当仓库启用且支持同步时，从指定仓库同步软件到软件库。
+    - 入参：路径参数 `id`（整数，必填）
+    - 出参：`ReturnResult<Boolean>`，并在消息中返回同步数量描述。
+
+### 软件仓库管理 - 设置默认仓库
+
+- `POST /v1/system/soft/registry/{id}/default`
+    - 说明：将指定仓库设为默认仓库；后端会先清除全部默认标记，再设置当前仓库为默认，确保全局仅有一个默认仓库。
+    - 约束：仅“启用”的仓库可设为默认（`system_soft_registry_status=1`）。
+    - 入参：路径参数 `id`（整数，必填）
+    - 出参：`ReturnResult<Boolean>`，成功返回 `true`。
+- 列表排序：`GET /v1/system/soft/registry` 与 `GET /v1/system/soft/registry/page` 均已按“默认优先，其次按 sort
+  升序”返回数据，默认仓库始终排在第一条。
+
 ## 关键实现
 - 控制器：`com.chua.starter.monitor.arthas.ArthasConsoleProxyController`
 - WS 代理：`com.chua.starter.monitor.arthas.ws.ArthasWebSocketProxyHandler`
@@ -39,6 +72,9 @@
 - 路由：`apps/vue-support-monitor-starter/src/router/modules/arthas-management.ts`
 
 ## 注意事项
+
+- Mapper 规范：所有 SQL 均放置于 resources/mapper 下 XML 文件中，禁止出现在 Java 注解中。
+- 本模块已补齐 com.chua.starter.monitor.mapper 下缺失的 XML，并迁移/补充必要的 SQL。
 - 安全：建议在拦截器中增加鉴权/白名单控制，避免代理被滥用
 - 代理前缀：默认后端基座为 `/monitor/api`，如有变更请同步前端配置
 - 依赖：需要存在 `RestTemplate` Bean；项目中已广泛使用，通常已配置
