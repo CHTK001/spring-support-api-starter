@@ -226,6 +226,12 @@
             <artifactId>utils-support-image-starter</artifactId>
         </dependency>
 
+        <!-- ACME 证书支持模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-acme-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>

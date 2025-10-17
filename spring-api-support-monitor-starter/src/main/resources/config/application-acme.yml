@@ -1,0 +1,4 @@
+monitor:
+  acme:
+    enabled: true
+    renewDaysBefore: 30
