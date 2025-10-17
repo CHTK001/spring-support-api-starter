@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftRecordMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftRecord">
+        <id column="system_soft_record_id" property="systemSoftRecordId" jdbcType="INTEGER"/>
+        <result column="system_soft_id" property="systemSoftId" jdbcType="INTEGER"/>
+        <result column="system_soft_version_id" property="systemSoftVersionId" jdbcType="INTEGER"/>
+        <result column="system_server_id" property="systemServerId" jdbcType="INTEGER"/>
+        <result column="system_soft_record_operation_type" property="systemSoftRecordOperationType" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_message" property="systemSoftRecordMessage" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_method" property="systemSoftRecordMethod" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_env_params" property="systemSoftRecordEnvParams" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_params" property="systemSoftRecordParams" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_time" property="systemSoftRecordTime" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_record_status" property="systemSoftRecordStatus" jdbcType="INTEGER"/>
+        <result column="system_soft_record_user" property="systemSoftRecordUser" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_container_id" property="systemSoftRecordContainerId" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_start_time" property="systemSoftRecordStartTime" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_record_end_time" property="systemSoftRecordEndTime" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_record_duration" property="systemSoftRecordDuration" jdbcType="BIGINT"/>
+        <result column="system_soft_record_error_message" property="systemSoftRecordErrorMessage" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_result" property="systemSoftRecordResult" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_remark" property="systemSoftRecordRemark" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_ext_field1" property="systemSoftRecordExtField1" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_ext_field2" property="systemSoftRecordExtField2" jdbcType="VARCHAR"/>
+        <result column="system_soft_record_ext_field3" property="systemSoftRecordExtField3" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        system_soft_record_id, system_soft_id, system_soft_version_id, system_server_id,
+        system_soft_record_operation_type, system_soft_record_message, system_soft_record_method,
+        system_soft_record_env_params, system_soft_record_params, system_soft_record_time,
+        system_soft_record_status, system_soft_record_user, system_soft_record_container_id,
+        system_soft_record_start_time, system_soft_record_end_time, system_soft_record_duration,
+        system_soft_record_error_message, system_soft_record_result, system_soft_record_remark,
+        system_soft_record_ext_field1, system_soft_record_ext_field2, system_soft_record_ext_field3,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+    <select id="selectBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_id = #{softId}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_server_id = #{serverId}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByOperationType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_operation_type = #{operationType}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByOperationStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_status = #{operationStatus}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectBySoftIdAndOperationType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_id = #{softId}
+          AND system_soft_record_operation_type = #{operationType}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByServerIdAndOperationType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_server_id = #{serverId}
+          AND system_soft_record_operation_type = #{operationType}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectBySoftIdAndOperationStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_id = #{softId}
+          AND system_soft_record_status = #{operationStatus}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByOperationUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_user = #{operationUser}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByContainerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_container_id = #{containerId}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByImageId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_version_id = #{imageId}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="countBySoftId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_record WHERE system_soft_id = #{softId}
+    </select>
+
+    <select id="countByServerId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_record WHERE system_server_id = #{serverId}
+    </select>
+
+    <select id="countByOperationType" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_record WHERE system_soft_record_operation_type = #{operationType}
+    </select>
+
+    <select id="countByOperationStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_record WHERE system_soft_record_status = #{operationStatus}
+    </select>
+
+    <select id="countByOperationUser" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_record WHERE system_soft_record_user = #{operationUser}
+    </select>
+
+    <delete id="deleteBySoftId">
+        DELETE FROM system_soft_record WHERE system_soft_id = #{softId}
+    </delete>
+
+    <delete id="deleteByServerId">
+        DELETE FROM system_soft_record WHERE system_server_id = #{serverId}
+    </delete>
+
+    <delete id="deleteByContainerId">
+        DELETE FROM system_soft_record WHERE system_soft_record_container_id = #{containerId}
+    </delete>
+
+    <delete id="deleteByImageId">
+        DELETE FROM system_soft_record WHERE system_soft_version_id = #{imageId}
+    </delete>
+
+    <select id="searchByKeyword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_message LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_record_method LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_record_user LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectFailedRecords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_status = 0
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectSuccessRecords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_status = 1
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectRunningRecords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_status = 2
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectByOperationTimeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <select id="selectLatestRecords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        ORDER BY system_soft_record_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectLatestBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_id = #{softId}
+        ORDER BY system_soft_record_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_server_id = #{serverId}
+        ORDER BY system_soft_record_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByDurationRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_record
+        WHERE system_soft_record_duration BETWEEN #{minDuration} AND #{maxDuration}
+        ORDER BY system_soft_record_time DESC
+    </select>
+
+    <!-- 统计各操作类型数量，计数填充到duration字段以复用实体映射 -->
+    <select id="countGroupByOperationType" resultMap="BaseResultMap">
+        SELECT 
+            NULL AS system_soft_record_id,
+            NULL AS system_soft_id,
+            NULL AS system_soft_version_id,
+            NULL AS system_server_id,
+            system_soft_record_operation_type,
+            NULL AS system_soft_record_message,
+            NULL AS system_soft_record_method,
+            NULL AS system_soft_record_env_params,
+            NULL AS system_soft_record_params,
+            NULL AS system_soft_record_time,
+            NULL AS system_soft_record_status,
+            NULL AS system_soft_record_user,
+            NULL AS system_soft_record_container_id,
+            NULL AS system_soft_record_start_time,
+            NULL AS system_soft_record_end_time,
+            COUNT(*) AS system_soft_record_duration,
+            NULL AS system_soft_record_error_message,
+            NULL AS system_soft_record_result,
+            NULL AS system_soft_record_remark,
+            NULL AS system_soft_record_ext_field1,
+            NULL AS system_soft_record_ext_field2,
+            NULL AS system_soft_record_ext_field3,
+            NULL AS create_time,
+            NULL AS update_time,
+            NULL AS create_by,
+            NULL AS update_by
+        FROM system_soft_record
+        GROUP BY system_soft_record_operation_type
+    </select>
+
+    <!-- 统计各操作状态数量，计数填充到duration字段以复用实体映射 -->
+    <select id="countGroupByOperationStatus" resultMap="BaseResultMap">
+        SELECT 
+            NULL AS system_soft_record_id,
+            NULL AS system_soft_id,
+            NULL AS system_soft_version_id,
+            NULL AS system_server_id,
+            NULL AS system_soft_record_operation_type,
+            NULL AS system_soft_record_message,
+            NULL AS system_soft_record_method,
+            NULL AS system_soft_record_env_params,
+            NULL AS system_soft_record_params,
+            NULL AS system_soft_record_time,
+            system_soft_record_status,
+            NULL AS system_soft_record_user,
+            NULL AS system_soft_record_container_id,
+            NULL AS system_soft_record_start_time,
+            NULL AS system_soft_record_end_time,
+            COUNT(*) AS system_soft_record_duration,
+            NULL AS system_soft_record_error_message,
+            NULL AS system_soft_record_result,
+            NULL AS system_soft_record_remark,
+            NULL AS system_soft_record_ext_field1,
+            NULL AS system_soft_record_ext_field2,
+            NULL AS system_soft_record_ext_field3,
+            NULL AS create_time,
+            NULL AS update_time,
+            NULL AS create_by,
+            NULL AS update_by
+        FROM system_soft_record
+        GROUP BY system_soft_record_status
+    </select>
+</mapper>
