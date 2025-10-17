@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoft">
+        <id column="system_soft_id" property="systemSoftId" jdbcType="INTEGER"/>
+        <result column="system_soft_name" property="systemSoftName" jdbcType="VARCHAR"/>
+        <result column="system_soft_code" property="systemSoftCode" jdbcType="VARCHAR"/>
+        <result column="system_soft_category" property="systemSoftCategory" jdbcType="VARCHAR"/>
+        <result column="system_soft_icon" property="systemSoftIcon" jdbcType="VARCHAR"/>
+        <result column="system_soft_tags" property="systemSoftTags" jdbcType="VARCHAR"/>
+        <result column="system_soft_desc" property="systemSoftDesc" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_id" property="systemSoftRegistryId" jdbcType="INTEGER"/>
+        <result column="system_soft_docker_image" property="systemSoftDockerImage" jdbcType="VARCHAR"/>
+        <result column="system_soft_default_install_method" property="systemSoftDefaultInstallMethod" jdbcType="VARCHAR"/>
+        <result column="system_soft_default_install_params" property="systemSoftDefaultInstallParams" jdbcType="VARCHAR"/>
+        <result column="system_soft_status" property="systemSoftStatus" jdbcType="INTEGER"/>
+        <result column="system_soft_is_official" property="systemSoftIsOfficial" jdbcType="INTEGER"/>
+        <result column="system_soft_remark" property="systemSoftRemark" jdbcType="VARCHAR"/>
+        <result column="system_soft_ext_field1" property="systemSoftExtField1" jdbcType="VARCHAR"/>
+        <result column="system_soft_ext_field2" property="systemSoftExtField2" jdbcType="VARCHAR"/>
+        <result column="system_soft_ext_field3" property="systemSoftExtField3" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        system_soft_id, system_soft_name, system_soft_code, system_soft_category, system_soft_icon,
+        system_soft_tags, system_soft_desc, system_soft_registry_id, system_soft_docker_image,
+        system_soft_default_install_method, system_soft_default_install_params, system_soft_status,
+        system_soft_is_official, system_soft_remark, system_soft_ext_field1, system_soft_ext_field2,
+        system_soft_ext_field3, create_time, update_time, create_by, update_by
+    </sql>
+
+    <select id="selectBySoftCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_code = #{softCode}
+        LIMIT 1
+    </select>
+
+    <select id="selectBySoftName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_name = #{softName}
+    </select>
+
+    <select id="selectByCategory" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_category = #{category}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectEnabledSofts" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_status = 1
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectOfficialSofts" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_is_official = 1
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectByDockerImage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_docker_image = #{dockerImage}
+        LIMIT 1
+    </select>
+
+    <select id="selectByRegistry" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_registry_id IN (
+            SELECT system_soft_registry_id
+            FROM system_soft_registry
+            WHERE system_soft_registry_type = #{registryType}
+              AND system_soft_registry_url = #{registryUrl}
+        )
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_tags LIKE CONCAT('%', #{tag}, '%')
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countTotalSofts" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft
+    </select>
+
+    <select id="countByCategory" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft WHERE system_soft_category = #{category}
+    </select>
+
+    <select id="countByStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft WHERE system_soft_status = #{status}
+    </select>
+
+    <select id="checkSoftCodeExists" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft
+        WHERE system_soft_code = #{softCode}
+        <if test="excludeId != null">
+            AND system_soft_id != #{excludeId}
+        </if>
+    </select>
+
+    <update id="batchUpdateStatus">
+        UPDATE system_soft
+        SET system_soft_status = #{status},
+            update_time = NOW()
+        WHERE system_soft_id IN
+        <foreach collection="softIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="searchByKeyword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        WHERE system_soft_name LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_code LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_desc LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectPopularSofts" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        ORDER BY update_time DESC, create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectLatestSofts" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

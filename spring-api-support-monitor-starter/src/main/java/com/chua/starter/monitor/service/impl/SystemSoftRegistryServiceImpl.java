@@ -5,11 +5,14 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoftRegistry;
 import com.chua.starter.monitor.mapper.SystemSoftRegistryMapper;
 import com.chua.starter.monitor.service.SystemSoftRegistryService;
+import com.chua.starter.monitor.service.SystemSoftService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.List;
 public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistryMapper, SystemSoftRegistry> implements SystemSoftRegistryService {
 
     private final SystemSoftRegistryMapper systemSoftRegistryMapper;
+    private final SystemSoftService systemSoftService;
 
     /**
      * 测试仓库连接
@@ -252,7 +256,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
     }
 
     /**
-     * 同步仓库信息
+     * 同步仓库信息（同步软件到软件库）
      *
      * @param registryId 仓库ID
      * @return 同步结果
@@ -268,9 +272,26 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
                 return ReturnResult.error("仓库不存在");
             }
 
-            // TODO: 实现具体的仓库同步逻辑
-            log.info("仓库信息同步成功, registryId: {}", registryId);
-            return ReturnResult.ok(true, "同步成功");
+            if (registry.getSystemSoftRegistryStatus() == null || registry.getSystemSoftRegistryStatus() != 1) {
+                log.warn("仓库未启用, registryId: {}", registryId);
+                return ReturnResult.error("仓库未启用");
+            }
+
+            if (registry.getSystemSoftRegistrySupportSync() == null || registry.getSystemSoftRegistrySupportSync() != 1) {
+                log.warn("仓库不支持同步, registryId: {}", registryId);
+                return ReturnResult.error("该仓库不支持同步");
+            }
+
+            // 调用软件服务从仓库同步到软件库
+            var syncResult = systemSoftService.syncFromRegistry(registryId);
+            if (!syncResult.isOk()) {
+                log.warn("同步仓库失败, registryId: {}, msg: {}", registryId, syncResult.getMsg());
+                return ReturnResult.error(syncResult.getMsg());
+            }
+
+            Integer count = syncResult.getData() == null ? 0 : syncResult.getData();
+            log.info("仓库信息同步成功, registryId: {}, count: {}", registryId, count);
+            return ReturnResult.ok(true, "同步成功，共同步" + count + "个软件");
 
         } catch (Exception e) {
             log.error("同步仓库信息异常, registryId: {}", registryId, e);
@@ -286,30 +307,13 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
      */
     private boolean performConnectionTest(SystemSoftRegistry registry) {
         try {
-            // 根据仓库类型执行不同的连接测试
-            String registryType = registry.getSystemSoftRegistryType();
             String registryUrl = registry.getSystemSoftRegistryUrl();
+            Integer timeout = registry.getSystemSoftRegistryTimeout();
+            int timeoutMs = (timeout == null || timeout <= 0) ? 5000 : timeout * 1000;
 
-            log.debug("执行连接测试, type: {}, url: {}", registryType, registryUrl);
+            log.debug("执行URL连通性测试, url: {}, timeoutMs: {}", registryUrl, timeoutMs);
 
-            // TODO: 根据不同的仓库类型实现具体的连接测试逻辑
-            // docker_hub, harbor, aliyun, tencent, private
-            switch (registryType.toLowerCase()) {
-                case "docker_hub":
-                    return testDockerHubConnection(registry);
-                case "harbor":
-                    return testHarborConnection(registry);
-                case "aliyun":
-                    return testAliyunConnection(registry);
-                case "tencent":
-                    return testTencentConnection(registry);
-                case "private":
-                    return testPrivateRegistryConnection(registry);
-                default:
-                    log.warn("未知的仓库类型: {}", registryType);
-                    return false;
-            }
-
+            return testUrlReachable(registryUrl, timeoutMs);
         } catch (Exception e) {
             log.error("执行连接测试异常", e);
             return false;
@@ -317,47 +321,55 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
     }
 
     /**
-     * 测试Docker Hub连接
+     * 使用HTTP(S) URL测试是否可达：优先HEAD，失败回退GET，认为 200-399 为可达。
+     *
+     * @param url      测试地址
+     * @param timeoutMs 超时时间(毫秒)
+     * @return 是否可达
      */
-    private boolean testDockerHubConnection(SystemSoftRegistry registry) {
-        // TODO: 实现Docker Hub连接测试
-        log.debug("测试Docker Hub连接");
-        return true; // 临时返回true
-    }
-
-    /**
-     * 测试Harbor连接
-     */
-    private boolean testHarborConnection(SystemSoftRegistry registry) {
-        // TODO: 实现Harbor连接测试
-        log.debug("测试Harbor连接");
-        return true; // 临时返回true
-    }
-
-    /**
-     * 测试阿里云连接
-     */
-    private boolean testAliyunConnection(SystemSoftRegistry registry) {
-        // TODO: 实现阿里云连接测试
-        log.debug("测试阿里云连接");
-        return true; // 临时返回true
-    }
-
-    /**
-     * 测试腾讯云连接
-     */
-    private boolean testTencentConnection(SystemSoftRegistry registry) {
-        // TODO: 实现腾讯云连接测试
-        log.debug("测试腾讯云连接");
-        return true; // 临时返回true
-    }
-
-    /**
-     * 测试私有仓库连接
-     */
-    private boolean testPrivateRegistryConnection(SystemSoftRegistry registry) {
-        // TODO: 实现私有仓库连接测试
-        log.debug("测试私有仓库连接");
-        return true; // 临时返回true
+    private boolean testUrlReachable(String url, int timeoutMs) {
+        HttpURLConnection connection = null;
+        try {
+            URL u = new URL(url);
+            connection = (HttpURLConnection) u.openConnection();
+            connection.setConnectTimeout(timeoutMs);
+            connection.setReadTimeout(timeoutMs);
+            connection.setInstanceFollowRedirects(true);
+            try {
+                connection.setRequestMethod("HEAD");
+            } catch (Exception ignore) {
+                // 某些实现不允许修改，忽略
+            }
+            int code;
+            try {
+                code = connection.getResponseCode();
+            } catch (Exception ex) {
+                // 回退到GET
+                if (connection != null) {
+                    try {
+                        connection.disconnect();
+                    } catch (Exception ignore) {
+                    }
+                }
+                connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.setConnectTimeout(timeoutMs);
+                connection.setReadTimeout(timeoutMs);
+                connection.setInstanceFollowRedirects(true);
+                connection.setRequestMethod("GET");
+                code = connection.getResponseCode();
+            }
+            log.debug("URL响应码: {}, url: {}", code, url);
+            return code >= 200 && code < 400;
+        } catch (Exception e) {
+            log.warn("URL连通性测试失败, url: {}, err: {}", url, e.getMessage());
+            return false;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.disconnect();
+                } catch (Exception ignore) {
+                }
+            }
+        }
     }
 }

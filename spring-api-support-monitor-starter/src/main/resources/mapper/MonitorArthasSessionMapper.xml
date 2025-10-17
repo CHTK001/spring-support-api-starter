@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorArthasSessionMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorArthasSession">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="session_id" property="sessionId" jdbcType="VARCHAR"/>
+        <result column="consumer_id" property="consumerId" jdbcType="VARCHAR"/>
+        <result column="job_id" property="jobId" jdbcType="INTEGER"/>
+        <result column="node_id" property="nodeId" jdbcType="VARCHAR"/>
+        <result column="http_url" property="httpUrl" jdbcType="VARCHAR"/>
+        <result column="command" property="command" jdbcType="VARCHAR"/>
+        <result column="command_type" property="commandType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, session_id, consumer_id, job_id, node_id, http_url, command, command_type,
+        status, create_time, update_time, expire_time, remark
+    </sql>
+
+    <!-- 根据sessionId查询session信息 -->
+    <select id="selectBySessionId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM monitor_arthas_session
+        WHERE session_id = #{sessionId}
+          AND status = 'RUNNING'
+        LIMIT 1
+    </select>
+
+    <!-- 更新session状态 -->
+    <update id="updateStatusBySessionId">
+        UPDATE monitor_arthas_session
+        SET status = #{status},
+            update_time = #{updateTime}
+        WHERE session_id = #{sessionId}
+    </update>
+
+    <!-- 查询过期的session -->
+    <select id="selectExpiredSessions" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM monitor_arthas_session
+        WHERE expire_time &lt; #{now}
+          AND status = 'RUNNING'
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 批量更新过期session状态 -->
+    <update id="updateExpiredSessions">
+        UPDATE monitor_arthas_session
+        SET status = 'EXPIRED',
+            update_time = #{updateTime}
+        WHERE expire_time &lt; #{now}
+          AND status = 'RUNNING'
+    </update>
+
+    <!-- 删除已完成或过期的session记录（清理历史数据） -->
+    <delete id="deleteOldSessions">
+        DELETE FROM monitor_arthas_session
+        WHERE status IN ('COMPLETED', 'INTERRUPTED', 'EXPIRED')
+          AND update_time &lt; #{beforeTime}
+    </delete>
+
+    <!-- 根据节点ID查询运行中的session -->
+    <select id="selectRunningSessionsByNodeId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM monitor_arthas_session
+        WHERE node_id = #{nodeId}
+          AND status = 'RUNNING'
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 统计各状态的session数量 -->
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT status, COUNT(*) AS count
+        FROM monitor_arthas_session
+        GROUP BY status
+    </select>
+</mapper>
