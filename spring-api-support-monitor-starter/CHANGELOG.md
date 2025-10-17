@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 ### Added
+- ACME 证书自动申请/管理/续期能力：
+  - 新增实体：MonitorAcmeAccount、MonitorAcmeCertificate、MonitorAcmeOrder
+  - 新增 Mapper 及 XML：MonitorAcmeAccountMapper、MonitorAcmeCertificateMapper、MonitorAcmeOrderMapper
+  - 新增服务：AcmeCertificateService、AcmeCertificateServiceImpl
+  - 新增控制器：AcmeCertificateController（接口以 ForCert 结尾）
+  - 新增配置：AcmeProperties 与 AcmeConfiguration，支持每日自动检查即将到期证书并续签
+  - POM 引入 utils-support-acme-starter 依赖（父 POM 管理与本模块依赖）
+  - 接入 ACME 实际流程：申请时生成并保存 HTTP-01/DNS-01 挑战信息到 monitor_acme_order.acme_authz_urls，验证就绪后自动签发并回填证书链与私钥；支持续签与撤销
 
 - SystemSoftRegistry 新增字段 `system_soft_registry_support_sync`（是否支持同步，0/1）；前端据此隐藏不同步的仓库的“同步”按钮。
 - 新增后端接口 `POST /v1/system/soft/registry/{id}/default` 用于设置默认仓库；服务端通过清除所有默认标记再设置当前默认，保证仅有一个默认仓库。
