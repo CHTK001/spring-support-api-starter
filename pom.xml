@@ -465,6 +465,12 @@
                 <artifactId>utils-support-docker-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
+            <!-- ACME 证书支持 -->
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-acme-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
