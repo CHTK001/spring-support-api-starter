@@ -1,0 +1,92 @@
+@use "custom";
+@use "theme";
+@use "transition";
+@use "element-plus";
+@use "sidebar";
+@use "el-ui";
+// 导入颜色系统
+@use "../../colors/index";
+// 导入Element Plus主题覆盖
+@use "../../element-plus/theme-override";
+
+// sass 混合宏（函数）
+/* 自定义全局 CssVar */
+:root {
+  --el-padding-xs: 8px;
+  --el-padding-sm: 12px;
+  --el-padding: 16px;
+  --el-card-border-color: var(--el-border-color);
+  --el-card-border-radius: var(--el-border-radius, var(--borderRadius));
+  --zindex-base: 3000;
+  --zindex-affix: calc(var(--zindex-base) + 1);
+  --zindex-modal: calc(var(--zindex-base) + 10);
+  /* 其他z-index变量... */
+  --el-text-color-primary-2: #666;
+  --navbar-height: 48px;
+  /* 左侧菜单展开、收起动画时长 */
+  --pure-transition-duration: 0.3s;
+
+  /* 常用border-color 需要时可取用 */
+  --pure-border-color: rgb(5 5 5 / 6%);
+
+  /* switch关闭状态下的color 需要时可取用 */
+  --pure-switch-off-color: #a6a6a6;
+
+  /** 主题色 */
+  --pure-theme-sub-menu-active-text: var(--app-text-primary);
+  --pure-theme-menu-bg: var(--app-bg-primary);
+  --pure-theme-menu-hover: var(--app-bg-secondary);
+  --pure-theme-sub-menu-bg: var(--app-bg-primary);
+  --pure-theme-menu-text: var(--app-text-secondary);
+  --pure-theme-sidebar-logo: var(--app-bg-primary);
+  --pure-theme-menu-title-hover: var(--app-text-primary);
+  --pure-theme-menu-active-before: var(--app-primary);
+
+  --wanx-v2-font400: normal;
+  --wanx-v2-font500: bold;
+  --wanx-v2-font600: bold;
+  --wanx-v2-font400: 400;
+  --wanx-v2-font500: 500;
+  --wanx-v2-font600: 600;
+  --wanx-v2-color1: #615ced;
+  --wanx-v2-color2: #534ad1;
+  --wanx-v2-color3: #fff;
+  --wanx-v2-color4: #fafafc;
+  --wanx-v2-color5: #f3f2ff;
+  --wanx-v2-color6: #e6e5ff;
+  --wanx-v2-color7: #f7f8fc;
+  --wanx-v2-color8: #edeff5;
+  --wanx-v2-color10: #585a73;
+  --wanx-v2-disabled1: rgba(97, 92, 237, 0.3);
+  --wanx-v2-disabled2: #c8cad9;
+  --wanx-v2-disabled3: #f2f3f7;
+  --wanx-v2-disabled4: #c6c4ff;
+  --wanx-v2-shadow1: 0px 6.24px 15.6px 0px rgba(155, 139, 228, 0.141);
+}
+
+/* 灰色模式 */
+.html-grey {
+  filter: grayscale(100%);
+}
+
+body {
+  color: #000;
+}
+
+/* 深色模式下 SVG 图标默认为白色 */
+html.dark svg {
+  color: #ffffff;
+  fill: #ffffff;
+}
+
+/* 色弱模式 */
+.html-weakness {
+  filter: invert(80%);
+}
+
+.fullscreen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  inset: 0;
+}
