@@ -3,6 +3,25 @@
 ## [Unreleased]
 ### Added
 
+- SystemSoftRegistry 新增字段 `system_soft_registry_support_sync`（是否支持同步，0/1）；前端据此隐藏不同步的仓库的“同步”按钮。
+- 新增后端接口 `POST /v1/system/soft/registry/{id}/default` 用于设置默认仓库；服务端通过清除所有默认标记再设置当前默认，保证仅有一个默认仓库。
+- 软件仓库列表默认优先排序：`GET /v1/system/soft/registry` 与 `GET /v1/system/soft/registry/page` 返回数据时，默认仓库（
+  `system_soft_registry_is_default=1`）置顶，其次按 `system_soft_registry_sort` 升序。
+- 实现 `SystemSoftRegistryServiceImpl#syncRegistry`：校验仓库启用及支持同步后，调用 `SystemSoftService#syncFromRegistry`
+  将软件同步至软件库。
+- 修复 com.chua.starter.monitor.mapper 缺失的 MyBatis XML 与 SQL 声明：新增并完善以下映射文件与语句：
+    - MonitorArthasSessionMapper.xml（将原注解SQL迁移至XML，新增查询/更新/清理等语句）
+    - MonitorSysGenMessagePushTemplateMapper.xml、MonitorSysGenSerialMapper.xml、MonitorSysGenScriptUploadRecordMapper.xml
+    - SystemDataFieldCommentMapper.xml、SystemDataSettingItemMapper.xml
+    - SystemServerSettingAddressRateLimitMapper.xml、SystemServerSettingIPRateLimitMapper.xml
+    - SystemServerSettingServiceDiscoveryMapper.xml、SystemServerSettingServiceDiscoveryMappingMapper.xml
+    -
+    SystemSoftMapper.xml、SystemSoftVersionMapper.xml、SystemSoftRegistryMapper.xml、SystemSoftRecordMapper.xml、SystemSoftContainerStatsMapper.xml
+- 移除 MonitorArthasSessionMapper.java 中的注解式 SQL，符合“SQL 必须在 XML 中”的项目规范。
+
+- 新增 v1 兼容接口（与前端 docker-management.ts 对齐）：
+    - `GET /v1/system/soft/page`：系统软件分页查询
+
 - Docker软件管理功能增强：
     - 新增 `DockerResultCallback` 接口，支持Docker操作的回调处理
     - 新增 `DefaultDockerBuildCallback`、`DefaultDockerPushCallback` 默认回调实现
@@ -160,6 +179,11 @@
         - 实时日志推送：使用WebSocket实时推送Docker操作日志
         - 批量操作：支持批量删除多个镜像
         - Docker Hub搜索：支持搜索Docker Hub上的公共镜像
+
+### Changed
+
+- SystemSoftRegistry 仓库连接测试逻辑：`SystemSoftRegistryServiceImpl#testConnection` 改为使用 URL 连通性检测（优先
+  HEAD，失败回退 GET），判定 HTTP 200-399 为成功；按照规则自动更新连接状态与错误信息。
 
 ### Changed
 - WebSocket 配置：在 `GuacamoleWebSocketConfig` 注册了 Arthas WS 端点 `/v1/arthas/console/**/ws`

@@ -10,12 +10,11 @@ import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 系统软件镜像仓库信息实体类
@@ -113,6 +112,15 @@ public class SystemSoftRegistry extends SysBase {
     @Schema(description = "是否启用SSL")
     @NotNull(message = "是否启用SSL不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer systemSoftRegistrySslEnabled;
+
+    /**
+     * 是否支持同步(0:否, 1:是)
+     */
+    @TableField("system_soft_registry_support_sync")
+    @ApiModelProperty(value = "是否支持同步")
+    @Schema(description = "是否支持同步")
+    @NotNull(message = "是否支持同步不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    private Integer systemSoftRegistrySupportSync;
 
     /**
      * 连接超时时间(秒)
