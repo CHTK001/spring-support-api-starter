@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftVersionMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftVersion">
+        <id column="system_soft_version_id" property="systemSoftVersionId" jdbcType="INTEGER"/>
+        <result column="system_soft_id" property="systemSoftId" jdbcType="INTEGER"/>
+        <result column="system_soft_version_name" property="systemSoftVersionName" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_number" property="systemSoftVersionNumber" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_download_url" property="systemSoftVersionDownloadUrl" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_image_tag" property="systemSoftVersionImageTag" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_install_template" property="systemSoftVersionInstallTemplate" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_description" property="systemSoftVersionDescription" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_size" property="systemSoftVersionSize" jdbcType="BIGINT"/>
+        <result column="system_soft_version_status" property="systemSoftVersionStatus" jdbcType="INTEGER"/>
+        <result column="system_soft_version_is_latest" property="systemSoftVersionIsLatest" jdbcType="INTEGER"/>
+        <result column="system_soft_version_is_stable" property="systemSoftVersionIsStable" jdbcType="INTEGER"/>
+        <result column="system_soft_version_release_time" property="systemSoftVersionReleaseTime" jdbcType="TIMESTAMP"/>
+        <result column="system_soft_version_min_requirements" property="systemSoftVersionMinRequirements" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_recommended_requirements" property="systemSoftVersionRecommendedRequirements" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_remark" property="systemSoftVersionRemark" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_ext_field1" property="systemSoftVersionExtField1" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_ext_field2" property="systemSoftVersionExtField2" jdbcType="VARCHAR"/>
+        <result column="system_soft_version_ext_field3" property="systemSoftVersionExtField3" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        system_soft_version_id, system_soft_id, system_soft_version_name, system_soft_version_number,
+        system_soft_version_download_url, system_soft_version_image_tag, system_soft_version_install_template,
+        system_soft_version_description, system_soft_version_size, system_soft_version_status,
+        system_soft_version_is_latest, system_soft_version_is_stable, system_soft_version_release_time,
+        system_soft_version_min_requirements, system_soft_version_recommended_requirements,
+        system_soft_version_remark, system_soft_version_ext_field1, system_soft_version_ext_field2,
+        system_soft_version_ext_field3, create_time, update_time, create_by, update_by
+    </sql>
+
+    <select id="selectBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+        ORDER BY system_soft_version_release_time DESC, create_time DESC
+    </select>
+
+    <select id="selectBySoftIdAndVersionName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+          AND system_soft_version_name = #{versionName}
+        LIMIT 1
+    </select>
+
+    <select id="selectBySoftIdAndImageTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+          AND system_soft_version_image_tag = #{imageTag}
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+        ORDER BY system_soft_version_is_latest DESC, system_soft_version_release_time DESC, create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectStableBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+          AND system_soft_version_is_stable = 1
+        ORDER BY system_soft_version_release_time DESC
+    </select>
+
+    <select id="selectEnabledBySoftId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+          AND system_soft_version_status = 1
+        ORDER BY system_soft_version_release_time DESC
+    </select>
+
+    <select id="selectByVersionNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_version_number = #{versionNumber}
+        ORDER BY system_soft_version_release_time DESC
+    </select>
+
+    <select id="selectByImageTag" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_version_image_tag = #{imageTag}
+        ORDER BY system_soft_version_release_time DESC
+    </select>
+
+    <select id="countBySoftId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_version WHERE system_soft_id = #{softId}
+    </select>
+
+    <select id="countBySoftIdAndStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_version WHERE system_soft_id = #{softId} AND system_soft_version_status = #{status}
+    </select>
+
+    <update id="batchUpdateStatus">
+        UPDATE system_soft_version
+        SET system_soft_version_status = #{status},
+            update_time = NOW()
+        WHERE system_soft_version_id IN
+        <foreach collection="versionIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateLatestFlag">
+        UPDATE system_soft_version
+        SET system_soft_version_is_latest = CASE WHEN system_soft_version_id = #{latestVersionId} THEN 1 ELSE 0 END,
+            update_time = NOW()
+        WHERE system_soft_id = #{softId}
+    </update>
+
+    <delete id="deleteBySoftId">
+        DELETE FROM system_soft_version WHERE system_soft_id = #{softId}
+    </delete>
+
+    <select id="checkVersionNameExists" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_version
+        WHERE system_soft_id = #{softId}
+          AND system_soft_version_name = #{versionName}
+        <if test="excludeId != null">
+            AND system_soft_version_id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="searchByKeyword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_version_name LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_version_description LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_version_image_tag LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY system_soft_version_release_time DESC
+    </select>
+
+    <select id="selectLatestReleased" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        ORDER BY system_soft_version_release_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectBySizeRange" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_version
+        WHERE system_soft_version_size BETWEEN #{minSize} AND #{maxSize}
+        ORDER BY system_soft_version_size DESC
+    </select>
+</mapper>

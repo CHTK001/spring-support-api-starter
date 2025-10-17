@@ -69,7 +69,7 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
                             ReturnPageResult<VideoInfoResult> searchResult = provider.searchResource(newVideoSearch);
                             if (searchResult.isOk() && !searchResult.isEmpty()) {
                                 List<VideoInfoResult> data = searchResult.getData().getData();
-                                registerIntoDatabase(data);
+                                registerIntoUpdateDatabase(data);
                                 result.addAll(data);
                                 counter.addAndGet(searchResult.getData().getTotal());
                             }
@@ -106,9 +106,9 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
      *
      * @param data 数据
      */
-    private void registerIntoDatabase(List<VideoInfoResult> data) {
+    private void registerIntoUpdateDatabase(List<VideoInfoResult> data) {
         for (VideoInfoResult datum : data) {
-            videoSyncTaskService.saveOrUpdateForVideo(datum);
+            videoSyncTaskService.saveOrUpdateInsertForVideo(datum);
         }
     }
 
