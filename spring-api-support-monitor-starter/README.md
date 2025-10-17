@@ -86,5 +86,19 @@
 
 ---
 
----
+### ACME 证书管理
+- 接口：
+  - POST /v1/cert/account/save：保存/更新 ACME 账户
+  - POST /v1/cert/apply：申请证书（首次会产出验证信息，需按返回的 HTTP-01/DNS-01 要求完成验证后重试）
+  - POST /v1/cert/{certId}/renew：续签证书
+  - POST /v1/cert/{certId}/revoke：吊销证书
+  - GET /v1/cert/{certId}：获取证书详情
+- 配置：monitor.acme.enabled=true，monitor.acme.renewDaysBefore=30
+- 自动续期：每日 03:00 检查即将到期证书并触发续签
 
+- 流程说明：
+  1) 申请时若验证资源未就绪，将返回 certId 并把“验证指引”写入表 monitor_acme_order.acme_authz_urls（JSON）；证书状态置为 validating。
+  2) 请按 JSON 中的 httpPath/httpContent 或 dnsName/dnsValue 完成验证；稍后再次调用申请接口或等待调度触发续签即可完成签发。
+  3) 成功签发后，证书链与私钥（PEM）将落库到 monitor_acme_certificate（acme_cert_chain_pem/acme_cert_key_pem），并计算 acme_cert_renew_at。
+
+---
