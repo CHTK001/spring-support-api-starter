@@ -133,3 +133,42 @@ pub fn uu2_process_request(request: JsValue) -> JsValue {
 
     req
 }
+
+// uu1_wasm：根据响应头access-control-no-data判断是否需要解密
+// 若无该头或其值不为true，则直接返回原始response对象
+#[wasm_bindgen]
+pub fn uu1_wasm(response: JsValue) -> JsValue {
+    if !response.is_object() {
+        return response;
+    }
+
+    // 读取headers
+    let headers = Reflect::get(&response, &JsValue::from_str("headers")).unwrap_or(JsValue::UNDEFINED);
+    if headers.is_undefined() || headers.is_null() || !headers.is_object() {
+        // 没有headers，直接返回原始响应
+        return response;
+    }
+
+    // 读取access-control-no-data
+    let no_data = Reflect::get(&headers, &JsValue::from_str("access-control-no-data")).unwrap_or(JsValue::UNDEFINED);
+
+    // 判断是否为true（兼容字符串/布尔）
+    let is_encrypted = if let Some(s) = no_data.as_string() {
+        s.eq_ignore_ascii_case("true")
+    } else if no_data.is_falsy() {
+        false
+    } else if let Some(b) = js_sys::Boolean::from(no_data.clone()).as_bool() {
+        b
+    } else {
+        false
+    };
+
+    if !is_encrypted {
+        // 未加密，直接返回原始响应
+        return response;
+    }
+
+    // 已加密：暂不在WASM侧处理解密，这里保持原样返回，
+    // 由现有上层解密流程继续处理（仅做加密判定与放行逻辑）。
+    response
+}

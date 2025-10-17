@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.SystemSoftRegistryMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftRegistry">
+        <id column="system_soft_registry_id" property="systemSoftRegistryId" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_name" property="systemSoftRegistryName" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_type" property="systemSoftRegistryType" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_url" property="systemSoftRegistryUrl" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_username" property="systemSoftRegistryUsername" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_password" property="systemSoftRegistryPassword" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_email" property="systemSoftRegistryEmail" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_is_default" property="systemSoftRegistryIsDefault" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_ssl_enabled" property="systemSoftRegistrySslEnabled" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_support_sync" property="systemSoftRegistrySupportSync" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_timeout" property="systemSoftRegistryTimeout" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_description" property="systemSoftRegistryDescription" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_config" property="systemSoftRegistryConfig" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_last_connect_time" property="systemSoftRegistryLastConnectTime" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_connect_status" property="systemSoftRegistryConnectStatus" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_error_message" property="systemSoftRegistryErrorMessage" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_sort" property="systemSoftRegistrySort" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_status" property="systemSoftRegistryStatus" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        system_soft_registry_id, system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
+        system_soft_registry_username, system_soft_registry_password, system_soft_registry_email,
+        system_soft_registry_is_default, system_soft_registry_ssl_enabled, system_soft_registry_support_sync, system_soft_registry_timeout,
+        system_soft_registry_description, system_soft_registry_config, system_soft_registry_last_connect_time,
+        system_soft_registry_connect_status, system_soft_registry_error_message, system_soft_registry_sort,
+        system_soft_registry_status, create_time, update_time, create_by, update_by
+    </sql>
+
+    <select id="selectByRegistryName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_name = #{registryName}
+        LIMIT 1
+    </select>
+
+    <select id="selectByRegistryType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_type = #{registryType}
+        ORDER BY system_soft_registry_sort ASC
+    </select>
+
+    <select id="selectByRegistryUrl" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_url = #{registryUrl}
+        LIMIT 1
+    </select>
+
+    <select id="selectDefaultRegistry" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_is_default = 1
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectEnabledRegistries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_status = 1
+        ORDER BY system_soft_registry_sort ASC
+    </select>
+
+    <select id="selectByConnectStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_connect_status = #{connectStatus}
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="countByRegistryType" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_registry WHERE system_soft_registry_type = #{registryType}
+    </select>
+
+    <select id="countByStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_registry WHERE system_soft_registry_status = #{status}
+    </select>
+
+    <select id="checkRegistryNameExists" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_registry
+        WHERE system_soft_registry_name = #{registryName}
+        <if test="excludeId != null">
+            AND system_soft_registry_id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="checkRegistryUrlExists" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM system_soft_registry
+        WHERE system_soft_registry_url = #{registryUrl}
+        <if test="excludeId != null">
+            AND system_soft_registry_id != #{excludeId}
+        </if>
+    </select>
+
+    <update id="batchUpdateStatus">
+        UPDATE system_soft_registry
+        SET system_soft_registry_status = #{status},
+            update_time = NOW()
+        WHERE system_soft_registry_id IN
+        <foreach collection="registryIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateDefaultFlag">
+        UPDATE system_soft_registry
+        SET system_soft_registry_is_default = 1,
+            update_time = NOW()
+        WHERE system_soft_registry_id = #{registryId}
+    </update>
+
+    <update id="clearAllDefaultFlags">
+        UPDATE system_soft_registry SET system_soft_registry_is_default = 0
+    </update>
+
+    <update id="updateConnectStatus">
+        UPDATE system_soft_registry
+        SET system_soft_registry_connect_status = #{connectStatus},
+            system_soft_registry_error_message = #{errorMessage},
+            system_soft_registry_last_connect_time = #{lastConnectTime},
+            update_time = NOW()
+        WHERE system_soft_registry_id = #{registryId}
+    </update>
+
+    <select id="searchByKeyword" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_name LIKE CONCAT('%', #{keyword}, '%')
+           OR system_soft_registry_url LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY system_soft_registry_sort ASC
+    </select>
+
+    <select id="selectConnectedRegistries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_connect_status = 1
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectDisconnectedRegistries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_connect_status = 2
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectOrderBySort" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        ORDER BY system_soft_registry_sort ASC
+    </select>
+
+    <select id="selectLatestRegistries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+</mapper>
