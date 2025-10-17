@@ -97,4 +97,14 @@ public interface SystemSoftRegistryService extends IService<SystemSoftRegistry> 
      * @return 同步结果
      */
     ReturnResult<Boolean> syncRegistry(Integer registryId);
+
+    /**
+     * 同步仓库信息(ForRegistry)
+     *
+     * @param registryId 仓库ID
+     * @return 同步结果
+     */
+    default ReturnResult<Boolean> syncRegistryForRegistry(Integer registryId) {
+        return syncRegistry(registryId);
+    }
 }

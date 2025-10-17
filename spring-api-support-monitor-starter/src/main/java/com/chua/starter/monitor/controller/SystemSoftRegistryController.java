@@ -8,13 +8,13 @@ import com.chua.starter.monitor.service.SystemSoftRegistryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -40,13 +40,16 @@ public class SystemSoftRegistryController {
      * @return 仓库列表
      */
     @GetMapping
-    @Operation(summary = "查询仓库列表", description = "获取所有镜像仓库配置列表")
+    @Operation(summary = "查询仓库列表", description = "获取所有镜像仓库配置列表，默认仓库排在第一位")
     public ReturnResult<List<SystemSoftRegistry>> list() {
 
         try {
-            log.debug("查询仓库列表");
+            log.debug("查询仓库列表(默认优先)");
 
-            List<SystemSoftRegistry> list = systemSoftRegistryService.list();
+            List<SystemSoftRegistry> list = systemSoftRegistryService.lambdaQuery()
+                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryIsDefault)
+                    .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
+                    .list();
             log.debug("查询仓库列表成功, count: {}", list.size());
             return ReturnResult.ok(list);
 
@@ -64,15 +67,18 @@ public class SystemSoftRegistryController {
      * @return 分页仓库列表
      */
     @GetMapping("/page")
-    @Operation(summary = "分页查询仓库列表", description = "分页获取镜像仓库配置列表")
+    @Operation(summary = "分页查询仓库列表", description = "分页获取镜像仓库配置列表，默认仓库排在第一位")
     public ReturnResult<IPage<SystemSoftRegistry>> page(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer size) {
 
         try {
-            log.debug("分页查询仓库列表, page: {}, size: {}", page, size);
+            log.debug("分页查询仓库列表(默认优先), page: {}, size: {}", page, size);
 
-            IPage<SystemSoftRegistry> pageResult = systemSoftRegistryService.page(new Page<>(page, size));
+            IPage<SystemSoftRegistry> pageResult = systemSoftRegistryService.lambdaQuery()
+                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryIsDefault)
+                    .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
+                    .page(new Page<>(page, size));
             log.debug("分页查询仓库列表成功, count: {}", pageResult.getRecords().size());
             return ReturnResult.ok(pageResult);
 
@@ -394,7 +400,7 @@ public class SystemSoftRegistryController {
         try {
             log.debug("同步仓库信息, id: {}", id);
 
-            ReturnResult<Boolean> result = systemSoftRegistryService.syncRegistry(id);
+            ReturnResult<Boolean> result = systemSoftRegistryService.syncRegistryForRegistry(id);
             log.info("同步仓库信息完成, id: {}, result: {}", id, result.isOk());
             return result;
 
