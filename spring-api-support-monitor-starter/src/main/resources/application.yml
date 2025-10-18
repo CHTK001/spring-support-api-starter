@@ -6,7 +6,6 @@ spring:
     include: mybatis,swagger,socket,control,codec,ip,discovery,options,report
   main:
     allow-bean-definition-overriding: true
-    lazy-initialization: true
 plugin:
   parameter:
     enable: true
