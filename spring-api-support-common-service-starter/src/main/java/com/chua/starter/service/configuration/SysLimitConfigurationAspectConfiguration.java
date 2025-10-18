@@ -2,6 +2,7 @@ package com.chua.starter.service.configuration;
 
 import com.chua.starter.service.aspect.SysLimitConfigurationAspect;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,18 +16,22 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025/9/28
  */
 @Configuration
-public class SysLimitConfigurationAspectConfiguration {
+public class SysLimitConfigurationAspectConfiguration implements InitializingBean {
 
-//    @Autowired
-//    private RateLimiterRegistry rateLimiterRegistry;
-//
-//    /**
-//     * 注册基于数据库配置的限流切面
-//     *
-//     * @return 限流切面实例
-//     */
-//    @Bean
-//    public SysLimitConfigurationAspect sysLimitConfigurationAspect() {
-//        return new SysLimitConfigurationAspect(rateLimiterRegistry);
-//    }
+    private RateLimiterRegistry rateLimiterRegistry;
+
+    /**
+     * 注册基于数据库配置的限流切面
+     *
+     * @return 限流切面实例
+     */
+    @Bean
+    public SysLimitConfigurationAspect sysLimitConfigurationAspect() {
+        return new SysLimitConfigurationAspect(rateLimiterRegistry);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
+    }
 }
