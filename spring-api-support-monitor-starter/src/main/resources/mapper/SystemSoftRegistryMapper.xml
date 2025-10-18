@@ -11,6 +11,7 @@
         <result column="system_soft_registry_username" property="systemSoftRegistryUsername" jdbcType="VARCHAR"/>
         <result column="system_soft_registry_password" property="systemSoftRegistryPassword" jdbcType="VARCHAR"/>
         <result column="system_soft_registry_email" property="systemSoftRegistryEmail" jdbcType="VARCHAR"/>
+        <result column="system_soft_registry_server_id" property="systemSoftRegistryServerId" jdbcType="INTEGER"/>
         <result column="system_soft_registry_is_default" property="systemSoftRegistryIsDefault" jdbcType="INTEGER"/>
         <result column="system_soft_registry_ssl_enabled" property="systemSoftRegistrySslEnabled" jdbcType="INTEGER"/>
         <result column="system_soft_registry_support_sync" property="systemSoftRegistrySupportSync" jdbcType="INTEGER"/>
@@ -32,6 +33,7 @@
     <sql id="Base_Column_List">
         system_soft_registry_id, system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
         system_soft_registry_username, system_soft_registry_password, system_soft_registry_email,
+        system_soft_registry_server_id,
         system_soft_registry_is_default, system_soft_registry_ssl_enabled, system_soft_registry_support_sync, system_soft_registry_timeout,
         system_soft_registry_description, system_soft_registry_config, system_soft_registry_last_connect_time,
         system_soft_registry_connect_status, system_soft_registry_error_message, system_soft_registry_sort,

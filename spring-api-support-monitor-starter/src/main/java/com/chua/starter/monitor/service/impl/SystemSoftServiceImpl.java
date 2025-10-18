@@ -30,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 系统软件管理服务实现类
@@ -49,6 +51,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     private final SystemSoftRecordMapper systemSoftRecordMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
     private final SocketSessionTemplate socketSessionTemplate;
+
+    static final Map<Integer, DockerProtocolClient> PROTOCOL_CLIENT_MAP = new ConcurrentHashMap<>();
     @Autowired
     @Lazy
     private DockerCallbackService dockerCallbackService;
@@ -203,9 +207,12 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             if (registry.getSystemSoftRegistrySupportSync() == null || registry.getSystemSoftRegistrySupportSync() != 1) {
                 return ReturnResult.error("该仓库不支持同步");
             }
+            if (registry.getSystemSoftRegistryServerId() == null) {
+                return ReturnResult.error("仓库未绑定服务器，无法使用Docker客户端同步");
+            }
 
-            // 使用 Docker Registry V2 标准接口进行同步（优先），必要时可在后续扩展不同仓库类型的专属实现
-            int syncCount = doRegistryV2Sync(registry);
+            // 使用 DockerProtocolClient 在绑定服务器上列举镜像，并同步到软件表
+            int syncCount = doDockerClientListSync(registry);
 
             log.info("同步软件信息完成 - 同步数量: {}", syncCount);
             return ReturnResult.ok(syncCount, "同步成功，共同步" + syncCount + "个软件");
@@ -216,278 +223,6 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
         }
     }
 
-    /**
-     * 通过 Docker Registry V2 API 同步仓库中的镜像仓库列表到系统软件库
-     *
-     * <p>实现要点：
-     * 1) 访问 {registryUrl}/v2/_catalog?n=1000 获取仓库列表（必要时根据 Link 分页继续拉取）
-     * 2) 解析 JSON 中的 repositories 字段
-     * 3) 将每个仓库映射为一条 SystemSoft 记录（存在则更新，不存在则新增）
-     * 4) 对于非 DockerHub 的私有仓库，systemSoftDockerImage 使用 "host/repo" 形式；DockerHub 则使用 "namespace/repo"
-     *
-     * 注意：
-     * - 本实现仅同步仓库列表，不同步标签；标签后续由其它接口按需获取
-     * - 解析采用轻量字符串解析，避免引入额外依赖
-     *
-     * @param registry 仓库配置
-     * @return 成功新增或更新的软件数量
-     * @author CH
-     * @since 2025/10/18
-     * @version 1.0.0
-     */
-    private int doRegistryV2Sync(SystemSoftRegistry registry) {
-        String baseUrl = trimTrailingSlash(registry.getSystemSoftRegistryUrl());
-        String username = registry.getSystemSoftRegistryUsername();
-        String password = registry.getSystemSoftRegistryPassword();
-        String type = registry.getSystemSoftRegistryType();
-
-        int total = 0;
-        String nextUrl = baseUrl + "/v2/_catalog?n=1000";
-        while (StringUtils.hasText(nextUrl)) {
-            try {
-                HttpResponse resp = httpGet(nextUrl, username, password, registry.getSystemSoftRegistryTimeout());
-                if (resp == null || resp.code < 200 || resp.code >= 400) {
-                    log.warn("拉取仓库列表失败: httpCode={}, url={}", resp != null ? resp.code : -1, nextUrl);
-                    break;
-                }
-                List<String> repositories = parseRepositories(resp.body);
-                if (repositories.isEmpty()) {
-                    log.debug("未解析到仓库列表, url={}", nextUrl);
-                }
-                for (String repo : repositories) {
-                    // 计算镜像名称：
-                    String imageName = buildImageName(type, baseUrl, repo);
-                    // 计算软件名/代码
-                    String softName = repo.contains("/") ? repo.substring(repo.lastIndexOf('/') + 1) : repo;
-                    String softCode = repo.replace('/', '_');
-
-                    // 已存在则更新，不存在则新增
-                    SystemSoft existed = systemSoftMapper.selectByDockerImage(imageName);
-                    LocalDateTime now = LocalDateTime.now();
-                    if (existed == null) {
-                        SystemSoft soft = new SystemSoft();
-                        soft.setSystemSoftName(softName);
-                        soft.setSystemSoftCode(softCode);
-                        soft.setSystemSoftDockerImage(imageName);
-                        soft.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
-                        soft.setSystemSoftStatus(1);
-                        soft.setSystemSoftIsOfficial(isDockerHubOfficial(type, repo) ? 1 : 0);
-                        soft.setCreateTime(now);
-                        soft.setUpdateTime(now);
-                        systemSoftMapper.insert(soft);
-                        total++;
-                    } else {
-                        existed.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
-                        existed.setUpdateTime(now);
-                        // 保持名称/代码与仓库一致（如需）
-                        if (!StringUtils.hasText(existed.getSystemSoftName())) {
-                            existed.setSystemSoftName(softName);
-                        }
-                        if (!StringUtils.hasText(existed.getSystemSoftCode())) {
-                            existed.setSystemSoftCode(softCode);
-                        }
-                        if (existed.getSystemSoftStatus() == null) {
-                            existed.setSystemSoftStatus(1);
-                        }
-                        systemSoftMapper.updateById(existed);
-                        total++;
-                    }
-                }
-
-                // 处理分页：Docker Registry V2 可通过 Link 头部提供下一页
-                String link = resp.link;
-                if (!StringUtils.hasText(link)) {
-                    break;
-                }
-                String parsedNext = parseNextLink(link, baseUrl);
-                nextUrl = parsedNext;
-            } catch (Exception ex) {
-                log.error("同步仓库分页数据失败, url={}, err={}", nextUrl, ex.getMessage());
-                break;
-            }
-        }
-        return total;
-    }
-
-    /**
-     * 是否为 DockerHub 官方镜像（namespace 为 library）
-     */
-    private boolean isDockerHubOfficial(String type, String repo) {
-        if (!StringUtils.hasText(type)) {
-            return false;
-        }
-        return "docker_hub".equalsIgnoreCase(type) && repo.startsWith("library/");
-    }
-
-    /**
-     * 构建镜像名称：
-     * - 对于 docker_hub：保持 "namespace/repo" 格式（如 library/nginx）
-     * - 其它类型：使用 "host/repo"（从 registryUrl 提取 host[:port]）
-     */
-    private String buildImageName(String type, String baseUrl, String repo) {
-        if ("docker_hub".equalsIgnoreCase(type)) {
-            return repo;
-        }
-        try {
-            java.net.URL u = new java.net.URL(baseUrl);
-            String host = u.getHost();
-            int port = u.getPort();
-            String hostPort = port > 0 ? host + ":" + port : host;
-            return hostPort + "/" + repo;
-        } catch (Exception ignore) {
-            return repo;
-        }
-    }
-
-    /**
-     * 解析 Docker Registry V2 _catalog 响应中的 repositories 字段
-     * 预期 JSON：{"repositories":["a","b"]}
-     */
-    private List<String> parseRepositories(String body) {
-        java.util.ArrayList<String> list = new java.util.ArrayList<>();
-        if (!StringUtils.hasText(body)) {
-            return list;
-        }
-        int key = body.indexOf("\"repositories\"");
-        if (key < 0) {
-            return list;
-        }
-        int lb = body.indexOf('[', key);
-        int rb = body.indexOf(']', lb + 1);
-        if (lb < 0 || rb < 0 || rb <= lb) {
-            return list;
-        }
-        String arr = body.substring(lb + 1, rb).trim();
-        if (arr.isEmpty()) {
-            return list;
-        }
-        // 简单字符串数组解析：按逗号分割，去除引号与空格
-        int idx = 0;
-        while (idx < arr.length()) {
-            // 跳过空白与逗号
-            char c = arr.charAt(idx);
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == ',') {
-                idx++;
-                continue;
-            }
-            if (c == '"') {
-                int end = arr.indexOf('"', idx + 1);
-                if (end > idx + 1) {
-                    String v = arr.substring(idx + 1, end);
-                    if (StringUtils.hasText(v)) {
-                        list.add(v);
-                    }
-                    idx = end + 1;
-                } else {
-                    break;
-                }
-            } else {
-                // 非严格 JSON（容错）：读取到下一个逗号
-                int end = arr.indexOf(',', idx + 1);
-                String v = end > 0 ? arr.substring(idx, end) : arr.substring(idx);
-                v = v.trim();
-                if (v.startsWith("\"") && v.endsWith("\"") && v.length() >= 2) {
-                    v = v.substring(1, v.length() - 1);
-                }
-                if (StringUtils.hasText(v)) {
-                    list.add(v);
-                }
-                idx = end > 0 ? end + 1 : arr.length();
-            }
-        }
-        return list;
-    }
-
-    /**
-     * 解析 Link 头的 next URL。
-     * 形如：<https://registry/v2/_catalog?last=xxx&n=1000>; rel="next"
-     */
-    private String parseNextLink(String link, String baseUrl) {
-        try {
-            // 仅提取尖括号内的 URL
-            int lb = link.indexOf('<');
-            int rb = link.indexOf('>');
-            if (lb >= 0 && rb > lb) {
-                String url = link.substring(lb + 1, rb);
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    return url;
-                }
-                // 相对路径情况
-
-                if (url.startsWith("/")) {
-                    return trimTrailingSlash(baseUrl) + url;
-                }
-                return trimTrailingSlash(baseUrl) + "/" + url;
-            }
-        } catch (Exception ignore) {
-        }
-        return null;
-    }
-
-    /**
-     * GET 请求简易封装
-     */
-    private HttpResponse httpGet(String url, String username, String password, Integer timeoutSeconds) {
-        java.net.HttpURLConnection conn = null;
-        try {
-            java.net.URL u = new java.net.URL(url);
-            conn = (java.net.HttpURLConnection) u.openConnection();
-            int timeoutMs = (timeoutSeconds == null || timeoutSeconds <= 0) ? 5000 : timeoutSeconds * 1000;
-            conn.setConnectTimeout(timeoutMs);
-            conn.setReadTimeout(timeoutMs);
-            conn.setInstanceFollowRedirects(true);
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
-            if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-                String basic = username + ":" + password;
-                String enc = java.util.Base64.getEncoder().encodeToString(basic.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                conn.setRequestProperty("Authorization", "Basic " + enc);
-            }
-            int code = conn.getResponseCode();
-            String link = conn.getHeaderField("Link");
-            java.io.InputStream is = code >= 200 && code < 400 ? conn.getInputStream() : conn.getErrorStream();
-            String body = readStream(is);
-            return new HttpResponse(code, body, link);
-        } catch (Exception e) {
-            log.warn("HTTP GET 失败: url={}, err={}", url, e.getMessage());
-            return new HttpResponse(-1, null, null);
-        } finally {
-            if (conn != null) {
-                try { conn.disconnect(); } catch (Exception ignore) {}
-            }
-        }
-    }
-
-    private String readStream(java.io.InputStream is) {
-        if (is == null) { return null; }
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String trimTrailingSlash(String s) {
-        if (!StringUtils.hasText(s)) { return s; }
-        if (s.endsWith("/")) { return s.substring(0, s.length() - 1); }
-        return s;
-    }
-
-    private static class HttpResponse {
-        final int code;
-        final String body;
-        final String link;
-        HttpResponse(int code, String body, String link) {
-            this.code = code;
-            this.body = body;
-            this.link = link;
-        }
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -715,9 +450,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
      * @return 拉取结果，包含镜像信息或错误信息
      * @see DockerProtocolClient Docker客户端
      * @see DockerPullImage 镜像拉取配置对象
-     * @see DockerCallbackService#pullImageWithCallback(DockerProtocolClient, DockerPullImage, DockerResultCallback) 回调服务方法
      * @see StatusUpdatingWebSocketDockerPullCallback 状态更新WebSocket回调处理器
      */
+    @Override
     public ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, java.util.Map<String, Object> params) {
         log.info("拉取Docker镜像(带回调) - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
 
@@ -783,6 +518,164 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     }
 
     /**
+     * 使用 DockerProtocolClient 列举镜像并同步为 SystemSoft
+     *
+     * 实现要点：
+     * 1) 在绑定服务器上创建 Docker 客户端
+     * 2) 反射适配 listImage/listImages 等可能的签名
+     * 3) 提取仓库名（去除标签）并入库
+     *
+     * @param registry 仓库配置
+     * @return 新增或更新数量
+     * @author CH
+     * @since 2025/10/18
+     * @version 1.0.0
+     */
+    private int doDockerClientListSync(SystemSoftRegistry registry) {
+        Integer serverId = registry.getSystemSoftRegistryServerId();
+        if (serverId == null) {
+            return 0;
+        }
+        int total = 0;
+        try {
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.warn("无法创建Docker客户端 - serverId: {}", serverId);
+                return 0;
+            }
+
+            List<?> items = tryInvokeListImages(dockerClient, registry);
+            if (items == null || items.isEmpty()) {
+                log.debug("未从 Docker 客户端获取到镜像列表");
+                return 0;
+            }
+
+            for (Object it : items) {
+                for (String baseImage : extractRepoNames(it)) {
+                    if (!StringUtils.hasText(baseImage)) { continue; }
+                    String softName = baseImage.contains("/") ? baseImage.substring(baseImage.lastIndexOf('/') + 1) : baseImage;
+                    String softCode = baseImage.replace('/', '_');
+                    LocalDateTime now = LocalDateTime.now();
+
+                    SystemSoft existed = systemSoftMapper.selectByDockerImage(baseImage);
+                    if (existed == null) {
+                        SystemSoft soft = new SystemSoft();
+                        soft.setSystemSoftName(softName);
+                        soft.setSystemSoftCode(softCode);
+                        soft.setSystemSoftDockerImage(baseImage);
+                        soft.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
+                        soft.setSystemSoftStatus(1);
+                        soft.setSystemSoftIsOfficial(0);
+                        soft.setCreateTime(now);
+                        soft.setUpdateTime(now);
+                        systemSoftMapper.insert(soft);
+                        total++;
+                    } else {
+                        existed.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
+                        existed.setUpdateTime(now);
+                        if (!StringUtils.hasText(existed.getSystemSoftName())) { existed.setSystemSoftName(softName); }
+                        if (!StringUtils.hasText(existed.getSystemSoftCode())) { existed.setSystemSoftCode(softCode); }
+                        if (existed.getSystemSoftStatus() == null) { existed.setSystemSoftStatus(1); }
+                        systemSoftMapper.updateById(existed);
+                        total++;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("基于 Docker 客户端列举镜像失败: {}", e.getMessage());
+            return 0;
+        }
+        return total;
+    }
+
+    /**
+     * 反射调用 DockerProtocolClient 列举镜像，兼容不同签名
+     */
+    @SuppressWarnings("unchecked")
+    private List<?> tryInvokeListImages(DockerProtocolClient client, SystemSoftRegistry registry) {
+        try {
+            // listImage(String url, String user, String pass, int page, int pageSize)
+            try {
+                var m = client.getClass().getMethod("listImage", String.class, String.class, String.class, int.class, int.class);
+                Object rst = m.invoke(client,
+                        registry.getSystemSoftRegistryUrl(),
+                        registry.getSystemSoftRegistryUsername(),
+                        registry.getSystemSoftRegistryPassword(), 1, 1000);
+                if (rst instanceof List) return (List<?>) rst;
+            } catch (NoSuchMethodException ignore) {}
+            // listImage(String url, String user, String pass)
+            try {
+                var m = client.getClass().getMethod("listImage", String.class, String.class, String.class);
+                Object rst = m.invoke(client,
+                        registry.getSystemSoftRegistryUrl(),
+                        registry.getSystemSoftRegistryUsername(),
+                        registry.getSystemSoftRegistryPassword());
+                if (rst instanceof List) return (List<?>) rst;
+            } catch (NoSuchMethodException ignore) {}
+            // listImages()
+            try {
+                var m = client.getClass().getMethod("listImages");
+                Object rst = m.invoke(client);
+                if (rst instanceof List) return (List<?>) rst;
+            } catch (NoSuchMethodException ignore) {}
+            // listImage()
+            try {
+                var m = client.getClass().getMethod("listImage");
+                Object rst = m.invoke(client);
+                if (rst instanceof List) return (List<?>) rst;
+            } catch (NoSuchMethodException ignore) {}
+        } catch (Throwable ex) {
+            log.warn("调用 DockerProtocolClient 列举镜像失败: {}", ex.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * 从返回项中提取去标签的仓库名集合
+     */
+    @SuppressWarnings("unchecked")
+    private List<String> extractRepoNames(Object item) {
+        java.util.LinkedHashSet<String> set = new java.util.LinkedHashSet<>();
+        if (item == null) return java.util.Collections.emptyList();
+        try {
+            if (item instanceof String) {
+                set.add(stripTag((String) item));
+            } else if (item instanceof java.util.Map) {
+                java.util.Map<?, ?> mp = (java.util.Map<?, ?>) item;
+                Object tags = firstNonNull(mp.get("repoTags"), mp.get("RepoTags"), mp.get("tags"));
+                if (tags instanceof List) {
+                    for (Object t : (List<?>) tags) { if (t != null) set.add(stripTag(String.valueOf(t))); }
+                }
+                Object name = firstNonNull(mp.get("name"), mp.get("repo_name"), mp.get("repoName"), mp.get("repository"));
+                if (name != null) set.add(stripTag(String.valueOf(name)));
+            } else {
+                try { var m = item.getClass().getMethod("getRepoTags"); Object v = m.invoke(item);
+                    if (v instanceof String[]) { for (String s : (String[]) v) { set.add(stripTag(s)); } }
+                    else if (v instanceof java.util.List) { for (Object s : (java.util.List<?>) v) { if (s != null) set.add(stripTag(String.valueOf(s))); } }
+                } catch (Exception ignore) {}
+                try { var m = item.getClass().getMethod("getName"); Object v = m.invoke(item); if (v != null) set.add(stripTag(String.valueOf(v))); } catch (Exception ignore) {}
+                try { var m = item.getClass().getMethod("getRepository"); Object v = m.invoke(item); if (v != null) set.add(stripTag(String.valueOf(v))); } catch (Exception ignore) {}
+            }
+        } catch (Throwable ignore) {}
+        return new java.util.ArrayList<>(set);
+    }
+
+    private Object firstNonNull(Object... arr) {
+        if (arr == null) return null;
+        for (Object o : arr) { if (o != null) return o; }
+        return null;
+    }
+
+    private String stripTag(String name) {
+        if (!StringUtils.hasText(name)) return name;
+        int idx = name.lastIndexOf(':');
+        if (idx > 0 && !name.contains("http://") && !name.contains("https://")) {
+            return name.substring(0, idx);
+        }
+        return name;
+    }
+
+    /**
      * 验证软件信息
      *
      * @param systemSoft 软件信息
@@ -817,5 +710,16 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
         }
 
         return ReturnResult.ok("验证通过");
+    }
+
+
+    /**
+     * 获取Docker客户端
+     *
+     * @param serverId 服务器ID
+     * @return Docker客户端
+     */
+    public DockerProtocolClient getDockerClient(Integer serverId) {
+        return dockerProtocolClientFactory.createClient(serverId);
     }
 }

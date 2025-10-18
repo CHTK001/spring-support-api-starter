@@ -96,6 +96,16 @@ public class SystemSoftRegistry extends SysBase {
     private String systemSoftRegistryEmail;
 
     /**
+     * 绑定服务器ID（必选）
+     * 指定该仓库由哪个服务器使用
+     */
+    @TableField("system_soft_registry_server_id")
+    @ApiModelProperty(value = "绑定服务器ID")
+    @Schema(description = "绑定服务器ID")
+    @NotNull(message = "服务器ID不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    private Integer systemSoftRegistryServerId;
+
+    /**
      * 是否为默认仓库(0:否, 1:是)
      */
     @TableField("system_soft_registry_is_default")
