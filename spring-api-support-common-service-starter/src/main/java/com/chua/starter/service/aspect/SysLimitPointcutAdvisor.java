@@ -1,13 +1,13 @@
 package com.chua.starter.service.aspect;
 
-import com.chua.common.support.utils.IpUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.logger.RequestUtils;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.service.SysLimitRecordService;
 import com.chua.starter.system.entity.SysLimitInfo;
 import com.chua.starter.system.entity.SysLimitRecord;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -20,8 +20,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -104,7 +102,7 @@ public class SysLimitPointcutAdvisor extends StaticMethodMatcherPointcutAdvisor 
             sysLimitInfo.setSysLimitPath(RequestUtils.getUrl(getRequest()));
             sysLimitInfo.setSysLimitName(name);
             sysLimitInfo.setSysLimitTime(new Date());
-            sysLimitInfo.setSysUserId(RequestUtils.getUserId());
+            sysLimitInfo.setSysUserId(Long.valueOf(RequestUtils.getUserId()));
             sysLimitInfo.setSysUserName(RequestUtils.getUsername());
             sysLimitInfo.setClientIp(RequestUtils.getIpAddress(getRequest()));
             sysLimitInfo.setRequestUrl(RequestUtils.getUrl(getRequest()));
