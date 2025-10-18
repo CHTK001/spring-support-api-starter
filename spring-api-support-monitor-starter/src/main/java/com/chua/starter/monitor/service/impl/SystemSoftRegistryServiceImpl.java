@@ -49,7 +49,6 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
                 return ReturnResult.error("仓库不存在");
             }
 
-            // TODO: 实现具体的连接测试逻辑，根据仓库类型调用不同的连接方法
             boolean isConnected = performConnectionTest(registry);
             
             // 更新连接状态
