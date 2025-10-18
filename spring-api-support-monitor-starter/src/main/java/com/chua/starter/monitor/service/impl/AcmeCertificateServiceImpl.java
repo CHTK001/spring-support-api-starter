@@ -106,7 +106,8 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         cert.setAcmeCertStatus("pending");
         certificateMapper.insert(cert);
         int certId = cert.getAcmeCertId();
-n        // 组装域名列表
+
+        // 组装域名列表
         List<String> domains = new ArrayList<>();
         domains.add(request.getPrimaryDomain());
         if (!sans.isEmpty()) {
