@@ -17,16 +17,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SysLimitConfigurationAspectConfiguration {
 
-    @Autowired
-    private RateLimiterRegistry rateLimiterRegistry;
-
-    /**
-     * 注册基于数据库配置的限流切面
-     * 
-     * @return 限流切面实例
-     */
-    @Bean
-    public SysLimitConfigurationAspect sysLimitConfigurationAspect() {
-        return new SysLimitConfigurationAspect(rateLimiterRegistry);
-    }
+//    @Autowired
+//    private RateLimiterRegistry rateLimiterRegistry;
+//
+//    /**
+//     * 注册基于数据库配置的限流切面
+//     *
+//     * @return 限流切面实例
+//     */
+//    @Bean
+//    public SysLimitConfigurationAspect sysLimitConfigurationAspect() {
+//        return new SysLimitConfigurationAspect(rateLimiterRegistry);
+//    }
 }
