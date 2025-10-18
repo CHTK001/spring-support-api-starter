@@ -17,6 +17,11 @@
   `system_soft_registry_is_default=1`）置顶，其次按 `system_soft_registry_sort` 升序。
 - 实现 `SystemSoftRegistryServiceImpl#syncRegistry`：校验仓库启用及支持同步后，调用 `SystemSoftService#syncFromRegistry`
   将软件同步至软件库。
+- 实现 `SystemSoftServiceImpl#syncFromRegistry`：
+  - 基于 Docker Registry V2 API（`/v2/_catalog`）拉取仓库列表，支持 Link 分页；
+  - 将仓库映射为 `SystemSoft`，存在则更新、否则新增；
+  - 非 DockerHub 使用 `host[:port]/repo` 作为镜像名，DockerHub 使用 `namespace/repo`；
+  - 只同步仓库不拉取标签；DockerHub 官方库 `library/*` 标记为官方。
 - 修复 com.chua.starter.monitor.mapper 缺失的 MyBatis XML 与 SQL 声明：新增并完善以下映射文件与语句：
     - MonitorArthasSessionMapper.xml（将原注解SQL迁移至XML，新增查询/更新/清理等语句）
     - MonitorSysGenMessagePushTemplateMapper.xml、MonitorSysGenSerialMapper.xml、MonitorSysGenScriptUploadRecordMapper.xml
