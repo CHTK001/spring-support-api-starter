@@ -12,16 +12,16 @@
   - 接入 ACME 实际流程：申请时生成并保存 HTTP-01/DNS-01 挑战信息到 monitor_acme_order.acme_authz_urls，验证就绪后自动签发并回填证书链与私钥；支持续签与撤销
 
 - SystemSoftRegistry 新增字段 `system_soft_registry_support_sync`（是否支持同步，0/1）；前端据此隐藏不同步的仓库的“同步”按钮。
+- SystemSoftRegistry 新增字段 `system_soft_registry_server_id`（绑定服务器ID，必填）；添加/编辑仓库必须选定服务器，用于指定该服务器使用该仓库。
 - 新增后端接口 `POST /v1/system/soft/registry/{id}/default` 用于设置默认仓库；服务端通过清除所有默认标记再设置当前默认，保证仅有一个默认仓库。
 - 软件仓库列表默认优先排序：`GET /v1/system/soft/registry` 与 `GET /v1/system/soft/registry/page` 返回数据时，默认仓库（
   `system_soft_registry_is_default=1`）置顶，其次按 `system_soft_registry_sort` 升序。
 - 实现 `SystemSoftRegistryServiceImpl#syncRegistry`：校验仓库启用及支持同步后，调用 `SystemSoftService#syncFromRegistry`
   将软件同步至软件库。
 - 实现 `SystemSoftServiceImpl#syncFromRegistry`：
-  - 基于 Docker Registry V2 API（`/v2/_catalog`）拉取仓库列表，支持 Link 分页；
-  - 将仓库映射为 `SystemSoft`，存在则更新、否则新增；
-  - 非 DockerHub 使用 `host[:port]/repo` 作为镜像名，DockerHub 使用 `namespace/repo`；
-  - 只同步仓库不拉取标签；DockerHub 官方库 `library/*` 标记为官方。
+  - 使用 DockerProtocolClient 在绑定服务器上列举本地镜像，适配多种签名（listImage/listImages）；
+  - 提取仓库名（去标签）并同步为 SystemSoft，存在则更新、否则新增；
+  - 只同步仓库名，不处理具体标签。
 - 修复 com.chua.starter.monitor.mapper 缺失的 MyBatis XML 与 SQL 声明：新增并完善以下映射文件与语句：
     - MonitorArthasSessionMapper.xml（将原注解SQL迁移至XML，新增查询/更新/清理等语句）
     - MonitorSysGenMessagePushTemplateMapper.xml、MonitorSysGenSerialMapper.xml、MonitorSysGenScriptUploadRecordMapper.xml
@@ -195,6 +195,7 @@
 
 ### Changed
 
+- 添加仓库配置校验：`SystemSoftRegistryServiceImpl#validateRegistryConfig` 新增对 `system_soft_registry_server_id` 的必填校验。
 - SystemSoftRegistry 仓库连接测试逻辑：`SystemSoftRegistryServiceImpl#testConnection` 改为使用 URL 连通性检测（优先
   HEAD，失败回退 GET），判定 HTTP 200-399 为成功；按照规则自动更新连接状态与错误信息。
 
