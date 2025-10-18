@@ -43,6 +43,17 @@
     - 说明：当仓库启用且支持同步时，从指定仓库同步软件到软件库。
     - 入参：路径参数 `id`（整数，必填）
     - 出参：`ReturnResult<Boolean>`，并在消息中返回同步数量描述。
+- `POST /api/monitor/system-soft/sync?registryId={id}`
+    - 说明：由 SystemSoftController 提供的同步入口；当 `registryId` 为空时使用“默认仓库”。
+    - 出参：`ReturnResult<Integer>`，返回新增/更新的软件条数。
+
+实现说明：
+- 已实现 `SystemSoftServiceImpl#syncFromRegistry`，基于 Docker Registry V2 标准接口（`/v2/_catalog`）同步仓库列表至软件库：
+  - 支持分页（读取 Link 头）；
+  - 仅同步仓库（仓库名 -> SystemSoft），不拉取标签；
+  - 非 DockerHub 仓库使用 `host[:port]/repo` 作为镜像名；DockerHub 使用 `namespace/repo`；
+  - 已存在则更新 `registryId/更新时间/缺失的名称与代码`，不存在则新增并启用；
+  - 官方镜像（DockerHub 的 `library/*`）自动标记 `is_official=1`。
 
 ### 软件仓库管理 - 设置默认仓库
 
