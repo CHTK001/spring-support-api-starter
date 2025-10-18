@@ -122,8 +122,10 @@ public class ServerTaskManager {
         // 创建虚拟线程执行器
         executorService = Executors.newVirtualThreadPerTaskExecutor();
 
-        // 为所有现有服务器创建任务（包含全局任务启动）
-        initializeServerTasks();
+        Thread.ofVirtual().start(() -> {
+            // 为所有现有服务器创建任务（包含全局任务启动）
+            initializeServerTasks();
+        });
 
         log.info("服务器任务管理器初始化完成");
     }
