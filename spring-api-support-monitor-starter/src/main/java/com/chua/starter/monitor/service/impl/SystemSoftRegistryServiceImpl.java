@@ -231,6 +231,11 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
                 return ReturnResult.error("仓库类型不能为空");
             }
 
+            // 服务器绑定必填
+            if (registry.getSystemSoftRegistryServerId() == null) {
+                return ReturnResult.error("服务器ID不能为空");
+            }
+
             // 检查名称重复
             Long nameCount = systemSoftRegistryMapper.checkRegistryNameExists(
                     registry.getSystemSoftRegistryName(), registry.getSystemSoftRegistryId());

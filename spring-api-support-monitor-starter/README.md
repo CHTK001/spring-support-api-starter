@@ -48,12 +48,10 @@
     - 出参：`ReturnResult<Integer>`，返回新增/更新的软件条数。
 
 实现说明：
-- 已实现 `SystemSoftServiceImpl#syncFromRegistry`，基于 Docker Registry V2 标准接口（`/v2/_catalog`）同步仓库列表至软件库：
-  - 支持分页（读取 Link 头）；
-  - 仅同步仓库（仓库名 -> SystemSoft），不拉取标签；
-  - 非 DockerHub 仓库使用 `host[:port]/repo` 作为镜像名；DockerHub 使用 `namespace/repo`；
-  - 已存在则更新 `registryId/更新时间/缺失的名称与代码`，不存在则新增并启用；
-  - 官方镜像（DockerHub 的 `library/*`）自动标记 `is_official=1`。
+- 已实现 `SystemSoftServiceImpl#syncFromRegistry`，使用 DockerProtocolClient 在绑定服务器上列举镜像并同步到软件库：
+  - 基于 Docker 客户端在指定服务器上列举本地镜像（去除标签，按仓库维度去重）；
+  - 反射兼容 listImage/listImages 等多种签名，适应不同版本DockerProtocolClient；
+  - 仅同步仓库名，不拉取标签；新增或更新 registryId/名称/代码/更新时间。
 
 ### 软件仓库管理 - 设置默认仓库
 

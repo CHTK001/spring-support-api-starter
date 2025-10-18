@@ -51,6 +51,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  */
 @Slf4j
 @Service
+@Lazy(false)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
 
     @Autowired
