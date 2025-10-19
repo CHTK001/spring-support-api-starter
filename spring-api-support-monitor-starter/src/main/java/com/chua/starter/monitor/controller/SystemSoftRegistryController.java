@@ -324,13 +324,15 @@ public class SystemSoftRegistryController {
      * @return 默认仓库信息
      */
     @GetMapping("/default")
-    @Operation(summary = "获取默认仓库", description = "获取当前设置的默认镜像仓库")
-    public ReturnResult<SystemSoftRegistry> getDefault() {
+    @Operation(summary = "获取默认仓库", description = "获取当前设置的默认镜像仓库；当提供 serverId 时，返回该服务器的默认仓库")
+    public ReturnResult<SystemSoftRegistry> getDefault(@RequestParam(value = "serverId", required = false) Integer serverId) {
 
         try {
-            log.debug("获取默认仓库");
+            log.debug("获取默认仓库, serverId: {}", serverId);
 
-            ReturnResult<SystemSoftRegistry> result = systemSoftRegistryService.getDefaultRegistry();
+            ReturnResult<SystemSoftRegistry> result = (serverId == null)
+                    ? systemSoftRegistryService.getDefaultRegistry()
+                    : systemSoftRegistryService.getDefaultRegistryByServerId(serverId);
             log.debug("获取默认仓库完成, result: {}", result.isOk());
             return result;
 

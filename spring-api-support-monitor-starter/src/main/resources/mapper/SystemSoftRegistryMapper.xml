@@ -69,6 +69,15 @@
         LIMIT 1
     </select>
 
+    <select id="selectDefaultRegistryByServerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_is_default = 1
+          AND system_soft_registry_server_id = #{serverId}
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
     <select id="selectEnabledRegistries" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/>
         FROM system_soft_registry
@@ -126,6 +135,12 @@
 
     <update id="clearAllDefaultFlags">
         UPDATE system_soft_registry SET system_soft_registry_is_default = 0
+    </update>
+
+    <update id="clearDefaultFlagsByServerId">
+        UPDATE system_soft_registry
+        SET system_soft_registry_is_default = 0
+        WHERE system_soft_registry_server_id = #{serverId}
     </update>
 
     <update id="updateConnectStatus">
