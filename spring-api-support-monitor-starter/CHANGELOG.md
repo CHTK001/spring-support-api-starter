@@ -13,7 +13,7 @@
 
 - SystemSoftRegistry 新增字段 `system_soft_registry_support_sync`（是否支持同步，0/1）；前端据此隐藏不同步的仓库的“同步”按钮。
 - SystemSoftRegistry 新增字段 `system_soft_registry_server_id`（绑定服务器ID，必填）；添加/编辑仓库必须选定服务器，用于指定该服务器使用该仓库。
-- 新增后端接口 `POST /v1/system/soft/registry/{id}/default` 用于设置默认仓库；服务端通过清除所有默认标记再设置当前默认，保证仅有一个默认仓库。
+- 新增后端接口 `POST /v1/system/soft/registry/{id}/default` 用于设置默认仓库；默认仓库策略调整为“每台服务器一个默认仓库”：清除该服务器下的默认标记后再设置当前仓库为默认。新增 `GET /v1/system/soft/registry/default?serverId={serverId}` 以按服务器获取默认仓库。
 - 软件仓库列表默认优先排序：`GET /v1/system/soft/registry` 与 `GET /v1/system/soft/registry/page` 返回数据时，默认仓库（
   `system_soft_registry_is_default=1`）置顶，其次按 `system_soft_registry_sort` 升序。
 - 实现 `SystemSoftRegistryServiceImpl#syncRegistry`：校验仓库启用及支持同步后，调用 `SystemSoftService#syncFromRegistry`

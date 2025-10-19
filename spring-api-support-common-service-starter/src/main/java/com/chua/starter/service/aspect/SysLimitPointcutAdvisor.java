@@ -42,7 +42,8 @@ public class SysLimitPointcutAdvisor extends StaticMethodMatcherPointcutAdvisor 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         // 匹配所有被RateLimiter注解的方法
-        return method.isAnnotationPresent(io.github.resilience4j.ratelimiter.annotation.RateLimiter.class);
+//        return method.isAnnotationPresent(io.github.resilience4j.ratelimiter.annotation.RateLimiter.class);
+        return false;
     }
 
     @Override

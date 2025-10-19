@@ -124,6 +124,22 @@ public interface SystemSoftRegistryMapper extends BaseMapper<SystemSoftRegistry>
     Integer clearAllDefaultFlags();
 
     /**
+     * 清除指定服务器下的默认仓库标识
+     *
+     * @param serverId 服务器ID
+     * @return 更新的记录数
+     */
+    Integer clearDefaultFlagsByServerId(@Param("serverId") Integer serverId);
+
+    /**
+     * 查询指定服务器的默认仓库
+     *
+     * @param serverId 服务器ID
+     * @return 默认仓库
+     */
+    SystemSoftRegistry selectDefaultRegistryByServerId(@Param("serverId") Integer serverId);
+
+    /**
      * 更新仓库连接状态
      *
      * @param registryId      仓库ID

@@ -56,8 +56,10 @@
 ### 软件仓库管理 - 设置默认仓库
 
 - `POST /v1/system/soft/registry/{id}/default`
-    - 说明：将指定仓库设为默认仓库；后端会先清除全部默认标记，再设置当前仓库为默认，确保全局仅有一个默认仓库。
+    - 说明：将指定仓库设为默认仓库；现在改为“每台服务器一个默认仓库”：仅清除该仓库所属服务器下的默认标记，再设置当前仓库为默认。
     - 约束：仅“启用”的仓库可设为默认（`system_soft_registry_status=1`）。
+- `GET /v1/system/soft/registry/default?serverId={serverId}`
+    - 说明：按服务器获取默认仓库；不传 `serverId` 则返回任意（兼容旧逻辑）。
     - 入参：路径参数 `id`（整数，必填）
     - 出参：`ReturnResult<Boolean>`，成功返回 `true`。
 - 列表排序：`GET /v1/system/soft/registry` 与 `GET /v1/system/soft/registry/page` 均已按“默认优先，其次按 sort
