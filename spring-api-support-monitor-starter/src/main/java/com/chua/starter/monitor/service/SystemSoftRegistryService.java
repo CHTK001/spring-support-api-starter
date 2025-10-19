@@ -68,6 +68,14 @@ public interface SystemSoftRegistryService extends IService<SystemSoftRegistry> 
     ReturnResult<SystemSoftRegistry> getDefaultRegistry();
 
     /**
+     * 根据服务器获取默认仓库
+     *
+     * @param serverId 服务器ID
+     * @return 默认仓库信息
+     */
+    ReturnResult<SystemSoftRegistry> getDefaultRegistryByServerId(Integer serverId);
+
+    /**
      * 获取所有启用的仓库
      *
      * @return 启用的仓库列表

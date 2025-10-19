@@ -90,7 +90,8 @@ public class SysLimitConfigurationAspect extends StaticMethodMatcherPointcutAdvi
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         // 匹配所有Controller中的方法
-        return targetClass.getName().endsWith(CONTROLLER_SUFFIX);
+//        return targetClass.getName().endsWith(CONTROLLER_SUFFIX);
+        return false;
     }
 
     @Override

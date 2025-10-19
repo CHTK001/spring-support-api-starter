@@ -94,9 +94,9 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
                 return ReturnResult.error("仓库未启用，无法设置为默认仓库");
             }
 
-            // 清除所有默认标识
-            systemSoftRegistryMapper.clearAllDefaultFlags();
-            
+            // 清除该服务器下的默认标识（一台服务器仅允许一个默认仓库）
+            systemSoftRegistryMapper.clearDefaultFlagsByServerId(registry.getSystemSoftRegistryServerId());
+
             // 设置新的默认仓库
             systemSoftRegistryMapper.updateDefaultFlag(registryId);
             
@@ -149,7 +149,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
         try {
             SystemSoftRegistry defaultRegistry = systemSoftRegistryMapper.selectDefaultRegistry();
-            
+
             if (defaultRegistry == null) {
                 log.info("未找到默认仓库");
                 return ReturnResult.ok(null, "未设置默认仓库");
@@ -160,6 +160,20 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
         } catch (Exception e) {
             log.error("获取默认仓库异常", e);
+            return ReturnResult.error("获取默认仓库异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 根据服务器获取默认仓库
+     */
+    @Override
+    public ReturnResult<SystemSoftRegistry> getDefaultRegistryByServerId(Integer serverId) {
+        try {
+            SystemSoftRegistry defaultRegistry = systemSoftRegistryMapper.selectDefaultRegistryByServerId(serverId);
+            return ReturnResult.ok(defaultRegistry);
+        } catch (Exception e) {
+            log.error("根据服务器获取默认仓库异常, serverId: {}", serverId, e);
             return ReturnResult.error("获取默认仓库异常: " + e.getMessage());
         }
     }
