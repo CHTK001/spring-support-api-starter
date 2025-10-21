@@ -8,14 +8,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 系统软件版本信息Mapper接口
- *
  * @author CH
- * @since 2025/01/15
+ * @since 2025/10/21 13:38
  */
 @Mapper
 public interface SystemSoftVersionMapper extends BaseMapper<SystemSoftVersion> {
-
     /**
      * 根据软件ID查询版本列表
      *

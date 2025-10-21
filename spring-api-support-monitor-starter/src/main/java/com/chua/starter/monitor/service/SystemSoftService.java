@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoft;
 import com.chua.starter.monitor.entity.SystemSoftImage;
@@ -101,6 +102,36 @@ public interface SystemSoftService extends IService<SystemSoft> {
     ReturnResult<Integer> syncFromRegistry(Integer registryId);
 
     /**
+     * 在线关键字搜索（聚合默认仓库，SPI）
+     * @param keyword 关键词
+     * @param page 页码
+     * @param size 页大小
+     * @return 结果
+     */
+    ReturnPageResult<SystemSoft> searchOnlineByKeyword(String keyword, Integer page, Integer size);
+
+    /**
+     * 在线结果导入
+     * @param items 待导入项
+     * @return 入队数量
+     */
+    ReturnResult<Integer> importOnlineItems(List<SystemSoft> items);
+
+    /**
+     * 在线关键字搜索(ForOnline)
+     */
+    default ReturnPageResult<SystemSoft> searchOnlineByKeywordForOnline(String keyword, Integer page, Integer size) {
+        return searchOnlineByKeyword(keyword, page, size);
+    }
+
+    /**
+     * 在线结果导入(ForOnline)
+     */
+    default ReturnResult<Integer> importOnlineItemsForOnline(List<SystemSoft> items) {
+        return importOnlineItems(items);
+    }
+
+    /**
      * 同步单个软件信息
      *
      * @param registryId   仓库ID
@@ -118,6 +149,17 @@ public interface SystemSoftService extends IService<SystemSoft> {
      * @return 安装结果
      */
     ReturnResult<Boolean> installSoftware(Integer softId, List<Integer> serverIds, String imageTag);
+
+    /**
+     * 安装软件（带完整配置，异步拉取镜像）。
+     * 返回 operationId 用于前端跟踪。实际进度通过 WebSocket 推送。
+     *
+     * @param softId       软件ID
+     * @param serverIds    服务器ID列表
+     * @param installConfig 安装配置（imageTag、ports、env、volumes、command等）
+     * @return operationId
+     */
+    ReturnResult<String> installSoftwareWithConfig(Integer softId, List<Integer> serverIds, java.util.Map<String, Object> installConfig);
 
     /**
      * 获取软件的可用标签列表

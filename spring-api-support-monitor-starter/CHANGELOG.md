@@ -1,7 +1,21 @@
+# 更新日志
+
+## 2025-10-20
+- feat(registry): 支持多默认仓库，新增取消默认接口 POST /v1/system/soft/registry/{id}/default/cancel
+- feat(online): 新增在线搜索/导入接口，基于 SPI 聚合默认仓库
+- feat(online): 在线检索结果增加星标计数与拉取计数两个字段（非持久化）：systemSoftStarCount、systemSoftPullCount
+- fix(online): 关键词为空时后端直接返回空列表；前端本地拦截，避免无效请求
+- docs: 更新 README 说明
+
 # Changelog - spring-api-support-monitor-starter
 
 ## [Unreleased]
 ### Added
+- MonitorSysGenServerSetting 新增 Docker 认证与超时字段（均为可选）：
+  - monitor_sys_gen_server_setting_docker_username（API用户名）
+  - monitor_sys_gen_server_setting_docker_password（API密码）
+  - monitor_sys_gen_server_setting_docker_connect_timeout_millis（连接超时，毫秒，默认30000）
+  - DockerProtocolClientFactory 已读取上述字段进行客户端构建；默认超时30秒。
 - ACME 证书自动申请/管理/续期能力：
   - 新增实体：MonitorAcmeAccount、MonitorAcmeCertificate、MonitorAcmeOrder
   - 新增 Mapper 及 XML：MonitorAcmeAccountMapper、MonitorAcmeCertificateMapper、MonitorAcmeOrderMapper

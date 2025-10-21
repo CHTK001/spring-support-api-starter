@@ -1,54 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.monitor.mapper.SystemSoftVersionMapper">
-
-    <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftVersion">
-        <id column="system_soft_version_id" property="systemSoftVersionId" jdbcType="INTEGER"/>
-        <result column="system_soft_id" property="systemSoftId" jdbcType="INTEGER"/>
-        <result column="system_soft_version_name" property="systemSoftVersionName" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_number" property="systemSoftVersionNumber" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_download_url" property="systemSoftVersionDownloadUrl" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_image_tag" property="systemSoftVersionImageTag" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_install_template" property="systemSoftVersionInstallTemplate" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_description" property="systemSoftVersionDescription" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_size" property="systemSoftVersionSize" jdbcType="BIGINT"/>
-        <result column="system_soft_version_status" property="systemSoftVersionStatus" jdbcType="INTEGER"/>
-        <result column="system_soft_version_is_latest" property="systemSoftVersionIsLatest" jdbcType="INTEGER"/>
-        <result column="system_soft_version_is_stable" property="systemSoftVersionIsStable" jdbcType="INTEGER"/>
-        <result column="system_soft_version_release_time" property="systemSoftVersionReleaseTime" jdbcType="TIMESTAMP"/>
-        <result column="system_soft_version_min_requirements" property="systemSoftVersionMinRequirements" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_recommended_requirements" property="systemSoftVersionRecommendedRequirements" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_remark" property="systemSoftVersionRemark" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_ext_field1" property="systemSoftVersionExtField1" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_ext_field2" property="systemSoftVersionExtField2" jdbcType="VARCHAR"/>
-        <result column="system_soft_version_ext_field3" property="systemSoftVersionExtField3" jdbcType="VARCHAR"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
-        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
-        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
-    </resultMap>
-
-    <!-- 基础字段 -->
-    <sql id="Base_Column_List">
-        system_soft_version_id, system_soft_id, system_soft_version_name, system_soft_version_number,
-        system_soft_version_download_url, system_soft_version_image_tag, system_soft_version_install_template,
-        system_soft_version_description, system_soft_version_size, system_soft_version_status,
-        system_soft_version_is_latest, system_soft_version_is_stable, system_soft_version_release_time,
-        system_soft_version_min_requirements, system_soft_version_recommended_requirements,
-        system_soft_version_remark, system_soft_version_ext_field1, system_soft_version_ext_field2,
-        system_soft_version_ext_field3, create_time, update_time, create_by, update_by
-    </sql>
+  <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.SystemSoftVersion">
+    <!--@mbg.generated-->
+    <!--@Table system_soft_version-->
+    <id column="system_soft_version_id" jdbcType="INTEGER" property="systemSoftVersionId" />
+    <result column="system_soft_id" jdbcType="INTEGER" property="systemSoftId" />
+    <result column="system_soft_version_name" jdbcType="VARCHAR" property="systemSoftVersionName" />
+    <result column="sys_soft_version_digest" jdbcType="VARCHAR" property="sysSoftVersionDigest" />
+    <result column="system_soft_version_number" jdbcType="VARCHAR" property="systemSoftVersionNumber" />
+    <result column="system_soft_version_download_url" jdbcType="VARCHAR" property="systemSoftVersionDownloadUrl" />
+    <result column="system_soft_version_image_tag" jdbcType="VARCHAR" property="systemSoftVersionImageTag" />
+    <result column="system_soft_version_install_template" jdbcType="VARCHAR" property="systemSoftVersionInstallTemplate" />
+    <result column="system_soft_version_description" jdbcType="VARCHAR" property="systemSoftVersionDescription" />
+    <result column="system_soft_version_size" jdbcType="BIGINT" property="systemSoftVersionSize" />
+    <result column="system_soft_version_status" jdbcType="INTEGER" property="systemSoftVersionStatus" />
+    <result column="system_soft_version_is_latest" jdbcType="INTEGER" property="systemSoftVersionIsLatest" />
+    <result column="system_soft_version_is_stable" jdbcType="INTEGER" property="systemSoftVersionIsStable" />
+    <result column="system_soft_version_release_time" jdbcType="TIMESTAMP" property="systemSoftVersionReleaseTime" />
+    <result column="system_soft_version_min_requirements" jdbcType="VARCHAR" property="systemSoftVersionMinRequirements" />
+    <result column="system_soft_version_recommended_requirements" jdbcType="VARCHAR" property="systemSoftVersionRecommendedRequirements" />
+    <result column="system_soft_version_remark" jdbcType="VARCHAR" property="systemSoftVersionRemark" />
+    <result column="system_soft_version_ext_field1" jdbcType="VARCHAR" property="systemSoftVersionExtField1" />
+    <result column="system_soft_version_ext_field2" jdbcType="VARCHAR" property="systemSoftVersionExtField2" />
+    <result column="system_soft_version_ext_field3" jdbcType="VARCHAR" property="systemSoftVersionExtField3" />
+    <result column="create_name" jdbcType="VARCHAR" property="createName" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    system_soft_version_id, system_soft_id, system_soft_version_name, sys_soft_version_digest, 
+    system_soft_version_number, system_soft_version_download_url, system_soft_version_image_tag, 
+    system_soft_version_install_template, system_soft_version_description, system_soft_version_size, 
+    system_soft_version_status, system_soft_version_is_latest, system_soft_version_is_stable, 
+    system_soft_version_release_time, system_soft_version_min_requirements, system_soft_version_recommended_requirements, 
+    system_soft_version_remark, system_soft_version_ext_field1, system_soft_version_ext_field2, 
+    system_soft_version_ext_field3, create_name, create_by, create_time, update_time, 
+    update_name, update_by
+  </sql>
 
     <select id="selectBySoftId" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
         ORDER BY system_soft_version_release_time DESC, create_time DESC
     </select>
 
     <select id="selectBySoftIdAndVersionName" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
           AND system_soft_version_name = #{versionName}
@@ -56,7 +59,7 @@
     </select>
 
     <select id="selectBySoftIdAndImageTag" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
           AND system_soft_version_image_tag = #{imageTag}
@@ -64,7 +67,7 @@
     </select>
 
     <select id="selectLatestBySoftId" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
         ORDER BY system_soft_version_is_latest DESC, system_soft_version_release_time DESC, create_time DESC
@@ -72,7 +75,7 @@
     </select>
 
     <select id="selectStableBySoftId" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
           AND system_soft_version_is_stable = 1
@@ -80,7 +83,7 @@
     </select>
 
     <select id="selectEnabledBySoftId" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_id = #{softId}
           AND system_soft_version_status = 1
@@ -88,14 +91,14 @@
     </select>
 
     <select id="selectByVersionNumber" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_version_number = #{versionNumber}
         ORDER BY system_soft_version_release_time DESC
     </select>
 
     <select id="selectByImageTag" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_version_image_tag = #{imageTag}
         ORDER BY system_soft_version_release_time DESC
@@ -114,7 +117,7 @@
         SET system_soft_version_status = #{status},
             update_time = NOW()
         WHERE system_soft_version_id IN
-        <foreach collection="versionIds" item="id" open="(" separator="," close=")">
+        <foreach close=")" collection="versionIds" item="id" open="(" separator=",">
             #{id}
         </foreach>
     </update>
@@ -140,7 +143,7 @@
     </select>
 
     <select id="searchByKeyword" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_version_name LIKE CONCAT('%', #{keyword}, '%')
            OR system_soft_version_description LIKE CONCAT('%', #{keyword}, '%')
@@ -149,14 +152,14 @@
     </select>
 
     <select id="selectLatestReleased" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         ORDER BY system_soft_version_release_time DESC
         LIMIT #{limit}
     </select>
 
     <select id="selectBySizeRange" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT <include refid="Base_Column_List" />
         FROM system_soft_version
         WHERE system_soft_version_size BETWEEN #{minSize} AND #{maxSize}
         ORDER BY system_soft_version_size DESC

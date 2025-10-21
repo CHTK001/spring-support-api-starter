@@ -301,6 +301,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
             }
 
             // 调用软件服务从仓库同步到软件库
+            // 当前是获取服务器上存在的镜像,此接口暂时不适用
             var syncResult = systemSoftService.syncFromRegistry(registryId);
             if (!syncResult.isOk()) {
                 log.warn("同步仓库失败, registryId: {}, msg: {}", registryId, syncResult.getMsg());

@@ -117,6 +117,13 @@ public interface SystemSoftRegistryMapper extends BaseMapper<SystemSoftRegistry>
     Integer updateDefaultFlag(@Param("registryId") Integer registryId);
 
     /**
+     * 取消默认标识
+     * @param registryId 仓库ID
+     * @return 更新条数
+     */
+    Integer cancelDefaultFlag(@Param("registryId") Integer registryId);
+
+    /**
      * 清除所有默认仓库标识
      *
      * @return 更新的记录数
@@ -138,6 +145,12 @@ public interface SystemSoftRegistryMapper extends BaseMapper<SystemSoftRegistry>
      * @return 默认仓库
      */
     SystemSoftRegistry selectDefaultRegistryByServerId(@Param("serverId") Integer serverId);
+
+    /**
+     * 查询所有默认仓库
+     * @return 默认仓库列表
+     */
+    List<SystemSoftRegistry> selectDefaultRegistries();
 
     /**
      * 更新仓库连接状态
