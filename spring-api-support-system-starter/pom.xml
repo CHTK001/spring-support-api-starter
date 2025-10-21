@@ -28,43 +28,8 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-hotspot-agent</artifactId>
-            <version>4.0.0.31</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-system-starter</artifactId>
             <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-siliconflow-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-tencent-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-xunfei-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-openai-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-zhipu-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-doubao-starter</artifactId>
         </dependency>
 
         <dependency>
