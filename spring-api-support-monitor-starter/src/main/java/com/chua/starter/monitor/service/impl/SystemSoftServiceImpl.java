@@ -8,6 +8,7 @@ import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.unit.size.SizeUnit;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
@@ -372,7 +373,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                    LambdaUpdateWrapper<SystemSoft> eq = Wrappers.<SystemSoft>lambdaUpdate()
                            .eq(SystemSoft::getSystemSoftDockerImage, systemSoft.getSystemSoftDockerImage())
                            .eq(SystemSoft::getSystemSoftRegistryId, systemSoft.getSystemSoftRegistryId());
-                   if (this.exists(eq)) {
+                   SystemSoft one = this.getOne(eq);
+                   if (null != one) {
+                       systemSoft.setSystemSoftId(one.getSystemSoftId());
                        this.update(systemSoft, eq);
                    } else {
                        this.save(systemSoft);
@@ -402,6 +405,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             if (value == null || value.isEmpty()) {
                 continue;
             }
+            value.forEach(it -> {
+                it.setSystemSoftId(softId);
+            });
 
             registerSoftVersion(softId, value);
         }
@@ -435,7 +441,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             version.setSystemSoftVersionName(it.getTag());
             version.setSystemSoftVersionNumber(it.getTag());
             version.setSystemSoftVersionDescription(it.getTag());
-            version.setSystemSoftVersionSize(Long.valueOf(it.getSize()));
+            version.setSystemSoftVersionSize(SizeUnit.from(it.getSize()).toByteSize());
             version.setSystemSoftVersionIsLatest("latest".equals(it.getTag()) ? 1 : 0);
             version.setSystemSoftVersionReleaseTime(it.getLastPushTime());
             version.setSystemSoftVersionStatus(it.getActive() == null ? 1 : 0);
