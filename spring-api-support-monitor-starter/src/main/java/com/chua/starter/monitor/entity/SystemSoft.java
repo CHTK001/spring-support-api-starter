@@ -157,6 +157,22 @@ public class SystemSoft extends SysBase {
     private String systemSoftRemark;
 
     /**
+     * Star 数
+     */
+    @TableField(value = "system_soft_star_count")
+    @ApiModelProperty(value = "Star 数")
+    @Schema(description = "Star 数")
+    private Integer systemSoftStarCount;
+
+    /**
+     * Pull 数（在线检索展示，）
+     */
+    @TableField(value = "system_soft_pull_count")
+    @ApiModelProperty(value = "Pull 数")
+    @Schema(description = "Pull 数")
+    private Integer systemSoftPullCount;
+
+    /**
      * 扩展字段1
      */
     @TableField(value = "system_soft_ext_field1")

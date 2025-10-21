@@ -1,37 +1,36 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.PageResult;
+import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
+import com.chua.docker.support.online.*;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
-import com.chua.starter.monitor.entity.SystemSoft;
-import com.chua.starter.monitor.entity.SystemSoftImage;
-import com.chua.starter.monitor.entity.SystemSoftImageStatus;
-import com.chua.starter.monitor.entity.SystemSoftRegistry;
+import com.chua.starter.monitor.entity.*;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
-import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
-import com.chua.starter.monitor.mapper.SystemSoftMapper;
-import com.chua.starter.monitor.mapper.SystemSoftRecordMapper;
-import com.chua.starter.monitor.mapper.SystemSoftRegistryMapper;
+import com.chua.starter.monitor.mapper.*;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftService;
+import com.chua.starter.monitor.service.SystemSoftVersionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,6 +46,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
     private final SystemSoftMapper systemSoftMapper;
     private final SystemSoftRegistryMapper systemSoftRegistryMapper;
+    private final SystemSoftVersionService systemSoftVersionService;
     private final SystemSoftImageMapper systemSoftImageMapper;
     private final SystemSoftRecordMapper systemSoftRecordMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
@@ -56,6 +56,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     @Autowired
     @Lazy
     private DockerCallbackService dockerCallbackService;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Override
     public ReturnResult<SystemSoft> getBySoftCode(String softCode) {
@@ -223,6 +225,230 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
         }
     }
 
+    /**
+     * 在线关键字搜索（聚合默认仓库，SPI）
+     *
+     * @param keyword 关键词
+     * @param page    页码
+     * @param size    页大小
+     * @return 在线搜索到的软件列表
+     */
+    @Override
+    public ReturnPageResult<SystemSoft> searchOnlineByKeyword(String keyword, Integer page, Integer size) {
+        log.debug("在线关键字搜索开始 - keyword: {}, page: {}, size: {}", keyword, page, size);
+        try {
+            int p = (page == null || page < 1) ? 1 : page;
+            int s = (size == null || size < 1) ? 10 : Math.min(size, 10000);
+            String kw = StringUtils.defaultString(keyword, "");
+            if (!StringUtils.hasText(kw)) {
+                return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
+            }
+
+            List<SystemSoftRegistry> registries = systemSoftRegistryMapper.selectDefaultRegistries();
+            if (registries == null || registries.isEmpty()) {
+                log.warn("未找到默认仓库，无法进行在线搜索");
+                return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
+            }
+
+            Map<String, SystemSoft> resultMap = new LinkedHashMap<>();
+            Map<String, List<SystemSoftVersion>> resultVersionMap = new LinkedHashMap<>();
+            long totalSum = 0L;
+            for (SystemSoftRegistry registry : registries) {
+                if (registry == null) {
+                    continue;
+                }
+                var dockerRegistry = new DockerRegistry();
+                dockerRegistry.setType(StringUtils.defaultString(registry.getSystemSoftRegistryType(), ""));
+                dockerRegistry.setUrl(StringUtils.defaultString(registry.getSystemSoftRegistryUrl(), ""));
+                dockerRegistry.setUsername(registry.getSystemSoftRegistryUsername());
+                dockerRegistry.setPassword(registry.getSystemSoftRegistryPassword());
+
+                DockerOnlineSearchProvider matched = getDockerOnlineSearchProvider(dockerRegistry);
+                if (matched == null ) {
+                    log.warn("未发现任何 DockerOnlineSearchProvider SPI 实现");
+                    return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(List.of()).total(0).pageNo(p).pageSize(s).build());
+                }
+
+                DockerOnlineSearchTagProvider matchedTagProvider = getDockerOnlineSearchTagProvider(dockerRegistry);
+
+                var pageResult = matched.search(kw.trim(), p, s, dockerRegistry);
+                List<DockerSearchItem> items = pageResult != null && pageResult.getData() != null ? pageResult.getData().getData() : java.util.Collections.emptyList();
+                long providerTotal = pageResult != null && pageResult.getData() != null ? pageResult.getData().getTotal() : 0L;
+                totalSum += providerTotal;
+                if (items == null || items.isEmpty()) {
+                    continue;
+                }
+
+                for (DockerSearchItem it : items) {
+                    if (it == null || !StringUtils.hasText(it.getImage())) {
+                        continue;
+                    }
+                    String key = it.getImage();
+                    if (resultMap.containsKey(key)) {
+                        continue;
+                    }
+                    SystemSoft soft = new SystemSoft();
+                    soft.setSystemSoftName(StringUtils.defaultString(it.getName(), it.getImage()));
+                    soft.setSystemSoftCode(StringUtils.defaultString(it.getCode(), it.getImage().replace('/', '-')));
+                    soft.setSystemSoftDockerImage(it.getImage());
+                    soft.setSystemSoftDesc(it.getDesc());
+                    soft.setSystemSoftIsOfficial(it.getOfficial() == null ? 0 : it.getOfficial());
+                    soft.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
+                    soft.setSystemSoftStarCount(it.getStarCount());
+                    soft.setSystemSoftPullCount(it.getPullCount());
+                    soft.setSystemSoftStatus(1);
+
+                    if(null != matchedTagProvider) {
+                        ReturnPageResult<DockerTagItem> dockerTagItemReturnPageResult = matchedTagProvider.listTags(soft.getSystemSoftIsOfficial() == 1 ? "library/" + soft.getSystemSoftDockerImage() : soft.getSystemSoftDockerImage(), 1, 10000, dockerRegistry);
+                        resultVersionMap.put(key, createSystemSoftVersion(it.getImage(), dockerTagItemReturnPageResult));
+                    }
+                    resultMap.put(key, soft);
+                }
+            }
+
+            List<SystemSoft> result = new ArrayList<>(resultMap.values());
+            updateSoft(result, resultVersionMap);
+
+            return ReturnPageResult.ok(PageResult.<SystemSoft>builder()
+                    .data(result)
+                    .total(totalSum)
+                    .pageNo(p)
+                    .pageSize(s)
+                    .build());
+        } catch (Exception e) {
+            log.error("在线关键字搜索异常 - keyword: {}", keyword, e);
+            return ReturnPageResult.error("在线搜索异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取 DockerOnlineSearchTagProvider
+     * @param dockerRegistry 配置
+     * @return 结果
+     */
+    private DockerOnlineSearchTagProvider getDockerOnlineSearchTagProvider(DockerRegistry dockerRegistry) {
+        var sp = ServiceProvider.of(DockerOnlineSearchTagProvider.class);
+        List<DockerOnlineSearchTagProvider> providers = sp.collect();
+        for (DockerOnlineSearchTagProvider provider : providers) {
+            try {
+                if (provider.supports(dockerRegistry)) {
+                    return provider;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取 DockerOnlineSearchProvider
+     * @param dockerRegistry 配置
+     * @return 结果
+     */
+    private DockerOnlineSearchProvider getDockerOnlineSearchProvider(DockerRegistry dockerRegistry) {
+        var sp = ServiceProvider.of(DockerOnlineSearchProvider.class);
+        List<DockerOnlineSearchProvider> providers = sp.collect();
+        for (DockerOnlineSearchProvider provider : providers) {
+            try {
+                if (provider.supports(dockerRegistry)) {
+                    return provider;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 更新软件
+     * @param result 软件
+     * @param resultVersionMap 软件版本
+     */
+    private void updateSoft(List<SystemSoft> result, Map<String, List<SystemSoftVersion>> resultVersionMap) {
+       Thread.ofVirtual().start(() -> {
+           transactionTemplate.execute(it -> {
+               Map<String, Integer> map = new HashMap<>(result.size());
+               for (SystemSoft systemSoft : result) {
+                   LambdaUpdateWrapper<SystemSoft> eq = Wrappers.<SystemSoft>lambdaUpdate()
+                           .eq(SystemSoft::getSystemSoftDockerImage, systemSoft.getSystemSoftDockerImage())
+                           .eq(SystemSoft::getSystemSoftRegistryId, systemSoft.getSystemSoftRegistryId());
+                   if (this.exists(eq)) {
+                       this.update(systemSoft, eq);
+                   } else {
+                       this.save(systemSoft);
+                   }
+                   map.put(systemSoft.getSystemSoftDockerImage(), systemSoft.getSystemSoftId());
+               }
+
+               updateSoftVersion(result, resultVersionMap, map);
+               return null;
+           });
+       });
+    }
+
+    /**
+     * 更新软件版本
+     * @param result 软件
+     * @param resultVersionMap 软件版本
+     * @param map 软件id
+     */
+    private void updateSoftVersion(List<SystemSoft> result, Map<String, List<SystemSoftVersion>> resultVersionMap, Map<String, Integer> map) {
+        for (Map.Entry<String, List<SystemSoftVersion>> entry : resultVersionMap.entrySet()) {
+            Integer softId = map.get(entry.getKey());
+            if (softId == null) {
+                continue;
+            }
+            List<SystemSoftVersion> value = entry.getValue();
+            if (value == null || value.isEmpty()) {
+                continue;
+            }
+
+            registerSoftVersion(softId, value);
+        }
+    }
+
+    /**
+     * 注册软件版本
+     * @param softId 软件id
+     * @param value 软件版本
+     */
+    private void registerSoftVersion(Integer softId, List<SystemSoftVersion> value) {
+        systemSoftVersionService.remove(Wrappers.<SystemSoftVersion>lambdaUpdate().eq(SystemSoftVersion::getSystemSoftId, softId));
+        systemSoftVersionService.saveBatch(value);
+    }
+
+    /**
+     * 创建系统软件版本
+     * @param image 镜像
+     * @param dockerTagItemReturnPageResult 版本数据
+     * @return 系统软件版本
+     */
+    private List<SystemSoftVersion> createSystemSoftVersion(String image, ReturnPageResult<DockerTagItem> dockerTagItemReturnPageResult) {
+        PageResult<DockerTagItem> data = dockerTagItemReturnPageResult.getData();
+        long total = data != null ? data.getTotal() : 0L;
+        if (total <= 0) {
+            return List.of();
+        }
+        List<DockerTagItem> dataList = data != null ? data.getData() : List.of();
+        return dataList.stream().map(it -> {
+            SystemSoftVersion version = new SystemSoftVersion();
+            version.setSystemSoftVersionName(it.getTag());
+            version.setSystemSoftVersionNumber(it.getTag());
+            version.setSystemSoftVersionDescription(it.getTag());
+            version.setSystemSoftVersionSize(Long.valueOf(it.getSize()));
+            version.setSystemSoftVersionIsLatest("latest".equals(it.getTag()) ? 1 : 0);
+            version.setSystemSoftVersionReleaseTime(it.getLastPushTime());
+            version.setSystemSoftVersionStatus(it.getActive() == null ? 1 : 0);
+            version.setSysSoftVersionDigest(it.getDigest());
+            return version;
+        }).toList();
+    }
+
+    @Override
+    public ReturnResult<Integer> importOnlineItems(List<SystemSoft> items) {
+        return null;
+    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -241,7 +467,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             // TODO: 实现具体的单个软件同步逻辑
             // 这里暂时返回空结果
-            
+
             return ReturnResult.ok(null, "同步成功");
 
         } catch (Exception e) {
@@ -275,9 +501,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                 return ReturnResult.error("软件未配置Docker镜像");
             }
 
-            // 对每个服务器执行安装
+            // 仅记录安装计划（兼容旧实现），不触发拉取
             for (Integer serverId : serverIds) {
-                // 创建镜像记录
                 SystemSoftImage image = new SystemSoftImage();
                 image.setSystemSoftId(softId);
                 image.setSystemSoftImageServerId(serverId);
@@ -288,10 +513,85 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                 systemSoftImageMapper.insert(image);
             }
 
-            return ReturnResult.ok(true, "安装成功");
+            return ReturnResult.ok(true, "安装计划已记录");
 
         } catch (Exception e) {
             log.error("安装软件异常 - softId: {}, serverIds: {}, imageTag: {}", softId, serverIds, imageTag, e);
+            return ReturnResult.error("安装异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<String> installSoftwareWithConfig(Integer softId, List<Integer> serverIds, java.util.Map<String, Object> installConfig) {
+        log.info("安装软件(带配置) - softId: {}, serverIds: {}", softId, serverIds);
+        try {
+            if (softId == null) {
+                return ReturnResult.error("软件ID不能为空");
+            }
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+
+            SystemSoft systemSoft = systemSoftMapper.selectById(softId);
+            if (systemSoft == null) {
+                return ReturnResult.error("软件不存在");
+            }
+            if (!StringUtils.hasText(systemSoft.getSystemSoftDockerImage())) {
+                return ReturnResult.error("软件未配置Docker镜像");
+            }
+
+            String imageName = systemSoft.getSystemSoftDockerImage();
+            String imageTag = String.valueOf(firstNonNull(installConfig != null ? installConfig.get("imageTag") : null, "latest"));
+            String fullImage = StringUtils.hasText(imageTag) ? imageName + ":" + imageTag : imageName;
+
+            // 生成一次性的 operationId
+            String operationId = java.util.UUID.randomUUID().toString();
+
+            // 针对每台服务器，创建镜像记录并触发异步拉取（进度通过 WebSocket 推送）
+            for (Integer serverId : serverIds) {
+                try {
+                    // 创建镜像记录（状态: PULLING）
+                    SystemSoftImage image = new SystemSoftImage();
+                    image.setSystemSoftId(softId);
+                    image.setSystemSoftImageServerId(serverId);
+                    image.setSystemSoftImageName(imageName);
+                    image.setSystemSoftImageTag(imageTag);
+                    image.setSystemSoftImageFullName(fullImage);
+                    image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING);
+                    image.setCreateTime(LocalDateTime.now());
+                    image.setUpdateTime(LocalDateTime.now());
+                    systemSoftImageMapper.insert(image);
+
+                    // 创建Docker客户端
+                    DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+                    if (dockerClient == null) {
+                        log.warn("无法创建Docker客户端, serverId: {}", serverId);
+                        // 标记失败
+                        image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
+                        image.setUpdateTime(LocalDateTime.now());
+                        systemSoftImageMapper.updateById(image);
+                        continue;
+                    }
+
+                    // 组装拉取配置
+                    DockerPullImage pullConfig = DockerPullImage.builder()
+                            .imageName(imageName)
+                            .tag(imageTag)
+                            .build();
+
+                    // 创建状态更新回调（会通过 WebSocket 推送）
+                    var callback = dockerCallbackService.createStatusUpdatingWebSocketPullCallback(OperationType.PULL, fullImage, image.getSystemSoftImageId());
+
+                    // 触发异步拉取
+                    dockerCallbackService.pullImageWithCallback(dockerClient, pullConfig, callback);
+                } catch (Exception exPerServer) {
+                    log.warn("服务器安装触发失败, serverId: {}, err: {}", serverId, exPerServer.getMessage());
+                }
+            }
+
+            return ReturnResult.ok(operationId);
+        } catch (Exception e) {
+            log.error("安装软件(带配置) 异常 - softId: {}", softId, e);
             return ReturnResult.error("安装异常: " + e.getMessage());
         }
     }
@@ -313,7 +613,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             // TODO: 实现从仓库获取标签列表的逻辑
             // 这里暂时返回默认标签
             List<String> tags = List.of("latest", "stable");
-            
+
             return ReturnResult.ok(tags);
 
         } catch (Exception e) {
@@ -506,7 +806,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             // 更新镜像状态为拉取失败
             try {
                 SystemSoftImage image = new SystemSoftImage();
-                image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED); // 拉取失败
+                image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
                 systemSoftImageMapper.updateById(image);
             } catch (Exception updateEx) {
                 log.warn("更新镜像状态为拉取失败时出错: {}", updateEx.getMessage());
@@ -519,7 +819,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
     /**
      * 使用 DockerProtocolClient 列举镜像并同步为 SystemSoft
-     *
+     * <p>
      * 实现要点：
      * 1) 在绑定服务器上创建 Docker 客户端
      * 2) 反射适配 listImage/listImages 等可能的签名
@@ -528,8 +828,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
      * @param registry 仓库配置
      * @return 新增或更新数量
      * @author CH
-     * @since 2025/10/18
      * @version 1.0.0
+     * @since 2025/10/18
      */
     private int doDockerClientListSync(SystemSoftRegistry registry) {
         Integer serverId = registry.getSystemSoftRegistryServerId();
@@ -552,7 +852,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             for (Object it : items) {
                 for (String baseImage : extractRepoNames(it)) {
-                    if (!StringUtils.hasText(baseImage)) { continue; }
+                    if (!StringUtils.hasText(baseImage)) {
+                        continue;
+                    }
                     String softName = baseImage.contains("/") ? baseImage.substring(baseImage.lastIndexOf('/') + 1) : baseImage;
                     String softCode = baseImage.replace('/', '_');
                     LocalDateTime now = LocalDateTime.now();
@@ -573,9 +875,15 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     } else {
                         existed.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
                         existed.setUpdateTime(now);
-                        if (!StringUtils.hasText(existed.getSystemSoftName())) { existed.setSystemSoftName(softName); }
-                        if (!StringUtils.hasText(existed.getSystemSoftCode())) { existed.setSystemSoftCode(softCode); }
-                        if (existed.getSystemSoftStatus() == null) { existed.setSystemSoftStatus(1); }
+                        if (!StringUtils.hasText(existed.getSystemSoftName())) {
+                            existed.setSystemSoftName(softName);
+                        }
+                        if (!StringUtils.hasText(existed.getSystemSoftCode())) {
+                            existed.setSystemSoftCode(softCode);
+                        }
+                        if (existed.getSystemSoftStatus() == null) {
+                            existed.setSystemSoftStatus(1);
+                        }
                         systemSoftMapper.updateById(existed);
                         total++;
                     }
@@ -591,39 +899,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     /**
      * 反射调用 DockerProtocolClient 列举镜像，兼容不同签名
      */
-    @SuppressWarnings("unchecked")
     private List<?> tryInvokeListImages(DockerProtocolClient client, SystemSoftRegistry registry) {
         try {
-            // listImage(String url, String user, String pass, int page, int pageSize)
-            try {
-                var m = client.getClass().getMethod("listImage", String.class, String.class, String.class, int.class, int.class);
-                Object rst = m.invoke(client,
-                        registry.getSystemSoftRegistryUrl(),
-                        registry.getSystemSoftRegistryUsername(),
-                        registry.getSystemSoftRegistryPassword(), 1, 1000);
-                if (rst instanceof List) return (List<?>) rst;
-            } catch (NoSuchMethodException ignore) {}
-            // listImage(String url, String user, String pass)
-            try {
-                var m = client.getClass().getMethod("listImage", String.class, String.class, String.class);
-                Object rst = m.invoke(client,
-                        registry.getSystemSoftRegistryUrl(),
-                        registry.getSystemSoftRegistryUsername(),
-                        registry.getSystemSoftRegistryPassword());
-                if (rst instanceof List) return (List<?>) rst;
-            } catch (NoSuchMethodException ignore) {}
-            // listImages()
-            try {
-                var m = client.getClass().getMethod("listImages");
-                Object rst = m.invoke(client);
-                if (rst instanceof List) return (List<?>) rst;
-            } catch (NoSuchMethodException ignore) {}
-            // listImage()
-            try {
-                var m = client.getClass().getMethod("listImage");
-                Object rst = m.invoke(client);
-                if (rst instanceof List) return (List<?>) rst;
-            } catch (NoSuchMethodException ignore) {}
+            return client.listImages();
         } catch (Throwable ex) {
             log.warn("调用 DockerProtocolClient 列举镜像失败: {}", ex.getMessage());
         }
@@ -633,10 +911,11 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     /**
      * 从返回项中提取去标签的仓库名集合
      */
-    @SuppressWarnings("unchecked")
     private List<String> extractRepoNames(Object item) {
         java.util.LinkedHashSet<String> set = new java.util.LinkedHashSet<>();
-        if (item == null) return java.util.Collections.emptyList();
+        if (item == null) {
+            return java.util.Collections.emptyList();
+        }
         try {
             if (item instanceof String) {
                 set.add(stripTag((String) item));
@@ -644,30 +923,69 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                 java.util.Map<?, ?> mp = (java.util.Map<?, ?>) item;
                 Object tags = firstNonNull(mp.get("repoTags"), mp.get("RepoTags"), mp.get("tags"));
                 if (tags instanceof List) {
-                    for (Object t : (List<?>) tags) { if (t != null) set.add(stripTag(String.valueOf(t))); }
+                    for (Object t : (List<?>) tags) {
+                        if (t != null) {
+                            set.add(stripTag(String.valueOf(t)));
+                        }
+                    }
                 }
                 Object name = firstNonNull(mp.get("name"), mp.get("repo_name"), mp.get("repoName"), mp.get("repository"));
-                if (name != null) set.add(stripTag(String.valueOf(name)));
+                if (name != null) {
+                    set.add(stripTag(String.valueOf(name)));
+                }
             } else {
-                try { var m = item.getClass().getMethod("getRepoTags"); Object v = m.invoke(item);
-                    if (v instanceof String[]) { for (String s : (String[]) v) { set.add(stripTag(s)); } }
-                    else if (v instanceof java.util.List) { for (Object s : (java.util.List<?>) v) { if (s != null) set.add(stripTag(String.valueOf(s))); } }
-                } catch (Exception ignore) {}
-                try { var m = item.getClass().getMethod("getName"); Object v = m.invoke(item); if (v != null) set.add(stripTag(String.valueOf(v))); } catch (Exception ignore) {}
-                try { var m = item.getClass().getMethod("getRepository"); Object v = m.invoke(item); if (v != null) set.add(stripTag(String.valueOf(v))); } catch (Exception ignore) {}
+                try {
+                    var m = item.getClass().getMethod("getRepoTags");
+                    Object v = m.invoke(item);
+                    if (v instanceof String[]) {
+                        for (String s : (String[]) v) {
+                            set.add(stripTag(s));
+                        }
+                    } else if (v instanceof java.util.List) {
+                        for (Object s : (java.util.List<?>) v) {
+                            if (s != null) {
+                                set.add(stripTag(String.valueOf(s)));
+                            }
+                        }
+                    }
+                } catch (Exception ignore) {
+                }
+                try {
+                    var m = item.getClass().getMethod("getName");
+                    Object v = m.invoke(item);
+                    if (v != null) {
+                        set.add(stripTag(String.valueOf(v)));
+                    }
+                } catch (Exception ignore) {
+                }
+                try {
+                    var m = item.getClass().getMethod("getRepository");
+                    Object v = m.invoke(item);
+                    if (v != null) {
+                        set.add(stripTag(String.valueOf(v)));
+                    }
+                } catch (Exception ignore) {
+                }
             }
-        } catch (Throwable ignore) {}
-        return new java.util.ArrayList<>(set);
+        } catch (Throwable ignore) {
+        }
+        return new ArrayList<>(set);
     }
 
     private Object firstNonNull(Object... arr) {
         if (arr == null) return null;
-        for (Object o : arr) { if (o != null) return o; }
+        for (Object o : arr) {
+            if (o != null) {
+                return o;
+            }
+        }
         return null;
     }
 
     private String stripTag(String name) {
-        if (!StringUtils.hasText(name)) return name;
+        if (!StringUtils.hasText(name)) {
+            return name;
+        }
         int idx = name.lastIndexOf(':');
         if (idx > 0 && !name.contains("http://") && !name.contains("https://")) {
             return name.substring(0, idx);
