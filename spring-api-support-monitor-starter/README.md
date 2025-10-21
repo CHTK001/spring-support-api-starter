@@ -1,5 +1,19 @@
 # spring-api-support-monitor-starter
 
+## 新增：Docker 软件库在线搜索与多默认仓库（2025-10-20）
+
+- 在线搜索优化：关键词为空直接返回空列表，避免不必要请求；前端亦本地拦截，减少网络开销。
+- 在线搜索返回扩展字段（非持久化，仅用于展示）：`systemSoftStarCount`、`systemSoftPullCount`。
+
+- 支持为多个仓库设置“默认”，新增接口取消默认：POST /v1/system/soft/registry/{id}/default/cancel
+- 新增在线搜索接口（SPI聚合默认仓库）：
+  - GET /v1/system/soft/online/search?keyword=xxx&page=1&size=10
+  - POST /v1/system/soft/online/import
+- SPI 说明：实现 `SoftOnlineSearchProvider` 并标注 `@Component` 即可被聚合检索使用
+- 前端配套：apps/vue-support-monitor-starter 已接入“在线搜索”弹窗
+
+# spring-api-support-monitor-starter
+
 本模块新增了“Arthas 管理（后端代理）”能力，支持由后端连接 arthas-console，前端仅进行渲染与操作。
 
 ## 功能概述

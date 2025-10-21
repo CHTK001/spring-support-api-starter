@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.factory;
 
+import com.chua.common.support.protocol.ClientSetting;
+import com.chua.common.support.utils.ObjectUtils;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.enums.DockerConnectionType;
@@ -98,18 +100,16 @@ public class DockerProtocolClientFactory {
         try {
             DockerConnectionType dockerConnectionType = DockerConnectionType.valueOf(connectionType.toUpperCase());
 
-            switch (dockerConnectionType) {
-                case TCP:
-                    return createTcpClient(setting);
-                case UNIX_SOCKET:
-                    return createUnixSocketClient(setting);
-                case LOCAL:
-                    return createLocalClient(setting);
-                default:
+            return switch (dockerConnectionType) {
+                case TCP, API -> createTcpClient(setting);
+                case UNIX_SOCKET -> createUnixSocketClient(setting);
+                case LOCAL -> createLocalClient(setting);
+                default -> {
                     log.warn("不支持的Docker连接方式: {} - serverId: {}",
                             connectionType, setting.getMonitorSysGenServerId());
-                    return null;
-            }
+                    yield null;
+                }
+            };
         } catch (IllegalArgumentException e) {
             log.error("无效的Docker连接方式: {} - serverId: {}",
                     connectionType, setting.getMonitorSysGenServerId());
@@ -139,19 +139,16 @@ public class DockerProtocolClientFactory {
         boolean tlsEnabled = setting.getMonitorSysGenServerSettingDockerTlsEnabled() != null &&
                 setting.getMonitorSysGenServerSettingDockerTlsEnabled() == 1;
 
-        if (tlsEnabled) {
-            String certPath = setting.getMonitorSysGenServerSettingDockerCertPath();
-            if (StringUtils.hasText(certPath)) {
-                log.debug("创建TLS TCP Docker客户端 - host: {}, certPath: {}", dockerHost, certPath);
-                return DockerProtocolClient.of(dockerHost);
-            } else {
-                log.warn("启用TLS但未配置证书路径 - serverId: {}", setting.getMonitorSysGenServerId());
-                return null;
-            }
-        } else {
-            log.debug("创建TCP Docker客户端 - host: {}", dockerHost);
-            return DockerProtocolClient.of(dockerHost);
-        }
+        ClientSetting clientSetting = ClientSetting.builder()
+                .host(dockerHost)
+                .sslEnabled(tlsEnabled)
+                .sslCertPath(setting.getMonitorSysGenServerSettingDockerCertPath())
+                .username(setting.getMonitorSysGenServerSettingDockerUsername())
+                .password(setting.getMonitorSysGenServerSettingDockerPassword())
+                .connectTimeoutMillis(ObjectUtils.defaultIfNull(setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000))
+                .build();
+        log.debug("创建TCP Docker客户端 - host: {}", dockerHost);
+        return DockerProtocolClient.of(clientSetting);
     }
 
     /**

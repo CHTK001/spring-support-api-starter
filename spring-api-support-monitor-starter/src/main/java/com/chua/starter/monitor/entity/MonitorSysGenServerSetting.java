@@ -490,6 +490,32 @@ public class MonitorSysGenServerSetting extends SysBase {
     private String monitorSysGenServerSettingDockerCertPath;
 
     /**
+     * Docker API 基本认证用户名（可选）
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_username")
+    @ApiModelProperty(value = "Docker API 基本认证用户名")
+    @Schema(description = "Docker API 基本认证用户名（可选）")
+    @Size(max = 100, message = "Docker用户名最大长度要小于 100")
+    private String monitorSysGenServerSettingDockerUsername;
+
+    /**
+     * Docker API 基本认证密码（可选）
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_password")
+    @ApiModelProperty(value = "Docker API 基本认证密码")
+    @Schema(description = "Docker API 基本认证密码（可选）")
+    @Size(max = 200, message = "Docker密码最大长度要小于 200")
+    private String monitorSysGenServerSettingDockerPassword;
+
+    /**
+     * Docker API 连接超时时间（毫秒，可选，默认30000）
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_docker_connect_timeout_millis")
+    @ApiModelProperty(value = "Docker API 连接超时时间(毫秒)")
+    @Schema(description = "Docker API 连接超时时间（毫秒，可选，默认30000）")
+    private Integer monitorSysGenServerSettingDockerConnectTimeoutMillis;
+
+    /**
      * Docker状态推送间隔(秒)
      *
      * @see MonitorSysGenServerSettingController#saveOrUpdate
@@ -964,6 +990,8 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingDockerConnectionType(DockerConnectionType.SHELL.getCode());
         setting.setMonitorSysGenServerSettingDockerApiVersion("1.40");
         setting.setMonitorSysGenServerSettingDockerTlsEnabled(0);
+        // 默认连接超时 30 秒
+        setting.setMonitorSysGenServerSettingDockerConnectTimeoutMillis(30000);
         setting.setMonitorSysGenServerSettingDockerStatsInterval(10); // 默认10秒
 
         // 代理配置

@@ -69,6 +69,14 @@
         LIMIT 1
     </select>
 
+    <!-- 获取所有默认仓库列表 -->
+    <select id="selectDefaultRegistries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM system_soft_registry
+        WHERE system_soft_registry_is_default = 1
+        ORDER BY update_time DESC
+    </select>
+
     <select id="selectDefaultRegistryByServerId" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/>
         FROM system_soft_registry
@@ -129,6 +137,13 @@
     <update id="updateDefaultFlag">
         UPDATE system_soft_registry
         SET system_soft_registry_is_default = 1,
+            update_time = NOW()
+        WHERE system_soft_registry_id = #{registryId}
+    </update>
+
+    <update id="cancelDefaultFlag">
+        UPDATE system_soft_registry
+        SET system_soft_registry_is_default = 0,
             update_time = NOW()
         WHERE system_soft_registry_id = #{registryId}
     </update>
