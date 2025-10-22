@@ -108,11 +108,11 @@ public class SystemSoftImage extends SysBase {
     /**
      * 镜像仓库地址
      */
-    @TableField(value = "system_soft_image_repository")
-    @ApiModelProperty(value = "镜像仓库地址")
-    @Schema(description = "镜像仓库地址")
-    @Size(max = 255, message = "镜像仓库地址最大长度要小于 255")
-    private String systemSoftImageRepository;
+    @TableField(value = "system_soft_image_repository_id")
+    @ApiModelProperty(value = "镜像仓库地址ID")
+    @Schema(description = "镜像仓库地址ID")
+    @Size(max = 255, message = "镜像仓库地址ID最大长度要小于 255")
+    private Integer systemSoftImageRepositoryId;
 
     /**
      * 镜像大小（字节）

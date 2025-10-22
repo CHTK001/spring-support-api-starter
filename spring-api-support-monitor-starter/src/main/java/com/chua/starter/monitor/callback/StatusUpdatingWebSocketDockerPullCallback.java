@@ -153,7 +153,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      * <p>
      * 当Docker拉取操作有新的进度信息时调用此方法。该方法会：
      * 1. 构造包含进度信息的WebSocket消息
-     * 2. 通过WebSocket向客户端推送进度信息
+     * 2. 通过WebSocket向客户端推送进度信息（符合ScSocketEventProcess组件格式）
      * 3. 更新当前状态信息
      *
      * @param pullItem 拉取响应项，包含进度信息
@@ -165,17 +165,6 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
         }
 
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("type", "docker_progress");
-            message.put("operation", operationType.toString());
-            message.put("imageName", imageName);
-            message.put("timestamp", LocalDateTime.now());
-
-            // 根据不同类型的响应项处理
-            message.put("status", pullItem.getStatus());
-            message.put("progress", pullItem.getProgress());
-            message.put("id", pullItem.getId());
-
             // 检查是否有Docker镜像ID
             if (pullItem.getId() != null && !pullItem.getId().isEmpty()) {
                 this.dockerImageId = pullItem.getId();
@@ -194,21 +183,113 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
                 }
             }
 
-            log.debug("Docker拉取进度: {} - {}", pullItem.getStatus(), pullItem.getProgress());
+            // 解析进度信息
+            String progressStr = pullItem.getProgress();
+            int percentage = parseProgressPercentage(progressStr);
+            
+            // 构造符合 ScSocketEventProcess 组件要求的消息格式
+            Map<String, Object> message = new HashMap<>();
+            message.put("eventId", "docker-pull-" + imageId);  // 事件ID，用于前端组件识别
+            message.put("message", buildProgressMessage(pullItem));  // 消息文本
+            message.put("percentage", percentage);  // 进度百分比 (0-100)
+            message.put("status", "processing");  // 状态：processing
+            
+            // 额外的Docker信息
+            message.put("imageName", imageName);
+            message.put("dockerStatus", pullItem.getStatus());
+            message.put("layerId", pullItem.getId());
+            message.put("operation", operationType.toString());
+            message.put("timestamp", LocalDateTime.now());
 
-            // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_progress", message);
+            log.debug("Docker拉取进度: {} - {} ({}%)", pullItem.getStatus(), pullItem.getProgress(), percentage);
+
+            // 发送WebSocket消息到 progress-event 事件
+            socketSessionTemplate.sendObject("progress-event", message);
 
         } catch (Exception e) {
             log.error("发送Docker进度WebSocket消息失败", e);
         }
+    }
+    
+    /**
+     * 解析进度百分比
+     * <p>
+     * 从Docker的进度字符串中提取百分比数值。
+     * 例如："[==================================================>]  1.5MB/1.5MB" -> 100
+     * 或："50%" -> 50
+     *
+     * @param progressStr 进度字符串
+     * @return 进度百分比 (0-100)
+     */
+    private int parseProgressPercentage(String progressStr) {
+        if (progressStr == null || progressStr.isEmpty()) {
+            return 0;
+        }
+        
+        try {
+            // 尝试匹配百分比格式
+            if (progressStr.contains("%")) {
+                String percentStr = progressStr.replaceAll("[^0-9]", "");
+                if (!percentStr.isEmpty()) {
+                    return Math.min(100, Integer.parseInt(percentStr));
+                }
+            }
+            
+            // 尝试从分数格式解析 (例如: "1.5MB/1.5MB")
+            if (progressStr.contains("/")) {
+                String[] parts = progressStr.trim().split("/");
+                if (parts.length == 2) {
+                    String currentStr = parts[0].trim().replaceAll("[^0-9.]", "");
+                    String totalStr = parts[1].trim().replaceAll("[^0-9.]", "");
+                    
+                    if (!currentStr.isEmpty() && !totalStr.isEmpty()) {
+                        double current = Double.parseDouble(currentStr);
+                        double total = Double.parseDouble(totalStr);
+                        
+                        if (total > 0) {
+                            return Math.min(100, (int) ((current / total) * 100));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("解析进度百分比失败: {}", progressStr, e);
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * 构建进度消息
+     * <p>
+     * 根据拉取响应项构建用户友好的进度消息。
+     *
+     * @param pullItem 拉取响应项
+     * @return 进度消息
+     */
+    private String buildProgressMessage(PullResponseItem pullItem) {
+        StringBuilder sb = new StringBuilder();
+        
+        if (pullItem.getStatus() != null) {
+            sb.append(pullItem.getStatus());
+        }
+        
+        if (pullItem.getId() != null && !pullItem.getId().isEmpty()) {
+            sb.append(" [").append(pullItem.getId().substring(0, Math.min(12, pullItem.getId().length()))).append("]");
+        }
+        
+        if (pullItem.getProgress() != null && !pullItem.getProgress().isEmpty()) {
+            sb.append(": ").append(pullItem.getProgress());
+        }
+        
+        return sb.toString();
     }
 
     /**
      * 处理拉取开始事件
      * <p>
      * 当Docker拉取操作开始时调用此方法。该方法会：
-     * 1. 构造拉取开始的WebSocket消息
+     * 1. 构造拉取开始的WebSocket消息（符合ScSocketEventProcess组件格式）
      * 2. 通过WebSocket向客户端推送开始信息
      * 3. 更新数据库中镜像的状态为PULLING（拉取中）
      *
@@ -217,16 +298,22 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
     @Override
     public void onStart(Closeable stream) {
         try {
+            // 构造符合 ScSocketEventProcess 组件要求的消息格式
             Map<String, Object> message = new HashMap<>();
-            message.put("type", "docker_start");
-            message.put("operation", operationType.toString());
+            message.put("eventId", "docker-pull-" + imageId);  // 事件ID
+            message.put("message", "开始拉取镜像: " + imageName);  // 消息文本
+            message.put("percentage", 0);  // 初始进度为0%
+            message.put("status", "processing");  // 状态：processing
+            
+            // 额外的Docker信息
             message.put("imageName", imageName);
+            message.put("operation", operationType.toString());
             message.put("timestamp", startTime);
 
             log.info("Docker拉取操作开始 - 镜像: {}", imageName);
 
-            // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_start", message);
+            // 发送WebSocket消息到 progress-event 事件
+            socketSessionTemplate.sendObject("progress-event", message);
 
             // 更新数据库中的镜像状态为拉取中
             updateImageStatus(SystemSoftImageStatus.PULLING, null);
@@ -241,7 +328,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      * <p>
      * 当Docker拉取操作发生错误时调用此方法。该方法会：
      * 1. 记录错误信息
-     * 2. 构造错误信息的WebSocket消息
+     * 2. 构造错误信息的WebSocket消息（符合ScSocketEventProcess组件格式）
      * 3. 通过WebSocket向客户端推送错误信息
      * 4. 更新数据库中镜像的状态为PULL_FAILED（拉取失败）
      *
@@ -253,17 +340,23 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             this.hasError = true;
             this.errorMessage = throwable.getMessage();
 
+            // 构造符合 ScSocketEventProcess 组件要求的消息格式
             Map<String, Object> message = new HashMap<>();
-            message.put("type", "docker_error");
-            message.put("operation", operationType.toString());
+            message.put("eventId", "docker-pull-" + imageId);  // 事件ID
+            message.put("message", "拉取失败: " + throwable.getMessage());  // 错误消息
+            message.put("percentage", 0);  // 失败时进度为0
+            message.put("status", "error");  // 状态：error
+            
+            // 额外的Docker信息
             message.put("imageName", imageName);
+            message.put("operation", operationType.toString());
             message.put("error", throwable.getMessage());
             message.put("timestamp", LocalDateTime.now());
 
             log.error("Docker拉取操作失败 - 镜像: {}, 错误: {}", imageName, throwable.getMessage(), throwable);
 
-            // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_error", message);
+            // 发送WebSocket消息到 progress-event 事件
+            socketSessionTemplate.sendObject("progress-event", message);
 
             // 更新数据库中的镜像状态为拉取失败，并记录错误信息
             updateImageStatus(SystemSoftImageStatus.PULL_FAILED, throwable.getMessage());
@@ -278,7 +371,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      * <p>
      * 当Docker拉取操作完成时调用此方法。该方法会：
      * 1. 标记操作已完成
-     * 2. 构造完成信息的WebSocket消息
+     * 2. 构造完成信息的WebSocket消息（符合ScSocketEventProcess组件格式）
      * 3. 通过WebSocket向客户端推送完成信息
      * 4. 如果没有错误，更新数据库中镜像的状态为AVAILABLE（可用）
      */
@@ -287,22 +380,41 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
         try {
             this.completed = true;
 
+            // 构造符合 ScSocketEventProcess 组件要求的消息格式
             Map<String, Object> message = new HashMap<>();
-            message.put("type", "docker_complete");
-            message.put("operation", operationType.toString());
-            message.put("imageName", imageName);
-            message.put("success", !hasError);
-            message.put("timestamp", LocalDateTime.now());
-
+            message.put("eventId", "docker-pull-" + imageId);  // 事件ID
+            
             if (hasError) {
+                message.put("message", "拉取失败: " + errorMessage);
+                message.put("percentage", 0);  // 失败时进度为0
+                message.put("status", "error");  // 状态：error
                 message.put("error", errorMessage);
                 log.info("Docker拉取操作完成(失败) - 镜像: {}, 错误: {}", imageName, errorMessage);
             } else {
+                message.put("message", "拉取完成: " + imageName);
+                message.put("percentage", 100);  // 成功时进度为100%
+                message.put("status", "success");  // 状态：success
                 log.info("Docker拉取操作完成(成功) - 镜像: {}", imageName);
             }
+            
+            // 额外的Docker信息
+            message.put("imageName", imageName);
+            message.put("operation", operationType.toString());
+            message.put("success", !hasError);
+            message.put("timestamp", LocalDateTime.now());
+            
+            if (dockerImageId != null) {
+                message.put("dockerImageId", dockerImageId);
+            }
+            if (imageDigest != null) {
+                message.put("imageDigest", imageDigest);
+            }
+            if (imageSize != null) {
+                message.put("imageSize", imageSize);
+            }
 
-            // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_complete", message);
+            // 发送WebSocket消息到 progress-event 事件
+            socketSessionTemplate.sendObject("progress-event", message);
 
             // 如果没有错误，更新数据库中的镜像状态为可用，并补充镜像详细信息
             if (!hasError) {

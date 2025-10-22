@@ -478,8 +478,88 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Integer> importOnlineItems(List<SystemSoft> items) {
-        return null;
+        log.info("批量导入在线检索的软件 - 数量: {}", items == null ? 0 : items.size());
+        
+        if (items == null || items.isEmpty()) {
+            return ReturnResult.error("导入列表为空");
+        }
+        
+        int savedCount = 0;
+        int updatedCount = 0;
+        int skippedCount = 0;
+        LocalDateTime now = LocalDateTime.now();
+        
+        for (SystemSoft item : items) {
+            try {
+                // 验证必要字段
+                if (!StringUtils.hasText(item.getSystemSoftCode())) {
+                    log.warn("软件代码为空，跳过导入 - name: {}", item.getSystemSoftName());
+                    skippedCount++;
+                    continue;
+                }
+                
+                if (!StringUtils.hasText(item.getSystemSoftName())) {
+                    log.warn("软件名称为空，跳过导入 - code: {}", item.getSystemSoftCode());
+                    skippedCount++;
+                    continue;
+                }
+                
+                // 检查是否已存在（根据代码）
+                LambdaQueryWrapper<SystemSoft> queryWrapper = Wrappers.lambdaQuery(SystemSoft.class)
+                        .eq(SystemSoft::getSystemSoftCode, item.getSystemSoftCode());
+                SystemSoft existingSoft = systemSoftMapper.selectOne(queryWrapper);
+                
+                if (existingSoft == null) {
+                    // 不存在，插入新记录
+                    item.setCreateTime(now);
+                    item.setUpdateTime(now);
+                    
+                    // 设置默认值
+                    if (item.getSystemSoftStatus() == null) {
+                        item.setSystemSoftStatus(1); // 默认启用
+                    }
+                    if (item.getSystemSoftIsOfficial() == null) {
+                        item.setSystemSoftIsOfficial(0);
+                    }
+                    
+                    systemSoftMapper.insert(item);
+                    savedCount++;
+                    log.debug("新增软件 - code: {}, name: {}", item.getSystemSoftCode(), item.getSystemSoftName());
+                } else {
+                    // 已存在，更新信息（保留原有的ID和创建时间）
+                    existingSoft.setSystemSoftName(item.getSystemSoftName());
+                    existingSoft.setSystemSoftDesc(item.getSystemSoftDesc());
+                    existingSoft.setSystemSoftIcon(item.getSystemSoftIcon());
+                    existingSoft.setSystemSoftDockerImage(item.getSystemSoftDockerImage());
+                    
+                    // 更新统计信息
+                    if (item.getSystemSoftStarCount() != null) {
+                        existingSoft.setSystemSoftStarCount(item.getSystemSoftStarCount());
+                    }
+                    if (item.getSystemSoftPullCount() != null) {
+                        existingSoft.setSystemSoftPullCount(item.getSystemSoftPullCount());
+                    }
+                    
+                    existingSoft.setUpdateTime(now);
+                    systemSoftMapper.updateById(existingSoft);
+                    updatedCount++;
+                    log.debug("更新软件 - code: {}, name: {}", item.getSystemSoftCode(), item.getSystemSoftName());
+                }
+            } catch (Exception e) {
+                log.error("导入软件失败 - code: {}, name: {}, error: {}", 
+                        item.getSystemSoftCode(), item.getSystemSoftName(), e.getMessage(), e);
+                skippedCount++;
+            }
+        }
+        
+        log.info("批量导入完成 - 新增: {}, 更新: {}, 跳过: {}, 总计: {}", 
+                savedCount, updatedCount, skippedCount, items.size());
+        
+        return ReturnResult.ok(savedCount + updatedCount, 
+                String.format("成功导入 %d 个软件（新增 %d，更新 %d，跳过 %d）", 
+                        savedCount + updatedCount, savedCount, updatedCount, skippedCount));
     }
 
 

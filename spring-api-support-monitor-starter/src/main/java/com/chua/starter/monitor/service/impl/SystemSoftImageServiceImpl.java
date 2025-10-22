@@ -90,11 +90,30 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     public ReturnResult<SystemSoftImage> pullImage(Integer softId, Integer serverId, String imageTag, DockerPullImage config) {
         log.info("拉取镜像 - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
 
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftId(softId);
+        record.setSystemServerId(serverId);
+        record.setSystemSoftRecordOperationType("PULL_IMAGE");
+        record.setSystemSoftRecordMethod("pullImage");
+        record.setSystemSoftRecordMessage("开始拉取镜像");
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+        
         try {
             // 获取软件信息
             SystemSoft systemSoft = systemSoftMapper.selectById(softId);
             if (null == systemSoft) {
                 log.error("无法获取镜像信息 - 软件ID: {}", softId);
+                
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法获取镜像信息");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+                
                 return ReturnResult.error("无法获取镜像信息");
             }
 
@@ -104,33 +123,12 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             if (StringUtils.hasText(imageTag)) {
                 fullImageName = imageName + ":" + imageTag;
             }
+            
+            // 更新记录的参数信息
+            record.setSystemSoftRecordParams(String.format("imageName=%s, imageTag=%s", imageName, imageTag));
 
-            // 更新镜像状态为拉取中
-            SystemSoftImage image = systemSoftImageMapper.selectById(softId);
-            if (image == null) {
-                image = new SystemSoftImage();
-                image.setSystemSoftId(softId);
-                image.setSystemSoftImageServerId(serverId);
-                image.setSystemSoftImageName(imageName);
-            }
-
-            // 更新镜像的基本信息
-            image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING);
-            image.setSystemSoftImageTag(imageTag);
-            image.setSystemSoftImageFullName(fullImageName);
-            image.setSystemSoftImageRepository(systemSoft.getSystemSoftRegistryId() != null ? systemSoft.getSystemSoftRegistryId().toString() : "");
-
-            // 增加拉取次数
-            Long pullCount = image.getSystemSoftImagePullCount();
-            if (pullCount == null) {
-                pullCount = 0L;
-            }
-            image.setSystemSoftImagePullCount(pullCount + 1);
-
-            // 更新最后拉取时间
-            image.setSystemSoftImageLastPulled(java.time.LocalDateTime.now());
-
-            this.saveOrUpdate(image);
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
 
             // 如果config为null，则创建默认的DockerPullImage配置对象
             if (config == null) {
@@ -144,31 +142,58 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
             if (dockerClient == null) {
                 log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
-                // 更新镜像状态为拉取失败
-                image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
-                this.saveOrUpdate(image);
+                
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+                
                 return ReturnResult.error("无法创建Docker客户端");
             }
 
-            // 创建状态更新WebSocket回调处理器
-            var callback = dockerCallbackService.createStatusUpdatingWebSocketPullCallback(OperationType.PULL, fullImageName, image.getSystemSoftImageId());
+            // 先创建一个SystemSoftImage记录（状态为PULLING），以便获取imageId用于WebSocket回调
+            SystemSoftImage image = new SystemSoftImage();
+            image.setSystemSoftId(softId);
+            image.setSystemSoftImageServerId(serverId);
+            image.setSystemSoftImageName(imageName);
+            image.setSystemSoftImageTag(imageTag);
+            image.setSystemSoftImageFullName(fullImageName);
+            image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING);
+            image.setSystemSoftImageRepositoryId(systemSoft.getSystemSoftRegistryId());
+            image.setCreateTime(java.time.LocalDateTime.now());
+            image.setUpdateTime(java.time.LocalDateTime.now());
+            
+            // 保存镜像记录到数据库，获取自动生成的ID
+            this.save(image);
+            
+            // 创建状态更新WebSocket回调处理器，传入镜像ID
+            var callback = dockerCallbackService.createStatusUpdatingWebSocketPullCallback(
+                OperationType.PULL, 
+                fullImageName, 
+                image.getSystemSoftImageId()
+            );
 
             // 执行拉取操作（带回调）
-            log.info("开始拉取镜像(带回调): {}:{}", imageName, imageTag);
+            log.info("开始拉取镜像(带回调): {}:{}, 镜像ID: {}", imageName, imageTag, image.getSystemSoftImageId());
             dockerCallbackService.pullImageWithCallback(dockerClient, config, callback);
 
-            log.info("拉取镜像请求已发送 - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
+            log.info("拉取镜像请求已发送 - 软件ID: {}, 服务器ID: {}, 镜像标签: {}, 镜像ID: {}, 记录ID: {}", 
+                softId, serverId, imageTag, image.getSystemSoftImageId(), record.getSystemSoftRecordId());
+            
+            // 返回已保存的镜像对象（状态为PULLING，后续会通过回调更新状态）
             return ReturnResult.ok(image);
         } catch (Exception e) {
-            // 更新镜像状态为拉取失败
+            // 更新记录状态为失败
             try {
-                SystemSoftImage image = systemSoftImageMapper.selectById(softId);
-                if (image != null) {
-                    image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
-                    this.saveOrUpdate(image);
-                }
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("拉取镜像失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
             } catch (Exception updateEx) {
-                log.warn("更新镜像状态为拉取失败时出错: {}", updateEx.getMessage());
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
             }
 
             log.error("拉取镜像失败 - 错误信息: {}", e.getMessage(), e);
@@ -187,34 +212,62 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     public ReturnResult<Boolean> createContainer(Integer imageId, DockerCreateContainer config) {
         log.info("创建容器 - 镜像ID: {}", imageId);
 
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftRecordOperationType("CREATE_CONTAINER");
+        record.setSystemSoftRecordMethod("createContainer");
+        record.setSystemSoftRecordMessage("开始创建容器");
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
         try {
             // 获取镜像信息
             SystemSoftImage image = systemSoftImageMapper.selectById(imageId);
             if (image == null) {
                 log.error("镜像不存在 - 镜像ID: {}", imageId);
+                
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("镜像不存在");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+                
                 return ReturnResult.error("镜像不存在");
             }
 
-            // 更新镜像状态为启动中
-            image.setSystemSoftImageStatus(SystemSoftImageStatus.STARTING);
-            this.saveOrUpdate(image);
-
-            // 获取Docker客户端
-            Integer serverId = image.getSystemSoftImageServerId();
-            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
-            if (dockerClient == null) {
-                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
-                // 更新镜像状态为启动失败
-                image.setSystemSoftImageStatus(SystemSoftImageStatus.START_FAILED);
-                this.saveOrUpdate(image);
-                return ReturnResult.error("无法创建Docker客户端");
-            }
+            // 设置记录的关联信息
+            record.setSystemSoftId(image.getSystemSoftId());
+            record.setSystemServerId(image.getSystemSoftImageServerId());
 
             // 获取容器名称（如果配置中没有提供，则生成一个默认名称）
             String containerName = config.getContainerName();
             if (!StringUtils.hasText(containerName)) {
                 containerName = "container-" + image.getSystemSoftImageName().replace("/", "-") + "-" + System.currentTimeMillis();
                 config.setContainerName(containerName);
+            }
+            
+            // 设置记录参数
+            record.setSystemSoftRecordParams(String.format("imageId=%d, containerName=%s", imageId, containerName));
+            
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
+
+            // 获取Docker客户端
+            Integer serverId = image.getSystemSoftImageServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+                
+                return ReturnResult.error("无法创建Docker客户端");
             }
 
             // 构造完整的镜像名称（如果配置中没有提供）
@@ -226,26 +279,31 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
                 config.setImageName(fullImageName);
             }
 
-            // 创建WebSocket回调处理器
+            // 创建WebSocket回调处理器，传入完整的关联信息
             var callback = new WebSocketContainerCreateCallback(
-                    dockerCallbackService.getSocketSessionTemplate(), OperationType.START, containerName);
+                    dockerCallbackService.getSocketSessionTemplate(), 
+                    OperationType.CREATE, 
+                    containerName,
+                    record.getSystemSoftRecordId(),
+                    image.getSystemSoftId(),
+                    serverId);
 
             // 执行启动操作（创建容器带回调）
-            log.info("开始创建容器(带回调): {} 使用镜像: {}", containerName, config.getImageName());
+            log.info("开始创建容器(带回调): {} 使用镜像: {}, 记录ID: {}", containerName, config.getImageName(), record.getSystemSoftRecordId());
             dockerCallbackService.createContainerWithCallback(dockerClient, config, callback);
 
-            log.info("创建容器请求已发送 - 镜像ID: {}", imageId);
+            log.info("创建容器请求已发送 - 镜像ID: {}, 记录ID: {}", imageId, record.getSystemSoftRecordId());
             return ReturnResult.ok(true);
         } catch (Exception e) {
-            // 更新镜像状态为启动失败
+            // 更新记录状态为失败
             try {
-                SystemSoftImage image = systemSoftImageMapper.selectById(imageId);
-                if (image != null) {
-                    image.setSystemSoftImageStatus(SystemSoftImageStatus.START_FAILED);
-                    this.saveOrUpdate(image);
-                }
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("创建容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
             } catch (Exception updateEx) {
-                log.warn("更新镜像状态为启动失败时出错: {}", updateEx.getMessage());
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
             }
 
             log.error("创建容器失败 - 错误信息: {}", e.getMessage(), e);
