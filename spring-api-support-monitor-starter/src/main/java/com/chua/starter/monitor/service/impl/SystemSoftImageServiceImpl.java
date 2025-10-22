@@ -47,6 +47,9 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     @Autowired
     @Lazy
     private DockerCallbackService dockerCallbackService;
+    @Autowired
+    @Lazy
+    private com.chua.starter.monitor.service.SystemSoftRecordService systemSoftRecordService;
 
     /**
      * 根据条件查询镜像列表

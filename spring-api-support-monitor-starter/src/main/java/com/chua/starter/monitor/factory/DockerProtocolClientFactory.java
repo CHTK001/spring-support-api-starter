@@ -49,7 +49,7 @@ public class DockerProtocolClientFactory {
 
         // 先从缓存中获取
         DockerProtocolClient cachedClient = clientCache.get(serverId);
-        if (cachedClient != null) {
+        if (cachedClient != null && cachedClient.isConnected()) {
             log.debug("从缓存中获取Docker客户端 - serverId: {}", serverId);
             return cachedClient;
         }
@@ -71,6 +71,7 @@ public class DockerProtocolClientFactory {
         try {
             DockerProtocolClient client = createClientFromSetting(setting);
             if (client != null) {
+                client.connect();
                 // 缓存客户端实例
                 clientCache.put(serverId, client);
                 log.info("成功创建Docker客户端 - serverId: {}, connectionType: {}",
@@ -140,7 +141,7 @@ public class DockerProtocolClientFactory {
                 setting.getMonitorSysGenServerSettingDockerTlsEnabled() == 1;
 
         ClientSetting clientSetting = ClientSetting.builder()
-                .host(dockerHost)
+                .url(dockerHost)
                 .sslEnabled(tlsEnabled)
                 .sslCertPath(setting.getMonitorSysGenServerSettingDockerCertPath())
                 .username(setting.getMonitorSysGenServerSettingDockerUsername())
