@@ -255,4 +255,75 @@ public class SystemSoftContainerController {
             @Parameter(description = "服务器ID") @RequestParam Integer serverId) {
         return systemSoftContainerService.syncContainerStatus(serverId);
     }
+
+    /**
+     * 批量操作容器
+     *
+     * @param request 批量操作请求
+     * @return 操作结果
+     */
+    @PostMapping("/batch")
+    @Operation(summary = "批量操作容器", description = "批量启动、停止、重启或删除容器")
+    public ReturnResult<Map<String, Object>> batchOperation(@RequestBody BatchOperationRequest request) {
+        log.debug("批量操作容器, operation: {}, containerIds: {}", request.getOperation(), request.getContainerIds());
+
+        try {
+            int total = request.getContainerIds().size();
+            int success = 0;
+            int failed = 0;
+
+            for (Integer containerId : request.getContainerIds()) {
+                try {
+                    ReturnResult<?> result = null;
+                    switch (request.getOperation()) {
+                        case "start":
+                            result = systemSoftContainerService.startContainerForContainer(containerId);
+                            break;
+                        case "stop":
+                            result = systemSoftContainerService.stopContainer(containerId);
+                            break;
+                        case "restart":
+                            result = systemSoftContainerService.restartContainer(containerId);
+                            break;
+                        case "remove":
+                            result = systemSoftContainerService.removeContainer(containerId, false);
+                            break;
+                        default:
+                            log.warn("不支持的操作: {}", request.getOperation());
+                            failed++;
+                            continue;
+                    }
+
+                    if (result != null && "00000".equals(result.getCode())) {
+                        success++;
+                    } else {
+                        failed++;
+                    }
+                } catch (Exception e) {
+                    log.error("批量操作容器失败, containerId: {}", containerId, e);
+                    failed++;
+                }
+            }
+
+            Map<String, Object> resultMap = new java.util.HashMap<>();
+            resultMap.put("total", total);
+            resultMap.put("success", success);
+            resultMap.put("failed", failed);
+
+            log.debug("批量操作容器完成, total: {}, success: {}, failed: {}", total, success, failed);
+            return ReturnResult.ok(resultMap);
+        } catch (Exception e) {
+            log.error("批量操作容器失败", e);
+            return ReturnResult.error("批量操作失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量操作请求对象
+     */
+    @lombok.Data
+    public static class BatchOperationRequest {
+        private java.util.List<Integer> containerIds;
+        private String operation;
+    }
 }

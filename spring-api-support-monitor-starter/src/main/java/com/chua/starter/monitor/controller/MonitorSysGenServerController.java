@@ -155,6 +155,17 @@ public class MonitorSysGenServerController {
     /**
      * 分页查询数据
      *
+     * @return 分页结果
+     */
+    @ResponseBody
+    @Operation(summary = "分页查询数据")
+    @GetMapping("list")
+    public ReturnResult<List<MonitorSysGenServer>> list() {
+        return ReturnResult.ok(monitorSysGenServerService.list());
+    }
+    /**
+     * 分页查询数据
+     *
      * @param page   分页参数
      * @param entity 查询条件
      * @return 分页结果

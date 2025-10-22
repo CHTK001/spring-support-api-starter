@@ -8,6 +8,7 @@ import com.chua.docker.support.client.DockerPullImage;
 import com.chua.docker.support.client.DockerCreateContainer;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统软件镜像管理服务接口
@@ -90,5 +91,34 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @return 镜像详情
      */
     ReturnResult<SystemSoftImage> getImageDetails(Integer imageId);
+
+    /**
+     * 导出镜像到文件
+     *
+     * @param imageId  镜像ID
+     * @param serverId 服务器ID
+     * @return 导出结果（包含操作ID和文件路径）
+     */
+    ReturnResult<Map<String, Object>> exportImage(Integer imageId, Integer serverId);
+
+    /**
+     * 从文件导入镜像
+     *
+     * @param serverId    服务器ID
+     * @param filePath    文件路径
+     * @param imageName   镜像名称（可选）
+     * @param imageTag    镜像标签（可选）
+     * @param force       是否强制导入
+     * @return 导入结果（包含操作ID）
+     */
+    ReturnResult<Map<String, Object>> importImage(Integer serverId, String filePath, String imageName, String imageTag, Boolean force);
+
+    /**
+     * 从服务器同步Docker镜像到SystemSoftImage表
+     *
+     * @param serverIds 服务器ID列表
+     * @return 同步结果（包含操作ID和同步数量）
+     */
+    ReturnResult<Map<String, Object>> syncImagesFromServers(List<Integer> serverIds);
 
 }
