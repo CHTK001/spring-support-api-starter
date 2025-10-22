@@ -1,5 +1,8 @@
 package com.chua.starter.monitor.enums;
 
+import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
+import com.chua.starter.monitor.callback.WebSocketDockerPullCallback;
+
 /**
  * Docker操作类型枚举
  * <p>
@@ -71,7 +74,13 @@ public enum OperationType {
      * <p>
      * 删除本地的Docker镜像或容器实例。
      */
-    DELETE("delete", "删除");
+    DELETE("delete", "删除"),
+    /**
+     * 创建操作
+     * <p>
+     * 创建容器实例。
+     */
+    CREATE("create", "创建" );
 
     /**
      * 操作码
