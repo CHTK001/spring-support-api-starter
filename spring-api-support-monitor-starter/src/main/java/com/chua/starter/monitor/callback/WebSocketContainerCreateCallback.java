@@ -58,6 +58,27 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
     private final String containerName;
 
     /**
+     * 记录ID
+     * <p>
+     * 系统软件记录ID，用于关联操作记录。
+     */
+    private final Integer recordId;
+
+    /**
+     * 软件ID
+     * <p>
+     * 系统软件ID，用于关联软件信息。
+     */
+    private final Integer softId;
+
+    /**
+     * 服务器ID
+     * <p>
+     * 服务器ID，标识容器运行的服务器。
+     */
+    private final Integer serverId;
+
+    /**
      * 开始时间
      * <p>
      * 记录Docker操作开始的时间，用于计算操作耗时等统计信息。
@@ -88,9 +109,9 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
     private String errorMessage;
 
     /**
-     * 构造函数
+     * 构造函数（简化版）
      * <p>
-     * 创建WebSocket容器创建回调实例。
+     * 创建WebSocket容器创建回调实例（不需要记录ID等额外信息）。
      *
      * @param socketSessionTemplate WebSocket会话模板，用于发送消息
      * @param operationType         操作类型，标识当前Docker操作的类型
@@ -98,11 +119,33 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
      */
     public WebSocketContainerCreateCallback(SocketSessionTemplate socketSessionTemplate,
                                             OperationType operationType, String containerName) {
+        this(socketSessionTemplate, operationType, containerName, null, null, null);
+    }
+
+    /**
+     * 构造函数（完整版）
+     * <p>
+     * 创建WebSocket容器创建回调实例，包含完整的关联信息。
+     *
+     * @param socketSessionTemplate WebSocket会话模板，用于发送消息
+     * @param operationType         操作类型，标识当前Docker操作的类型
+     * @param containerName         容器名称，标识当前操作的Docker容器
+     * @param recordId              记录ID，用于关联操作记录
+     * @param softId                软件ID，用于关联软件信息
+     * @param serverId              服务器ID，标识容器运行的服务器
+     */
+    public WebSocketContainerCreateCallback(SocketSessionTemplate socketSessionTemplate,
+                                            OperationType operationType, String containerName,
+                                            Integer recordId, Integer softId, Integer serverId) {
         this.socketSessionTemplate = socketSessionTemplate;
         this.operationType = operationType;
         this.containerName = containerName;
+        this.recordId = recordId;
+        this.softId = softId;
+        this.serverId = serverId;
         this.startTime = LocalDateTime.now();
-        log.info("创建WebSocket容器创建回调 - 操作类型: {}, 容器: {}", operationType, containerName);
+        log.info("创建WebSocket容器创建回调 - 操作类型: {}, 容器: {}, 记录ID: {}, 软件ID: {}, 服务器ID: {}", 
+                operationType, containerName, recordId, softId, serverId);
     }
 
     /**
@@ -127,6 +170,17 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
             message.put("operation", operationType.toString());
             message.put("containerName", containerName);
             message.put("timestamp", LocalDateTime.now());
+
+            // 添加关联信息
+            if (recordId != null) {
+                message.put("recordId", recordId);
+            }
+            if (softId != null) {
+                message.put("softId", softId);
+            }
+            if (serverId != null) {
+                message.put("serverId", serverId);
+            }
 
             // 根据不同类型的响应项处理
             message.put("status", responseItem.getStatus());
@@ -161,7 +215,18 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
             message.put("containerName", containerName);
             message.put("timestamp", startTime);
 
-            log.info("Docker创建操作开始 - 容器: {}", containerName);
+            // 添加关联信息
+            if (recordId != null) {
+                message.put("recordId", recordId);
+            }
+            if (softId != null) {
+                message.put("softId", softId);
+            }
+            if (serverId != null) {
+                message.put("serverId", serverId);
+            }
+
+            log.info("Docker创建操作开始 - 容器: {}, 记录ID: {}", containerName, recordId);
 
             // 发送WebSocket消息
             socketSessionTemplate.sendObject("docker_start", message);
@@ -194,7 +259,18 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
             message.put("error", throwable.getMessage());
             message.put("timestamp", LocalDateTime.now());
 
-            log.error("Docker创建操作失败 - 容器: {}, 错误: {}", containerName, throwable.getMessage(), throwable);
+            // 添加关联信息
+            if (recordId != null) {
+                message.put("recordId", recordId);
+            }
+            if (softId != null) {
+                message.put("softId", softId);
+            }
+            if (serverId != null) {
+                message.put("serverId", serverId);
+            }
+
+            log.error("Docker创建操作失败 - 容器: {}, 记录ID: {}, 错误: {}", containerName, recordId, throwable.getMessage(), throwable);
 
             // 发送WebSocket消息
             socketSessionTemplate.sendObject("docker_error", message);
@@ -224,11 +300,22 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
             message.put("success", !hasError);
             message.put("timestamp", LocalDateTime.now());
 
+            // 添加关联信息
+            if (recordId != null) {
+                message.put("recordId", recordId);
+            }
+            if (softId != null) {
+                message.put("softId", softId);
+            }
+            if (serverId != null) {
+                message.put("serverId", serverId);
+            }
+
             if (hasError) {
                 message.put("error", errorMessage);
-                log.info("Docker创建操作完成(失败) - 容器: {}, 错误: {}", containerName, errorMessage);
+                log.info("Docker创建操作完成(失败) - 容器: {}, 记录ID: {}, 错误: {}", containerName, recordId, errorMessage);
             } else {
-                log.info("Docker创建操作完成(成功) - 容器: {}", containerName);
+                log.info("Docker创建操作完成(成功) - 容器: {}, 记录ID: {}", containerName, recordId);
             }
 
             // 发送WebSocket消息
