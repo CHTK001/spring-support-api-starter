@@ -336,4 +336,48 @@ public class SystemSoftV1Controller {
         
         return config;
     }
+    
+    /**
+     * 同步镜像请求DTO
+     */
+    public static class SyncImagesRequest {
+        private List<Integer> serverIds;
+        
+        // Getters and Setters
+        public List<Integer> getServerIds() { return serverIds; }
+        public void setServerIds(List<Integer> serverIds) { this.serverIds = serverIds; }
+    }
+    
+    /**
+     * 同步镜像：从服务器同步Docker镜像到SystemSoftImage表
+     *
+     * @param request 同步请求
+     * @return 同步结果
+     */
+    @Operation(summary = "同步镜像(v1)", description = "从指定服务器同步Docker镜像到系统")
+    @PostMapping("/sync-images")
+    public ReturnResult<Map<String, Object>> syncImages(@RequestBody SyncImagesRequest request) {
+        try {
+            log.debug("[v1] 同步镜像, serverIds: {}", request.getServerIds());
+            
+            if (request.getServerIds() == null || request.getServerIds().isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+            
+            // 调用服务层同步镜像方法
+            ReturnResult<Map<String, Object>> result = systemSoftService.syncImagesFromServers(request.getServerIds());
+            
+            if (result.isOk()) {
+                log.debug("[v1] 同步镜像成功, result: {}", result.getData());
+                return result;
+            } else {
+                log.error("[v1] 同步镜像失败: {}", result.getMsg());
+                return ReturnResult.error(result.getMsg());
+            }
+            
+        } catch (Exception e) {
+            log.error("[v1] 同步镜像失败", e);
+            return ReturnResult.error("同步失败: " + e.getMessage());
+        }
+    }
 }

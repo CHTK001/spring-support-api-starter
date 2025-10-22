@@ -16,6 +16,7 @@ import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftImageService;
+import com.github.dockerjava.api.model.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统软件镜像管理服务实现类
@@ -348,6 +351,473 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
         } catch (Exception e) {
             log.error("获取镜像详情失败 - 错误信息: {}", e.getMessage(), e);
             return ReturnResult.error("获取镜像详情失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 导出镜像到文件
+     *
+     * @param imageId  镜像ID
+     * @param serverId 服务器ID
+     * @return 导出结果（包含操作ID和文件路径）
+     */
+    @Override
+    public ReturnResult<Map<String, Object>> exportImage(Integer imageId, Integer serverId) {
+        log.info("导出镜像 - 镜像ID: {}, 服务器ID: {}", imageId, serverId);
+
+        try {
+            // 获取镜像信息
+            SystemSoftImage image = systemSoftImageMapper.selectById(imageId);
+            if (image == null) {
+                log.error("镜像不存在 - 镜像ID: {}", imageId);
+                return ReturnResult.error("镜像不存在");
+            }
+
+            // 获取Docker客户端
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 生成操作ID
+            String operationId = "export-image-" + System.currentTimeMillis();
+
+            // 生成导出文件路径
+            String fileName = image.getSystemSoftImageName().replace("/", "_") + "_" + image.getSystemSoftImageTag() + ".tar";
+            String filePath = "/tmp/docker-exports/" + fileName;
+
+            // 推送开始导出的WebSocket消息
+            pushExportProgress(operationId, imageId, image.getSystemSoftImageName(), 0, "开始导出镜像...");
+
+            // 异步执行导出任务
+            new Thread(() -> {
+                try {
+                    // 调用Docker客户端导出镜像
+                    String fullImageName = image.getSystemSoftImageName() + ":" + image.getSystemSoftImageTag();
+                    dockerClient.saveImage(fullImageName, filePath);
+
+                    // 推送完成消息
+                    pushExportComplete(operationId, imageId, filePath);
+                } catch (Exception e) {
+                    log.error("导出镜像失败", e);
+                    pushExportError(operationId, imageId, e.getMessage());
+                }
+            }).start();
+
+            // 返回结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("operationId", operationId);
+            result.put("filePath", filePath);
+            
+            log.info("导出镜像任务已创建 - 操作ID: {}", operationId);
+            return ReturnResult.ok(result);
+
+        } catch (Exception e) {
+            log.error("导出镜像失败 - 错误信息: {}", e.getMessage(), e);
+            return ReturnResult.error("导出镜像失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从文件导入镜像
+     *
+     * @param serverId    服务器ID
+     * @param filePath    文件路径
+     * @param imageName   镜像名称（可选）
+     * @param imageTag    镜像标签（可选）
+     * @param force       是否强制导入
+     * @return 导入结果（包含操作ID）
+     */
+    @Override
+    public ReturnResult<Map<String, Object>> importImage(Integer serverId, String filePath, String imageName, String imageTag, Boolean force) {
+        log.info("导入镜像 - 服务器ID: {}, 文件路径: {}", serverId, filePath);
+
+        try {
+            // 获取Docker客户端
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 生成操作ID
+            String operationId = "import-image-" + System.currentTimeMillis();
+
+            // 推送开始导入的WebSocket消息
+            pushImportProgress(operationId, serverId, filePath, 0, "开始导入镜像...");
+
+            // 异步执行导入任务
+            new Thread(() -> {
+                try {
+                    // 调用Docker客户端导入镜像
+                    dockerClient.loadImage(filePath);
+
+                    // 解析导入的镜像信息并保存到数据库
+                    try {
+                        // 重新获取镜像列表以找到刚导入的镜像
+                        List<Image> images = dockerClient.listImages();
+                        if (images != null && !images.isEmpty()) {
+                            // 取最新的镜像（通常是刚导入的）
+                            for (Image image : images) {
+                                String imageFullName = image.getRepoTags() != null && image.getRepoTags().length != 0
+                                    ? image.getRepoTags()[0] : image.getId();
+                                
+                                // 解析镜像名称和标签
+                                String[] parts = imageFullName.split(":");
+                                String innerImageName = parts.length > 0 ? parts[0] : imageFullName;
+                                String innerImageTag = parts.length > 1 ? parts[1] : "latest";
+                                
+                                // 查找或创建软件记录
+                                Integer softId = findOrCreateSoftwareByImageName(innerImageName);
+                                
+                                // 检查是否已存在
+                                SystemSoftImage existingImage = systemSoftImageMapper.selectList(null).stream()
+                                    .filter(img -> img.getSystemSoftImageServerId() != null
+                                        && img.getSystemSoftImageServerId().equals(serverId)
+                                        && img.getSystemSoftImageImageId() != null
+                                        && img.getSystemSoftImageImageId().equals(image.getId()))
+                                    .findFirst()
+                                    .orElse(null);
+                                
+                                if (existingImage == null) {
+                                    // 创建新镜像记录
+                                    SystemSoftImage newImage = new SystemSoftImage();
+                                    newImage.setSystemSoftId(softId);
+                                    newImage.setSystemSoftImageServerId(serverId);
+                                    newImage.setSystemSoftImageImageId(image.getId());
+                                    newImage.setSystemSoftImageName(innerImageName);
+                                    newImage.setSystemSoftImageTag(innerImageTag);
+                                    newImage.setSystemSoftImageFullName(imageFullName);
+                                    newImage.setSystemSoftImageSize(image.getSize());
+                                    newImage.setSystemSoftImageStatus(SystemSoftImageStatus.AVAILABLE);
+                                    newImage.setCreateTime(java.time.LocalDateTime.now());
+                                    systemSoftImageMapper.insert(newImage);
+                                    log.info("保存导入的镜像信息 - 镜像ID: {}, 名称: {}", image.getId(), imageFullName);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("解析并保存导入的镜像信息失败: {}", e.getMessage());
+                    }
+
+                    // 推送完成消息
+                    pushImportComplete(operationId, serverId);
+                } catch (Exception e) {
+                    log.error("导入镜像失败", e);
+                    pushImportError(operationId, serverId, e.getMessage());
+                }
+            }).start();
+
+            // 返回结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("operationId", operationId);
+            
+            log.info("导入镜像任务已创建 - 操作ID: {}", operationId);
+            return ReturnResult.ok(result);
+
+        } catch (Exception e) {
+            log.error("导入镜像失败 - 错误信息: {}", e.getMessage(), e);
+            return ReturnResult.error("导入镜像失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从服务器同步Docker镜像到SystemSoftImage表
+     *
+     * @param serverIds 服务器ID列表
+     * @return 同步结果（包含操作ID和同步数量）
+     */
+    @Override
+    public ReturnResult<Map<String, Object>> syncImagesFromServers(List<Integer> serverIds) {
+        log.info("从服务器同步Docker镜像 - serverIds: {}", serverIds);
+
+        try {
+            String operationId = "sync-images-" + System.currentTimeMillis();
+            int totalImages = 0;
+            int successCount = 0;
+            int errorCount = 0;
+
+            for (Integer serverId : serverIds) {
+                try {
+                    log.info("开始同步服务器镜像 - serverId: {}", serverId);
+
+                    // 获取Docker客户端
+                    DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+                    if (dockerClient == null) {
+                        log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                        errorCount++;
+                        continue;
+                    }
+
+                    // 推送开始同步的WebSocket消息
+                    pushSyncProgress(operationId, serverId, "服务器-" + serverId, 0, "开始同步镜像列表...");
+
+                    // 获取服务器上的镜像列表
+                    List<Image> images = dockerClient.listImages();
+                    if (images == null || images.isEmpty()) {
+                        log.warn("服务器上没有镜像 - 服务器ID: {}", serverId);
+                        pushSyncProgress(operationId, serverId, "服务器-" + serverId, 100, "没有可同步的镜像");
+                        continue;
+                    }
+
+                    totalImages += images.size();
+                    int imageIndex = 0;
+
+                    for (Image image : images) {
+                        try {
+                            imageIndex++;
+                            int progress = (int) ((double) imageIndex / images.size() * 100);
+                            pushSyncProgress(operationId, serverId, "服务器-" + serverId, progress, 
+                                String.format("同步镜像 %d/%d", imageIndex, images.size()));
+
+                            // 解析镜像名称和标签
+                            String imageFullName = image.getRepoTags() != null && image.getRepoTags().length != 0
+                                ? image.getRepoTags()[0] : image.getId();
+                            String[] parts = imageFullName.split(":");
+                            String name = parts.length > 0 ? parts[0] : imageFullName;
+                            String tag = parts.length > 1 ? parts[1] : "latest";
+
+                            // 查找或创建对应的SystemSoft记录
+                            Integer softId = findOrCreateSoftwareByImageName(name);
+
+                            // 检查数据库中是否已存在此镜像
+                            SystemSoftImage existingImage = systemSoftImageMapper.selectList(null).stream()
+                                .filter(img -> img.getSystemSoftImageServerId().equals(serverId) 
+                                    && img.getSystemSoftImageImageId() != null
+                                    && img.getSystemSoftImageImageId().equals(image.getId()))
+                                .findFirst()
+                                .orElse(null);
+
+                            if (existingImage != null) {
+                                // 更新现有记录
+                                existingImage.setSystemSoftImageTag(tag);
+                                existingImage.setSystemSoftImageSize(image.getSize());
+                                existingImage.setSystemSoftImageStatus(SystemSoftImageStatus.AVAILABLE);
+                                systemSoftImageMapper.updateById(existingImage);
+                            } else {
+                                // 创建新记录
+                                SystemSoftImage newImage = new SystemSoftImage();
+                                newImage.setSystemSoftId(softId);
+                                newImage.setSystemSoftImageServerId(serverId);
+                                newImage.setSystemSoftImageServerName("服务器-" + serverId);
+                                newImage.setSystemSoftImageImageId(image.getId());
+                                newImage.setSystemSoftImageName(name);
+                                newImage.setSystemSoftImageTag(tag);
+                                newImage.setSystemSoftImageFullName(imageFullName);
+                                newImage.setSystemSoftImageSize(image.getSize());
+                                newImage.setSystemSoftImageStatus(SystemSoftImageStatus.AVAILABLE);
+                                systemSoftImageMapper.insert(newImage);
+                            }
+
+                            successCount++;
+                        } catch (Exception e) {
+                            log.error("保存镜像信息失败 - image: {}", image.getId(), e);
+                            errorCount++;
+                        }
+                    }
+
+                    pushSyncProgress(operationId, serverId, "服务器-" + serverId, 100, 
+                        String.format("同步完成，共 %d 个镜像", images.size()));
+
+                } catch (Exception e) {
+                    log.error("同步服务器镜像失败 - serverId: {}", serverId, e);
+                    errorCount++;
+                }
+            }
+
+            // 推送完成消息
+            pushSyncComplete(operationId, totalImages, successCount, errorCount);
+
+            // 返回结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("operationId", operationId);
+            result.put("syncCount", successCount);
+            result.put("totalImages", totalImages);
+            result.put("successCount", successCount);
+            result.put("errorCount", errorCount);
+
+            log.info("同步镜像完成 - 总数: {}, 成功: {}, 失败: {}", totalImages, successCount, errorCount);
+            return ReturnResult.ok(result);
+
+        } catch (Exception e) {
+            log.error("同步镜像失败 - 错误信息: {}", e.getMessage(), e);
+            return ReturnResult.error("同步镜像失败: " + e.getMessage());
+        }
+    }
+
+    // ========= 辅助方法 =========
+
+    /**
+     * 根据镜像名称查找或创建对应的软件记录
+     * 
+     * @param imageName 镜像名称（例如：nginx、mysql、redis等）
+     * @return 软件ID
+     */
+    private Integer findOrCreateSoftwareByImageName(String imageName) {
+        if (!StringUtils.hasText(imageName)) {
+            log.warn("镜像名称为空，无法查找或创建软件记录");
+            return null;
+        }
+
+        try {
+            // 1. 首先尝试通过Docker镜像名称精确匹配
+            SystemSoft existingSoft = systemSoftMapper.selectByDockerImage(imageName);
+            if (existingSoft != null) {
+                log.debug("找到已存在的软件记录（通过镜像名称） - softId: {}, imageName: {}", existingSoft.getSystemSoftId(), imageName);
+                return existingSoft.getSystemSoftId();
+            }
+
+            // 2. 提取镜像的简单名称（去除仓库前缀，如 docker.io/library/nginx -> nginx）
+            String simpleName = imageName;
+            if (imageName.contains("/")) {
+                String[] parts = imageName.split("/");
+                simpleName = parts[parts.length - 1];
+            }
+
+            // 3. 尝试通过软件代码查找（软件代码通常是镜像的简单名称）
+            SystemSoft softByCode = systemSoftMapper.selectBySoftCode(simpleName);
+            if (softByCode != null) {
+                log.debug("找到已存在的软件记录（通过软件代码） - softId: {}, softCode: {}", softByCode.getSystemSoftId(), simpleName);
+                return softByCode.getSystemSoftId();
+            }
+
+            // 4. 如果都没找到，创建新的软件记录
+            log.info("未找到对应的软件记录，创建新的软件 - imageName: {}", imageName);
+            SystemSoft newSoft = new SystemSoft();
+            newSoft.setSystemSoftName(simpleName);
+            newSoft.setSystemSoftCode(simpleName);
+            newSoft.setSystemSoftDockerImage(imageName);
+            newSoft.setSystemSoftDesc("从服务器镜像自动创建");
+            newSoft.setSystemSoftIsOfficial(0);
+            newSoft.setSystemSoftStatus(1);
+            newSoft.setCreateTime(java.time.LocalDateTime.now());
+            
+            systemSoftMapper.insert(newSoft);
+            log.info("创建软件记录成功 - softId: {}, softName: {}, dockerImage: {}", 
+                newSoft.getSystemSoftId(), newSoft.getSystemSoftName(), imageName);
+            
+            return newSoft.getSystemSoftId();
+
+        } catch (Exception e) {
+            log.error("查找或创建软件记录失败 - imageName: {}, error: {}", imageName, e.getMessage(), e);
+            // 如果创建失败，返回null，调用方需要处理这种情况
+            return null;
+        }
+    }
+
+    // ========= WebSocket消息推送辅助方法 =========
+
+    private void pushExportProgress(String operationId, Integer imageId, String imageName, int progress, String message) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("imageId", imageId);
+            data.put("imageName", imageName);
+            data.put("progress", progress);
+            data.put("message", message);
+            dockerCallbackService.getSocketSessionTemplate().send("docker_image_export_progress", data);
+        } catch (Exception e) {
+            log.warn("推送导出进度失败", e);
+        }
+    }
+
+    private void pushExportComplete(String operationId, Integer imageId, String filePath) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("imageId", imageId);
+            data.put("filePath", filePath);
+            data.put("type", "export_image");
+            data.put("status", "completed");
+            data.put("message", "镜像导出完成");
+            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+        } catch (Exception e) {
+            log.warn("推送导出完成消息失败", e);
+        }
+    }
+
+    private void pushExportError(String operationId, Integer imageId, String error) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("imageId", imageId);
+            data.put("type", "export_image");
+            data.put("error", error);
+            dockerCallbackService.getSocketSessionTemplate().send("operation_error", data);
+        } catch (Exception e) {
+            log.warn("推送导出错误消息失败", e);
+        }
+    }
+
+    private void pushImportProgress(String operationId, Integer serverId, String filePath, int progress, String message) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("serverId", serverId);
+            data.put("filePath", filePath);
+            data.put("progress", progress);
+            data.put("message", message);
+            dockerCallbackService.getSocketSessionTemplate().send("docker_image_import_progress", data);
+        } catch (Exception e) {
+            log.warn("推送导入进度失败", e);
+        }
+    }
+
+    private void pushImportComplete(String operationId, Integer serverId) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("serverId", serverId);
+            data.put("type", "import_image");
+            data.put("status", "completed");
+            data.put("message", "镜像导入完成");
+            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+        } catch (Exception e) {
+            log.warn("推送导入完成消息失败", e);
+        }
+    }
+
+    private void pushImportError(String operationId, Integer serverId, String error) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("serverId", serverId);
+            data.put("type", "import_image");
+            data.put("error", error);
+            dockerCallbackService.getSocketSessionTemplate().send("operation_error", data);
+        } catch (Exception e) {
+            log.warn("推送导入错误消息失败", e);
+        }
+    }
+
+    private void pushSyncProgress(String operationId, Integer serverId, String serverName, int progress, String message) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("serverId", serverId);
+            data.put("serverName", serverName);
+            data.put("progress", progress);
+            data.put("message", message);
+            dockerCallbackService.getSocketSessionTemplate().send("software_sync_progress", data);
+        } catch (Exception e) {
+            log.warn("推送同步进度失败", e);
+        }
+    }
+
+    private void pushSyncComplete(String operationId, int totalImages, int successCount, int errorCount) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operationId", operationId);
+            data.put("type", "sync_images");
+            data.put("status", "completed");
+            data.put("totalImages", totalImages);
+            data.put("successCount", successCount);
+            data.put("errorCount", errorCount);
+            data.put("message", String.format("镜像同步完成，成功: %d, 失败: %d", successCount, errorCount));
+            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+        } catch (Exception e) {
+            log.warn("推送同步完成消息失败", e);
         }
     }
 

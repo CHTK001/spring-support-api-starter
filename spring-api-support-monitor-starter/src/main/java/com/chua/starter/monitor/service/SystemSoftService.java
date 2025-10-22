@@ -229,4 +229,12 @@ public interface SystemSoftService extends IService<SystemSoft> {
      * @return 拉取结果
      */
     ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, Map<String, Object> params);
+    
+    /**
+     * 从服务器同步Docker镜像到SystemSoftImage表
+     *
+     * @param serverIds 服务器ID列表
+     * @return 同步结果（包含operationId和同步数量）
+     */
+    ReturnResult<Map<String, Object>> syncImagesFromServers(List<Integer> serverIds);
 }

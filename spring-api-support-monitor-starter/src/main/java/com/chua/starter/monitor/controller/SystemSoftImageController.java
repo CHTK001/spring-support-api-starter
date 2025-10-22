@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统软件镜像管理控制器
@@ -144,6 +145,111 @@ public class SystemSoftImageController {
             @Parameter(description = "镜像ID") @PathVariable Integer id,
             @Parameter(description = "是否强制删除") @RequestParam(defaultValue = "false") Boolean force) {
         return systemSoftImageService.removeImage(id, force);
+    }
+
+    /**
+     * 导出镜像到文件
+     *
+     * @param request 导出请求
+     * @return 导出结果
+     */
+    @PostMapping("/export")
+    @Operation(summary = "导出镜像", description = "导出镜像到文件")
+    public ReturnResult<Map<String, Object>> exportImage(@RequestBody ExportImageRequest request) {
+        try {
+            log.debug("导出镜像, imageId: {}, serverId: {}", request.getImageId(), request.getServerId());
+            return systemSoftImageService.exportImage(request.getImageId(), request.getServerId());
+        } catch (Exception e) {
+            log.error("导出镜像失败", e);
+            return ReturnResult.error("导出失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从文件导入镜像
+     *
+     * @param serverId  服务器ID
+     * @param filePath  文件路径
+     * @param imageName 镜像名称
+     * @param imageTag  镜像标签
+     * @param force     是否强制导入
+     * @return 导入结果
+     */
+    @PostMapping("/import")
+    @Operation(summary = "导入镜像", description = "从文件导入镜像")
+    public ReturnResult<Map<String, Object>> importImage(
+            @Parameter(description = "服务器ID") @RequestParam Integer serverId,
+            @Parameter(description = "文件路径") @RequestParam String filePath,
+            @Parameter(description = "镜像名称") @RequestParam(required = false) String imageName,
+            @Parameter(description = "镜像标签") @RequestParam(required = false) String imageTag,
+            @Parameter(description = "是否强制导入") @RequestParam(defaultValue = "false") Boolean force) {
+        try {
+            log.debug("导入镜像, serverId: {}, filePath: {}", serverId, filePath);
+            return systemSoftImageService.importImage(serverId, filePath, imageName, imageTag, force);
+        } catch (Exception e) {
+            log.error("导入镜像失败", e);
+            return ReturnResult.error("导入失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 同步镜像：从服务器同步Docker镜像到SystemSoftImage表
+     *
+     * @param request 同步请求
+     * @return 同步结果
+     */
+    @PostMapping("/sync")
+    @Operation(summary = "同步镜像", description = "从指定服务器同步Docker镜像到系统")
+    public ReturnResult<Map<String, Object>> syncImages(@RequestBody SyncImagesRequest request) {
+        try {
+            log.debug("同步镜像, serverIds: {}", request.getServerIds());
+            if (request.getServerIds() == null || request.getServerIds().isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+            return systemSoftImageService.syncImagesFromServers(request.getServerIds());
+        } catch (Exception e) {
+            log.error("同步镜像失败", e);
+            return ReturnResult.error("同步失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 导出镜像请求DTO
+     */
+    public static class ExportImageRequest {
+        private Integer imageId;
+        private Integer serverId;
+
+        public Integer getImageId() {
+            return imageId;
+        }
+
+        public void setImageId(Integer imageId) {
+            this.imageId = imageId;
+        }
+
+        public Integer getServerId() {
+            return serverId;
+        }
+
+        public void setServerId(Integer serverId) {
+            this.serverId = serverId;
+        }
+    }
+
+    /**
+     * 同步镜像请求DTO
+     */
+    public static class SyncImagesRequest {
+        private List<Integer> serverIds;
+
+        public List<Integer> getServerIds() {
+            return serverIds;
+        }
+
+        public void setServerIds(List<Integer> serverIds) {
+            this.serverIds = serverIds;
+        }
     }
 
 }
