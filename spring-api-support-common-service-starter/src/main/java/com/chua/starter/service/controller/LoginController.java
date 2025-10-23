@@ -41,7 +41,7 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
 @Slf4j
 @Api(tags = "登录接口")
 @Tag(name = "登录接口")
-@RequestMapping("/v2/login")
+@RequestMapping("/v2/user")
 @RequiredArgsConstructor
 public class LoginController {
 
