@@ -329,7 +329,6 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             }
 
             List<SystemSoft> result = new ArrayList<>(resultMap.values());
-            updateSoft(result, resultVersionMap);
 
             return ReturnPageResult.ok(PageResult.<SystemSoft>builder()
                     .data(result)
@@ -518,7 +517,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     
                     // 设置默认值
                     if (item.getSystemSoftStatus() == null) {
-                        item.setSystemSoftStatus(1); // 默认启用
+                        item.setSystemSoftStatus(1);
                     }
                     if (item.getSystemSoftIsOfficial() == null) {
                         item.setSystemSoftIsOfficial(0);
