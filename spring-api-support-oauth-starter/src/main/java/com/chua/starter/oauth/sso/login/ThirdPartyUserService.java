@@ -1,11 +1,9 @@
-package com.chua.starter.oauth.sso.service.impl;
+package com.chua.starter.oauth.sso.login;
 
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
-import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
-import com.chua.starter.oauth.sso.support.user.UserInfoService;
 import com.chua.starter.system.entity.SysUser;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +57,7 @@ public class ThirdPartyUserService extends UserService implements UserInfoServic
     /**
      * 用户缓存键前缀
      */
-    private static final String USER_CACHE_PREFIX = "third_party:user:";
+    private static final String USER_CACHE_PREFIX = "third_party:login:";
     
     @Autowired
     private StringRedisTemplate stringRedisTemplate;

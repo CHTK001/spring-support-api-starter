@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.support.user;
+package com.chua.starter.oauth.sso.login;
 
 
 import com.chua.starter.oauth.client.support.user.UserResult;

@@ -512,7 +512,7 @@ public class ServerInfoDetector {
     private static void detectWindowsInfo(Map<String, Object> serverInfo) {
         try {
             // Windows特有的系统属性
-            serverInfo.put("userDomain", System.getProperty("user.domain", "Unknown"));
+            serverInfo.put("userDomain", System.getProperty("login.domain", "Unknown"));
             serverInfo.put("computerName", System.getenv("COMPUTERNAME"));
             serverInfo.put("userProfile", System.getenv("USERPROFILE"));
 

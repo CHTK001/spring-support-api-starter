@@ -12,7 +12,7 @@
 //import com.chua.starter.oauth.client.support.enums.AuthType;
 //import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 //import com.chua.starter.oauth.client.support.provider.LoginData;
-//import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+//import com.chua.starter.oauth.client.support.login.LoginAuthResult;
 //import com.chua.starter.service.SysCityService;
 //import com.chua.starter.service.impl.SysLoginServiceImpl;
 //import com.chua.starter.service.impl.login.LoginHandler;

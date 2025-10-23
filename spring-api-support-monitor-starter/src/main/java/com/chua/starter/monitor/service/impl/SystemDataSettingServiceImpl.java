@@ -160,7 +160,7 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         try {
             SystemDataSetting setting = getById(id);
             if (setting == null) { return ReturnResult.error("配置不存在"); }
-            String baseDir = System.getProperty("user.home") + File.separator + "data-drivers";
+            String baseDir = System.getProperty("login.home") + File.separator + "data-drivers";
             Files.createDirectories(Path.of(baseDir));
             String filename = file.getOriginalFilename();
             if (filename == null || filename.isEmpty()) {

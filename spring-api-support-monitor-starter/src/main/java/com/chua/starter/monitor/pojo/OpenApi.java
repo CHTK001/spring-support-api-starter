@@ -51,7 +51,7 @@ public class OpenApi {
      * 用于存储自定义扩展字段（以 x- 开头）
      * 示例：
      * {
-     * "x-api-category": "user"
+     * "x-api-category": "login"
      * }
      */
     private Map<String, Object> extensions = new HashMap<>(); // 处理 x-openapi 等扩展字段

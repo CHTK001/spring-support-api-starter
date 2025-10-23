@@ -4,8 +4,10 @@ import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.docker.support.client.CmdDockerProtocolClient;
 import com.chua.docker.support.client.DockerProtocolClient;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.enums.DockerConnectionType;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 public class DockerProtocolClientFactory {
 
     private final MonitorSysGenServerSettingService serverSettingService;
+    private final MonitorSysGenServerService serverService;
 
     /**
      * 客户端缓存，避免重复创建
@@ -175,26 +178,85 @@ public class DockerProtocolClientFactory {
     /**
      * 创建本地连接的Docker客户端
      * 使用CMD方式通过SSH执行docker命令
+     * <p>
+     * 注意：SSH连接信息（主机、端口、用户名、密码）来自MonitorSysGenServer表，
+     * 而不是MonitorSysGenServerSetting表
+     * </p>
      *
      * @param setting 服务器配置
-     * @return Docker协议客户端实例
+     * @return Docker协议客户端实例，如果配置不完整则返回null
      */
     private DockerProtocolClient createLocalClient(MonitorSysGenServerSetting setting) {
-        log.debug("创建本地Docker客户端(CMD方式) - serverId: {}", setting.getMonitorSysGenServerId());
+        Integer serverId = setting.getMonitorSysGenServerId();
         
+        // 获取服务器基本信息（包含SSH连接配置）- 使用缓存方法
+        MonitorSysGenServer server = serverService.getByServerId(serverId);
+        if (server == null) {
+            log.warn("服务器信息不存在 - serverId: {}", serverId);
+            return null;
+        }
+
+        // 从服务器配置中获取SSH连接信息
+        String host = server.getMonitorSysGenServerHost();
+        String username = server.getMonitorSysGenServerUsername();
+        String password = server.getMonitorSysGenServerPassword();
+        Integer port = server.getMonitorSysGenServerPort();
+
+        // 验证SSH连接必需参数
+        if (!StringUtils.hasText(host)) {
+            log.warn("服务器主机地址未配置 - serverId: {}, serverName: {}", 
+                    serverId, server.getMonitorSysGenServerName());
+            return null;
+        }
+
+        if (!StringUtils.hasText(username)) {
+            log.warn("服务器用户名未配置 - serverId: {}, host: {}", 
+                    serverId, host);
+            return null;
+        }
+
+        if (!StringUtils.hasText(password)) {
+            log.warn("服务器密码未配置 - serverId: {}, host: {}, username: {}", 
+                    serverId, host, username);
+            return null;
+        }
+
+        // 端口默认值处理
+        if (port == null || port <= 0) {
+            port = 22; // 默认SSH端口
+            log.debug("使用默认SSH端口22 - serverId: {}", serverId);
+        }
+
+        log.debug("创建本地Docker客户端(CMD方式) - serverId: {}, serverName: {}, host: {}, port: {}, username: {}", 
+                serverId, server.getMonitorSysGenServerName(), host, port, username);
+
         // 构建SSH连接配置
+        // 超时时间优先使用server配置，其次使用setting配置
+        Integer timeout = server.getMonitorSysGenServerTimeout();
+        if (timeout == null || timeout <= 0) {
+            timeout = ObjectUtils.defaultIfNull(
+                    setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000);
+        }
+
         ClientSetting clientSetting = ClientSetting.builder()
-                .host(setting.getMonitorSysGenServerSettingHost())
-                .port(setting.getMonitorSysGenServerSettingPort() != null ? 
-                      setting.getMonitorSysGenServerSettingPort() : 22)
-                .username(setting.getMonitorSysGenServerSettingUsername())
-                .password(setting.getMonitorSysGenServerSettingPassword())
-                .connectTimeoutMillis(ObjectUtils.defaultIfNull(
-                        setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000))
+                .host(host)
+                .port(port)
+                .username(username)
+                .password(password)
+                .connectTimeoutMillis(timeout)
                 .build();
-        
-        // 使用CMD Docker客户端
-        return CmdDockerProtocolClient.of(clientSetting);
+
+        try {
+            // 使用CMD Docker客户端
+            CmdDockerProtocolClient client = CmdDockerProtocolClient.of(clientSetting);
+            log.info("CMD Docker客户端创建成功 - serverId: {}, serverName: {}, 将通过SSH({}@{}:{})执行docker命令",
+                    serverId, server.getMonitorSysGenServerName(), username, host, port);
+            return client;
+        } catch (Exception e) {
+            log.error("创建CMD Docker客户端失败 - serverId: {}, host: {}, error: {}",
+                    serverId, host, e.getMessage(), e);
+            return null;
+        }
     }
 
 

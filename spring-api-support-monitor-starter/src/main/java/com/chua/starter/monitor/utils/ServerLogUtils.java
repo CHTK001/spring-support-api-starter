@@ -190,7 +190,7 @@ public class ServerLogUtils {
      */
     public static void logAccess(Integer serverId, String user, String action, String resource, String ip) {
         String content = String.format("用户访问: %s 执行 %s 操作，资源: %s，IP: %s", user, action, resource, ip);
-        String extraData = String.format("{\"user\":\"%s\",\"action\":\"%s\",\"resource\":\"%s\",\"ip\":\"%s\"}", 
+        String extraData = String.format("{\"login\":\"%s\",\"action\":\"%s\",\"resource\":\"%s\",\"ip\":\"%s\"}",
                                        user, action, resource, ip);
         logServerOperation(serverId, "INFO", "ACCESS", "ACCESS", content, null, extraData, null);
     }

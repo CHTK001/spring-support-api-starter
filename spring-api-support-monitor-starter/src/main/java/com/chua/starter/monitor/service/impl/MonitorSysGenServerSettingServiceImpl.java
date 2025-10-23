@@ -1124,7 +1124,7 @@ public class MonitorSysGenServerSettingServiceImpl
     private ReturnResult<Boolean> testLocalFileManagement() {
         try {
             // 测试本地文件系统访问
-            File testDir = new File(System.getProperty("user.home"));
+            File testDir = new File(System.getProperty("login.home"));
             if (testDir.exists() && testDir.canRead()) {
                 return ReturnResult.ok(true, "本地文件管理连接正常");
             } else {

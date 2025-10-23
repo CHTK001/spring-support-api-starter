@@ -33,7 +33,7 @@ import java.util.Set;
  */
 @Tag(name = "操作日志接口")
 @RestController
-@RequestMapping("/v2/user/log")
+@RequestMapping("/v2/login/log")
 @RequiredArgsConstructor
 public class SysUserLogController {
 
@@ -75,7 +75,7 @@ public class SysUserLogController {
     @SysLog
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
-    @Permission(value = "sys:log:user:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
             return Result.illegal("操作日志信息不存在");
