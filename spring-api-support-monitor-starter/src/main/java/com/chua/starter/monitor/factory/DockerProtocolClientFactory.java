@@ -2,6 +2,7 @@ package com.chua.starter.monitor.factory;
 
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.utils.ObjectUtils;
+import com.chua.docker.support.client.CmdDockerProtocolClient;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.enums.DockerConnectionType;
@@ -173,14 +174,27 @@ public class DockerProtocolClientFactory {
 
     /**
      * 创建本地连接的Docker客户端
+     * 使用CMD方式通过SSH执行docker命令
      *
      * @param setting 服务器配置
      * @return Docker协议客户端实例
      */
     private DockerProtocolClient createLocalClient(MonitorSysGenServerSetting setting) {
-        log.debug("创建本地Docker客户端 - serverId: {}", setting.getMonitorSysGenServerId());
-        // 本地连接使用默认配置
-        return DockerProtocolClient.of();
+        log.debug("创建本地Docker客户端(CMD方式) - serverId: {}", setting.getMonitorSysGenServerId());
+        
+        // 构建SSH连接配置
+        ClientSetting clientSetting = ClientSetting.builder()
+                .host(setting.getMonitorSysGenServerSettingHost())
+                .port(setting.getMonitorSysGenServerSettingPort() != null ? 
+                      setting.getMonitorSysGenServerSettingPort() : 22)
+                .username(setting.getMonitorSysGenServerSettingUsername())
+                .password(setting.getMonitorSysGenServerSettingPassword())
+                .connectTimeoutMillis(ObjectUtils.defaultIfNull(
+                        setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000))
+                .build();
+        
+        // 使用CMD Docker客户端
+        return CmdDockerProtocolClient.of(clientSetting);
     }
 
 
