@@ -43,12 +43,12 @@ public class UserProtocolController {
      * @return 设置分页列表
      */
     @Operation(summary = "用户协议")
-    @GetMapping("/user")
+    @GetMapping("/login")
     @Ignore
-    @ApiCacheKey("'sys:setting:protocol:user'")
+    @ApiCacheKey("'sys:setting:protocol:login'")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> user(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("user:protocol"), roles);
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("login:protocol"), roles);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
     /**
@@ -62,7 +62,7 @@ public class UserProtocolController {
     @ApiCacheKey("'sys:setting:protocol:privacy'")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> privacy(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("user:privacy"), roles);
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("login:privacy"), roles);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 }

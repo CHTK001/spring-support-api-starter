@@ -56,7 +56,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictId 字典ID，用于过滤查询结果
      *                  例如：1
      * @param roles     用户角色集合，用于进行权限控制
-     *                  例如：Set.of("admin", "user")
+     *                  例如：Set.of("admin", "login")
      * @return 分页查询结果，包含字典项列表和分页信息
      */
     @Override
@@ -110,7 +110,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 更新字典项信息
      *
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "user")
+     *                    例如：Set.of("admin", "login")
      * @param sysDictItem 待更新的字典项实体对象
      *                    例如：SysDictItem.builder().sysDictItemId(1).sysDictItemName("更新名称").build()
      * @return 更新操作的结果，包含成功与否的标志和消息
@@ -144,7 +144,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictItem 待新增的字典项实体对象
      *                    例如：SysDictItem.builder().sysDictId(1).sysDictItemName("新增项").sysDictItemCode("new_item").build()
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "user")
+     *                    例如：Set.of("admin", "login")
      * @return 新增操作的结果，包含成功与否的标志和消息，以及新增的字典项信息
      */
     @Override
@@ -232,7 +232,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictId 字典ID，用于过滤查询结果
      *                  例如：1
      * @param roles     用户角色集合，用于进行权限控制
-     *                  例如：Set.of("admin", "user")
+     *                  例如：Set.of("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -266,7 +266,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictCode 字典编码，用于过滤查询结果
      *                    例如："dict_code"
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "user")
+     *                    例如：Set.of("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -282,7 +282,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictCode  字典父编码，用于过滤查询结果
      *                     例如："parent_dict_code"
      * @param roles        用户角色集合，用于进行权限控制
-     *                     例如：Set.of("admin", "user")
+     *                     例如：Set.of("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -298,7 +298,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * @param sysDictId  字典父ID，用于过滤查询结果
      *                   例如：1
      * @param roles      用户角色集合，用于进行权限控制
-     *                   例如：Set.of("admin", "user")
+     *                   例如：Set.of("admin", "login")
      * @return 字典项列表
      */
     @Override

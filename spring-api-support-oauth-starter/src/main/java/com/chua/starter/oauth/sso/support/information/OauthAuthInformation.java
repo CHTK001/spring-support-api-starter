@@ -115,6 +115,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
                 MapUtils.getString(this.getBodyData(), "x-oauth-token"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-cookie"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-sub-protocol"),
+                MapUtils.getString(this.getBodyData(), "x-oauth-user-code"),
                 applicationContext,
                 loginCheck);
     }

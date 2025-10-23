@@ -34,7 +34,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @Slf4j
 @Api(tags = "三方登录接口")
 @Tag(name = "三方登录接口")
-@RequestMapping("/v2/user")
+@RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class ThirdLoginController {
 

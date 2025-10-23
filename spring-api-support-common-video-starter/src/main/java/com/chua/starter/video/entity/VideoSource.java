@@ -105,11 +105,11 @@ public class VideoSource extends SysBase {
     private Integer videoSourceConnectTimeout;
 
     /**
-     * user agent
+     * login agent
      */
     @TableField(value = "video_source_user_agent")
-    @ApiModelProperty(value = "user agent")
-    @Schema(description = "user agent")
+    @ApiModelProperty(value = "login agent")
+    @Schema(description = "login agent")
     private String videoSourceUserAgent;
 
     /**

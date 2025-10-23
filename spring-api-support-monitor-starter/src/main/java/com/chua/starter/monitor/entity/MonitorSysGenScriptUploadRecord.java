@@ -75,7 +75,7 @@ public class MonitorSysGenScriptUploadRecord extends SysBase {
     /**
      * 目标路径
      *
-     * 示例: "/home/user/scripts/"
+     * 示例: "/home/login/scripts/"
      */
     @TableField("monitor_sys_gen_script_upload_target_path")
     @ApiModelProperty("目标路径")

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags = "2fa密钥管理")
 @Tag(name = "2fa密钥管理")
-@RequestMapping("/v2/user/totp")
+@RequestMapping("/v2/login/totp")
 @RequiredArgsConstructor
 public class TotpController {
 

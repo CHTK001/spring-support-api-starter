@@ -140,11 +140,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      * 重写updateById方法，在特定字段变更时关闭设备连接 如果修改了地址、端口、账号、密码这四个字段中的任何一个，则关闭对应的client连接
      */
     @Override
-    @CacheEvict(value = "server", key = "#entity.monitorSysGenServerId", condition = "#entity != null && #entity.monitorSysGenServerId != null")
+    @CacheEvict(value = {"server", "server:info"}, key = "#entity.monitorSysGenServerId", condition = "#entity != null && #entity.monitorSysGenServerId != null")
     public boolean updateById(MonitorSysGenServer entity) {
         if (entity == null || entity.getMonitorSysGenServerId() == null) {
             return false;
         }
+        log.debug("更新服务器并清除缓存 - serverId: {}", entity.getMonitorSysGenServerId());
 
         try {
             // 获取更新前的服务器配置
@@ -262,8 +263,27 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
-    @org.springframework.cache.annotation.CacheEvict(value = "server", key = "#id", condition = "#id != null")
+    @Cacheable(value = "server:info", key = "#serverId", unless = "#result == null")
+    public MonitorSysGenServer getByServerId(Integer serverId) {
+        if (serverId == null) {
+            log.warn("服务器ID为null，无法查询");
+            return null;
+        }
+        
+        MonitorSysGenServer server = this.getById(serverId);
+        if (server == null) {
+            log.debug("服务器不存在 - serverId: {}", serverId);
+        } else {
+            log.debug("获取服务器信息 - serverId: {}, serverName: {}", 
+                    serverId, server.getMonitorSysGenServerName());
+        }
+        return server;
+    }
+
+    @Override
+    @org.springframework.cache.annotation.CacheEvict(value = {"server", "server:info"}, key = "#id", condition = "#id != null")
     public boolean removeById(Serializable id) {
+        log.info("删除服务器并清除缓存 - serverId: {}", id);
         return super.removeById(id);
     }
 

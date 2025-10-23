@@ -248,6 +248,26 @@ public class RedisTokenResolver implements TokenResolver {
         }
     }
 
+    @Override
+    public ReturnResult<UserResume> resolveUserCode(String userCode) {
+        if (StringUtils.isBlank(userCode)) {
+            return ReturnResult.error("用户代码不能为空");
+        }
+
+        // userCode 等价于 uid，直接通过 loginCheck 获取用户信息
+        UserResult userResult = new UserResult();
+        userResult.setUserCode(userCode);
+        String[] split = userCode.split("\\-");
+        userResult.setUid(split[0]);
+        userResult.setUserId(com.chua.common.support.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey()));
+        UserResume userResume = loginCheck.getUserInfo(userResult);
+        if (null == userResume || null == userResume.getUserId()) {
+            return ReturnResult.error("用户不存在");
+        }
+
+        return ReturnResult.ok(userResume);
+    }
+
 
     /**
      * token续费

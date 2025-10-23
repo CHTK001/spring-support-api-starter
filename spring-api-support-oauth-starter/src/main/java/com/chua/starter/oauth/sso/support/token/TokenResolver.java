@@ -85,4 +85,12 @@ public interface TokenResolver {
      */
     void logout(Cookie[] cookies, String token, String refreshToken, String cookieName);
 
+    /**
+     * 解析 userCode（等价于uid）
+     *
+     * @param userCode 用户代码
+     * @return 用户信息
+     */
+    ReturnResult<UserResume> resolveUserCode(String userCode);
+
 }

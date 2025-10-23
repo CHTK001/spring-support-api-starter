@@ -19,7 +19,7 @@ import java.util.Set;
  */
 @Tag(name = "用户接口")
 @RestController
-@RequestMapping("/v2/user")
+@RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class EmptyController {
 
