@@ -42,7 +42,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
  */
 @Tag(name = "用户接口")
 @RestController
-@RequestMapping("/v2/user")
+@RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class SysUserController {
 
@@ -106,7 +106,7 @@ public class SysUserController {
     @SysLog
     @UserLogger
     @Transactional(rollbackOn = Exception.class)
-    @Permission("sys:user:delete")
+    @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
             return Result.illegal("用户信息不存在");
@@ -142,7 +142,7 @@ public class SysUserController {
     @Operation(summary = "重置用户密碼")
     @GetMapping("/reset")
     @SysLog
-    @Permission(value = "sys:user:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
@@ -199,7 +199,7 @@ public class SysUserController {
     @Operation(summary = "新增用户")
     @PostMapping("/save")
     @SysLog
-    @Permission(value = "sys:user:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());

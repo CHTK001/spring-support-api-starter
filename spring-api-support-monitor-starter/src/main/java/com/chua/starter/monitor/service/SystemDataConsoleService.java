@@ -64,7 +64,7 @@ public interface SystemDataConsoleService {
      * @param settingId     设置ID，用于标识特定的数据源配置
      *                      例如：1, 2, 3...
      * @param searchPattern 搜索模式，支持通配符的搜索关键字
-     *                      例如："user*" 或 "table1"
+     *                      例如："login*" 或 "table1"
      * @param query         查询参数，包含分页、排序等信息
      *                      例如：MetadataQuery.create().setPage(1, 10)
      * @return 搜索结果列表，包含匹配的节点信息

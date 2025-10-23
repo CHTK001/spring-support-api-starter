@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.service.impl;
+package com.chua.starter.oauth.sso.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
@@ -14,7 +14,6 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
-import com.chua.starter.oauth.sso.support.user.UserInfoService;
 import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysUser;
@@ -230,7 +229,7 @@ public class UserService implements UserInfoService, Constant {
 
         // 增加用户登录计数 - 使用管道操作减少网络往返
         ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
-        String countKey = "system:user:count:" + user.getSysUserId();
+        String countKey = "system:login:count:" + user.getSysUserId();
         Long count = valueOps.increment(countKey);
 
         // 更新用户登录信息 - 只在需要时执行
@@ -275,8 +274,6 @@ public class UserService implements UserInfoService, Constant {
         // 构建用户结果对象 - 使用链式调用提高代码可读性
         return new UserResult()
                 .setUserId(user.getSysUserId() + "")
-                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
-                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
                 .setRoles(collect)
                 .setRolesByRole(roleInfo)
                 .setDeptId(user.getSysDeptId() + "")

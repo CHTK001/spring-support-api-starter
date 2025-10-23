@@ -66,6 +66,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
 
     final LoginCheck loginCheck;
 
+
     final ApplicationContext applicationContext;
 
     @Value("${plugin.auth.server.context-path:}")

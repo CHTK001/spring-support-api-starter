@@ -2,8 +2,8 @@ package com.chua.starter.oauth.sso.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
-import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.oauth.sso.login.UserService;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.entity.SysUser;

@@ -2,13 +2,15 @@ package com.chua.starter.oauth.sso.support.check;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
-import com.chua.starter.oauth.sso.support.user.UserInfoService;
+import com.chua.starter.oauth.sso.login.UserInfoService;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import org.springframework.util.ClassUtils;
 
 import java.util.Map;
 
+import static com.chua.common.support.constant.CommonConstant.EMPTY_STRING;
 import static com.chua.common.support.lang.code.ReturnCode.OK;
 import static com.chua.starter.oauth.client.support.execute.AuthClientExecute.createUid;
 
@@ -84,6 +87,15 @@ public class LoginCheck {
             if (null != userResume && Strings.isNullOrEmpty(userResume.getMessage())) {
                 userResume.setLoginType(authType);
                 userResume.setUid(createUid(principal, authType));
+                userResume.setUserCode(
+                        userResume.getUid()
+                        + "-" +
+                        DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey())
+                        + "-" +
+                        DigestUtils.md5Hex(StringUtils.defaultString(userResume.getOpenId(), EMPTY_STRING))
+                        + "-" +
+                        DigestUtils.md5Hex(StringUtils.defaultString(userResume.getAppId(), EMPTY_STRING))
+                );
                 break;
             }
         }

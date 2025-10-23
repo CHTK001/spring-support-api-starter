@@ -38,6 +38,17 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     MonitorSysGenServer getByIdWithCache(Integer serverId);
 
     /**
+     * 带缓存的根据服务器ID获取服务器信息
+     * <p>
+     * 此方法使用Spring Cache，缓存键为服务器ID，可减少数据库查询
+     * </p>
+     *
+     * @param serverId 服务器ID
+     * @return 服务器信息，如果不存在返回null
+     */
+    MonitorSysGenServer getByServerId(Integer serverId);
+
+    /**
      * 根据ID获取服务器信息和配置信息
      *
      * @param id 服务器ID
