@@ -2,6 +2,64 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.monitor.mapper.SystemSoftContainerMapper">
 
+    <!-- 根据软件ID查询容器列表 -->
+    <select id="selectBySoftId" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_id = #{softId}
+    </select>
+
+    <!-- 根据服务器ID查询容器列表 -->
+    <select id="selectByServerId" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_server_id = #{serverId}
+    </select>
+
+    <!-- 根据Docker容器ID查询容器信息 -->
+    <select id="selectByDockerContainerId" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_docker_id = #{dockerContainerId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据容器名称查询容器信息 -->
+    <select id="selectByContainerName" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_name = #{containerName}
+        LIMIT 1
+    </select>
+
+    <!-- 根据软件ID和服务器ID查询容器列表 -->
+    <select id="selectBySoftIdAndServerId" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_id = #{softId} 
+        AND system_server_id = #{serverId}
+    </select>
+
+    <!-- 根据容器状态查询容器列表 -->
+    <select id="selectByContainerStatus" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_status = #{containerStatus}
+    </select>
+
+    <!-- 根据服务器ID和状态查询容器列表 -->
+    <select id="selectByServerIdAndStatus" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_server_id = #{serverId} 
+        AND system_soft_container_status = #{containerStatus}
+    </select>
+
+    <!-- 根据镜像ID查询容器列表 -->
+    <select id="selectByImageId" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_image_id = #{imageId}
+    </select>
+
+    <!-- 根据端口映射查询容器列表 -->
+    <select id="selectByHostPort" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_ports LIKE CONCAT('%', #{hostPort}, '%')
+    </select>
+
     <!-- 根据状态统计容器数量 -->
     <select id="countByStatus" resultType="java.util.Map">
         SELECT 
@@ -54,6 +112,44 @@
         <if test="excludeId != null">
             AND system_soft_container_id != #{excludeId}
         </if>
+    </select>
+
+    <!-- 检查端口是否被占用 -->
+    <select id="checkPortExists" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM system_soft_container 
+        WHERE system_soft_container_ports LIKE CONCAT('%', #{hostPort}, '%')
+        AND system_server_id = #{serverId}
+        <if test="excludeId != null">
+            AND system_soft_container_id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 根据关键字搜索容器 -->
+    <select id="searchByKeyword" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_name LIKE CONCAT('%', #{keyword}, '%')
+        OR system_soft_container_image LIKE CONCAT('%', #{keyword}, '%')
+        OR system_soft_container_docker_id LIKE CONCAT('%', #{keyword}, '%')
+        OR system_soft_container_remark LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <!-- 获取运行中的容器列表 -->
+    <select id="selectRunningContainers" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_status = 'RUNNING'
+    </select>
+
+    <!-- 获取异常状态的容器列表 -->
+    <select id="selectAbnormalContainers" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE system_soft_container_status IN ('EXITED', 'DEAD', 'RESTARTING', 'PAUSED')
+    </select>
+
+    <!-- 根据创建时间范围查询容器列表 -->
+    <select id="selectByCreateTimeRange" resultType="com.chua.starter.monitor.entity.SystemSoftContainer">
+        SELECT * FROM system_soft_container 
+        WHERE create_time BETWEEN #{startTime} AND #{endTime}
     </select>
 
     <!-- 批量更新容器状态 -->
