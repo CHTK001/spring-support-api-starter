@@ -5,6 +5,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
+import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -51,7 +52,14 @@ public class LoginCheck {
             return false;
         }
         String value = userLoginType.value();
-        return null != value && value.equalsIgnoreCase(authType);
+        if (null == value) {
+            AuthType type = userLoginType.group();
+            if (null == type) {
+                return false;
+            }
+            value = type.name();
+        }
+        return value.equalsIgnoreCase(authType);
     }
 
 
@@ -89,12 +97,12 @@ public class LoginCheck {
                 userResume.setUid(createUid(principal, authType));
                 userResume.setUserCode(
                         userResume.getUid()
-                        + "-" +
-                        DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey())
-                        + "-" +
-                        DigestUtils.md5Hex(StringUtils.defaultString(userResume.getOpenId(), EMPTY_STRING))
-                        + "-" +
-                        DigestUtils.md5Hex(StringUtils.defaultString(userResume.getAppId(), EMPTY_STRING))
+                                + "-" +
+                                DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey())
+                                + "-" +
+                                DigestUtils.md5Hex(StringUtils.defaultString(userResume.getOpenId(), EMPTY_STRING))
+                                + "-" +
+                                DigestUtils.md5Hex(StringUtils.defaultString(userResume.getAppId(), EMPTY_STRING))
                 );
                 break;
             }
