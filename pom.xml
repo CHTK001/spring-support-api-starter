@@ -56,7 +56,7 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-protocol-starter</artifactId>
+            <artifactId>utils-support-common-starter</artifactId>
             <version>${module.version}</version>
         </dependency>
     </dependencies>
