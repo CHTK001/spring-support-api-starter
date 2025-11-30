@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
-import com.chua.common.support.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.pojo.bigmodel.BigModelRequest;
 import jakarta.servlet.http.HttpServletResponse;

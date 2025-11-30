@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.common.support.indicator.TimeIndicator;
+import com.chua.advanced.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
@@ -227,23 +227,23 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
     }
 
     @Override
-    public ReturnResult<Map<String, Object>> getMetricsChartData(Integer serverId, String metricType, 
+    public ReturnResult<Map<String, Object>> getMetricsChartData(Integer serverId, String metricType,
                                                                 LocalDateTime startTime, LocalDateTime endTime, String interval) {
         try {
             Map<String, Object> chartData = new HashMap<>();
             List<Map<String, Object>> data;
-            
+
             // TODO: 实现基于Redis的图表数据查询
             log.warn("getMetricsChartData方法暂未实现Redis查询逻辑: serverId={}, metricType={}", serverId, metricType);
             data = List.of();
-            
+
             chartData.put("serverId", serverId);
             chartData.put("metricType", metricType);
             chartData.put("data", data);
             chartData.put("startTime", startTime);
             chartData.put("endTime", endTime);
             chartData.put("interval", interval);
-            
+
             return ReturnResult.ok(chartData);
         } catch (Exception e) {
             log.error("获取指标图表数据失败: {}", e.getMessage(), e);

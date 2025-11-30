@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
-import com.chua.common.support.indicator.TimeIndicator;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
@@ -269,12 +268,12 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.warn("服务器ID为null，无法查询");
             return null;
         }
-        
+
         MonitorSysGenServer server = this.getById(serverId);
         if (server == null) {
             log.debug("服务器不存在 - serverId: {}", serverId);
         } else {
-            log.debug("获取服务器信息 - serverId: {}, serverName: {}", 
+            log.debug("获取服务器信息 - serverId: {}, serverName: {}",
                     serverId, server.getMonitorSysGenServerName());
         }
         return server;
@@ -1683,7 +1682,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     server.setMonitorSysGenServerOsType(null);
                 }
                 if (server.getMonitorSysGenServerOsVersion() == null || server.getMonitorSysGenServerOsVersion().trim().isEmpty()) {
-                    server.setMonitorSysGenServerOsVersion(null); 
+                    server.setMonitorSysGenServerOsVersion(null);
                 }
                 if (server.getMonitorSysGenServerOsArch() == null || server.getMonitorSysGenServerOsArch().trim().isEmpty()) {
                     server.setMonitorSysGenServerOsArch(null);

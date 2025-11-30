@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller;
 
-import com.chua.common.support.indicator.DataIndicator;
-import com.chua.common.support.indicator.TimeIndicator;
+import com.chua.advanced.support.indicator.DataIndicator;
+import com.chua.advanced.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.monitor.pojo.IndicatorQuery;
