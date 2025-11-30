@@ -1,6 +1,8 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.monitor.pojo.ColumnInfo;
+import com.chua.starter.monitor.pojo.TableStructureInfo;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.spi.metadata.StructureMetadata;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,9 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 控制台结构操作控制器
- * - 提供能力探测与结构操作（重命名表、备份表）
+ * 提供表结构查看、字段管理、自动提示等功能
  *
  * @author CH
  * @since 2023-04-01
@@ -20,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/system/data/console/{settingId}/table")
-@Tag(name = "控制台结构操作", description = "表重命名/备份等")
+@Tag(name = "控制台结构操作", description = "表结构管理/字段操作/自动提示等")
 @RequiredArgsConstructor
 public class SystemDataConsoleStructureController {
     private final SystemDataConsoleService systemDataConsoleService;
@@ -67,6 +72,175 @@ public class SystemDataConsoleStructureController {
             return ReturnResult.ok(systemDataConsoleService.backupTable(settingId, req.getNodePath(), req.getBackupName()));
         } catch (Exception e) {
             return ReturnResult.error("备份失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取所有表名列表（用于SQL自动提示）
+     *
+     * @param settingId 数据源设置ID
+     * @return 表名列表
+     */
+    @GetMapping("/list")
+    @Operation(summary = "获取表名列表")
+    public ReturnResult<List<String>> listTables(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.listTables(settingId));
+        } catch (Exception e) {
+            log.error("获取表名列表失败", e);
+            return ReturnResult.error("获取表名列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取指定表的字段列表（用于SQL自动提示）
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @return 字段名列表
+     */
+    @GetMapping("/columns")
+    @Operation(summary = "获取字段列表")
+    public ReturnResult<List<ColumnInfo>> listColumns(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.listColumns(settingId, tableName));
+        } catch (Exception e) {
+            log.error("获取字段列表失败", e);
+            return ReturnResult.error("获取字段列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取表结构详情
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @return 表结构信息
+     */
+    @GetMapping("/structure")
+    @Operation(summary = "获取表结构")
+    public ReturnResult<TableStructureInfo> getTableStructure(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getTableStructure(settingId, tableName));
+        } catch (Exception e) {
+            log.error("获取表结构失败", e);
+            return ReturnResult.error("获取表结构失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 添加字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       添加字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/add")
+    @Operation(summary = "添加字段")
+    public ReturnResult<Boolean> addColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.AddColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.addColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("添加字段失败", e);
+            return ReturnResult.error("添加字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       修改字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/modify")
+    @Operation(summary = "修改字段")
+    public ReturnResult<Boolean> modifyColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.ModifyColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.modifyColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("修改字段失败", e);
+            return ReturnResult.error("修改字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       删除字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/drop")
+    @Operation(summary = "删除字段")
+    public ReturnResult<Boolean> dropColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.DropColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.dropColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("删除字段失败", e);
+            return ReturnResult.error("删除字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 调整字段位置
+     *
+     * @param settingId 数据源设置ID
+     * @param req       调整位置请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/reorder")
+    @Operation(summary = "调整字段位置")
+    public ReturnResult<Boolean> reorderColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.ReorderColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.reorderColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("调整字段位置失败", e);
+            return ReturnResult.error("调整字段位置失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取建表语句
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @return 建表SQL语句
+     */
+    @GetMapping("/ddl")
+    @Operation(summary = "获取建表语句")
+    public ReturnResult<String> getCreateTableDdl(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getCreateTableDdl(settingId, tableName));
+        } catch (Exception e) {
+            log.error("获取建表语句失败", e);
+            return ReturnResult.error("获取建表语句失败: " + e.getMessage());
         }
     }
 }
