@@ -4,12 +4,14 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDevice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 同步请求
  *
  * @author CH
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "模板查询请求")
 public class DevicePageV1Request extends Query<SysDevice> {

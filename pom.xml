@@ -279,6 +279,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-deeplearning-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-aspose-diagram-starter</artifactId>
                <version>${utils.version}</version>
             </dependency>

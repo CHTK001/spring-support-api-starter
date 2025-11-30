@@ -9,10 +9,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 设备组织
  */
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "设备组织")
 @Schema(description = "设备组织")
 @Data

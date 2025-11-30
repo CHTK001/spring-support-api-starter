@@ -1,10 +1,10 @@
 package com.chua.starter.service.setting;
 
-import com.chua.common.support.bigmodel.BigModelClient;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +58,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
              if(null != this.bigModelClient) {
                  IoUtils.closeQuietly(bigModelClient);
              }
-             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.getAppType(), com.chua.common.support.bigmodel.BigModelSetting.builder()
+             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.getAppType(), com.chua.deeplearning.support.ml.bigmodel.BigModelSetting.builder()
                      .appId(appId)
                      .appKey(appKey)
                      .appSecret(appSecret)

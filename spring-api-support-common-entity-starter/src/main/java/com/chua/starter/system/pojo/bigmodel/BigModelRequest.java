@@ -67,5 +67,5 @@ public class BigModelRequest {
     /**
      * 文件base64
      */
-    private com.chua.common.support.bigmodel.BigModelRequest.FileInfo[] files;
+    private com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.FileInfo[] files;
 }
