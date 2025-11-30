@@ -60,10 +60,17 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         try {
             String systemDataSettingServer = setting.getSystemDataSettingServer();
             if(systemDataSettingServer != null && null == setting.getSystemDataSettingProtocol()) {
+                // 从连接地址解析协议
                 NetAddress netAddress = NetAddress.of(systemDataSettingServer);
                 setting.setSystemDataSettingProtocol(netAddress.getProtocol());
                 setting.setSystemDataSettingHost(netAddress.getHost());
                 setting.setSystemDataSettingPort(netAddress.getPort(8080));
+            } else if (isBlank(systemDataSettingServer) && setting.getSystemDataSettingProtocol() != null) {
+                // 如果没有连接地址，则根据协议自动拼接
+                String generatedUrl = buildConnectionUrl(setting);
+                if (generatedUrl != null) {
+                    setting.setSystemDataSettingServer(generatedUrl);
+                }
             }
             
             // 在保存前加密敏感数据
@@ -319,6 +326,192 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             entities.forEach(SystemDataSettingServiceImpl::decryptSensitiveData);
         }
         return entities;
+    }
+
+    /**
+     * 判断字符串是否为空
+     *
+     * @param str 字符串
+     * @return 是否为空
+     */
+    private boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
+    /**
+     * 根据协议和配置信息构建连接URL
+     *
+     * @param setting 数据源配置
+     * @return 构建的连接URL，如果无法构建则返回null
+     */
+    private String buildConnectionUrl(SystemDataSetting setting) {
+        String protocol = setting.getSystemDataSettingProtocol();
+        String host = setting.getSystemDataSettingHost();
+        Integer port = setting.getSystemDataSettingPort();
+        String database = setting.getSystemDataSettingDatabase();
+        String config = setting.getSystemDataSettingConfig();
+
+        if (isBlank(protocol)) {
+            return null;
+        }
+
+        String protocolLower = protocol.toLowerCase();
+        StringBuilder urlBuilder = new StringBuilder();
+
+        // 根据协议类型构建不同格式的URL
+        switch (protocolLower) {
+            case "mysql":
+            case "mariadb":
+                urlBuilder.append("jdbc:").append(protocolLower).append("://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 3306);
+                urlBuilder.append("/").append(isBlank(database) ? "" : database);
+                appendExtraParams(urlBuilder, config, "?", "&");
+                break;
+
+            case "postgresql":
+                urlBuilder.append("jdbc:postgresql://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 5432);
+                urlBuilder.append("/").append(isBlank(database) ? "" : database);
+                appendExtraParams(urlBuilder, config, "?", "&");
+                break;
+
+            case "oracle":
+                urlBuilder.append("jdbc:oracle:thin:@");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 1521);
+                urlBuilder.append(":").append(isBlank(database) ? "orcl" : database);
+                break;
+
+            case "sqlserver":
+                urlBuilder.append("jdbc:sqlserver://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 1433);
+                if (!isBlank(database)) {
+                    urlBuilder.append(";databaseName=").append(database);
+                }
+                appendExtraParams(urlBuilder, config, ";", ";");
+                break;
+
+            case "sqlite":
+                urlBuilder.append("jdbc:sqlite:");
+                urlBuilder.append(isBlank(database) ? ":memory:" : database);
+                break;
+
+            case "h2":
+                urlBuilder.append("jdbc:h2:tcp://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 9092);
+                urlBuilder.append("/").append(isBlank(database) ? "" : database);
+                appendExtraParams(urlBuilder, config, ";", ";");
+                break;
+
+            case "dm":
+                urlBuilder.append("jdbc:dm://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 5236);
+                if (!isBlank(database)) {
+                    urlBuilder.append("/").append(database);
+                }
+                break;
+
+            case "kingbase8":
+                urlBuilder.append("jdbc:kingbase8://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 54321);
+                urlBuilder.append("/").append(isBlank(database) ? "" : database);
+                break;
+
+            case "clickhouse":
+                urlBuilder.append("jdbc:clickhouse://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 8123);
+                urlBuilder.append("/").append(isBlank(database) ? "" : database);
+                appendExtraParams(urlBuilder, config, "?", "&");
+                break;
+
+            case "redis":
+                urlBuilder.append("redis://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 6379);
+                if (!isBlank(database)) {
+                    urlBuilder.append("/").append(database);
+                }
+                break;
+
+            case "mongodb":
+                urlBuilder.append("mongodb://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 27017);
+                if (!isBlank(database)) {
+                    urlBuilder.append("/").append(database);
+                }
+                appendExtraParams(urlBuilder, config, "?", "&");
+                break;
+
+            case "zookeeper":
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 2181);
+                break;
+
+            case "influxdb":
+                urlBuilder.append("http://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 8086);
+                break;
+
+            case "kafka":
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                urlBuilder.append(":").append(port != null ? port : 9092);
+                break;
+
+            default:
+                // 默认格式: protocol://host:port/database
+                urlBuilder.append(protocolLower).append("://");
+                urlBuilder.append(isBlank(host) ? "localhost" : host);
+                if (port != null && port > 0) {
+                    urlBuilder.append(":").append(port);
+                }
+                if (!isBlank(database)) {
+                    urlBuilder.append("/").append(database);
+                }
+                break;
+        }
+
+        return urlBuilder.toString();
+    }
+
+    /**
+     * 追加额外参数到URL
+     *
+     * @param urlBuilder URL构建器
+     * @param config     配置JSON字符串
+     * @param firstSep   第一个参数的分隔符
+     * @param otherSep   其他参数的分隔符
+     */
+    private void appendExtraParams(StringBuilder urlBuilder, String config, String firstSep, String otherSep) {
+        if (isBlank(config)) {
+            return;
+        }
+        try {
+            // 解析JSON格式的额外参数
+            com.alibaba.fastjson2.JSONObject jsonObject = com.alibaba.fastjson2.JSON.parseObject(config);
+            if (jsonObject == null || jsonObject.isEmpty()) {
+                return;
+            }
+            boolean first = true;
+            for (String key : jsonObject.keySet()) {
+                Object value = jsonObject.get(key);
+                if (value != null) {
+                    urlBuilder.append(first ? firstSep : otherSep);
+                    urlBuilder.append(key).append("=").append(value);
+                    first = false;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("解析额外参数失败: {}", e.getMessage());
+        }
     }
 }
 

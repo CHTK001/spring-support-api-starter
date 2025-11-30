@@ -3,6 +3,7 @@ package com.chua.starter.monitor.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("服务管理过滤器处理日志")
 @Schema(description = "服务管理过滤器处理日志")
+@TableName(value = "system_server_log")
 public class SystemServerLog extends SysBase {
 
     @TableId(value = "id", type = IdType.AUTO)

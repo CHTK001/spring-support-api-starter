@@ -66,7 +66,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             config.username(server.getMonitorSysGenServerUsername());
             config.password(server.getMonitorSysGenServerPassword());
             config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
-            config.clientType("ssh"); // 指定使用SFTP客户端
+            config.clientType("ssh");
 
             if (server.getMonitorSysGenServerTimeout() != null) {
                 config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
@@ -78,7 +78,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
             log.info("SSH连接成功: serverId={}", serverId);
             return true;
-            
+
         } catch (Exception e) {
             log.error("SSH连接失败: {}", e.getMessage(), e);
             return false;
@@ -132,7 +132,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             SshClient sshClient = connectionStatusMap.get(serverId);
             sshClient.executeCommand(command);
             return "命令执行成功: " + command;
-            
+
         } catch (Exception e) {
             log.error("执行SSH命令失败: {}", e.getMessage(), e);
             return "命令执行失败: " + e.getMessage();
