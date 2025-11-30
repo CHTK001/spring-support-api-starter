@@ -96,13 +96,12 @@ public class SystemSoftRegistry extends SysBase {
     private String systemSoftRegistryEmail;
 
     /**
-     * 绑定服务器ID（必选）
-     * 指定该仓库由哪个服务器使用
+     * 绑定服务器ID（可选）
+     * 指定该仓库由哪个服务器使用，为空表示全局仓库
      */
     @TableField("system_soft_registry_server_id")
     @ApiModelProperty(value = "绑定服务器ID")
-    @Schema(description = "绑定服务器ID")
-    @NotNull(message = "服务器ID不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    @Schema(description = "绑定服务器ID，为空表示全局仓库")
     private Integer systemSoftRegistryServerId;
 
     /**
@@ -111,7 +110,6 @@ public class SystemSoftRegistry extends SysBase {
     @TableField("system_soft_registry_is_default")
     @ApiModelProperty(value = "是否为默认仓库")
     @Schema(description = "是否为默认仓库")
-    @NotNull(message = "是否为默认仓库不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer systemSoftRegistryIsDefault;
 
     /**
@@ -120,7 +118,6 @@ public class SystemSoftRegistry extends SysBase {
     @TableField("system_soft_registry_ssl_enabled")
     @ApiModelProperty(value = "是否启用SSL")
     @Schema(description = "是否启用SSL")
-    @NotNull(message = "是否启用SSL不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer systemSoftRegistrySslEnabled;
 
     /**
@@ -129,7 +126,6 @@ public class SystemSoftRegistry extends SysBase {
     @TableField("system_soft_registry_support_sync")
     @ApiModelProperty(value = "是否支持同步")
     @Schema(description = "是否支持同步")
-    @NotNull(message = "是否支持同步不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer systemSoftRegistrySupportSync;
 
     /**
