@@ -2,13 +2,13 @@ package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.common.support.bigmodel.generations.image.*;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.UrlUtils;
+import com.chua.deeplearning.support.ml.bigmodel.generations.image.*;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.ImageGenerationService;
 import com.chua.starter.project.service.SysAiModuleService;

@@ -1,8 +1,8 @@
 package com.chua.starter.project.controller;
 
-import com.chua.common.support.bigmodel.generations.video.VideoGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.deeplearning.support.ml.bigmodel.generations.video.VideoGenerationsSearchTaskV1Response;
 import com.chua.starter.project.service.VideoGenerationService;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
 import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;

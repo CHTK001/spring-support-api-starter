@@ -1,12 +1,12 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bigmodel.resolution.*;
 import com.chua.common.support.binary.ByteSourceMultiFile;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.deeplearning.support.ml.bigmodel.resolution.*;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.ImageResolutionService;
 import com.chua.starter.project.service.SysAiModuleService;

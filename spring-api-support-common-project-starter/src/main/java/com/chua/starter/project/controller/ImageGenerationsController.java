@@ -1,8 +1,8 @@
 package com.chua.starter.project.controller;
 
-import com.chua.common.support.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.deeplearning.support.ml.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.project.service.ImageGenerationService;
 import com.chua.starter.system.entity.SysAiModule;

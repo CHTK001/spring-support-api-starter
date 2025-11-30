@@ -1,11 +1,6 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bigmodel.BigModelCallback;
-import com.chua.common.support.bigmodel.BigModelClient;
-import com.chua.common.support.bigmodel.BigModelRequest.HistoryMessage;
-import com.chua.common.support.bigmodel.BigModelResponse;
-import com.chua.common.support.bigmodel.BigModelSetting;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -13,6 +8,10 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelCallback;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelSetting;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.entity.SysAiGroupMessage;
@@ -58,7 +57,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
         BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
         BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
-        return ReturnResult.of(bigModelClient.call(com.chua.common.support.bigmodel.BigModelRequest.builder()
+        return ReturnResult.of(bigModelClient.call(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
                 .prompt(request.getUser())
                 .system(request.getSystem())
                 .model(request.getModel())
@@ -103,7 +102,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
             throw new RuntimeException("暂不支持");
         }
 
-        List<HistoryMessage> historyMessages = new ArrayList<>();
+        List<com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.HistoryMessage> historyMessages = new ArrayList<>();
         String requestGroupId = request.getGroupId();
         if (null != requestGroupId) {
             List<SysAiGroupMessage> list = sysAiGroupMessageService.list(
@@ -113,7 +112,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                             .eq(SysAiGroupMessage::getSysAiGroupMessageRole, "user")
                             .orderByDesc(SysAiGroupMessage::getCreateTime)
             );
-            historyMessages.addAll(list.stream().map(item -> HistoryMessage.builder()
+            historyMessages.addAll(list.stream().map(item -> com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.HistoryMessage.builder()
                     .role(item.getSysAiGroupMessageRole())
                     .content(item.getSysAiGroupMessageContent())
                     .build()).toList());
@@ -128,7 +127,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         SseEmitter sseEmitter = sseTemplate.createSseEmitter(emitter);
         executorService.execute(() -> {
             try {
-                bigModelClient.callStream(com.chua.common.support.bigmodel.BigModelRequest.builder()
+                bigModelClient.callStream(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
                                 .prompt(request.getUser())
                                 .files(request.getFiles())
                                 .system(request.getSystem())

@@ -1,9 +1,9 @@
 package com.chua.starter.project.service.impl;
 
+import com.chua.advanced.support.lang.mail.Email;
+import com.chua.advanced.support.lang.mail.MailConfiguration;
+import com.chua.advanced.support.lang.mail.MailSender;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.mail.Email;
-import com.chua.common.support.lang.mail.MailConfiguration;
-import com.chua.common.support.lang.mail.MailSender;
 import com.chua.common.support.lang.message.MessageCode;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
             // 不使用项目接口，返回模拟成功
             return ReturnResult.success(true);
         }
-        
+
         if(StringUtils.isBlank(email.getTo())) {
             return ReturnResult.fail("收件人不能为空");
         }
@@ -85,7 +85,7 @@ public class EmailServiceImpl implements EmailService {
             }
             return ReturnResult.of(rs);
         }
-        
+
         MailConfiguration mailConfiguration = new MailConfiguration();
         mailConfiguration.setSmtpHost(sysProject.getSysProjectSmtpHost());
         mailConfiguration.setPassword(sysProject.getSysProjectSmtpPassword());

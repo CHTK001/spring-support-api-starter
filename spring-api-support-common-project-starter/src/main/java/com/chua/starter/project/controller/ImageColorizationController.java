@@ -1,9 +1,9 @@
 package com.chua.starter.project.controller;
 
-import com.chua.common.support.bigmodel.colorization.ImageColorizationAddTaskV1Response;
-import com.chua.common.support.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationAddTaskV1Response;
+import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
 import com.chua.starter.project.service.ImageColorizationService;
 import com.chua.starter.system.pojo.vincent.ImageColorizationAddTaskV2Request;
 import com.chua.starter.system.pojo.vincent.ImageColorizationSearchTaskV2Request;

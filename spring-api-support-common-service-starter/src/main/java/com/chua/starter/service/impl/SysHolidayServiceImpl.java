@@ -2,8 +2,8 @@ package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.other.holiday.Holiday;
-import com.chua.common.support.other.holiday.HolidayResolver;
+import com.chua.advanced.support.other.holiday.Holiday;
+import com.chua.advanced.support.other.holiday.HolidayResolver;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.service.SysHolidayService;
 import com.chua.starter.service.mapper.SysHolidayMapper;
