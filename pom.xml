@@ -29,14 +29,14 @@
         <module>spring-api-support-common-service-starter</module>
     </modules>
     <version>4.0.0</version>
-    
+
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <module.version>4.0.0.34</module.version>
-        <utils.version>4.0.0.31</utils.version>
+        <utils.version>4.0.0.33</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
-            <version>${module.version}</version>
+            <version>${utils.version}</version>
         </dependency>
     </dependencies>
 
