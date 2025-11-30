@@ -264,6 +264,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             TableOpenResponse resp = new TableOpenResponse();
             // 2) 查询数据：优先使用 metadata 的 data 行为，不可用则回退到 SQL 执行
             try {
+                metadataQuery.setQueryId("1");
                 ReturnResult<CommandResult> data1 = execute(settingId, "data", "SELECT * FROM " + schemaName + "." + tableName, metadataQuery);
 
                 if (data1.isOk()) {
@@ -310,7 +311,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             }
             List<String> columns = open.getData().getColumns();
             List<Map<String, Object>> rows = open.getData().getRows();
-            Map<String, List<ValueCount>> result = new HashMap<>();
+            if (null == rows || rows.isEmpty()) {
+                return ReturnResult.error("表数据为空");
+            }
+            Map<String, List<ValueCount>> result = new HashMap<>(columns.size());
             for (String col : columns) {
                 Map<String, Long> freq = rows.stream()
                         .collect(Collectors.groupingBy(o -> String.valueOf(o.get(col)), Collectors.counting()));
@@ -382,6 +386,9 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command, true);
             if (result.isSuccess() && StringUtils.isNotBlank(query.getQueryId())) {
                 ResultItem data = result.getData();
+                if(null == data.getColumns()) {
+                    return ReturnResult.ok(result);
+                }
                 List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
                         Wrappers.<SystemDataFieldComment>lambdaQuery()
                                 .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
@@ -391,8 +398,9 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 data.getColumns().forEach(column -> {
                     column.setComment(columnComments.getOrDefault(column.getName(), column.getComment()));
                 });
+                return ReturnResult.ok(result);
             }
-            return ReturnResult.ok(result);
+            return ReturnResult.fail(result.getErrorMessage());
         } catch (Exception e) {
             log.error("执行命令失败", e);
             return ReturnResult.error(e.getMessage());
@@ -562,8 +570,8 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                         : (setting.getSystemDataSettingHost() + ":" + setting.getSystemDataSettingPort()))
                 .databaseName(setting.getSystemDataSettingDatabase())
                 .policy(setting.getSystemDataSettingPolicy())
-                .username(setting.getSystemDataSettingUsername())
-                .password(setting.getSystemDataSettingPassword());
+                .username(StringUtils.isNotBlank(setting.getSystemDataSettingUsername()) ? setting.getSystemDataSettingUsername() : null)
+                .password(StringUtils.isNotBlank(setting.getSystemDataSettingPassword()) ? setting.getSystemDataSettingPassword() : null);
 
         // 如果上传过驱动文件，优先告知 DataSourceOptions 使用对应驱动
         if (StringUtils.isNotBlank(setting.getSystemDataSettingDriverClass())) {
@@ -677,7 +685,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
 
         // 获取建表DDL
         String ddl = getCreateTableDdl(settingId, tableName);
-        
+
         // 从DDL中解析表注释
         String tableComment = parseTableCommentFromDdl(ddl);
 
@@ -690,7 +698,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 .indexes(new ArrayList<>())
                 .build();
     }
-    
+
     /**
      * 从DDL中解析表注释
      */
@@ -716,16 +724,14 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         Dialect dialect = getDialect(setting);
         char openQuote = dialect.openQuote();
         char closeQuote = dialect.closeQuote();
-        String addColumnKeyword = dialect.getAddColumnKeyword();
 
         StringBuilder sql = new StringBuilder();
-        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
-        sql.append(" ").append(addColumnKeyword).append(" ");
-        sql.append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
+        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
+        sql.append(" ADD COLUMN ").append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
         sql.append(" ").append(req.getDataType());
 
         if (Boolean.FALSE.equals(req.getNullable())) {
@@ -735,7 +741,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(req.getDefaultValue());
         }
         if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(dialect.getColumnComment(req.getComment().replace("'", "''")));
+            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
         }
         // 位置控制
         if ("FIRST".equalsIgnoreCase(req.getPosition())) {
@@ -753,13 +759,13 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         Dialect dialect = getDialect(setting);
         char openQuote = dialect.openQuote();
         char closeQuote = dialect.closeQuote();
 
         StringBuilder sql = new StringBuilder();
-        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
+        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
 
         // 判断是否需要重命名
         if (StringUtils.isNotBlank(req.getNewColumnName()) && !req.getNewColumnName().equals(req.getOldColumnName())) {
@@ -767,8 +773,8 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" CHANGE COLUMN ").append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
             sql.append(" ").append(quoteIdentifier(req.getNewColumnName(), openQuote, closeQuote));
         } else {
-            sql.append(" ").append(dialect.getAlterColumnString()).append(" ");
-            sql.append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
+            // MySQL使用MODIFY COLUMN修改字段
+            sql.append(" MODIFY COLUMN ").append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
         }
 
         sql.append(" ").append(req.getDataType());
@@ -782,7 +788,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(req.getDefaultValue());
         }
         if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(dialect.getColumnComment(req.getComment().replace("'", "''")));
+            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
         }
 
         return executeAlterSql(settingId, sql.toString());
@@ -794,14 +800,13 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         Dialect dialect = getDialect(setting);
         char openQuote = dialect.openQuote();
         char closeQuote = dialect.closeQuote();
 
-        String sql = dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)) 
-                + " " + dialect.getDropColumnString() + " " 
-                + quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
+        String sql = "ALTER TABLE " + quoteIdentifier(req.getTableName(), openQuote, closeQuote)
+                + " DROP COLUMN " + quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
         return executeAlterSql(settingId, sql);
     }
 
@@ -849,7 +854,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         Dialect dialect = getDialect(setting);
         char openQuote = dialect.openQuote();
         char closeQuote = dialect.closeQuote();
@@ -866,9 +871,8 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         }
 
         StringBuilder sql = new StringBuilder();
-        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
-        sql.append(" ").append(dialect.getAlterColumnString()).append(" ");
-        sql.append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
+        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
+        sql.append(" MODIFY COLUMN ").append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
         sql.append(" ").append(targetColumn.getFullType());
 
         if (Boolean.FALSE.equals(targetColumn.getNullable())) {
@@ -878,7 +882,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(targetColumn.getDefaultValue());
         }
         if (StringUtils.isNotBlank(targetColumn.getComment())) {
-            sql.append(dialect.getColumnComment(targetColumn.getComment().replace("'", "''")));
+            sql.append(" COMMENT '").append(targetColumn.getComment().replace("'", "''")).append("'");
         }
 
         // 位置控制
@@ -931,8 +935,26 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
     private Boolean executeAlterSql(Integer settingId, String sql) {
         try {
             log.info("执行DDL: {}", sql);
-            ReturnResult<CommandResult> result = execute(settingId, "sql", sql, new MetadataQuery());
-            return result != null && result.isSuccess();
+            MetadataQuery metadataQuery = new MetadataQuery();
+            metadataQuery.setQueryId("executeAlterSql");
+            ReturnResult<CommandResult> result = execute(settingId, "sql", sql, metadataQuery);
+            if (result == null) {
+                throw new RuntimeException("执行失败: 返回结果为空");
+            }
+            if (!result.isSuccess()) {
+                String errorMsg = result.getMsg();
+                // 提供更友好的错误提示
+                if (errorMsg != null && errorMsg.contains("Data truncated")) {
+                    throw new RuntimeException("数据截断错误: 现有数据长度超过新定义的字段长度，请先检查并处理超长数据");
+                }
+                if (errorMsg != null && errorMsg.contains("cannot be null")) {
+                    throw new RuntimeException("空值约束错误: 现有数据包含NULL值，无法设置为NOT NULL，请先处理NULL数据");
+                }
+                throw new RuntimeException("执行失败: " + errorMsg);
+            }
+            return true;
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("执行DDL失败: {}", sql, e);
             throw new RuntimeException("执行失败: " + e.getMessage());
@@ -945,17 +967,17 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         Dialect dialect = getDialect(setting);
         char openQuote = dialect.openQuote();
         char closeQuote = dialect.closeQuote();
-        
+
         String tableName = req.getTableName();
         String comment = req.getComment();
         String escapedComment = comment != null ? comment.replace("'", "''") : "";
-        
-        String sql = dialect.getAlterTableString(quoteIdentifier(tableName, openQuote, closeQuote)) 
-                + dialect.getTableComment(escapedComment);
+
+        String sql = "ALTER TABLE " + quoteIdentifier(tableName, openQuote, closeQuote)
+                + " COMMENT '" + escapedComment + "'";
         return executeAlterSql(settingId, sql);
     }
 
@@ -965,9 +987,9 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
-        
+
         log.info("开始批量修改表结构: {}", req.getTableName());
-        
+
         // 1. 先删除字段
         if (req.getDropColumns() != null && !req.getDropColumns().isEmpty()) {
             for (String columnName : req.getDropColumns()) {
@@ -977,7 +999,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 dropColumn(settingId, dropReq);
             }
         }
-        
+
         // 2. 添加新字段
         if (req.getAddColumns() != null && !req.getAddColumns().isEmpty()) {
             for (StructureMetadata.AddColumnRequest addReq : req.getAddColumns()) {
@@ -985,7 +1007,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 addColumn(settingId, addReq);
             }
         }
-        
+
         // 3. 修改已有字段
         if (req.getModifyColumns() != null && !req.getModifyColumns().isEmpty()) {
             for (StructureMetadata.ModifyColumnRequest modifyReq : req.getModifyColumns()) {
@@ -993,7 +1015,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 modifyColumn(settingId, modifyReq);
             }
         }
-        
+
         // 4. 调整字段顺序
         if (req.getReorderColumns() != null && !req.getReorderColumns().isEmpty()) {
             for (StructureMetadata.ReorderColumnRequest reorderReq : req.getReorderColumns()) {
@@ -1001,7 +1023,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 reorderColumn(settingId, reorderReq);
             }
         }
-        
+
         // 5. 修改表注释
         if (StringUtils.isNotBlank(req.getTableComment())) {
             StructureMetadata.ModifyTableCommentRequest commentReq = new StructureMetadata.ModifyTableCommentRequest();
@@ -1009,11 +1031,11 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             commentReq.setComment(req.getTableComment());
             modifyTableComment(settingId, commentReq);
         }
-        
+
         log.info("批量修改表结构完成: {}", req.getTableName());
         return true;
     }
-    
+
     /**
      * 获取数据库方言
      */
@@ -1022,7 +1044,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         String driver = setting.getSystemDataSettingDriverClass();
         return DialectFactory.createDialect(url, driver);
     }
-    
+
     /**
      * 引用标识符（表名、字段名等）
      */
