@@ -85,7 +85,7 @@ public class ArthasCommandController {
                 HttpResponse<byte[]> httpResponse = client.send(HttpRequest.newBuilder()
                                 .timeout(Duration.ofSeconds(10))
                                 .headers("Content-Type", "application/json")
-                                .uri(URI.create(StringUtils.defaultString(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api")))
+                                .uri(URI.create(StringUtils.defaultIfBlank(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api")))
                                 .POST(HttpRequest.BodyPublishers.ofString("{\"action\":\"exec\",\"command\":\"%s\"}".formatted(
                                         req.getCommand()
                                 )))
@@ -349,7 +349,7 @@ public class ArthasCommandController {
                     jobId,
                     req.getNodeId(),
                     httpUrl,
-                    StringUtils.defaultString(req.getCommand(), ""),
+                    StringUtils.defaultIfBlank(req.getCommand(), ""),
                     commandType
                 );
 
@@ -945,7 +945,7 @@ public class ArthasCommandController {
                 monitorArthasTunnelConfig = MonitorArthasTunnelConfig.EMPTY;
             }
 
-            return StringUtils.defaultString(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api");
+            return StringUtils.defaultIfBlank(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api");
         } catch (Exception e) {
             log.error("获取节点HTTP地址失败: nodeId={}", nodeId, e);
             return null;
@@ -1067,7 +1067,7 @@ public class ArthasCommandController {
                 jobId,
                 nodeId,
                 httpUrl,
-                StringUtils.defaultString(command, ""),
+                StringUtils.defaultIfBlank(command, ""),
                 commandType
             );
 
