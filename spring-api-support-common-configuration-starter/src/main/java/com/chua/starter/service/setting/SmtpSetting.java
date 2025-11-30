@@ -1,8 +1,8 @@
 package com.chua.starter.service.setting;
 
+import com.chua.advanced.support.lang.mail.MailConfiguration;
+import com.chua.advanced.support.lang.mail.MailSender;
 import com.chua.common.support.function.Upgrade;
-import com.chua.common.support.lang.mail.MailConfiguration;
-import com.chua.common.support.lang.mail.MailSender;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.email.support.SpringHtmlMailSender;
 import lombok.Data;

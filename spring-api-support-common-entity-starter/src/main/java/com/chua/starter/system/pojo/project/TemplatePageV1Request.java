@@ -6,12 +6,14 @@ import com.chua.starter.system.entity.SysSmsTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 同步请求
  *
  * @author CH
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "模板查询请求")
 public class TemplatePageV1Request extends Query<SysSmsTemplate> {
