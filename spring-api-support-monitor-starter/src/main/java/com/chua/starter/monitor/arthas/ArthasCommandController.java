@@ -137,7 +137,7 @@ public class ArthasCommandController {
                 monitorArthasTunnelConfig = MonitorArthasTunnelConfig.EMPTY;
             }
 
-            String httpUrl = StringUtils.defaultString(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api");
+            String httpUrl = StringUtils.defaultIfBlank(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api");
             List<MonitorArthasSession> runningSessionsByNodeId = sessionService.getRunningSessionsByNodeId(req.getNodeId());
             if(runningSessionsByNodeId.isEmpty()) {
                 return ReturnResult.success();
