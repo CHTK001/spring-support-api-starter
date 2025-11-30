@@ -242,6 +242,33 @@ public interface SystemDataConsoleService {
     Boolean dropColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.DropColumnRequest req);
 
     /**
+     * 批量删除字段
+     *
+     * @param settingId 设置ID
+     * @param req       批量删除字段请求
+     * @return 是否成功
+     */
+    Boolean batchDropColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.BatchDropColumnRequest req);
+
+    /**
+     * 批量添加字段
+     *
+     * @param settingId 设置ID
+     * @param req       批量添加字段请求
+     * @return 是否成功
+     */
+    Boolean batchAddColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.BatchAddColumnRequest req);
+
+    /**
+     * 批量修改字段
+     *
+     * @param settingId 设置ID
+     * @param req       批量修改字段请求
+     * @return 是否成功
+     */
+    Boolean batchModifyColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.BatchModifyColumnRequest req);
+
+    /**
      * 调整字段位置
      *
      * @param settingId 设置ID
@@ -258,6 +285,25 @@ public interface SystemDataConsoleService {
      * @return DDL语句
      */
     String getCreateTableDdl(Integer settingId, String tableName);
+
+    /**
+     * 修改表注释
+     *
+     * @param settingId 设置ID
+     * @param req       修改表注释请求
+     * @return 是否成功
+     */
+    Boolean modifyTableComment(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.ModifyTableCommentRequest req);
+
+    /**
+     * 批量修改表结构
+     * 包括添加字段、修改字段、删除字段、调整顺序、修改表注释等操作
+     *
+     * @param settingId 设置ID
+     * @param req       批量操作请求
+     * @return 是否成功
+     */
+    Boolean batchModifyTableStructure(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.BatchTableStructureRequest req);
 }
 
 

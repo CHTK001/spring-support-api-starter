@@ -202,6 +202,69 @@ public class SystemDataConsoleStructureController {
     }
 
     /**
+     * 批量删除字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       批量删除字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/batch-drop")
+    @Operation(summary = "批量删除字段")
+    public ReturnResult<Boolean> batchDropColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.BatchDropColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.batchDropColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("批量删除字段失败", e);
+            return ReturnResult.error("批量删除字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量添加字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       批量添加字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/batch-add")
+    @Operation(summary = "批量添加字段")
+    public ReturnResult<Boolean> batchAddColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.BatchAddColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.batchAddColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("批量添加字段失败", e);
+            return ReturnResult.error("批量添加字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量修改字段
+     *
+     * @param settingId 数据源设置ID
+     * @param req       批量修改字段请求
+     * @return 操作结果
+     */
+    @PostMapping("/column/batch-modify")
+    @Operation(summary = "批量修改字段")
+    public ReturnResult<Boolean> batchModifyColumn(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.BatchModifyColumnRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.batchModifyColumn(settingId, req));
+        } catch (Exception e) {
+            log.error("批量修改字段失败", e);
+            return ReturnResult.error("批量修改字段失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 调整字段位置
      *
      * @param settingId 数据源设置ID
@@ -241,6 +304,50 @@ public class SystemDataConsoleStructureController {
         } catch (Exception e) {
             log.error("获取建表语句失败", e);
             return ReturnResult.error("获取建表语句失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改表注释
+     *
+     * @param settingId 数据源设置ID
+     * @param req       修改表注释请求
+     * @return 操作结果
+     */
+    @PostMapping("/comment")
+    @Operation(summary = "修改表注释")
+    public ReturnResult<Boolean> modifyTableComment(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.ModifyTableCommentRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.modifyTableComment(settingId, req));
+        } catch (Exception e) {
+            log.error("修改表注释失败", e);
+            return ReturnResult.error("修改表注释失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量修改表结构
+     * 包括添加字段、修改字段、删除字段、调整顺序、修改表注释等操作
+     * 减少前后端交互次数，一次请求完成所有修改
+     *
+     * @param settingId 数据源设置ID
+     * @param req       批量操作请求
+     * @return 操作结果
+     */
+    @PostMapping("/batch")
+    @Operation(summary = "批量修改表结构")
+    public ReturnResult<Boolean> batchModifyTableStructure(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.BatchTableStructureRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.batchModifyTableStructure(settingId, req));
+        } catch (Exception e) {
+            log.error("批量修改表结构失败", e);
+            return ReturnResult.error("批量修改表结构失败: " + e.getMessage());
         }
     }
 }
