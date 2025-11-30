@@ -50,7 +50,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
             }
 
             boolean isConnected = performConnectionTest(registry);
-            
+
             // 更新连接状态
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (isConnected) {
@@ -99,7 +99,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
             // 设置新的默认仓库
             systemSoftRegistryMapper.updateDefaultFlag(registryId);
-            
+
             log.info("设置默认仓库成功, registryId: {}", registryId);
             return ReturnResult.ok(true, "设置默认仓库成功");
 
@@ -128,7 +128,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
             }
 
             Integer updateCount = systemSoftRegistryMapper.batchUpdateStatus(registryIds, status);
-            
+
             log.info("批量更新仓库状态成功, updateCount: {}", updateCount);
             return ReturnResult.ok(true, "批量更新成功，共更新" + updateCount + "条记录");
 
@@ -189,7 +189,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
         try {
             List<SystemSoftRegistry> enabledRegistries = systemSoftRegistryMapper.selectEnabledRegistries();
-            
+
             log.debug("获取启用仓库成功, count: {}", enabledRegistries.size());
             return ReturnResult.ok(enabledRegistries);
 
@@ -211,7 +211,7 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
         try {
             List<SystemSoftRegistry> registries = systemSoftRegistryMapper.selectByRegistryType(registryType);
-            
+
             log.debug("根据类型获取仓库成功, registryType: {}, count: {}", registryType, registries.size());
             return ReturnResult.ok(registries);
 
@@ -243,11 +243,6 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
 
             if (registry.getSystemSoftRegistryType() == null || registry.getSystemSoftRegistryType().trim().isEmpty()) {
                 return ReturnResult.error("仓库类型不能为空");
-            }
-
-            // 服务器绑定必填
-            if (registry.getSystemSoftRegistryServerId() == null) {
-                return ReturnResult.error("服务器ID不能为空");
             }
 
             // 检查名称重复
