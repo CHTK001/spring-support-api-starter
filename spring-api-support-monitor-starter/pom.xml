@@ -246,11 +246,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-postgres-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-zookeeper-starter</artifactId>
         </dependency>
 
