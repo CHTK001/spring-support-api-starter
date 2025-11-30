@@ -9,6 +9,8 @@ import com.chua.common.support.backup.listener.BackupListener;
 import com.chua.common.support.backup.strategy.DayBackupStrategy;
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.constant.EventType;
+import com.chua.common.support.datasource.dialect.Dialect;
+import com.chua.common.support.datasource.dialect.DialectFactory;
 import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
 import com.chua.common.support.document.DocQuery;
 import com.chua.common.support.document.Document;
@@ -675,14 +677,37 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
 
         // 获取建表DDL
         String ddl = getCreateTableDdl(settingId, tableName);
+        
+        // 从DDL中解析表注释
+        String tableComment = parseTableCommentFromDdl(ddl);
 
         return TableStructureInfo.builder()
                 .tableName(tableName)
+                .tableComment(tableComment)
                 .columns(columns)
                 .primaryKeys(primaryKeys)
                 .createTableDdl(ddl)
                 .indexes(new ArrayList<>())
                 .build();
+    }
+    
+    /**
+     * 从DDL中解析表注释
+     */
+    private String parseTableCommentFromDdl(String ddl) {
+        if (StringUtils.isBlank(ddl)) {
+            return "";
+        }
+        // 匹配 COMMENT='xxx' 或 COMMENT 'xxx'
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
+                "COMMENT\\s*=?\\s*['\"]([^'\"]*)['\"]",
+                java.util.regex.Pattern.CASE_INSENSITIVE
+        );
+        java.util.regex.Matcher matcher = pattern.matcher(ddl);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return "";
     }
 
     @Override
@@ -691,11 +716,16 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
+        
+        Dialect dialect = getDialect(setting);
+        char openQuote = dialect.openQuote();
+        char closeQuote = dialect.closeQuote();
+        String addColumnKeyword = dialect.getAddColumnKeyword();
 
-        // 构建 ALTER TABLE ADD COLUMN SQL
         StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(req.getTableName());
-        sql.append(" ADD COLUMN ").append(req.getColumnName());
+        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
+        sql.append(" ").append(addColumnKeyword).append(" ");
+        sql.append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
         sql.append(" ").append(req.getDataType());
 
         if (Boolean.FALSE.equals(req.getNullable())) {
@@ -705,13 +735,13 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(req.getDefaultValue());
         }
         if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
+            sql.append(dialect.getColumnComment(req.getComment().replace("'", "''")));
         }
         // 位置控制
         if ("FIRST".equalsIgnoreCase(req.getPosition())) {
             sql.append(" FIRST");
         } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
-            sql.append(" AFTER ").append(req.getAfterColumn());
+            sql.append(" AFTER ").append(quoteIdentifier(req.getAfterColumn(), openQuote, closeQuote));
         }
 
         return executeAlterSql(settingId, sql.toString());
@@ -723,16 +753,22 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
+        
+        Dialect dialect = getDialect(setting);
+        char openQuote = dialect.openQuote();
+        char closeQuote = dialect.closeQuote();
 
         StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(req.getTableName());
+        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
 
         // 判断是否需要重命名
         if (StringUtils.isNotBlank(req.getNewColumnName()) && !req.getNewColumnName().equals(req.getOldColumnName())) {
-            sql.append(" CHANGE COLUMN ").append(req.getOldColumnName());
-            sql.append(" ").append(req.getNewColumnName());
+            // MySQL使用CHANGE COLUMN重命名
+            sql.append(" CHANGE COLUMN ").append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
+            sql.append(" ").append(quoteIdentifier(req.getNewColumnName(), openQuote, closeQuote));
         } else {
-            sql.append(" MODIFY COLUMN ").append(req.getOldColumnName());
+            sql.append(" ").append(dialect.getAlterColumnString()).append(" ");
+            sql.append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
         }
 
         sql.append(" ").append(req.getDataType());
@@ -746,7 +782,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(req.getDefaultValue());
         }
         if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
+            sql.append(dialect.getColumnComment(req.getComment().replace("'", "''")));
         }
 
         return executeAlterSql(settingId, sql.toString());
@@ -758,9 +794,53 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
+        
+        Dialect dialect = getDialect(setting);
+        char openQuote = dialect.openQuote();
+        char closeQuote = dialect.closeQuote();
 
-        String sql = "ALTER TABLE " + req.getTableName() + " DROP COLUMN " + req.getColumnName();
+        String sql = dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)) 
+                + " " + dialect.getDropColumnString() + " " 
+                + quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
         return executeAlterSql(settingId, sql);
+    }
+
+    @Override
+    public Boolean batchDropColumn(Integer settingId, StructureMetadata.BatchDropColumnRequest req) {
+        if (req.getColumnNames() == null || req.getColumnNames().isEmpty()) {
+            return true;
+        }
+        for (String columnName : req.getColumnNames()) {
+            StructureMetadata.DropColumnRequest dropReq = new StructureMetadata.DropColumnRequest();
+            dropReq.setTableName(req.getTableName());
+            dropReq.setColumnName(columnName);
+            dropColumn(settingId, dropReq);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean batchAddColumn(Integer settingId, StructureMetadata.BatchAddColumnRequest req) {
+        if (req.getColumns() == null || req.getColumns().isEmpty()) {
+            return true;
+        }
+        for (StructureMetadata.AddColumnRequest addReq : req.getColumns()) {
+            addReq.setTableName(req.getTableName());
+            addColumn(settingId, addReq);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean batchModifyColumn(Integer settingId, StructureMetadata.BatchModifyColumnRequest req) {
+        if (req.getColumns() == null || req.getColumns().isEmpty()) {
+            return true;
+        }
+        for (StructureMetadata.ModifyColumnRequest modifyReq : req.getColumns()) {
+            modifyReq.setTableName(req.getTableName());
+            modifyColumn(settingId, modifyReq);
+        }
+        return true;
     }
 
     @Override
@@ -769,6 +849,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         if (setting == null) {
             throw new RuntimeException("数据源配置不存在");
         }
+        
+        Dialect dialect = getDialect(setting);
+        char openQuote = dialect.openQuote();
+        char closeQuote = dialect.closeQuote();
 
         // 先获取字段信息
         List<ColumnInfo> columns = listColumns(settingId, req.getTableName());
@@ -782,8 +866,9 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         }
 
         StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(req.getTableName());
-        sql.append(" MODIFY COLUMN ").append(req.getColumnName());
+        sql.append(dialect.getAlterTableString(quoteIdentifier(req.getTableName(), openQuote, closeQuote)));
+        sql.append(" ").append(dialect.getAlterColumnString()).append(" ");
+        sql.append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
         sql.append(" ").append(targetColumn.getFullType());
 
         if (Boolean.FALSE.equals(targetColumn.getNullable())) {
@@ -793,14 +878,14 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             sql.append(" DEFAULT ").append(targetColumn.getDefaultValue());
         }
         if (StringUtils.isNotBlank(targetColumn.getComment())) {
-            sql.append(" COMMENT '").append(targetColumn.getComment().replace("'", "''")).append("'");
+            sql.append(dialect.getColumnComment(targetColumn.getComment().replace("'", "''")));
         }
 
         // 位置控制
         if ("FIRST".equalsIgnoreCase(req.getPosition())) {
             sql.append(" FIRST");
         } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
-            sql.append(" AFTER ").append(req.getAfterColumn());
+            sql.append(" AFTER ").append(quoteIdentifier(req.getAfterColumn(), openQuote, closeQuote));
         }
 
         return executeAlterSql(settingId, sql.toString());
@@ -852,6 +937,104 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             log.error("执行DDL失败: {}", sql, e);
             throw new RuntimeException("执行失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    public Boolean modifyTableComment(Integer settingId, StructureMetadata.ModifyTableCommentRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+        
+        Dialect dialect = getDialect(setting);
+        char openQuote = dialect.openQuote();
+        char closeQuote = dialect.closeQuote();
+        
+        String tableName = req.getTableName();
+        String comment = req.getComment();
+        String escapedComment = comment != null ? comment.replace("'", "''") : "";
+        
+        String sql = dialect.getAlterTableString(quoteIdentifier(tableName, openQuote, closeQuote)) 
+                + dialect.getTableComment(escapedComment);
+        return executeAlterSql(settingId, sql);
+    }
+
+    @Override
+    public Boolean batchModifyTableStructure(Integer settingId, StructureMetadata.BatchTableStructureRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+        
+        log.info("开始批量修改表结构: {}", req.getTableName());
+        
+        // 1. 先删除字段
+        if (req.getDropColumns() != null && !req.getDropColumns().isEmpty()) {
+            for (String columnName : req.getDropColumns()) {
+                StructureMetadata.DropColumnRequest dropReq = new StructureMetadata.DropColumnRequest();
+                dropReq.setTableName(req.getTableName());
+                dropReq.setColumnName(columnName);
+                dropColumn(settingId, dropReq);
+            }
+        }
+        
+        // 2. 添加新字段
+        if (req.getAddColumns() != null && !req.getAddColumns().isEmpty()) {
+            for (StructureMetadata.AddColumnRequest addReq : req.getAddColumns()) {
+                addReq.setTableName(req.getTableName());
+                addColumn(settingId, addReq);
+            }
+        }
+        
+        // 3. 修改已有字段
+        if (req.getModifyColumns() != null && !req.getModifyColumns().isEmpty()) {
+            for (StructureMetadata.ModifyColumnRequest modifyReq : req.getModifyColumns()) {
+                modifyReq.setTableName(req.getTableName());
+                modifyColumn(settingId, modifyReq);
+            }
+        }
+        
+        // 4. 调整字段顺序
+        if (req.getReorderColumns() != null && !req.getReorderColumns().isEmpty()) {
+            for (StructureMetadata.ReorderColumnRequest reorderReq : req.getReorderColumns()) {
+                reorderReq.setTableName(req.getTableName());
+                reorderColumn(settingId, reorderReq);
+            }
+        }
+        
+        // 5. 修改表注释
+        if (StringUtils.isNotBlank(req.getTableComment())) {
+            StructureMetadata.ModifyTableCommentRequest commentReq = new StructureMetadata.ModifyTableCommentRequest();
+            commentReq.setTableName(req.getTableName());
+            commentReq.setComment(req.getTableComment());
+            modifyTableComment(settingId, commentReq);
+        }
+        
+        log.info("批量修改表结构完成: {}", req.getTableName());
+        return true;
+    }
+    
+    /**
+     * 获取数据库方言
+     */
+    private Dialect getDialect(SystemDataSetting setting) {
+        String url = setting.getSystemDataSettingServer();
+        String driver = setting.getSystemDataSettingDriverClass();
+        return DialectFactory.createDialect(url, driver);
+    }
+    
+    /**
+     * 引用标识符（表名、字段名等）
+     */
+    private String quoteIdentifier(String identifier, char openQuote, char closeQuote) {
+        if (identifier == null) {
+            return "";
+        }
+        // 如果引号是空格，则不添加引号
+        if (openQuote == ' ' && closeQuote == ' ') {
+            return identifier;
+        }
+        return openQuote + identifier + closeQuote;
     }
 
     /**

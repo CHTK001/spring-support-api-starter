@@ -131,6 +131,45 @@ public interface StructureMetadata {
         private String columnName;
     }
 
+    /** 批量删除字段请求 */
+    @Data
+    class BatchDropColumnRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 字段名列表
+         */
+        private java.util.List<String> columnNames;
+    }
+
+    /** 批量添加字段请求 */
+    @Data
+    class BatchAddColumnRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 字段列表
+         */
+        private java.util.List<AddColumnRequest> columns;
+    }
+
+    /** 批量修改字段请求 */
+    @Data
+    class BatchModifyColumnRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 字段列表
+         */
+        private java.util.List<ModifyColumnRequest> columns;
+    }
+
     /** 调整字段位置请求 */
     @Data
     class ReorderColumnRequest {
@@ -150,6 +189,48 @@ public interface StructureMetadata {
          * 在哪个字段之后（当 position 为 AFTER 时使用）
          */
         private String afterColumn;
+    }
+
+    /** 修改表注释请求 */
+    @Data
+    class ModifyTableCommentRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 表注释
+         */
+        private String comment;
+    }
+
+    /** 批量表结构操作请求 */
+    @Data
+    class BatchTableStructureRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 表注释（如果需要修改）
+         */
+        private String tableComment;
+        /**
+         * 需要添加的字段列表
+         */
+        private java.util.List<AddColumnRequest> addColumns;
+        /**
+         * 需要修改的字段列表
+         */
+        private java.util.List<ModifyColumnRequest> modifyColumns;
+        /**
+         * 需要删除的字段名列表
+         */
+        private java.util.List<String> dropColumns;
+        /**
+         * 需要调整顺序的字段列表
+         */
+        private java.util.List<ReorderColumnRequest> reorderColumns;
     }
 }
 
