@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * 设备管理
  */
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "设备管理")
 @Schema(description = "设备管理")
 @Data

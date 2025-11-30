@@ -13,10 +13,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * ai模型分类表
  */
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "ai模型分类表")
 @Schema(description = "ai模型分类表")
 @Data
