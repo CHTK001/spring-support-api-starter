@@ -187,6 +187,77 @@ public interface SystemDataConsoleService {
      * @return 服务器静态信息
      */
     ServerStatic getServerStatic();
+
+    /**
+     * 获取所有表名列表（用于SQL自动提示）
+     *
+     * @param settingId 设置ID
+     * @return 表名列表
+     */
+    List<String> listTables(Integer settingId);
+
+    /**
+     * 获取指定表的字段列表（用于SQL自动提示）
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @return 字段信息列表
+     */
+    List<com.chua.starter.monitor.pojo.ColumnInfo> listColumns(Integer settingId, String tableName);
+
+    /**
+     * 获取表结构详情
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @return 表结构信息
+     */
+    com.chua.starter.monitor.pojo.TableStructureInfo getTableStructure(Integer settingId, String tableName);
+
+    /**
+     * 添加字段
+     *
+     * @param settingId 设置ID
+     * @param req       添加字段请求
+     * @return 是否成功
+     */
+    Boolean addColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.AddColumnRequest req);
+
+    /**
+     * 修改字段
+     *
+     * @param settingId 设置ID
+     * @param req       修改字段请求
+     * @return 是否成功
+     */
+    Boolean modifyColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.ModifyColumnRequest req);
+
+    /**
+     * 删除字段
+     *
+     * @param settingId 设置ID
+     * @param req       删除字段请求
+     * @return 是否成功
+     */
+    Boolean dropColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.DropColumnRequest req);
+
+    /**
+     * 调整字段位置
+     *
+     * @param settingId 设置ID
+     * @param req       调整位置请求
+     * @return 是否成功
+     */
+    Boolean reorderColumn(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.ReorderColumnRequest req);
+
+    /**
+     * 获取建表DDL语句
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @return DDL语句
+     */
+    String getCreateTableDdl(Integer settingId, String tableName);
 }
 
 

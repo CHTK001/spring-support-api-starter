@@ -35,10 +35,13 @@ import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
+import com.chua.starter.monitor.pojo.ColumnInfo;
 import com.chua.starter.monitor.pojo.ServerStatic;
 import com.chua.starter.monitor.pojo.TableOpenResponse;
+import com.chua.starter.monitor.pojo.TableStructureInfo;
 import com.chua.starter.monitor.pojo.ValueCount;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
+import com.chua.starter.monitor.spi.metadata.StructureMetadata;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
 import com.chua.starter.redis.support.service.RedisSearchService;
 import lombok.RequiredArgsConstructor;
@@ -593,6 +596,286 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 }
             }
         });
+    }
+
+    @Override
+    public List<String> listTables(Integer settingId) {
+        HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
+        List<String> tables = new ArrayList<>();
+        try {
+            // 获取根节点（通常是数据库/schema）
+            HierarchyResult<HierarchyNode> rootResult = metadata.getRootNodes(new MetadataQuery());
+            if (rootResult != null && rootResult.getData() != null) {
+                for (HierarchyNode rootNode : rootResult.getData()) {
+                    // 获取表节点
+                    HierarchyResult<HierarchyNode> childResult = metadata.getChildNodes(rootNode.getPath(), new MetadataQuery());
+                    if (childResult != null && childResult.getData() != null) {
+                        for (HierarchyNode child : childResult.getData()) {
+                            HierarchyNode.NodeType nodeType = child.getType();
+                            if (nodeType != null && nodeType == HierarchyNode.NodeType.TABLE) {
+                                tables.add(child.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取表名列表失败", e);
+        }
+        return tables;
+    }
+
+    @Override
+    public List<ColumnInfo> listColumns(Integer settingId, String tableName) {
+        HierarchyMetadata metadata = getOrCreateHierarchy(settingId);
+        List<ColumnInfo> columns = new ArrayList<>();
+        try {
+            // 查找表节点
+            String tablePath = findTablePath(metadata, tableName);
+            if (tablePath == null) {
+                return columns;
+            }
+            // 获取字段节点
+            HierarchyResult<HierarchyNode> childResult = metadata.getChildNodes(tablePath, new MetadataQuery());
+            if (childResult != null && childResult.getData() != null) {
+                int position = 1;
+                for (HierarchyNode child : childResult.getData()) {
+                    HierarchyNode.NodeType nodeType = child.getType();
+                    if (nodeType != null && (nodeType == HierarchyNode.NodeType.COLUMN || nodeType == HierarchyNode.NodeType.FIELD)) {
+                        Map<String, Object> props = child.getProperties();
+                        ColumnInfo info = ColumnInfo.builder()
+                                .name(child.getName())
+                                .dataType(MapUtils.getString(props, "columnType", ""))
+                                .fullType(MapUtils.getString(props, "columnType", ""))
+                                .length(MapUtils.getInteger(props, "columnSize", null))
+                                .nullable("YES".equalsIgnoreCase(MapUtils.getString(props, "nullable", "YES")))
+                                .primaryKey(MapUtils.getBoolean(props, "primaryKey", false))
+                                .autoIncrement(MapUtils.getBoolean(props, "autoIncrement", false))
+                                .defaultValue(MapUtils.getString(props, "defaultValue", null))
+                                .comment(MapUtils.getString(props, "comment", ""))
+                                .ordinalPosition(position++)
+                                .build();
+                        columns.add(info);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取字段列表失败", e);
+        }
+        return columns;
+    }
+
+    @Override
+    public TableStructureInfo getTableStructure(Integer settingId, String tableName) {
+        List<ColumnInfo> columns = listColumns(settingId, tableName);
+        List<String> primaryKeys = columns.stream()
+                .filter(c -> Boolean.TRUE.equals(c.getPrimaryKey()))
+                .map(ColumnInfo::getName)
+                .collect(Collectors.toList());
+
+        // 获取建表DDL
+        String ddl = getCreateTableDdl(settingId, tableName);
+
+        return TableStructureInfo.builder()
+                .tableName(tableName)
+                .columns(columns)
+                .primaryKeys(primaryKeys)
+                .createTableDdl(ddl)
+                .indexes(new ArrayList<>())
+                .build();
+    }
+
+    @Override
+    public Boolean addColumn(Integer settingId, StructureMetadata.AddColumnRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+
+        // 构建 ALTER TABLE ADD COLUMN SQL
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(req.getTableName());
+        sql.append(" ADD COLUMN ").append(req.getColumnName());
+        sql.append(" ").append(req.getDataType());
+
+        if (Boolean.FALSE.equals(req.getNullable())) {
+            sql.append(" NOT NULL");
+        }
+        if (StringUtils.isNotBlank(req.getDefaultValue())) {
+            sql.append(" DEFAULT ").append(req.getDefaultValue());
+        }
+        if (StringUtils.isNotBlank(req.getComment())) {
+            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
+        }
+        // 位置控制
+        if ("FIRST".equalsIgnoreCase(req.getPosition())) {
+            sql.append(" FIRST");
+        } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
+            sql.append(" AFTER ").append(req.getAfterColumn());
+        }
+
+        return executeAlterSql(settingId, sql.toString());
+    }
+
+    @Override
+    public Boolean modifyColumn(Integer settingId, StructureMetadata.ModifyColumnRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(req.getTableName());
+
+        // 判断是否需要重命名
+        if (StringUtils.isNotBlank(req.getNewColumnName()) && !req.getNewColumnName().equals(req.getOldColumnName())) {
+            sql.append(" CHANGE COLUMN ").append(req.getOldColumnName());
+            sql.append(" ").append(req.getNewColumnName());
+        } else {
+            sql.append(" MODIFY COLUMN ").append(req.getOldColumnName());
+        }
+
+        sql.append(" ").append(req.getDataType());
+
+        if (Boolean.FALSE.equals(req.getNullable())) {
+            sql.append(" NOT NULL");
+        } else {
+            sql.append(" NULL");
+        }
+        if (StringUtils.isNotBlank(req.getDefaultValue())) {
+            sql.append(" DEFAULT ").append(req.getDefaultValue());
+        }
+        if (StringUtils.isNotBlank(req.getComment())) {
+            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
+        }
+
+        return executeAlterSql(settingId, sql.toString());
+    }
+
+    @Override
+    public Boolean dropColumn(Integer settingId, StructureMetadata.DropColumnRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+
+        String sql = "ALTER TABLE " + req.getTableName() + " DROP COLUMN " + req.getColumnName();
+        return executeAlterSql(settingId, sql);
+    }
+
+    @Override
+    public Boolean reorderColumn(Integer settingId, StructureMetadata.ReorderColumnRequest req) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("数据源配置不存在");
+        }
+
+        // 先获取字段信息
+        List<ColumnInfo> columns = listColumns(settingId, req.getTableName());
+        ColumnInfo targetColumn = columns.stream()
+                .filter(c -> c.getName().equals(req.getColumnName()))
+                .findFirst()
+                .orElse(null);
+
+        if (targetColumn == null) {
+            throw new RuntimeException("字段不存在: " + req.getColumnName());
+        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("ALTER TABLE ").append(req.getTableName());
+        sql.append(" MODIFY COLUMN ").append(req.getColumnName());
+        sql.append(" ").append(targetColumn.getFullType());
+
+        if (Boolean.FALSE.equals(targetColumn.getNullable())) {
+            sql.append(" NOT NULL");
+        }
+        if (StringUtils.isNotBlank(targetColumn.getDefaultValue())) {
+            sql.append(" DEFAULT ").append(targetColumn.getDefaultValue());
+        }
+        if (StringUtils.isNotBlank(targetColumn.getComment())) {
+            sql.append(" COMMENT '").append(targetColumn.getComment().replace("'", "''")).append("'");
+        }
+
+        // 位置控制
+        if ("FIRST".equalsIgnoreCase(req.getPosition())) {
+            sql.append(" FIRST");
+        } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
+            sql.append(" AFTER ").append(req.getAfterColumn());
+        }
+
+        return executeAlterSql(settingId, sql.toString());
+    }
+
+    @Override
+    public String getCreateTableDdl(Integer settingId, String tableName) {
+        try {
+            ReturnResult<CommandResult> result = execute(settingId, "sql", "SHOW CREATE TABLE " + tableName, new MetadataQuery());
+            if (result != null && result.isSuccess() && result.getData() != null) {
+                CommandResult commandResult = result.getData();
+                ResultItem resultItem = commandResult.getData();
+                if (resultItem != null) {
+                    List<Map<String, Object>> rows = resultItem.getRows();
+                    if (rows != null && !rows.isEmpty()) {
+                        Map<String, Object> rowData = rows.get(0);
+                        // MySQL 返回的是 "Create Table" 列
+                        Object ddl = rowData.get("Create Table");
+                        if (ddl == null) {
+                            // 尝试其他可能的列名
+                            ddl = rowData.get("CREATE TABLE");
+                            if (ddl == null && !rowData.isEmpty()) {
+                                // 取第二个值（第一个是表名）
+                                Object[] values = rowData.values().toArray();
+                                if (values.length > 1) {
+                                    ddl = values[1];
+                                }
+                            }
+                        }
+                        return ddl != null ? ddl.toString() : "";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取建表DDL失败", e);
+        }
+        return "";
+    }
+
+    /**
+     * 执行 ALTER SQL
+     */
+    private Boolean executeAlterSql(Integer settingId, String sql) {
+        try {
+            log.info("执行DDL: {}", sql);
+            ReturnResult<CommandResult> result = execute(settingId, "sql", sql, new MetadataQuery());
+            return result != null && result.isSuccess();
+        } catch (Exception e) {
+            log.error("执行DDL失败: {}", sql, e);
+            throw new RuntimeException("执行失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 查找表路径
+     */
+    private String findTablePath(HierarchyMetadata metadata, String tableName) {
+        try {
+            HierarchyResult<HierarchyNode> rootResult = metadata.getRootNodes(new MetadataQuery());
+            if (rootResult != null && rootResult.getData() != null) {
+                for (HierarchyNode rootNode : rootResult.getData()) {
+                    HierarchyResult<HierarchyNode> childResult = metadata.getChildNodes(rootNode.getPath(), new MetadataQuery());
+                    if (childResult != null && childResult.getData() != null) {
+                        for (HierarchyNode child : childResult.getData()) {
+                            if (tableName.equalsIgnoreCase(child.getName())) {
+                                return child.getPath();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("查找表路径失败", e);
+        }
+        return null;
     }
 }
 
