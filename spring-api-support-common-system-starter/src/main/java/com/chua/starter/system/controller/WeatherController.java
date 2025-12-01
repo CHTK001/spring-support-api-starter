@@ -1,7 +1,7 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.external.Weather;
-import com.chua.common.support.external.WeatherResolver;
+import com.chua.advanced.support.external.Weather;
+import com.chua.advanced.support.external.WeatherResolver;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
