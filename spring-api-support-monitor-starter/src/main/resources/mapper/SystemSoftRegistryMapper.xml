@@ -12,7 +12,7 @@
         <result column="system_soft_registry_password" property="systemSoftRegistryPassword" jdbcType="VARCHAR"/>
         <result column="system_soft_registry_email" property="systemSoftRegistryEmail" jdbcType="VARCHAR"/>
         <result column="system_soft_registry_server_id" property="systemSoftRegistryServerId" jdbcType="INTEGER"/>
-        <result column="system_soft_registry_is_default" property="systemSoftRegistryIsDefault" jdbcType="INTEGER"/>
+        <result column="system_soft_registry_status" property="systemSoftRegistryIsDefault" jdbcType="INTEGER"/>
         <result column="system_soft_registry_ssl_enabled" property="systemSoftRegistrySslEnabled" jdbcType="INTEGER"/>
         <result column="system_soft_registry_support_sync" property="systemSoftRegistrySupportSync" jdbcType="INTEGER"/>
         <result column="system_soft_registry_timeout" property="systemSoftRegistryTimeout" jdbcType="INTEGER"/>
@@ -34,7 +34,7 @@
         system_soft_registry_id, system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
         system_soft_registry_username, system_soft_registry_password, system_soft_registry_email,
         system_soft_registry_server_id,
-        system_soft_registry_is_default, system_soft_registry_ssl_enabled, system_soft_registry_support_sync, system_soft_registry_timeout,
+        system_soft_registry_status, system_soft_registry_ssl_enabled, system_soft_registry_support_sync, system_soft_registry_timeout,
         system_soft_registry_description, system_soft_registry_config, system_soft_registry_last_connect_time,
         system_soft_registry_connect_status, system_soft_registry_error_message, system_soft_registry_sort,
         system_soft_registry_status, create_time, update_time, create_by, update_by
@@ -64,7 +64,7 @@
     <select id="selectDefaultRegistry" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/>
         FROM system_soft_registry
-        WHERE system_soft_registry_is_default = 1
+        WHERE system_soft_registry_status = 1
         ORDER BY update_time DESC
         LIMIT 1
     </select>
@@ -73,14 +73,14 @@
     <select id="selectDefaultRegistries" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/>
         FROM system_soft_registry
-        WHERE system_soft_registry_is_default = 1
+        WHERE system_soft_registry_status = 1
         ORDER BY update_time DESC
     </select>
 
     <select id="selectDefaultRegistryByServerId" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/>
         FROM system_soft_registry
-        WHERE system_soft_registry_is_default = 1
+        WHERE system_soft_registry_status = 1
           AND system_soft_registry_server_id = #{serverId}
         ORDER BY update_time DESC
         LIMIT 1
@@ -136,25 +136,25 @@
 
     <update id="updateDefaultFlag">
         UPDATE system_soft_registry
-        SET system_soft_registry_is_default = 1,
+        SET system_soft_registry_status = 1,
             update_time = NOW()
         WHERE system_soft_registry_id = #{registryId}
     </update>
 
     <update id="cancelDefaultFlag">
         UPDATE system_soft_registry
-        SET system_soft_registry_is_default = 0,
+        SET system_soft_registry_status = 0,
             update_time = NOW()
         WHERE system_soft_registry_id = #{registryId}
     </update>
 
     <update id="clearAllDefaultFlags">
-        UPDATE system_soft_registry SET system_soft_registry_is_default = 0
+        UPDATE system_soft_registry SET system_soft_registry_status = 0
     </update>
 
     <update id="clearDefaultFlagsByServerId">
         UPDATE system_soft_registry
-        SET system_soft_registry_is_default = 0
+        SET system_soft_registry_status = 0
         WHERE system_soft_registry_server_id = #{serverId}
     </update>
 

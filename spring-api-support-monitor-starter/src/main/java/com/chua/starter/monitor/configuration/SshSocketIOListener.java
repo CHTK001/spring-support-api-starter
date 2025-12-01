@@ -72,10 +72,10 @@ public class SshSocketIOListener implements SocketIOListener {
             // 这里需要根据serverId获取服务器信息
             // MonitorSysGenServer server = getServerById(serverId);
             // boolean connected = sshService.connect(server);
-            
+
             // 临时返回成功
             session.send("ssh/connected", ReturnResult.success("SSH连接成功"));
-            
+
         } catch (Exception e) {
             log.error("SSH连接失败: {}", e.getMessage(), e);
             session.send("ssh/error", ReturnResult.illegal("SSH连接失败: " + e.getMessage()));
@@ -100,7 +100,7 @@ public class SshSocketIOListener implements SocketIOListener {
             }
 
             session.send("ssh/disconnected", ReturnResult.success("SSH连接已断开"));
-            
+
         } catch (Exception e) {
             log.error("SSH断开连接失败: {}", e.getMessage(), e);
             session.send("ssh/error", ReturnResult.illegal("SSH断开连接失败: " + e.getMessage()));
@@ -115,12 +115,12 @@ public class SshSocketIOListener implements SocketIOListener {
         try {
             Integer serverId = data.getInteger("serverId");
             String command = data.getString("command");
-            
+
             if (serverId == null) {
                 session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
                 return;
             }
-            
+
             if (StringUtils.isEmpty(command)) {
                 session.send("ssh/error", ReturnResult.illegal("命令不能为空"));
                 return;
@@ -134,7 +134,7 @@ public class SshSocketIOListener implements SocketIOListener {
 
             String result = sshService.executeCommand(serverId, command);
             session.send("ssh/command-result", ReturnResult.success(result));
-            
+
         } catch (Exception e) {
             log.error("SSH命令执行失败: {}", e.getMessage(), e);
             session.send("ssh/error", ReturnResult.illegal("SSH命令执行失败: " + e.getMessage()));
@@ -149,7 +149,7 @@ public class SshSocketIOListener implements SocketIOListener {
         try {
             Integer serverId = data.getInteger("serverId");
             String inputData = data.getString("data");
-            
+
             if (serverId == null) {
                 session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
                 return;
@@ -159,7 +159,7 @@ public class SshSocketIOListener implements SocketIOListener {
             if (sshService != null) {
                 sshService.sendData(serverId, inputData);
             }
-            
+
         } catch (Exception e) {
             log.error("SSH数据发送失败: {}", e.getMessage(), e);
             session.send("ssh/error", ReturnResult.illegal("SSH数据发送失败: " + e.getMessage()));
@@ -175,7 +175,7 @@ public class SshSocketIOListener implements SocketIOListener {
             Integer serverId = data.getInteger("serverId");
             Integer width = data.getInteger("width");
             Integer height = data.getInteger("height");
-            
+
             if (serverId == null || width == null || height == null) {
                 session.send("ssh/error", ReturnResult.illegal("参数不完整"));
                 return;
@@ -185,7 +185,7 @@ public class SshSocketIOListener implements SocketIOListener {
             if (sshService != null) {
                 sshService.resizeTerminal(serverId, width, height);
             }
-            
+
         } catch (Exception e) {
             log.error("SSH终端大小调整失败: {}", e.getMessage(), e);
             session.send("ssh/error", ReturnResult.illegal("SSH终端大小调整失败: " + e.getMessage()));
@@ -311,7 +311,7 @@ public class SshSocketIOListener implements SocketIOListener {
                 broadcastMessage(response);
 
                 // 也发送给当前会话
-                session.send("gen/server", Json.toJson(response));
+//                session.send("gen/server", Json.toJson(response));
 
                 log.info("SSH连接成功: serverId={}", serverId);
             } else {
