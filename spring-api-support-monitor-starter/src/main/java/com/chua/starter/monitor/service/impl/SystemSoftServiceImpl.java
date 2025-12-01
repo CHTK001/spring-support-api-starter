@@ -19,7 +19,6 @@ import com.chua.starter.monitor.entity.*;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.*;
-import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftService;
 import com.chua.starter.monitor.service.SystemSoftVersionService;
@@ -231,16 +230,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             if (registry.getSystemSoftRegistrySupportSync() == null || registry.getSystemSoftRegistrySupportSync() != 1) {
                 return ReturnResult.error("该仓库不支持同步");
             }
-            if (registry.getSystemSoftRegistryServerId() == null) {
-                return ReturnResult.error("仓库未绑定服务器，无法使用Docker客户端同步");
-            }
 
-            // 使用 DockerProtocolClient 在绑定服务器上列举镜像，并同步到软件表
-            int syncCount = doDockerClientListSync(registry);
-
-            log.info("同步软件信息完成 - 同步数量: {}", syncCount);
-            return ReturnResult.ok(syncCount, "同步成功，共同步" + syncCount + "个软件");
-
+            return ReturnResult.ok(0);
         } catch (Exception e) {
             log.error("从仓库同步软件信息异常 - registryId: {}", registryId, e);
             return ReturnResult.error("同步异常: " + e.getMessage());
@@ -480,16 +471,16 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Integer> importOnlineItems(List<SystemSoft> items) {
         log.info("批量导入在线检索的软件 - 数量: {}", items == null ? 0 : items.size());
-        
+
         if (items == null || items.isEmpty()) {
             return ReturnResult.error("导入列表为空");
         }
-        
+
         int savedCount = 0;
         int updatedCount = 0;
         int skippedCount = 0;
         LocalDateTime now = LocalDateTime.now();
-        
+
         for (SystemSoft item : items) {
             try {
                 // 验证必要字段
@@ -498,23 +489,23 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     skippedCount++;
                     continue;
                 }
-                
+
                 if (!StringUtils.hasText(item.getSystemSoftName())) {
                     log.warn("软件名称为空，跳过导入 - code: {}", item.getSystemSoftCode());
                     skippedCount++;
                     continue;
                 }
-                
+
                 // 检查是否已存在（根据代码）
                 LambdaQueryWrapper<SystemSoft> queryWrapper = Wrappers.lambdaQuery(SystemSoft.class)
                         .eq(SystemSoft::getSystemSoftCode, item.getSystemSoftCode());
                 SystemSoft existingSoft = systemSoftMapper.selectOne(queryWrapper);
-                
+
                 if (existingSoft == null) {
                     // 不存在，插入新记录
                     item.setCreateTime(now);
                     item.setUpdateTime(now);
-                    
+
                     // 设置默认值
                     if (item.getSystemSoftStatus() == null) {
                         item.setSystemSoftStatus(1);
@@ -522,7 +513,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     if (item.getSystemSoftIsOfficial() == null) {
                         item.setSystemSoftIsOfficial(0);
                     }
-                    
+
                     systemSoftMapper.insert(item);
                     savedCount++;
                     log.debug("新增软件 - code: {}, name: {}", item.getSystemSoftCode(), item.getSystemSoftName());
@@ -532,7 +523,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     existingSoft.setSystemSoftDesc(item.getSystemSoftDesc());
                     existingSoft.setSystemSoftIcon(item.getSystemSoftIcon());
                     existingSoft.setSystemSoftDockerImage(item.getSystemSoftDockerImage());
-                    
+
                     // 更新统计信息
                     if (item.getSystemSoftStarCount() != null) {
                         existingSoft.setSystemSoftStarCount(item.getSystemSoftStarCount());
@@ -540,24 +531,24 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     if (item.getSystemSoftPullCount() != null) {
                         existingSoft.setSystemSoftPullCount(item.getSystemSoftPullCount());
                     }
-                    
+
                     existingSoft.setUpdateTime(now);
                     systemSoftMapper.updateById(existingSoft);
                     updatedCount++;
                     log.debug("更新软件 - code: {}, name: {}", item.getSystemSoftCode(), item.getSystemSoftName());
                 }
             } catch (Exception e) {
-                log.error("导入软件失败 - code: {}, name: {}, error: {}", 
+                log.error("导入软件失败 - code: {}, name: {}, error: {}",
                         item.getSystemSoftCode(), item.getSystemSoftName(), e.getMessage(), e);
                 skippedCount++;
             }
         }
-        
-        log.info("批量导入完成 - 新增: {}, 更新: {}, 跳过: {}, 总计: {}", 
+
+        log.info("批量导入完成 - 新增: {}, 更新: {}, 跳过: {}, 总计: {}",
                 savedCount, updatedCount, skippedCount, items.size());
-        
-        return ReturnResult.ok(savedCount + updatedCount, 
-                String.format("成功导入 %d 个软件（新增 %d，更新 %d，跳过 %d）", 
+
+        return ReturnResult.ok(savedCount + updatedCount,
+                String.format("成功导入 %d 个软件（新增 %d，更新 %d，跳过 %d）",
                         savedCount + updatedCount, savedCount, updatedCount, skippedCount));
     }
 
@@ -1078,85 +1069,6 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             log.error("拉取镜像失败 - 错误信息: {}", e.getMessage(), e);
             return ReturnResult.error("拉取镜像失败: " + e.getMessage());
         }
-    }
-
-    /**
-     * 使用 DockerProtocolClient 列举镜像并同步为 SystemSoft
-     * <p>
-     * 实现要点：
-     * 1) 在绑定服务器上创建 Docker 客户端
-     * 2) 反射适配 listImage/listImages 等可能的签名
-     * 3) 提取仓库名（去除标签）并入库
-     *
-     * @param registry 仓库配置
-     * @return 新增或更新数量
-     * @author CH
-     * @version 1.0.0
-     * @since 2025/10/18
-     */
-    private int doDockerClientListSync(SystemSoftRegistry registry) {
-        Integer serverId = registry.getSystemSoftRegistryServerId();
-        if (serverId == null) {
-            return 0;
-        }
-        int total = 0;
-        try {
-            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
-            if (dockerClient == null) {
-                log.warn("无法创建Docker客户端 - serverId: {}", serverId);
-                return 0;
-            }
-
-            List<?> items = tryInvokeListImages(dockerClient, registry);
-            if (items == null || items.isEmpty()) {
-                log.debug("未从 Docker 客户端获取到镜像列表");
-                return 0;
-            }
-
-            for (Object it : items) {
-                for (String baseImage : extractRepoNames(it)) {
-                    if (!StringUtils.hasText(baseImage)) {
-                        continue;
-                    }
-                    String softName = baseImage.contains("/") ? baseImage.substring(baseImage.lastIndexOf('/') + 1) : baseImage;
-                    String softCode = baseImage.replace('/', '_');
-                    LocalDateTime now = LocalDateTime.now();
-
-                    SystemSoft existed = systemSoftMapper.selectByDockerImage(baseImage);
-                    if (existed == null) {
-                        SystemSoft soft = new SystemSoft();
-                        soft.setSystemSoftName(softName);
-                        soft.setSystemSoftCode(softCode);
-                        soft.setSystemSoftDockerImage(baseImage);
-                        soft.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
-                        soft.setSystemSoftStatus(1);
-                        soft.setSystemSoftIsOfficial(0);
-                        soft.setCreateTime(now);
-                        soft.setUpdateTime(now);
-                        systemSoftMapper.insert(soft);
-                        total++;
-                    } else {
-                        existed.setSystemSoftRegistryId(registry.getSystemSoftRegistryId());
-                        existed.setUpdateTime(now);
-                        if (!StringUtils.hasText(existed.getSystemSoftName())) {
-                            existed.setSystemSoftName(softName);
-                        }
-                        if (!StringUtils.hasText(existed.getSystemSoftCode())) {
-                            existed.setSystemSoftCode(softCode);
-                        }
-                        if (existed.getSystemSoftStatus() == null) {
-                            existed.setSystemSoftStatus(1);
-                        }
-                        systemSoftMapper.updateById(existed);
-                        total++;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.warn("基于 Docker 客户端列举镜像失败: {}", e.getMessage());
-            return 0;
-        }
-        return total;
     }
 
     /**

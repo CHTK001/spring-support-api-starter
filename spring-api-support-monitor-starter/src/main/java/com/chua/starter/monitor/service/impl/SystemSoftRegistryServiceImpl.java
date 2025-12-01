@@ -94,9 +94,6 @@ public class SystemSoftRegistryServiceImpl extends ServiceImpl<SystemSoftRegistr
                 return ReturnResult.error("仓库未启用，无法设置为默认仓库");
             }
 
-            // 清除该服务器下的默认标识（一台服务器仅允许一个默认仓库）
-            systemSoftRegistryMapper.clearDefaultFlagsByServerId(registry.getSystemSoftRegistryServerId());
-
             // 设置新的默认仓库
             systemSoftRegistryMapper.updateDefaultFlag(registryId);
 
