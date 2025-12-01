@@ -47,7 +47,6 @@ public class SystemSoftRegistryController {
             log.debug("查询仓库列表(默认优先)");
 
             List<SystemSoftRegistry> list = systemSoftRegistryService.lambdaQuery()
-                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryIsDefault)
                     .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
                     .list();
             log.debug("查询仓库列表成功, count: {}", list.size());
@@ -76,7 +75,6 @@ public class SystemSoftRegistryController {
             log.debug("分页查询仓库列表(默认优先), page: {}, size: {}", page, size);
 
             IPage<SystemSoftRegistry> pageResult = systemSoftRegistryService.lambdaQuery()
-                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryIsDefault)
                     .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
                     .page(new Page<>(page, size));
             log.debug("分页查询仓库列表成功, count: {}", pageResult.getRecords().size());
@@ -286,7 +284,7 @@ public class SystemSoftRegistryController {
                     .eq(SystemSoftRegistry::getSystemSoftRegistryId, id)
                     .set(SystemSoftRegistry::getSystemSoftRegistryActive, 1)
                     .update();
-            
+
             if (updated) {
                 log.info("激活仓库成功, id: {}", id);
                 return ReturnResult.ok(true, "激活成功");
@@ -317,7 +315,7 @@ public class SystemSoftRegistryController {
                     .eq(SystemSoftRegistry::getSystemSoftRegistryId, id)
                     .set(SystemSoftRegistry::getSystemSoftRegistryActive, 0)
                     .update();
-            
+
             if (updated) {
                 log.info("取消激活仓库成功, id: {}", id);
                 return ReturnResult.ok(true, "已取消激活");
@@ -347,7 +345,7 @@ public class SystemSoftRegistryController {
                     .eq(SystemSoftRegistry::getSystemSoftRegistryActive, 1)
                     .eq(SystemSoftRegistry::getSystemSoftRegistryStatus, 1)
                     .list();
-            
+
             log.debug("获取激活仓库完成, count: {}", list.size());
             return ReturnResult.ok(list);
 
@@ -467,7 +465,7 @@ public class SystemSoftRegistryController {
             log.debug("根据类型获取仓库, type: {}", type);
 
             ReturnResult<List<SystemSoftRegistry>> result = systemSoftRegistryService.getRegistriesByType(type);
-            log.debug("根据类型获取仓库完成, type: {}, count: {}", type, 
+            log.debug("根据类型获取仓库完成, type: {}, count: {}", type,
                     result.getData() != null ? result.getData().size() : 0);
             return result;
 
