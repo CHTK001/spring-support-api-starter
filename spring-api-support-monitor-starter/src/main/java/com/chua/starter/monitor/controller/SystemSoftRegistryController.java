@@ -270,6 +270,94 @@ public class SystemSoftRegistryController {
     }
 
     /**
+     * 激活仓库
+     *
+     * @param id 仓库ID
+     * @return 激活结果
+     */
+    @PostMapping("/{id}/activate")
+    @Operation(summary = "激活仓库", description = "激活指定仓库，激活的仓库用于软件搜索")
+    public ReturnResult<Boolean> activate(@Parameter(description = "仓库ID") @PathVariable @NotNull Integer id) {
+
+        try {
+            log.debug("激活仓库, id: {}", id);
+
+            boolean updated = systemSoftRegistryService.lambdaUpdate()
+                    .eq(SystemSoftRegistry::getSystemSoftRegistryId, id)
+                    .set(SystemSoftRegistry::getSystemSoftRegistryActive, 1)
+                    .update();
+            
+            if (updated) {
+                log.info("激活仓库成功, id: {}", id);
+                return ReturnResult.ok(true, "激活成功");
+            } else {
+                return ReturnResult.error("激活失败，仓库不存在");
+            }
+
+        } catch (Exception e) {
+            log.error("激活仓库失败, id: {}", id, e);
+            return ReturnResult.error("激活失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 取消激活仓库
+     *
+     * @param id 仓库ID
+     * @return 取消激活结果
+     */
+    @PostMapping("/{id}/deactivate")
+    @Operation(summary = "取消激活仓库", description = "取消激活指定仓库")
+    public ReturnResult<Boolean> deactivate(@Parameter(description = "仓库ID") @PathVariable @NotNull Integer id) {
+
+        try {
+            log.debug("取消激活仓库, id: {}", id);
+
+            boolean updated = systemSoftRegistryService.lambdaUpdate()
+                    .eq(SystemSoftRegistry::getSystemSoftRegistryId, id)
+                    .set(SystemSoftRegistry::getSystemSoftRegistryActive, 0)
+                    .update();
+            
+            if (updated) {
+                log.info("取消激活仓库成功, id: {}", id);
+                return ReturnResult.ok(true, "已取消激活");
+            } else {
+                return ReturnResult.error("取消激活失败，仓库不存在");
+            }
+
+        } catch (Exception e) {
+            log.error("取消激活仓库失败, id: {}", id, e);
+            return ReturnResult.error("取消激活失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取激活的仓库列表
+     *
+     * @return 激活的仓库列表
+     */
+    @GetMapping("/active")
+    @Operation(summary = "获取激活的仓库", description = "获取所有激活状态的镜像仓库列表，用于软件搜索")
+    public ReturnResult<List<SystemSoftRegistry>> getActive() {
+
+        try {
+            log.debug("获取激活的仓库");
+
+            List<SystemSoftRegistry> list = systemSoftRegistryService.lambdaQuery()
+                    .eq(SystemSoftRegistry::getSystemSoftRegistryActive, 1)
+                    .eq(SystemSoftRegistry::getSystemSoftRegistryStatus, 1)
+                    .list();
+            
+            log.debug("获取激活仓库完成, count: {}", list.size());
+            return ReturnResult.ok(list);
+
+        } catch (Exception e) {
+            log.error("获取激活仓库失败", e);
+            return ReturnResult.error("获取失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 设置默认仓库
      *
      * @param id 仓库ID
