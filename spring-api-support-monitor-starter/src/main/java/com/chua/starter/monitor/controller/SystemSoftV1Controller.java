@@ -178,6 +178,55 @@ public class SystemSoftV1Controller {
     }
 
     /**
+     * 获取软件统计信息
+     *
+     * 方法说明: 提供软件统计数据，包括总数、启用数、禁用数、官方软件数等
+     * 入参: 无
+     * 出参: ReturnResult<Map<String, Object>> 统计结果
+     *
+     * @return 软件统计信息
+     * @author CH
+     * @since 1.0.0
+     */
+    @Operation(summary = "获取软件统计信息(v1)", description = "获取软件总数、启用数、禁用数、官方软件数等统计数据")
+    @GetMapping("/stats")
+    public ReturnResult<Map<String, Object>> getSoftwareStats() {
+        try {
+            log.debug("[v1] 获取软件统计信息");
+
+            // 统计总数
+            long totalSoftware = systemSoftService.count();
+
+            // 统计启用数
+            QueryWrapper<SystemSoft> enabledWrapper = new QueryWrapper<>();
+            enabledWrapper.eq("system_soft_status", 1);
+            long enabledSoftware = systemSoftService.count(enabledWrapper);
+
+            // 统计禁用数
+            long disabledSoftware = totalSoftware - enabledSoftware;
+
+            // 统计官方软件数
+            QueryWrapper<SystemSoft> officialWrapper = new QueryWrapper<>();
+            officialWrapper.eq("system_soft_is_official", 1);
+            long officialSoftware = systemSoftService.count(officialWrapper);
+
+            // 构建返回结果
+            Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("totalSoftware", totalSoftware);
+            stats.put("enabledSoftware", enabledSoftware);
+            stats.put("disabledSoftware", disabledSoftware);
+            stats.put("officialSoftware", officialSoftware);
+
+            log.debug("[v1] 获取软件统计信息成功: total={}, enabled={}, disabled={}, official={}",
+                    totalSoftware, enabledSoftware, disabledSoftware, officialSoftware);
+            return ReturnResult.ok(stats);
+        } catch (Exception e) {
+            log.error("[v1] 获取软件统计信息失败", e);
+            return ReturnResult.error("获取统计信息失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 分页查询软件列表
      *
      * 方法说明: 提供与前端约定的分页查询接口，等价于旧接口的功能。

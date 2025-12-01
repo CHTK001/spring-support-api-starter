@@ -182,8 +182,8 @@ public class SystemSoftRegistry extends SysBase {
      * 状态(0:禁用, 1:启用)
      */
     @TableField("system_soft_registry_status")
-    @ApiModelProperty(value = "状态")
-    @Schema(description = "状态")
+    @ApiModelProperty(value = "状态(0:禁用, 1:启用)")
+    @Schema(description = "状态(0:禁用, 1:启用)")
     @NotNull(message = "状态不能为空", groups = {AddGroup.class, UpdateGroup.class})
     private Integer systemSoftRegistryStatus;
 }
