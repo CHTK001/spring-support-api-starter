@@ -96,21 +96,13 @@ public class SystemSoftRegistry extends SysBase {
     private String systemSoftRegistryEmail;
 
     /**
-     * 绑定服务器ID（可选）
-     * 指定该仓库由哪个服务器使用，为空表示全局仓库
+     * 是否激活(0:否, 1:是)
+     * 激活的仓库用于软件搜索
      */
-    @TableField("system_soft_registry_server_id")
-    @ApiModelProperty(value = "绑定服务器ID")
-    @Schema(description = "绑定服务器ID，为空表示全局仓库")
-    private Integer systemSoftRegistryServerId;
-
-    /**
-     * 是否为默认仓库(0:否, 1:是)
-     */
-    @TableField("system_soft_registry_is_default")
-    @ApiModelProperty(value = "是否为默认仓库")
-    @Schema(description = "是否为默认仓库")
-    private Integer systemSoftRegistryIsDefault;
+    @TableField("system_soft_registry_active")
+    @ApiModelProperty(value = "是否激活")
+    @Schema(description = "是否激活，激活的仓库用于软件搜索")
+    private Integer systemSoftRegistryActive;
 
     /**
      * 是否启用SSL(0:否, 1:是)
