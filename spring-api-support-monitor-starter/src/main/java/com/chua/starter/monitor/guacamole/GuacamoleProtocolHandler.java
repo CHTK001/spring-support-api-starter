@@ -39,24 +39,23 @@ public class GuacamoleProtocolHandler {
                 return null;
             }
 
-            switch (type) {
-                case "move":
-                    return createInstruction("mouse", x.toString(), y.toString());
-                case "down":
-                    return createInstruction("mouse", x.toString(), y.toString(), "1");
-                case "up":
-                    return createInstruction("mouse", x.toString(), y.toString(), "0");
-                case "click":
+            return switch (type) {
+                case "move" -> createInstruction("mouse", x.toString(), y.toString());
+                case "down" -> createInstruction("mouse", x.toString(), y.toString(), "1");
+                case "up" -> createInstruction("mouse", x.toString(), y.toString(), "0");
+                case "click" ->
                     // 点击事件：先按下再释放
-                    return createInstruction("mouse", x.toString(), y.toString(), "1") + 
-                           createInstruction("mouse", x.toString(), y.toString(), "0");
-                case "scroll":
+                    createInstruction("mouse", x.toString(), y.toString(), "1") +
+                        createInstruction("mouse", x.toString(), y.toString(), "0");
+                case "scroll" -> {
                     Integer delta = MapUtils.getInteger(data, "delta", 0);
-                    return createInstruction("mouse", x.toString(), y.toString(), "0", delta.toString());
-                default:
+                    yield createInstruction("mouse", x.toString(), y.toString(), "0", delta.toString());
+                }
+                default -> {
                     log.warn("未知的鼠标事件类型: {}", type);
-                    return null;
-            }
+                    yield null;
+                }
+            };
         } catch (Exception e) {
             log.error("处理鼠标事件失败: {}", e.getMessage(), e);
             return null;
@@ -87,21 +86,18 @@ public class GuacamoleProtocolHandler {
                 return null;
             }
 
-            switch (type) {
-                case "down":
-                case "keydown":
-                    return createInstruction("key", keyCode.toString(), "1");
-                case "up":
-                case "keyup":
-                    return createInstruction("key", keyCode.toString(), "0");
-                case "press":
+            return switch (type) {
+                case "down", "keydown" -> createInstruction("key", keyCode.toString(), "1");
+                case "up", "keyup" -> createInstruction("key", keyCode.toString(), "0");
+                case "press" ->
                     // 按键事件：先按下再释放
-                    return createInstruction("key", keyCode.toString(), "1") + 
-                           createInstruction("key", keyCode.toString(), "0");
-                default:
+                    createInstruction("key", keyCode.toString(), "1") +
+                        createInstruction("key", keyCode.toString(), "0");
+                default -> {
                     log.warn("未知的键盘事件类型: {}", type);
-                    return null;
-            }
+                    yield null;
+                }
+            };
         } catch (Exception e) {
             log.error("处理键盘事件失败: {}", e.getMessage(), e);
             return null;
@@ -114,7 +110,7 @@ public class GuacamoleProtocolHandler {
     public static String createInstruction(String opcode, String... args) {
         StringBuilder instruction = new StringBuilder();
         instruction.append(opcode.length()).append(".").append(opcode);
-        
+
         for (String arg : args) {
             if (arg != null) {
                 instruction.append(INSTRUCTION_SEPARATOR)
@@ -123,7 +119,7 @@ public class GuacamoleProtocolHandler {
                           .append(arg);
             }
         }
-        
+
         instruction.append(INSTRUCTION_TERMINATOR);
         return instruction.toString();
     }
@@ -146,21 +142,21 @@ public class GuacamoleProtocolHandler {
             // 解析指令
             List<String> elements = new ArrayList<>();
             int index = 0;
-            
+
             while (index < data.length()) {
                 // 查找长度
                 int dotIndex = data.indexOf('.', index);
                 if (dotIndex == -1) { break; }
-                
+
                 int length = Integer.parseInt(data.substring(index, dotIndex));
                 int startIndex = dotIndex + 1;
                 int endIndex = startIndex + length;
-                
+
                 if (endIndex > data.length()) { break; }
-                
+
                 String element = data.substring(startIndex, endIndex);
                 elements.add(element);
-                
+
                 index = endIndex;
                 if (index < data.length() && data.charAt(index) == ',') {
                     index++; // 跳过分隔符
@@ -173,9 +169,9 @@ public class GuacamoleProtocolHandler {
 
             String opcode = elements.get(0);
             String[] args = elements.subList(1, elements.size()).toArray(new String[0]);
-            
+
             return new GuacamoleInstruction(opcode, args);
-            
+
         } catch (Exception e) {
             log.error("解析Guacamole指令失败: instructionData={}, error={}", instructionData, e.getMessage(), e);
             return null;
