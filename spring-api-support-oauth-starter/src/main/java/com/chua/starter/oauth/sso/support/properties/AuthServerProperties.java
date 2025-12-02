@@ -408,6 +408,28 @@ public class AuthServerProperties {
     private Integer grpcPort = 9090;
 
     /**
+     * Armeria服务器端口
+     * <p>
+     * Armeria协议服务器监听端口
+     * </p>
+     * <p>
+     * 默认值：9091
+     * </p>
+     */
+    private Integer armeriaPort = 9091;
+
+    /**
+     * RSocket服务器端口
+     * <p>
+     * RSocket协议服务器监听端口
+     * </p>
+     * <p>
+     * 默认值：7000
+     * </p>
+     */
+    private Integer rsocketPort = 7000;
+
+    /**
      * 是否启用gRPC TLS加密
      * <p>
      * 生产环境建议启用TLS加密以确保通信安全
