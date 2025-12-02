@@ -117,6 +117,13 @@
             <version>4.0.0</version>
         </dependency>
 
+        <!-- Armeria 依赖 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-armeria-starter</artifactId>
+            <version>4.0.0.33</version>
+        </dependency>
+
         <!-- gRPC 依赖 -->
         <dependency>
             <groupId>io.grpc</groupId>
