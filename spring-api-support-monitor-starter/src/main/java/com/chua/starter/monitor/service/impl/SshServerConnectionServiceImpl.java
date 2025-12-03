@@ -71,8 +71,8 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             if (server.getMonitorSysGenServerTimeout() != null) {
                 config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
             }
-
-            SshClient sshClient = ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SshClient.class, config.build());
+            ClientSetting clientSetting = config.build();
+            SshClient sshClient = ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SshClient.class, clientSetting);
             serverConfigCache.put(serverId, server);
             connectionStatusMap.put(serverId, sshClient);
 

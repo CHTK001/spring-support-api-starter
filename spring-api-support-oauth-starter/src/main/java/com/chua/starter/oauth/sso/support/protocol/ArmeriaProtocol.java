@@ -4,21 +4,18 @@ import com.chua.common.support.annotations.Extension;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
-import com.chua.starter.oauth.client.support.enums.LogoutType;
-import com.chua.starter.oauth.client.support.user.LoginResult;
-import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.information.TcpAuthInformation;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
 import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
 import com.chua.starter.oauth.sso.support.parser.UpgradeAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
@@ -32,7 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.net.InetSocketAddress;
 
 /**
  * Armeria 协议实现
@@ -67,7 +64,7 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
     private void initializeArmeriaServer() {
         try {
             int port = authServerProperties.getArmeriaPort() != null ? 
-                    authServerProperties.getArmeriaPort() : 9090;
+                    authServerProperties.getArmeriaPort() : 9091;
             
             ServerBuilder builder = Server.builder();
             builder.http(port);
@@ -87,29 +84,46 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
     /**
      * 注册 OAuth 端点
      *
-     * @param builder ServerBuilder
+     * @param builder ServerBuilder 服务器构建器
      */
     private void registerOAuthEndpoints(ServerBuilder builder) {
-        String contextPath = authServerProperties.getContextPath();
+        String contextPath = authServerProperties.getContextPath() != null 
+                ? authServerProperties.getContextPath() : "";
         
         // OAuth 认证端点
         builder.service(contextPath + "/oauth", (ctx, req) -> {
             try {
                 String body = req.aggregate().join().contentUtf8();
-                Map<String, Object> params = Json.fromJson(body, Map.class);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
-                OauthAuthorization authorization = applicationContext.getBean(OauthAuthorization.class);
-                OauthAuthInformation information = authorization.parser(params);
+                // 创建适配器请求/响应对象
+                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
+                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
                 
-                ReturnResult<UserResult> result = new ReturnResult<>();
-                result.setCode(String.valueOf(information.getCode()));
-                result.setMsg(information.getMessage());
-                result.setData(information.getUserResult());
+                // 创建认证信息
+                OauthAuthInformation authInformation = new OauthAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        tcpRequest,
+                        tcpResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                // 验证签名
+                if (!authInformation.isSuccessful()) {
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
+                }
+                
+                // 执行认证
+                OauthAuthorization authorization = authInformation.authorization();
+                ReturnResult<String> result = authorization.authentication();
                 
                 return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(result));
             } catch (Exception e) {
                 log.error("OAuth 认证失败", e);
-                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.error("OAuth认证失败: " + e.getMessage())));
             }
         });
         
@@ -119,20 +133,34 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 String body = req.aggregate().join().contentUtf8();
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
-                LoginAuthorization authorization = applicationContext.getBean(LoginAuthorization.class);
-                LoginAuthInformation information = authorization.parser(authRequest);
+                // 创建适配器请求/响应对象
+                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
+                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
                 
-                LoginResult loginResult = new LoginResult();
-                loginResult.setCode(information.getCode());
-                loginResult.setMessage(information.getMessage());
-                loginResult.setToken(information.getToken());
-                loginResult.setRefreshToken(information.getRefreshToken());
-                loginResult.setUserResume(information.getUserResume());
+                // 创建登录认证信息
+                LoginAuthInformation authInformation = new LoginAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        tcpRequest,
+                        tcpResponse,
+                        applicationContext,
+                        loginCheck);
                 
-                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(loginResult));
+                // 验证签名
+                if (!authInformation.isSuccessful()) {
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
+                }
+                
+                // 执行登录
+                LoginAuthorization authorization = authInformation.authorization();
+                ReturnResult<String> result = authorization.authentication();
+                
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(result));
             } catch (Exception e) {
                 log.error("登录失败", e);
-                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.error("登录失败: " + e.getMessage())));
             }
         });
         
@@ -140,22 +168,36 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
         builder.service(contextPath + "/logout", (ctx, req) -> {
             try {
                 String body = req.aggregate().join().contentUtf8();
-                Map<String, Object> params = Json.fromJson(body, Map.class);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
-                LogoutAuthorization authorization = applicationContext.getBean(LogoutAuthorization.class);
-                LogoutAuthInformation information = authorization.parser(
-                        (String) params.get("uid"),
-                        LogoutType.valueOf((String) params.get("logoutType"))
-                );
+                // 创建适配器请求/响应对象
+                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
+                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
                 
-                ReturnResult<Void> result = new ReturnResult<>();
-                result.setCode(String.valueOf(information.getCode()));
-                result.setMsg(information.getMessage());
+                // 创建登出认证信息
+                LogoutAuthInformation authInformation = new LogoutAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        tcpRequest,
+                        tcpResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                // 验证签名
+                if (!authInformation.isSuccessful()) {
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
+                }
+                
+                // 执行登出
+                LogoutAuthorization authorization = authInformation.authorization();
+                ReturnResult<String> result = authorization.authentication();
                 
                 return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(result));
             } catch (Exception e) {
                 log.error("登出失败", e);
-                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.error("登出失败: " + e.getMessage())));
             }
         });
         
@@ -163,22 +205,58 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
         builder.service(contextPath + "/upgrade", (ctx, req) -> {
             try {
                 String body = req.aggregate().join().contentUtf8();
-                Map<String, Object> params = Json.fromJson(body, Map.class);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
-                UpgradeAuthorization authorization = applicationContext.getBean(UpgradeAuthorization.class);
-                UpgradeAuthInformation information = authorization.parser(params);
+                // 创建适配器请求/响应对象
+                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
+                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
                 
-                ReturnResult<UserResult> result = new ReturnResult<>();
-                result.setCode(String.valueOf(information.getCode()));
-                result.setMsg(information.getMessage());
-                result.setData(information.getUserResult());
+                // 创建升级认证信息
+                UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        tcpRequest,
+                        tcpResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                // 验证签名
+                if (!authInformation.isSuccessful()) {
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
+                }
+                
+                // 执行升级
+                UpgradeAuthorization authorization = authInformation.authorization();
+                ReturnResult<String> result = authorization.authentication();
                 
                 return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(result));
             } catch (Exception e) {
                 log.error("升级失败", e);
-                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.error("升级失败: " + e.getMessage())));
             }
         });
+    }
+
+    /**
+     * 从 Armeria 请求创建 TcpRequest 适配器
+     *
+     * @param ctx Armeria 服务上下文
+     * @param req Armeria HTTP 请求
+     * @return TcpRequest 适配器对象
+     */
+    private TcpAuthInformation.TcpRequest createTcpRequest(
+            com.linecorp.armeria.server.ServiceRequestContext ctx, 
+            com.linecorp.armeria.common.HttpRequest req) {
+        // 获取客户端地址
+        InetSocketAddress clientAddress = ctx.remoteAddress();
+        TcpAuthInformation.TcpRequest tcpRequest = new TcpAuthInformation.TcpRequest(clientAddress);
+        
+        // 复制请求头到 TcpRequest
+        req.headers().forEach(header -> tcpRequest.setHeader(header.getKey().toString(), header.getValue()));
+        
+        return tcpRequest;
     }
 
     /**
