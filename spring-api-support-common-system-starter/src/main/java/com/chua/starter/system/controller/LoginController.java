@@ -1,10 +1,10 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.constant.Action;
+import com.chua.common.support.task.debounce.Debounce;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLogger;
-import com.chua.starter.common.support.debounce.Debounce;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
