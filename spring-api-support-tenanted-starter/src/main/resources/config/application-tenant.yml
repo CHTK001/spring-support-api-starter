@@ -1,3 +1,45 @@
+# 租户模块配置
 plugin:
-  tenant:
-    enable: true
+  mybatis-plus:
+    tenant:
+      # 是否启用租户功能
+      enable: true
+      # 租户ID字段名
+      tenant-id: sys_tenant_id
+      # 是否自动添加租户字段（生产环境请设置为false）
+      auto-add-column: false
+      # 忽略的表（这些表不会被租户拦截器过滤）
+      ignore-table:
+        - sys_user
+        - sys_role
+        - sys_config
+        - sys_dict
+        - sys_tenant
+      # 同步协议配置（客户端模式）
+      sync-protocol:
+        # 是否启用同步协议
+        enable: true
+        # 程序类型：client-客户端
+        type: client
+        # 协议类型：rsocket（RSocket长连接，默认）、websocket-sync（WebSocket长连接）
+        protocol: rsocket
+        # 服务端地址
+        server-address: ws://localhost:19280
+        # 心跳开关
+        heartbeat: true
+        # 心跳间隔（秒）
+        heartbeat-interval: 30
+        # 连接超时时间（毫秒）
+        connect-timeout: 10000
+        # 重连间隔（秒）
+        reconnect-interval: 5
+        # 最大重连次数，-1表示无限重连
+        max-reconnect-attempts: -1
+        # 元数据同步配置
+        metadata-sync:
+          # 是否启用元数据同步
+          enable: true
+          # 同步间隔（秒）
+          interval: 300
+          # 初始延迟（秒）
+          initial-delay: 60
