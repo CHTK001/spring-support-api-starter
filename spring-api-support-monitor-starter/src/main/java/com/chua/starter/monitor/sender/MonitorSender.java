@@ -4,6 +4,7 @@ import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.protocol.ProtocolSetting;
+import com.chua.common.support.protocol.client.BaseProtocolClient;
 import com.chua.common.support.protocol.client.ProtocolClient;
 import com.chua.common.support.protocol.client.ProtocolClientFactory;
 import com.chua.common.support.protocol.request.HttpServletRequest;
@@ -58,9 +59,10 @@ public class MonitorSender {
                 .port(port)
                 .codec(SettingFactory.getInstance().getCodec())
                 .build();
-        ProtocolClient protocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
+        BaseProtocolClient baseProtocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
         long startTime = System.currentTimeMillis();
         try {
+            ProtocolClient protocolClient = (ProtocolClient) baseProtocolClient;
             CompletableFuture<ServletResponse> servletResponseCompletableFuture = protocolClient.sendAsync(
                     HttpServletRequest.builder()
                             .url(StringUtils.startWithAppend(moduleType.name().toLowerCase(), CommonConstant.SYMBOL_LEFT_SLASH))
