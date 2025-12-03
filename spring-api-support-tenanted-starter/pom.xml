@@ -31,6 +31,13 @@
             <version>4.0.0</version>
         </dependency>
 
+        <!-- 租户同步模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mybatis-tenant-starter</artifactId>
+            <version>4.0.0.34</version>
+        </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
