@@ -133,14 +133,35 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     }
 
     @Override
-    public ReturnResult<Page<SystemDataSettingPageItem>> pageWithCapabilities(long current, long size, String name, String type) {
+    public ReturnResult<Page<SystemDataSettingPageItem>> pageWithCapabilities(long current, long size, String name, String type, String sort, String order) {
         Page<SystemDataSetting> page = new Page<>(current, size);
         LambdaQueryWrapper<SystemDataSetting> qw = new LambdaQueryWrapper<>();
+        // 名称模糊查询
         if (name != null && !name.isEmpty()) {
             qw.like(SystemDataSetting::getSystemDataSettingName, name);
         }
+        // 类型精确查询
         if (type != null && !type.isEmpty()) {
             qw.eq(SystemDataSetting::getSystemDataSettingType, type);
+        }
+        // 排序处理
+        boolean isAsc = !"desc".equalsIgnoreCase(order);
+        if (sort != null && !sort.isEmpty()) {
+            switch (sort) {
+                case "systemDataSettingName":
+                    qw.orderBy(true, isAsc, SystemDataSetting::getSystemDataSettingName);
+                    break;
+                case "systemDataSettingType":
+                    qw.orderBy(true, isAsc, SystemDataSetting::getSystemDataSettingType);
+                    break;
+                default:
+                    // 默认按名称排序
+                    qw.orderBy(true, isAsc, SystemDataSetting::getSystemDataSettingName);
+                    break;
+            }
+        } else {
+            // 默认按名称升序
+            qw.orderByAsc(SystemDataSetting::getSystemDataSettingName);
         }
         this.page(page, qw);
 
