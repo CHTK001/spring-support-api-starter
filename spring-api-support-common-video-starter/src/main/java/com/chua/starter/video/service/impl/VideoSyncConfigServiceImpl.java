@@ -87,7 +87,7 @@ public class VideoSyncConfigServiceImpl extends ServiceImpl<VideoSyncConfigMappe
             return false;
         }
 
-        config.setVideoSyncConfigId(IdUtils.createSnowflakeId());
+        config.setVideoSyncConfigId(String.valueOf(IdUtils.createSnowflakeId()));
         // 设置默认值
         if (config.getVideoSyncConfigEnabled() == null) {
             config.setVideoSyncConfigEnabled(true);
