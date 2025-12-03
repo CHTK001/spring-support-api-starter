@@ -72,6 +72,10 @@ public class SystemDataSettingController {
      *                示例："MySQL"
      * @param type    数据源类型精确查询条件（可选）
      *                示例："JDBC"
+     * @param sort    排序字段（可选）
+     *                示例："systemDataSettingName"
+     * @param order   排序方式（可选），asc 或 desc
+     *                示例："asc"
      * @return 分页结果，包含数据源配置及其能力信息
      */
     @GetMapping("/page")
@@ -80,9 +84,11 @@ public class SystemDataSettingController {
             @RequestParam(required = false, defaultValue = "1") long current,
             @RequestParam(required = false, defaultValue = "20") long size,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) String type
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "asc") String order
     ) {
-        return systemDataSettingService.pageWithCapabilities(current, size, name, type);
+        return systemDataSettingService.pageWithCapabilities(current, size, name, type, sort, order);
     }
 
     /**
