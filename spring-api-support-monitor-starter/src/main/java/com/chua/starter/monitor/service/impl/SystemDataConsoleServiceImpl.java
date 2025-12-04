@@ -37,11 +37,7 @@ import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
-import com.chua.starter.monitor.pojo.ColumnInfo;
-import com.chua.starter.monitor.pojo.ServerStatic;
-import com.chua.starter.monitor.pojo.TableOpenResponse;
-import com.chua.starter.monitor.pojo.TableStructureInfo;
-import com.chua.starter.monitor.pojo.ValueCount;
+import com.chua.starter.monitor.pojo.*;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
 import com.chua.starter.monitor.spi.metadata.StructureMetadata;
 import com.chua.starter.monitor.service.SystemDataFieldCommentService;
@@ -249,14 +245,32 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             } catch (Exception ignored) {
             }
 
-            List<String> columns = new ArrayList<>();
+            List<ColumnInfo> columns = new ArrayList<>();
             Map<String, String> autoComments = new HashMap<>();
             Map<String, String> pathToColumn = new HashMap<>();
             for (HierarchyNode cn : columnNodes) {
                 String name = String.valueOf(cn.getName());
-                columns.add(name);
+                Map<String, Object> props = cn.getProperties();
+                
+                // 构建 ColumnInfo
+                ColumnInfo columnInfo = new ColumnInfo();
+                columnInfo.setName(name);
+                if (props != null) {
+                    columnInfo.setDataType(String.valueOf(props.getOrDefault("columnType", props.getOrDefault("dataType", ""))));
+                    columnInfo.setComment(String.valueOf(props.getOrDefault("comment", "")));
+                    columnInfo.setPrimaryKey(Boolean.TRUE.equals(props.get("primaryKey")) || Boolean.TRUE.equals(props.get("isPrimary")));
+                    columnInfo.setNullable(Boolean.TRUE.equals(props.get("nullable")));
+                    Object size = props.get("columnSize");
+                    if (size != null) {
+                        try {
+                            columnInfo.setLength(Integer.parseInt(String.valueOf(size)));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+                columns.add(columnInfo);
+                
                 pathToColumn.put(cn.getPath(), name);
-                String cmt = cn.getProperties() != null ? String.valueOf(cn.getProperties().getOrDefault("comment", "")) : "";
+                String cmt = props != null ? String.valueOf(props.getOrDefault("comment", "")) : "";
                 if (StringUtils.isNotBlank(cmt)) {
                     autoComments.put(name, cmt);
                 }
@@ -309,7 +323,11 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             if (open == null || open.getData() == null) {
                 return ReturnResult.error("无法获取表数据");
             }
-            List<String> columns = open.getData().getColumns();
+            // 从 ColumnInfo 中提取列名
+            List<ColumnInfo> columnInfos = open.getData().getColumns();
+            List<String> columns = columnInfos.stream()
+                    .map(ColumnInfo::getName)
+                    .collect(Collectors.toList());
             List<Map<String, Object>> rows = open.getData().getRows();
             if (null == rows || rows.isEmpty()) {
                 return ReturnResult.error("表数据为空");
@@ -1081,6 +1099,128 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             log.error("查找表路径失败", e);
         }
         return null;
+    }
+
+    @Override
+    public Boolean updateTableRow(Integer settingId, UpdateRowRequest req) {
+        try {
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.error("数据源配置不存在: {}", settingId);
+                return false;
+            }
+            Dialect dialect = getDialect(setting);
+            char openQuote = dialect.openQuote();
+            char closeQuote = dialect.closeQuote();
+            
+            // 构建 UPDATE SQL
+            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
+            String columnName = quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
+            String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
+            
+            String sql;
+            if (req.getNewValue() == null) {
+                sql = String.format("UPDATE %s SET %s = NULL WHERE %s = '%s'",
+                        tableName, columnName, primaryKey, req.getPrimaryValue());
+            } else {
+                sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
+                        tableName, columnName, req.getNewValue(), primaryKey, req.getPrimaryValue());
+            }
+            
+            log.info("执行更新SQL: {}", sql);
+            DataSourceOptions options = buildOptions(setting);
+            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
+            CommandResult result = commandMetadata.executeCommand(sql);
+            
+            return result != null && result.isSuccess();
+        } catch (Exception e) {
+            log.error("更新表数据行失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean deleteTableRow(Integer settingId, DeleteRowRequest req) {
+        try {
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.error("数据源配置不存在: {}", settingId);
+                return false;
+            }
+            Dialect dialect = getDialect(setting);
+            char openQuote = dialect.openQuote();
+            char closeQuote = dialect.closeQuote();
+            
+            // 构建 DELETE SQL
+            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
+            String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
+            
+            String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
+                    tableName, primaryKey, req.getPrimaryValue());
+            
+            log.info("执行删除SQL: {}", sql);
+            DataSourceOptions options = buildOptions(setting);
+            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
+            CommandResult result = commandMetadata.executeCommand(sql);
+            
+            return result != null && result.isSuccess();
+        } catch (Exception e) {
+            log.error("删除表数据行失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean insertTableRow(Integer settingId, InsertRowRequest req) {
+        try {
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.error("数据源配置不存在: {}", settingId);
+                return false;
+            }
+            Dialect dialect = getDialect(setting);
+            char openQuote = dialect.openQuote();
+            char closeQuote = dialect.closeQuote();
+            
+            Map<String, Object> data = req.getData();
+            if (data == null || data.isEmpty()) {
+                log.error("插入数据为空");
+                return false;
+            }
+            
+            // 构建 INSERT SQL
+            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
+            StringBuilder columns = new StringBuilder();
+            StringBuilder values = new StringBuilder();
+            
+            boolean first = true;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (!first) {
+                    columns.append(", ");
+                    values.append(", ");
+                }
+                columns.append(quoteIdentifier(entry.getKey(), openQuote, closeQuote));
+                if (entry.getValue() == null) {
+                    values.append("NULL");
+                } else {
+                    values.append("'").append(entry.getValue()).append("'");
+                }
+                first = false;
+            }
+            
+            String sql = String.format("INSERT INTO %s (%s) VALUES (%s)",
+                    tableName, columns, values);
+            
+            log.info("执行插入SQL: {}", sql);
+            DataSourceOptions options = buildOptions(setting);
+            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
+            CommandResult result = commandMetadata.executeCommand(sql);
+            
+            return result != null && result.isSuccess();
+        } catch (Exception e) {
+            log.error("插入表数据行失败", e);
+            return false;
+        }
     }
 }
 

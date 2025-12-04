@@ -304,6 +304,33 @@ public interface SystemDataConsoleService {
      * @return 是否成功
      */
     Boolean batchModifyTableStructure(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.BatchTableStructureRequest req);
+
+    /**
+     * 更新表数据行
+     *
+     * @param settingId 设置ID
+     * @param req       更新行请求
+     * @return 是否成功
+     */
+    Boolean updateTableRow(Integer settingId, com.chua.starter.monitor.pojo.UpdateRowRequest req);
+
+    /**
+     * 删除表数据行
+     *
+     * @param settingId 设置ID
+     * @param req       删除行请求
+     * @return 是否成功
+     */
+    Boolean deleteTableRow(Integer settingId, com.chua.starter.monitor.pojo.DeleteRowRequest req);
+
+    /**
+     * 插入表数据行
+     *
+     * @param settingId 设置ID
+     * @param req       插入行请求
+     * @return 是否成功
+     */
+    Boolean insertTableRow(Integer settingId, com.chua.starter.monitor.pojo.InsertRowRequest req);
 }
 
 

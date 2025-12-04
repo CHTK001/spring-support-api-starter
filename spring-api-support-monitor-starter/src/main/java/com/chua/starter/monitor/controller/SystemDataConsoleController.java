@@ -5,8 +5,7 @@ import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
-import com.chua.starter.monitor.pojo.TableOpenResponse;
-import com.chua.starter.monitor.pojo.ValueCount;
+import com.chua.starter.monitor.pojo.*;
 import com.chua.starter.monitor.service.SystemDataConsoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -207,6 +206,48 @@ public class SystemDataConsoleController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * 更新表数据行
+     *
+     * @param id  配置ID
+     * @param req 更新行请求
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/table/row/update")
+    @ApiOperation("更新表数据行")
+    public ReturnResult<Boolean> updateTableRow(@PathVariable Integer id,
+                                                @RequestBody UpdateRowRequest req) {
+        return ReturnResult.ok(systemDataConsoleService.updateTableRow(id, req));
+    }
+
+    /**
+     * 删除表数据行
+     *
+     * @param id  配置ID
+     * @param req 删除行请求
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/table/row/delete")
+    @ApiOperation("删除表数据行")
+    public ReturnResult<Boolean> deleteTableRow(@PathVariable Integer id,
+                                                @RequestBody DeleteRowRequest req) {
+        return ReturnResult.ok(systemDataConsoleService.deleteTableRow(id, req));
+    }
+
+    /**
+     * 插入表数据行
+     *
+     * @param id  配置ID
+     * @param req 插入行请求
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/table/row/insert")
+    @ApiOperation("插入表数据行")
+    public ReturnResult<Boolean> insertTableRow(@PathVariable Integer id,
+                                                @RequestBody InsertRowRequest req) {
+        return ReturnResult.ok(systemDataConsoleService.insertTableRow(id, req));
     }
 }
 
