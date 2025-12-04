@@ -2,7 +2,7 @@ package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
@@ -187,14 +187,14 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             // 解析进度信息
             String progressStr = pullItem.getProgress();
             int percentage = parseProgressPercentage(progressStr);
-            
+
             // 构造符合 ScSocketEventProcess 组件要求的消息格式
             Map<String, Object> message = new HashMap<>();
             message.put("eventId", "docker-pull-" + imageId);  // 事件ID，用于前端组件识别
             message.put("message", buildProgressMessage(pullItem));  // 消息文本
             message.put("percentage", percentage);  // 进度百分比 (0-100)
             message.put("status", "processing");  // 状态：processing
-            
+
             // 额外的Docker信息
             message.put("imageName", imageName);
             message.put("dockerStatus", pullItem.getStatus());
@@ -211,7 +211,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             log.error("发送Docker进度WebSocket消息失败", e);
         }
     }
-    
+
     /**
      * 解析进度百分比
      * <p>
@@ -226,7 +226,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
         if (progressStr == null || progressStr.isEmpty()) {
             return 0;
         }
-        
+
         try {
             // 尝试匹配百分比格式
             if (progressStr.contains("%")) {
@@ -235,18 +235,18 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
                     return Math.min(100, Integer.parseInt(percentStr));
                 }
             }
-            
+
             // 尝试从分数格式解析 (例如: "1.5MB/1.5MB")
             if (progressStr.contains("/")) {
                 String[] parts = progressStr.trim().split("/");
                 if (parts.length == 2) {
                     String currentStr = parts[0].trim().replaceAll("[^0-9.]", "");
                     String totalStr = parts[1].trim().replaceAll("[^0-9.]", "");
-                    
+
                     if (!currentStr.isEmpty() && !totalStr.isEmpty()) {
                         double current = Double.parseDouble(currentStr);
                         double total = Double.parseDouble(totalStr);
-                        
+
                         if (total > 0) {
                             return Math.min(100, (int) ((current / total) * 100));
                         }
@@ -256,10 +256,10 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
         } catch (Exception e) {
             log.debug("解析进度百分比失败: {}", progressStr, e);
         }
-        
+
         return 0;
     }
-    
+
     /**
      * 构建进度消息
      * <p>
@@ -270,19 +270,19 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      */
     private String buildProgressMessage(PullResponseItem pullItem) {
         StringBuilder sb = new StringBuilder();
-        
+
         if (pullItem.getStatus() != null) {
             sb.append(pullItem.getStatus());
         }
-        
+
         if (pullItem.getId() != null && !pullItem.getId().isEmpty()) {
             sb.append(" [").append(pullItem.getId().substring(0, Math.min(12, pullItem.getId().length()))).append("]");
         }
-        
+
         if (pullItem.getProgress() != null && !pullItem.getProgress().isEmpty()) {
             sb.append(": ").append(pullItem.getProgress());
         }
-        
+
         return sb.toString();
     }
 
@@ -305,7 +305,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             message.put("message", "开始拉取镜像: " + imageName);  // 消息文本
             message.put("percentage", 0);  // 初始进度为0%
             message.put("status", "processing");  // 状态：processing
-            
+
             // 额外的Docker信息
             message.put("imageName", imageName);
             message.put("operation", operationType.toString());
@@ -347,7 +347,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             message.put("message", "拉取失败: " + throwable.getMessage());  // 错误消息
             message.put("percentage", 0);  // 失败时进度为0
             message.put("status", "error");  // 状态：error
-            
+
             // 额外的Docker信息
             message.put("imageName", imageName);
             message.put("operation", operationType.toString());
@@ -384,7 +384,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             // 构造符合 ScSocketEventProcess 组件要求的消息格式
             Map<String, Object> message = new HashMap<>();
             message.put("eventId", "docker-pull-" + imageId);  // 事件ID
-            
+
             if (hasError) {
                 message.put("message", "拉取失败: " + errorMessage);
                 message.put("percentage", 0);  // 失败时进度为0
@@ -397,13 +397,13 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
                 message.put("status", "success");  // 状态：success
                 log.info("Docker拉取操作完成(成功) - 镜像: {}", imageName);
             }
-            
+
             // 额外的Docker信息
             message.put("imageName", imageName);
             message.put("operation", operationType.toString());
             message.put("success", !hasError);
             message.put("timestamp", LocalDateTime.now());
-            
+
             if (dockerImageId != null) {
                 message.put("dockerImageId", dockerImageId);
             }

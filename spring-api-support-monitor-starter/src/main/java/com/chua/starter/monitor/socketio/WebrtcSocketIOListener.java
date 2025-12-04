@@ -5,7 +5,7 @@ import com.chua.common.support.utils.MapUtils;
 import com.chua.socketio.support.SocketIOListener;
 import com.chua.socketio.support.annotations.OnEvent;
 import com.chua.socketio.support.session.SocketSession;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringBootConfiguration;
 

@@ -6,7 +6,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.report.ReportHandler;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.common.support.json.Json;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Prometheus上报处理器
  * 用于定时查询Prometheus数据，向前端下发但不存储到指标表
- * 
+ *
  * @author CH
  * @since 2024/12/25
  */
@@ -36,7 +36,7 @@ public class PrometheusReportHandler implements ReportHandler {
     private final SocketSessionTemplate socketSessionTemplate;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final RestTemplate restTemplate = new RestTemplate();
-    
+
     // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
     @Override
@@ -68,18 +68,18 @@ public class PrometheusReportHandler implements ReportHandler {
     public ReturnResult<MonitorSysGenServerMetrics> handleReport(MonitorSysGenServer server, Map<String, Object> reportData) {
         try {
             log.debug("开始查询Prometheus数据: serverId={}", server.getMonitorSysGenServerId());
-            
+
             // 查询Prometheus数据
             Map<String, Object> prometheusData = queryPrometheusData(server);
-            
+
             // 直接通过WebSocket推送到前端，不存储到数据库
             broadcastPrometheusData(server.getMonitorSysGenServerId(), prometheusData);
-            
+
             log.debug("Prometheus数据查询完成: serverId={}", server.getMonitorSysGenServerId());
-            
+
             // 返回null表示不需要存储到指标表
             return ReturnResult.success(null);
-            
+
         } catch (Exception e) {
             log.error("查询Prometheus数据失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("Prometheus数据查询失败: " + e.getMessage());
@@ -117,7 +117,7 @@ public class PrometheusReportHandler implements ReportHandler {
             // Prometheus相关配置已迁移到配置表，这里暂时跳过验证
             // TODO: 从配置表获取Prometheus配置进行验证
             log.info("Prometheus配置验证已迁移到配置表，暂时跳过验证");
-            
+
             // 测试连接Prometheus服务器
             try {
                 String prometheusUrl = buildPrometheusUrl(server, "up");
@@ -128,9 +128,9 @@ public class PrometheusReportHandler implements ReportHandler {
             } catch (Exception e) {
                 return ReturnResult.error("Prometheus服务器连接测试失败: " + e.getMessage());
             }
-            
+
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
             log.error("验证Prometheus服务器配置失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("验证配置失败: " + e.getMessage());
@@ -159,56 +159,56 @@ public class PrometheusReportHandler implements ReportHandler {
 
     /**
      * 查询Prometheus数据
-     * 
+     *
      * @param server 服务器配置
      * @return Prometheus数据
      */
     private Map<String, Object> queryPrometheusData(MonitorSysGenServer server) {
         Map<String, Object> data = new HashMap<>();
-        
+
         try {
             // 查询CPU使用率
             String cpuQuery = "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)";
             Map<String, Object> cpuData = queryPrometheusMetric(server, cpuQuery);
             data.put("cpu", cpuData);
-            
+
             // 查询内存使用率
             String memoryQuery = "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100";
             Map<String, Object> memoryData = queryPrometheusMetric(server, memoryQuery);
             data.put("memory", memoryData);
-            
+
             // 查询磁盘使用率
             String diskQuery = "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100)";
             Map<String, Object> diskData = queryPrometheusMetric(server, diskQuery);
             data.put("disk", diskData);
-            
+
             // 查询网络流量
             String networkQuery = "irate(node_network_receive_bytes_total{device!=\"lo\"}[5m])";
             Map<String, Object> networkData = queryPrometheusMetric(server, networkQuery);
             data.put("network", networkData);
-            
+
             // 查询系统负载
             String loadQuery = "node_load1";
             Map<String, Object> loadData = queryPrometheusMetric(server, loadQuery);
             data.put("load", loadData);
-            
+
             data.put("timestamp", System.currentTimeMillis());
             data.put("collectTime", LocalDateTime.now());
-            
-            log.debug("Prometheus数据查询完成: serverId={}, dataKeys={}", 
+
+            log.debug("Prometheus数据查询完成: serverId={}, dataKeys={}",
                     server.getMonitorSysGenServerId(), data.keySet());
-            
+
         } catch (Exception e) {
             log.error("查询Prometheus数据失败", e);
             throw new RuntimeException("查询Prometheus数据失败", e);
         }
-        
+
         return data;
     }
 
     /**
      * 查询单个Prometheus指标
-     * 
+     *
      * @param server 服务器配置
      * @param query 查询语句
      * @return 查询结果
@@ -227,7 +227,7 @@ public class PrometheusReportHandler implements ReportHandler {
                 log.warn("Prometheus查询返回异常状态: {}", response.getStatusCode());
                 return new HashMap<>();
             }
-            
+
         } catch (Exception e) {
             log.error("查询Prometheus指标失败: query={}", query, e);
             return new HashMap<>();

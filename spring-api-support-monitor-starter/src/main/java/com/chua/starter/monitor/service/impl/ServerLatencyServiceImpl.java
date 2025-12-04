@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
@@ -40,7 +40,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
      */
     private static final String REDIS_LATENCY_PREFIX = "server:latency:";
 
-    
+
     /**
      * 延迟数据缓存，用于记录变化
      */

@@ -32,7 +32,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.IoUtils;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.redis.support.constant.RedisConstant;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
@@ -251,7 +251,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             for (HierarchyNode cn : columnNodes) {
                 String name = String.valueOf(cn.getName());
                 Map<String, Object> props = cn.getProperties();
-                
+
                 // 构建 ColumnInfo
                 ColumnInfo columnInfo = new ColumnInfo();
                 columnInfo.setName(name);
@@ -268,7 +268,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                     }
                 }
                 columns.add(columnInfo);
-                
+
                 pathToColumn.put(cn.getPath(), name);
                 String cmt = props != null ? String.valueOf(props.getOrDefault("comment", "")) : "";
                 if (StringUtils.isNotBlank(cmt)) {
@@ -1112,12 +1112,12 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             Dialect dialect = getDialect(setting);
             char openQuote = dialect.openQuote();
             char closeQuote = dialect.closeQuote();
-            
+
             // 构建 UPDATE SQL
             String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
             String columnName = quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
             String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
-            
+
             String sql;
             if (req.getNewValue() == null) {
                 sql = String.format("UPDATE %s SET %s = NULL WHERE %s = '%s'",
@@ -1126,12 +1126,12 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
                         tableName, columnName, req.getNewValue(), primaryKey, req.getPrimaryValue());
             }
-            
+
             log.info("执行更新SQL: {}", sql);
             DataSourceOptions options = buildOptions(setting);
             CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
             CommandResult result = commandMetadata.executeCommand(sql);
-            
+
             return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("更新表数据行失败", e);
@@ -1150,19 +1150,19 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             Dialect dialect = getDialect(setting);
             char openQuote = dialect.openQuote();
             char closeQuote = dialect.closeQuote();
-            
+
             // 构建 DELETE SQL
             String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
             String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
-            
+
             String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
                     tableName, primaryKey, req.getPrimaryValue());
-            
+
             log.info("执行删除SQL: {}", sql);
             DataSourceOptions options = buildOptions(setting);
             CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
             CommandResult result = commandMetadata.executeCommand(sql);
-            
+
             return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("删除表数据行失败", e);
@@ -1181,18 +1181,18 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             Dialect dialect = getDialect(setting);
             char openQuote = dialect.openQuote();
             char closeQuote = dialect.closeQuote();
-            
+
             Map<String, Object> data = req.getData();
             if (data == null || data.isEmpty()) {
                 log.error("插入数据为空");
                 return false;
             }
-            
+
             // 构建 INSERT SQL
             String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
             StringBuilder columns = new StringBuilder();
             StringBuilder values = new StringBuilder();
-            
+
             boolean first = true;
             for (Map.Entry<String, Object> entry : data.entrySet()) {
                 if (!first) {
@@ -1207,15 +1207,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
                 }
                 first = false;
             }
-            
+
             String sql = String.format("INSERT INTO %s (%s) VALUES (%s)",
                     tableName, columns, values);
-            
+
             log.info("执行插入SQL: {}", sql);
             DataSourceOptions options = buildOptions(setting);
             CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
             CommandResult result = commandMetadata.executeCommand(sql);
-            
+
             return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("插入表数据行失败", e);
