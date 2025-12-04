@@ -2,6 +2,7 @@ package com.chua.starter.monitor.service;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
@@ -40,10 +41,6 @@ public class ServerMetricsWebSocketService {
     private final LocalSystemDataCollector localSystemDataCollector;
     private final NetworkSpeedCalculatorService networkSpeedCalculatorService;
 
-    /**
-     * WebSocket主题常量
-     */
-    private static final String TOPIC_SERVER_METRICS = "gen/server";
 
     /**
      * 推送服务器状态汇总
@@ -59,7 +56,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.debug("推送服务器状态汇总完成");
 
         } catch (Exception e) {
@@ -112,7 +109,7 @@ public class ServerMetricsWebSocketService {
                                 .timestamp(System.currentTimeMillis())
                                 .build();
 
-                        socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+                        socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
                     }
 
                 } catch (Exception e) {
@@ -140,7 +137,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.debug("推送连接状态统计完成");
 
         } catch (Exception e) {
@@ -162,7 +159,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.debug("推送健康状态报告完成");
 
         } catch (Exception e) {
@@ -184,7 +181,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.info("推送每日健康报告完成");
 
         } catch (Exception e) {
@@ -271,7 +268,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.debug("推送服务器 {} 指标数据完成", server.getMonitorSysGenServerName());
 
         } catch (Exception e) {
@@ -325,7 +322,7 @@ public class ServerMetricsWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
             log.debug("推送服务器 {} 趋势数据完成", server.getMonitorSysGenServerName());
 
         } catch (Exception e) {

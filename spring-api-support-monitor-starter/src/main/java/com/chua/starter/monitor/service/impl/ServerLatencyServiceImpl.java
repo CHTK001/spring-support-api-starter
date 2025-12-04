@@ -2,6 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -39,11 +40,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
      */
     private static final String REDIS_LATENCY_PREFIX = "server:latency:";
 
-    /**
-     * WebSocket主题
-     */
-    private static final String TOPIC_SERVER_METRICS = "gen/server";
-
+    
     /**
      * 延迟数据缓存，用于记录变化
      */
@@ -158,7 +155,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
                     .timestamp(System.currentTimeMillis()).build();
 
             // 发送到前端
-            socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
 
             log.debug("推送服务器 {} 延迟数据到前端: {}ms", server.getMonitorSysGenServerName(), latency);
             return ReturnResult.ok(true, "延迟数据已推送");
@@ -198,7 +195,7 @@ public class ServerLatencyServiceImpl implements ServerLatencyService {
                         .messageType(ServerWebSocketMessage.MessageType.BATCH_SERVER_LATENCY).data(batchData)
                         .timestamp(System.currentTimeMillis()).build();
 
-                socketSessionTemplate.send(TOPIC_SERVER_METRICS, Json.toJson(message));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, Json.toJson(message));
                 log.debug("批量推送 {} 个服务器延迟数据到前端", batchData.size());
             }
 
