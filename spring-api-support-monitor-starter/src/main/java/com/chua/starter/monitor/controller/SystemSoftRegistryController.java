@@ -47,6 +47,7 @@ public class SystemSoftRegistryController {
             log.debug("查询仓库列表(默认优先)");
 
             List<SystemSoftRegistry> list = systemSoftRegistryService.lambdaQuery()
+                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryStatus)
                     .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
                     .list();
             log.debug("查询仓库列表成功, count: {}", list.size());
@@ -75,6 +76,7 @@ public class SystemSoftRegistryController {
             log.debug("分页查询仓库列表(默认优先), page: {}, size: {}", page, size);
 
             IPage<SystemSoftRegistry> pageResult = systemSoftRegistryService.lambdaQuery()
+                    .orderByDesc(SystemSoftRegistry::getSystemSoftRegistryStatus)
                     .orderByAsc(SystemSoftRegistry::getSystemSoftRegistrySort)
                     .page(new Page<>(page, size));
             log.debug("分页查询仓库列表成功, count: {}", pageResult.getRecords().size());
