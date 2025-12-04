@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.service.mapper.SysMessageMapper">
+
+    <!-- 通用字段映射 -->
+    <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysMessage">
+        <id column="sys_message_id" property="sysMessageId"/>
+        <result column="sys_message_title" property="sysMessageTitle"/>
+        <result column="sys_message_content" property="sysMessageContent"/>
+        <result column="sys_message_type" property="sysMessageType"/>
+        <result column="sys_message_level" property="sysMessageLevel"/>
+        <result column="sys_message_sender_id" property="sysMessageSenderId"/>
+        <result column="sys_message_sender_name" property="sysMessageSenderName"/>
+        <result column="sys_message_receiver_id" property="sysMessageReceiverId"/>
+        <result column="sys_message_receiver_name" property="sysMessageReceiverName"/>
+        <result column="sys_message_read" property="sysMessageRead"/>
+        <result column="sys_message_read_time" property="sysMessageReadTime"/>
+        <result column="sys_message_send_time" property="sysMessageSendTime"/>
+        <result column="sys_message_expire_time" property="sysMessageExpireTime"/>
+        <result column="sys_message_biz_type" property="sysMessageBizType"/>
+        <result column="sys_message_biz_id" property="sysMessageBizId"/>
+        <result column="sys_message_url" property="sysMessageUrl"/>
+        <result column="sys_message_extra" property="sysMessageExtra"/>
+        <result column="sys_message_status" property="sysMessageStatus"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_name" property="createName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_name" property="updateName"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 查询用户的消息列表 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM sys_message
+        WHERE sys_message_status = 1
+        AND (sys_message_receiver_id = #{userId} OR sys_message_receiver_id = 0)
+        AND (sys_message_expire_time IS NULL OR sys_message_expire_time > NOW())
+        <if test="read != null">
+            AND sys_message_read = #{read}
+        </if>
+        ORDER BY sys_message_send_time DESC
+    </select>
+
+    <!-- 统计用户未读消息数量 -->
+    <select id="countUnreadByUserId" resultType="int">
+        SELECT COUNT(*) FROM sys_message
+        WHERE sys_message_status = 1
+        AND sys_message_read = 0
+        AND (sys_message_receiver_id = #{userId} OR sys_message_receiver_id = 0)
+        AND (sys_message_expire_time IS NULL OR sys_message_expire_time > NOW())
+    </select>
+
+    <!-- 批量标记为已读 -->
+    <update id="batchMarkAsRead">
+        UPDATE sys_message
+        SET sys_message_read = 1,
+            sys_message_read_time = NOW(),
+            update_time = NOW()
+        WHERE sys_message_id IN
+        <foreach collection="messageIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND (sys_message_receiver_id = #{userId} OR sys_message_receiver_id = 0)
+    </update>
+
+    <!-- 标记用户所有消息为已读 -->
+    <update id="markAllAsReadByUserId">
+        UPDATE sys_message
+        SET sys_message_read = 1,
+            sys_message_read_time = NOW(),
+            update_time = NOW()
+        WHERE sys_message_read = 0
+        AND sys_message_status = 1
+        AND (sys_message_receiver_id = #{userId} OR sys_message_receiver_id = 0)
+    </update>
+
+    <!-- 删除过期消息 -->
+    <delete id="deleteExpiredMessages">
+        DELETE FROM sys_message
+        WHERE sys_message_expire_time IS NOT NULL
+        AND sys_message_expire_time &lt; NOW()
+    </delete>
+
+</mapper>

@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.json.Json;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -27,13 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @RequiredArgsConstructor
 public class SystemSoftContainerWebSocketService {
 
-    /**
-     * WebSocket主题常量
-     */
-    private static final String TOPIC_CONTAINER_STATUS = "container/status";
-    private static final String TOPIC_CONTAINER_LOGS = "container/logs";
-    private static final String TOPIC_CONTAINER_STATISTICS = "container/statistics";
-    private static final String TOPIC_CONTAINER_EVENTS = "container/events";
     private final SocketSessionTemplate socketSessionTemplate;
     @Lazy
     private final SystemSoftContainerService containerService;
@@ -80,11 +74,12 @@ public class SystemSoftContainerWebSocketService {
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
                     .messageType("container_status")
                     .serverId(container.getSystemServerId())
+                    .dataId(String.valueOf(containerId))
                     .data(statusData)
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_CONTAINER_STATUS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_STATUS, Json.toJson(message));
             log.debug("推送容器状态变更: containerId={}, status={}", containerId, status);
 
         } catch (Exception e) {
@@ -119,11 +114,12 @@ public class SystemSoftContainerWebSocketService {
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
                     .messageType("container_logs")
                     .serverId(container.getSystemServerId())
+                    .dataId(containerId)
                     .data(logData)
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_CONTAINER_LOGS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_LOG, Json.toJson(message));
             log.debug("推送容器日志: containerId={}, logType={}, contentLength={}",
                     containerId, logType, logContent.length());
 
@@ -162,11 +158,12 @@ public class SystemSoftContainerWebSocketService {
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
                     .messageType("container_event")
                     .serverId(container.getSystemServerId())
+                    .dataId(String.valueOf(containerId))
                     .data(eventData)
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(TOPIC_CONTAINER_EVENTS, Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_EVENTS, Json.toJson(message));
             log.debug("推送容器事件: containerId={}, eventType={}, success={}",
                     containerId, eventType, success);
 
@@ -183,10 +180,10 @@ public class SystemSoftContainerWebSocketService {
      */
     public Map<String, String> getTopics() {
         Map<String, String> topics = new HashMap<>();
-        topics.put("containerStatus", TOPIC_CONTAINER_STATUS);
-        topics.put("containerLogs", TOPIC_CONTAINER_LOGS);
-        topics.put("containerStatistics", TOPIC_CONTAINER_STATISTICS);
-        topics.put("containerEvents", TOPIC_CONTAINER_EVENTS);
+        topics.put("containerStatus", SocketTopics.Monitor.Docker.CONTAINER_STATUS);
+        topics.put("containerLogs", SocketTopics.Monitor.Docker.CONTAINER_LOG);
+        topics.put("containerStatistics", SocketTopics.Monitor.Docker.CONTAINER_STATISTICS);
+        topics.put("containerEvents", SocketTopics.Monitor.Docker.CONTAINER_EVENTS);
         return topics;
     }
 

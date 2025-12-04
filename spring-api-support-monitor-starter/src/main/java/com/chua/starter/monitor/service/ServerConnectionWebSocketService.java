@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.json.Json;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -27,12 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ServerConnectionWebSocketService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    // WebSocket主题常量 - 统一使用gen/server主题
-    private static final String TOPIC_CONNECTION_STATUS = "gen/server";
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
-    private static final String TOPIC_CONNECTION_STATISTICS = "gen/server";
-    private static final String TOPIC_CONNECTION_HEALTH = "gen/server";
-    private static final String TOPIC_CONNECTION_ALERT = "gen/server";
     @Lazy
     private final MonitorSysGenServerConnectionStatusService connectionStatusService;
 
@@ -79,7 +75,7 @@ public class ServerConnectionWebSocketService {
             );
 
             // 统一发送到gen/server主题
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.STATUS;
             socketSessionTemplate.send(topic, Json.toJson(wsMessage));
 
             log.debug("广播服务器连接状态: serverId={}, status={}", serverId, connectionStatus);
@@ -102,7 +98,7 @@ public class ServerConnectionWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
 
             log.debug("广播批量连接测试结果: count={}", results.size());
 
@@ -124,7 +120,7 @@ public class ServerConnectionWebSocketService {
                         .timestamp(System.currentTimeMillis())
                         .build();
 
-                socketSessionTemplate.send("gen/server", Json.toJson(message));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
 
                 log.debug("广播连接状态统计信息");
             }
@@ -146,7 +142,7 @@ public class ServerConnectionWebSocketService {
                         .timestamp(System.currentTimeMillis())
                         .build();
 
-                socketSessionTemplate.send("gen/server", Json.toJson(message));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
 
                 log.debug("广播健康状态报告");
             }
@@ -175,7 +171,7 @@ public class ServerConnectionWebSocketService {
                         .timestamp(System.currentTimeMillis())
                         .build();
 
-                socketSessionTemplate.send("gen/server", Json.toJson(message));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
             }
 
             // 检查连接失败的服务器
@@ -194,7 +190,7 @@ public class ServerConnectionWebSocketService {
                         .timestamp(System.currentTimeMillis())
                         .build();
 
-                socketSessionTemplate.send("gen/server", Json.toJson(message));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
             }
 
         } catch (Exception e) {
@@ -209,7 +205,7 @@ public class ServerConnectionWebSocketService {
         if (status == null) {
             return "未知";
         }
-        
+
         return switch (status) {
             case 1 -> "在线";
             case 0 -> "离线";
@@ -234,7 +230,7 @@ public class ServerConnectionWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(wsMessage));
 
             log.debug("发送连接测试进度: taskId={}, progress={}%", taskId, progress);
 
@@ -243,17 +239,4 @@ public class ServerConnectionWebSocketService {
         }
     }
 
-    /**
-     * 获取WebSocket主题列表
-     *
-     * @return 主题列表
-     */
-    public Map<String, String> getTopics() {
-        Map<String, String> topics = new HashMap<>();
-        topics.put("connectionStatus", TOPIC_CONNECTION_STATUS);
-        topics.put("connectionStatistics", TOPIC_CONNECTION_STATISTICS);
-        topics.put("connectionHealth", TOPIC_CONNECTION_HEALTH);
-        topics.put("connectionAlert", TOPIC_CONNECTION_ALERT);
-        return topics;
-    }
 }

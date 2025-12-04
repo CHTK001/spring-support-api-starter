@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -63,7 +64,7 @@ public class SshCommandServiceImpl implements SshCommandService {
                     );
 
                     try {
-                        socketSessionTemplate.send("gen/server", Json.toJson(message));
+                        socketSessionTemplate.send(SocketTopics.Monitor.Server.TERMINAL, Json.toJson(message));
                     } catch (Exception e) {
                         log.error("发送SSH数据到前端失败: {}", e.getMessage(), e);
                     }
