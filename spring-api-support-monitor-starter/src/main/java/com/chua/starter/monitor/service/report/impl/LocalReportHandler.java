@@ -2,6 +2,7 @@ package com.chua.starter.monitor.service.report.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 
@@ -280,7 +281,7 @@ public class LocalReportHandler implements ReportHandler {
             ServerWebSocketMessage message = ServerWebSocketMessage.createServerMetricsMessage(
                     serverId, "Server-" + serverId, metrics);
             String messageJson = Json.toJson(message);
-            socketSessionTemplate.send("gen/server", messageJson);
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, messageJson);
             log.debug("服务器指标数据已广播: serverId={}", serverId);
         } catch (Exception e) {
             log.error("广播服务器指标数据失败: serverId={}", serverId, e);

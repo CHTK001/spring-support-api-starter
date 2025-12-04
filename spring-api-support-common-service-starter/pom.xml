@@ -70,6 +70,14 @@
             <version>2.2.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Socket.IO 支持（可选依赖）
+             用于消息实时推送功能，如果不需要WebSocket推送可不引入 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socketio-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 </project>

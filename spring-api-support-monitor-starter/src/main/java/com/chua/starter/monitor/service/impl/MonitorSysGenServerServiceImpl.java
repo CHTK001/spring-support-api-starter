@@ -10,6 +10,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.FileSystemSetting;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
@@ -1074,7 +1075,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     .data(Map.of("messageType", messageType, "success", success)).timestamp(System.currentTimeMillis())
                     .build();
 
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.STATUS;
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送服务器消息失败: {}", e.getMessage(), e);
@@ -1272,7 +1273,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort(),
                     server.getMonitorSysGenServerProtocol(), status, getStatusDesc(status), errorMessage, null);
 
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.STATUS;
             socketSessionTemplate.send(topic, Json.toJson(message));
             log.debug("发送连接状态消息: serverId={}, status={}", server.getMonitorSysGenServerId(), status);
         } catch (Exception e) {
@@ -1790,7 +1791,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                     systemData);
 
             // 发送到WebSocket
-            socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(wsMessage));
 
             log.debug("服务器 {} 数据已推送到WebSocket", serverId);
 
@@ -1831,7 +1832,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                         .serverName(server.getMonitorSysGenServerName())
                         .data(healthData)
                         .timestamp(System.currentTimeMillis()).build();
-                socketSessionTemplate.send("gen/server", Json.toJson(wsMessage));
+                socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(wsMessage));
             }
             return true;
         } catch (Exception e) {

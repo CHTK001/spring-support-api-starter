@@ -3,6 +3,7 @@ package com.chua.starter.monitor.websocket;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.IoUtils;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -568,7 +569,7 @@ public class RdpWebSocketHandler extends BinaryWebSocketHandler {
                 "success", true,
                 "timestamp", System.currentTimeMillis()
         );
-        socketSessionTemplate.send("gen/server", Json.toJson(message));
+        socketSessionTemplate.send(SocketTopics.Monitor.Server.RDP_CONNECT, Json.toJson(message));
     }
 
     /**

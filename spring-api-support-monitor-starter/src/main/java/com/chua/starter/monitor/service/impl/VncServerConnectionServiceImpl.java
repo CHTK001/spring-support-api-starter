@@ -4,6 +4,7 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetUtils;
 import com.chua.guacamole.support.client.GuacamoleClient;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
@@ -101,7 +102,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.VNC_CONNECT;
             socketSessionTemplate.send(topic, Json.toJson(message));
 
             log.info("VNC连接已断开: serverId={}", serverId);
@@ -133,7 +134,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
                     Map.of("command", command, "result", result, "type", "command_result")
             );
 
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.VNC_CONNECT;
             socketSessionTemplate.send(topic, Json.toJson(message));
 
             return result;
@@ -221,7 +222,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
                         Map.of("input", data, "type", "input_sent")
                 );
 
-                String topic = "gen/server";
+                String topic = SocketTopics.Monitor.Server.VNC_CONNECT;
                 socketSessionTemplate.send(topic, Json.toJson(message));
             }
         } catch (Exception e) {
@@ -368,7 +369,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            String topic = "gen/server";
+            String topic = SocketTopics.Monitor.Server.VNC_CONNECT;
             socketSessionTemplate.send(topic, Json.toJson(message));
         } catch (Exception e) {
             log.error("发送连接消息失败: {}", e.getMessage(), e);

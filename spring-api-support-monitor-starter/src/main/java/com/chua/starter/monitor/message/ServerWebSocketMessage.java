@@ -114,6 +114,15 @@ public class ServerWebSocketMessage implements Serializable {
     private Long timestamp;
 
     /**
+     * 数据ID
+     * 用于前端过滤消息，统一标识关联数据的ID
+     * 可以是 serverId、containerId、softId 等
+     */
+    @ApiModelProperty(value = "数据ID，用于前端过滤")
+    @Schema(description = "数据ID，用于前端过滤消息")
+    private String dataId;
+
+    /**
      * 扩展数据
      */
     @ApiModelProperty(value = "扩展数据")
@@ -130,6 +139,7 @@ public class ServerWebSocketMessage implements Serializable {
                 .serverId(serverId).serverName(serverName).serverHost(serverHost).serverPort(serverPort)
                 .serverProtocol(serverProtocol).connectionStatus(connectionStatus)
                 .statusDesc(statusDesc).errorMessage(errorMessage).responseTime(responseTime)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
                 .connectTime(LocalDateTime.now()).timestamp(System.currentTimeMillis()).build();
     }
 
@@ -138,7 +148,9 @@ public class ServerWebSocketMessage implements Serializable {
      */
     public static ServerWebSocketMessage createSSHDataMessage(Integer serverId, String serverName, String data) {
         return ServerWebSocketMessage.builder().messageType(MessageType.SSH_DATA).serverId(serverId)
-                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(data)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -149,6 +161,7 @@ public class ServerWebSocketMessage implements Serializable {
         return ServerWebSocketMessage.builder().messageType(MessageType.SSH_CONNECT).serverId(serverId)
                 .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
                 .serverProtocol("SSH").connectTime(LocalDateTime.now())
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
                 .timestamp(System.currentTimeMillis()).build();
     }
 
@@ -158,8 +171,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createSSHDisconnectMessage(Integer serverId, String serverName,
                                                                     String reason) {
         return ServerWebSocketMessage.builder().messageType(MessageType.SSH_DISCONNECT).serverId(serverId)
-                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
-                .build();
+                .serverName(serverName).errorMessage(reason)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -168,8 +182,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createSSHErrorMessage(Integer serverId, String serverName,
                                                                String errorMessage) {
         return ServerWebSocketMessage.builder().messageType(MessageType.SSH_ERROR).serverId(serverId)
-                .serverName(serverName).errorMessage(errorMessage).timestamp(System.currentTimeMillis())
-                .build();
+                .serverName(serverName).errorMessage(errorMessage)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -182,7 +197,9 @@ public class ServerWebSocketMessage implements Serializable {
         shellData.put("type", "output");
 
         return ServerWebSocketMessage.builder().messageType(MessageType.SHELL_OUTPUT).serverId(serverId)
-                .serverName(serverName).data(shellData).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(shellData)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -191,7 +208,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createServerMetricsMessage(Integer serverId, String serverName,
                                                                     Object metricsData) {
         return ServerWebSocketMessage.builder().messageType(MessageType.SERVER_METRICS).serverId(serverId)
-                .serverName(serverName).data(metricsData).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(metricsData)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -199,7 +218,9 @@ public class ServerWebSocketMessage implements Serializable {
      */
     public static ServerWebSocketMessage createVncDataMessage(Integer serverId, String serverName, Object data) {
         return ServerWebSocketMessage.builder().messageType(MessageType.VNC_DATA).serverId(serverId)
-                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(data)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -208,7 +229,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createVncInputMessage(Integer serverId, String serverName,
                                                                Object inputData) {
         return ServerWebSocketMessage.builder().messageType(MessageType.VNC_INPUT).serverId(serverId)
-                .serverName(serverName).data(inputData).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(inputData)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -216,7 +239,9 @@ public class ServerWebSocketMessage implements Serializable {
      */
     public static ServerWebSocketMessage createRdpDataMessage(Integer serverId, String serverName, Object data) {
         return ServerWebSocketMessage.builder().messageType(MessageType.RDP_DATA).serverId(serverId)
-                .serverName(serverName).data(data).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(data)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -225,7 +250,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createRdpInputMessage(Integer serverId, String serverName,
                                                                Object inputData) {
         return ServerWebSocketMessage.builder().messageType(MessageType.RDP_INPUT).serverId(serverId)
-                .serverName(serverName).data(inputData).timestamp(System.currentTimeMillis()).build();
+                .serverName(serverName).data(inputData)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -235,6 +262,7 @@ public class ServerWebSocketMessage implements Serializable {
                                                                     String status) {
         return ServerWebSocketMessage.builder().messageType(MessageType.RDP_CONNECT).serverId(serverId)
                 .serverName(serverName).data(Map.of("status", status))
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
                 .timestamp(System.currentTimeMillis()).build();
     }
 
@@ -244,8 +272,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createRdpDisconnectMessage(Integer serverId, String serverName,
                                                                     String reason) {
         return ServerWebSocketMessage.builder().messageType(MessageType.RDP_DISCONNECT).serverId(serverId)
-                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
-                .build();
+                .serverName(serverName).errorMessage(reason)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**
@@ -255,6 +284,7 @@ public class ServerWebSocketMessage implements Serializable {
                                                                     String status) {
         return ServerWebSocketMessage.builder().messageType(MessageType.VNC_CONNECT).serverId(serverId)
                 .serverName(serverName).data(Map.of("status", status))
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
                 .timestamp(System.currentTimeMillis()).build();
     }
 
@@ -264,8 +294,9 @@ public class ServerWebSocketMessage implements Serializable {
     public static ServerWebSocketMessage createVncDisconnectMessage(Integer serverId, String serverName,
                                                                     String reason) {
         return ServerWebSocketMessage.builder().messageType(MessageType.VNC_DISCONNECT).serverId(serverId)
-                .serverName(serverName).errorMessage(reason).timestamp(System.currentTimeMillis())
-                .build();
+                .serverName(serverName).errorMessage(reason)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
     }
 
     /**

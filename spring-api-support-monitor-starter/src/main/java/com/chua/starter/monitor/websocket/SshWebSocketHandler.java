@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.websocket;
 
 import com.chua.common.support.json.Json;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -290,7 +291,7 @@ public class SshWebSocketHandler implements WebSocketHandler {
                 server.getMonitorSysGenServerPort()
             );
             
-            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.SSH_CONNECT, Json.toJson(message));
         } catch (Exception e) {
             log.error("广播SSH连接消息失败: {}", e.getMessage(), e);
         }
@@ -307,7 +308,7 @@ public class SshWebSocketHandler implements WebSocketHandler {
                 reason
             );
 
-            socketSessionTemplate.send("gen/server", Json.toJson(message));
+            socketSessionTemplate.send(SocketTopics.Monitor.Server.SSH_DISCONNECT, Json.toJson(message));
         } catch (Exception e) {
             log.error("广播SSH断开连接消息失败: {}", e.getMessage(), e);
         }
