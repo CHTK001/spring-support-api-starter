@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("ALL")
 public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContainerMapper, SystemSoftContainer> implements SystemSoftContainerService {
 
     private final SystemSoftContainerMapper systemSoftContainerMapper;
@@ -941,7 +942,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
                 message.put("containerId", dbContainerId);
                 message.put("logs", initialLogs);
                 message.put("timestamp", java.time.LocalDateTime.now());
-                socketSessionTemplate.sendObject("container_log", message);
+                socketSessionTemplate.send("container_log", message);
 
                 // 持续跟踪日志
                 while (running && !Thread.currentThread().isInterrupted()) {
@@ -956,7 +957,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
                             message.put("containerId", dbContainerId);
                             message.put("logs", latestLogs);
                             message.put("timestamp", java.time.LocalDateTime.now());
-                            socketSessionTemplate.sendObject("container_log_update", message);
+                            socketSessionTemplate.send("container_log_update", message);
                         }
 
                         // 休眠一段时间避免过于频繁的请求

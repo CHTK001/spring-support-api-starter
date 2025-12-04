@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.socketio.support.SocketIOListener;
-import com.chua.socketio.support.annotations.OnEvent;
-import com.chua.socketio.support.session.SocketSession;
+import com.chua.socket.support.SocketListener;
+import com.chua.socket.support.annotations.OnEvent;
+import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class SshSocketIOListener implements SocketIOListener {
+public class SshSocketIOListener implements SocketListener {
 
     private final List<ServerConnectionService> serverConnectionServices;
     private final MonitorSysGenServerService serverService;
@@ -296,7 +296,7 @@ public class SshSocketIOListener implements SocketIOListener {
             boolean connected = sshCommandService.connectSSH(server);
             if (connected) {
                 // 存储会话映射
-                sessionServerMap.put(session.getSessionId(), serverId);
+                sessionServerMap.put(session.getId(), serverId);
                 serverSessionMap.put(serverId, session);
 
                 // 发送连接成功消息
@@ -367,7 +367,7 @@ public class SshSocketIOListener implements SocketIOListener {
             Integer serverId = message.getServerId();
             if (serverId == null) {
                 // 尝试从会话映射中获取服务器ID
-                serverId = sessionServerMap.get(session.getSessionId());
+                serverId = sessionServerMap.get(session.getId());
             }
 
             if (serverId == null) {
@@ -379,7 +379,7 @@ public class SshSocketIOListener implements SocketIOListener {
             sshCommandService.disconnectSSH(serverId);
 
             // 清理会话映射
-            sessionServerMap.remove(session.getSessionId());
+            sessionServerMap.remove(session.getId());
             serverSessionMap.remove(serverId);
 
             // 发送断开连接消息
@@ -479,7 +479,7 @@ public class SshSocketIOListener implements SocketIOListener {
      */
     public void onSessionDisconnect(SocketSession session) {
         try {
-            String sessionId = session.getSessionId();
+            String sessionId = session.getId();
             Integer serverId = sessionServerMap.get(sessionId);
 
             if (serverId != null) {

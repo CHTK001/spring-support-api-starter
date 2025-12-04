@@ -2,9 +2,9 @@ package com.chua.starter.monitor.socketio;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.MapUtils;
-import com.chua.socketio.support.SocketIOListener;
-import com.chua.socketio.support.annotations.OnEvent;
-import com.chua.socketio.support.session.SocketSession;
+import com.chua.socket.support.SocketListener;
+import com.chua.socket.support.annotations.OnEvent;
+import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringBootConfiguration;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @SpringBootConfiguration
 @RequiredArgsConstructor
-public class WebrtcSocketIOListener implements SocketIOListener {
+public class WebrtcSocketIOListener implements SocketListener {
 
     private final SocketSessionTemplate socketSessionTemplate;
 
