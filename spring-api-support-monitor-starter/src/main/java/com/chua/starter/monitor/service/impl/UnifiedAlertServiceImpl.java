@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
@@ -39,7 +39,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
     private final SocketSessionTemplate socketSessionTemplate;
     private final com.chua.starter.monitor.service.AlertNotificationDispatcher alertNotificationDispatcher;
 
-    
+
     @Override
     public ReturnResult<Boolean> checkAndPushServerAlerts(MonitorSysGenServer server, MonitorSysGenServerMetrics metrics) {
         try {

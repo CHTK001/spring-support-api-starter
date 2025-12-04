@@ -6,7 +6,7 @@ import com.chua.docker.support.callback.PullImageCallback;
 import com.chua.docker.support.client.DockerCreateContainer;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.callback.StatusUpdatingWebSocketContainerCreateCallback;
 import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
 import com.chua.starter.monitor.callback.WebSocketContainerCreateCallback;

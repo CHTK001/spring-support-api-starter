@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.report.impl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * 本地上报处理器
  * 用于本地服务器直接获取系统指标数据
- * 
+ *
  * @author CH
  * @since 2024/12/25
  */
@@ -44,7 +44,7 @@ public class LocalReportHandler implements ReportHandler {
     @Autowired
     @Lazy
     private UnifiedAlertService unifiedAlertService;
-    
+
     // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
     @Override
@@ -76,7 +76,7 @@ public class LocalReportHandler implements ReportHandler {
     public ReturnResult<MonitorSysGenServerMetrics> handleReport(MonitorSysGenServer server, Map<String, Object> reportData) {
         try {
             log.debug("开始处理本地服务器数据上报: serverId={}", server.getMonitorSysGenServerId());
-            
+
             // 收集本地系统指标
             MonitorSysGenServerMetrics metrics = collectLocalMetrics(server);
 
@@ -102,7 +102,7 @@ public class LocalReportHandler implements ReportHandler {
 
             log.debug("本地服务器数据上报处理完成: serverId={}", server.getMonitorSysGenServerId());
             return ReturnResult.success(metrics);
-            
+
         } catch (Exception e) {
             log.error("处理本地服务器数据上报失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("本地数据上报失败: " + e.getMessage());
@@ -141,11 +141,11 @@ public class LocalReportHandler implements ReportHandler {
             if (server.getMonitorSysGenServerIsLocal() == null || server.getMonitorSysGenServerIsLocal() != 1) {
                 return ReturnResult.error("服务器不是本地服务器，无法使用本地上报方式");
             }
-            
 
-            
+
+
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
             log.error("验证本地服务器配置失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("验证配置失败: " + e.getMessage());

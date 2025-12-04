@@ -7,7 +7,7 @@ import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.report.ReportHandler;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.json.Json;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * API上报处理器
  * 用于处理远程服务器通过API接口上报的数据
- * 
+ *
  * @author CH
  * @since 2024/12/25
  */
@@ -65,23 +65,23 @@ public class ApiReportHandler implements ReportHandler {
     public ReturnResult<MonitorSysGenServerMetrics> handleReport(MonitorSysGenServer server, Map<String, Object> reportData) {
         try {
             log.debug("开始处理API上报数据: serverId={}", server.getMonitorSysGenServerId());
-            
+
             if (reportData == null || reportData.isEmpty()) {
                 return ReturnResult.error("上报数据不能为空");
             }
-            
+
             // 解析上报数据并转换为指标对象
             MonitorSysGenServerMetrics metrics = parseReportData(server, reportData);
-            
+
             // 保存到Redis时序数据库
             metricsService.saveMetrics(metrics);
-            
+
             // 通过WebSocket推送到前端
             broadcastServerMetrics(server.getMonitorSysGenServerId(), metrics);
-            
+
             log.debug("API上报数据处理完成: serverId={}", server.getMonitorSysGenServerId());
             return ReturnResult.success(metrics);
-            
+
         } catch (Exception e) {
             log.error("处理API上报数据失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("API上报数据处理失败: " + e.getMessage());
@@ -109,19 +109,19 @@ public class ApiReportHandler implements ReportHandler {
             if (server.getMonitorSysGenServerIsLocal() == null || server.getMonitorSysGenServerIsLocal() != 0) {
                 return ReturnResult.error("本地服务器不支持API上报方式");
             }
-            
+
             // 检查服务器地址
             if (!StringUtils.hasText(server.getMonitorSysGenServerHost())) {
                 return ReturnResult.error("服务器地址不能为空");
             }
-            
+
             // 检查端口
             if (server.getMonitorSysGenServerPort() == null || server.getMonitorSysGenServerPort() <= 0) {
                 return ReturnResult.error("服务器端口配置无效");
             }
-            
+
             return ReturnResult.success(true);
-            
+
         } catch (Exception e) {
             log.error("验证API上报服务器配置失败: serverId={}", server.getMonitorSysGenServerId(), e);
             return ReturnResult.error("验证配置失败: " + e.getMessage());
@@ -150,41 +150,41 @@ public class ApiReportHandler implements ReportHandler {
 
     /**
      * 解析上报数据并转换为指标对象
-     * 
+     *
      * @param server 服务器配置
      * @param reportData 上报数据
      * @return 指标对象
      */
     private MonitorSysGenServerMetrics parseReportData(MonitorSysGenServer server, Map<String, Object> reportData) {
         MonitorSysGenServerMetrics metrics = new MonitorSysGenServerMetrics();
-        
+
         try {
             // 设置基本信息
             metrics.setMonitorSysGenServerId(server.getMonitorSysGenServerId());
             metrics.setMonitorSysGenServerMetricsCollectTime(LocalDateTime.now());
-            
+
             // 解析CPU使用率
             Object cpuUsage = reportData.get("cpuUsage");
             if (cpuUsage != null) {
                 metrics.setMonitorSysGenServerMetricsCpuUsage(parseBigDecimal(cpuUsage));
             }
-            
+
             // 解析内存信息
             Object memoryTotal = reportData.get("memoryTotal");
             if (memoryTotal != null) {
                 metrics.setMonitorSysGenServerMetricsMemoryTotal(parseLong(memoryTotal));
             }
-            
+
             Object memoryUsed = reportData.get("memoryUsed");
             if (memoryUsed != null) {
                 metrics.setMonitorSysGenServerMetricsMemoryUsed(parseLong(memoryUsed));
             }
-            
+
             Object memoryUsage = reportData.get("memoryUsage");
             if (memoryUsage != null) {
                 metrics.setMonitorSysGenServerMetricsMemoryUsage(parseBigDecimal(memoryUsage));
             }
-            
+
             // 解析磁盘信息
             Object diskUsage = reportData.get("diskUsage");
             if (diskUsage != null) {
@@ -339,12 +339,12 @@ public class ApiReportHandler implements ReportHandler {
                     metrics.getMonitorSysGenServerMetricsCpuLoad1m(),
                     metrics.getMonitorSysGenServerMetricsNetworkIn(),
                     metrics.getMonitorSysGenServerMetricsNetworkOut());
-            
+
         } catch (Exception e) {
             log.error("解析API上报数据失败", e);
             throw new RuntimeException("解析API上报数据失败", e);
         }
-        
+
         return metrics;
     }
 

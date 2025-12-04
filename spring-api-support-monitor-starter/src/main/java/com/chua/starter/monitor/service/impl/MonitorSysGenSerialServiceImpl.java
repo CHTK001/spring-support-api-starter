@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenSerial;
 import com.chua.starter.monitor.mapper.MonitorSysGenSerialMapper;
 import com.chua.starter.monitor.service.MonitorSysGenSerialService;
@@ -876,7 +876,7 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.error("发送串口状态变更消息失败: {}", e.getMessage(), e);
         }
     }
-    
+
     /**
      * 发送串口操作错误消息
      *
@@ -912,4 +912,4 @@ public class MonitorSysGenSerialServiceImpl extends ServiceImpl<MonitorSysGenSer
             log.error("发送串口操作错误消息失败: {}", e.getMessage(), e);
         }
     }
-} 
+}

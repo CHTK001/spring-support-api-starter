@@ -2,7 +2,7 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +35,7 @@ public class SocketIOTestController {
     @PostMapping("/test/send")
     public ReturnResult<String> testSendMessage(
             @ApiParam("消息内容") @RequestBody Map<String, Object> messageData) {
-        
+
         try {
             // 创建测试消息
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
@@ -48,10 +48,10 @@ public class SocketIOTestController {
             // 发送到 gen/server 主题
             String messageJson = Json.toJson(message);
             socketSessionTemplate.send("gen/server", messageJson);
-            
+
             log.info("测试消息发送成功: {}", messageJson);
             return ReturnResult.success("消息发送成功");
-            
+
         } catch (Exception e) {
             log.error("发送测试消息失败: {}", e.getMessage(), e);
             return ReturnResult.error("消息发送失败: " + e.getMessage());
@@ -65,7 +65,7 @@ public class SocketIOTestController {
     @PostMapping("/test/ssh-connect")
     public ReturnResult<String> testSSHConnect(
             @ApiParam("服务器ID") @RequestParam Integer serverId) {
-        
+
         try {
             // 创建 SSH 连接消息
             ServerWebSocketMessage message = ServerWebSocketMessage.createSSHConnectMessage(
@@ -74,10 +74,10 @@ public class SocketIOTestController {
             // 发送到 gen/server 主题
             String messageJson = Json.toJson(message);
             socketSessionTemplate.send("gen/server", messageJson);
-            
+
             log.info("SSH连接测试消息发送成功: {}", messageJson);
             return ReturnResult.success("SSH连接消息发送成功");
-            
+
         } catch (Exception e) {
             log.error("发送SSH连接测试消息失败: {}", e.getMessage(), e);
             return ReturnResult.error("SSH连接消息发送失败: " + e.getMessage());
@@ -92,7 +92,7 @@ public class SocketIOTestController {
     public ReturnResult<String> testSSHData(
             @ApiParam("服务器ID") @RequestParam Integer serverId,
             @ApiParam("数据内容") @RequestParam String data) {
-        
+
         try {
             // 创建 SSH 数据消息
             ServerWebSocketMessage message = ServerWebSocketMessage.createSSHDataMessage(
@@ -101,10 +101,10 @@ public class SocketIOTestController {
             // 发送到 gen/server 主题
             String messageJson = Json.toJson(message);
             socketSessionTemplate.send("gen/server", messageJson);
-            
+
             log.info("SSH数据测试消息发送成功: {}", messageJson);
             return ReturnResult.success("SSH数据消息发送成功");
-            
+
         } catch (Exception e) {
             log.error("发送SSH数据测试消息失败: {}", e.getMessage(), e);
             return ReturnResult.error("SSH数据消息发送失败: " + e.getMessage());
@@ -117,19 +117,19 @@ public class SocketIOTestController {
     @ApiOperation("获取在线会话信息")
     @GetMapping("/sessions")
     public ReturnResult<Map<String, Object>> getOnlineSessions() {
-        
+
         try {
             // 获取在线会话数量
             var sessions = socketSessionTemplate.getOnlineSession("gen/server");
-            
+
             Map<String, Object> result = Map.of(
                 "topic", "gen/server",
                 "sessionCount", sessions.size(),
                 "timestamp", System.currentTimeMillis()
             );
-            
+
             return ReturnResult.success(result);
-            
+
         } catch (Exception e) {
             log.error("获取在线会话信息失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取会话信息失败: " + e.getMessage());

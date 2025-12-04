@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerComponent;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -52,7 +52,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<MonitorSysGenServerComponentMapper, MonitorSysGenServerComponent> 
+public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<MonitorSysGenServerComponentMapper, MonitorSysGenServerComponent>
         implements MonitorSysGenServerComponentService {
 
     private final MonitorSysGenServerComponentMapper componentMapper;
@@ -222,7 +222,7 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             // 更新时间戳
             LocalDateTime now = LocalDateTime.now();
             components.forEach(component -> component.setMonitorSysGenServerComponentUpdateTime(now));
-            
+
             int updateCount = componentMapper.batchUpdatePosition(components);
             return ReturnResult.ok(updateCount > 0);
         } catch (Exception e) {
@@ -240,12 +240,12 @@ public class MonitorSysGenServerComponentServiceImpl extends ServiceImpl<Monitor
             if (templates.isEmpty()) {
                 return ReturnResult.ok(true);
             }
-            
+
             // 提取模板ID
             List<Long> templateIds = templates.stream()
                 .map(MonitorSysGenServerComponent::getMonitorSysGenServerComponentId)
                 .toList();
-            
+
             // 复制模板到服务器
             int copyCount = componentMapper.copyTemplatesForServer(serverId, templateIds);
             return ReturnResult.ok(copyCount > 0);

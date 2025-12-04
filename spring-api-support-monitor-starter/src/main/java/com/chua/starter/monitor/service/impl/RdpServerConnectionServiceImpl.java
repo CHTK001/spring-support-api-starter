@@ -8,7 +8,7 @@ import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;

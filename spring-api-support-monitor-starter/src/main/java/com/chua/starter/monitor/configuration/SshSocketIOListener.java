@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socketio.support.SocketIOListener;
 import com.chua.socketio.support.annotations.OnEvent;
 import com.chua.socketio.support.session.SocketSession;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
