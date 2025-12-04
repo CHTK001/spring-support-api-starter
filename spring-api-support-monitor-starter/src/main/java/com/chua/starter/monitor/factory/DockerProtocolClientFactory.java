@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.factory;
 
+import com.chua.common.support.lang.exception.NotSupportedException;
 import com.chua.common.support.protocol.ClientSetting;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.docker.support.client.CmdDockerProtocolClient;
@@ -14,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.chua.starter.monitor.pojo.DockerClientCreateResult;
+
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -65,11 +69,15 @@ public class DockerProtocolClientFactory {
             return null;
         }
 
+        // 获取服务器名称用于错误提示
+        MonitorSysGenServer server = serverService.getByServerId(serverId);
+        String serverName = server != null ? server.getMonitorSysGenServerName() : "未知服务器";
+
         // 检查是否启用Docker
         if (setting.getMonitorSysGenServerSettingDockerEnabled() == null ||
                 setting.getMonitorSysGenServerSettingDockerEnabled() != 1) {
-            log.debug("服务器未启用Docker - serverId: {}", serverId);
-            return null;
+            log.debug("服务器未启用Docker - serverId: {}, serverName: {}", serverId, serverName);
+            throw new NotSupportedException(String.format("服务器[%s](ID:%d)未启用Docker", serverName, serverId));
         }
 
         try {
@@ -78,14 +86,86 @@ public class DockerProtocolClientFactory {
                 client.connect();
                 // 缓存客户端实例
                 clientCache.put(serverId, client);
-                log.info("成功创建Docker客户端 - serverId: {}, connectionType: {}",
-                        serverId, setting.getMonitorSysGenServerSettingDockerConnectionType());
+                log.info("成功创建Docker客户端 - serverId: {}, serverName: {}, connectionType: {}",
+                        serverId, serverName, setting.getMonitorSysGenServerSettingDockerConnectionType());
             }
             return client;
         } catch (Exception e) {
-            log.error("创建Docker客户端失败 - serverId: {}, error: {}", serverId, e.getMessage(), e);
-            return null;
+            log.error("创建Docker客户端失败 - serverId: {}, serverName: {}, error: {}", serverId, serverName, e.getMessage(), e);
+            throw new RuntimeException(String.format("服务器[%s](ID:%d)连接失败: %s", serverName, serverId, e.getMessage()), e);
         }
+    }
+
+    /**
+     * 批量创建Docker协议客户端
+     * 返回详细的创建结果，包括成功、失败、未启用等状态
+     *
+     * @param serverIds 服务器ID列表
+     * @return 批量创建结果
+     */
+    public DockerClientCreateResult createClients(List<Integer> serverIds) {
+        DockerClientCreateResult result = new DockerClientCreateResult();
+
+        if (serverIds == null || serverIds.isEmpty()) {
+            log.warn("服务器ID列表为空");
+            return result;
+        }
+
+        for (Integer serverId : serverIds) {
+            if (serverId == null) {
+                continue;
+            }
+
+            try {
+                // 先从缓存中获取
+                DockerProtocolClient cachedClient = clientCache.get(serverId);
+                if (cachedClient != null && cachedClient.isConnected()) {
+                    result.addSuccess(serverId, cachedClient);
+                    continue;
+                }
+
+                // 获取服务器配置
+                MonitorSysGenServerSetting setting = serverSettingService.getByServerId(serverId).getData();
+                if (setting == null) {
+                    log.warn("未找到服务器配置 - serverId: {}", serverId);
+                    result.addNotFound(serverId);
+                    continue;
+                }
+
+                // 获取服务器名称
+                MonitorSysGenServer server = serverService.getByServerId(serverId);
+                String serverName = server != null ? server.getMonitorSysGenServerName() : "未知服务器(ID:" + serverId + ")";
+
+                // 检查是否启用Docker
+                if (setting.getMonitorSysGenServerSettingDockerEnabled() == null ||
+                        setting.getMonitorSysGenServerSettingDockerEnabled() != 1) {
+                    log.debug("服务器未启用Docker - serverId: {}, serverName: {}", serverId, serverName);
+                    result.addDisabled(serverId, serverName);
+                    continue;
+                }
+
+                // 创建客户端
+                DockerProtocolClient client = createClientFromSetting(setting);
+                if (client != null) {
+                    client.connect();
+                    clientCache.put(serverId, client);
+                    result.addSuccess(serverId, client);
+                    log.info("成功创建Docker客户端 - serverId: {}, serverName: {}", serverId, serverName);
+                } else {
+                    result.addFailed(serverId, serverName, "创建客户端返回null");
+                }
+
+            } catch (Exception e) {
+                // 获取服务器名称用于错误信息
+                MonitorSysGenServer server = serverService.getByServerId(serverId);
+                String serverName = server != null ? server.getMonitorSysGenServerName() : "未知服务器";
+                log.error("创建Docker客户端失败 - serverId: {}, serverName: {}, error: {}", serverId, serverName, e.getMessage());
+                result.addFailed(serverId, serverName, e.getMessage());
+            }
+        }
+
+        log.info("批量创建Docker客户端完成 - {}", result.getSummary());
+        return result;
     }
 
     /**
@@ -188,7 +268,7 @@ public class DockerProtocolClientFactory {
      */
     private DockerProtocolClient createLocalClient(MonitorSysGenServerSetting setting) {
         Integer serverId = setting.getMonitorSysGenServerId();
-        
+
         // 获取服务器基本信息（包含SSH连接配置）- 使用缓存方法
         MonitorSysGenServer server = serverService.getByServerId(serverId);
         if (server == null) {
@@ -204,19 +284,19 @@ public class DockerProtocolClientFactory {
 
         // 验证SSH连接必需参数
         if (!StringUtils.hasText(host)) {
-            log.warn("服务器主机地址未配置 - serverId: {}, serverName: {}", 
+            log.warn("服务器主机地址未配置 - serverId: {}, serverName: {}",
                     serverId, server.getMonitorSysGenServerName());
             return null;
         }
 
         if (!StringUtils.hasText(username)) {
-            log.warn("服务器用户名未配置 - serverId: {}, host: {}", 
+            log.warn("服务器用户名未配置 - serverId: {}, host: {}",
                     serverId, host);
             return null;
         }
 
         if (!StringUtils.hasText(password)) {
-            log.warn("服务器密码未配置 - serverId: {}, host: {}, username: {}", 
+            log.warn("服务器密码未配置 - serverId: {}, host: {}, username: {}",
                     serverId, host, username);
             return null;
         }
@@ -227,7 +307,7 @@ public class DockerProtocolClientFactory {
             log.debug("使用默认SSH端口22 - serverId: {}", serverId);
         }
 
-        log.debug("创建本地Docker客户端(CMD方式) - serverId: {}, serverName: {}, host: {}, port: {}, username: {}", 
+        log.debug("创建本地Docker客户端(CMD方式) - serverId: {}, serverName: {}, host: {}, port: {}, username: {}",
                 serverId, server.getMonitorSysGenServerName(), host, port, username);
 
         // 构建SSH连接配置
