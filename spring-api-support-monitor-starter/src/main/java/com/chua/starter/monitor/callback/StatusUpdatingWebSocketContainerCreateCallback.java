@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.CreateContainerCallback;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socketio.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
@@ -170,7 +171,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             log.debug("Docker创建进度: {} - {}", responseItem.getStatus(), responseItem.getProgress());
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_progress", message);
+            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.PROGRESS, message);
 
         } catch (Exception e) {
             log.error("发送Docker进度WebSocket消息失败", e);
@@ -199,7 +200,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             log.info("Docker创建操作开始 - 容器: {}", containerName);
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_start", message);
+            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.START, message);
 
             // 更新数据库中的容器状态为创建中
             updateContainerStatus(SystemSoftContainerStatus.CREATING, null);
@@ -236,7 +237,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             log.error("Docker创建操作失败 - 容器: {}, 错误: {}", containerName, throwable.getMessage(), throwable);
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_error", message);
+            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.ERROR, message);
 
             // 更新数据库中的容器状态为创建失败，并记录错误信息
             updateContainerStatus(SystemSoftContainerStatus.CREATE_FAILED, throwable.getMessage());
@@ -275,7 +276,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             }
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject("docker_complete", message);
+            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.COMPLETE, message);
 
             // 如果没有错误，更新数据库中的容器状态为已创建，并补充容器详细信息
             if (!hasError) {
