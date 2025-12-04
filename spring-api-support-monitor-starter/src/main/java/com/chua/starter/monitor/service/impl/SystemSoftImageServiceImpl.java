@@ -17,6 +17,7 @@ import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftImageService;
+import com.chua.socketio.support.constant.SocketTopics;
 import com.github.dockerjava.api.model.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -794,7 +795,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("imageName", imageName);
             data.put("progress", progress);
             data.put("message", message);
-            dockerCallbackService.getSocketSessionTemplate().send("docker_image_export_progress", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Docker.IMAGE_EXPORT_PROGRESS, data);
         } catch (Exception e) {
             log.warn("推送导出进度失败", e);
         }
@@ -809,7 +810,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("type", "export_image");
             data.put("status", "completed");
             data.put("message", "镜像导出完成");
-            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Operation.COMPLETE, data);
         } catch (Exception e) {
             log.warn("推送导出完成消息失败", e);
         }
@@ -822,7 +823,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("imageId", imageId);
             data.put("type", "export_image");
             data.put("error", error);
-            dockerCallbackService.getSocketSessionTemplate().send("operation_error", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Operation.ERROR, data);
         } catch (Exception e) {
             log.warn("推送导出错误消息失败", e);
         }
@@ -836,7 +837,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("filePath", filePath);
             data.put("progress", progress);
             data.put("message", message);
-            dockerCallbackService.getSocketSessionTemplate().send("docker_image_import_progress", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Docker.IMAGE_IMPORT_PROGRESS, data);
         } catch (Exception e) {
             log.warn("推送导入进度失败", e);
         }
@@ -850,7 +851,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("type", "import_image");
             data.put("status", "completed");
             data.put("message", "镜像导入完成");
-            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Operation.COMPLETE, data);
         } catch (Exception e) {
             log.warn("推送导入完成消息失败", e);
         }
@@ -863,7 +864,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("serverId", serverId);
             data.put("type", "import_image");
             data.put("error", error);
-            dockerCallbackService.getSocketSessionTemplate().send("operation_error", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Operation.ERROR, data);
         } catch (Exception e) {
             log.warn("推送导入错误消息失败", e);
         }
@@ -877,7 +878,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("serverName", serverName);
             data.put("progress", progress);
             data.put("message", message);
-            dockerCallbackService.getSocketSessionTemplate().send("software_sync_progress", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Software.SYNC_PROGRESS, data);
         } catch (Exception e) {
             log.warn("推送同步进度失败", e);
         }
@@ -893,7 +894,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             data.put("successCount", successCount);
             data.put("errorCount", errorCount);
             data.put("message", String.format("镜像同步完成，成功: %d, 失败: %d", successCount, errorCount));
-            dockerCallbackService.getSocketSessionTemplate().send("operation_complete", data);
+            dockerCallbackService.getSocketSessionTemplate().send(SocketTopics.Monitor.Operation.COMPLETE, data);
         } catch (Exception e) {
             log.warn("推送同步完成消息失败", e);
         }
