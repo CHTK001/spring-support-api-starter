@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -57,21 +57,21 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
 
             // 更新状态为连接中
             updateServerConnectionStatus(serverId, MonitorSysGenServerConnectionStatus.ConnectionStatus.CONNECTING.getCode(), null);
-            
+
             // 发送连接中状态
             sendConnectionStatusMessage(serverId, MonitorSysGenServerConnectionStatus.ConnectionStatus.CONNECTING.getCode(), "正在测试连接...");
 
             MonitorSysGenServerConnectionStatus result = performConnectionTest(server);
-            
+
             // 更新连接状态
             updateServerConnectionStatus(serverId, result.getMonitorSysGenServerConnectionStatus(), result.getMonitorSysGenServerConnectionError());
-            
+
             // 发送连接结果
-            sendConnectionStatusMessage(serverId, result.getMonitorSysGenServerConnectionStatus(), 
+            sendConnectionStatusMessage(serverId, result.getMonitorSysGenServerConnectionStatus(),
                     result.getMonitorSysGenServerConnectionError());
 
             return ReturnResult.success(result);
-            
+
         } catch (Exception e) {
             log.error("测试服务器连接失败: serverId={}", serverId, e);
             updateServerConnectionStatus(serverId, MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode(), e.getMessage());
@@ -93,29 +93,29 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
                     .map(server -> CompletableFuture.supplyAsync(() -> {
                         try {
                             // 更新状态为连接中
-                            updateServerConnectionStatus(server.getMonitorSysGenServerId(), 
+                            updateServerConnectionStatus(server.getMonitorSysGenServerId(),
                                     MonitorSysGenServerConnectionStatus.ConnectionStatus.CONNECTING.getCode(), null);
-                            
-                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(), 
+
+                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(),
                                     MonitorSysGenServerConnectionStatus.ConnectionStatus.CONNECTING.getCode(), "正在测试连接...");
 
                             MonitorSysGenServerConnectionStatus result = performConnectionTest(server);
-                            
+
                             // 更新连接状态
-                            updateServerConnectionStatus(server.getMonitorSysGenServerId(), 
+                            updateServerConnectionStatus(server.getMonitorSysGenServerId(),
                                     result.getMonitorSysGenServerConnectionStatus(), result.getMonitorSysGenServerConnectionError());
-                            
-                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(), 
+
+                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(),
                                     result.getMonitorSysGenServerConnectionStatus(), result.getMonitorSysGenServerConnectionError());
 
                             return result;
                         } catch (Exception e) {
                             log.error("测试服务器连接失败: serverId={}", server.getMonitorSysGenServerId(), e);
-                            updateServerConnectionStatus(server.getMonitorSysGenServerId(), 
+                            updateServerConnectionStatus(server.getMonitorSysGenServerId(),
                                     MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode(), e.getMessage());
-                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(), 
+                            sendConnectionStatusMessage(server.getMonitorSysGenServerId(),
                                     MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode(), e.getMessage());
-                            
+
                             MonitorSysGenServerConnectionStatus errorResult = new MonitorSysGenServerConnectionStatus();
                             errorResult.setMonitorSysGenServerId(server.getMonitorSysGenServerId());
                             errorResult.setMonitorSysGenServerConnectionStatus(MonitorSysGenServerConnectionStatus.ConnectionStatus.FAILED.getCode());
@@ -131,7 +131,7 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
                     .collect(Collectors.toList());
 
             return ReturnResult.success(results);
-            
+
         } catch (Exception e) {
             log.error("批量测试服务器连接失败", e);
             return ReturnResult.error("批量测试连接失败: " + e.getMessage());
@@ -355,7 +355,7 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
             long responseTime = System.currentTimeMillis() - startTime;
 
             result.setMonitorSysGenServerResponseTime(responseTime);
-            
+
             if (connected) {
                 result.setMonitorSysGenServerConnectionStatus(MonitorSysGenServerConnectionStatus.ConnectionStatus.ONLINE.getCode());
                 result.setMonitorSysGenServerLastConnectTime(LocalDateTime.now());

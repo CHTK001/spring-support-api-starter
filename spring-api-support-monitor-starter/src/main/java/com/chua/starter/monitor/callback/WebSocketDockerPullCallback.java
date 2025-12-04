@@ -2,7 +2,7 @@ package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

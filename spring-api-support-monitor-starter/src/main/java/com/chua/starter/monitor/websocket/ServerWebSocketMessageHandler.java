@@ -2,7 +2,7 @@ package com.chua.starter.monitor.websocket;
 
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
@@ -164,7 +164,7 @@ public class ServerWebSocketMessageHandler {
             // 发送断开连接消息
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
-            
+
             ServerWebSocketMessage response = ServerWebSocketMessage.createSSHDisconnectMessage(
                 serverId,
                 serverName,
@@ -185,7 +185,7 @@ public class ServerWebSocketMessageHandler {
         try {
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             String serverName = server != null ? server.getMonitorSysGenServerName() : "Server-" + serverId;
-            
+
             ServerWebSocketMessage errorMsg = ServerWebSocketMessage.createSSHErrorMessage(
                 serverId,
                 serverName,

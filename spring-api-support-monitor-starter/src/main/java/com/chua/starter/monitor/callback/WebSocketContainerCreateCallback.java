@@ -2,7 +2,7 @@ package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.CreateContainerCallback;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 
 import com.github.dockerjava.api.model.ResponseItem;
@@ -145,7 +145,7 @@ public class WebSocketContainerCreateCallback implements CreateContainerCallback
         this.softId = softId;
         this.serverId = serverId;
         this.startTime = LocalDateTime.now();
-        log.info("创建WebSocket容器创建回调 - 操作类型: {}, 容器: {}, 记录ID: {}, 软件ID: {}, 服务器ID: {}", 
+        log.info("创建WebSocket容器创建回调 - 操作类型: {}, 容器: {}, 记录ID: {}, 软件ID: {}, 服务器ID: {}",
                 operationType, containerName, recordId, softId, serverId);
     }
 

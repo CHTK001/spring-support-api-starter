@@ -5,7 +5,7 @@ import com.chua.common.support.lang.date.DateUtils;
 import com.chua.common.support.log.Slf4jLog;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 
 /**
  * WebLog类实现了Log接口，用于记录网页的访问日志。
