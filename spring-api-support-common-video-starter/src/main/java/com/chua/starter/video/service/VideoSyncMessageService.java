@@ -1,6 +1,6 @@
 package com.chua.starter.video.service;
 
-import com.chua.socketio.support.session.SocketSessionTemplate;
+import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.video.entity.VideoSyncMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class VideoSyncMessageService {
     public void sendGlobalMessage(VideoSyncMessage message) {
         try {
             log.debug("推送全局视频同步消息: {}", message.getMessage());
-            socketSessionTemplate.sendObject(TOPIC_VIDEO_SYNC_GLOBAL, message);
+            socketSessionTemplate.broadcastObject(TOPIC_VIDEO_SYNC_GLOBAL, message);
         } catch (Exception e) {
             log.error("推送全局视频同步消息失败: {}", e.getMessage(), e);
         }
@@ -52,7 +52,7 @@ public class VideoSyncMessageService {
         try {
             String destination = TOPIC_VIDEO_SYNC_CONFIG + configId;
             log.debug("推送配置[{}]视频同步消息: {}", configId, message.getMessage());
-            socketSessionTemplate.sendObject(destination, message);
+            socketSessionTemplate.broadcastObject(destination, message);
         } catch (Exception e) {
             log.error("推送配置[{}]视频同步消息失败: {}", configId, e.getMessage(), e);
         }
