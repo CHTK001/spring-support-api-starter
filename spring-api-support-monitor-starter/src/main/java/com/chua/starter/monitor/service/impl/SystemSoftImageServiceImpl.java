@@ -12,6 +12,7 @@ import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
+import com.chua.starter.monitor.pojo.DockerClientCreateResult;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.service.DockerCallbackService;
@@ -587,7 +588,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
      * 从服务器同步Docker镜像到SystemSoftImage表
      *
      * @param serverIds 服务器ID列表
-     * @return 同步结果（包含操作ID和同步数量）
+     * @return 同步结果（包含操作ID和同步数量以及详细的服务器状态）
      */
     @Override
     public ReturnResult<Map<String, Object>> syncImagesFromServers(List<Integer> serverIds) {
@@ -599,17 +600,15 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             int successCount = 0;
             int errorCount = 0;
 
-            for (Integer serverId : serverIds) {
+            // 批量创建Docker客户端，获取详细状态
+            DockerClientCreateResult createResult = dockerProtocolClientFactory.createClients(serverIds);
+
+            // 处理成功连接的服务器
+            for (Map.Entry<Integer, DockerProtocolClient> entry : createResult.getSuccessClients().entrySet()) {
+                Integer serverId = entry.getKey();
+                DockerProtocolClient dockerClient = entry.getValue();
                 try {
                     log.info("开始同步服务器镜像 - serverId: {}", serverId);
-
-                    // 获取Docker客户端
-                    DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
-                    if (dockerClient == null) {
-                        log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
-                        errorCount++;
-                        continue;
-                    }
 
                     // 推送开始同步的WebSocket消息
                     pushSyncProgress(operationId, serverId, "服务器-" + serverId, 0, "开始同步镜像列表...");
@@ -687,18 +686,36 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
                 }
             }
 
+            // 统计未启用和连接失败的服务器
+            errorCount += createResult.getFailedCount();
+
             // 推送完成消息
             pushSyncComplete(operationId, totalImages, successCount, errorCount);
 
-            // 返回结果
+            // 返回结果（包含详细的服务器状态信息）
             Map<String, Object> result = new HashMap<>();
             result.put("operationId", operationId);
             result.put("syncCount", successCount);
             result.put("totalImages", totalImages);
             result.put("successCount", successCount);
             result.put("errorCount", errorCount);
+            
+            // 添加详细的服务器状态信息
+            result.put("serverStatus", Map.of(
+                "successServers", createResult.getSuccessClients().keySet(),
+                "disabledServers", createResult.getDisabledServers(),
+                "failedServers", createResult.getFailedServers(),
+                "notFoundServers", createResult.getNotFoundServers()
+            ));
+            result.put("statusSummary", createResult.getSummary());
+            
+            // 如果有失败的服务器，添加详细错误信息
+            if (!createResult.isAllSuccess()) {
+                result.put("detailedError", createResult.getDetailedErrorMessage());
+            }
 
-            log.info("同步镜像完成 - 总数: {}, 成功: {}, 失败: {}", totalImages, successCount, errorCount);
+            log.info("同步镜像完成 - 总数: {}, 成功: {}, 失败: {}, 服务器状态: {}", 
+                totalImages, successCount, errorCount, createResult.getSummary());
             return ReturnResult.ok(result);
 
         } catch (Exception e) {
