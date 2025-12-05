@@ -13,9 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 
 /**
@@ -198,53 +196,22 @@ public class JobSyncConfiguration {
     private DeviceMetrics convertToDeviceMetrics(Map<String, Object> data) {
         DeviceMetrics metrics = new DeviceMetrics();
 
-        // 基本信息
-        metrics.setDeviceId(getString(data, "deviceId"));
-        metrics.setDeviceName(getString(data, "deviceName"));
+        // IP 地址（匹配服务器用）
         metrics.setIpAddress(getString(data, "ipAddress"));
-        metrics.setHostname(getString(data, "hostname"));
 
-        // 操作系统
+        // 操作系统信息（更新服务器配置用）
         metrics.setOsName(getString(data, "osName"));
         metrics.setOsVersion(getString(data, "osVersion"));
         metrics.setOsArch(getString(data, "osArch"));
 
-        // CPU
+        // 指标数据
         metrics.setCpuUsage(getDouble(data, "cpuUsage"));
-        metrics.setCpuCores(getInt(data, "cpuCores"));
-        metrics.setLoadAverage(getString(data, "loadAverage"));
-
-        // 内存
         metrics.setMemoryUsage(getDouble(data, "memoryUsage"));
-        metrics.setTotalMemory(getLong(data, "totalMemory"));
-        metrics.setUsedMemory(getLong(data, "usedMemory"));
-        metrics.setAvailableMemory(getLong(data, "availableMemory"));
-
-        // 磁盘
         metrics.setDiskUsage(getDouble(data, "diskUsage"));
-        metrics.setTotalDisk(getLong(data, "totalDisk"));
-        metrics.setUsedDisk(getLong(data, "usedDisk"));
-        metrics.setAvailableDisk(getLong(data, "availableDisk"));
-
-        // 网络
         metrics.setNetworkInBytes(getLong(data, "networkInBytes"));
         metrics.setNetworkOutBytes(getLong(data, "networkOutBytes"));
 
-        // 其他
-        metrics.setUptime(getLong(data, "uptime"));
-        metrics.setThreadCount(getInt(data, "threadCount"));
-        metrics.setProcessCount(getInt(data, "processCount"));
-        metrics.setOnline(true);
-
-        // 收集时间
-        long collectTime = getLong(data, "collectTime");
-        if (collectTime > 0) {
-            metrics.setCollectTime(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(collectTime), ZoneId.systemDefault()));
-        } else {
-            metrics.setCollectTime(LocalDateTime.now());
-        }
-
+        metrics.setCollectTime(LocalDateTime.now());
         return metrics;
     }
 }
