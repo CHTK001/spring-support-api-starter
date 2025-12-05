@@ -15,7 +15,7 @@
     <conversionRule conversionWord="wEx"
                     class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <conversionRule conversionWord="traceId" class="com.chua.starter.log.support.logback.TraceMessageConverter"/>
+    <conversionRule conversionWord="traceId" class="com.chua.starter.service.logback.TraceMessageConverter"/>
 
     <property name="log_file_location" value="./logs/system"/>
 
