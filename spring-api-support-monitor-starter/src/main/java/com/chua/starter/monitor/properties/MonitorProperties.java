@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 监控配置属性
+ * <p>
+ * Sync 相关配置使用 plugin.sync 配置
+ * </p>
  *
  * @author CH
  * @since 2025/09/22
@@ -19,9 +22,9 @@ public class MonitorProperties {
      * 是否启用后端定时检测推送任务
      */
     private boolean enableScheduledTasks = true;
+
     /**
      * 是否启用文件合并任务
      */
     private boolean enableFileMergeTasks = true;
-
 }

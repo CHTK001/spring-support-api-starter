@@ -138,6 +138,11 @@
             <artifactId>spring-support-report-client-arthas-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-sync-starter</artifactId>
+        </dependency>
+
 
         <!-- JPA 依赖 (Spring Boot 3) -->
         <dependency>

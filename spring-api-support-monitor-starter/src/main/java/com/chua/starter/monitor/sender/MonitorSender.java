@@ -1,85 +1,128 @@
 package com.chua.starter.monitor.sender;
 
-import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnCode;
-import com.chua.common.support.protocol.ProtocolSetting;
-import com.chua.common.support.protocol.client.BaseProtocolClient;
-import com.chua.common.support.protocol.client.ProtocolClient;
-import com.chua.common.support.protocol.client.ProtocolClientFactory;
-import com.chua.common.support.protocol.request.HttpServletRequest;
-import com.chua.common.support.protocol.request.ServletResponse;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.report.client.starter.endpoint.ModuleType;
-import com.chua.report.client.starter.environment.ReportDiscoveryEnvironment;
-import com.chua.report.client.starter.setting.SettingFactory;
+import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.sync.support.server.SyncServer;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Set;
 
 import static com.chua.common.support.utils.MathUtils.ZERO;
 
 /**
  * 监控发送
+ * <p>
+ * 通过 SyncServer 下发任务
+ * </p>
  *
  * @author CH
  * @since 2025/8/13 14:03
  */
+@Slf4j
 @SpringBootConfiguration
 public class MonitorSender {
 
+    private static final String TOPIC_JOB_DISPATCH = "monitor/job/dispatch";
+
+    @Autowired(required = false)
+    private SyncServer syncServer;
+
     /**
-     * 发送监控日志信息
+     * 发送任务
      *
-     * @param jobLog         任务日志对象，包含具体的任务执行信息
-     * @param discovery 发现服务的实例，用于获取应用相关信息
-     * @param jsonString     日志信息的JSON字符串格式
-     * @param moduleType     模块类型，标识当前发送日志所属的功能模块
-     * @author CH
-     * @since 2025/8/13 14:03
+     * @param jobLog    任务日志
+     * @param addresses 目标地址
+     * @param param     触发参数
      */
-    public void send(MonitorJobLog jobLog, Discovery discovery, String jsonString, ModuleType moduleType) {
-        String s = discovery.getMetadata().get(ReportDiscoveryEnvironment.REPORT_CLIENT_PORT);
-        if(StringUtils.isEmpty(s)) {
-            jobLog.setJobLogTriggerMsg("未获取到服务端口");
+    public void send(MonitorJobLog jobLog, Set<Discovery> addresses, TriggerParam param) {
+        if (syncServer == null) {
+            jobLog.setJobLogTriggerMsg("SyncServer 未启用");
             jobLog.setJobLogTriggerCode("FAILURE");
-            jobLog.setJobLogExecuteCode("FAILURE");
-            jobLog.setJobLogCost(ZERO);
             jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
+            jobLog.setJobLogCost(ZERO);
             return;
         }
 
-        int port = Integer.parseInt(s);
-        ProtocolSetting protocolSetting = ProtocolSetting.builder()
-                .host(discovery.getHost())
-                .port(port)
-                .codec(SettingFactory.getInstance().getCodec())
-                .build();
-        BaseProtocolClient baseProtocolClient = ProtocolClientFactory.create(discovery.getServerId(), "http", protocolSetting.getClientSetting());
-        long startTime = System.currentTimeMillis();
-        try {
-            ProtocolClient protocolClient = (ProtocolClient) baseProtocolClient;
-            CompletableFuture<ServletResponse> servletResponseCompletableFuture = protocolClient.sendAsync(
-                    HttpServletRequest.builder()
-                            .url(StringUtils.startWithAppend(moduleType.name().toLowerCase(), CommonConstant.SYMBOL_LEFT_SLASH))
-                            .body(jsonString.getBytes(StandardCharsets.UTF_8))
-                            .build()
-            );
-            ServletResponse servletResponse = servletResponseCompletableFuture.get(30, TimeUnit.SECONDS);
-            jobLog.setJobLogExecuteCode(servletResponse.getStatusCode() == 200 ? "SUCCESS" : "FAILURE");
-            jobLog.setJobLogTriggerMsg(servletResponse.getBodyAsString());
-            jobLog.setJobLogTriggerCode(servletResponse.getStatusCode() == 200 ? ReturnCode.SUCCESS.getCode() : ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
-            jobLog.setJobLogCost(new BigDecimal(System.currentTimeMillis() - startTime));
-        } catch (Exception e) {
-            e.printStackTrace();
-            jobLog.setJobLogExecuteCode("FAILURE");
-            jobLog.setJobLogCost(ZERO);
+        if (addresses == null || addresses.isEmpty()) {
+            jobLog.setJobLogTriggerMsg("没有可用的执行器地址");
+            jobLog.setJobLogTriggerCode("FAILURE");
             jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
+            jobLog.setJobLogCost(ZERO);
+            return;
+        }
+
+        long startTime = System.currentTimeMillis();
+        int sentCount = 0;
+        try {
+            Map<String, Object> data = buildJobData(param);
+
+            // 遍历目标地址，向对应的客户端下发任务
+            for (Discovery address : addresses) {
+                String clientId = findClientIdByAddress(address);
+                if (clientId != null) {
+                    syncServer.send(clientId, TOPIC_JOB_DISPATCH, data);
+                    sentCount++;
+                    log.debug("[MonitorSender] 任务已发送到: clientId={}, address={}:{}", 
+                            clientId, address.getHost(), address.getPort());
+                } else {
+                    log.warn("[MonitorSender] 未找到对应的客户端: address={}:{}", 
+                            address.getHost(), address.getPort());
+                }
+            }
+
+            if (sentCount > 0) {
+                jobLog.setJobLogTriggerCode(ReturnCode.SUCCESS.getCode());
+                jobLog.setJobLogTriggerMsg("任务已下发到 " + sentCount + " 个执行器");
+                jobLog.setJobLogExecuteCode("PENDING");
+                log.info("[MonitorSender] 任务已下发: jobId={}, sentCount={}", param.getJobId(), sentCount);
+            } else {
+                jobLog.setJobLogTriggerMsg("没有找到在线的执行器");
+                jobLog.setJobLogTriggerCode("FAILURE");
+                jobLog.setJobLogExecuteCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
+            }
+
+        } catch (Exception e) {
+            log.error("[MonitorSender] 任务下发失败: jobId={}", param.getJobId(), e);
+            jobLog.setJobLogExecuteCode("FAILURE");
+            jobLog.setJobLogTriggerCode(ReturnCode.SYSTEM_EXECUTION_ERROR.getCode());
+            jobLog.setJobLogTriggerMsg(e.getMessage());
         }
         jobLog.setJobLogCost(new BigDecimal(System.currentTimeMillis() - startTime));
+    }
+
+    /**
+     * 根据地址查找客户端ID
+     */
+    private String findClientIdByAddress(Discovery address) {
+        String appName = address.getMetadata() != null ? 
+                (String) address.getMetadata().get("applicationName") : null;
+        return syncServer.findClientId(address.getHost(), address.getPort(), appName);
+    }
+
+    /**
+     * 构建任务数据
+     */
+    private Map<String, Object> buildJobData(TriggerParam param) {
+        return Map.ofEntries(
+                Map.entry("jobId", param.getJobId()),
+                Map.entry("profile", param.getProfile() != null ? param.getProfile() : ""),
+                Map.entry("executorHandler", param.getExecutorHandler() != null ? param.getExecutorHandler() : ""),
+                Map.entry("executorParams", param.getExecutorParams() != null ? param.getExecutorParams() : ""),
+                Map.entry("executorBlockStrategy", param.getExecutorBlockStrategy() != null ? param.getExecutorBlockStrategy() : ""),
+                Map.entry("executorTimeout", param.getExecutorTimeout()),
+                Map.entry("logId", param.getLogId()),
+                Map.entry("logDateTime", param.getLogDateTime()),
+                Map.entry("glueType", param.getGlueType() != null ? param.getGlueType() : ""),
+                Map.entry("glueSource", param.getGlueSource() != null ? param.getGlueSource() : ""),
+                Map.entry("glueUpdatetime", param.getGlueUpdatetime()),
+                Map.entry("broadcastIndex", param.getBroadcastIndex()),
+                Map.entry("broadcastTotal", param.getBroadcastTotal())
+        );
     }
 }
