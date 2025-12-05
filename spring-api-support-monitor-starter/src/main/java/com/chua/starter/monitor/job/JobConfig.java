@@ -3,13 +3,10 @@ package com.chua.starter.monitor.job;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.discovery.Discovery;
-import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.report.client.starter.endpoint.ModuleType;
 import com.chua.report.client.starter.job.TriggerParam;
-import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.entity.MonitorJob;
 import com.chua.starter.monitor.entity.MonitorJobLog;
@@ -21,12 +18,12 @@ import com.chua.starter.monitor.sender.MonitorSender;
 import com.chua.starter.monitor.service.MonitorAppService;
 import com.chua.starter.monitor.service.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorJobService;
+import com.chua.sync.support.pojo.ClientInfo;
+import com.chua.sync.support.server.SyncServer;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,9 +41,9 @@ public class JobConfig {
     private MonitorSender monitorSender;
     private MonitorJobService monitorJobService;
     private MonitorJobLogService monitorJobLogService;
-    private DiscoveryService discoveryService;
     private RedissonClient redissonClient;
     private MonitorAppService monitorAppService;
+    private SyncServer syncServer;
 
     public static JobConfig getInstance() {
         return INSTANCE;
@@ -93,12 +90,16 @@ public class JobConfig {
     public void register(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         // 从应用上下文中获取各种服务的实例
-        this.discoveryService = applicationContext.getBean(DiscoveryService.class);
         this.monitorJobService = applicationContext.getBean(MonitorJobService.class);
         this.monitorSender = applicationContext.getBean(MonitorSender.class);
         this.monitorJobLogService = applicationContext.getBean(MonitorJobLogService.class);
         this.redissonClient = applicationContext.getBean(RedissonClient.class);
         this.monitorAppService = applicationContext.getBean(MonitorAppService.class);
+        // SyncServer 可能未启用
+        try {
+            this.syncServer = applicationContext.getBean(SyncServer.class);
+        } catch (Exception ignored) {
+        }
     }
 
     /**
@@ -121,50 +122,87 @@ public class JobConfig {
 
     /**
      * 根据触发参数和监控作业信息获取执行地址列表。
+     * <p>
+     * 从 SyncServer 在线客户端中获取
+     * </p>
      *
      * @param triggerParam 触发参数
      * @param jobInfo      监控作业信息
-     * @return 返回MonitorRequest对象列表，如果没有可用的执行地址则返回null。
+     * @return 返回执行地址列表，如果没有可用的执行地址则返回null。
      */
     public Set<Discovery> getAddress(TriggerParam triggerParam, MonitorJob jobInfo) {
+        if (syncServer == null) {
+            return Collections.emptySet();
+        }
+
         ReturnResult<MonitorApplication> monitorApplication = monitorAppService.getByCacheId(jobInfo.getMonitorId());
-        if(monitorApplication.isFailure()) {
+        if (monitorApplication.isFailure()) {
             return Collections.emptySet();
         }
         MonitorApplication application = monitorApplication.getData();
-        Set<Discovery> serviceInstance = discoveryService.getDiscoveryAll("monitor");
-        serviceInstance = serviceInstance.stream().filter(discovery -> {
-            String monitorApplicationName = application.getMonitorApplicationName();
-            if(null == monitorApplicationName) {
-                return false;
+        String targetAppName = application.getMonitorApplicationName();
+        String targetProfile = jobInfo.getJobApplicationActive();
+
+        if (targetAppName == null) {
+            return Collections.emptySet();
+        }
+
+        // 从 SyncServer 获取在线客户端
+        Set<Discovery> onlineClients = new HashSet<>();
+        for (Map.Entry<String, ClientInfo> entry : syncServer.getAllClients().entrySet()) {
+            ClientInfo clientInfo = entry.getValue();
+            
+            // 匹配应用名
+            if (!targetAppName.equals(clientInfo.getAppName())) {
+                continue;
             }
-            return monitorApplicationName.equals(discovery.getMetadata().get("applicationName"));
-        }).collect(Collectors.toSet());
-        if (CollectionUtils.isEmpty(serviceInstance)) {
+            
+            // 匹配环境 (如果配置了)
+            if (targetProfile != null && !targetProfile.isEmpty()) {
+                Map<String, Object> metadata = clientInfo.getMetadata();
+                String clientProfile = metadata != null ? (String) metadata.get("applicationActive") : null;
+                if (clientProfile != null && !targetProfile.equals(clientProfile)) {
+                    continue;
+                }
+            }
+
+            // 构建 Discovery 对象
+            Discovery discovery = new Discovery();
+            discovery.setHost(clientInfo.getIpAddress());
+            discovery.setPort(clientInfo.getPort());
+            discovery.setServerId(entry.getKey());
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("applicationName", clientInfo.getAppName());
+            if (clientInfo.getMetadata() != null) {
+                clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+            }
+            discovery.setMetadata(metadata);
+            onlineClients.add(discovery);
+        }
+
+        if (CollectionUtils.isEmpty(onlineClients)) {
             return null;
         }
+
+        // 路由选择合适的执行地址
         ExecutorRouter executorRouter = ServiceProvider.of(ExecutorRouter.class).getNewExtension(jobInfo.getJobExecuteRouter());
         if (null == executorRouter) {
             return null;
         }
-        // 路由选择合适的执行地址
-        return executorRouter.route(triggerParam, serviceInstance);
+        return executorRouter.route(triggerParam, onlineClients);
     }
 
     /**
      * 执行监控任务。
      *
-     * @param jobLog
+     * @param jobLog       任务日志
      * @param address      执行地址列表
      * @param triggerParam 触发参数
      * @return 返回执行结果
      */
     public ReturnResult<String> run(MonitorJobLog jobLog, Set<Discovery> address, TriggerParam triggerParam) {
-        // 遍历地址列表，发送触发参数
-        for (Discovery monitorRequest : address) {
-            monitorSender.send(jobLog, monitorRequest, Json.toJSONString(triggerParam), ModuleType.JOB);
-        }
-        // 执行成功
+        // 通过 SyncServer 下发任务
+        monitorSender.send(jobLog, address, triggerParam);
         return ReturnResult.success();
     }
 
