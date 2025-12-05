@@ -16,7 +16,7 @@
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <conversionRule conversionWord="traceId"
-                    converterClass="com.chua.starter.log.support.logback.TraceMessageConverter"/>
+                    converterClass="com.chua.starter.service.logback.TraceMessageConverter"/>
 
     <property name="log_file_location" value="./logs/tenant"/>
 
