@@ -1,5 +1,30 @@
+# ===========================================
+# 上报客户端配置
+# ===========================================
 plugin:
   report:
     client:
-      address: 127.0.0.1:19180
+      # 开启上报功能
       enable: true
+      # 上报服务器地址
+      address: 127.0.0.1:19180
+      # 上报接口路径
+      address-report-path: /monitor/api
+      # 接收协议（http/https）
+      receivable-protocol: http
+      # 接收端口（-1表示使用服务端口）
+      receivable-port: -1
+      # 推送间隔时间（秒）
+      push-interval: 30
+      # 初始延迟时间（秒）
+      initial-delay: 10
+      # 连接超时时间（毫秒）
+      connect-timeout: 5000
+      # 读取超时时间（毫秒）
+      read-timeout: 10000
+      # 重试次数
+      retry-count: 3
+      # 设备标识（为空则自动生成）
+      device-id:
+      # 设备名称
+      device-name:

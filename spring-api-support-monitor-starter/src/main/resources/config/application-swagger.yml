@@ -1,7 +1,15 @@
+# ===========================================
+# Swagger/Knife4j文档配置
+# ===========================================
 plugin:
   swagger:
+    # Knife4j分组配置
     knife4j:
+      # 系统配置接口分组
       - group-name: 系统配置
+        # 扫描的包路径
         base-package: com.chua.starter.monitor.controller
+      # 扩展服务接口分组
       - group-name: 扩展服务
+        # 扫描的包路径
         base-package: com.chua.starter.monitor.controller
