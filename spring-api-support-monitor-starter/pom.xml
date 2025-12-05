@@ -106,6 +106,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-xunfei-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -192,6 +193,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-com-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Apache Guacamole Common -->
