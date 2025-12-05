@@ -13,8 +13,9 @@ import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.ServerConnectionService;
 import com.chua.starter.monitor.service.SshCommandService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,13 +30,23 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class SshSocketIOListener implements SocketListener {
 
-    private final List<ServerConnectionService> serverConnectionServices;
     private final MonitorSysGenServerService serverService;
     private final SocketSessionTemplate socketSessionTemplate;
     private final SshCommandService sshCommandService;
+
+    @Autowired
+    @Lazy
+    private List<ServerConnectionService> serverConnectionServices;
+
+    public SshSocketIOListener(MonitorSysGenServerService serverService,
+                               SocketSessionTemplate socketSessionTemplate,
+                               SshCommandService sshCommandService) {
+        this.serverService = serverService;
+        this.socketSessionTemplate = socketSessionTemplate;
+        this.sshCommandService = sshCommandService;
+    }
 
     // 存储会话与服务器的映射关系
     private final Map<String, Integer> sessionServerMap = new ConcurrentHashMap<>();
