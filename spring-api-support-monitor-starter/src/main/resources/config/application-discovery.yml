@@ -1,8 +1,26 @@
+# ===========================================
+# 服务发现配置
+# ===========================================
 plugin:
   discovery:
+    # 开启服务发现功能
+    enable: true
+    # 服务发现配置列表
     properties:
-      - protocol: nacos
+      # Nacos服务发现配置
+      - enabled: true
+        # 协议类型（nacos/zookeeper/consul等）
+        protocol: nacos
+        # 服务地址
         address: 172.16.0.40:8848
+        # 用户名（可选）
+        username:
+        # 密码（可选）
+        password:
+        # 连接超时时间（毫秒）
+        connection-timeout-millis: 10000
+        # 会话超时时间（毫秒）
+        session-timeout-millis: 10000
+        # 服务节点配置
         node:
           - namespace: monitor
-    enable: true

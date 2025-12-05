@@ -1,3 +1,11 @@
+# ===========================================
+# IP解析配置
+# ===========================================
 plugin:
   ip:
+    # 开启IP解析功能
     enable: true
+    # IP数据库文件路径
+    database-file: classpath:qqwry.dat
+    # IP解析实现类型（qqwry/ip2region等）
+    ip-type: qqwry

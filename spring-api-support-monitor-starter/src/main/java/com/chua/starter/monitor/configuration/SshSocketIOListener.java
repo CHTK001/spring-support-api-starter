@@ -32,19 +32,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SshSocketIOListener implements SocketListener {
 
-    private final MonitorSysGenServerService serverService;
-    private final SocketSessionTemplate socketSessionTemplate;
     private final SshCommandService sshCommandService;
+
+    @Autowired
+    @Lazy
+    private SocketSessionTemplate socketSessionTemplate;
+
+    @Autowired
+    @Lazy
+    private MonitorSysGenServerService serverService;
 
     @Autowired
     @Lazy
     private List<ServerConnectionService> serverConnectionServices;
 
-    public SshSocketIOListener(MonitorSysGenServerService serverService,
-                               SocketSessionTemplate socketSessionTemplate,
-                               SshCommandService sshCommandService) {
-        this.serverService = serverService;
-        this.socketSessionTemplate = socketSessionTemplate;
+    public SshSocketIOListener(SshCommandService sshCommandService) {
         this.sshCommandService = sshCommandService;
     }
 
