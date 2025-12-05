@@ -7,8 +7,9 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.ServerConnectionService;
 import com.chua.starter.monitor.service.SshCommandService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +24,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class SshCommandServiceImpl implements SshCommandService {
 
-    private final List<ServerConnectionService> serverConnectionServices;
-    private final SocketSessionTemplate socketSessionTemplate;
+    @Autowired
+    @Lazy
+    private List<ServerConnectionService> serverConnectionServices;
+
+    @Autowired
+    @Lazy
+    private SocketSessionTemplate socketSessionTemplate;
 
     // 存储数据回调
     private final Map<Integer, DataCallback> dataCallbackMap = new ConcurrentHashMap<>();

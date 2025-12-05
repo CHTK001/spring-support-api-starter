@@ -6,8 +6,9 @@ import com.chua.socket.support.SocketListener;
 import com.chua.socket.support.annotations.OnEvent;
 import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,11 @@ import java.util.Map;
  * @since 2024/12/13
  */
 @SpringBootConfiguration
-@RequiredArgsConstructor
 public class WebrtcSocketIOListener implements SocketListener {
 
-    private final SocketSessionTemplate socketSessionTemplate;
+    @Autowired
+    @Lazy
+    private SocketSessionTemplate socketSessionTemplate;
 
     @OnEvent("message")
     public void message(SocketSession socketSession, Map<String, Object> item) {

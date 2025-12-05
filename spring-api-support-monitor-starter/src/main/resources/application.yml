@@ -1,19 +1,169 @@
+# ===========================================
+# 应用程序基础配置
+# ===========================================
 spring:
   application:
+    # 应用名称
     name: monitor
   profiles:
+    # 当前激活的配置文件
     active: dev
+    # 包含的配置文件列表
     include: mybatis,swagger,socket,control,codec,ip,discovery,options,report
   main:
+    # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
-plugin:
-  parameter:
-    enable: true
-  cors:
-    enable: true
+
+# ===========================================
+# 服务器配置
+# ===========================================
 server:
+  # 服务端口
   port: 19170
   servlet:
+    # 上下文路径
     context-path: /monitor/api
   http2:
+    # 启用HTTP/2协议
     enabled: true
+
+# ===========================================
+# 插件配置
+# ===========================================
+plugin:
+  # -------------------------------------------
+  # 统一参数配置
+  # -------------------------------------------
+  parameter:
+    # 开启返回结果一致性（统一返回格式）
+    enable: true
+
+  # -------------------------------------------
+  # 跨域配置
+  # -------------------------------------------
+  cors:
+    # 开启跨域支持
+    enable: true
+    # 跨域白名单（为空表示允许所有来源）
+    pattern: []
+
+  # -------------------------------------------
+  # 日志配置
+  # -------------------------------------------
+  log:
+    # 开启日志功能
+    enable: true
+    # 开启接口请求日志（详细记录接口调用信息）
+    open-interface-log: false
+
+  # -------------------------------------------
+  # MDC链路追踪配置
+  # -------------------------------------------
+  mdc:
+    # 开启MDC日志上下文
+    enable: true
+
+  # -------------------------------------------
+  # 缓存配置
+  # -------------------------------------------
+  cache:
+    # 缓存类型列表（default-本地缓存，redis-Redis缓存）
+    type:
+      - default
+      - redis
+    redis:
+      # Redis缓存过期时间（秒）
+      ttl: 600
+
+  # -------------------------------------------
+  # 线程池配置
+  # -------------------------------------------
+  thread:
+    # 核心线程数
+    core-pool-size: 20
+    # 最大线程数
+    max-pool-size: 200
+    # 缓冲队列容量
+    queue-capacity: 100000
+    # 关闭时等待所有任务完成
+    wait-for-tasks-to-complete-on-shutdown: false
+    # 等待终止时间（秒）
+    await-termination-seconds: 2147483647
+    # 空闲线程存活时间（秒）
+    keep-alive-seconds: 10
+    # 线程名称前缀
+    thread-name-prefix: async-thread-pool-%d
+
+  # -------------------------------------------
+  # 验证码配置
+  # -------------------------------------------
+  captcha:
+    # 开启验证码功能
+    enable: false
+    # 验证码类型（SPEC-算术验证码，CHAR-字符验证码）
+    type: SPEC
+    # 验证码缓存过期时间（秒）
+    ttl: 120
+    # 验证码长度
+    length: 4
+    # 验证码宽度（像素）
+    width: 120
+    # 验证码高度（像素）
+    height: 36
+    # 验证码字体
+    font-name: Verdana
+    # 字体风格（0-PLAIN，1-BOLD，2-ITALIC）
+    font-style: 0
+    # 字体大小
+    font-size: 20
+
+  # -------------------------------------------
+  # Jackson配置
+  # -------------------------------------------
+  jackson:
+    # 是否包含null值字段
+    include-null: false
+
+  # -------------------------------------------
+  # Actuator监控配置
+  # -------------------------------------------
+  actuator:
+    # 开启Actuator监控
+    enable: true
+    # 过滤类型（IP-IP过滤，ACCOUNT-账号认证）
+    filters:
+      - IP
+    # IP白名单
+    whitelist: []
+    # 认证用户名
+    username: actuator
+    # 认证密码
+    password: actuator
+
+  # -------------------------------------------
+  # SPI扩展点配置
+  # -------------------------------------------
+  spi:
+    # 开启SPI虚拟映射
+    enable: true
+    # 虚拟映射配置（接口名 -> 实现类全限定名）
+    mapping: {}
+
+  # -------------------------------------------
+  # 文件存储配置
+  # -------------------------------------------
+  file:
+    storage:
+      # 开启文件存储功能
+      enabled: true
+      # 存储配置列表
+      properties: []
+      # 配置项示例：
+      # - type: filesystem          # 存储类型（filesystem/oss/minio等）
+      #   bucket: my-bucket         # 存储桶名称
+      #   region: cn-hangzhou       # 区域
+      #   access-key-id: xxx        # 访问密钥ID
+      #   access-key-secret: xxx    # 访问密钥Secret
+      #   endpoint: xxx             # 端点地址
+      #   connection-timeout-mills: 10000  # 连接超时（毫秒）
+      #   session-timeout-mills: 10000     # 会话超时（毫秒）

@@ -1,6 +1,18 @@
+# ===========================================
+# Spring Boot Actuator监控端点配置
+# ===========================================
 management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        # 暴露的端点（*表示全部）
+        include: "*"
+      # 端点基础路径
       base-path: /actuator
+  endpoint:
+    health:
+      # 显示健康检查详情
+      show-details: always
+    # 其他端点配置示例：
+    # shutdown:
+    #   enabled: false    # 关闭shutdown端点

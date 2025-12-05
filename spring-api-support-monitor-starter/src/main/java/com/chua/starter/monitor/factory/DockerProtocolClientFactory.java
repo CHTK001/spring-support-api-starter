@@ -170,6 +170,14 @@ public class DockerProtocolClientFactory {
 
     /**
      * 根据配置创建Docker客户端
+     * <p>
+     * 支持以下连接方式：
+     * <ul>
+     *   <li>TCP/API - TCP远程连接Docker守护进程</li>
+     *   <li>UNIX_SOCKET/SOCKET - Unix Socket本地连接</li>
+     *   <li>LOCAL/SHELL - 通过SSH执行docker命令（使用CmdDockerProtocolClient）</li>
+     * </ul>
+     * </p>
      *
      * @param setting 服务器配置
      * @return Docker协议客户端实例
@@ -187,13 +195,8 @@ public class DockerProtocolClientFactory {
 
             return switch (dockerConnectionType) {
                 case TCP, API -> createTcpClient(setting);
-                case UNIX_SOCKET -> createUnixSocketClient(setting);
-                case LOCAL -> createLocalClient(setting);
-                default -> {
-                    log.warn("不支持的Docker连接方式: {} - serverId: {}",
-                            connectionType, setting.getMonitorSysGenServerId());
-                    yield null;
-                }
+                case UNIX_SOCKET, SOCKET -> createUnixSocketClient(setting);
+                case LOCAL, SHELL -> createShellClient(setting);
             };
         } catch (IllegalArgumentException e) {
             log.error("无效的Docker连接方式: {} - serverId: {}",
@@ -266,7 +269,7 @@ public class DockerProtocolClientFactory {
      * @param setting 服务器配置
      * @return Docker协议客户端实例，如果配置不完整则返回null
      */
-    private DockerProtocolClient createLocalClient(MonitorSysGenServerSetting setting) {
+    private DockerProtocolClient createShellClient(MonitorSysGenServerSetting setting) {
         Integer serverId = setting.getMonitorSysGenServerId();
 
         // 获取服务器基本信息（包含SSH连接配置）- 使用缓存方法
@@ -303,7 +306,7 @@ public class DockerProtocolClientFactory {
 
         // 端口默认值处理
         if (port == null || port <= 0) {
-            port = 22; // 默认SSH端口
+            port = 22;
             log.debug("使用默认SSH端口22 - serverId: {}", serverId);
         }
 
