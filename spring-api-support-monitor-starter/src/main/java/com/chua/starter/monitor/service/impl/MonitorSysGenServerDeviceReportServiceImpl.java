@@ -74,6 +74,9 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
             // 为每个匹配的服务器创建指标数据
             for (MonitorSysGenServer server : matchedServers) {
                 try {
+                    // 更新服务器系统信息
+                    updateServerSystemInfo(server, metrics);
+
                     MonitorSysGenServerMetrics serverMetrics = convertDeviceMetricsToServerMetrics(metrics, server);
                     // 通过WebSocket推送到前端
                     broadcastServerMetrics(server.getMonitorSysGenServerId(), serverMetrics);
@@ -520,6 +523,48 @@ public class MonitorSysGenServerDeviceReportServiceImpl implements MonitorSysGen
 
         if (!success) {
             deviceErrorCount.computeIfAbsent(deviceIp, k -> new AtomicLong(0)).incrementAndGet();
+        }
+    }
+
+    /**
+     * 更新服务器系统信息
+     */
+    private void updateServerSystemInfo(MonitorSysGenServer server, DeviceMetrics metrics) {
+        boolean needUpdate = false;
+
+        // 更新操作系统类型
+        if (StringUtils.isNotEmpty(metrics.getOsName()) &&
+                !metrics.getOsName().equals(server.getMonitorSysGenServerOsType())) {
+            server.setMonitorSysGenServerOsType(metrics.getOsName());
+            needUpdate = true;
+        }
+
+        // 更新操作系统版本
+        if (StringUtils.isNotEmpty(metrics.getOsVersion()) &&
+                !metrics.getOsVersion().equals(server.getMonitorSysGenServerOsVersion())) {
+            server.setMonitorSysGenServerOsVersion(metrics.getOsVersion());
+            needUpdate = true;
+        }
+
+        // 更新操作系统架构
+        if (StringUtils.isNotEmpty(metrics.getOsArch()) &&
+                !metrics.getOsArch().equals(server.getMonitorSysGenServerOsArch())) {
+            server.setMonitorSysGenServerOsArch(metrics.getOsArch());
+            needUpdate = true;
+        }
+
+        // 只有有变化时才更新数据库
+        if (needUpdate) {
+            try {
+                serverService.updateById(server);
+                log.debug("更新服务器系统信息: serverId={}, osType={}, osVersion={}, osArch={}",
+                        server.getMonitorSysGenServerId(),
+                        server.getMonitorSysGenServerOsType(),
+                        server.getMonitorSysGenServerOsVersion(),
+                        server.getMonitorSysGenServerOsArch());
+            } catch (Exception e) {
+                log.warn("更新服务器系统信息失败: serverId={}", server.getMonitorSysGenServerId(), e);
+            }
         }
     }
 
