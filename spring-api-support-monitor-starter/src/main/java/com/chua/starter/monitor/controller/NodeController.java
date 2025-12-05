@@ -3,12 +3,14 @@ package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.pojo.ClientHealthStatus;
 import com.chua.starter.monitor.service.ClientHealthService;
+import com.chua.sync.support.pojo.ClientInfo;
+import com.chua.sync.support.server.SyncServer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -23,7 +25,9 @@ import java.util.*;
 public class NodeController {
 
     private final ClientHealthService clientHealthService;
-    private final DiscoveryService discoveryService;
+
+    @Autowired(required = false)
+    private SyncServer syncServer;
     /**
      * 获取所有健康的NODE客户端列表 用于文件管理器选择节点模式时调用
      *
@@ -102,16 +106,8 @@ public class NodeController {
     @GetMapping("nodes/online")
     public ReturnResult<List<Discovery>> getOnlineNodes() {
         try {
-            // 直接从 discoveryService 获取所有在线的监控节点
-            Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("monitor");
-
-            if (discoveryAll == null || discoveryAll.isEmpty()) {
-                return ReturnResult.ok(new ArrayList<>());
-            }
-
-            // 转换为 List 并返回
-            List<Discovery> onlineNodes = new ArrayList<>(discoveryAll);
-
+            // 从 SyncServer 获取所有在线客户端
+            List<Discovery> onlineNodes = getOnlineClientsAsDiscovery();
             return ReturnResult.ok(onlineNodes);
         } catch (Exception e) {
             return ReturnResult.error("获取在线监控节点失败: " + e.getMessage());
@@ -130,17 +126,12 @@ public class NodeController {
     public ReturnResult<List<Discovery>> getOnlineNodesByApp(
             @RequestParam(value = "applicationName", required = false) String applicationName) {
         try {
-            // 获取所有在线的监控节点
-            Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("monitor");
-
-            if (discoveryAll == null || discoveryAll.isEmpty()) {
-                return ReturnResult.ok(new ArrayList<>());
-            }
+            List<Discovery> allNodes = getOnlineClientsAsDiscovery();
 
             List<Discovery> filteredNodes;
             if (applicationName != null && !applicationName.trim().isEmpty()) {
                 // 根据应用名称过滤节点
-                filteredNodes = discoveryAll.stream().filter(discovery -> {
+                filteredNodes = allNodes.stream().filter(discovery -> {
                     Map<String, String> metadata = discovery.getMetadata();
                     if (metadata == null) {
                         return false;
@@ -149,8 +140,7 @@ public class NodeController {
                     return applicationName.equals(appName);
                 }).collect(java.util.stream.Collectors.toList());
             } else {
-                // 返回所有节点
-                filteredNodes = new ArrayList<>(discoveryAll);
+                filteredNodes = allNodes;
             }
 
             return ReturnResult.ok(filteredNodes);
@@ -169,9 +159,8 @@ public class NodeController {
     @GetMapping("nodes/names")
     public ReturnResult<List<String>> getAvailableNodeNames() {
         try {
-            // 获取所有在线的监控节点
-            Set<Discovery> discoveries = discoveryService.getDiscoveryAll("monitor");
-            if (discoveries == null || discoveries.isEmpty()) {
+            List<Discovery> discoveries = getOnlineClientsAsDiscovery();
+            if (discoveries.isEmpty()) {
                 return ReturnResult.ok(new ArrayList<>());
             }
 
@@ -205,9 +194,8 @@ public class NodeController {
                 return ReturnResult.error("节点名称不能为空");
             }
 
-            // 获取所有在线的监控节点
-            Set<Discovery> discoveries = discoveryService.getDiscoveryAll("monitor");
-            if (discoveries == null || discoveries.isEmpty()) {
+            List<Discovery> discoveries = getOnlineClientsAsDiscovery();
+            if (discoveries.isEmpty()) {
                 return ReturnResult.ok(new ArrayList<>());
             }
 
@@ -261,4 +249,34 @@ public class NodeController {
         }
     }
 
+    /**
+     * 从 SyncServer 获取所有在线客户端并转换为 Discovery 列表
+     */
+    private List<Discovery> getOnlineClientsAsDiscovery() {
+        if (syncServer == null) {
+            return new ArrayList<>();
+        }
+
+        List<Discovery> result = new ArrayList<>();
+        for (Map.Entry<String, ClientInfo> entry : syncServer.getAllClients().entrySet()) {
+            ClientInfo clientInfo = entry.getValue();
+
+            Discovery discovery = new Discovery();
+            discovery.setServerId(entry.getKey());
+            discovery.setHost(clientInfo.getIpAddress());
+            discovery.setPort(clientInfo.getPort());
+
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("applicationName", clientInfo.getAppName());
+            metadata.put("instanceId", clientInfo.getInstanceId());
+            metadata.put("hostname", clientInfo.getHostname());
+            if (clientInfo.getMetadata() != null) {
+                clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+            }
+            discovery.setMetadata(metadata);
+
+            result.add(discovery);
+        }
+        return result;
+    }
 }
