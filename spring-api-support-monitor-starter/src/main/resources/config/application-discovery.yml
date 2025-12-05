@@ -8,7 +8,7 @@ plugin:
     # 服务发现配置列表
     properties:
       # Nacos服务发现配置
-      - enabled: true
+      - enabled: false
         # 协议类型（nacos/zookeeper/consul等）
         protocol: nacos
         # 服务地址

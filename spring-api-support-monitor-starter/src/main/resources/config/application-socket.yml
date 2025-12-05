@@ -9,30 +9,6 @@ plugin:
     protocol: socketio
     # 监听地址
     host: 0.0.0.0
-    # 主端口
-    port: 9000
-    # 编解码器类型
-    codec-type: json
-    # 开启数据加密
-    encrypt-enabled: false
-    # 加密密钥
-    encrypt-key:
-    # 最大帧大小（字节），默认1MB
-    max-frame-size: 1048576
-    # Boss线程数
-    boss-count: 1
-    # 工作线程数
-    work-count: 100
-    # 允许自定义请求
-    allow-custom-requests: true
-    # Ping超时时间（毫秒）
-    ping-timeout: 60000
-    # Ping间隔时间（毫秒）
-    ping-interval: 25000
-    # 认证工厂类名
-    auth-factory:
-    # 使用Linux Native Epoll
-    use-linux-native-epoll: false
     # 房间配置列表
     room:
       # 默认房间
