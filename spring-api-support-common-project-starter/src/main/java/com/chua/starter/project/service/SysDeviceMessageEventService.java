@@ -2,7 +2,7 @@ package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.entity.SysDeviceMessageEvent;
+import com.chua.starter.project.entity.SysDeviceMessageEvent;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 
 public interface SysDeviceMessageEventService extends IService<SysDeviceMessageEvent> {

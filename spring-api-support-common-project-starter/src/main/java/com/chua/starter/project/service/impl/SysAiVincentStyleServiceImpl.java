@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.mapper.SysAiVincentStyleMapper;
 import com.chua.starter.project.service.SysAiVincentStyleService;
-import com.chua.starter.system.entity.SysAiVincentStyle;
+import com.chua.starter.project.entity.SysAiVincentStyle;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

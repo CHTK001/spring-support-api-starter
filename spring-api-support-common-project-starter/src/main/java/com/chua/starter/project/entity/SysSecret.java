@@ -1,4 +1,4 @@
-package com.chua.starter.system.entity;
+package com.chua.starter.project.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.chua.starter.mybatis.pojo.SysBase;

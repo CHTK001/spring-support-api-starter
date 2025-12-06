@@ -8,7 +8,7 @@ import com.chua.starter.project.service.support.hikvision.adaptor.ResourceFactor
 import com.chua.starter.project.service.support.hikvision.adaptor.sub.EntranceFactory;
 import com.chua.starter.project.service.support.hikvision.query.SysDeviceCameraOnOffline;
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
-import com.chua.starter.system.entity.SysDeviceCardEvent;
+import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
 

@@ -10,8 +10,8 @@ import com.chua.starter.project.service.SysDeviceService;
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.OpenDeviceOnofflineMessageEvent;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.YunMouCardEventMessage;
-import com.chua.starter.system.entity.SysDevice;
-import com.chua.starter.system.entity.SysDeviceMessageEvent;
+import com.chua.starter.project.entity.SysDevice;
+import com.chua.starter.project.entity.SysDeviceMessageEvent;
 
 import java.text.ParseException;
 

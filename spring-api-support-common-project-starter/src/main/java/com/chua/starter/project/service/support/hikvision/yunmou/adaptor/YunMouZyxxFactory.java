@@ -9,7 +9,7 @@ import com.chua.starter.project.service.support.hikvision.result.DeviceResourceR
 import com.chua.starter.project.service.support.hikvision.result.HikRegion;
 import com.chua.starter.project.service.support.hikvision.result.HikRegionCascade;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.YunMouDeviceResourceResourcesResult;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.project.entity.SysProject;
 
 import java.util.*;
 

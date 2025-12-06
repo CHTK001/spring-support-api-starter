@@ -1,7 +1,7 @@
 package com.chua.starter.project.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.system.entity.SysDeviceOrg;
+import com.chua.starter.project.entity.SysDeviceOrg;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

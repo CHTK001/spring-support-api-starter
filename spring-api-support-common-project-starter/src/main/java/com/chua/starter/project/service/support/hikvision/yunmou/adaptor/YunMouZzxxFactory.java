@@ -2,7 +2,7 @@ package com.chua.starter.project.service.support.hikvision.yunmou.adaptor;
 
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.adaptor.sub.level3.ZzxxFactory;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.project.entity.SysProject;
 
 /**
  * 云眸

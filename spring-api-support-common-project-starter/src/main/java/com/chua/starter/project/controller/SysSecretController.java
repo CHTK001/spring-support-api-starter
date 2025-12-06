@@ -11,7 +11,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.project.service.SysSecretService;
-import com.chua.starter.system.entity.SysSecret;
+import com.chua.starter.project.entity.SysSecret;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

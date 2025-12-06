@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.bigmodel;
+package com.chua.starter.project.pojo.bigmodel;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import io.swagger.v3.oas.annotations.media.Schema;

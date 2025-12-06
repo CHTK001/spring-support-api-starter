@@ -9,7 +9,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.SysLogService;
-import com.chua.starter.system.entity.SysLog;
+import com.chua.starter.service.entity.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

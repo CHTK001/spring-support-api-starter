@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysAiVincentTask;
+import com.chua.starter.project.entity.SysAiVincentTask;
 
 /**
  * AI任务服务接口

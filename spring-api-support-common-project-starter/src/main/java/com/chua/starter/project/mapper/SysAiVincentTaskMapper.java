@@ -3,7 +3,7 @@ package com.chua.starter.project.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.starter.system.entity.SysAiVincentTask;
+import com.chua.starter.project.entity.SysAiVincentTask;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

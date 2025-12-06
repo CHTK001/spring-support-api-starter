@@ -8,7 +8,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.mapper.SysSecretMapper;
 import com.chua.starter.project.service.SysSecretService;
 import com.chua.starter.system.entity.SysDictItem;
-import com.chua.starter.system.entity.SysSecret;
+import com.chua.starter.project.entity.SysSecret;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
