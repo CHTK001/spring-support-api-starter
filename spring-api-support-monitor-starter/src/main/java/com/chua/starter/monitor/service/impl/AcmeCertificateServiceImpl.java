@@ -16,6 +16,7 @@ import com.chua.starter.monitor.mapper.MonitorAcmeAccountMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeCertificateMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
 import com.chua.starter.monitor.pojo.AcmeApplyCertRequest;
+import com.chua.starter.monitor.pojo.AcmeCertificateDetailVo;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import com.chua.starter.monitor.service.AcmeCertificateService;
 import lombok.RequiredArgsConstructor;
@@ -261,20 +262,91 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 获取证书详情 ForCert
+     * 获取证书详情 ForCert（含账户和订单信息）
      *
      * @param certId 证书ID
-     * @return 证书
+     * @return 证书详情VO
      */
     @Override
-    public ReturnResult<MonitorAcmeCertificate> getCertificateForCert(Integer certId) {
+    public ReturnResult<AcmeCertificateDetailVo> getCertificateDetailForCert(Integer certId) {
         MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
-        return ReturnResult.ok(cert);
+        if (cert == null) {
+            return ReturnResult.illegal("证书不存在: " + certId);
+        }
+
+        AcmeCertificateDetailVo vo = new AcmeCertificateDetailVo();
+        vo.setCertificate(cert);
+
+        // 查询关联账户
+        if (cert.getAcmeAccountId() != null) {
+            vo.setAccount(accountMapper.selectById(cert.getAcmeAccountId()));
+        }
+
+        // 查询关联订单
+        vo.setOrders(orderMapper.selectList(new LambdaQueryWrapper<MonitorAcmeOrder>()
+                .eq(MonitorAcmeOrder::getAcmeCertId, certId)
+                .orderByDesc(MonitorAcmeOrder::getUpdateTime)));
+
+        // 计算到期天数
+        if (StringUtils.isNotEmpty(cert.getAcmeCertNotAfter())) {
+            try {
+                LocalDateTime notAfter = LocalDateTime.parse(cert.getAcmeCertNotAfter(), DATE);
+                long days = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), notAfter);
+                vo.setDaysUntilExpiry(days);
+                vo.setSoonExpiring(days <= 30 && days >= 0);
+            } catch (Exception e) {
+                log.warn("[ACME] 解析证书到期时间失败: certId={}, notAfter={}", certId, cert.getAcmeCertNotAfter());
+            }
+        }
+
+        return ReturnResult.ok(vo);
+    }
+
+    /**
+     * 获取证书统计信息 ForCert
+     *
+     * @return 统计信息
+     */
+    @Override
+    public ReturnResult<AcmeCertificateDetailVo.CertStats> getCertStatsForCert() {
+        AcmeCertificateDetailVo.CertStats stats = new AcmeCertificateDetailVo.CertStats();
+
+        // 账户总数
+        stats.setAccountCount(accountMapper.selectCount(null));
+
+        // 证书总数
+        stats.setCertCount(certificateMapper.selectCount(null));
+
+        // 按状态统计
+        stats.setValidCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")));
+        stats.setPendingCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .in(MonitorAcmeCertificate::getAcmeCertStatus, "pending", "validating")));
+        stats.setRevokedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "revoked")));
+        stats.setFailedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "failed")));
+
+        // 统计即将到期和已过期的证书
+        String now = LocalDateTime.now().format(DATE);
+        String soon = LocalDateTime.now().plusDays(30).format(DATE);
+
+        stats.setExpiringCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")
+                .ge(MonitorAcmeCertificate::getAcmeCertNotAfter, now)
+                .le(MonitorAcmeCertificate::getAcmeCertNotAfter, soon)));
+
+        stats.setExpiredCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")
+                .lt(MonitorAcmeCertificate::getAcmeCertNotAfter, now)));
+
+        return ReturnResult.ok(stats);
     }
 
     /**
      * 检查并续签到期前 N 天的证书（调度）
      */
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void checkAndRenewSoonExpired() {
         int days = Math.max(acmeProperties.getRenewDaysBefore(), 7);
