@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.report.client.starter.pojo.FileInfo;
-import com.chua.report.client.starter.pojo.FileOperationRequest;
-import com.chua.report.client.starter.pojo.FileOperationResponse;
+import com.chua.starter.monitor.pojo.FileInfo;
+import com.chua.starter.monitor.pojo.FileOperationRequest;
+import com.chua.starter.monitor.pojo.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.pojo.FileManagementApiConfig;
 import com.chua.starter.monitor.service.ClientHealthService;
