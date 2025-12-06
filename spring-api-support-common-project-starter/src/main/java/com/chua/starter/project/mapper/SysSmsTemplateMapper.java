@@ -3,7 +3,7 @@ package com.chua.starter.project.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.starter.system.entity.SysSmsTemplate;
+import com.chua.starter.project.entity.SysSmsTemplate;
 import com.chua.starter.system.pojo.sms.SmsPageV1Request;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

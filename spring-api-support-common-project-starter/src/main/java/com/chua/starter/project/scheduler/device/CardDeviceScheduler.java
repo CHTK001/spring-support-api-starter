@@ -4,7 +4,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.support.CameraService;
 import com.chua.starter.system.entity.SysDictItem;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.project.entity.SysProject;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;

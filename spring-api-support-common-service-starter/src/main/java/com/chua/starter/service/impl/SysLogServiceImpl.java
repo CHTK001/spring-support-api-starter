@@ -10,7 +10,7 @@ import com.chua.starter.common.support.logger.SysLoggerInfo;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysLogService;
 import com.chua.starter.service.mapper.SysLogMapper;
-import com.chua.starter.system.entity.SysLog;
+import com.chua.starter.service.entity.SysLog;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 

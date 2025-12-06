@@ -3,7 +3,7 @@ package com.chua.starter.service.impl;
 import com.chua.common.support.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.socketio.support.constant.SocketTopics;
-import com.chua.starter.system.entity.SysMessage;
+import com.chua.starter.service.entity.SysMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

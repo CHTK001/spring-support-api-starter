@@ -7,7 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.project.service.SysAiVincentTemplateService;
-import com.chua.starter.system.entity.SysAiVincentTemplate;
+import com.chua.starter.project.entity.SysAiVincentTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

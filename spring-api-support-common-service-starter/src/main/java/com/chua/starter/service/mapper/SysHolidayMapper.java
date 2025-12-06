@@ -1,7 +1,7 @@
 package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.system.entity.SysHoliday;
+import com.chua.starter.service.entity.SysHoliday;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

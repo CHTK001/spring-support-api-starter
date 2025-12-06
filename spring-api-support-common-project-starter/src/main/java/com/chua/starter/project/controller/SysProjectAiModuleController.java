@@ -10,7 +10,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.project.service.SysAiModuleService;
-import com.chua.starter.system.entity.SysAiModule;
+import com.chua.starter.project.entity.SysAiModule;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

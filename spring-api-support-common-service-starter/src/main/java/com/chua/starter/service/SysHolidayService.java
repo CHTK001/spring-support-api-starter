@@ -1,6 +1,6 @@
 package com.chua.starter.service;
 
-import com.chua.starter.system.entity.SysHoliday;
+import com.chua.starter.service.entity.SysHoliday;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

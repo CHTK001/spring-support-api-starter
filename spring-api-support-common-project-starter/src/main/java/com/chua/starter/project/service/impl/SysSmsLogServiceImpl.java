@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.project.mapper.SysSmsLogMapper;
 import com.chua.starter.project.service.SysSmsLogService;
-import com.chua.starter.system.entity.SysSmsLog;
+import com.chua.starter.project.entity.SysSmsLog;
 import org.springframework.stereotype.Service;
 /**
  *
