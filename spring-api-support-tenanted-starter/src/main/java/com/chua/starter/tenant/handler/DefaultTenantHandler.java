@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.starter.service.mapper.SysUserMapper;
+import com.chua.starter.tenant.mapper.SysUserTenantMapper;
 import com.chua.starter.system.entity.SysRole;
 import com.chua.starter.system.entity.SysTenant;
 import com.chua.starter.system.entity.SysUser;
@@ -26,6 +27,7 @@ public class DefaultTenantHandler implements TenantHandler {
 
     final SysTenantMapper sysTenantMapper;
     final SysUserMapper sysUserMapper;
+    final SysUserTenantMapper sysUserTenantMapper;
     final SysRoleMapper sysRoleMapper;
     final SysUserRoleMapper sysUserRoleMapper;
 
@@ -76,7 +78,7 @@ public class DefaultTenantHandler implements TenantHandler {
     }
 
     private SysUser registerUser(SysTenant tenant) {
-        SysUser sysUser = sysUserMapper.selectOneByTenant(tenant);
+        SysUser sysUser = sysUserTenantMapper.selectOneByTenant(tenant);
         if (null == sysUser) {
             sysUser = new SysUser();
             sysUser.setSysUserUsername(tenant.getSysTenantUsername());
@@ -86,7 +88,7 @@ public class DefaultTenantHandler implements TenantHandler {
             sysUser.setSysUserStatus(1);
             sysUser.setSysUserDelete(0);
             sysUser.setSysUserPhone(tenant.getSysTenantPhone());
-            sysUserMapper.insertTenant(sysUser, tenant);
+            sysUserTenantMapper.insertTenant(sysUser, tenant);
             return sysUser;
         }
         if (null != sysUser.getSysUserPassword()) {

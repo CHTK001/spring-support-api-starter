@@ -10,17 +10,15 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysMenu;
-import com.chua.starter.system.entity.SysTenant;
-import com.chua.starter.system.pojo.tenant.SyncTenantData;
-import com.chua.starter.system.pojo.tenant.SyncTenantServiceData;
-import com.chua.starter.system.pojo.tenant.SysTenantServiceBindV1Request;
-import com.chua.starter.system.pojo.tenant.SysTenantSyncV1Request;
+import com.chua.starter.tenant.entity.SysTenant;
+import com.chua.starter.tenant.entity.SysTenantService;
 import com.chua.starter.tenant.mapper.SysTenantMapper;
-import com.chua.starter.tenant.service.SysTenantService;
+import com.chua.starter.tenant.pojo.SyncTenantData;
+import com.chua.starter.tenant.pojo.SyncTenantServiceData;
+import com.chua.starter.tenant.pojo.SysTenantServiceBindV1Request;
+import com.chua.starter.tenant.pojo.SysTenantSyncV1Request;
 import com.chua.starter.tenant.service.SysTenantServiceService;
-import com.chua.sync.support.pojo.ClientInfo;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.tenant.service.TenantMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +41,20 @@ import java.util.stream.Collectors;
  * @since 2024/12/06
  */
 @Slf4j
-@Service
+@Service("tenantSysTenantService")
 @RequiredArgsConstructor
-public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant> implements SysTenantService {
+public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant>
+        implements com.chua.starter.tenant.service.SysTenantService {
 
     private final TransactionTemplate transactionTemplate;
     private final SysTenantServiceService sysTenantServiceService;
 
     @Autowired(required = false)
-    private SyncServer syncServer;
+    private TenantMessagePublisher tenantMessagePublisher;
 
     @Override
     public IPage<SysTenant> pageForTenant(Query<SysTenant> query, SysTenant sysTenant) {
-        Page<SysTenant> sysServicePage = page(query.createPage(),
+        Page<SysTenant> page = page(query.createPage(),
                 Wrappers.<SysTenant>lambdaQuery()
                         .likeRight(StringUtils.isNotBlank(sysTenant.getSysTenantName()),
                                 SysTenant::getSysTenantName, sysTenant.getSysTenantName())
@@ -64,24 +63,21 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                         .orderByDesc(SysTenant::getCreateTime)
         );
 
-        List<SysTenant> records = sysServicePage.getRecords();
+        List<SysTenant> records = page.getRecords();
         if (CollectionUtils.isNotEmpty(records)) {
             List<Integer> tenantIds = records.stream().map(SysTenant::getSysTenantId).toList();
-            List<com.chua.starter.system.entity.SysTenantService> list = sysTenantServiceService
-                    .list(Wrappers.<com.chua.starter.system.entity.SysTenantService>lambdaQuery()
-                            .in(com.chua.starter.system.entity.SysTenantService::getSysTenantId, tenantIds));
-            Map<Integer, List<com.chua.starter.system.entity.SysTenantService>> collect = list.stream()
-                    .collect(Collectors.groupingBy(com.chua.starter.system.entity.SysTenantService::getSysTenantId));
+            List<SysTenantService> list = sysTenantServiceService
+                    .list(Wrappers.<SysTenantService>lambdaQuery()
+                            .in(SysTenantService::getSysTenantId, tenantIds));
+            Map<Integer, List<SysTenantService>> collect = list.stream()
+                    .collect(Collectors.groupingBy(SysTenantService::getSysTenantId));
             for (SysTenant record : records) {
-                List<com.chua.starter.system.entity.SysTenantService> services =
-                        collect.getOrDefault(record.getSysTenantId(), List.of());
+                List<SysTenantService> services = collect.getOrDefault(record.getSysTenantId(), List.of());
                 record.setSysTenantService(services);
-                record.setServiceIds(services.stream()
-                        .map(com.chua.starter.system.entity.SysTenantService::getSysServiceId)
-                        .toList());
+                record.setServiceIds(services.stream().map(SysTenantService::getSysServiceId).toList());
             }
         }
-        return sysServicePage;
+        return page;
     }
 
     @Override
@@ -93,13 +89,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         sysTenant.setSysTenantDelete(0);
         sysTenant.setSysTenantStatus(0);
         return transactionTemplate.execute(it -> {
-            boolean save = save(sysTenant);
-            if (save) {
-                // 绑定服务
+            boolean saved = save(sysTenant);
+            if (saved) {
                 bindTenantService(new SysTenantServiceBindV1Request(
                         sysTenant.getSysTenantId(), sysTenant.getSysTenantService()));
-                // 广播租户数据
-                broadcastTenantData("tenant", new SyncTenantData(Action.CREATE, sysTenant));
+                publish("tenant", new SyncTenantData(Action.CREATE, sysTenant));
             }
             return ReturnResult.preconditioning(sysTenant).toResult();
         });
@@ -114,28 +108,27 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
         sysTenant.setSysTenantDelete(null);
         return transactionTemplate.execute(it -> {
-            // 绑定服务
             bindTenantService(new SysTenantServiceBindV1Request(
                     sysTenant.getSysTenantId(), sysTenant.getSysTenantService()));
-            boolean b = updateById(sysTenant);
-            if (b) {
-                broadcastTenantData("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+            boolean updated = updateById(sysTenant);
+            if (updated) {
+                publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
             }
-            return ReturnResult.preconditioning(b).toResult();
+            return ReturnResult.preconditioning(updated).toResult();
         });
     }
 
     @Override
-    public ReturnResult<Boolean> deleteForTenant(Long sysServiceId) {
-        SysTenant sysTenant = getById(sysServiceId);
+    public ReturnResult<Boolean> deleteForTenant(Long id) {
+        SysTenant sysTenant = getById(id);
         if (null == sysTenant) {
             return ReturnResult.illegal("数据不存在");
         }
-        boolean b = removeById(sysServiceId);
-        if (b) {
-            broadcastTenantData("tenant", new SyncTenantData(Action.DELETE, sysTenant));
+        boolean removed = removeById(id);
+        if (removed) {
+            publish("tenant", new SyncTenantData(Action.DELETE, sysTenant));
         }
-        return ReturnResult.preconditioning(b).toResult();
+        return ReturnResult.preconditioning(removed).toResult();
     }
 
     @Override
@@ -144,30 +137,23 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             if (CollectionUtils.isNotEmpty(request.getSysServiceIds())) {
                 SysTenant sysTenant = baseMapper.selectById(request.getSysTenantId());
                 // 删除原有绑定
-                sysTenantServiceService.remove(
-                        Wrappers.<com.chua.starter.system.entity.SysTenantService>lambdaQuery()
-                                .eq(com.chua.starter.system.entity.SysTenantService::getSysTenantId,
-                                        request.getSysTenantId()));
+                sysTenantServiceService.remove(Wrappers.<SysTenantService>lambdaQuery()
+                        .eq(SysTenantService::getSysTenantId, request.getSysTenantId()));
                 // 创建新绑定
-                List<com.chua.starter.system.entity.SysTenantService> list = request.getSysServiceIds().stream()
-                        .map(sysServiceModuleId -> {
-                            com.chua.starter.system.entity.SysTenantService sysTenantService =
-                                    new com.chua.starter.system.entity.SysTenantService();
-                            sysTenantService.setSysTenantId(request.getSysTenantId());
-                            sysTenantService.setSysServiceId(sysServiceModuleId.getSysServiceId());
-                            sysTenantService.setSysTenantServiceValidTime(sysServiceModuleId.getSysTenantServiceValidTime());
-                            return sysTenantService;
+                List<SysTenantService> list = request.getSysServiceIds().stream()
+                        .map(item -> {
+                            SysTenantService service = new SysTenantService();
+                            service.setSysTenantId(request.getSysTenantId());
+                            service.setSysServiceId(item.getSysServiceId());
+                            service.setSysTenantServiceValidTime(item.getSysTenantServiceValidTime());
+                            return service;
                         }).toList();
                 sysTenantServiceService.saveBatch(list);
 
                 // 获取菜单并广播
-                List<SysMenu> menus = sysTenantServiceService.getMenuIds(request.getSysTenantId());
-                broadcastTenantData("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
-                broadcastTenantData("service", new SyncTenantServiceData(
-                        Action.UPDATE,
-                        request.getSysTenantId(),
-                        menus
-                ));
+                List<Integer> menuIds = sysTenantServiceService.getMenuIds(request.getSysTenantId());
+                publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+                publish("service", new SyncTenantServiceData(Action.UPDATE, request.getSysTenantId(), menuIds));
             }
             return ReturnResult.ok();
         });
@@ -178,84 +164,27 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         return transactionTemplate.execute(status -> {
             Integer sysTenantId = request.getSysTenantId();
             SysTenant sysTenant = baseMapper.selectById(sysTenantId);
-            List<SysMenu> list = ObjectUtils.equal(sysTenant.getSysTenantStatus(), 0)
+            List<Integer> menuIds = ObjectUtils.equal(sysTenant.getSysTenantStatus(), 0)
                     ? sysTenantServiceService.getMenuIds(sysTenantId)
                     : Collections.emptyList();
 
-            broadcastTenantData("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
-            broadcastTenantData("service", new SyncTenantServiceData(
-                    Action.UPDATE,
-                    request.getSysTenantId(),
-                    list
-            ));
+            publish("tenant", new SyncTenantData(Action.UPDATE, sysTenant));
+            publish("service", new SyncTenantServiceData(Action.UPDATE, request.getSysTenantId(), menuIds));
             return ReturnResult.ok();
         });
     }
 
     /**
-     * 根据租户编码定向下发数据
-     * <p>
-     * 查找元数据中 tenantCode 匹配的客户端，并单独发送
-     * </p>
+     * 发布消息
      *
      * @param topic 主题
      * @param data  数据
      */
-    private void broadcastTenantData(String topic, Object data) {
-        if (syncServer == null) {
-            log.debug("[Tenant] SyncServer 未配置，跳过数据同步");
-            return;
+    private void publish(String topic, Object data) {
+        if (tenantMessagePublisher != null) {
+            tenantMessagePublisher.publish(topic, data);
+        } else {
+            log.debug("[Tenant] TenantMessagePublisher 未配置，跳过数据同步");
         }
-
-        // 提取租户编码
-        String tenantCode = extractTenantCode(data);
-        if (tenantCode == null) {
-            // 无法提取租户编码，广播给所有客户端
-            log.debug("[Tenant] 无法提取租户编码，广播给所有客户端");
-            syncServer.broadcast(topic, data);
-            return;
-        }
-
-        // 根据租户编码查找匹配的客户端并定向下发
-        boolean sent = false;
-        for (var entry : syncServer.getAllClients().entrySet()) {
-            ClientInfo clientInfo = entry.getValue();
-            if (clientInfo.getMetadata() != null) {
-                Object clientTenantCode = clientInfo.getMetadata().get("tenantCode");
-                if (tenantCode.equals(clientTenantCode)) {
-                    syncServer.send(entry.getKey(), topic, data);
-                    sent = true;
-                    log.debug("[Tenant] 定向发送给客户端: clientId={}, tenantCode={}",
-                            entry.getKey(), tenantCode);
-                }
-            }
-        }
-
-        // 如果没有找到匹配的客户端，广播给所有客户端
-        if (!sent) {
-            log.debug("[Tenant] 未找到匹配租户的客户端，广播给所有客户端: tenantCode={}", tenantCode);
-            syncServer.broadcast(topic, data);
-        }
-    }
-
-    /**
-     * 从数据中提取租户编码
-     *
-     * @param data 数据
-     * @return 租户编码，未找到返回 null
-     */
-    private String extractTenantCode(Object data) {
-        if (data instanceof SyncTenantData syncTenantData) {
-            SysTenant tenant = syncTenantData.getTenant();
-            return tenant != null ? tenant.getSysTenantCode() : null;
-        }
-        if (data instanceof SyncTenantServiceData syncServiceData) {
-            Integer tenantId = syncServiceData.getSysTenantId();
-            if (tenantId != null) {
-                SysTenant tenant = getById(tenantId);
-                return tenant != null ? tenant.getSysTenantCode() : null;
-            }
-        }
-        return null;
     }
 }
