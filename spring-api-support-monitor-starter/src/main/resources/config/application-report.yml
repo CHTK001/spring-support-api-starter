@@ -6,3 +6,6 @@ plugin:
     enable: true
     server:
       protocol: websocket
+      instances:
+        - port: ${server.port} + 10000
+        - port: ${server.port} + 10001
