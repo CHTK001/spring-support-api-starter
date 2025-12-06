@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.report.client.starter.pojo.FileOperationRequest;
-import com.chua.report.client.starter.pojo.FileOperationResponse;
+import com.chua.starter.monitor.pojo.FileOperationRequest;
+import com.chua.starter.monitor.pojo.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.FileManagementService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
@@ -168,7 +168,7 @@ public class FileManagementFacadeServiceImpl {
                         .body(fileOperationResponseReturnResult.getMsg().getBytes(StandardCharsets.UTF_8));
             }
             FileOperationResponse fileOperationResponse = fileOperationResponseReturnResult.getData();
-            if (!fileOperationResponse.getSuccess()) {
+            if (!fileOperationResponse.isSuccess()) {
                 return ResponseEntity.badRequest().contentType(MediaType.TEXT_PLAIN)
                         .body(fileOperationResponse.getMessage().getBytes(StandardCharsets.UTF_8));
             }
