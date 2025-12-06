@@ -6,6 +6,8 @@ import com.chua.starter.monitor.service.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
+import com.chua.sync.support.spi.SyncMessageHandler;
+import java.util.function.BiConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -52,28 +54,16 @@ public class JobSyncConfiguration {
         log.info("[SyncConfig] 注册消息处理器");
 
         // 注册 Job 结果处理器
-        syncServer.registerHandler(TOPIC_JOB_RESULT, (topic, sessionId, data) -> {
-            handleJobResult(sessionId, data);
-            return null;
-        });
+        syncServer.registerHandler(TOPIC_JOB_RESULT, createHandler(TOPIC_JOB_RESULT, this::handleJobResult));
 
         // 注册设备指标处理器
-        syncServer.registerHandler(TOPIC_DEVICE_METRICS, (topic, sessionId, data) -> {
-            handleDeviceMetrics(sessionId, data);
-            return null;
-        });
+        syncServer.registerHandler(TOPIC_DEVICE_METRICS, createHandler(TOPIC_DEVICE_METRICS, this::handleDeviceMetrics));
 
         // 注册设备信息处理器
-        syncServer.registerHandler(TOPIC_DEVICE_INFO, (topic, sessionId, data) -> {
-            handleDeviceInfo(sessionId, data);
-            return null;
-        });
+        syncServer.registerHandler(TOPIC_DEVICE_INFO, createHandler(TOPIC_DEVICE_INFO, this::handleDeviceInfo));
 
         // 注册应用信息上报处理器
-        syncServer.registerHandler(TOPIC_APP_REPORT, (topic, sessionId, data) -> {
-            handleAppReport(sessionId, data);
-            return null;
-        });
+        syncServer.registerHandler(TOPIC_APP_REPORT, createHandler(TOPIC_APP_REPORT, this::handleAppReport));
 
         log.info("[SyncConfig] 消息处理器注册完成 (JobResult, DeviceMetrics, DeviceInfo, AppReport)");
     }
@@ -277,5 +267,27 @@ public class JobSyncConfiguration {
         } catch (Exception e) {
             log.error("[AppReport] 处理应用信息上报失败: sessionId={}", sessionId, e);
         }
+    }
+
+    /**
+     * 创建 SyncMessageHandler 实例
+     *
+     * @param name    处理器名称
+     * @param handler 消息处理函数
+     * @return SyncMessageHandler 实例
+     */
+    private SyncMessageHandler createHandler(String name, BiConsumer<String, Map<String, Object>> handler) {
+        return new SyncMessageHandler() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public Object handle(String topic, String sessionId, Map<String, Object> data) {
+                handler.accept(sessionId, data);
+                return null;
+            }
+        };
     }
 }
