@@ -55,9 +55,19 @@ public class FileOperationResponse implements Serializable {
     private List<Map<String, Object>> files;
 
     /**
-     * 文件树
+     * 文件树（Map类型）
      */
     private Map<String, Object> tree;
+
+    /**
+     * 文件树（FileInfo类型）
+     */
+    private FileInfo fileTree;
+
+    /**
+     * 内容类型
+     */
+    private String contentType;
 
     /**
      * 文件信息
@@ -155,6 +165,15 @@ public class FileOperationResponse implements Serializable {
     private List<FileInfo> fileInfos;
 
     /**
+     * 设置文件列表（兼容 List<FileInfo> 类型）
+     * 
+     * @param fileList 文件信息列表
+     */
+    public void setFiles(List<FileInfo> fileList) {
+        this.fileInfos = fileList;
+    }
+
+    /**
      * 文件树信息
      */
     private FileInfo treeInfo;
@@ -163,6 +182,11 @@ public class FileOperationResponse implements Serializable {
      * 执行耗时（毫秒）
      */
     private Long duration;
+
+    /**
+     * 详细信息列表
+     */
+    private java.util.List<String> details;
 
     /**
      * 创建成功响应
@@ -233,6 +257,42 @@ public class FileOperationResponse implements Serializable {
     public static FileOperationResponse successWithTree(String operation, String message, FileInfo tree) {
         FileOperationResponse response = success(operation, message);
         response.setTreeInfo(tree);
+        return response;
+    }
+
+    /**
+     * 创建成功响应（带文件树和路径）
+     *
+     * @param operation 操作类型
+     * @param tree      文件树
+     * @param path      路径
+     * @return 响应对象
+     */
+    public static FileOperationResponse success(String operation, FileInfo tree, String path) {
+        FileOperationResponse response = success(operation, "操作成功");
+        response.setTreeInfo(tree);
+        response.setPath(path);
+        return response;
+    }
+
+    /**
+     * 创建部分成功响应
+     *
+     * @param operation      操作类型
+     * @param message        消息
+     * @param totalCount     总数量
+     * @param processedCount 已处理数量
+     * @param failedCount    失败数量
+     * @return 响应对象
+     */
+    public static FileOperationResponse partialSuccess(String operation, String message, int totalCount,
+            int processedCount, int failedCount) {
+        FileOperationResponse response = new FileOperationResponse();
+        response.setSuccess(failedCount == 0);
+        response.setOperation(operation);
+        response.setMessage(message);
+        response.setTotalCount(totalCount);
+        response.setProcessedCount(processedCount);
         return response;
     }
 

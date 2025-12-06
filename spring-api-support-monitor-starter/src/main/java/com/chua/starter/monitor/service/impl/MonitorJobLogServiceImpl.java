@@ -2,15 +2,12 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.date.ComparableDateTime;
 import com.chua.common.support.lang.date.DateTime;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.report.client.starter.endpoint.ModuleType;
 import com.chua.report.client.starter.entity.JobCat;
-import com.chua.starter.common.support.project.Project;
-import com.chua.starter.discovery.support.service.DiscoveryService;
+import com.chua.sync.support.pojo.ClientInfo;
+import com.chua.sync.support.server.SyncServer;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.job.pojo.JobStatistic;
 import com.chua.starter.monitor.job.pojo.JobStatisticResult;
@@ -33,8 +30,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, MonitorJobLog> implements MonitorJobLogService {
 
-    private final DiscoveryService discoveryService;
-    final MonitorSender monitorSender;
+    private final SyncServer syncServer;
+    private final MonitorSender monitorSender;
 
     @Override
     public JobStatisticResult time(MonitorJobLog entity) {
@@ -105,26 +102,35 @@ public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, M
             return "";
         }
 
-        Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("/monitor");
-        Set<Discovery> collect = discoveryAll.stream().filter(
-                discovery -> {
-                    Project project = new Project(discovery.getMetadata());
-                    return project.getApplicationName().equals(monitorJobLog.getJobLogApp()) &&
-                            monitorJobLog.getJobLogTriggerAddress()
-                                    .contains(discovery.getHost() + ":" + discovery.getPort());
-
-                }
-        ).collect(Collectors.toUnmodifiableSet());
-
-        if(collect.isEmpty()) {
+        if (syncServer == null) {
             return "";
         }
-        Discovery discovery = CollectionUtils.findFirst(collect);
+        
+        // 从 SyncServer 获取所有在线客户端
+        Map<String, ClientInfo> allClients = syncServer.getAllClients();
+        ClientInfo matchedClient = allClients.values().stream()
+                .filter(clientInfo -> {
+                    String appName = clientInfo.getAppName();
+                    String address = clientInfo.getIpAddress() + ":" + clientInfo.getServerPort();
+                    return appName != null && appName.equals(monitorJobLog.getJobLogApp()) &&
+                            monitorJobLog.getJobLogTriggerAddress() != null &&
+                            monitorJobLog.getJobLogTriggerAddress().contains(address);
+                })
+                .findFirst()
+                .orElse(null);
+
+        if (matchedClient == null) {
+            return "";
+        }
+        
         JobCat jobCat = new JobCat();
         jobCat.setLogId(monitorJobLog.getJobLogId());
         jobCat.setFromLineNum(0);
         jobCat.setDate(monitorJobLog.getJobLogTriggerTime());
-        monitorSender.send(monitorJobLog, discovery, Json.toJson(jobCat), ModuleType.JOB_LOG_CAT);
+        
+        // 通过 SyncServer 发送消息
+        syncServer.send(matchedClient.getClientId(), "monitor/job/logcat", 
+                java.util.Map.of("jobCat", Json.toJson(jobCat), "jobLog", monitorJobLog));
         return monitorJobLog.getJobLogTriggerMsg();
     }
 

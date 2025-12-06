@@ -333,7 +333,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
                 return result;
             }
         }
-        return ReturnResult.ok(FileOperationResponse.success("BATCH_DELETE", null, null));
+        return ReturnResult.ok(FileOperationResponse.success("BATCH_DELETE", null));
     }
 
     @Override
@@ -430,7 +430,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         }
 
         if (getBoolean(response, "success", false)) {
-            return ReturnResult.ok(FileOperationResponse.success(operation.toUpperCase(), null, null));
+            return ReturnResult.ok(FileOperationResponse.success(operation.toUpperCase(), null));
         }
         return ReturnResult.error(getString(response, "message"));
     }

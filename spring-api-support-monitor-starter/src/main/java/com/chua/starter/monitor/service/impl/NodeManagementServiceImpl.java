@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.MapUtils;
-import com.chua.starter.discovery.support.service.DiscoveryService;
+import com.chua.sync.support.pojo.ClientInfo;
+import com.chua.sync.support.server.SyncServer;
 import com.chua.starter.monitor.pojo.NodeStatistics;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.service.NodeSystemService;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NodeManagementServiceImpl implements NodeManagementService {
 
-    private final DiscoveryService discoveryService;
+    private final SyncServer syncServer;
     private final NodeSystemService nodeSystemService;
 
     // 缓存最后一次获取的节点列表，避免频繁调用发现服务
@@ -56,9 +56,15 @@ public class NodeManagementServiceImpl implements NodeManagementService {
             }
 
             // 获取所有在线的监控节点
-            Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("monitor");
-
-            if (discoveryAll == null || discoveryAll.isEmpty()) {
+            if (syncServer == null) {
+                log.info("SyncServer 未初始化");
+                cachedNodeList = new ArrayList<>();
+                lastUpdateTime = currentTime;
+                return ReturnResult.ok(new ArrayList<>());
+            }
+            
+            Map<String, ClientInfo> allClients = syncServer.getAllClients();
+            if (allClients == null || allClients.isEmpty()) {
                 log.info("未发现在线节点");
                 cachedNodeList = new ArrayList<>();
                 lastUpdateTime = currentTime;
@@ -66,8 +72,10 @@ public class NodeManagementServiceImpl implements NodeManagementService {
             }
 
             // 转换为 OnlineNodeInfo 列表，过滤掉转换失败的节点
-            List<OnlineNodeInfo> nodeList = discoveryAll.stream().map(this::convertToOnlineNodeInfo)
-                    .filter(Objects::nonNull).collect(Collectors.toList());
+            List<OnlineNodeInfo> nodeList = allClients.values().stream()
+                    .map(this::convertToOnlineNodeInfo)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             // 同步节点数据到数据库
             try {
@@ -290,11 +298,11 @@ public class NodeManagementServiceImpl implements NodeManagementService {
     }
 
     /**
-     * 将 Discovery 对象转换为 OnlineNodeInfo
+     * 将 ClientInfo 对象转换为 OnlineNodeInfo
      */
-    private OnlineNodeInfo convertToOnlineNodeInfo(Discovery discovery) {
-        if (discovery == null) {
-            log.warn("Discovery对象为空，无法转换");
+    private OnlineNodeInfo convertToOnlineNodeInfo(ClientInfo clientInfo) {
+        if (clientInfo == null) {
+            log.warn("ClientInfo对象为空，无法转换");
             return null;
         }
 
@@ -302,70 +310,84 @@ public class NodeManagementServiceImpl implements NodeManagementService {
             OnlineNodeInfo nodeInfo = new OnlineNodeInfo();
 
             // 基本信息
-            nodeInfo.setNodeId(generateNodeId(discovery));
-            nodeInfo.setApplicationName(MapUtils.getString(discovery.getMetadata(), "applicationName", "unknown"));
-            nodeInfo.setNodeName(MapUtils.getString(discovery.getMetadata(), "nodeName",
-                    discovery.getHost() + ":" + discovery.getPort()));
-            nodeInfo.setIpAddress(discovery.getHost());
-            nodeInfo.setPort(discovery.getPort());
+            nodeInfo.setNodeId(generateNodeId(clientInfo));
+            nodeInfo.setApplicationName(clientInfo.getAppName() != null ? clientInfo.getAppName() : "unknown");
+            nodeInfo.setNodeName(clientInfo.getHostname() != null ? clientInfo.getHostname() : 
+                    clientInfo.getIpAddress() + ":" + clientInfo.getServerPort());
+            nodeInfo.setIpAddress(clientInfo.getIpAddress());
+            nodeInfo.setPort(clientInfo.getServerPort());
 
             // 状态信息
-            nodeInfo.setStatus(OnlineNodeInfo.NodeStatus.ONLINE); // Discovery中的都是在线的
+            nodeInfo.setStatus(clientInfo.isOnline() ? OnlineNodeInfo.NodeStatus.ONLINE : OnlineNodeInfo.NodeStatus.OFFLINE);
             nodeInfo.setConnectTime(LocalDateTime.now());
-            nodeInfo.setLastHeartbeatTime(LocalDateTime.now());
+            
+            // 从心跳时间设置最后心跳时间
+            if (clientInfo.getLastHeartbeatTime() > 0) {
+                nodeInfo.setLastHeartbeatTime(java.time.LocalDateTime.ofInstant(
+                        java.time.Instant.ofEpochMilli(clientInfo.getLastHeartbeatTime()),
+                        java.time.ZoneId.systemDefault()));
+            } else {
+                nodeInfo.setLastHeartbeatTime(LocalDateTime.now());
+            }
 
-            // 健康状态从元数据获取，默认为true
-            nodeInfo.setHealthy(MapUtils.getBoolean(discovery.getMetadata(), "healthy", true));
+            // 健康状态从元数据获取，默认为在线即健康
+            nodeInfo.setHealthy(clientInfo.isOnline());
 
             // 版本和类型信息
-            nodeInfo.setVersion(MapUtils.getString(discovery.getMetadata(), "version", "unknown"));
-            nodeInfo.setNodeType(MapUtils.getString(discovery.getMetadata(), "nodeType", "monitor"));
+            nodeInfo.setVersion(clientInfo.getJavaVersion() != null ? clientInfo.getJavaVersion() : "unknown");
+            nodeInfo.setNodeType("monitor");
 
             // 性能信息（从元数据中获取，如果有的话）
-            Double cpuUsage = MapUtils.getDouble(discovery.getMetadata(), "cpuUsage");
-            if (cpuUsage != null && cpuUsage >= 0 && cpuUsage <= 100) {
-                nodeInfo.setCpuUsage(cpuUsage);
-            }
-
-            Double memoryUsage = MapUtils.getDouble(discovery.getMetadata(), "memoryUsage");
-            if (memoryUsage != null && memoryUsage >= 0 && memoryUsage <= 100) {
-                nodeInfo.setMemoryUsage(memoryUsage);
-            }
-
-            Double diskUsage = MapUtils.getDouble(discovery.getMetadata(), "diskUsage");
-            if (diskUsage != null && diskUsage >= 0 && diskUsage <= 100) {
-                nodeInfo.setDiskUsage(diskUsage);
-            }
-
-            Long responseTime = MapUtils.getLong(discovery.getMetadata(), "responseTime");
-            if (responseTime != null && responseTime >= 0) {
-                nodeInfo.setResponseTime(responseTime);
-            }
-
-            Long networkLatency = MapUtils.getLong(discovery.getMetadata(), "networkLatency");
-            if (networkLatency != null && networkLatency >= 0) {
-                nodeInfo.setNetworkLatency(networkLatency);
-            }
-
-            // 连接数
-            Integer connectionCount = MapUtils.getInteger(discovery.getMetadata(), "connectionCount", 1);
-            nodeInfo.setConnectionCount(Math.max(connectionCount, 0));
-
-            // 元数据 - 安全转换类型
-            Map<String, Object> metadata = new HashMap<>();
-            if (discovery.getMetadata() != null) {
-                try {
-                    metadata.putAll(discovery.getMetadata());
-                } catch (Exception e) {
-                    log.warn("转换元数据失败: {}", e.getMessage());
+            Map<String, Object> metadata = clientInfo.getMetadata();
+            if (metadata != null) {
+                Double cpuUsage = MapUtils.getDouble(metadata, "cpuUsage");
+                if (cpuUsage != null && cpuUsage >= 0 && cpuUsage <= 100) {
+                    nodeInfo.setCpuUsage(cpuUsage);
                 }
+
+                Double memoryUsage = MapUtils.getDouble(metadata, "memoryUsage");
+                if (memoryUsage != null && memoryUsage >= 0 && memoryUsage <= 100) {
+                    nodeInfo.setMemoryUsage(memoryUsage);
+                }
+
+                Double diskUsage = MapUtils.getDouble(metadata, "diskUsage");
+                if (diskUsage != null && diskUsage >= 0 && diskUsage <= 100) {
+                    nodeInfo.setDiskUsage(diskUsage);
+                }
+
+                Long responseTime = MapUtils.getLong(metadata, "responseTime");
+                if (responseTime != null && responseTime >= 0) {
+                    nodeInfo.setResponseTime(responseTime);
+                }
+
+                Long networkLatency = MapUtils.getLong(metadata, "networkLatency");
+                if (networkLatency != null && networkLatency >= 0) {
+                    nodeInfo.setNetworkLatency(networkLatency);
+                }
+
+                // 连接数
+                Integer connectionCount = MapUtils.getInteger(metadata, "connectionCount", 1);
+                nodeInfo.setConnectionCount(Math.max(connectionCount, 0));
+            } else {
+                nodeInfo.setConnectionCount(1);
             }
-            nodeInfo.setMetadata(metadata);
+
+            // 元数据
+            Map<String, Object> nodeMetadata = new HashMap<>();
+            if (metadata != null) {
+                nodeMetadata.putAll(metadata);
+            }
+            nodeMetadata.put("clientId", clientInfo.getClientId());
+            nodeMetadata.put("osName", clientInfo.getOsName());
+            nodeMetadata.put("osVersion", clientInfo.getOsVersion());
+            nodeMetadata.put("cpuCores", clientInfo.getCpuCores());
+            nodeMetadata.put("totalMemory", clientInfo.getTotalMemory());
+            nodeInfo.setMetadata(nodeMetadata);
 
             return nodeInfo;
 
         } catch (Exception e) {
-            log.error("转换Discovery对象失败: host={}, port={}", discovery.getHost(), discovery.getPort(), e);
+            log.error("转换ClientInfo对象失败: ip={}, port={}", clientInfo.getIpAddress(), clientInfo.getServerPort(), e);
             return null;
         }
     }
@@ -373,8 +395,8 @@ public class NodeManagementServiceImpl implements NodeManagementService {
     /**
      * 生成节点ID（与NodeSystemService保持一致，使用MD5）
      */
-    private String generateNodeId(Discovery discovery) {
-        return nodeSystemService.generateNodeId(discovery.getHost(), discovery.getPort());
+    private String generateNodeId(ClientInfo clientInfo) {
+        return nodeSystemService.generateNodeId(clientInfo.getIpAddress(), clientInfo.getServerPort());
     }
 
 }

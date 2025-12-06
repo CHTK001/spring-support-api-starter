@@ -166,17 +166,18 @@ public class JobConfig {
                 }
             }
 
-            // 构建 Discovery 对象
-            Discovery discovery = new Discovery();
-            discovery.setHost(clientInfo.getIpAddress());
-            discovery.setPort(clientInfo.getPort());
-            discovery.setServerId(entry.getKey());
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("applicationName", clientInfo.getAppName());
+            // 构建 Discovery 对象（使用 Builder 模式）
+            Map<String, String> discoveryMetadata = new HashMap<>();
+            discoveryMetadata.put("applicationName", clientInfo.getAppName());
             if (clientInfo.getMetadata() != null) {
-                clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+                clientInfo.getMetadata().forEach((k, v) -> discoveryMetadata.put(k, String.valueOf(v)));
             }
-            discovery.setMetadata(metadata);
+            Discovery discovery = Discovery.builder()
+                    .host(clientInfo.getIpAddress())
+                    .port(clientInfo.getServerPort())
+                    .serverId(entry.getKey())
+                    .metadata(discoveryMetadata)
+                    .build();
             onlineClients.add(discovery);
         }
 
