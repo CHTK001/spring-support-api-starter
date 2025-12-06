@@ -16,7 +16,6 @@
      *
      * 依赖说明:
      *   - spring-support-common-starter: 提供基础公共功能支持
-     *   - spring-api-support-common-entity-starter: 提供通用实体类支持，版本号为 4.0.0
      *   - spring-support-oauth-client-starter: 提供OAuth客户端支持
      -->
     <modelVersion>4.0.0</modelVersion>
@@ -40,12 +39,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-common-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-entity-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
