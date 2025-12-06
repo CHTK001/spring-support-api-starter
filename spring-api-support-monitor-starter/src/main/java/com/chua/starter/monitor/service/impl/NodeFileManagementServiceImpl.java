@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.report.client.starter.pojo.FileInfo;
-import com.chua.report.client.starter.pojo.FileOperationRequest;
-import com.chua.report.client.starter.pojo.FileOperationResponse;
+import com.chua.starter.monitor.pojo.FileInfo;
+import com.chua.starter.monitor.pojo.FileOperationRequest;
+import com.chua.starter.monitor.pojo.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.FileManagementService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
@@ -80,15 +80,23 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         if (responseHandlerRegistered || syncServer == null) {
             return;
         }
-        syncServer.registerHandler("monitor/file/response", (topic, sessionId, data) -> {
-            String requestId = getString(data, "requestId");
-            if (requestId != null) {
-                CompletableFuture<Map<String, Object>> future = pendingRequests.get(requestId);
-                if (future != null) {
-                    future.complete(data);
-                }
+        syncServer.registerHandler("monitor/file/response", new com.chua.sync.support.spi.SyncMessageHandler() {
+            @Override
+            public String getName() {
+                return "fileResponseHandler";
             }
-            return null;
+
+            @Override
+            public Object handle(String topic, String sessionId, Map<String, Object> data) {
+                String requestId = getString(data, "requestId");
+                if (requestId != null) {
+                    CompletableFuture<Map<String, Object>> future = pendingRequests.get(requestId);
+                    if (future != null) {
+                        future.complete(data);
+                    }
+                }
+                return null;
+            }
         });
         responseHandlerRegistered = true;
     }
@@ -215,7 +223,9 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
             }
 
             if (getBoolean(response, "success", false)) {
-                return ReturnResult.ok(FileOperationResponse.success("UPLOAD", null, fullPath));
+                FileOperationResponse opResponse = FileOperationResponse.success("UPLOAD", "文件上传成功");
+                opResponse.setPath(fullPath);
+                return ReturnResult.ok(opResponse);
             }
             return ReturnResult.error(getString(response, "message"));
         } catch (Exception e) {
@@ -242,8 +252,9 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         if (getBoolean(response, "success", false)) {
             String contentBase64 = getString(response, "content");
             byte[] content = Base64.getDecoder().decode(contentBase64);
-            FileOperationResponse resp = FileOperationResponse.success("DOWNLOAD", null, filePath);
-            resp.setData(content);
+            FileOperationResponse resp = FileOperationResponse.success("DOWNLOAD", "文件下载成功");
+            resp.setPath(filePath);
+            resp.setContentBytes(content);
             return ReturnResult.ok(resp);
         }
         return ReturnResult.error(getString(response, "message"));
@@ -440,8 +451,15 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         info.setName(getString(map, "name"));
         info.setPath(getString(map, "path"));
         info.setDirectory(getBoolean(map, "isDirectory", false));
-        info.setSize(getLong(map, "size", 0));
-        info.setLastModified(getLong(map, "lastModified", 0));
+        info.setFile(!getBoolean(map, "isDirectory", false));
+        info.setSize(getLong(map, "size", 0L));
+        // 将时间戳转换为 LocalDateTime
+        long lastModified = getLong(map, "lastModified", 0L);
+        if (lastModified > 0) {
+            info.setModifiedTime(java.time.LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochMilli(lastModified),
+                    java.time.ZoneId.systemDefault()));
+        }
         info.setHidden(getBoolean(map, "hidden", false));
         info.setReadable(getBoolean(map, "readable", true));
         info.setWritable(getBoolean(map, "writable", true));
