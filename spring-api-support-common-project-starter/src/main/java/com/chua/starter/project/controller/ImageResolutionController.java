@@ -1,9 +1,9 @@
 package com.chua.starter.project.controller;
 
+import com.chua.common.support.bigmodel.resolution.ImageResolutionAddTaskV1Response;
+import com.chua.common.support.bigmodel.resolution.ImageResolutionSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
-import com.chua.deeplearning.support.ml.bigmodel.resolution.ImageResolutionAddTaskV1Response;
-import com.chua.deeplearning.support.ml.bigmodel.resolution.ImageResolutionSearchTaskV1Response;
 import com.chua.starter.project.service.ImageResolutionService;
 import com.chua.starter.system.pojo.vincent.ImageResolutionAddTaskV2Request;
 import com.chua.starter.system.pojo.vincent.ImageResolutionSearchTaskV2Request;

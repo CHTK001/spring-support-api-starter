@@ -13,7 +13,6 @@ import com.chua.starter.project.service.EmailService;
 import com.chua.starter.project.service.SysEmailService;
 import com.chua.starter.project.service.SysEmailTemplateService;
 import com.chua.starter.project.service.SysProjectService;
-import com.chua.starter.service.utils.SettingGroupUtils;
 import com.chua.starter.system.entity.SysEmailLog;
 import com.chua.starter.system.entity.SysEmailTemplate;
 import com.chua.starter.system.entity.SysProject;
@@ -42,7 +41,6 @@ public class SysEmailServiceImpl implements SysEmailService {
     final SysEmailTemplateMapper sysEmailTemplateMapper;
     final SysEmailTemplateService sysEmailTemplateService;
     final SysEmailLogMapper sysEmailLogMapper;
-    final SettingGroupUtils settingGroupUtils;
 
     @Override
     public ReturnResult<List<PushResult>> send(EmailRequest request) {

@@ -42,12 +42,10 @@ public class FaceInfo {
          * 1-男性，2-女性，UNKNOWN-未知
          */
         @JsonProperty("sex")
-        @Builder.Default
         private String sex = "UNKNOWN";
         /**
          * 人脸的证件类别，111-身份证，OTHER-其它证件
          */
-        @Builder.Default
         @JsonProperty("certificateType")
         private String certificateType = "OTHER";
         /**

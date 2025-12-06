@@ -1,8 +1,8 @@
 package com.chua.starter.project.service;
 
+import com.chua.common.support.bigmodel.colorization.ImageColorizationAddTaskV1Response;
+import com.chua.common.support.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationAddTaskV1Response;
-import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
 import com.chua.starter.system.pojo.vincent.ImageColorizationAddTaskV2Request;
 import com.chua.starter.system.pojo.vincent.ImageColorizationSearchTaskV2Request;
 
@@ -24,7 +24,7 @@ public interface ImageColorizationService {
      *                <li>url: 文件地址，支持base64或URL格式，例如："http://example.com/image.jpg"</li>
      *                </ul>
      * @return 返回提交任务的结果，包含任务ID等信息
-     *         {@link ReturnResult< ImageColorizationAddTaskV1Response >}
+     *         {@link ReturnResult<ImageColorizationAddTaskV1Response>}
      */
     ReturnResult<ImageColorizationAddTaskV1Response> addTask(ImageColorizationAddTaskV2Request request);
 
@@ -39,7 +39,7 @@ public interface ImageColorizationService {
      *                <li>region: 地域信息，例如："cn-hangzhou"</li>
      *                </ul>
      * @return 返回任务查询结果，包含任务状态、输出图片地址等信息
-     *         {@link ReturnResult< ImageColorizationSearchTaskV1Response >}
+     *         {@link ReturnResult<ImageColorizationSearchTaskV1Response>}
      */
     ReturnResult<ImageColorizationSearchTaskV1Response> searchTask(ImageColorizationSearchTaskV2Request request);
 }

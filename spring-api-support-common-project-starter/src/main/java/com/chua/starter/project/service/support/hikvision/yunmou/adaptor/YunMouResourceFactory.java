@@ -135,9 +135,6 @@ public class YunMouResourceFactory extends ResourceFactory {
     }
 
     private void registerMessage(List<YunMouCardEventMessage> yunMouCardEventMessages, HikvisionClient client) {
-        if (null == yunMouCardEventMessages) {
-            return;
-        }
         Thread.ofVirtual().start(() -> {
             for (YunMouCardEventMessage yunMouCardEventMessage : yunMouCardEventMessages) {
                 MessageHandler messageHandler = ServiceProvider.of(MessageHandler.class).getNewExtension(yunMouCardEventMessage.getMsgType());
