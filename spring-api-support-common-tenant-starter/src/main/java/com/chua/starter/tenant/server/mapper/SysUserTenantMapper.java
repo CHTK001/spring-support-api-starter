@@ -1,7 +1,6 @@
-package com.chua.starter.tenant.mapper;
+package com.chua.starter.tenant.server.mapper;
 
-import com.chua.starter.system.entity.SysTenant;
-import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.tenant.entity.SysTenant;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

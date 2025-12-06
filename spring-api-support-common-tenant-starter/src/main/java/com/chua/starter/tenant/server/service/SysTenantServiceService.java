@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.service;
+package com.chua.starter.tenant.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.tenant.entity.SysTenantService;

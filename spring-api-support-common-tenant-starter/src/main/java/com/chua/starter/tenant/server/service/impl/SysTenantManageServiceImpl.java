@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.service.impl;
+package com.chua.starter.tenant.server.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -12,13 +12,14 @@ import com.chua.common.support.utils.ObjectUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantService;
-import com.chua.starter.tenant.mapper.SysTenantMapper;
+import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.pojo.SyncTenantData;
 import com.chua.starter.tenant.pojo.SyncTenantServiceData;
 import com.chua.starter.tenant.pojo.SysTenantServiceBindV1Request;
 import com.chua.starter.tenant.pojo.SysTenantSyncV1Request;
-import com.chua.starter.tenant.service.SysTenantServiceService;
-import com.chua.starter.tenant.service.TenantMessagePublisher;
+import com.chua.starter.tenant.server.service.SysTenantManageService;
+import com.chua.starter.tenant.server.service.SysTenantServiceService;
+import com.chua.starter.tenant.server.service.TenantMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 租户服务实现类
+ * 租户管理服务实现类
  * <p>
  * 提供租户的增删改查、服务绑定、数据同步等功能
  * </p>
@@ -41,10 +42,10 @@ import java.util.stream.Collectors;
  * @since 2024/12/06
  */
 @Slf4j
-@Service("tenantSysTenantService")
+@Service("sysTenantManageService")
 @RequiredArgsConstructor
-public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant>
-        implements com.chua.starter.tenant.service.SysTenantService {
+public class SysTenantManageServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant>
+        implements SysTenantManageService {
 
     private final TransactionTemplate transactionTemplate;
     private final SysTenantServiceService sysTenantServiceService;

@@ -1,6 +1,6 @@
-package com.chua.starter.tenant;
+package com.chua.starter.tenant.client.handler;
 
-import com.chua.starter.system.entity.SysTenant;
+import com.chua.starter.tenant.entity.SysTenant;
 
 /**
  * 租户处理器接口

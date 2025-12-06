@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.service;
+package com.chua.starter.tenant.server.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -9,7 +9,7 @@ import com.chua.starter.tenant.pojo.SysTenantServiceBindV1Request;
 import com.chua.starter.tenant.pojo.SysTenantSyncV1Request;
 
 /**
- * 租户服务接口
+ * 租户管理服务接口
  * <p>
  * 提供租户的增删改查、服务绑定、数据同步等功能
  * </p>
@@ -18,7 +18,7 @@ import com.chua.starter.tenant.pojo.SysTenantSyncV1Request;
  * @version 1.0.0
  * @since 2024/12/06
  */
-public interface SysTenantService extends IService<SysTenant> {
+public interface SysTenantManageService extends IService<SysTenant> {
 
     /**
      * 分页查询租户
