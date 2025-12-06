@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.mapper;
+package com.chua.starter.tenant.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.tenant.entity.SysTenantService;

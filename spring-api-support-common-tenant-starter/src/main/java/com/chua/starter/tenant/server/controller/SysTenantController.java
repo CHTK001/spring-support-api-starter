@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.controller;
+package com.chua.starter.tenant.server.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -6,7 +6,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.pojo.SysTenantServiceBindV1Request;
 import com.chua.starter.tenant.pojo.SysTenantSyncV1Request;
-import com.chua.starter.tenant.service.SysTenantService;
+import com.chua.starter.tenant.server.service.SysTenantManageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SysTenantController {
 
-    private final SysTenantService sysTenantService;
+    private final SysTenantManageService sysTenantManageService;
 
     /**
      * 分页查询租户
@@ -37,7 +37,7 @@ public class SysTenantController {
     @Operation(summary = "分页查询租户")
     @GetMapping("/page")
     public ReturnResult<IPage<SysTenant>> pageForTenant(Query<SysTenant> query, SysTenant sysTenant) {
-        return ReturnResult.ok(sysTenantService.pageForTenant(query, sysTenant));
+        return ReturnResult.ok(sysTenantManageService.pageForTenant(query, sysTenant));
     }
 
     /**
@@ -49,7 +49,7 @@ public class SysTenantController {
     @Operation(summary = "获取租户详情")
     @GetMapping("/{id}")
     public ReturnResult<SysTenant> getByIdForTenant(@PathVariable("id") Integer id) {
-        return ReturnResult.ok(sysTenantService.getById(id));
+        return ReturnResult.ok(sysTenantManageService.getById(id));
     }
 
     /**
@@ -61,7 +61,7 @@ public class SysTenantController {
     @Operation(summary = "保存租户")
     @PostMapping
     public ReturnResult<SysTenant> saveForTenant(@RequestBody SysTenant sysTenant) {
-        return sysTenantService.saveForTenant(sysTenant);
+        return sysTenantManageService.saveForTenant(sysTenant);
     }
 
     /**
@@ -73,7 +73,7 @@ public class SysTenantController {
     @Operation(summary = "更新租户")
     @PutMapping
     public ReturnResult<Boolean> updateForTenant(@RequestBody SysTenant sysTenant) {
-        return sysTenantService.updateForTenant(sysTenant);
+        return sysTenantManageService.updateForTenant(sysTenant);
     }
 
     /**
@@ -85,7 +85,7 @@ public class SysTenantController {
     @Operation(summary = "删除租户")
     @DeleteMapping("/{id}")
     public ReturnResult<Boolean> deleteForTenant(@PathVariable("id") Long id) {
-        return sysTenantService.deleteForTenant(id);
+        return sysTenantManageService.deleteForTenant(id);
     }
 
     /**
@@ -97,7 +97,7 @@ public class SysTenantController {
     @Operation(summary = "绑定租户服务")
     @PostMapping("/bind")
     public ReturnResult<Boolean> bindTenantService(@RequestBody SysTenantServiceBindV1Request request) {
-        return sysTenantService.bindTenantService(request);
+        return sysTenantManageService.bindTenantService(request);
     }
 
     /**
@@ -109,6 +109,6 @@ public class SysTenantController {
     @Operation(summary = "同步租户数据")
     @PostMapping("/sync")
     public ReturnResult<Boolean> syncTenantData(@RequestBody SysTenantSyncV1Request request) {
-        return sysTenantService.syncTenantData(request);
+        return sysTenantManageService.syncTenantData(request);
     }
 }
