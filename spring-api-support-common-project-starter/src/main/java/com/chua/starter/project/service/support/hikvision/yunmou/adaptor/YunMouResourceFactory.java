@@ -16,8 +16,8 @@ import com.chua.starter.project.service.support.hikvision.adaptor.sub.ZyxxFactor
 import com.chua.starter.project.service.support.hikvision.yunmou.consumer.MessageHandler;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.CardHistory;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.YunMouCardEventMessage;
-import com.chua.starter.system.entity.SysDeviceCardEvent;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.project.entity.SysDeviceCardEvent;
+import com.chua.starter.project.entity.SysProject;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
 import org.apache.commons.lang3.ObjectUtils;
 

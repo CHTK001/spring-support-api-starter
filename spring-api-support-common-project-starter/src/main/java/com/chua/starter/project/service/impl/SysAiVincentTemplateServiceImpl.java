@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.project.mapper.SysAiVincentTemplateMapper;
 import com.chua.starter.project.service.SysAiVincentTemplateService;
-import com.chua.starter.system.entity.SysAiVincentTemplate;
+import com.chua.starter.project.entity.SysAiVincentTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

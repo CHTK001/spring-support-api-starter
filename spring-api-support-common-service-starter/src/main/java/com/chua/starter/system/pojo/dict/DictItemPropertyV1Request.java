@@ -1,6 +1,6 @@
 package com.chua.starter.system.pojo.dict;
 
-import com.chua.starter.system.entity.SysDictItemProperty;
+import com.chua.starter.service.entity.SysDictItemProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysSmsTemplate;
+import com.chua.starter.project.entity.SysSmsTemplate;
 
 /**
  * 短信模板服务接口

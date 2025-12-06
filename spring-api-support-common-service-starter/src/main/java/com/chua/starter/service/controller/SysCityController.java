@@ -4,7 +4,7 @@ import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.system.entity.SysCity;
+import com.chua.starter.service.entity.SysCity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;

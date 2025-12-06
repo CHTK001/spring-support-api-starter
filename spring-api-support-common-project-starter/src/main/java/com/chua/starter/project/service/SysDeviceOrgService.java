@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysDeviceOrg;
+import com.chua.starter.project.entity.SysDeviceOrg;
 
 /**
  * 设备机构服务接口

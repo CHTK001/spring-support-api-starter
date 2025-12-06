@@ -9,7 +9,7 @@ import com.chua.starter.project.service.SysDeviceMessageEventService;
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.OpenDeviceAlarmMessageEvent;
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.YunMouCardEventMessage;
-import com.chua.starter.system.entity.SysDeviceMessageEvent;
+import com.chua.starter.project.entity.SysDeviceMessageEvent;
 
 import java.text.ParseException;
 import java.util.Collections;

@@ -11,7 +11,7 @@ import com.chua.starter.project.service.support.hikvision.HiYunYaoClientUtils;
 import com.chua.starter.project.service.support.hikvision.adaptor.sub.EntranceFactory;
 import com.chua.starter.project.service.support.hikvision.query.DoorQuery;
 import com.chua.starter.project.service.support.hikvision.result.DoorEventResult;
-import com.chua.starter.system.entity.SysProject;
+import com.chua.starter.project.entity.SysProject;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;

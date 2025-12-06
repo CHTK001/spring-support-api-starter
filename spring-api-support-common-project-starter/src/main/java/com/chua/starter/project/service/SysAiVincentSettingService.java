@@ -2,8 +2,8 @@ package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.entity.SysAiModule;
-import com.chua.starter.system.entity.SysAiVincentSetting;
+import com.chua.starter.project.entity.SysAiModule;
+import com.chua.starter.project.entity.SysAiVincentSetting;
 
 /**
  * 接口SysAiVincentSettingService用于处理与SysAiVincentSetting相关的操作
