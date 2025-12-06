@@ -251,6 +251,8 @@ public class NodeController {
 
     /**
      * 从 SyncServer 获取所有在线客户端并转换为 Discovery 列表
+     *
+     * @return 在线客户端 Discovery 列表
      */
     private List<Discovery> getOnlineClientsAsDiscovery() {
         if (syncServer == null) {
@@ -261,11 +263,7 @@ public class NodeController {
         for (Map.Entry<String, ClientInfo> entry : syncServer.getAllClients().entrySet()) {
             ClientInfo clientInfo = entry.getValue();
 
-            Discovery discovery = new Discovery();
-            discovery.setServerId(entry.getKey());
-            discovery.setHost(clientInfo.getIpAddress());
-            discovery.setPort(clientInfo.getPort());
-
+            // 构建元数据
             Map<String, String> metadata = new HashMap<>();
             metadata.put("applicationName", clientInfo.getAppName());
             metadata.put("instanceId", clientInfo.getInstanceId());
@@ -273,7 +271,14 @@ public class NodeController {
             if (clientInfo.getMetadata() != null) {
                 clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
             }
-            discovery.setMetadata(metadata);
+
+            // 使用 Builder 模式构建 Discovery
+            Discovery discovery = Discovery.builder()
+                    .serverId(entry.getKey())
+                    .host(clientInfo.getIpAddress())
+                    .port(clientInfo.getServerPort())
+                    .metadata(metadata)
+                    .build();
 
             result.add(discovery);
         }

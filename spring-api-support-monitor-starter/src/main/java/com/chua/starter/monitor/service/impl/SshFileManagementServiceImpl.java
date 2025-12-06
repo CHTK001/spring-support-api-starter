@@ -851,15 +851,20 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     /**
      * 转换文件信息
+     *
+     * @param commonFileInfo 通用文件信息
+     * @return 文件信息
      */
     private FileInfo convertToFileInfo(com.chua.common.support.lang.file.FileInfo commonFileInfo) {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(commonFileInfo.getName());
         fileInfo.setPath(commonFileInfo.getPath());
         fileInfo.setSize(commonFileInfo.getSize());
-        fileInfo.setIsDirectory(commonFileInfo.isDirectory());
+        fileInfo.setDirectory(commonFileInfo.isDirectory());
+        fileInfo.setFile(!commonFileInfo.isDirectory());
+        fileInfo.setLeaf(!commonFileInfo.isDirectory());
         if (commonFileInfo.getLastModified() != 0) {
-            fileInfo.setLastModified(LocalDateTime.ofInstant(
+            fileInfo.setModifiedTime(LocalDateTime.ofInstant(
                     java.time.Instant.ofEpochMilli(commonFileInfo.getLastModified()), ZoneId.systemDefault()));
         }
         fileInfo.setPermissions(commonFileInfo.getPermissions());
@@ -870,30 +875,27 @@ public class SshFileManagementServiceImpl implements FileManagementService {
 
     /**
      * 排序文件列表
+     *
+     * @param files     文件列表
+     * @param sortBy    排序字段
+     * @param sortOrder 排序顺序
      */
     private void sortFiles(List<FileInfo> files, String sortBy, String sortOrder) {
         if (files == null || files.isEmpty()) {
             return;
         }
 
-        Comparator<FileInfo> comparator;
-        switch (sortBy != null ? sortBy.toLowerCase() : "name") {
-        case "size":
-            comparator = Comparator.comparing(FileInfo::getSize);
-            break;
-        case "modified":
-            comparator = Comparator.comparing(FileInfo::getLastModified);
-            break;
-        case "type":
-            comparator = Comparator.comparing(f -> f.getName().substring(f.getName().lastIndexOf('.') + 1));
-            break;
-        default:
-            comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
-            break;
-        }
+        Comparator<FileInfo> comparator = switch (sortBy != null ? sortBy.toLowerCase() : "name") {
+            case "size" -> Comparator.comparing(FileInfo::getSize, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "modified" -> Comparator.comparing(FileInfo::getModifiedTime,
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+            case "type" -> Comparator.comparing(f -> f.getName().substring(f.getName().lastIndexOf('.') + 1));
+            default -> Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
+        };
 
         // 目录优先排序
-        comparator = Comparator.comparing((FileInfo f) -> f.getIsDirectory() ? 0 : 1).thenComparing(comparator);
+        comparator = Comparator.comparing((FileInfo f) -> Boolean.FALSE.equals(f.getDirectory()))
+                .thenComparing(comparator);
 
         if ("desc".equalsIgnoreCase(sortOrder)) {
             comparator = comparator.reversed();

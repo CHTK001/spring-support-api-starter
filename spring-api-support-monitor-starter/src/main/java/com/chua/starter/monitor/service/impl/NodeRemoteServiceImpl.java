@@ -4,12 +4,11 @@ import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpResponse;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.discovery.support.service.DiscoveryService;
 import com.chua.starter.monitor.entity.NodeSystem;
+import com.chua.starter.monitor.pojo.FileInfo;
+import com.chua.starter.monitor.pojo.FileOperationResponse;
 import com.chua.starter.monitor.pojo.RemoteOperationRequest;
 import com.chua.starter.monitor.pojo.RemoteOperationResponse;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.NodeRemoteService;
 import com.chua.starter.monitor.service.NodeSystemService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +36,7 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
     private final NodeSystemService nodeSystemService;
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
 
-    public NodeRemoteServiceImpl(MonitorSysGenServerService serverService,
-                                 MonitorSysGenServerSettingService serverSettingService, DiscoveryService discoveryService,
-                                 ApiFileManagementServiceImpl apiFileManagementService, NodeSystemService nodeSystemService) {
-        super(serverService, serverSettingService, discoveryService, apiFileManagementService);
+    public NodeRemoteServiceImpl(NodeSystemService nodeSystemService) {
         this.nodeSystemService = nodeSystemService;
     }
 
@@ -396,9 +392,9 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
             ReturnResult<FileOperationResponse> result = super.listFiles(serverId, directoryPath, includeHidden, "name",
                     "asc");
 
-            if (result.isSuccess() && result.getData() != null && result.getData().getFiles() != null) {
+            if (result.isSuccess() && result.getData() != null && result.getData().getFileInfos() != null) {
                 // 将FileInfo列表转换为Map列表
-                return result.getData().getFiles().stream().map(this::convertFileInfoToMap)
+                return result.getData().getFileInfos().stream().map(this::convertFileInfoToMap)
                         .collect(java.util.stream.Collectors.toList());
             } else {
                 throw new RuntimeException("获取文件列表失败: " + result.getMsg());
@@ -505,21 +501,37 @@ public class NodeRemoteServiceImpl extends NodeFileManagementServiceImpl impleme
 
     /**
      * 将FileInfo转换为Map
+     *
+     * @param fileInfo 文件信息
+     * @return 文件信息Map
      */
     private Map<String, Object> convertFileInfoToMap(FileInfo fileInfo) {
         Map<String, Object> map = new HashMap<>();
         map.put("name", fileInfo.getName());
         map.put("path", fileInfo.getPath());
+        map.put("parentPath", fileInfo.getParentPath());
         map.put("size", fileInfo.getSize());
-        map.put("isDirectory", fileInfo.getIsDirectory());
-        map.put("isHidden", fileInfo.getIsHidden());
-        map.put("modifyTime", fileInfo.getModifyTime());
-        map.put("createTime", fileInfo.getCreateTime());
-        map.put("fileType", fileInfo.getFileType());
+        map.put("directory", fileInfo.getDirectory());
+        map.put("file", fileInfo.getFile());
+        map.put("hidden", fileInfo.getHidden());
+        map.put("readable", fileInfo.getReadable());
+        map.put("writable", fileInfo.getWritable());
+        map.put("executable", fileInfo.getExecutable());
         map.put("extension", fileInfo.getExtension());
-        map.put("permissions", fileInfo.getPermissions());
+        map.put("mimeType", fileInfo.getMimeType());
+        map.put("createdTime", fileInfo.getCreatedTime());
+        map.put("modifiedTime", fileInfo.getModifiedTime());
+        map.put("accessTime", fileInfo.getAccessTime());
         map.put("owner", fileInfo.getOwner());
         map.put("group", fileInfo.getGroup());
+        map.put("permissions", fileInfo.getPermissions());
+        map.put("permissionsOctal", fileInfo.getPermissionsOctal());
+        map.put("symbolicLink", fileInfo.getSymbolicLink());
+        map.put("linkTarget", fileInfo.getLinkTarget());
+        map.put("md5", fileInfo.getMd5());
+        map.put("sha256", fileInfo.getSha256());
+        map.put("childCount", fileInfo.getChildCount());
+        map.put("attributes", fileInfo.getAttributes());
         return map;
     }
 

@@ -11,7 +11,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
-import com.chua.starter.discovery.support.service.DiscoveryService;
+import com.chua.sync.support.pojo.ClientInfo;
+import com.chua.sync.support.server.SyncServer;
 import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.mapper.MonitorAppMapper;
 import com.chua.starter.monitor.pojo.OpenApi;
@@ -42,8 +43,8 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Service
 @RequiredArgsConstructor
 public class MonitorAppServiceImpl extends ServiceImpl<MonitorAppMapper, MonitorApplication> implements MonitorAppService {
-    final DiscoveryService discoveryService;
-    final RestTemplate restTemplate;
+    private final SyncServer syncServer;
+    private final RestTemplate restTemplate;
 
 
     @Override
@@ -140,11 +141,50 @@ public class MonitorAppServiceImpl extends ServiceImpl<MonitorAppMapper, Monitor
      * @param page1 分页
      */
     private void mergePage(List<MonitorApplication> page1) {
-        Set<Discovery> discoveryAll = discoveryService.getDiscoveryAll("monitor");
-        Map<String, List<Discovery>> applicationName = discoveryAll.stream().collect(Collectors.groupingBy(it -> MapUtils.getString(it.getMetadata(), "applicationName")));
+        if (syncServer == null) {
+            return;
+        }
+        
+        // 从 SyncServer 获取所有客户端，转换为 Discovery 对象
+        Map<String, ClientInfo> allClients = syncServer.getAllClients();
+        Set<Discovery> discoveryAll = allClients.values().stream()
+                .map(this::convertToDiscovery)
+                .collect(Collectors.toSet());
+        
+        Map<String, List<Discovery>> applicationName = discoveryAll.stream()
+                .collect(Collectors.groupingBy(it -> MapUtils.getString(it.getMetadata(), "applicationName", "unknown")));
+        
         for (MonitorApplication record : page1) {
             record.setMonitorRequests(applicationName.get(record.getMonitorApplicationName()));
-
         }
+    }
+
+    /**
+     * 将 ClientInfo 转换为 Discovery 对象
+     *
+     * @param clientInfo 客户端信息
+     * @return Discovery 对象
+     */
+    private Discovery convertToDiscovery(ClientInfo clientInfo) {
+        // 构建元数据（Discovery.metadata 类型为 Map<String, String>）
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("applicationName", clientInfo.getAppName());
+        metadata.put("contextPath", clientInfo.getContextPath());
+        metadata.put("hostname", clientInfo.getHostname());
+        metadata.put("osName", clientInfo.getOsName());
+        metadata.put("javaVersion", clientInfo.getJavaVersion());
+
+        // 合并原有元数据
+        if (clientInfo.getMetadata() != null) {
+            clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+        }
+
+        // 使用 Builder 模式构建 Discovery
+        return Discovery.builder()
+                .host(clientInfo.getIpAddress())
+                .port(clientInfo.getServerPort())
+                .serverId(clientInfo.getClientId())
+                .metadata(metadata)
+                .build();
     }
 }

@@ -407,36 +407,24 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
     public ReturnResult<FileOperationResponse> executeOperation(Integer serverId, FileOperationRequest request) {
         request.validate();
 
-        switch (FileOperationRequest.OperationType.fromCode(request.getOperation())) {
-        case LIST:
-            return listFiles(serverId, request.getPath(), request.getIncludeHiddenOrDefault(),
+        return switch (FileOperationRequest.OperationType.fromCode(request.getOperation())) {
+            case LIST -> listFiles(serverId, request.getPath(), request.getIncludeHiddenOrDefault(),
                     request.getSortByOrDefault(), request.getSortOrderOrDefault());
-        case TREE:
-            return getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(),
+            case TREE -> getFileTree(serverId, request.getPath(), request.getMaxDepthOrDefault(),
                     request.getIncludeHiddenOrDefault());
-        case DELETE:
-            return deleteFile(serverId, request.getPath(), request.getRecursiveOrDefault());
-        case RENAME:
-            return renameFile(serverId, request.getPath(), request.getNewName());
-        case MKDIR:
-            return createDirectory(serverId, request.getPath(), request.getRecursiveOrDefault());
-        case COPY:
-            return copyFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
-        case MOVE:
-            return moveFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
-        case SEARCH:
-            return searchFiles(serverId, request.getPath(), request.getPattern(), request.getIncludeContentOrDefault(),
-                    request.getMaxResultsOrDefault());
-        case PREVIEW:
-            return previewFile(serverId, request.getPath(), "auto", 10);
-        case COMPRESS:
-            return compressFiles(serverId, request.getPaths(), request.getArchivePath(), request.getFormat());
-        case EXTRACT:
-            return extractArchive(serverId, request.getPath(), request.getExtractPath(),
+            case DELETE -> deleteFile(serverId, request.getPath(), request.getRecursiveOrDefault());
+            case RENAME -> renameFile(serverId, request.getPath(), request.getNewName());
+            case MKDIR -> createDirectory(serverId, request.getPath(), request.getRecursiveOrDefault());
+            case COPY -> copyFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
+            case MOVE -> moveFile(serverId, request.getPath(), request.getTargetPath(), request.getOverwriteOrDefault());
+            case SEARCH -> searchFiles(serverId, request.getPath(), request.getPattern(),
+                    request.getIncludeContentOrDefault(), request.getMaxResultsOrDefault());
+            case PREVIEW -> previewFile(serverId, request.getPath(), "auto", 10);
+            case COMPRESS -> compressFiles(serverId, request.getPaths(), request.getArchivePath(), request.getFormat());
+            case EXTRACT -> extractArchive(serverId, request.getPath(), request.getExtractPath(),
                     request.getOverwriteOrDefault());
-        default:
-            return ReturnResult.error("不支持的操作类型: " + request.getOperation());
-        }
+            default -> ReturnResult.error("不支持的操作类型: " + request.getOperation());
+        };
     }
 
     @Override
@@ -693,6 +681,12 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
         return null;
     }
 
+    /**
+     * 解析文件信息
+     *
+     * @param fileData 文件数据
+     * @return 文件信息
+     */
     private FileInfo parseFileInfo(Map<String, Object> fileData) {
         try {
             FileInfo.FileInfoBuilder builder = FileInfo.builder();
@@ -705,13 +699,14 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             }
             if (fileData.containsKey("size")) {
                 Object size = fileData.get("size");
-                if (size instanceof Number) {
-                    builder.size(((Number) size).longValue());
+                if (size instanceof Number num) {
+                    builder.size(num.longValue());
                 }
             }
             if (fileData.containsKey("isDirectory")) {
                 Boolean isDirectory = (Boolean) fileData.get("isDirectory");
-                builder.isDirectory(isDirectory);
+                builder.directory(isDirectory);
+                builder.file(isDirectory == null || !isDirectory);
                 // 设置 leaf 属性：文件为叶子节点，目录不是叶子节点
                 builder.leaf(isDirectory == null || !isDirectory);
             }
@@ -721,10 +716,10 @@ public class ApiFileManagementServiceImpl implements FileManagementService {
             if (fileData.containsKey("lastModified")) {
                 // 处理时间戳或ISO字符串
                 Object lastModified = fileData.get("lastModified");
-                if (lastModified instanceof String) {
-                    builder.modifyTime(LocalDateTime.parse((String) lastModified));
-                } else if (lastModified instanceof Number) {
-                    builder.modifyTime(LocalDateTime.ofEpochSecond(((Number) lastModified).longValue(), 0,
+                if (lastModified instanceof String str) {
+                    builder.modifiedTime(LocalDateTime.parse(str));
+                } else if (lastModified instanceof Number num) {
+                    builder.modifiedTime(LocalDateTime.ofEpochSecond(num.longValue(), 0,
                             java.time.ZoneOffset.UTC));
                 }
             }
