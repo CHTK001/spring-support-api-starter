@@ -44,19 +44,16 @@ public class CardDeviceScheduler implements InitializingBean,
     private void listenYunMou() {
         Thread.ofVirtual()
                 .start(() -> {
-                    try {
-                        List<SysProject> haiKangYunMou = sysProjectMapper.selectList(
-                                MPJWrappers.<SysProject>lambdaJoin()
-                                        .selectAll(SysProject.class)
-                                        .innerJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysProject::getSysProjectVender)
-                                        .eq(SysDictItem::getSysDictItemCode, "HAI_KANG_YUN_MOU")
-                                        .eq(SysProject::getSysProjectDelete, 0)
-                                        .eq(SysProject::getSysProjectStatus, 1)
-                        );
-                        for (SysProject sysProject : haiKangYunMou) {
-                            executors.add(createExecutorService(sysProject));
-                        }
-                    } catch (Exception ignored) {
+                    List<SysProject> haiKangYunMou = sysProjectMapper.selectList(
+                            MPJWrappers.<SysProject>lambdaJoin()
+                                    .selectAll(SysProject.class)
+                                    .innerJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysProject::getSysProjectVender)
+                                    .eq(SysDictItem::getSysDictItemCode, "HAI_KANG_YUN_MOU")
+                                    .eq(SysProject::getSysProjectDelete, 0)
+                                    .eq(SysProject::getSysProjectStatus, 1)
+                    );
+                    for (SysProject sysProject : haiKangYunMou) {
+                        executors.add(createExecutorService(sysProject));
                     }
                 });
     }
