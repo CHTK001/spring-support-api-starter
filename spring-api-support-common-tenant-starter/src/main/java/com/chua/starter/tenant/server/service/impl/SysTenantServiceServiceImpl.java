@@ -1,9 +1,9 @@
-package com.chua.starter.tenant.service.impl;
+package com.chua.starter.tenant.server.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.tenant.entity.SysTenantService;
-import com.chua.starter.tenant.mapper.SysTenantServiceMapper;
-import com.chua.starter.tenant.service.SysTenantServiceService;
+import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
+import com.chua.starter.tenant.server.service.SysTenantServiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

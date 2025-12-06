@@ -1,4 +1,4 @@
-package com.chua.starter.tenant.service;
+package com.chua.starter.tenant.server.service;
 
 /**
  * 租户消息发布接口
