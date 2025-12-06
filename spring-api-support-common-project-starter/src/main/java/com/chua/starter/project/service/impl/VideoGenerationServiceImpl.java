@@ -1,13 +1,13 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.common.support.bigmodel.generations.image.VincentDiagramSetting;
+import com.chua.common.support.bigmodel.generations.video.*;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.deeplearning.support.ml.bigmodel.generations.image.VincentDiagramSetting;
-import com.chua.deeplearning.support.ml.bigmodel.generations.video.*;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.project.service.SysProjectService;

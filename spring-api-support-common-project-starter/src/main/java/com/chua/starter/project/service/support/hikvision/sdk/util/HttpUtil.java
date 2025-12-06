@@ -54,7 +54,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.security.KeyManagementException;
@@ -580,10 +579,7 @@ public class HttpUtil {
             if (response.getEntity() == null) {
                 res.setBody(null);
             } else {
-                try {
-                    res.setBody(readStreamAsStr(response.getEntity().getContent()));
-                } catch (ClosedByInterruptException ignore) {
-                }
+                res.setBody(readStreamAsStr(response.getEntity().getContent()));
             }
         } else {
             //服务器无回应
@@ -641,12 +637,10 @@ public class HttpUtil {
         ReadableByteChannel src = Channels.newChannel(is);
         ByteBuffer bb = ByteBuffer.allocate(4096);
 
-        if (null != src) {
-            while (src.read(bb) != -1) {
-                bb.flip();
-                dest.write(bb);
-                bb.clear();
-            }
+        while (src.read(bb) != -1) {
+            bb.flip();
+            dest.write(bb);
+            bb.clear();
         }
         src.close();
         dest.close();

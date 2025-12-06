@@ -1,14 +1,14 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.ml.PredictResult;
+import com.chua.common.support.ml.compare.Compare;
+import com.chua.common.support.ml.feature.DetectionConfiguration;
+import com.chua.common.support.ml.function.FaceDetector;
+import com.chua.common.support.ml.function.FaceFeature;
+import com.chua.common.support.ml.identification.IdentificationEngine;
+import com.chua.common.support.ml.recognizer.Recognizer;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.deeplearning.support.ml.PredictResult;
-import com.chua.deeplearning.support.ml.compare.Compare;
-import com.chua.deeplearning.support.ml.feature.DetectionConfiguration;
-import com.chua.deeplearning.support.ml.function.FaceDetector;
-import com.chua.deeplearning.support.ml.function.FaceFeature;
-import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
-import com.chua.deeplearning.support.ml.recognizer.Recognizer;
 import com.chua.starter.project.pojo.ImageRequest;
 import com.chua.starter.project.service.FaceService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -36,12 +36,12 @@ public class FaceServiceImpl implements FaceService {
     public ReturnResult<PredictResult> detect(File file, ImageRequest request) {
         SysProject sysProject = check(request, file);
         DetectionConfiguration detectionConfiguration = DetectionConfiguration.builder()
-            .appSecret(sysProject.getSysProjectAppKey())
-            .appId(sysProject.getSysProjectAppId())
-            .apiKey(sysProject.getSysProjectAppSecret())
-            .endpoint(sysProject.getSysProjectEndpoint())
-            .loadModelPath(sysProject.getSysProjectEndpoint())
-            .modelName(request.getModel())
+                .optAppKey(sysProject.getSysProjectAppKey())
+                .optAppId(sysProject.getSysProjectAppId())
+                .optSecretKey(sysProject.getSysProjectAppSecret())
+                .loadEnv(sysProject.getSysProjectEndpoint())
+                .loadModelPath(sysProject.getSysProjectEndpoint())
+                .loadModelName(request.getModel())
                 .build();
         IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
         if (null == identificationEngine) {
@@ -59,12 +59,12 @@ public class FaceServiceImpl implements FaceService {
     public ReturnResult<PredictResult> feature(File file, ImageRequest request) {
         SysProject sysProject = check(request, file);
         DetectionConfiguration detectionConfiguration = DetectionConfiguration.builder()
-                .appSecret(sysProject.getSysProjectAppKey())
-                .appId(sysProject.getSysProjectAppId())
-                .apiKey(sysProject.getSysProjectAppSecret())
-                .endpoint(sysProject.getSysProjectEndpoint())
+                .optAppKey(sysProject.getSysProjectAppKey())
+                .optAppId(sysProject.getSysProjectAppId())
+                .optSecretKey(sysProject.getSysProjectAppSecret())
+                .loadEnv(sysProject.getSysProjectEndpoint())
                 .loadModelPath(sysProject.getSysProjectEndpoint())
-                .modelName(request.getModel())
+                .loadModelName(request.getModel())
                 .build();
         IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
         if (null == identificationEngine) {
@@ -82,12 +82,12 @@ public class FaceServiceImpl implements FaceService {
     public ReturnResult<PredictResult> recognizer(File file, ImageRequest request) {
         SysProject sysProject = check(request, file);
         DetectionConfiguration detectionConfiguration = DetectionConfiguration.builder()
-            .appSecret(sysProject.getSysProjectAppKey())
-            .appId(sysProject.getSysProjectAppId())
-            .apiKey(sysProject.getSysProjectAppSecret())
-            .endpoint(sysProject.getSysProjectEndpoint())
-            .loadModelPath(sysProject.getSysProjectEndpoint())
-            .modelName(request.getModel())
+                .optAppKey(sysProject.getSysProjectAppKey())
+                .optAppId(sysProject.getSysProjectAppId())
+                .optSecretKey(sysProject.getSysProjectAppSecret())
+                .loadEnv(sysProject.getSysProjectEndpoint())
+                .loadModelPath(sysProject.getSysProjectEndpoint())
+                .loadModelName(request.getModel())
                 .build();
         IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
         if (null == identificationEngine) {
@@ -105,12 +105,12 @@ public class FaceServiceImpl implements FaceService {
     public ReturnResult<PredictResult> compare(File file, File file2, ImageRequest request) {
         SysProject sysProject = check(request, file);
         DetectionConfiguration detectionConfiguration = DetectionConfiguration.builder()
-            .appSecret(sysProject.getSysProjectAppKey())
-            .appId(sysProject.getSysProjectAppId())
-            .apiKey(sysProject.getSysProjectAppSecret())
-            .endpoint(sysProject.getSysProjectEndpoint())
-            .loadModelPath(sysProject.getSysProjectEndpoint())
-            .modelName(request.getModel())
+                .optAppKey(sysProject.getSysProjectAppKey())
+                .optAppId(sysProject.getSysProjectAppId())
+                .optSecretKey(sysProject.getSysProjectAppSecret())
+                .loadEnv(sysProject.getSysProjectEndpoint())
+                .loadModelPath(sysProject.getSysProjectEndpoint())
+                .loadModelName(request.getModel())
                 .build();
         IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
         if (null == identificationEngine) {
@@ -141,7 +141,7 @@ public class FaceServiceImpl implements FaceService {
         }
 
 
-        Integer sysProjectId = Integer.valueOf(request.getProvider());
+        Integer sysProjectId = Integer.valueOf(request.getRequestId());
         SysAiModule sysAiModule = sysAiModuleService.getOneByCode(sysProjectId, request.getModel());
         if (null == sysAiModule) {
             throw new RuntimeException("模型不存在");
