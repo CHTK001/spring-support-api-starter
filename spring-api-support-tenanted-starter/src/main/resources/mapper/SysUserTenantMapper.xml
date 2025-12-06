@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.tenant.mapper.SysUserTenantMapper">
+
+    <!--
+        根据租户查询用户
+        @author CH
+        @since 2024/12/06
+    -->
+    <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysUser">
+        SELECT su.*
+        FROM sys_user su
+        WHERE su.sys_user_username = #{tenant.sysTenantUsername}
+          AND su.sys_tenant_id = #{tenant.sysTenantId}
+        LIMIT 1
+    </select>
+
+    <!--
+        插入用户并关联租户
+        @author CH
+        @since 2024/12/06
+    -->
+    <insert id="insertTenant" useGeneratedKeys="true" keyProperty="sysUser.sysUserId">
+        INSERT INTO sys_user (
+            sys_user_username,
+            sys_user_password,
+            sys_user_salt,
+            sys_user_phone,
+            sys_user_status,
+            sys_user_delete,
+            sys_user_in_system,
+            sys_tenant_id
+        ) VALUES (
+            #{sysUser.sysUserUsername},
+            #{sysUser.sysUserPassword},
+            #{sysUser.sysUserSalt},
+            #{sysUser.sysUserPhone},
+            #{sysUser.sysUserStatus},
+            #{sysUser.sysUserDelete},
+            #{sysUser.sysUserInSystem},
+            #{tenant.sysTenantId}
+        )
+    </insert>
+
+</mapper>
