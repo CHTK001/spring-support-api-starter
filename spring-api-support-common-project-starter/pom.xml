@@ -39,14 +39,14 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-entity-starter</artifactId>
+            <artifactId>spring-api-support-common-service-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-            <version>4.0.0</version>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
