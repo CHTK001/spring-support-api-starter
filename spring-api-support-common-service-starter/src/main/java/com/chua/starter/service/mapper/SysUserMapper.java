@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.common.support.annotations.DataScope;
 import com.chua.starter.service.query.SysUserQuery;
-import com.chua.starter.system.entity.SysTenant;
 import com.chua.starter.system.entity.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -53,20 +52,4 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 用户信息
      */
     SysUser selectOne(@Param("username") String username, @Param("tenantId") String tenantId);
-
-    /**
-     * 根据租户ID查询用户信息
-     *
-     * @param tenant 租户信息
-     * @return 用户信息
-     */
-    SysUser selectOneByTenant(@Param("tenant") SysTenant tenant);
-
-    /**
-     * 插入用户信息和租户信息
-     *
-     * @param sysUser 用户信息
-     * @param tenant  租户信息
-     */
-    void insertTenant(@Param("sysUser") SysUser sysUser, @Param("tenant") SysTenant tenant);
 }

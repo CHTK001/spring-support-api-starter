@@ -1,8 +1,7 @@
 package com.chua.starter.tenant.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.system.entity.SysMenu;
-import com.chua.starter.system.entity.SysTenantService;
+import com.chua.starter.tenant.entity.SysTenantService;
 import com.chua.starter.tenant.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.service.SysTenantServiceService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class SysTenantServiceServiceImpl extends ServiceImpl<SysTenantServiceMap
         implements SysTenantServiceService {
 
     @Override
-    public List<SysMenu> getMenuIds(Integer sysTenantId) {
+    public List<Integer> getMenuIds(Integer sysTenantId) {
         return baseMapper.getMenuByTenantId(sysTenantId);
     }
 }

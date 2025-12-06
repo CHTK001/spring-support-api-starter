@@ -113,7 +113,7 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-entity-starter</artifactId>
+            <artifactId>spring-api-support-common-system-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
 
