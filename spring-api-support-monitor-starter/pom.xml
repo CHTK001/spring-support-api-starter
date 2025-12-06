@@ -132,6 +132,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-report-client-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jpom-core-common</artifactId>
+                    <groupId>cn.keepbx.jpom</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
