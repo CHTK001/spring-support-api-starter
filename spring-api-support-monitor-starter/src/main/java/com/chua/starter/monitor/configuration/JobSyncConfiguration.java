@@ -36,9 +36,7 @@ public class JobSyncConfiguration {
     private static final String TOPIC_JOB_RESULT = "monitor/job/result";
     private static final String TOPIC_DEVICE_METRICS = "monitor/device/metrics";
     private static final String TOPIC_DEVICE_INFO = "monitor/device/info";
-    private static final String TOPIC_APP_REGISTER = "monitor/app/register";
-    private static final String TOPIC_APP_HEARTBEAT = "monitor/app/heartbeat";
-    private static final String TOPIC_APP_UNREGISTER = "monitor/app/unregister";
+    private static final String TOPIC_APP_REPORT = "monitor/app/report";
 
     @Autowired
     private SyncServer syncServer;
@@ -71,25 +69,13 @@ public class JobSyncConfiguration {
             return null;
         });
 
-        // 注册应用注册处理器
-        syncServer.registerHandler(TOPIC_APP_REGISTER, (topic, sessionId, data) -> {
-            handleAppRegister(sessionId, data);
+        // 注册应用信息上报处理器
+        syncServer.registerHandler(TOPIC_APP_REPORT, (topic, sessionId, data) -> {
+            handleAppReport(sessionId, data);
             return null;
         });
 
-        // 注册应用心跳处理器
-        syncServer.registerHandler(TOPIC_APP_HEARTBEAT, (topic, sessionId, data) -> {
-            handleAppHeartbeat(sessionId, data);
-            return null;
-        });
-
-        // 注册应用下线处理器
-        syncServer.registerHandler(TOPIC_APP_UNREGISTER, (topic, sessionId, data) -> {
-            handleAppUnregister(sessionId, data);
-            return null;
-        });
-
-        log.info("[SyncConfig] 消息处理器注册完成 (JobResult, DeviceMetrics, DeviceInfo, AppRegister)");
+        log.info("[SyncConfig] 消息处理器注册完成 (JobResult, DeviceMetrics, DeviceInfo, AppReport)");
     }
 
     /**
@@ -238,111 +224,58 @@ public class JobSyncConfiguration {
     }
 
     /**
-     * 处理应用注册
+     * 处理应用信息上报（定时覆盖更新）
      */
-    private void handleAppRegister(String sessionId, Map<String, Object> data) {
-        String appName = getString(data, "applicationName");
-        String ipAddress = getString(data, "ipAddress");
-        int serverPort = getInt(data, "serverPort");
-        log.info("[AppRegister] 收到应用注册: sessionId={}, app={}, address={}:{}",
-                sessionId, appName, ipAddress, serverPort);
-
-        try {
-            // 获取客户端信息并更新
-            ClientInfo clientInfo = syncServer.getAllClients().get(sessionId);
-            if (clientInfo != null) {
-                updateClientInfo(clientInfo, data);
-                log.info("[AppRegister] 应用注册成功: app={}, address={}:{}, profiles={}",
-                        appName, ipAddress, serverPort, clientInfo.getActiveProfiles());
-            } else {
-                log.warn("[AppRegister] 未找到客户端会话: sessionId={}", sessionId);
-            }
-        } catch (Exception e) {
-            log.error("[AppRegister] 处理应用注册失败: sessionId={}", sessionId, e);
-        }
-    }
-
-    /**
-     * 处理应用心跳
-     */
-    private void handleAppHeartbeat(String sessionId, Map<String, Object> data) {
+    private void handleAppReport(String sessionId, Map<String, Object> data) {
         try {
             ClientInfo clientInfo = syncServer.getAllClients().get(sessionId);
-            if (clientInfo != null) {
-                clientInfo.setLastHeartbeatTime(System.currentTimeMillis());
-                clientInfo.setOnline(true);
-                // 更新运行时信息
-                if (data.containsKey("heapUsed")) {
-                    clientInfo.getMetadata().put("heapUsed", getLong(data, "heapUsed"));
-                }
-                if (data.containsKey("heapMax")) {
-                    clientInfo.getMetadata().put("heapMax", getLong(data, "heapMax"));
-                }
-                if (data.containsKey("threadCount")) {
-                    clientInfo.getMetadata().put("threadCount", getInt(data, "threadCount"));
-                }
-                if (data.containsKey("uptime")) {
-                    clientInfo.getMetadata().put("uptime", getLong(data, "uptime"));
-                }
-                log.debug("[AppHeartbeat] 心跳更新: sessionId={}, app={}", sessionId, clientInfo.getAppName());
+            if (clientInfo == null) {
+                log.warn("[AppReport] 未找到客户端会话: sessionId={}", sessionId);
+                return;
             }
-        } catch (Exception e) {
-            log.error("[AppHeartbeat] 处理心跳失败: sessionId={}", sessionId, e);
-        }
-    }
 
-    /**
-     * 处理应用下线
-     */
-    private void handleAppUnregister(String sessionId, Map<String, Object> data) {
-        String appName = getString(data, "applicationName");
-        log.info("[AppUnregister] 收到应用下线通知: sessionId={}, app={}", sessionId, appName);
+            // 覆盖更新客户端信息
+            // Spring 应用信息
+            clientInfo.setAppName(getString(data, "applicationName"));
+            clientInfo.setActiveProfiles(getString(data, "activeProfiles"));
+            clientInfo.setContextPath(getString(data, "contextPath"));
+            clientInfo.setServerPort(getInt(data, "serverPort"));
+            clientInfo.setServiceUrl(getString(data, "serviceUrl"));
 
-        try {
-            ClientInfo clientInfo = syncServer.getAllClients().get(sessionId);
-            if (clientInfo != null) {
-                clientInfo.setOnline(false);
+            // 网络信息
+            clientInfo.setIpAddress(getString(data, "ipAddress"));
+            clientInfo.setHostname(getString(data, "hostname"));
+
+            // JVM 信息
+            clientInfo.setJavaVersion(getString(data, "javaVersion"));
+            clientInfo.setPid(getLong(data, "pid"));
+
+            // 操作系统
+            clientInfo.setOsName(getString(data, "osName"));
+            clientInfo.setOsVersion(getString(data, "osVersion"));
+
+            // 时间信息
+            clientInfo.setStartTime(getLong(data, "startTime"));
+            clientInfo.setLastHeartbeatTime(System.currentTimeMillis());
+            clientInfo.setOnline(true);
+
+            // 运行时信息存到 metadata
+            if (clientInfo.getMetadata() == null) {
+                clientInfo.setMetadata(new java.util.HashMap<>());
             }
+            clientInfo.getMetadata().put("jvmName", getString(data, "jvmName"));
+            clientInfo.getMetadata().put("jvmVersion", getString(data, "jvmVersion"));
+            clientInfo.getMetadata().put("osArch", getString(data, "osArch"));
+            clientInfo.getMetadata().put("uptime", getLong(data, "uptime"));
+            clientInfo.getMetadata().put("heapUsed", getLong(data, "heapUsed"));
+            clientInfo.getMetadata().put("heapMax", getLong(data, "heapMax"));
+            clientInfo.getMetadata().put("threadCount", getInt(data, "threadCount"));
+
+            log.debug("[AppReport] 更新应用信息: app={}, address={}:{}",
+                    clientInfo.getAppName(), clientInfo.getIpAddress(), clientInfo.getServerPort());
+
         } catch (Exception e) {
-            log.error("[AppUnregister] 处理应用下线失败: sessionId={}", sessionId, e);
+            log.error("[AppReport] 处理应用信息上报失败: sessionId={}", sessionId, e);
         }
-    }
-
-    /**
-     * 更新客户端信息
-     */
-    private void updateClientInfo(ClientInfo clientInfo, Map<String, Object> data) {
-        // Spring 应用信息
-        clientInfo.setAppName(getString(data, "applicationName"));
-        clientInfo.setActiveProfiles(getString(data, "activeProfiles"));
-        clientInfo.setContextPath(getString(data, "contextPath"));
-        clientInfo.setServerPort(getInt(data, "serverPort"));
-        clientInfo.setServiceUrl(getString(data, "serviceUrl"));
-
-        // 网络信息
-        clientInfo.setIpAddress(getString(data, "ipAddress"));
-        clientInfo.setHostname(getString(data, "hostname"));
-
-        // JVM 信息
-        clientInfo.setJavaVersion(getString(data, "javaVersion"));
-        clientInfo.setPid(getLong(data, "pid"));
-
-        // 操作系统
-        clientInfo.setOsName(getString(data, "osName"));
-        clientInfo.setOsVersion(getString(data, "osVersion"));
-
-        // 时间信息
-        clientInfo.setStartTime(getLong(data, "startTime"));
-        clientInfo.setRegisterTime(System.currentTimeMillis());
-        clientInfo.setLastHeartbeatTime(System.currentTimeMillis());
-        clientInfo.setOnline(true);
-
-        // 初始化 metadata
-        if (clientInfo.getMetadata() == null) {
-            clientInfo.setMetadata(new java.util.HashMap<>());
-        }
-        clientInfo.getMetadata().put("jvmName", getString(data, "jvmName"));
-        clientInfo.getMetadata().put("jvmVersion", getString(data, "jvmVersion"));
-        clientInfo.getMetadata().put("osArch", getString(data, "osArch"));
     }
 }
