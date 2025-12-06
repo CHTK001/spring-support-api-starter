@@ -1,6 +1,9 @@
 package com.chua.starter.monitor.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,6 +16,9 @@ import java.time.LocalDateTime;
  * @since 2024/12/06
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -141,4 +147,93 @@ public class FileInfo implements Serializable {
      * 附加属性
      */
     private java.util.Map<String, Object> attributes;
+
+    /**
+     * 是否为叶子节点（文件为叶子节点，目录不是叶子节点）
+     */
+    private Boolean leaf;
+
+    /**
+     * 子文件列表（用于文件树）
+     */
+    private java.util.List<FileInfo> children;
+
+    /**
+     * 额外属性JSON字符串
+     */
+    private String extraProperties;
+
+    // ==================== 兼容旧字段名的别名方法 ====================
+
+    /**
+     * 设置是否是目录（兼容旧字段名）
+     * 
+     * @param isDirectory 是否是目录
+     */
+    public void setIsDirectory(Boolean isDirectory) {
+        this.directory = isDirectory;
+    }
+
+    /**
+     * 获取是否是目录（兼容旧字段名）
+     * 
+     * @return 是否是目录
+     */
+    public Boolean getIsDirectory() {
+        return this.directory;
+    }
+
+    /**
+     * 设置是否隐藏（兼容旧字段名）
+     * 
+     * @param isHidden 是否隐藏
+     */
+    public void setIsHidden(Boolean isHidden) {
+        this.hidden = isHidden;
+    }
+
+    /**
+     * 获取是否隐藏（兼容旧字段名）
+     * 
+     * @return 是否隐藏
+     */
+    public Boolean getIsHidden() {
+        return this.hidden;
+    }
+
+    /**
+     * 设置修改时间（兼容旧字段名）
+     * 
+     * @param modifyTime 修改时间
+     */
+    public void setModifyTime(LocalDateTime modifyTime) {
+        this.modifiedTime = modifyTime;
+    }
+
+    /**
+     * 获取修改时间（兼容旧字段名）
+     * 
+     * @return 修改时间
+     */
+    public LocalDateTime getModifyTime() {
+        return this.modifiedTime;
+    }
+
+    /**
+     * 设置创建时间（兼容旧字段名）
+     * 
+     * @param createTime 创建时间
+     */
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createdTime = createTime;
+    }
+
+    /**
+     * 获取创建时间（兼容旧字段名）
+     * 
+     * @return 创建时间
+     */
+    public LocalDateTime getCreateTime() {
+        return this.createdTime;
+    }
 }
