@@ -15,7 +15,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.SysSettingService;
-import com.chua.starter.service.entity.SysSetting;
+import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import com.chua.starter.service.pojo.setting.SysSettingVO;
 import io.swagger.v3.oas.annotations.Operation;

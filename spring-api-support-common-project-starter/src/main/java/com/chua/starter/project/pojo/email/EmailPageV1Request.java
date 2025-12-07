@@ -2,7 +2,7 @@ package com.chua.starter.project.pojo.email;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.project.entity.SysEmailTemplate;
+import com.chua.starter.entity.project.SysEmailTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

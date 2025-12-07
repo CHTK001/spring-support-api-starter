@@ -1,7 +1,7 @@
 package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.service.entity.SysTaskSsoItem;
+import com.chua.starter.entity.service.SysTaskSsoItem;
 
 /**
 * 分片子表

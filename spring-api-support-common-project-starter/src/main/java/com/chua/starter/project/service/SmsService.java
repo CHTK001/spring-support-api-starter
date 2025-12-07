@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.config.PushSetting;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.lang.message.result.TemplateResult;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.project.pojo.sms.SmsRequest;
 
 import java.util.List;

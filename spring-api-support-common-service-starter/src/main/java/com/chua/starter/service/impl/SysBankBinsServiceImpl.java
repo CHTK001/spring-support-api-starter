@@ -7,7 +7,7 @@ import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.SysBankBinsService;
 import com.chua.starter.service.mapper.SysBankBinsMapper;
-import com.chua.starter.service.entity.SysBankBins;
+import com.chua.starter.entity.service.SysBankBins;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

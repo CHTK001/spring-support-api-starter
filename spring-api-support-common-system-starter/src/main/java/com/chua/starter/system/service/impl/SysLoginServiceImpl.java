@@ -14,7 +14,7 @@ import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.system.model.SysUserThirdParty;
+import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.system.result.LoginResult;

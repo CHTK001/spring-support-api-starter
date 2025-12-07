@@ -1,7 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.service.entity.SysTaskSsoItem;
+import com.chua.starter.entity.service.SysTaskSsoItem;
 import com.chua.starter.service.mapper.SysTaskSsoItemMapper;
 import com.chua.starter.service.SysTaskSsoItemService;
 import lombok.RequiredArgsConstructor;

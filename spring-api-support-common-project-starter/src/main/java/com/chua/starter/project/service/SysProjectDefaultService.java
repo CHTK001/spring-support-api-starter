@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.project.entity.SysProjectDefault;
+import com.chua.starter.entity.project.SysProjectDefault;
 
 /**
  * 项目默认配置服务接口

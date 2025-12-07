@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.SysBankBinsService;
-import com.chua.starter.service.entity.SysBankBins;
+import com.chua.starter.entity.service.SysBankBins;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

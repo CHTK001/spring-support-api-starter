@@ -6,8 +6,8 @@ import com.chua.starter.project.service.support.hikvision.result.DeviceResourceR
 import com.chua.starter.project.service.support.hikvision.result.HikDeviceChannel;
 import com.chua.starter.project.service.support.hikvision.result.HikRegion;
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
-import com.chua.starter.project.entity.SysDevice;
-import com.chua.starter.project.entity.SysDeviceCardEvent;
+import com.chua.starter.entity.project.SysDevice;
+import com.chua.starter.entity.project.SysDeviceCardEvent;
 import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 

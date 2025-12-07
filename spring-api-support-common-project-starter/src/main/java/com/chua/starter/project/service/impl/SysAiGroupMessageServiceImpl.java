@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.project.entity.SysAiGroupMessage;
+import com.chua.starter.entity.project.SysAiGroupMessage;
 import com.chua.starter.project.mapper.SysAiGroupMessageMapper;
 import com.chua.starter.project.service.SysAiGroupMessageService;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.chua.starter.service.query;
 
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

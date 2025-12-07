@@ -2,7 +2,7 @@ package com.chua.starter.project.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.project.entity.SysAiGroupMessage;
+import com.chua.starter.entity.project.SysAiGroupMessage;
 import com.chua.starter.project.service.SysAiGroupMessageService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;

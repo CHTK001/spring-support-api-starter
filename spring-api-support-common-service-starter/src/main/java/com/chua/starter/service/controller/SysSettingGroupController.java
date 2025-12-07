@@ -6,7 +6,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.service.SysSettingGroupService;
-import com.chua.starter.service.entity.SysSettingGroup;
+import com.chua.starter.entity.service.SysSettingGroup;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

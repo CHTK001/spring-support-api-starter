@@ -1,7 +1,7 @@
 package com.chua.starter.project.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.project.entity.SysAiVincentSetting;
+import com.chua.starter.entity.project.SysAiVincentSetting;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

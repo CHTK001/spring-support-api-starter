@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.project.entity.SysDeviceCardEvent;
+import com.chua.starter.entity.project.SysDeviceCardEvent;
 
 /**
  * 设备卡事件服务接口

@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.SysAiVincentTaskService;
-import com.chua.starter.project.entity.SysAiVincentTask;
+import com.chua.starter.entity.project.SysAiVincentTask;
 import org.springframework.stereotype.Service;
 
 /**

@@ -20,7 +20,7 @@ import com.chua.starter.project.service.support.hikvision.query.SysDeviceCameraO
 import com.chua.starter.project.service.support.hikvision.result.DeviceResourceResourcesResult;
 import com.chua.starter.project.service.support.hikvision.result.HikRegionCascade;
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
-import com.chua.starter.project.entity.*;
+import com.chua.starter.entity.project.*;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.project.pojo.project.SyncV1Request;
 import com.chua.starter.project.pojo.project.TemplatePageV1Request;

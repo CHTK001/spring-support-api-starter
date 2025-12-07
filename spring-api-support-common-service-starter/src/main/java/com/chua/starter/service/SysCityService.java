@@ -3,7 +3,7 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.service.entity.SysCity;
+import com.chua.starter.entity.service.SysCity;
 
 import java.util.List;
 

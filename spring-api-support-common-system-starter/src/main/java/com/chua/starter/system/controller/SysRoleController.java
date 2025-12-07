@@ -13,7 +13,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.constant.SystemConstant;
-import com.chua.starter.system.model.SysRole;
+import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.system.pojo.role.RoleMenuUpdate;
 import com.chua.starter.system.service.SysRoleService;
 import io.swagger.v3.oas.annotations.Operation;

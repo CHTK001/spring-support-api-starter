@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.project.entity.SysEmailLog;
+import com.chua.starter.entity.project.SysEmailLog;
 
 /**
  * 邮件日志服务接口
