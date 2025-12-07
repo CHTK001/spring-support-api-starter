@@ -67,7 +67,7 @@ public class FileStoragePreviewController {
             ProtocolServer protocolServer = runningServerInstances.get(serverId);
             if (protocolServer == null) {
                 log.warn("服务未启动, server={}, type={}", serverId, type);
-                return ReturnResult.error("无法创建FileStorage实例");
+                return ReturnResult.error("服务未启动, 无法创建FileStorage实例");
             }
             FileStorageServletFilter filter = protocolServer.getFilter(FileStorageServletFilter.class);
             FileStorage fileStorage = filter.getFileStorage(bucket);

@@ -2,6 +2,7 @@ package com.chua.starter.monitor.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.IPRateLimitServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
@@ -28,7 +29,7 @@ public class IPRateLimitServletFilterHandler implements ServletFilterHandler {
      * 注册IP限流
      */
     @Override
-    public IPRateLimitServletFilter handle(SystemServerSetting setting) {
+    public IPRateLimitServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
         IPRateLimitServletFilter servletFilter = new IPRateLimitServletFilter();
         upgrade(servletFilter, setting);
         return servletFilter;

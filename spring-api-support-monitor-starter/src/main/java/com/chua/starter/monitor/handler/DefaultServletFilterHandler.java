@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.protocol.server.UpgradeServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
@@ -34,11 +35,12 @@ public class DefaultServletFilterHandler implements ServletFilterHandler {
     /**
      * 注册地址限流
      *
-     * @param setting 设置
+     * @param setting       设置
+     * @param objectContext
      */
     @Override
-    public ServletFilter handle(SystemServerSetting setting) {
-        ServletFilter servletFilter = ServiceProvider.of(ServletFilter.class).getNewExtension(setting.getSystemServerSettingType());
+    public ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
+        ServletFilter servletFilter = ServiceProvider.of(ServletFilter.class).getNewExtension(setting.getSystemServerSettingType(), objectContext);
         if (servletFilter instanceof UpgradeServletFilter upgradeServletFilter) {
             upgradeServletFilter.upgrade(createConfig(setting));
         }

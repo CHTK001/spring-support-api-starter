@@ -36,7 +36,7 @@ public class HotloadingServletFilterHandler {
             ServletFilterHandler servletFilterHandler = ServiceProvider.of(ServletFilterHandler.class).getNewExtension(
                     systemServerSettingType
             );
-            ServletFilter servletFilter = servletFilterHandler.handle(setting);
+            ServletFilter servletFilter = servletFilterHandler.handle(setting, serverInstance.getObjectContext());
             setting.setSystemServerSettingFilterId(servletFilter.getFilterId());
             serverInstance.addFilter(servletFilter);
             return;
