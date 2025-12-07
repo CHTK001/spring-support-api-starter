@@ -16,7 +16,7 @@
 //import com.chua.starter.service.SysCityService;
 //import com.chua.starter.service.impl.SysLoginServiceImpl;
 //import com.chua.starter.service.impl.login.LoginHandler;
-//import com.chua.starter.system.entity.SysCity;
+//import com.chua.starter.service.entity.SysCity;
 //import com.chua.tencent.support.miniapp.TencentMaHandler;
 //import jakarta.servlet.http.HttpServletRequest;
 //import jakarta.servlet.http.HttpServletResponse;

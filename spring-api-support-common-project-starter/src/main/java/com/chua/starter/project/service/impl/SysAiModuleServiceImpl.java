@@ -17,7 +17,7 @@ import com.chua.starter.project.mapper.SysAiVincentSettingMapper;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.project.entity.SysAiModule;
 import com.chua.starter.project.entity.SysAiVincentSetting;
-import com.chua.starter.system.entity.SysDictItem;
+import com.chua.starter.service.entity.SysDictItem;
 import com.chua.starter.project.entity.SysProject;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;

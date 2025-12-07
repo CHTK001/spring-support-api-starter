@@ -1,11 +1,11 @@
-package com.chua.starter.system.pojo.user;
+package com.chua.starter.service.pojo.user;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
-import com.chua.starter.system.entity.SysRole;
+import com.chua.starter.service.entity.SysRole;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

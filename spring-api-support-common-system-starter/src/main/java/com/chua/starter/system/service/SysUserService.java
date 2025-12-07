@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.service.query.SysUserQuery;
-import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.service.entity.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
-import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
-import com.chua.starter.system.pojo.user.SysUserUpdate;
-import com.chua.starter.system.pojo.user.SysUserVO;
-import com.chua.starter.system.pojo.user.UserLayout;
+import com.chua.starter.service.pojo.user.SysUserPasswordUpdate;
+import com.chua.starter.service.pojo.user.SysUserUpdate;
+import com.chua.starter.service.pojo.user.SysUserVO;
+import com.chua.starter.service.pojo.user.UserLayout;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;

@@ -3,7 +3,7 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.service.entity.SysDictItemProperty;
-import com.chua.starter.system.pojo.dict.DictItemPropertyV1Request;
+import com.chua.starter.service.pojo.dict.DictItemPropertyV1Request;
 
 /**
  * 字典配置项

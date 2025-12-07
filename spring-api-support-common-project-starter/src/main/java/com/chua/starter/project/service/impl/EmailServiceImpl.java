@@ -13,7 +13,7 @@ import com.chua.starter.project.service.EmailService;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.project.entity.SysEmailTemplate;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.email.EmailRequest;
+import com.chua.starter.project.pojo.email.EmailRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

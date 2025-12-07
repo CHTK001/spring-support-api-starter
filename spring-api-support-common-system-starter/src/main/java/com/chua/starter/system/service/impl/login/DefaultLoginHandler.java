@@ -13,7 +13,7 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.setting.GuestDefaultSetting;
-import com.chua.starter.system.result.LoginResult;
+import com.chua.starter.service.result.LoginResult;
 import com.chua.starter.system.service.SimpleSysUserService;
 import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;

@@ -19,7 +19,7 @@ import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.SysProjectDefaultService;
 import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.service.SysDictItemService;
-import com.chua.starter.system.entity.SysDictItem;
+import com.chua.starter.service.entity.SysDictItem;
 import com.chua.starter.project.entity.SysProject;
 import com.chua.starter.project.entity.SysProjectDefault;
 import com.chua.starter.project.pojo.project.ProjectDefaultFunctionV1Request;

@@ -5,7 +5,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
+import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.system.service.SysLoginService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;

@@ -10,7 +10,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.utils.JakartaValidationUtils;
 import com.chua.starter.service.SysSettingGroupService;
 import com.chua.starter.service.mapper.SysSettingGroupMapper;
-import com.chua.starter.system.entity.SysSettingGroup;
+import com.chua.starter.service.entity.SysSettingGroup;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;

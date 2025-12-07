@@ -14,7 +14,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.project.service.SmsService;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.sms.SmsRequest;
+import com.chua.starter.project.pojo.sms.SmsRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;

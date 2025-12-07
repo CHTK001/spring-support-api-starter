@@ -9,7 +9,7 @@ import com.chua.starter.service.SysDictItemService;
 import com.chua.starter.service.mapper.SysDictItemPropertyMapper;
 import com.chua.starter.service.entity.SysDictItem;
 import com.chua.starter.service.entity.SysDictItemProperty;
-import com.chua.starter.system.pojo.dict.DictItemPropertyV1Request;
+import com.chua.starter.service.pojo.dict.DictItemPropertyV1Request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

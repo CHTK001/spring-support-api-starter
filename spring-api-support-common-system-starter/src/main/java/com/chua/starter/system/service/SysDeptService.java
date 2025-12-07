@@ -2,7 +2,7 @@ package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.entity.SysDept;
+import com.chua.starter.service.entity.SysDept;
 import com.chua.starter.system.pojo.dept.SysDeptVO;
 
 import java.util.List;

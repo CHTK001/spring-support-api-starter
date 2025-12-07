@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 设备在离线情况查询请求
+ * 设备在离线情况
  *
  * @author CH
  */

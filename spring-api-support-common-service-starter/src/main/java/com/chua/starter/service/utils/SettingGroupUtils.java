@@ -2,7 +2,7 @@ package com.chua.starter.service.utils;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.service.SysSettingGroupService;
-import com.chua.starter.system.entity.SysSettingGroup;
+import com.chua.starter.service.entity.SysSettingGroup;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

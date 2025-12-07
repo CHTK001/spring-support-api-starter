@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 设备在离线情况查询请求
+ * 设备在离线情况
  *
  * @author CH
  */

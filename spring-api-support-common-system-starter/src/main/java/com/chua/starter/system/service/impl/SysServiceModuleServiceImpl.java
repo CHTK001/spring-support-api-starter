@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysServiceModule;
+import com.chua.starter.service.entity.SysServiceModule;
 import com.chua.starter.system.mapper.SysServiceModuleMapper;
 import com.chua.starter.system.service.SysServiceModuleService;
 import com.github.yulichang.toolkit.MPJWrappers;
