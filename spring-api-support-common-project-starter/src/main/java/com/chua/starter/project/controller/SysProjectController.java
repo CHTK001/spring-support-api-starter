@@ -5,7 +5,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -75,7 +74,7 @@ public class SysProjectController {
     @Permission(value = "sys:secret:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Integer sysProjectId) {
         if (null == sysProjectId) {
-            return Result.illegal("项目信息不存在");
+            return ReturnResult.illegal("项目信息不存在");
         }
 
         return sysProjectService.delete(sysProjectId);
@@ -95,7 +94,7 @@ public class SysProjectController {
             @Validated(UpdateGroup.class) @RequestBody SysProject sysProject,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysProjectService.update(roles, sysProject);
@@ -113,7 +112,7 @@ public class SysProjectController {
             @Validated(UpdateGroup.class) @RequestBody ProjectDefaultFunctionV1Request request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysProjectService.updateDefault(request);
@@ -132,7 +131,7 @@ public class SysProjectController {
             @Validated(AddGroup.class) @RequestBody SysProject sysProject,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysProjectService.save(sysProject, roles);
     }
