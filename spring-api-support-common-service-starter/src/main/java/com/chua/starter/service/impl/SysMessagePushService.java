@@ -6,6 +6,7 @@ import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.starter.entity.service.SysMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnClass(SocketSessionTemplate.class)
+@ConditionalOnBean(SocketSessionTemplate.class)
 public class SysMessagePushService {
 
     private final SocketSessionTemplate socketSessionTemplate;

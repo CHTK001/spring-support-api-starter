@@ -3,7 +3,6 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.SysBankBinsService;
 import com.chua.starter.service.mapper.SysBankBinsMapper;
@@ -51,8 +50,7 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
      * @return 所有银行BIN信息列表
      */
     @Override
-    @ApiCacheKey("'sys:bank:bin:all'")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:bank:bin:all'", keyGenerator = "customTenantedKeyGenerator")
     public List<SysBankBins> all() {
         return baseMapper.selectList(Wrappers.lambdaQuery());
     }

@@ -9,7 +9,6 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.*;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.codec.CodecSetting;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -226,8 +225,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @return 是否成功
      */
     @Override
-    @ApiCacheKey("'sys:setting:' + #sysSetting.sysSettingGroup")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }

@@ -123,12 +123,6 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-circuit-breaker-starter</artifactId>
-                <version>${module.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>spring-support-configcenter-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>

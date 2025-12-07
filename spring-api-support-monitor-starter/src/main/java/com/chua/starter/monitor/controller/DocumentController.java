@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.utils.MapUtils;
-import com.chua.starter.common.support.annotations.ReturnOrigin;
+import com.chua.starter.common.support.api.annotations.ApiReturnFormatIgnore;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +44,7 @@ public class DocumentController {
      * @return 响应结果
      */
     @PostMapping("/forward")
-    @ReturnOrigin
+    @ApiReturnFormatIgnore
     @Operation(summary = "文档请求转发（POST）")
     public ResponseEntity<byte[]> forwardDocument(@RequestParam String remoteUrl, @RequestBody Object request) {
         // 发送POST请求到远程地址
