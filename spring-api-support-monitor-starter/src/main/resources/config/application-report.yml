@@ -3,7 +3,6 @@
 # ===========================================
 plugin:
   sync:
-    enable: true
     server:
       protocol: websocket
       instances:
