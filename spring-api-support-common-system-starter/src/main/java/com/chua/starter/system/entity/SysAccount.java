@@ -11,14 +11,18 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 账号管理
+ *
+ * @author CH
+ * @since 2024/8/7
  */
 @Schema(description = "用户管理")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_account")
 public class SysAccount extends SysBase {
+
     @TableId(value = "sys_account_id", type = IdType.AUTO)
-    @Schema(description = "")
+    @Schema(description = "账号ID")
     private Integer sysAccountId;
 
     /**
@@ -57,10 +61,10 @@ public class SysAccount extends SysBase {
     private String sysAccountAvatar;
 
     /**
-     * 手机�?
+     * 手机号
      */
     @TableField(value = "sys_account_phone")
-    @Schema(description = "手机�?)
+    @Schema(description = "手机号")
     private String sysAccountPhone;
 
     /**

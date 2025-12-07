@@ -19,13 +19,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- *
- * @since 2024/8/7
- * @author CH    
- */
-
-/**
  * 组织机构
+ *
+ * @author CH
+ * @since 2024/8/7
  */
 @ApiModel(description = "组织机构")
 @Schema(description = "组织机构")
@@ -34,9 +31,10 @@ import java.io.Serializable;
 @TableName(value = "sys_dept")
 public class SysDept extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "sys_dept_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "机构ID")
+    @Schema(description = "机构ID")
     @NotNull(message = "机构ID不能为空", groups = UpdateGroup.class)
     private Integer sysDeptId;
 
@@ -50,44 +48,47 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptName;
 
     /**
-     * 部门负责�?
+     * 部门负责人
      */
     @TableField(value = "sys_dept_principal")
-    @ApiModelProperty(value = "部门负责�?)
-    @Schema(description = "部门负责�?)
+    @ApiModelProperty(value = "部门负责人")
+    @Schema(description = "部门负责人")
     @Size(max = 255, message = "部门负责人最大长度要小于 255")
     private String sysDeptPrincipal;
+
     /**
-     * 负责人联系方�?
+     * 负责人联系方式
      */
     @TableField(value = "sys_dept_contact")
-    @ApiModelProperty(value = "负责人联系方�?)
-    @Schema(description = "负责人联系方�?)
+    @ApiModelProperty(value = "负责人联系方式")
+    @Schema(description = "负责人联系方式")
     @Size(max = 255, message = "负责人联系方式最大长度要小于 255")
     private String sysDeptContact;
+
     /**
-     * 优先�?
+     * 优先级
      */
     @TableField(value = "sys_dept_sort")
-    @ApiModelProperty(value = "优先�?)
-    @Schema(description = "优先�?)
-    @Size(max = 255, message = "优先级最大长度要小于 255")
+    @ApiModelProperty(value = "优先级")
+    @Schema(description = "优先级")
     private Integer sysDeptSort;
+
     /**
      * 机构编码
      */
     @TableField(value = "sys_dept_code")
     @ApiModelProperty(value = "机构编码")
     @Schema(description = "机构编码")
-    @Size(max = 255, message = "机构名称最大长度要小于 255")
+    @Size(max = 255, message = "机构编码最大长度要小于 255")
     @NotBlank(message = "机构编码不能为空", groups = {AddGroup.class})
     private String sysDeptCode;
+
     /**
-     * 父机�?
+     * 父机构
      */
     @TableField(value = "sys_dept_pid")
-    @ApiModelProperty(value = "父机�?)
-    @Schema(description = "父机�?)
+    @ApiModelProperty(value = "父机构")
+    @Schema(description = "父机构")
     private Integer sysDeptPid;
 
     /**
@@ -100,12 +101,13 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptTreeId;
 
     /**
-     * 状�? 是否禁用; 0:启用
+     * 状态; 是否禁用; 0:启用
      */
     @TableField(value = "sys_dept_status")
-    @ApiModelProperty(value = "状�? 是否禁用; 0:启用")
-    @Schema(description = "状�? 是否禁用; 0:启用")
+    @ApiModelProperty(value = "状态; 是否禁用; 0:启用")
+    @Schema(description = "状态; 是否禁用; 0:启用")
     private Integer sysDeptStatus;
+
     /**
      * 备注
      */
@@ -114,13 +116,12 @@ public class SysDept extends SysBase implements Serializable {
     @Schema(description = "备注")
     private String sysDeptRemark;
 
-
     /**
-     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?
+     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见
      */
     @TableField(value = "sys_dept_data_permission")
-    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?)
-    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?)
+    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
+    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
     private Integer sysDeptDataPermission;
 
     /**
@@ -130,5 +131,4 @@ public class SysDept extends SysBase implements Serializable {
     @ApiModelProperty(value = "数据权限可见的部门ID列表")
     @Schema(description = "数据权限可见的部门ID列表")
     private String sysDeptDataPermissionDeptId;
-
 }

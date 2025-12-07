@@ -19,24 +19,22 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
+ * 组件表
  *
+ * @author CH
  * @since 2024/10/24
- * @author CH    
  */
-
-/**
- * 组件�?
- */
-@ApiModel(description = "组件�?)
-@Schema(description = "组件�?)
+@ApiModel(description = "组件表")
+@Schema(description = "组件表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sfc")
 public class SysSfc extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "sys_sfc_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "组件ID")
+    @Schema(description = "组件ID")
     @NotNull(message = "不能为null", groups = {UpdateGroup.class, UploadGroup.class})
     private Integer sysSfcId;
 
@@ -58,7 +56,6 @@ public class SysSfc extends SysBase implements Serializable {
     @Size(max = 255, message = "组件中文名称最大长度要小于 255", groups = {AddGroup.class})
     private String sysSfcChineseName;
 
-
     /**
      * 缓存模式
      */
@@ -66,13 +63,14 @@ public class SysSfc extends SysBase implements Serializable {
     @ApiModelProperty(value = "缓存模式")
     @Schema(description = "缓存模式")
     private String sysSfcModelCache;
+
     /**
      * 组件功能, 多个逗号分隔
      */
     @TableField(value = "sys_sfc_function")
     @ApiModelProperty(value = "组件功能, 多个逗号分隔")
     @Schema(description = "组件功能, 多个逗号分隔")
-    @Size(max = 255, message = "组件功能, 多个逗号分隔最大长度要小于 255",  groups = {AddGroup.class})
+    @Size(max = 255, message = "组件功能, 多个逗号分隔最大长度要小于 255", groups = {AddGroup.class})
     private String sysSfcFunction;
 
     /**
@@ -81,16 +79,16 @@ public class SysSfc extends SysBase implements Serializable {
     @TableField(value = "sys_sfc_icon")
     @ApiModelProperty(value = "组件图标")
     @Schema(description = "组件图标")
-    @Size(max = 255, message = "组件图标最大长度要小于 255",  groups = {AddGroup.class})
+    @Size(max = 255, message = "组件图标最大长度要小于 255", groups = {AddGroup.class})
     private String sysSfcIcon;
 
     /**
-     * 分类；HOME
+     * 分类; HOME
      */
     @TableField(value = "sys_sfc_category")
-    @ApiModelProperty(value = "分类；HOME")
-    @Schema(description = "分类；HOME")
-    @Size(max = 255, message = "分类；HOME最大长度要小于 255",  groups = {AddGroup.class})
+    @ApiModelProperty(value = "分类; HOME")
+    @Schema(description = "分类; HOME")
+    @Size(max = 255, message = "分类; HOME最大长度要小于 255", groups = {AddGroup.class})
     private String sysSfcCategory;
 
     /**
@@ -101,6 +99,7 @@ public class SysSfc extends SysBase implements Serializable {
     @Schema(description = "组件存放路径")
     @Size(max = 255, message = "组件存放路径最大长度要小于 255")
     private String sysSfcPath;
+
     /**
      * 组件代理地址
      */
@@ -109,7 +108,6 @@ public class SysSfc extends SysBase implements Serializable {
     @Schema(description = "组件代理地址")
     @Size(max = 255, message = "组件代理地址最大长度要小于 255")
     private String sysSfcProxy;
-
 
     /**
      * 组件类型; 0:文件; 1:文本
@@ -134,13 +132,15 @@ public class SysSfc extends SysBase implements Serializable {
     @ApiModelProperty(value = "组件内容")
     @Schema(description = "组件内容")
     private String sysSfcContent;
+
     /**
-     * 组件状�? 0:未启�?
+     * 组件状态; 0:未启用
      */
     @TableField(value = "sys_sfc_status")
-    @ApiModelProperty(value = "组件状�? 0:未启�?)
-    @Schema(description = "组件状�? 0:未启�?)
+    @ApiModelProperty(value = "组件状态; 0:未启用")
+    @Schema(description = "组件状态; 0:未启用")
     private Integer sysSfcStatus;
+
     /**
      * 延迟时间; 2000
      */
@@ -148,6 +148,7 @@ public class SysSfc extends SysBase implements Serializable {
     @ApiModelProperty(value = "延迟时间; 2000")
     @Schema(description = "延迟时间; 2000")
     private Integer sysSfcDelay;
+
     /**
      * 超时时间; 3000
      */
@@ -164,11 +165,12 @@ public class SysSfc extends SysBase implements Serializable {
     @Schema(description = "组件描述")
     @Size(max = 255, message = "组件描述最大长度要小于 255")
     private String sysSfcDesc;
+
     /**
-     * 是否已安�?
+     * 是否已安装
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "是否已安�?)
-    @Schema(description = "是否已安�?)
+    @ApiModelProperty(value = "是否已安装")
+    @Schema(description = "是否已安装")
     private Integer sysSfcInstall;
 }
