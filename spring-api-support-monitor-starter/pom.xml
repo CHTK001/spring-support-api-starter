@@ -44,14 +44,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-view-starter</artifactId>
         </dependency>
-
-        <!-- 熔断器依赖暂时注释，因为依赖包不存在 -->
-        <!--
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-circuit-breaker-starter</artifactId>
-        </dependency>
-        -->
         <!-- 通用工具类库 - 提供基础的工具类和常用功能 -->
         <dependency>
             <groupId>com.chua</groupId>
@@ -108,13 +100,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-guacamole-starter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-xunfei-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-starter</artifactId>
@@ -132,11 +117,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-discovery-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>spring-support-report-client-starter</artifactId>
             <exclusions>
                 <exclusion>
@@ -150,12 +130,6 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-report-client-arthas-starter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-sync-starter</artifactId>
-        </dependency>
-
 
         <!-- JPA 依赖 (Spring Boot 3) -->
         <dependency>
@@ -194,18 +168,7 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-qiniu-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-ssh-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-com-starter</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Apache Guacamole Common -->
@@ -317,96 +280,6 @@
         </dependency>
     </dependencies>
 
-    <!--    <build>-->
-    <!--        <plugins>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-compiler-plugin</artifactId>-->
-    <!--                <configuration>-->
-    <!--                    <source>21</source>-->
-    <!--                    <target>21</target>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-jar-plugin</artifactId>-->
-    <!--                <configuration>-->
-    <!--                    &lt;!&ndash;不打入jar包的文件类型或者路径&ndash;&gt;-->
-    <!--                    <excludes>-->
-    <!--                        <exclude>**/*.properties</exclude>-->
-    <!--                        <exclude>**/*.yml</exclude>-->
-    <!--                        <exclude>**/*.yaml</exclude>-->
-    <!--                        <exclude>**/*.db</exclude>-->
-    <!--                        <exclude>**/*.json</exclude>-->
-    <!--                        <exclude>**/*.xml</exclude>-->
-    <!--                        <exclude>**/*.sh</exclude>-->
-    <!--                        <exclude>**/*.bat</exclude>-->
-    <!--                        <exclude>**/*.dat</exclude>-->
-    <!--                        <exclude>static/**/*.*</exclude>-->
-    <!--                        <exclude>mapper/**/*.*</exclude>-->
-    <!--                        <exclude>db/**/*.*</exclude>-->
-    <!--                        <exclude>bin/**/*.*</exclude>-->
-    <!--                    </excludes>-->
-    <!--                    <archive>-->
-    <!--                        <manifest>-->
-    <!--                            &lt;!&ndash; 执行的主程序路径 &ndash;&gt;-->
-    <!--                            <mainClass>com.chua.starter.monitor.MonitorServerApplication-->
-    <!--                            </mainClass>-->
-    <!--                            &lt;!&ndash;是否要把第三方jar放到manifest的classpath中&ndash;&gt;-->
-    <!--                            <addClasspath>true</addClasspath>-->
-    <!--                            &lt;!&ndash;生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/&ndash;&gt;-->
-    <!--                            <classpathPrefix>lib/</classpathPrefix>-->
-    <!--                            &lt;!&ndash; 打包时 MANIFEST.MF 文件不记录的时间戳版本 &ndash;&gt;-->
-    <!--                            <useUniqueVersions>false</useUniqueVersions>-->
-    <!--                        </manifest>-->
-    <!--                        <manifestEntries>-->
-    <!--                            &lt;!&ndash; 在 Class-Path 下添加配置文件的路径 &ndash;&gt;-->
-    <!--                            <Class-Path>config/</Class-Path>-->
-    <!--                            <Class-Path>static/</Class-Path>-->
-    <!--                        </manifestEntries>-->
-    <!--                    </archive>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.graalvm.buildtools</groupId>-->
-    <!--                <artifactId>native-maven-plugin</artifactId>-->
-    <!--                <version>0.10.4</version>-->
-    <!--                <configuration>-->
-    <!--                    <buildArgs>-->
-    <!--                        <buildArg> &#45;&#45;enable-native-access=ALL-UNNAMED </buildArg>-->
-    <!--                        <buildArg> -H:+ForeignAPISupport</buildArg>-->
-    <!--                        <buildArg> -H:+UnlockExperimentalVMOptions</buildArg>-->
-    <!--                        <buildArg> &#45;&#45;enable-preview</buildArg>-->
-    <!--                    </buildArgs>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-assembly-plugin</artifactId>-->
-    <!--                <version>3.3.0</version>-->
-    <!--                <configuration>-->
-    <!--                    <descriptors>-->
-    <!--                        &lt;!&ndash; 按照 package.xml 打包 &ndash;&gt;-->
-    <!--                        <descriptor>src/main/resources/package.xml</descriptor>-->
-    <!--                    </descriptors>-->
-
-    <!--                </configuration>-->
-    <!--                <executions>-->
-    <!--                    <execution>-->
-    <!--                        <id>make-assembly</id>-->
-    <!--                        <phase>package</phase>-->
-    <!--                        <goals>-->
-    <!--                            <goal>single</goal>-->
-    <!--                        </goals>-->
-    <!--                    </execution>-->
-    <!--                </executions>-->
-    <!--            </plugin>-->
-    <!--        </plugins>-->
-    <!--        <finalName>${project.artifactId}</finalName>-->
-    <!--    </build>-->
     <build>
         <plugins>
             <plugin>

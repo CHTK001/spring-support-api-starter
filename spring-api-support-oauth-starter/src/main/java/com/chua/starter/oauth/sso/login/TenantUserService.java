@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.login;
+﻿package com.chua.starter.oauth.sso.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
@@ -18,9 +18,9 @@ import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.system.entity.SysDept;
-import com.chua.starter.system.entity.SysRole;
-import com.chua.starter.system.entity.SysUser;
-import com.chua.starter.system.entity.SysUserRole;
+import com.chua.starter.service.model.SysRole;
+import com.chua.starter.service.model.SysUser;
+import com.chua.starter.service.model.SysUserRole;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
