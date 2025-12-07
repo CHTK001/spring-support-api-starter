@@ -78,18 +78,32 @@ public class LoginCheck {
      * @return 登录结果，包含令牌和用户信息
      */
     public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
+        long startTime = System.currentTimeMillis();
+        log.debug("========== 登录检测开始 ==========");
+        log.debug("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
+        
         UserResume userResume = null;
         Map<String, UserInfoService> beansOfType = applicationContext.getBeansOfType(UserInfoService.class);
+        log.debug("已注册的UserInfoService实现数量: {}", beansOfType.size());
+        
         for (Map.Entry<String, UserInfoService> entry : beansOfType.entrySet()) {
             UserInfoService userInfoService = entry.getValue();
             if (!isMatch(userInfoService, authType)) {
+                log.debug("UserInfoService [{}] 不匹配认证类型: {}", entry.getKey(), authType);
                 continue;
             }
+            
+            log.debug("匹配到UserInfoService: {}, 开始验证用户凭证", entry.getKey());
+            long checkStartTime = System.currentTimeMillis();
 
             try {
                 userResume = userInfoService.checkLogin(principal, credential, address, ext);
+                log.debug("用户凭证验证完成, 耗时: {}ms, 结果: {}", 
+                        System.currentTimeMillis() - checkStartTime,
+                        userResume != null ? (Strings.isNullOrEmpty(userResume.getMessage()) ? "成功" : "失败:" + userResume.getMessage()) : "null");
             } catch (Exception e) {
-                log.error("用户认证异常: {}, 类型: {}", principal, authType, e);
+                log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage());
+                log.debug("认证异常详情", e);
                 continue;
             }
             if (null != userResume && Strings.isNullOrEmpty(userResume.getMessage())) {
@@ -104,27 +118,41 @@ public class LoginCheck {
                                 + "-" +
                                 DigestUtils.md5Hex(StringUtils.defaultString(userResume.getAppId(), EMPTY_STRING))
                 );
+                log.debug("用户验证成功, userId: {}, uid: {}", userResume.getUserId(), userResume.getUid());
                 break;
             }
         }
 
         if (null == userResume) {
+            log.warn("登录失败: 未找到匹配的认证服务或用户不存在, 用户: {}, 类型: {}, 耗时: {}ms", 
+                    principal, authType, System.currentTimeMillis() - startTime);
             return ReturnResult.noAuth();
         }
 
         if (!Strings.isNullOrEmpty(userResume.getMessage())) {
+            log.warn("登录失败: {}, 用户: {}, 类型: {}, 耗时: {}ms", 
+                    userResume.getMessage(), principal, authType, System.currentTimeMillis() - startTime);
             return ReturnResult.noAuth(userResume.getMessage());
         }
 
+        log.debug("开始创建Token, tokenManagement: {}", authServerProperties.getTokenManagement());
         TokenResolver tokenManagement = ServiceProvider.of(TokenResolver.class).getExtension(authServerProperties.getTokenManagement());
         UserResult userResult = new UserResult();
         BeanUtils.copyProperties(userResume, userResult);
+        
+        long tokenStartTime = System.currentTimeMillis();
         ReturnResult<LoginResult> token = tokenManagement.createToken(address, userResult, authType);
+        log.debug("Token创建完成, 耗时: {}ms, 结果: {}", 
+                System.currentTimeMillis() - tokenStartTime, token.isOk() ? "成功" : "失败:" + token.getMsg());
+        
         String code = token.getCode();
         if (OK.getCode().equals(code)) {
             LoginResult loginResult = token.getData();
             loginResult.setUserResume(userResume);
+            log.info("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);
         }
+        
+        log.debug("========== 登录检测结束 ==========");
         return token;
     }
 

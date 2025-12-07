@@ -44,8 +44,8 @@ public class DefaultLoginHandler implements LoginHandler {
     SimpleSysUserService simpleSysUserService;
 
     @Override
-    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+        ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
             return check;
         }
@@ -87,7 +87,7 @@ public class DefaultLoginHandler implements LoginHandler {
      * @param request         request
      * @return Result
      */
-    protected Result<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
+    protected ReturnResult<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {

@@ -13,10 +13,10 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.result.LoginResult;
-import com.chua.starter.system.result.UserInfoVO;
-import com.chua.starter.system.service.SysLoginService;
+import com.chua.starter.service.SysLoginService;
+import com.chua.starter.service.pojo.user.RefreshToken;
+import com.chua.starter.service.result.LoginResult;
+import com.chua.starter.service.result.UserInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,7 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
 @Slf4j
 @Api(tags = "登录接口")
 @Tag(name = "登录接口")
+@Primary
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class LoginController {
@@ -82,9 +84,9 @@ public class LoginController {
     @SysLog
     @TokenForIgnore
     public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
-                                            HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            BindingResult bindingResult) {
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
