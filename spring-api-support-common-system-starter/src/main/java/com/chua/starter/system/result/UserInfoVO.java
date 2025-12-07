@@ -14,69 +14,69 @@ import lombok.Data;
 import java.util.Set;
 
 /**
- * 用户登录视图对象
+ * 鐢ㄦ埛鐧诲綍瑙嗗浘瀵硅薄
  *
  * @author haoxr
  * @since 2022/1/14
  */
-@Schema(description = "当前登录用户视图对象")
+@Schema(description = "褰撳墠鐧诲綍鐢ㄦ埛瑙嗗浘瀵硅薄")
 @Data
 public class UserInfoVO {
 
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
-    @NotNull(message = "不能为null")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysUserId;
 
     /**
-     * 账号
+     * 璐﹀彿
      */
     @TableField(value = "sys_user_username")
-    @ApiModelProperty(value = "账号")
-    @Schema(description = "账号")
-    @Size(max = 255, message = "账号最大长度要小于 255")
-    @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    @ApiModelProperty(value = "璐﹀彿")
+    @Schema(description = "璐﹀彿")
+    @Size(max = 255, message = "璐﹀彿鏈€澶ч暱搴﹁灏忎簬 255")
+    @NotEmpty(message = "璐﹀彿涓嶈兘涓虹┖", groups = {AddGroup.class})
     private String sysUserUsername;
 
     /**
-     * 名称
+     * 鍚嶇О
      */
     @TableField(value = "sys_user_nickname")
-    @ApiModelProperty(value = "名称")
-    @Schema(description = "名称")
-    @Size(max = 255, message = "名称最大长度要小于 255")
+    @ApiModelProperty(value = "鍚嶇О")
+    @Schema(description = "鍚嶇О")
+    @Size(max = 255, message = "鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserNickname;
 
     /**
-     * 手机�?
+     * 鎵嬫満鍙?
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "手机�?)
-    @Schema(description = "手机�?)
-    @Size(max = 255, message = "手机号最大长度要小于 255")
+    @ApiModelProperty(value = "鎵嬫満鍙?)
+    @Schema(description = "鎵嬫満鍙?)
+    @Size(max = 255, message = "鎵嬫満鍙锋渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserPhone;
     /**
-     * 邮箱
+     * 閭
      */
     @TableField(value = "sys_user_email")
-    @ApiModelProperty(value = "邮箱")
-    @Schema(description = "邮箱")
-    @Size(max = 255, message = "邮箱最大长度要小于 255")
+    @ApiModelProperty(value = "閭")
+    @Schema(description = "閭")
+    @Size(max = 255, message = "閭鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserEmail;
-    @Schema(description = "头像地址")
+    @Schema(description = "澶村儚鍦板潃")
     private String avatar;
 
     /**
-     * 租户ID
+     * 绉熸埛ID
      */
-    @Schema(description = "租户ID")
+    @Schema(description = "绉熸埛ID")
     private String tenantId;
 
-    @Schema(description = "用户角色编码集合")
+    @Schema(description = "鐢ㄦ埛瑙掕壊缂栫爜闆嗗悎")
     private Set<String> roles;
 
-    @Schema(description = "用户权限标识集合")
+    @Schema(description = "鐢ㄦ埛鏉冮檺鏍囪瘑闆嗗悎")
     private Set<String> perms;
 
 }

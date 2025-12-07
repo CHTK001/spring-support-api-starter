@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 组织机构接口
+ * 缁勭粐鏈烘瀯鎺ュ彛
  *
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "组织机构接口")
+@Tag(name = "缁勭粐鏈烘瀯鎺ュ彛")
 @RestController
 @RequestMapping("/v2/dept")
 @RequiredArgsConstructor
@@ -39,29 +39,29 @@ public class SysDeptController {
 
 
     /**
-     * 组织机构列表
+     * 缁勭粐鏈烘瀯鍒楄〃
      *
-     * @param sysDept 条件
-     * @return 组织机构分页列表
+     * @param sysDept 鏉′欢
+     * @return 缁勭粐鏈烘瀯鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "组织机构列表")
+    @Operation(summary = "缁勭粐鏈烘瀯鍒楄〃")
     @GetMapping("/list")
     public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
 
     /**
-     * 删除组织机构
+     * 鍒犻櫎缁勭粐鏈烘瀯
      *
-     * @return 更新组织机构
+     * @return 鏇存柊缁勭粐鏈烘瀯
      */
-    @Operation(summary = "删除组织机构")
+    @Operation(summary = "鍒犻櫎缁勭粐鏈烘瀯")
     @DeleteMapping("/delete")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
-            return Result.illegal("组织机构信息不存�?);
+            return Result.illegal("缁勭粐鏈烘瀯淇℃伅涓嶅瓨鍦?);
         }
 
         return sysDeptService.delete(deptId);
@@ -69,11 +69,11 @@ public class SysDeptController {
 
 
     /**
-     * 更新组织机构
+     * 鏇存柊缁勭粐鏈烘瀯
      *
-     * @return 更新组织机构
+     * @return 鏇存柊缁勭粐鏈烘瀯
      */
-    @Operation(summary = "更新组织机构")
+    @Operation(summary = "鏇存柊缁勭粐鏈烘瀯")
     @PutMapping("/update")
     @Permission(value = "sys:dept:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -88,11 +88,11 @@ public class SysDeptController {
     }
 
     /**
-     * 新增组织机构
+     * 鏂板缁勭粐鏈烘瀯
      *
-     * @return 新增组织机构
+     * @return 鏂板缁勭粐鏈烘瀯
      */
-    @Operation(summary = "新增组织机构")
+    @Operation(summary = "鏂板缁勭粐鏈烘瀯")
     @PostMapping("/save")
     @Permission(value = "sys:dept:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDept> save(

@@ -1,46 +1,33 @@
 package com.chua.starter.system.pojo.feedback;
 
-import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysFeedback;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.time.LocalDateTime;
 
 /**
- * 反馈请求
+ * 鍙嶉璇锋眰
  *
  * @author CH
- * @since 2025/4/9 10:05
+ * @since 2024/8/20
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "反馈请求")
-public class FeedbackV1Request extends Query<SysFeedback> {
-
-
-    /**
-     * 开始时�?
-     */
-    @Schema(description = "开始时�?)
-    private LocalDateTime startTime;
+@Schema(description = "鍙嶉璇锋眰")
+public class FeedbackV1Request {
 
     /**
-     * 结束时间
+     * 鍙嶉绫诲瀷
      */
-    @Schema(description = "结束时间")
-    private LocalDateTime endTime;
-
-    /**
-     * 反馈类型
-     */
-    @Schema(description = "反馈类型")
+    @Schema(description = "鍙嶉绫诲瀷")
     private String sysFeedbackType;
 
     /**
-     * 反馈状�?
+     * 鍙嶉鍐呭
      */
-    @Schema(description = "反馈类型;0:未处�? 1:已处�?)
-    private Integer sysFeedbackStatus;
+    @Schema(description = "鍙嶉鍐呭")
+    private String sysFeedbackContent;
+
+    /**
+     * 鍙嶉鍥剧墖
+     */
+    @Schema(description = "鍙嶉鍥剧墖")
+    private String sysFeedbackImages;
 }

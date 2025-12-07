@@ -3,26 +3,24 @@ package com.chua.starter.system.pojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
- * 日期查询
+ * 鏃ユ湡鏌ヨ
+ *
  * @author CH
- * @since 2024/8/23
+ * @since 2024/8/20
  */
 @Data
-@Schema(description = "日期查询")
+@Schema(description = "鏃ユ湡鏌ヨ")
 public class DateQuery {
 
     /**
-     * 开始时�?
-     */
-    @Schema(description = "开始时�?)
-    private Date startDate;
+     * 寮€濮嬫棩鏈?     */
+    @Schema(description = "寮€濮嬫棩鏈?)
+    private String startDate;
 
     /**
-     * 结束时间
+     * 缁撴潫鏃ユ湡
      */
-    @Schema(description = "结束时间")
-    private Date endDate;
+    @Schema(description = "缁撴潫鏃ユ湡")
+    private String endDate;
 }

@@ -6,48 +6,48 @@ import com.chua.starter.service.model.SysUser;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * 接口 SimpleSysUserService 继承�?IService，专门用于处�?SysUser 类的简单用户服�?
+ * 鎺ュ彛 SimpleSysUserService 缁ф壙浜?IService锛屼笓闂ㄧ敤浜庡鐞?SysUser 绫荤殑绠€鍗曠敤鎴锋湇鍔?
  * @author CH
  * @since 2024/12/2
  */
 public interface SimpleSysUserService extends IService<SysUser> {
     /**
-     * 绑定用户ID到特定服务或功能
+     * 缁戝畾鐢ㄦ埛ID鍒扮壒瀹氭湇鍔℃垨鍔熻兘
      *
-     * @param sysUserId 用户ID，表示要绑定的用�?
-     * @return 返回操作结果，包含一个布尔值表示绑定是否成�?
+     * @param sysUserId 鐢ㄦ埛ID锛岃〃绀鸿缁戝畾鐨勭敤鎴?
+     * @return 杩斿洖鎿嶄綔缁撴灉锛屽寘鍚竴涓竷灏斿€艰〃绀虹粦瀹氭槸鍚︽垚鍔?
      */
     ReturnResult<Boolean> bind(Integer sysUserId);
 
     /**
-     * 解绑用户ID从特定服务或功能
+     * 瑙ｇ粦鐢ㄦ埛ID浠庣壒瀹氭湇鍔℃垨鍔熻兘
      *
-     * @param sysUserId 用户ID，表示要解绑的用�?
-     * @return 返回操作结果，包含一个布尔值表示解绑是否成�?
+     * @param sysUserId 鐢ㄦ埛ID锛岃〃绀鸿瑙ｇ粦鐨勭敤鎴?
+     * @return 杩斿洖鎿嶄綔缁撴灉锛屽寘鍚竴涓竷灏斿€艰〃绀鸿В缁戞槸鍚︽垚鍔?
      */
     ReturnResult<Boolean> unbind(Integer sysUserId);
 
     /**
-     * 生成一个返回结果，具体结构和内容由 ReturnBodyResult 定义
+     * 鐢熸垚涓€涓繑鍥炵粨鏋滐紝鍏蜂綋缁撴瀯鍜屽唴瀹圭敱 ReturnBodyResult 瀹氫箟
      *
-     * @return 返回一�?ReturnBodyResult 对象，包含生成的结果信息
+     * @return 杩斿洖涓€涓?ReturnBodyResult 瀵硅薄锛屽寘鍚敓鎴愮殑缁撴灉淇℃伅
      */
     ReturnResult<byte[]> generate(Integer sysUserId);
 
     /**
-     * 验证用户生成的验证码是否正确
+     * 楠岃瘉鐢ㄦ埛鐢熸垚鐨勯獙璇佺爜鏄惁姝ｇ‘
      *
-     * @param code     用户生成的验证码
-     * @param username 用户名，
-     * @return 返回一个布尔值，表示验证是否成功
+     * @param code     鐢ㄦ埛鐢熸垚鐨勯獙璇佺爜
+     * @param username 鐢ㄦ埛鍚嶏紝
+     * @return 杩斿洖涓€涓竷灏斿€硷紝琛ㄧず楠岃瘉鏄惁鎴愬姛
      */
     ReturnResult<Boolean> verify(String code, @NotNull String username);
 
     /**
-     * 生成一个用于访问特定服务的 URI
+     * 鐢熸垚涓€涓敤浜庤闂壒瀹氭湇鍔＄殑 URI
      *
-     * @param sysUserId 用户ID，表示要生成 URI 的用�?
-     * @return 返回一个包含生成的 URI 的字符串，用于访问特定服务或功能
+     * @param sysUserId 鐢ㄦ埛ID锛岃〃绀鸿鐢熸垚 URI 鐨勭敤鎴?
+     * @return 杩斿洖涓€涓寘鍚敓鎴愮殑 URI 鐨勫瓧绗︿覆锛岀敤浜庤闂壒瀹氭湇鍔℃垨鍔熻兘
      */
     ReturnResult<String> generateUri(Integer sysUserId);
 }

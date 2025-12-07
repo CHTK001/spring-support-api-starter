@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.system.entity.SysRoleMenu;
 
 /**
- * 角色- 菜单关系�?
+ * 瑙掕壊- 鑿滃崟鍏崇郴琛?
  *
  * @author CH
  * @since 2024/8/7

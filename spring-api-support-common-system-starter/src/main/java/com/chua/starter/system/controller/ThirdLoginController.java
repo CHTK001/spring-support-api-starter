@@ -26,29 +26,29 @@ import java.util.List;
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
 /**
- * 三方登录
+ * 涓夋柟鐧诲綍
  * @author CH
  * @since 2024/9/12
  */
 @RestController
 @Slf4j
-@Api(tags = "三方登录接口")
-@Tag(name = "三方登录接口")
+@Api(tags = "涓夋柟鐧诲綍鎺ュ彛")
+@Tag(name = "涓夋柟鐧诲綍鎺ュ彛")
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class ThirdLoginController {
 
     final SysLoginService sysLoginService;
     /**
-     * 三方登录
+     * 涓夋柟鐧诲綍
      *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
+     * @param loginData     鐧诲綍淇℃伅
+     * @param request       璇锋眰
+     * @param response      鍝嶅簲
+     * @param bindingResult 鍙傛暟澶勭悊
+     * @return 缁撴灉
      */
-    @Operation(summary = "三方登录�?)
+    @Operation(summary = "涓夋柟鐧诲綍鐮?)
     @PostMapping("/third/login/code")
     @TokenForIgnore
     public ReturnResult<String> thirdLoginCode(@Valid @RequestBody ThirdLoginData loginData,
@@ -62,15 +62,15 @@ public class ThirdLoginController {
         return sysLoginService.thirdLoginCode(loginData, request, response);
     }
     /**
-     * 三方绑定
+     * 涓夋柟缁戝畾
      *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
+     * @param loginData     鐧诲綍淇℃伅
+     * @param request       璇锋眰
+     * @param response      鍝嶅簲
+     * @param bindingResult 鍙傛暟澶勭悊
+     * @return 缁撴灉
      */
-    @Operation(summary = "三方绑定�?)
+    @Operation(summary = "涓夋柟缁戝畾鐮?)
     @PostMapping("/third/bind/code")
     public ReturnResult<String> thirdBindCode(@Valid @RequestBody ThirdLoginData loginData,
                                               HttpServletRequest request,
@@ -83,23 +83,23 @@ public class ThirdLoginController {
         return sysLoginService.thirdBindCode(loginData, request, response);
     }
     /**
-     * 三方绑定
+     * 涓夋柟缁戝畾
      *
      * @param userId       userId
-     * @return 结果
+     * @return 缁撴灉
      */
-    @Operation(summary = "三方绑定情况")
+    @Operation(summary = "涓夋柟缁戝畾鎯呭喌")
     @PostMapping("/third/bind/info")
     public ReturnResult<List<String>> thirdBindInfo(@UserValue("userId") String userId) {
         return sysLoginService.thirdBindInfo(userId);
     }
     /**
-     * 三方绑定
+     * 涓夋柟缁戝畾
      *
      * @param userId       userId
-     * @return 结果
+     * @return 缁撴灉
      */
-    @Operation(summary = "三方绑定解绑")
+    @Operation(summary = "涓夋柟缁戝畾瑙ｇ粦")
     @PostMapping("/third/unbind")
     public ReturnResult<Boolean> thirdBindInfo(@UserValue("userId") String userId, @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         return sysLoginService.thirdUnbind(userId, thirdPartyUnbindRequest);

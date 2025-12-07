@@ -29,14 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 校验�?
+ * 鏍￠獙鐮?
  *
  * @author CH
  */
 @RestController
 @Slf4j
-@Api(tags = "校验�?)
-@Tag(name = "校验�?)
+@Api(tags = "鏍￠獙鐮?)
+@Tag(name = "鏍￠獙鐮?)
 @Ignore
 @RequestMapping("/v2/captcha")
 @SuppressWarnings("ALL")
@@ -69,7 +69,7 @@ public class CaptchaContoller {
         switch (type) {
             case CaptchaTypeEnum.ARITHMETIC:
                 captcha = new ArithmeticCaptcha(width, height);
-                //固定设置为两位，图片为算数运算表达式
+                //鍥哄畾璁剧疆涓轰袱浣嶏紝鍥剧墖涓虹畻鏁拌繍绠楄〃杈惧紡
                 captcha.setLen(length);
                 break;
             case CaptchaTypeEnum.CHINESE:
@@ -90,7 +90,7 @@ public class CaptchaContoller {
                 captcha.setLen(length);
                 break;
             default:
-                throw new RuntimeException("验证码配置信息错误！正确配置查看 CaptchaTypeEnum ");
+                throw new RuntimeException("楠岃瘉鐮侀厤缃俊鎭敊璇紒姝ｇ‘閰嶇疆鏌ョ湅 CaptchaTypeEnum ");
         }
         try {
             //captcha.setFont(Captcha.FONT_1, captchaProperties.getFontSize());
@@ -117,18 +117,18 @@ public class CaptchaContoller {
     }
 
     /**
-     * 校验�?
+     * 鏍￠獙鐮?
      *
-     * @param request 请求
+     * @param request 璇锋眰
      */
-    @ApiOperation("获取验证�?)
-    @Operation(summary = "获取验证�?)
+    @ApiOperation("鑾峰彇楠岃瘉鐮?)
+    @Operation(summary = "鑾峰彇楠岃瘉鐮?)
     @GetMapping
     @TokenForIgnore
     public CaptchaResult captchaBase64(HttpServletRequest request, HttpServletResponse response) {
         Captcha captcha = createCaptcha();
         String captchaText = captcha.text();
-        log.info("当前校验�? {}", captchaText);
+        log.info("褰撳墠鏍￠獙鐮? {}", captchaText);
         String captchaBase64 = captcha.toBase64();
         try {
             HttpSession session = request.getSession();
@@ -148,7 +148,7 @@ public class CaptchaContoller {
 
 
     /**
-     * 验证码响应对�?
+     * 楠岃瘉鐮佸搷搴斿璞?
      *
      * @author haoxr
      * @since 2023/03/24

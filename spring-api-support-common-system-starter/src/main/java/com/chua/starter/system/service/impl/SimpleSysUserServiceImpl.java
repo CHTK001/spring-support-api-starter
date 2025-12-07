@@ -43,7 +43,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> bind(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
+            return ReturnResult.illegal("褰撳墠璐﹀彿淇℃伅寮傚父, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗閲嶈瘯!");
         }
 
         String seed = Projects.getMainBoardSerialNumber() + IdUtils.createTid() + sysUser.getSysUserUsername() + System.currentTimeMillis();
@@ -58,7 +58,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> unbind(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
+            return ReturnResult.illegal("褰撳墠璐﹀彿淇℃伅寮傚父, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗閲嶈瘯!");
         }
         stringRedisTemplate.opsForHash().delete(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         sysUser.setSysUserTotpCode("");
@@ -86,7 +86,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> verify(String code, @NotNull String username) {
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, username);
         if (null == key) {
-            return Result.failed("请先绑定fa验证�?);
+            return Result.failed("璇峰厛缁戝畾fa楠岃瘉鐮?);
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
@@ -99,11 +99,11 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<String> generateUri(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
+            return ReturnResult.illegal("褰撳墠璐﹀彿淇℃伅寮傚父, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗閲嶈瘯!");
         }
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         if (null == key) {
-            return ReturnResult.illegal("请先绑定fa验证�?);
+            return ReturnResult.illegal("璇峰厛缁戝畾fa楠岃瘉鐮?);
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);

@@ -32,11 +32,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 角色接口
+ * 瑙掕壊鎺ュ彛
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "角色接口")
+@Tag(name = "瑙掕壊鎺ュ彛")
 @RestController
 @RequestMapping("/v2/role")
 @RequiredArgsConstructor
@@ -46,21 +46,21 @@ public class SysRoleController {
 
 
     /**
-     * 角色分页列表
+     * 瑙掕壊鍒嗛〉鍒楄〃
      *
-     * @param sysRole 条件
-     * @return 角色分页列表
+     * @param sysRole 鏉′欢
+     * @return 瑙掕壊鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "角色分页列表")
+    @Operation(summary = "瑙掕壊鍒嗛〉鍒楄〃")
     @GetMapping("/page")
     public ReturnPageResult<SysRole> pageForRole(@ParameterObject Query<SysRole> query, @ParameterObject SysRole sysRole, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysRoleService.pageForRole(query, sysRole, roles));
     }
     /**
-     * 角色列表
-     * @return 角色列表
+     * 瑙掕壊鍒楄〃
+     * @return 瑙掕壊鍒楄〃
      */
-    @Operation(summary = "角色列表")
+    @Operation(summary = "瑙掕壊鍒楄〃")
     @GetMapping("list")
     @Cacheable(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     public ReturnResult<List<SysRole>> list() {
@@ -71,18 +71,18 @@ public class SysRoleController {
         ));
     }
     /**
-     * 删除角色
+     * 鍒犻櫎瑙掕壊
      *
-     * @return 更新角色
+     * @return 鏇存柊瑙掕壊
      */
-    @Operation(summary = "删除角色")
+    @Operation(summary = "鍒犻櫎瑙掕壊")
     @DeleteMapping("/delete")
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {
-            return Result.illegal("角色信息不存�?);
+            return Result.illegal("瑙掕壊淇℃伅涓嶅瓨鍦?);
         }
 
         return sysRoleService.delete(roleId);
@@ -90,11 +90,11 @@ public class SysRoleController {
 
 
     /**
-     * 给角色添加菜�?
+     * 缁欒鑹叉坊鍔犺彍鍗?
      *
-     * @return 更新角色
+     * @return 鏇存柊瑙掕壊
      */
-    @Operation(summary = "给角色添加菜�?)
+    @Operation(summary = "缁欒鑹叉坊鍔犺彍鍗?)
     @PutMapping("/update_menu")
     @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
@@ -108,7 +108,7 @@ public class SysRoleController {
         return sysRoleService.updateMenu(roles, roleMenuUpdate);
     }
 
-    @Operation(summary = "获取角色菜单")
+    @Operation(summary = "鑾峰彇瑙掕壊鑿滃崟")
     @GetMapping("/get_menu")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Set<Integer>> getMenu(
@@ -122,11 +122,11 @@ public class SysRoleController {
         return sysRoleService.getMenu(roleMenuUpdate);
     }
     /**
-     * 更新角色
+     * 鏇存柊瑙掕壊
      *
-     * @return 更新角色
+     * @return 鏇存柊瑙掕壊
      */
-    @Operation(summary = "更新角色")
+    @Operation(summary = "鏇存柊瑙掕壊")
     @PutMapping("/update")
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
@@ -142,11 +142,11 @@ public class SysRoleController {
     }
 
     /**
-     * 新增角色
+     * 鏂板瑙掕壊
      *
-     * @return 新增角色
+     * @return 鏂板瑙掕壊
      */
-    @Operation(summary = "新增角色")
+    @Operation(summary = "鏂板瑙掕壊")
     @PostMapping("/save")
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})

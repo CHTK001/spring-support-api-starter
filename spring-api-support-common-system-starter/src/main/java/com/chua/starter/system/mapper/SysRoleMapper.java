@@ -15,27 +15,27 @@ import java.util.Set;
 @Mapper
 public interface SysRoleMapper extends BaseMapper<SysRole> {
     /**
-     * 根据用户id查询角色
+     * 鏍规嵁鐢ㄦ埛id鏌ヨ瑙掕壊
      *
-     * @param userIds 用户id
-     * @return 角色
+     * @param userIds 鐢ㄦ埛id
+     * @return 瑙掕壊
      */
     List<SysRole> listByUserId(@Param("userIds") Set<Integer> userIds);
 
     /**
-     * 根据租户id查询管理员角�?
+     * 鏍规嵁绉熸埛id鏌ヨ绠＄悊鍛樿鑹?
      *
-     * @param sysTenantId 租户id
-     * @param sysRoleCode 角色编码
-     * @return 角色
+     * @param sysTenantId 绉熸埛id
+     * @param sysRoleCode 瑙掕壊缂栫爜
+     * @return 瑙掕壊
      */
     SysRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId, @Param("sysRoleCode") String sysRoleCode);
 
     /**
-     * 根据租户id查询管理员角�?
+     * 鏍规嵁绉熸埛id鏌ヨ绠＄悊鍛樿鑹?
      *
-     * @param sysTenantId 租户id
-     * @param sysTenantId 租户ID
+     * @param sysTenantId 绉熸埛id
+     * @param sysTenantId 绉熸埛ID
      */
     void insertWithTenant(@Param("sysRole") SysRole sysRole, @Param("sysTenantId") Integer sysTenantId);
 }

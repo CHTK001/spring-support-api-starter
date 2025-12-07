@@ -19,13 +19,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 组件表
+ * 缁勪欢琛?
  *
  * @author CH
  * @since 2024/10/24
  */
-@ApiModel(description = "组件表")
-@Schema(description = "组件表")
+@ApiModel(description = "缁勪欢琛?)
+@Schema(description = "缁勪欢琛?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sfc")
@@ -33,144 +33,144 @@ public class SysSfc extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_sfc_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "组件ID")
-    @Schema(description = "组件ID")
-    @NotNull(message = "不能为null", groups = {UpdateGroup.class, UploadGroup.class})
+    @ApiModelProperty(value = "缁勪欢ID")
+    @Schema(description = "缁勪欢ID")
+    @NotNull(message = "涓嶈兘涓簄ull", groups = {UpdateGroup.class, UploadGroup.class})
     private Integer sysSfcId;
 
     /**
-     * 组件名称
+     * 缁勪欢鍚嶇О
      */
     @TableField(value = "sys_sfc_name")
-    @ApiModelProperty(value = "组件名称")
-    @Schema(description = "组件名称")
-    @Size(max = 255, message = "组件名称最大长度要小于 255", groups = {AddGroup.class})
+    @ApiModelProperty(value = "缁勪欢鍚嶇О")
+    @Schema(description = "缁勪欢鍚嶇О")
+    @Size(max = 255, message = "缁勪欢鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255", groups = {AddGroup.class})
     private String sysSfcName;
 
     /**
-     * 组件中文名称
+     * 缁勪欢涓枃鍚嶇О
      */
     @TableField(value = "sys_sfc_chinese_name")
-    @ApiModelProperty(value = "组件中文名称")
-    @Schema(description = "组件中文名称")
-    @Size(max = 255, message = "组件中文名称最大长度要小于 255", groups = {AddGroup.class})
+    @ApiModelProperty(value = "缁勪欢涓枃鍚嶇О")
+    @Schema(description = "缁勪欢涓枃鍚嶇О")
+    @Size(max = 255, message = "缁勪欢涓枃鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255", groups = {AddGroup.class})
     private String sysSfcChineseName;
 
     /**
-     * 缓存模式
+     * 缂撳瓨妯″紡
      */
     @TableField(value = "sys_sfc_model_cache")
-    @ApiModelProperty(value = "缓存模式")
-    @Schema(description = "缓存模式")
+    @ApiModelProperty(value = "缂撳瓨妯″紡")
+    @Schema(description = "缂撳瓨妯″紡")
     private String sysSfcModelCache;
 
     /**
-     * 组件功能, 多个逗号分隔
+     * 缁勪欢鍔熻兘, 澶氫釜閫楀彿鍒嗛殧
      */
     @TableField(value = "sys_sfc_function")
-    @ApiModelProperty(value = "组件功能, 多个逗号分隔")
-    @Schema(description = "组件功能, 多个逗号分隔")
-    @Size(max = 255, message = "组件功能, 多个逗号分隔最大长度要小于 255", groups = {AddGroup.class})
+    @ApiModelProperty(value = "缁勪欢鍔熻兘, 澶氫釜閫楀彿鍒嗛殧")
+    @Schema(description = "缁勪欢鍔熻兘, 澶氫釜閫楀彿鍒嗛殧")
+    @Size(max = 255, message = "缁勪欢鍔熻兘, 澶氫釜閫楀彿鍒嗛殧鏈€澶ч暱搴﹁灏忎簬 255", groups = {AddGroup.class})
     private String sysSfcFunction;
 
     /**
-     * 组件图标
+     * 缁勪欢鍥炬爣
      */
     @TableField(value = "sys_sfc_icon")
-    @ApiModelProperty(value = "组件图标")
-    @Schema(description = "组件图标")
-    @Size(max = 255, message = "组件图标最大长度要小于 255", groups = {AddGroup.class})
+    @ApiModelProperty(value = "缁勪欢鍥炬爣")
+    @Schema(description = "缁勪欢鍥炬爣")
+    @Size(max = 255, message = "缁勪欢鍥炬爣鏈€澶ч暱搴﹁灏忎簬 255", groups = {AddGroup.class})
     private String sysSfcIcon;
 
     /**
-     * 分类; HOME
+     * 鍒嗙被; HOME
      */
     @TableField(value = "sys_sfc_category")
-    @ApiModelProperty(value = "分类; HOME")
-    @Schema(description = "分类; HOME")
-    @Size(max = 255, message = "分类; HOME最大长度要小于 255", groups = {AddGroup.class})
+    @ApiModelProperty(value = "鍒嗙被; HOME")
+    @Schema(description = "鍒嗙被; HOME")
+    @Size(max = 255, message = "鍒嗙被; HOME鏈€澶ч暱搴﹁灏忎簬 255", groups = {AddGroup.class})
     private String sysSfcCategory;
 
     /**
-     * 组件存放路径
+     * 缁勪欢瀛樻斁璺緞
      */
     @TableField(value = "sys_sfc_path")
-    @ApiModelProperty(value = "组件存放路径")
-    @Schema(description = "组件存放路径")
-    @Size(max = 255, message = "组件存放路径最大长度要小于 255")
+    @ApiModelProperty(value = "缁勪欢瀛樻斁璺緞")
+    @Schema(description = "缁勪欢瀛樻斁璺緞")
+    @Size(max = 255, message = "缁勪欢瀛樻斁璺緞鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysSfcPath;
 
     /**
-     * 组件代理地址
+     * 缁勪欢浠ｇ悊鍦板潃
      */
     @TableField(value = "sys_sfc_proxy")
-    @ApiModelProperty(value = "组件代理地址")
-    @Schema(description = "组件代理地址")
-    @Size(max = 255, message = "组件代理地址最大长度要小于 255")
+    @ApiModelProperty(value = "缁勪欢浠ｇ悊鍦板潃")
+    @Schema(description = "缁勪欢浠ｇ悊鍦板潃")
+    @Size(max = 255, message = "缁勪欢浠ｇ悊鍦板潃鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysSfcProxy;
 
     /**
-     * 组件类型; 0:文件; 1:文本
+     * 缁勪欢绫诲瀷; 0:鏂囦欢; 1:鏂囨湰
      */
     @TableField(value = "sys_sfc_type")
-    @ApiModelProperty(value = "组件类型; 0:文件; 1:文本")
-    @Schema(description = "组件类型; 0:文件; 1:文本")
+    @ApiModelProperty(value = "缁勪欢绫诲瀷; 0:鏂囦欢; 1:鏂囨湰")
+    @Schema(description = "缁勪欢绫诲瀷; 0:鏂囦欢; 1:鏂囨湰")
     private Integer sysSfcType;
 
     /**
-     * 组件版本
+     * 缁勪欢鐗堟湰
      */
     @TableField(value = "sys_sfc_version")
-    @ApiModelProperty(value = "组件版本")
-    @Schema(description = "组件版本")
+    @ApiModelProperty(value = "缁勪欢鐗堟湰")
+    @Schema(description = "缁勪欢鐗堟湰")
     private String sysSfcVersion;
 
     /**
-     * 组件内容
+     * 缁勪欢鍐呭
      */
     @TableField(value = "sys_sfc_content")
-    @ApiModelProperty(value = "组件内容")
-    @Schema(description = "组件内容")
+    @ApiModelProperty(value = "缁勪欢鍐呭")
+    @Schema(description = "缁勪欢鍐呭")
     private String sysSfcContent;
 
     /**
-     * 组件状态; 0:未启用
+     * 缁勪欢鐘舵€? 0:鏈惎鐢?
      */
     @TableField(value = "sys_sfc_status")
-    @ApiModelProperty(value = "组件状态; 0:未启用")
-    @Schema(description = "组件状态; 0:未启用")
+    @ApiModelProperty(value = "缁勪欢鐘舵€? 0:鏈惎鐢?)
+    @Schema(description = "缁勪欢鐘舵€? 0:鏈惎鐢?)
     private Integer sysSfcStatus;
 
     /**
-     * 延迟时间; 2000
+     * 寤惰繜鏃堕棿; 2000
      */
     @TableField(value = "sys_sfc_delay")
-    @ApiModelProperty(value = "延迟时间; 2000")
-    @Schema(description = "延迟时间; 2000")
+    @ApiModelProperty(value = "寤惰繜鏃堕棿; 2000")
+    @Schema(description = "寤惰繜鏃堕棿; 2000")
     private Integer sysSfcDelay;
 
     /**
-     * 超时时间; 3000
+     * 瓒呮椂鏃堕棿; 3000
      */
     @TableField(value = "sys_sfc_timeout")
-    @ApiModelProperty(value = "超时时间; 3000")
-    @Schema(description = "超时时间; 3000")
+    @ApiModelProperty(value = "瓒呮椂鏃堕棿; 3000")
+    @Schema(description = "瓒呮椂鏃堕棿; 3000")
     private Integer sysSfcTimeout;
 
     /**
-     * 组件描述
+     * 缁勪欢鎻忚堪
      */
     @TableField(value = "sys_sfc_desc")
-    @ApiModelProperty(value = "组件描述")
-    @Schema(description = "组件描述")
-    @Size(max = 255, message = "组件描述最大长度要小于 255")
+    @ApiModelProperty(value = "缁勪欢鎻忚堪")
+    @Schema(description = "缁勪欢鎻忚堪")
+    @Size(max = 255, message = "缁勪欢鎻忚堪鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysSfcDesc;
 
     /**
-     * 是否已安装
+     * 鏄惁宸插畨瑁?
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "是否已安装")
-    @Schema(description = "是否已安装")
+    @ApiModelProperty(value = "鏄惁宸插畨瑁?)
+    @Schema(description = "鏄惁宸插畨瑁?)
     private Integer sysSfcInstall;
 }
