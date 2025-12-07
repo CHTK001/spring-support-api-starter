@@ -44,8 +44,8 @@ public class DefaultLoginHandler implements LoginHandler {
     SimpleSysUserService simpleSysUserService;
 
     @Override
-    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+        ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
             return check;
         }
