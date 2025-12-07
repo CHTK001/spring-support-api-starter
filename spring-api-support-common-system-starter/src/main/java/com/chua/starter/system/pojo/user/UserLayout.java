@@ -4,40 +4,42 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 鐢ㄦ埛甯冨眬
+ * 用户布局
+ *
  * @author CH
  * @since 2024/8/29
  */
 @Data
-@Schema(description = "鐢ㄦ埛甯冨眬")
+@Schema(description = "用户布局")
 public class UserLayout {
 
     /**
-     * 甯冨眬缃戞牸
+     * 布局网格
      */
-    @Schema(description = "甯冨眬缃戞牸")
+    @Schema(description = "布局网格")
     private String grid;
 
     /**
-     * 甯冨眬
+     * 布局
      */
-    @Schema(description = "甯冨眬")
+    @Schema(description = "布局")
     private String layout;
 
     /**
-     * 涓婚
+     * 主题
      */
-    @Schema(description = "涓婚")
+    @Schema(description = "主题")
     private String theme;
+
     /**
-     * 棰滆壊
+     * 颜色
      */
-    @Schema(description = "棰滆壊")
+    @Schema(description = "颜色")
     private String color;
 
     /**
-     * 缁勪欢鍒楄〃
+     * 组件列表
      */
-    @Schema(description = "缁勪欢鍒楄〃")
+    @Schema(description = "组件列表")
     private String component;
 }
