@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysProjectMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysProject">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.project.SysProject">
     <!--@mbg.generated-->
     <!--@Table sys_project-->
     <id column="sys_project_id" jdbcType="INTEGER" property="sysProjectId" />
@@ -40,7 +40,7 @@
     sys_project_smtp_port, sys_project_smtp_password, sys_project_smtp_from, create_name, 
     create_by, create_time, update_time, update_name, update_by
   </sql>
-    <select id="selectPageFor" resultType="com.chua.starter.system.entity.SysProject">
+    <select id="selectPageFor" resultType="com.chua.starter.entity.project.SysProject">
         SELECT T.*, IF(sysProjectFunctionDefaultLabel is not null, 1, 0) sysProjectFunctionDefault FROM (
         SELECT sp.*,
                 sdi.sys_dict_item_name sysProjectDictItemLabel,
@@ -83,7 +83,7 @@
         ORDER BY sysProjectFunctionDefault desc, sys_project_sort
     </select>
 
-    <select id="getDefaultByType" resultType="com.chua.starter.system.entity.SysProject">
+    <select id="getDefaultByType" resultType="com.chua.starter.entity.project.SysProject">
         SELECT sp.*
                FROM sys_project_default spd
         INNER JOIN sys_project sp ON sp.sys_project_id = spd.sys_project_id

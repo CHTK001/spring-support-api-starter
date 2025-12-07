@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.oauth.sso.mapper.SysUserThirdPartyMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysUserThirdParty">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.system.SysUserThirdParty">
     <!--@mbg.generated-->
     <!--@Table sys_user_third_party-->
     <id column="sys_user_third_party_id" jdbcType="INTEGER" property="sysUserThirdPartyId" />

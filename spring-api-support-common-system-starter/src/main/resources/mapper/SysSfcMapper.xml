@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysSfcMapper">
-    <select id="selectPageForSfc" resultType="com.chua.starter.system.entity.SysSfc">
+    <select id="selectPageForSfc" resultType="com.chua.starter.entity.system.SysSfc">
         SELECT T.*,
                T.sys_sfc_category sysSfCategory
         FROM
@@ -40,7 +40,7 @@
         ORDER BY sysSfcInstall DESC
     </select>
 
-    <select id="mine" resultType="com.chua.starter.system.entity.SysSfc">
+    <select id="mine" resultType="com.chua.starter.entity.system.SysSfc">
         SELECT ss.*,
                (IF(ssi.user_id is null, 0, 1)) sysSfcInstall
         FROM sys_sfc ss
