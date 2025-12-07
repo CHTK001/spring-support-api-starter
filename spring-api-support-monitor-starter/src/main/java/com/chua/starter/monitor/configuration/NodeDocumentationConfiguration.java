@@ -1,11 +1,14 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
 
 /**
  * 节点文档配置
@@ -26,9 +29,10 @@ public class NodeDocumentationConfiguration {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(10000);
         factory.setReadTimeout(30000);
-        
+
         RestTemplate restTemplate = new RestTemplate(factory);
-        
+        restTemplate.setInterceptors(Collections.singletonList(new RestTemplateTraceIdInterceptor()));
+
         log.info("节点文档RestTemplate配置完成 - 连接超时: {}ms, 读取超时: {}ms",
                 10000, 30000);
         

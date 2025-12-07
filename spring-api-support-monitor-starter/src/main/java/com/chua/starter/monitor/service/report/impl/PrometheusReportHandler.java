@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service.report.impl;
 
+import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,9 @@ public class PrometheusReportHandler implements ReportHandler {
     private final SocketSessionTemplate socketSessionTemplate;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final RestTemplate restTemplate = new RestTemplate();
-
+    {
+        restTemplate.setInterceptors(Collections.singletonList(new RestTemplateTraceIdInterceptor()));
+    }
     // 移除定时任务相关字段，数据收集由DataCollectionTask统一管理
 
     @Override
