@@ -107,7 +107,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("鐧诲綍宸茶繃鏈?);
+            return Result.failed("鐧诲綍宸茶繃鏈");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -121,7 +121,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        return ReturnResult.fail("绗笁鏂圭櫥褰曟殏涓嶆敮鎸?);
+        return ReturnResult.fail("绗笁鏂圭櫥褰曟殏涓嶆敮鎸");
     }
 
     @Override

@@ -58,7 +58,7 @@ public class SysMenuSettingVO {
     private Integer sysMenuPid;
 
     /**
-     * 瀛愯彍鍗?     */
-    @Schema(description = "瀛愯彍鍗?)
+     * 瀛愯彍鍗"     */
+    @Schema(description = "瀛愯彍鍗")
     private List<SysMenuSettingVO> children;
 }

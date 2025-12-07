@@ -65,7 +65,7 @@ public class SysMenuVO {
 
     /**
      * 浼樺厛绾?     */
-    @Schema(description = "浼樺厛绾?)
+    @Schema(description = "浼樺厛绾")
     private Integer sysMenuSort;
 
     /**
@@ -93,8 +93,8 @@ public class SysMenuVO {
     private Integer sysMenuHidden;
 
     /**
-     * 鏄惁缂撳瓨; 0:鍚?     */
-    @Schema(description = "鏄惁缂撳瓨; 0:鍚?)
+     * 鏄惁缂撳瓨; 0:鍚     */
+    @Schema(description = "鏄惁缂撳瓨; 0:鍚")
     private Integer sysMenuKeepAlive;
 
     /**
@@ -104,7 +104,7 @@ public class SysMenuVO {
     private String sysMenuRedirect;
 
     /**
-     * 瀛愯彍鍗?     */
-    @Schema(description = "瀛愯彍鍗?)
+     * 瀛愯彍鍗"     */
+    @Schema(description = "瀛愯彍鍗")
     private List<SysMenuVO> children;
 }

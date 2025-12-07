@@ -26,7 +26,7 @@ public interface SysSfcMapper extends BaseMapper<SysSfc> {
     /**
      * 鏌ヨ褰撳墠鐢ㄦ埛涓嬬殑SysSfc鏁版嵁
      * 姝ゆ柟娉曠敤浜庢牴鎹敤鎴稩D鍜孲ysSfc绫诲埆鏌ヨ灞炰簬褰撳墠鐢ㄦ埛鐨勬墍鏈塖ysSfc璁板綍
-     * 涓昏鐢ㄤ簬鑾峰彇鐢ㄦ埛鐩稿叧鐨凷ysSfc淇℃伅锛屼互渚胯繘琛岀敤鎴风骇鍒殑鏁版嵁澶勭悊鎴栧睍绀?
+     * 涓昏鐢ㄤ簬鑾峰彇鐢ㄦ埛鐩稿叧鐨凷ysSfc淇℃伅锛屼互渚胯繘琛岀敤鎴风骇鍒殑鏁版嵁澶勭悊鎴栧睍绀"
      *
      * @param sysSfcCategory SysSfc绫诲埆锛岀敤浜庨檺瀹氭煡璇㈢殑SysSfc绫诲瀷
      * @param userId 鐢ㄦ埛ID锛岀敤浜庨檺瀹氭煡璇㈠睘浜庡摢涓敤鎴风殑鏁版嵁

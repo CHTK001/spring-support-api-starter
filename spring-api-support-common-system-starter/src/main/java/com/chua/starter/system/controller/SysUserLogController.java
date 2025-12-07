@@ -78,7 +78,7 @@ public class SysUserLogController {
     @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
-            return Result.illegal("鎿嶄綔鏃ュ織淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("鎿嶄綔鏃ュ織淇℃伅涓嶅瓨鍦");
         }
 
         return sysUserLogService.delete(userLogId);

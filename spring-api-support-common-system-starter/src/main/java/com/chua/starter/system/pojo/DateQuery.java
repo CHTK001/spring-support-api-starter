@@ -14,8 +14,8 @@ import lombok.Data;
 public class DateQuery {
 
     /**
-     * 寮€濮嬫棩鏈?     */
-    @Schema(description = "寮€濮嬫棩鏈?)
+     * 寮€濮嬫棩鏈"     */
+    @Schema(description = "寮€濮嬫棩鏈")
     private String startDate;
 
     /**

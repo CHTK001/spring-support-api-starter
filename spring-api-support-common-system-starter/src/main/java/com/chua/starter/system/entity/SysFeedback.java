@@ -49,9 +49,9 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackContent;
 
     /**
-     * 鍙嶉鐘舵€?0:鏈鐞? 1:宸插鐞?     */
+     * 鍙嶉鐘舵€?0:鏈鐞 1:宸插鐞     */
     @TableField(value = "sys_feedback_status")
-    @Schema(description = "鍙嶉鐘舵€?0:鏈鐞? 1:宸插鐞?)
+    @Schema(description = "鍙嶉鐘舵€?0:鏈鐞 1:宸插鐞")
     private Integer sysFeedbackStatus;
 
     /**
@@ -64,7 +64,7 @@ public class SysFeedback extends SysBase {
     /**
      * 澶勭悊浜哄悕绉?     */
     @TableField(value = "sys_feedback_deal_name")
-    @Schema(description = "澶勭悊浜哄悕绉?)
+    @Schema(description = "澶勭悊浜哄悕绉")
     private String sysFeedbackDealName;
 
     /**
@@ -82,8 +82,8 @@ public class SysFeedback extends SysBase {
     private LocalDateTime sysFeedbackRecoverTime;
 
     /**
-     * 鍥炲鐨勫浘鐗?     */
+     * 鍥炲鐨勫浘鐗"     */
     @TableField(value = "sys_feedback_recover_images")
-    @Schema(description = "鍥炲鐨勫浘鐗?)
+    @Schema(description = "鍥炲鐨勫浘鐗")
     private String sysFeedbackRecoverImages;
 }

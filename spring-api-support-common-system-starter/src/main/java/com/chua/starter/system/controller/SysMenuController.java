@@ -90,7 +90,7 @@ public class SysMenuController {
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {
-            return Result.illegal("鑿滃崟淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("鑿滃崟淇℃伅涓嶅瓨鍦");
         }
 
         return sysMenuService.delete(sysMenuId);

@@ -61,9 +61,9 @@ public class SysAccount extends SysBase {
     private String sysAccountAvatar;
 
     /**
-     * 鎵嬫満鍙?     */
+     * 鎵嬫満鍙"     */
     @TableField(value = "sys_account_phone")
-    @Schema(description = "鎵嬫満鍙?)
+    @Schema(description = "鎵嬫満鍙")
     private String sysAccountPhone;
 
     /**

@@ -21,8 +21,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/10/24
  */
-@ApiModel(description = "鐢ㄦ埛瀹夎鐨勭粍浠?)
-@Schema(description = "鐢ㄦ埛瀹夎鐨勭粍浠?)
+@ApiModel(description = "鐢ㄦ埛瀹夎鐨勭粍浠")
+@Schema(description = "鐢ㄦ埛瀹夎鐨勭粍浠")
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)

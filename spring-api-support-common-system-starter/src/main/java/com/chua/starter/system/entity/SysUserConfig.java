@@ -20,8 +20,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/8/30
  */
-@ApiModel(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛?)
-@Schema(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛?)
+@ApiModel(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛")
+@Schema(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_config")
