@@ -24,8 +24,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "瑙掕壊琛?)
-@Schema(description = "瑙掕壊琛?)
+@ApiModel(description = "瑙掕壊琛")
+@Schema(description = "瑙掕壊琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_role")
@@ -61,24 +61,24 @@ public class SysRole extends SysBase implements Serializable {
      * 鏄惁鍚敤
      */
     @TableField(value = "sys_role_status")
-    @ApiModelProperty(value = "鏄惁鍚敤; 0:涓嶅惎鐢?)
-    @Schema(description = "鏄惁鍚敤; 0:涓嶅惎鐢?)
+    @ApiModelProperty(value = "鏄惁鍚敤; 0:涓嶅惎鐢")
+    @Schema(description = "鏄惁鍚敤; 0:涓嶅惎鐢")
     private Integer sysRoleStatus;
 
     /**
      * 浼樺厛绾?
      */
     @TableField(value = "sys_role_sort")
-    @ApiModelProperty(value = "浼樺厛绾?)
-    @Schema(description = "浼樺厛绾?)
+    @ApiModelProperty(value = "浼樺厛绾")
+    @Schema(description = "浼樺厛绾")
     private Integer sysRoleSort;
 
     /**
-     * 鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?
+     * 鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹
      */
     @TableField(value = "sys_role_in_system")
-    @ApiModelProperty(value = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?)
-    @Schema(description = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?)
+    @ApiModelProperty(value = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹")
+    @Schema(description = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹")
     private Integer sysRoleInSystem;
 
     /**
@@ -110,16 +110,16 @@ public class SysRole extends SysBase implements Serializable {
      * 瑙掕壊鏄惁鍙墽琛?
      */
     @TableField(value = "sys_role_executable")
-    @ApiModelProperty(value = "瑙掕壊鏄惁鍙墽琛?)
-    @Schema(description = "瑙掕壊鏄惁鍙墽琛?)
+    @ApiModelProperty(value = "瑙掕壊鏄惁鍙墽琛")
+    @Schema(description = "瑙掕壊鏄惁鍙墽琛")
     private Integer sysRoleExecutable;
 
     /**
-     * 瑙掕壊鍙湅鏉跨被鍨?
+     * 瑙掕壊鍙湅鏉跨被鍨"
      */
     @TableField(value = "sys_role_board_card")
-    @ApiModelProperty(value = "瑙掕壊鍙湅鏉跨被鍨?)
-    @Schema(description = "瑙掕壊鍙湅鏉跨被鍨?)
+    @ApiModelProperty(value = "瑙掕壊鍙湅鏉跨被鍨")
+    @Schema(description = "瑙掕壊鍙湅鏉跨被鍨")
     private Integer sysRoleBoardCard;
 
     /**

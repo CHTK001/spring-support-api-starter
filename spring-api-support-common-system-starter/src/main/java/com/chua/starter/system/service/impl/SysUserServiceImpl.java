@@ -89,7 +89,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<Boolean> delete(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟");
         }
 
         if (1 == sysUser1.getSysUserInSystem()) {
@@ -103,7 +103,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> resetOwner(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟? 璇烽噸鏂扮櫥褰曟垨鑰呰仈绯荤鐞嗗憳");
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟");
         }
 
         String newPassword = RandomUtils.randomString(8);
@@ -119,7 +119,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<String> reset(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟");
         }
 
         String password = RandomUtils.randomString(8);
@@ -184,7 +184,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
         if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
         ) > 0L) {
-            return ReturnResult.illegal("璐﹀彿宸插瓨锟?);
+            return ReturnResult.illegal("璐﹀彿宸插瓨锟");
         }
         sysUserUpdate.setSysUserSalt(RandomUtils.randomString(14));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
@@ -256,7 +256,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser.setSysUserSalt(RandomUtils.randomString(14));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
-            return ReturnResult.illegal("鏂板瘑鐮佷笉鑳戒负锟?);
+            return ReturnResult.illegal("鏂板瘑鐮佷笉鑳戒负锟");
         }
 
         updateById(sysUser);

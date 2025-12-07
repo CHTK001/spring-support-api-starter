@@ -109,7 +109,7 @@ public class SysUserController {
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦");
         }
 
         return sysUserService.delete(sysUserId);
@@ -146,7 +146,7 @@ public class SysUserController {
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦");
         }
 
         return sysUserService.reset(userId);

@@ -86,7 +86,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> verify(String code, @NotNull String username) {
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, username);
         if (null == key) {
-            return Result.failed("璇峰厛缁戝畾fa楠岃瘉鐮?);
+            return Result.failed("璇峰厛缁戝畾fa楠岃瘉鐮");
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
@@ -103,7 +103,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         }
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         if (null == key) {
-            return ReturnResult.illegal("璇峰厛缁戝畾fa楠岃瘉鐮?);
+            return ReturnResult.illegal("璇峰厛缁戝畾fa楠岃瘉鐮");
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);

@@ -21,8 +21,8 @@ import java.math.BigDecimal;
  * @author CH
  * @since 2024/8/8
  */
-@ApiModel(description = "鐢ㄦ埛鏃ュ織琛?)
-@Schema(description = "鐢ㄦ埛鏃ュ織琛?)
+@ApiModel(description = "鐢ㄦ埛鏃ュ織琛")
+@Schema(description = "鐢ㄦ埛鏃ュ織琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_log")
@@ -64,15 +64,15 @@ public class SysUserLog extends SysBase implements Serializable {
     /**
      * 娴忚鍣ㄦ寚绾?     */
     @TableField(value = "sys_log_fingerprint")
-    @ApiModelProperty(value = "娴忚鍣ㄦ寚绾?)
-    @Schema(description = "娴忚鍣ㄦ寚绾?)
+    @ApiModelProperty(value = "娴忚鍣ㄦ寚绾")
+    @Schema(description = "娴忚鍣ㄦ寚绾")
     private String sysLogFingerprint;
 
     /**
      * 娴忚鍣?     */
     @TableField(value = "sys_log_browser")
-    @ApiModelProperty(value = "娴忚鍣?)
-    @Schema(description = "娴忚鍣?)
+    @ApiModelProperty(value = "娴忚鍣")
+    @Schema(description = "娴忚鍣")
     @Size(max = 255, message = "娴忚鍣ㄦ渶澶ч暱搴﹁灏忎簬 255")
     private String sysLogBrowser;
 
@@ -106,8 +106,8 @@ public class SysUserLog extends SysBase implements Serializable {
     /**
      * 杩愯惀鍟?     */
     @TableField(value = "sys_log_isp")
-    @ApiModelProperty(value = "杩愯惀鍟?)
-    @Schema(description = "杩愯惀鍟?)
+    @ApiModelProperty(value = "杩愯惀鍟")
+    @Schema(description = "杩愯惀鍟")
     @Size(max = 255, message = "杩愯惀鍟嗘渶澶ч暱搴﹁灏忎簬 255")
     private String sysLogIsp;
 
@@ -147,11 +147,11 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogFrom;
 
     /**
-     * 璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛
+     * 璇锋眰鐘舵€; 0: 澶辫触; 1: 鎴愬姛
      */
     @TableField(value = "sys_log_status")
-    @ApiModelProperty(value = "璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛")
-    @Schema(description = "璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛")
+    @ApiModelProperty(value = "璇锋眰鐘舵€; 0: 澶辫触; 1: 鎴愬姛")
+    @Schema(description = "璇锋眰鐘舵€; 0: 澶辫触; 1: 鎴愬姛")
     private Integer sysLogStatus;
 
     /**

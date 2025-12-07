@@ -51,8 +51,8 @@ public class SysDept extends SysBase implements Serializable {
      * 閮ㄩ棬璐熻矗浜?
      */
     @TableField(value = "sys_dept_principal")
-    @ApiModelProperty(value = "閮ㄩ棬璐熻矗浜?)
-    @Schema(description = "閮ㄩ棬璐熻矗浜?)
+    @ApiModelProperty(value = "閮ㄩ棬璐熻矗浜")
+    @Schema(description = "閮ㄩ棬璐熻矗浜")
     @Size(max = 255, message = "閮ㄩ棬璐熻矗浜烘渶澶ч暱搴﹁灏忎簬 255")
     private String sysDeptPrincipal;
 
@@ -60,8 +60,8 @@ public class SysDept extends SysBase implements Serializable {
      * 璐熻矗浜鸿仈绯绘柟寮?
      */
     @TableField(value = "sys_dept_contact")
-    @ApiModelProperty(value = "璐熻矗浜鸿仈绯绘柟寮?)
-    @Schema(description = "璐熻矗浜鸿仈绯绘柟寮?)
+    @ApiModelProperty(value = "璐熻矗浜鸿仈绯绘柟寮")
+    @Schema(description = "璐熻矗浜鸿仈绯绘柟寮")
     @Size(max = 255, message = "璐熻矗浜鸿仈绯绘柟寮忔渶澶ч暱搴﹁灏忎簬 255")
     private String sysDeptContact;
 
@@ -69,8 +69,8 @@ public class SysDept extends SysBase implements Serializable {
      * 浼樺厛绾?
      */
     @TableField(value = "sys_dept_sort")
-    @ApiModelProperty(value = "浼樺厛绾?)
-    @Schema(description = "浼樺厛绾?)
+    @ApiModelProperty(value = "浼樺厛绾")
+    @Schema(description = "浼樺厛绾")
     private Integer sysDeptSort;
 
     /**
@@ -87,8 +87,8 @@ public class SysDept extends SysBase implements Serializable {
      * 鐖舵満鏋?
      */
     @TableField(value = "sys_dept_pid")
-    @ApiModelProperty(value = "鐖舵満鏋?)
-    @Schema(description = "鐖舵満鏋?)
+    @ApiModelProperty(value = "鐖舵満鏋")
+    @Schema(description = "鐖舵満鏋")
     private Integer sysDeptPid;
 
     /**
@@ -117,11 +117,11 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptRemark;
 
     /**
-     * 鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?
+     * 鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙"
      */
     @TableField(value = "sys_dept_data_permission")
-    @ApiModelProperty(value = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?)
-    @Schema(description = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?)
+    @ApiModelProperty(value = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙")
+    @Schema(description = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙")
     private Integer sysDeptDataPermission;
 
     /**

@@ -22,8 +22,8 @@ import java.util.List;
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "鐢ㄦ埛琛?)
-@Schema(description = "鐢ㄦ埛琛?)
+@ApiModel(description = "鐢ㄦ埛琛")
+@Schema(description = "鐢ㄦ埛琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user")
@@ -89,8 +89,8 @@ public class SysUser extends SysBase implements Serializable {
      * 鐩?
      */
     @TableField(value = "sys_user_salt")
-    @ApiModelProperty(value = "鐩?)
-    @Schema(description = "鐩?)
+    @ApiModelProperty(value = "鐩")
+    @Schema(description = "鐩")
     @Size(max = 255, message = "鐩愭渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserSalt;
 
@@ -103,11 +103,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserTotpCode;
 
     /**
-     * 鏄惁鍒犻櫎; 0: 鏈垹闄?
+     * 鏄惁鍒犻櫎; 0: 鏈垹闄
      */
     @TableField(value = "sys_user_delete")
-    @ApiModelProperty(value = "鏄惁鍒犻櫎; 0: 鏈垹闄?)
-    @Schema(description = "鏄惁鍒犻櫎; 0: 鏈垹闄?)
+    @ApiModelProperty(value = "鏄惁鍒犻櫎; 0: 鏈垹闄")
+    @Schema(description = "鏄惁鍒犻櫎; 0: 鏈垹闄")
     @TableLogic(value = "0", delval = "1")
     private Integer sysUserDelete;
 
@@ -131,8 +131,8 @@ public class SysUser extends SysBase implements Serializable {
      * 鎵嬫満鍙?
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "鎵嬫満鍙?)
-    @Schema(description = "鎵嬫満鍙?)
+    @ApiModelProperty(value = "鎵嬫満鍙")
+    @Schema(description = "鎵嬫満鍙")
     @Size(max = 255, message = "鎵嬫満鍙锋渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserPhone;
 
@@ -146,11 +146,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserEmail;
 
     /**
-     * 鎬у埆; 0:鐢? 1:濂? 2:鍏朵粬
+     * 鎬у埆; 0:鐢 1:濂 2:鍏朵粬
      */
     @TableField(value = "sys_user_sex")
-    @ApiModelProperty(value = "鎬у埆; 0:鐢? 1:濂? 2:鍏朵粬")
-    @Schema(description = "鎬у埆; 0:鐢? 1:濂? 2:鍏朵粬")
+    @ApiModelProperty(value = "鎬у埆; 0:鐢 1:濂 2:鍏朵粬")
+    @Schema(description = "鎬у埆; 0:鐢 1:濂 2:鍏朵粬")
     private Integer sysUserSex;
 
     /**
@@ -162,19 +162,19 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserLongCount;
 
     /**
-     * 鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?
+     * 鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙
      */
     @TableField(value = "sys_user_in_system")
-    @ApiModelProperty(value = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?)
-    @Schema(description = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?)
+    @ApiModelProperty(value = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙")
+    @Schema(description = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙")
     private Integer sysUserInSystem;
 
     /**
      * 韬唤璇?
      */
     @TableField(value = "sys_user_card")
-    @ApiModelProperty(value = "韬唤璇?)
-    @Schema(description = "韬唤璇?)
+    @ApiModelProperty(value = "韬唤璇")
+    @Schema(description = "韬唤璇")
     @Size(max = 255, message = "韬唤璇佹渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserCard;
 
@@ -188,11 +188,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRemark;
 
     /**
-     * 鏈€鍚庝竴娆＄櫥褰曞湴鐐?
+     * 鏈€鍚庝竴娆＄櫥褰曞湴鐐"
      */
     @TableField(value = "sys_user_last_address")
-    @ApiModelProperty(value = "鏈€鍚庝竴娆＄櫥褰曞湴鐐?)
-    @Schema(description = "鏈€鍚庝竴娆＄櫥褰曞湴鐐?)
+    @ApiModelProperty(value = "鏈€鍚庝竴娆＄櫥褰曞湴鐐")
+    @Schema(description = "鏈€鍚庝竴娆＄櫥褰曞湴鐐")
     @Size(max = 255, message = "鏈€鍚庝竴娆＄櫥褰曞湴鐐规渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserLastAddress;
 

@@ -22,7 +22,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
     void removeByTenantId(@Param("sysTenantId") Integer sysTenantId, @Param("menuIds") Set<Integer> menuIds);
 
     /**
-     * 鍒犻櫎鎵€鏈?
+     * 鍒犻櫎鎵€鏈"
      *
      * @param sysTenantId 绉熸埛
      */

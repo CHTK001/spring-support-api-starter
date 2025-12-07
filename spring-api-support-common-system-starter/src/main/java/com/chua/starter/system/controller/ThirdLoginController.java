@@ -48,7 +48,7 @@ public class ThirdLoginController {
      * @param bindingResult 鍙傛暟澶勭悊
      * @return 缁撴灉
      */
-    @Operation(summary = "涓夋柟鐧诲綍鐮?)
+    @Operation(summary = "涓夋柟鐧诲綍鐮")
     @PostMapping("/third/login/code")
     @TokenForIgnore
     public ReturnResult<String> thirdLoginCode(@Valid @RequestBody ThirdLoginData loginData,
@@ -70,7 +70,7 @@ public class ThirdLoginController {
      * @param bindingResult 鍙傛暟澶勭悊
      * @return 缁撴灉
      */
-    @Operation(summary = "涓夋柟缁戝畾鐮?)
+    @Operation(summary = "涓夋柟缁戝畾鐮")
     @PostMapping("/third/bind/code")
     public ReturnResult<String> thirdBindCode(@Valid @RequestBody ThirdLoginData loginData,
                                               HttpServletRequest request,

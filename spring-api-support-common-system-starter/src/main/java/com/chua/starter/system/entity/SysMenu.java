@@ -48,16 +48,16 @@ public class SysMenu extends SysBase implements Serializable {
      * 鏄惁棣栭〉
      */
     @TableField(value = "sys_menu_home")
-    @ApiModelProperty(value = "鏄惁棣栭〉; 0:鍚?)
-    @Schema(description = "鏄惁棣栭〉; 0:鍚?)
+    @ApiModelProperty(value = "鏄惁棣栭〉; 0:鍚")
+    @Schema(description = "鏄惁棣栭〉; 0:鍚")
     private Integer sysMenuHome;
 
     /**
      * 鑿滃崟寮曟搸
      */
     @TableField(value = "sys_menu_engine")
-    @ApiModelProperty(value = "鏄惁engine甯冨眬涓婚〉; 0:鍚?)
-    @Schema(description = "鏄惁engine甯冨眬涓婚〉; 0:鍚?)
+    @ApiModelProperty(value = "鏄惁engine甯冨眬涓婚〉; 0:鍚")
+    @Schema(description = "鏄惁engine甯冨眬涓婚〉; 0:鍚")
     private Integer sysMenuEngine;
 
     /**
@@ -78,7 +78,7 @@ public class SysMenu extends SysBase implements Serializable {
     /**
      * 鑿滃崟婵€娲昏矾寰?
      */
-    @Schema(description = "鑿滃崟婵€娲昏矾寰?)
+    @Schema(description = "鑿滃崟婵€娲昏矾寰")
     @TableField(value = "sys_menu_active_path")
     private String sysMenuActivePath;
 
@@ -101,8 +101,8 @@ public class SysMenu extends SysBase implements Serializable {
      * 鍥介檯鍖?
      */
     @TableField(value = "sys_menu_i18n")
-    @ApiModelProperty(value = "鍥介檯鍖?)
-    @Schema(description = "鍥介檯鍖?)
+    @ApiModelProperty(value = "鍥介檯鍖")
+    @Schema(description = "鍥介檯鍖")
     @Size(max = 255, message = "鍥介檯鍖栨渶澶ч暱搴﹁灏忎簬 255")
     private String sysMenuI18n;
 
@@ -110,8 +110,8 @@ public class SysMenu extends SysBase implements Serializable {
      * 鐖惰彍鍗?
      */
     @TableField(value = "sys_menu_pid")
-    @ApiModelProperty(value = "鐖惰彍鍗?)
-    @Schema(description = "鐖惰彍鍗?)
+    @ApiModelProperty(value = "鐖惰彍鍗")
+    @Schema(description = "鐖惰彍鍗")
     private Integer sysMenuPid;
 
     /**
@@ -162,24 +162,24 @@ public class SysMenu extends SysBase implements Serializable {
      * 浼樺厛绾?
      */
     @TableField(value = "sys_menu_sort")
-    @ApiModelProperty(value = "浼樺厛绾?)
-    @Schema(description = "浼樺厛绾?)
+    @ApiModelProperty(value = "浼樺厛绾")
+    @Schema(description = "浼樺厛绾")
     private Integer sysMenuSort;
 
     /**
      * 鎵€灞炴潈闄?
      */
     @TableField(value = "sys_menu_role")
-    @ApiModelProperty(value = "鎵€灞炴潈闄?)
-    @Schema(description = "鎵€灞炴潈闄?)
+    @ApiModelProperty(value = "鎵€灞炴潈闄")
+    @Schema(description = "鎵€灞炴潈闄")
     private String sysMenuRole;
 
     /**
      * 璺敱閲嶅畾鍚?
      */
     @TableField(value = "sys_menu_redirect")
-    @ApiModelProperty(value = "璺敱閲嶅畾鍚?)
-    @Schema(description = "璺敱閲嶅畾鍚?)
+    @ApiModelProperty(value = "璺敱閲嶅畾鍚")
+    @Schema(description = "璺敱閲嶅畾鍚")
     private String sysMenuRedirect;
 
     /**
@@ -202,24 +202,24 @@ public class SysMenu extends SysBase implements Serializable {
      * 鏄惁缂撳瓨; 0:鍚?
      */
     @TableField(value = "sys_menu_keep_alive")
-    @ApiModelProperty(value = "鏄惁缂撳瓨; 0:鍚?)
-    @Schema(description = "鏄惁缂撳瓨; 0:鍚?)
+    @ApiModelProperty(value = "鏄惁缂撳瓨; 0:鍚")
+    @Schema(description = "鏄惁缂撳瓨; 0:鍚")
     private Integer sysMenuKeepAlive;
 
     /**
      * 鏄惁鍦ㄦ爣绛炬爮闅愯棌; 0:鍚?
      */
     @TableField(value = "sys_menu_hidden_tag")
-    @ApiModelProperty(value = "鏄惁鍦ㄦ爣绛炬爮闅愯棌; 0:鍚?)
-    @Schema(description = "鏄惁鍦ㄦ爣绛炬爮闅愯棌; 0:鍚?)
+    @ApiModelProperty(value = "鏄惁鍦ㄦ爣绛炬爮闅愯棌; 0:鍚")
+    @Schema(description = "鏄惁鍦ㄦ爣绛炬爮闅愯棌; 0:鍚")
     private Integer sysMenuHiddenTag;
 
     /**
      * 鏄惁鍥哄畾鏍囩; 0:鍚?
      */
     @TableField(value = "sys_menu_fixed_tag")
-    @ApiModelProperty(value = "鏄惁鍥哄畾鏍囩; 0:鍚?)
-    @Schema(description = "鏄惁鍥哄畾鏍囩; 0:鍚?)
+    @ApiModelProperty(value = "鏄惁鍥哄畾鏍囩; 0:鍚")
+    @Schema(description = "鏄惁鍥哄畾鏍囩; 0:鍚")
     private Integer sysMenuFixedTag;
 
     /**
@@ -231,10 +231,10 @@ public class SysMenu extends SysBase implements Serializable {
     private Integer sysMenuHidden;
 
     /**
-     * 褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗? 0:鏄剧ず
+     * 褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗; 0:鏄剧ず
      */
     @TableField(value = "sys_menu_show_parent")
-    @ApiModelProperty(value = "褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗? 0:鏄剧ず")
-    @Schema(description = "褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗? 0:鏄剧ず")
+    @ApiModelProperty(value = "褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗; 0:鏄剧ず")
+    @Schema(description = "褰撲竴涓瓙绾ц彍鍗曟槸鍚﹂殣钘忕埗绾ц彍鍗; 0:鏄剧ず")
     private Integer sysMenuShowParent;
 }

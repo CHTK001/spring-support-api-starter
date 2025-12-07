@@ -41,9 +41,9 @@ public class SysUserLogQuery extends DateQuery {
     private String sysLogIp;
 
     /**
-     * 璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛
+     * 璇锋眰鐘舵€; 0: 澶辫触; 1: 鎴愬姛
      */
-    @Schema(description = "璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛")
+    @Schema(description = "璇锋眰鐘舵€; 0: 澶辫触; 1: 鎴愬姛")
     private Integer sysLogStatus;
 
 }
