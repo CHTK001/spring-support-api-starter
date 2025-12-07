@@ -11,7 +11,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.redis.support.constant.RedisConstant;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.entity.system.SysUser;
@@ -86,7 +85,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> verify(String code, @NotNull String username) {
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, username);
         if (null == key) {
-            return Result.failed("请先绑定fa验证码");
+            return ReturnResult.failure("请先绑定fa验证码");
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);

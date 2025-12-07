@@ -1,9 +1,9 @@
 package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.service.query.SysCityQuery;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.entity.service.SysCity;
+import com.chua.starter.service.query.SysCityQuery;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface SysCityService extends IService<SysCity> {
      * @param query 查询条件对象，包含需要查询的城市的相关条件
      * @return 返回一个Result对象，其中包含查询结果的城市列表如果查询没有结果，列表将为空
      */
-    Result<List<SysCity>> queryCity(SysCityQuery query);
+    ReturnResult<List<SysCity>> queryCity(SysCityQuery query);
 
     /**
      * 获取下级以及子集行政区划
@@ -34,5 +34,5 @@ public interface SysCityService extends IService<SysCity> {
      * @param query 查询条件对象，包含需要查询的城市的相关条件
      * @return 返回一个Result对象，其中包含查询结果的城市列表如果查询没有结果，列表将为空
      */
-    Result<List<SysCity>> childrenAll(SysCityQuery query);
+    ReturnResult<List<SysCity>> childrenAll(SysCityQuery query);
 }

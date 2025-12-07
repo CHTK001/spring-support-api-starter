@@ -6,7 +6,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -82,7 +81,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
         if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
             }
             return null;
         }
@@ -92,13 +91,13 @@ public class SysLoginServiceImpl implements SysLoginService {
             ValueOperations valueOperations = redisTemplate.opsForValue();
             Object object = valueOperations.get(verifyCodeUlid);
             if (null == object || !code.equalsIgnoreCase(object.toString())) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
             }
 
             redisTemplate.delete(verifyCodeUlid);
             return null;
         }
-        return Result.failed(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
+        return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
     }
 
     @Override
@@ -118,7 +117,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("登录已过期");
+            return ReturnResult.failure("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -127,7 +126,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .accessToken(upgrade.getToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
-        return Result.success(loginResult);
+        return ReturnResult.success(loginResult);
     }
 
     @Override

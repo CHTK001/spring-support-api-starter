@@ -6,9 +6,8 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
+import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -105,7 +104,7 @@ public class SysSettingController {
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSettingId) {
         if (null == sysSettingId) {
-            return Result.illegal("设置信息不存在");
+            return ReturnResult.illegal("设置信息不存在");
         }
 
         return sysSettingService.delete(sysSettingId);
@@ -125,7 +124,7 @@ public class SysSettingController {
             @Validated(UpdateGroup.class) @RequestBody List<SysSetting> sysSetting,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.updateBatch(roles, sysSetting);
@@ -145,7 +144,7 @@ public class SysSettingController {
             @Validated(UpdateGroup.class) @RequestBody SysSetting sysSetting,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.update(roles, sysSetting);
@@ -162,7 +161,7 @@ public class SysSettingController {
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingService.saveForEntity(sysSetting, roles);

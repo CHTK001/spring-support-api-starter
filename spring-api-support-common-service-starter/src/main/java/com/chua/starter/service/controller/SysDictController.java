@@ -5,13 +5,12 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
+import com.chua.starter.entity.service.SysDict;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.SysDictService;
-import com.chua.starter.entity.service.SysDict;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,7 +60,7 @@ public class SysDictController {
     @Permission(value = "sys:dict:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictId) {
         if (null == sysDictId) {
-            return Result.illegal("字典信息不存在");
+            return ReturnResult.illegal("字典信息不存在");
         }
 
         return sysDictService.delete(sysDictId);
@@ -81,7 +80,7 @@ public class SysDictController {
             @Validated(UpdateGroup.class) @RequestBody SysDict sysDict,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictService.update(roles, sysDict);
@@ -100,7 +99,7 @@ public class SysDictController {
                 @Validated(AddGroup.class) @RequestBody SysDict sysDict,
                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictService.save(sysDict, roles);

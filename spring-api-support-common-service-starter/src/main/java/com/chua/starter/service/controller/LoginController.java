@@ -6,7 +6,6 @@ import com.chua.common.support.task.debounce.Debounce;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLogger;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -74,7 +73,7 @@ public class LoginController {
                                            @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.failure(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.login(loginData, request, response, fingerprint);
@@ -89,7 +88,7 @@ public class LoginController {
                                             HttpServletResponse response,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.failure(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);
@@ -101,20 +100,20 @@ public class LoginController {
     @SysLog
     public ReturnResult logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
-            return Result.success("注销成功");
+            return ReturnResult.ok("注销成功");
         }
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
         if (null == accessToken) {
-            return Result.failed("退出失败请稍后重试");
+            return ReturnResult.failure("退出失败请稍后重试");
         }
 
         if (accessToken.getCode() != 200) {
-            return Result.failed(accessToken.getMessage());
+            return ReturnResult.failure(accessToken.getMessage());
         }
 
         CookieUtil.remove(request, response, "x-oauth-cookie");
-        return Result.success("注销成功");
+        return ReturnResult.success("注销成功");
     }
 
     /**
@@ -124,8 +123,8 @@ public class LoginController {
      */
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
-    public Result<UserInfoVO> getUserLoginInfo() {
-        return Result.success(sysLoginService.getUserLoginInfo());
+    public ReturnResult<UserInfoVO> getUserLoginInfo() {
+        return ReturnResult.success(sysLoginService.getUserLoginInfo());
     }
 
 
