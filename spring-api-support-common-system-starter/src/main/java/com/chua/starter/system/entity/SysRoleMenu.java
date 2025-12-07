@@ -13,23 +13,21 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
+ * 角色 - 菜单关系表
  *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
-
-/**
- * 角色 - 菜单关系�?
- */
-@ApiModel(description = "角色 - 菜单关系�?)
-@Schema(description = "角色 - 菜单关系�?)
+@ApiModel(description = "角色 - 菜单关系表")
+@Schema(description = "角色 - 菜单关系表")
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "主键ID")
+    @Schema(description = "主键ID")
     @NotNull(message = "不能为null")
     private Integer sysRoleMenuId;
 

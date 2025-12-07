@@ -19,24 +19,22 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
+ * 角色表
  *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
-
-/**
- * 角色�?
- */
-@ApiModel(description = "角色�?)
-@Schema(description = "角色�?)
+@ApiModel(description = "角色表")
+@Schema(description = "角色表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_role")
 public class SysRole extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "sys_role_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
+    @ApiModelProperty(value = "角色ID")
+    @Schema(description = "角色ID")
     @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class})
     private Integer sysRoleId;
 
@@ -63,23 +61,24 @@ public class SysRole extends SysBase implements Serializable {
      * 是否启用
      */
     @TableField(value = "sys_role_status")
-    @ApiModelProperty(value = "是否启用; 0：不启用")
-    @Schema(description = "是否启用; 0：不启用")
+    @ApiModelProperty(value = "是否启用; 0:不启用")
+    @Schema(description = "是否启用; 0:不启用")
     private Integer sysRoleStatus;
+
     /**
-     * 优先�?
+     * 优先级
      */
     @TableField(value = "sys_role_sort")
-    @ApiModelProperty(value = "优先�?)
-    @Schema(description = "优先�?)
+    @ApiModelProperty(value = "优先级")
+    @Schema(description = "优先级")
     private Integer sysRoleSort;
 
     /**
-     * 是否系统角色; 0：非系统角色
+     * 是否系统角色; 0:非系统角色
      */
     @TableField(value = "sys_role_in_system")
-    @ApiModelProperty(value = "是否系统角色; 0：非系统角色")
-    @Schema(description = "是否系统角色; 0：非系统角色")
+    @ApiModelProperty(value = "是否系统角色; 0:非系统角色")
+    @Schema(description = "是否系统角色; 0:非系统角色")
     private Integer sysRoleInSystem;
 
     /**
@@ -98,6 +97,7 @@ public class SysRole extends SysBase implements Serializable {
     @ApiModelProperty(value = "角色是否可读")
     @Schema(description = "角色是否可读")
     private Integer sysRoleReadable = 0x0000_0001;
+
     /**
      * 角色是否可写
      */
@@ -105,19 +105,21 @@ public class SysRole extends SysBase implements Serializable {
     @ApiModelProperty(value = "角色是否可写")
     @Schema(description = "角色是否可写")
     private Integer sysRoleWriteable;
+
     /**
-     * 角色是否可执�?
+     * 角色是否可执行
      */
     @TableField(value = "sys_role_executable")
-    @ApiModelProperty(value = "角色是否可执�?)
-    @Schema(description = "角色是否可执�?)
+    @ApiModelProperty(value = "角色是否可执行")
+    @Schema(description = "角色是否可执行")
     private Integer sysRoleExecutable;
+
     /**
-     * 角色可看板类�?
+     * 角色可看板类型
      */
     @TableField(value = "sys_role_board_card")
-    @ApiModelProperty(value = "角色可看板类�?)
-    @Schema(description = "角色可看板类�?)
+    @ApiModelProperty(value = "角色可看板类型")
+    @Schema(description = "角色可看板类型")
     private Integer sysRoleBoardCard;
 
     /**
