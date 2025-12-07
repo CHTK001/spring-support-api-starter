@@ -7,35 +7,49 @@ plugin:
     # 版本控制配置
     # -----------------------------------------
     version:
-      # 开启版本控制
-      enable: false
-      # 版本号
-      name:
-      
     # -----------------------------------------
     # 平台配置
     # -----------------------------------------
     platform:
       # 开启平台标识
       enable: true
-      # 平台名称
-      name: tenant
-      
+      # 平台类型（枚举：SYSTEM/TENANT/MONITOR/SCHEDULER/OAUTH）
+      # 优先级高于 alias-name
+      name: SYSTEM
     # -----------------------------------------
-    # 编解码配置
+    # 统一返回值配置
     # -----------------------------------------
-    codec:
-      # 开启加密功能
+    # 是否启用统一返回值包装
+    #    uniform: true
+    # ===========================================
+    # SPI扩展点映射配置
+    # ===========================================
+    spi:
+      # 开启SPI虚拟映射
       enable: true
-      # 是否由其它对象注入参数
-      ext-inject: true
-      # 开启响应加密
-      response-enable: false
-      # 开启请求解密
-      request-enable: false
-      # 请求加密密钥（为空则自动生成）
-      codec-request-key:
-      # 编解码器类型（sm2/aes/rsa等）
-      codec-type: sm2
-      # 加密白名单（不需要加密的接口路径）
-      white-list: []
+      # 虚拟映射配置（别名 -> 接口全限定名）
+      mapping:
+        # 负载均衡策略
+        robin: com.chua.common.support.lang.robin.Robin
+        # 服务发现
+        serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
+        # 文件存储插件
+        fileStoragePlugin: com.chua.common.support.image.filter.ImageFilter
+        # 文件存储
+        fileStorage: com.chua.common.support.oss.FileStorage
+        # 图片处理器
+        ImageSettingProcessor: com.chua.common.support.protocol.filter.storage.image.ImageSettingProcessor
+
+    # -----------------------------------------
+    # 响应编码配置
+    # -----------------------------------------
+    encode:
+      # 开启响应编码功能
+      enable: true
+
+    # -----------------------------------------
+    # 请求解码配置
+    # -----------------------------------------
+    decode:
+      # 开启请求解码功能
+      enable: true

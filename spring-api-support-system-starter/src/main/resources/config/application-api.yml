@@ -23,15 +23,22 @@ plugin:
 #    uniform: true
 
     # -----------------------------------------
+    # SPI配置
+    # -----------------------------------------
+    spi:
+      mapping:
+        balance: com.chua.common.support.lang.robin.Robin
+        serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
+    # -----------------------------------------
     # 响应编码配置
     # -----------------------------------------
     encode:
       # 开启响应编码功能
-      enable: false
+      enable: true
 
     # -----------------------------------------
     # 请求解码配置
     # -----------------------------------------
     decode:
       # 开启请求解码功能
-      enable: false
+      enable: true
