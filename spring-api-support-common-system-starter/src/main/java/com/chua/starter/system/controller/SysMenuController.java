@@ -89,7 +89,7 @@ public class SysMenuController {
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {
-            return Result.illegal("菜单信息不存在");
+            return ReturnResult.illegal("菜单信息不存在");
         }
 
         return sysMenuService.delete(sysMenuId);
@@ -110,7 +110,7 @@ public class SysMenuController {
             @Validated(UpdateGroup.class) @RequestBody SysMenu sysMenu,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysMenuService.update(roles, sysMenu);
@@ -130,7 +130,7 @@ public class SysMenuController {
             @Validated(AddGroup.class) @RequestBody SysMenu sysMenu,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysMenuService.save(sysMenu, roles);

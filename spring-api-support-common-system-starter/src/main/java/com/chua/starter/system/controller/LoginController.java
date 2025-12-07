@@ -65,13 +65,13 @@ public class LoginController {
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @Debounce(key = "#loginData.username #loginData.loginType")
-    public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
+    public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
                                      HttpServletResponse response,
                                      @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                      BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.login(loginData, request, response, fingerprint);
@@ -81,12 +81,12 @@ public class LoginController {
     @PostMapping("/refresh-token")
     @SysLog
     @TokenForIgnore
-    public Result<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
+    public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                             HttpServletRequest request,
                                             HttpServletResponse response,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);
@@ -96,22 +96,22 @@ public class LoginController {
     @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
-    public Result logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
+    public ReturnResult<String> logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
-            return Result.success("注销成功");
+            return ReturnResult.ok("注销成功");
         }
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
         if (null == accessToken) {
-            return Result.failed("退出失败请稍后重试");
+            return ReturnResult.error("退出失败请稍后重试");
         }
 
         if (accessToken.getCode() != 200) {
-            return Result.failed(accessToken.getMessage());
+            return ReturnResult.error(accessToken.getMessage());
         }
 
         CookieUtil.remove(request, response, "x-oauth-cookie");
-        return Result.success("注销成功");
+        return ReturnResult.ok("注销成功");
     }
 
     /**
@@ -121,7 +121,7 @@ public class LoginController {
      */
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
-    public Result<UserInfoVO> getUserLoginInfo() {
-        return Result.success(sysLoginService.getUserLoginInfo());
+    public ReturnResult<UserInfoVO> getUserLoginInfo() {
+        return ReturnResult.ok(sysLoginService.getUserLoginInfo());
     }
 }
