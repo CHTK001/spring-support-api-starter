@@ -51,7 +51,7 @@ public class SysUserController {
     /**
      * 用户分页列表
      *
-     * @param sysUserQuery 鏉′欢
+     * @param sysUserQuery 条件
      * @return 用户分页列表
      */
     @Operation(summary = "用户分页列表")
@@ -116,30 +116,30 @@ public class SysUserController {
     }
 
     /**
-     * 重置鑷韩瀵嗙⒓
+     * 重置自身密码
      *
-     * @param userId 鐢ㄦ埗ID
-     * @return 重置用户瀵嗙⒓
+     * @param userId 用户ID
+     * @return 重置用户密码
      */
-    @Operation(summary = "重置当前账号瀵嗙⒓")
+    @Operation(summary = "重置当前账号密码")
     @GetMapping("/resetOwner")
     @SysLog
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
-            return Result.illegal("璇烽噸鏂扮櫥褰曟垨鑰呰仈绯荤鐞嗗憳");
+            return Result.illegal("请重新登录或者联系管理员");
         }
 
         return sysUserService.resetOwner(userId);
     }
 
     /**
-     * 重置用户瀵嗙⒓
+     * 重置用户密码
      *
-     * @param userId 鐢ㄦ埗ID
-     * @return 重置用户瀵嗙⒓
+     * @param userId 用户ID
+     * @return 重置用户密码
      */
-    @Operation(summary = "重置用户瀵嗙⒓")
+    @Operation(summary = "重置用户密码")
     @GetMapping("/reset")
     @SysLog
     @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
@@ -157,7 +157,7 @@ public class SysUserController {
      *
      * @return 更新用户
      */
-    @Operation(summary = "更新用户鑷韩密码")
+    @Operation(summary = "更新用户自身密码")
     @PutMapping("/updateOwner")
     @SysLog
     public ReturnResult<SysUser> updateOwner(
@@ -192,11 +192,11 @@ public class SysUserController {
     }
 
     /**
-     * 鏂板用户
+     * 新增用户
      *
-     * @return 鏂板用户
+     * @return 新增用户
      */
-    @Operation(summary = "鏂板用户")
+    @Operation(summary = "新增用户")
     @PostMapping("/save")
     @SysLog
     @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})

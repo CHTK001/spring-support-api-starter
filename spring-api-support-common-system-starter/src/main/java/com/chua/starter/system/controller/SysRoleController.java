@@ -48,7 +48,7 @@ public class SysRoleController {
     /**
      * 角色分页列表
      *
-     * @param sysRole 鏉′欢
+     * @param sysRole 条件
      * @return 角色分页列表
      */
     @Operation(summary = "角色分页列表")
@@ -90,11 +90,11 @@ public class SysRoleController {
 
 
     /**
-     * 缁欒鑹叉坊鍔犺彍鍗"
+     * 给角色添加菜单
      *
      * @return 更新角色
      */
-    @Operation(summary = "缁欒鑹叉坊鍔犺彍鍗")
+    @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
     @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
@@ -142,11 +142,11 @@ public class SysRoleController {
     }
 
     /**
-     * 鏂板角色
+     * 新增角色
      *
-     * @return 鏂板角色
+     * @return 新增角色
      */
-    @Operation(summary = "鏂板角色")
+    @Operation(summary = "新增角色")
     @PostMapping("/save")
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})

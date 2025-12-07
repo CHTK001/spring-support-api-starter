@@ -41,7 +41,7 @@ public class SysUserLogController {
     /**
      * 操作日志分页列表
      *
-     * @param sysUserLogQuery 鏉′欢
+     * @param sysUserLogQuery 条件
      * @return 操作日志分页列表
      */
     @Operation(summary = "操作日志分页列表")
@@ -56,7 +56,7 @@ public class SysUserLogController {
     /**
      * 操作日志分页列表
      *
-     * @param sysUserLogQuery 鏉′欢
+     * @param sysUserLogQuery 条件
      * @return 操作日志分页列表
      */
     @Operation(summary = "操作日志分页列表")

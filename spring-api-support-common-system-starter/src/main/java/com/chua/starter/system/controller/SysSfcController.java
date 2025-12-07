@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 杩滅▼缁勪欢
+ * 远程组件接口
  *
  * @author CH
  * @since 2024/10/24
  */
-@Tag(name = "杩滅▼缁勪欢")
+@Tag(name = "远程组件接口")
 @RestController
 @RequestMapping("/v2/sfc")
 @RequiredArgsConstructor
@@ -42,10 +42,10 @@ public class SysSfcController {
     /**
      * 角色分页列表
      *
-     * @param sysSfc 鏉′欢
-     * @return 角色分页列表
+     * @param sysSfc 条件
+     * @return 组件分页列表
      */
-    @Operation(summary = "缁勪欢分页列表")
+    @Operation(summary = "组件分页列表")
     @GetMapping("/page")
     public ReturnPageResult<SysSfc> pageForRole(@ParameterObject Query<SysSfc> query, @ParameterObject SysSfc sysSfc,
                                                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -61,7 +61,7 @@ public class SysSfcController {
      *
      * @return 组件列表
      */
-    @Operation(summary = "获取缁勪欢")
+    @Operation(summary = "获取组件")
     @GetMapping("/get")
     public ReturnResult<String> getSfc(Long sysSfcId,
                                        @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -71,26 +71,26 @@ public class SysSfcController {
 
 
     /**
-     * 鎴戠殑缁勪欢
+     * 我的组件
      *
-     * @return 鎴戠殑缁勪欢
+     * @return 我的组件
      */
-    @Operation(summary = "鎴戠殑缁勪欢")
+    @Operation(summary = "我的组件")
     @GetMapping("/mine")
 
     public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, @Parameter(hidden = true) @UserValue("userId") String userId) {
         if(StringUtils.isBlank(sysSfcCategory)) {
-            return ReturnResult.fail("鍒嗙被不能为空");
+            return ReturnResult.fail("分类不能为空");
         }
         return sysSfcService.mine(sysSfcCategory, userId);
     }
     /**
-     * 添加缁勪欢
+     * 添加组件
      *
      * @param sysSfc 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "添加缁勪欢")
+    @Operation(summary = "添加组件")
     @PostMapping("/save")
     public ReturnResult<SysSfc> save(@RequestBody @Validated(AddGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if (bindingResult.hasErrors()) {
@@ -100,12 +100,12 @@ public class SysSfcController {
     }
 
     /**
-     * 更新缁勪欢
+     * 更新组件
      *
      * @param sysSfc 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "更新缁勪欢")
+    @Operation(summary = "更新组件")
     @PutMapping("/update")
     public ReturnResult<Boolean> update(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc,
                                         BindingResult bindingResult,
@@ -117,12 +117,12 @@ public class SysSfcController {
     }
 
     /**
-     * 删除缁勪欢
+     * 删除组件
      *
      * @param sysSfcId 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "删除缁勪欢")
+    @Operation(summary = "删除组件")
     @DeleteMapping("/delete")
     public ReturnResult<Boolean> delete(Long sysSfcId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysSfcService.delete(sysSfcId, roles);
@@ -130,12 +130,12 @@ public class SysSfcController {
 
 
     /**
-     * 上传缁勪欢
+     * 上传组件
      *
      * @param file 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "上传缁勪欢")
+    @Operation(summary = "上传组件")
     @PostMapping("/upload")
     public ReturnResult<Boolean> uploadSfc(@RequestParam(value = "file") MultipartFile file, @Validated(UploadGroup.class) SysSfc sysSfc, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -146,12 +146,12 @@ public class SysSfcController {
 
 
     /**
-     * 瀹夎缁勪欢
+     * 安装组件
      *
      * @param sysSfc 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "瀹夎缁勪欢")
+    @Operation(summary = "安装组件")
     @PutMapping("/install")
     public ReturnResult<Boolean> install(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("userId") Integer userId) {
         if (bindingResult.hasErrors()) {
@@ -160,12 +160,12 @@ public class SysSfcController {
         return sysSfcService.install(sysSfc, userId);
     }
     /**
-     * 鍗歌浇缁勪欢
+     * 卸载组件
      *
      * @param sysSfc 数据
-     * @return 鏄惁成功
+     * @return 是否成功
      */
-    @Operation(summary = "鍗歌浇缁勪欢")
+    @Operation(summary = "卸载组件")
     @PutMapping("/uninstall")
     public ReturnResult<Boolean> uninstall(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("userId") Integer userId) {
         if (bindingResult.hasErrors()) {
