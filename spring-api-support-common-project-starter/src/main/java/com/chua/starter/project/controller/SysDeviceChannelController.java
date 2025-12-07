@@ -2,7 +2,7 @@ package com.chua.starter.project.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.service.SysDeviceChannelService;
-import com.chua.starter.system.pojo.device.SysDeviceChannelV1Request;
+import com.chua.starter.project.pojo.device.SysDeviceChannelV1Request;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

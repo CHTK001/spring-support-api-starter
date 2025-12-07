@@ -71,7 +71,7 @@ public class SysSmsServiceImpl implements SysSmsService {
             sysSmsLog.setSysSmsLogContent(smsTemplate.getSysSmsTemplateContent());
             sysSmsLog.setSysSmsCode(item.getCode().name());
             sysSmsLog.setSysSmsMessage(item.getMessage());
-            sysSmsLog.setSysSmsLogParam(Json.toPrettyFormat(request.getParams()));
+            sysSmsLog.setSysSmsLogParam(Json.toPrettyJson(request.getParams()));
             sysSmsLog.setSysSmsLogTarget(item.getTarget());
             sysSmsLog.setSysSmsCost(BigDecimal.valueOf(item.getCost()));
             sysSmsLog.setSysSmsLogTemplateId(request.getSysSmsTemplateId());
@@ -155,7 +155,7 @@ public class SysSmsServiceImpl implements SysSmsService {
         if(null == request.getSysProjectId()) {
             return new Page<>();
         }
-        return sysSmsTemplateMapper.pageFor(request.createPage(), request);
+        return sysSmsTemplateMapper.pageFor(new Page<>(request.getPage(), request.getPageSize()), request);
     }
 
     @Override

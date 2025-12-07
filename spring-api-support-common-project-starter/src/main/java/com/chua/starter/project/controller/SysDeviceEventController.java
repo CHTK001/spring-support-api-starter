@@ -2,7 +2,7 @@ package com.chua.starter.project.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.service.SysDeviceMessageEventService;
-import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

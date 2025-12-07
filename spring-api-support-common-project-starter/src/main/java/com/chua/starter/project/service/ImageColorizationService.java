@@ -1,10 +1,10 @@
 package com.chua.starter.project.service;
 
-import com.chua.common.support.bigmodel.colorization.ImageColorizationAddTaskV1Response;
-import com.chua.common.support.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationAddTaskV1Response;
+import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.pojo.vincent.ImageColorizationAddTaskV2Request;
-import com.chua.starter.system.pojo.vincent.ImageColorizationSearchTaskV2Request;
+import com.chua.starter.project.pojo.vincent.ImageColorizationAddTaskV2Request;
+import com.chua.starter.project.pojo.vincent.ImageColorizationSearchTaskV2Request;
 
 /**
  * 图像上色服务接口

@@ -109,7 +109,7 @@ public class SysEmailServiceImpl implements SysEmailService {
         if(null == request.getSysProjectId()) {
             return new Page<>();
         }
-        return sysEmailTemplateMapper.pageFor(request.createPage(), request);
+        return sysEmailTemplateMapper.pageFor(new Page<>(request.getPage(), request.getPageSize()), request);
     }
 
     @Override
