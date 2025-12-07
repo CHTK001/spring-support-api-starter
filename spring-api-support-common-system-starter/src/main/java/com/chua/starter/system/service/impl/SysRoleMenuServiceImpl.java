@@ -1,7 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.starter.system.entity.SysRoleMenu;
+import com.chua.starter.service.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysRoleMenuMapper;
 import com.chua.starter.system.service.SysRoleMenuService;
 import org.springframework.stereotype.Service;

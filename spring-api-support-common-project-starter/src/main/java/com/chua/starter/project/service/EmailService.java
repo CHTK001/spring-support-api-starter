@@ -5,7 +5,7 @@ import com.chua.common.support.lang.mail.Email;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.project.entity.SysEmailTemplate;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.email.EmailRequest;
+import com.chua.starter.project.pojo.email.EmailRequest;
 
 import java.util.List;
 

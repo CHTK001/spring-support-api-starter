@@ -5,9 +5,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.project.entity.SysEmailLog;
 import com.chua.starter.project.entity.SysEmailTemplate;
-import com.chua.starter.system.pojo.email.EmailPageV1Request;
-import com.chua.starter.system.pojo.email.EmailRequest;
-import com.chua.starter.system.pojo.email.EmailSyncV1Request;
+import com.chua.starter.project.pojo.email.EmailPageV1Request;
+import com.chua.starter.project.pojo.email.EmailRequest;
+import com.chua.starter.project.pojo.email.EmailSyncV1Request;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

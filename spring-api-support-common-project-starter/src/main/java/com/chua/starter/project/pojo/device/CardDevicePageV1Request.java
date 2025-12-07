@@ -8,8 +8,6 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 卡片设备分页查询请求
- *
  * @author CH
  */
 @EqualsAndHashCode(callSuper = true)

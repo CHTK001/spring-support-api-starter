@@ -14,7 +14,7 @@ import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.mapper.SysUserMapper;
-import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.service.entity.SysUser;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

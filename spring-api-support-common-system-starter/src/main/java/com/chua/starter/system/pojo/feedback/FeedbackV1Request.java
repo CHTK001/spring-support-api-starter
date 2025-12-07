@@ -1,7 +1,7 @@
 package com.chua.starter.system.pojo.feedback;
 
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysFeedback;
+import com.chua.starter.service.entity.SysFeedback;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

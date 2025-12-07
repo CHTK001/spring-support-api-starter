@@ -1,7 +1,7 @@
 package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysUserThirdParty;
+import com.chua.starter.service.entity.SysUserThirdParty;
     /**
  *用户三方绑定表
  * @since 2024/9/6

@@ -1,4 +1,4 @@
-package com.chua.starter.system.result;
+package com.chua.starter.service.result;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
