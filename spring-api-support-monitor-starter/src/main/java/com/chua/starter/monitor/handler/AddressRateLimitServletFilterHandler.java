@@ -2,6 +2,7 @@ package com.chua.starter.monitor.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.AddressRateLimitServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
@@ -31,10 +32,11 @@ public class AddressRateLimitServletFilterHandler implements ServletFilterHandle
     /**
      * 注册地址限流
      *
-     * @param setting 设置
+     * @param setting       设置
+     * @param objectContext
      */
     @Override
-    public ServletFilter handle(SystemServerSetting setting) {
+    public ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
         AddressRateLimitServletFilter addressRateLimitServletFilter = new AddressRateLimitServletFilter();
         update(addressRateLimitServletFilter, setting);
         return addressRateLimitServletFilter;

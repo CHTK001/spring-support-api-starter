@@ -4,6 +4,7 @@ import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.discovery.*;
 import com.chua.common.support.net.NetAddress;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.utils.StringUtils;
@@ -31,10 +32,11 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
     /**
      * 根据服务器配置创建 ServiceDiscoveryServletFilter
      *
-     * @param setting 设置
+     * @param setting       设置
+     * @param objectContext
      */
     @Override
-    public ServletFilter handle(SystemServerSetting setting) {
+    public ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
         Integer serverId = setting.getSystemServerSettingServerId();
 
         SystemServerSettingServiceDiscoveryService discoveryService =

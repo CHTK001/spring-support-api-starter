@@ -415,7 +415,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                         systemServerSettingType
                 );
                 // 包装日志代理，采集执行日志
-                ServletFilter servletFilter = servletFilterHandler.handle(decryptedSetting);
+                ServletFilter servletFilter = servletFilterHandler.handle(decryptedSetting, serverInstance.getObjectContext());
                 servletFilter.addServletListener(new ServletListener() {
 
                     @Override

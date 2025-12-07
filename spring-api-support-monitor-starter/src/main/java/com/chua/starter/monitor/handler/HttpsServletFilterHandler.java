@@ -2,6 +2,7 @@ package com.chua.starter.monitor.handler;
 
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.protocol.server.UpgradeServletFilter;
 import com.chua.common.support.spi.ServiceProvider;
@@ -32,7 +33,7 @@ import java.util.Map;
 public class HttpsServletFilterHandler implements ServletFilterHandler {
 
     @Override
-    public ServletFilter handle(SystemServerSetting setting) {
+    public ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
         ServletFilter servletFilter = ServiceProvider.of(ServletFilter.class)
                 .getNewExtension(setting.getSystemServerSettingType());
         if (servletFilter instanceof UpgradeServletFilter upgrade) {

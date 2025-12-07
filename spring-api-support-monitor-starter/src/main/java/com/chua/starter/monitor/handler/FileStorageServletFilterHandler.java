@@ -3,6 +3,7 @@ package com.chua.starter.monitor.handler;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.image.WatermarkUtils;
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.oss.FileStorage;
 import com.chua.common.support.oss.setting.BucketSetting;
 import com.chua.common.support.protocol.filter.FileStorageServletFilter;
@@ -45,11 +46,12 @@ public class FileStorageServletFilterHandler implements ServletFilterHandler {
     /**
      * 注册文件存储过滤器
      *
-     * @param setting 设置
+     * @param setting       设置
+     * @param objectContext
      * @return ServletFilter
      */
     @Override
-    public ServletFilter handle(SystemServerSetting setting) {
+    public ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext) {
         FileStorageServletFilter fileStorageServletFilter = new FileStorageServletFilter(getFileStorageSetting(setting));
         upgradeFileStorage(fileStorageServletFilter, setting);
         return fileStorageServletFilter;

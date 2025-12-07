@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.handler;
 
+import com.chua.common.support.objects.ConfigureObjectContext;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 
@@ -15,10 +16,11 @@ public interface ServletFilterHandler {
     /**
      * 创建
      *
-     * @param setting 设置
+     * @param setting       设置
+     * @param objectContext
      * @return ServletFilter
      */
-    ServletFilter handle(SystemServerSetting setting);
+    ServletFilter handle(SystemServerSetting setting, ConfigureObjectContext objectContext);
 
     /**
      * 更新
