@@ -208,7 +208,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
             // 构建登出请求
             AuthRequest authRequest = new AuthRequest();
             authRequest.setData(data);
-            authRequest.setType(type != null ? type.name() : LogoutType.SINGLE.name());
+            authRequest.setType(type.name());
             
             // 委托给标准登出流程处理
             LogoutAuthInformation authInformation = new LogoutAuthInformation(

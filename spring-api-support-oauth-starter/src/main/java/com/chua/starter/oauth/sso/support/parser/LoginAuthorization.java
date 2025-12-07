@@ -88,7 +88,7 @@ public final class LoginAuthorization implements Authorization {
         
         LoginResult returnResultData = returnResult.getData();
         log.debug("登录认证通过, 用户ID: {}, Token长度: {}", 
-                returnResultData.getUserId(), 
+                returnResultData.getUserResume().getUserId(),
                 returnResultData.getToken() != null ? returnResultData.getToken().length() : 0);
         
         CookieUtil.set(response, authServerProperties.getCookieName(), returnResultData.getToken(), true);

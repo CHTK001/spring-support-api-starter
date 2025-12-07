@@ -66,9 +66,11 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
             int port = authServerProperties.getArmeriaPort() != null ? 
                     authServerProperties.getArmeriaPort() : 9091;
             
-            ServerBuilder builder = Server.builder();
+            ServerBuilder builder = Server.builder()
+                    .maxNumConnections(1_000_000)  // 百万连接
+                    .idleTimeoutMillis(30000);
             builder.http(port);
-            
+
             // 注册 OAuth 认证接口
             registerOAuthEndpoints(builder);
             
