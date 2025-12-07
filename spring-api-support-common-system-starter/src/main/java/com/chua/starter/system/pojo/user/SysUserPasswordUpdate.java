@@ -4,28 +4,30 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 鐢ㄦ埛瀵嗙爜淇敼
+ * 用户密码修改
  *
  * @author CH
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "鐢ㄦ埛瀵嗙爜淇敼")
+@Schema(description = "用户密码修改")
 public class SysUserPasswordUpdate {
 
     /**
-     * 鏃у瘑鐮?     */
-    @Schema(description = "鏃у瘑鐮")
+     * 旧密码
+     */
+    @Schema(description = "旧密码")
     private String oldPassword;
 
     /**
-     * 鏂板瘑鐮"     */
-    @Schema(description = "鏂板瘑鐮")
+     * 新密码
+     */
+    @Schema(description = "新密码")
     private String newPassword;
 
     /**
-     * 纭瀵嗙爜
+     * 确认密码
      */
-    @Schema(description = "纭瀵嗙爜")
+    @Schema(description = "确认密码")
     private String confirmPassword;
 }
