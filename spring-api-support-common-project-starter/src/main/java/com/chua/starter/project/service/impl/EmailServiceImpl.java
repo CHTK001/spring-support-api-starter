@@ -1,9 +1,9 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.mail.Email;
-import com.chua.common.support.lang.mail.MailConfiguration;
-import com.chua.common.support.lang.mail.MailSender;
+import com.chua.advanced.support.lang.mail.Email;
+import com.chua.advanced.support.lang.mail.MailConfiguration;
+import com.chua.advanced.support.lang.mail.MailSender;
 import com.chua.common.support.lang.message.MessageCode;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.common.support.spi.ServiceProvider;

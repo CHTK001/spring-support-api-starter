@@ -46,7 +46,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-starter</artifactId>
-            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-advanced-starter</artifactId>
+            <version>${utils.version}</version>
         </dependency>
 
         <dependency>

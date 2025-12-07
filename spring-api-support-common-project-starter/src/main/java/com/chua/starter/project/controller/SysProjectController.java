@@ -12,7 +12,7 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.project.ProjectDefaultFunctionV1Request;
+import com.chua.starter.project.pojo.project.ProjectDefaultFunctionV1Request;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

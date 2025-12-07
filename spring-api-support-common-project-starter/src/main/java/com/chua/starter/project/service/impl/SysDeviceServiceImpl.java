@@ -21,9 +21,13 @@ import com.chua.starter.project.service.support.hikvision.result.DeviceResourceR
 import com.chua.starter.project.service.support.hikvision.result.HikRegionCascade;
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
 import com.chua.starter.system.entity.*;
-import com.chua.starter.system.pojo.device.*;
-import com.chua.starter.system.pojo.project.SyncV1Request;
-import com.chua.starter.system.pojo.project.TemplatePageV1Request;
+import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
+import com.chua.starter.project.pojo.project.SyncV1Request;
+import com.chua.starter.project.pojo.project.TemplatePageV1Request;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
+import com.chua.starter.system.pojo.device.DevicePageV1Request;
+import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
 import com.github.yulichang.toolkit.MPJWrappers;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
