@@ -64,21 +64,42 @@ public final class LoginAuthorization implements Authorization {
     @Override
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
-        ReturnResult<LoginResult> returnResult = loginCheck.doLogin(MapUtils.getString(this.ext, "address"),
+        String clientAddress = MapUtils.getString(this.ext, "address");
+        
+        log.debug("========== 登录认证开始 ==========");
+        log.debug("用户名: {}, 登录类型: {}, 应用名: {}", username, loginType, appName);
+        log.debug("客户端地址: {}, 扩展参数: {}", clientAddress, ext != null ? ext.keySet() : "null");
+        
+        ReturnResult<LoginResult> returnResult = loginCheck.doLogin(clientAddress,
                 username,
                 password,
                 loginType,
                 ext
         );
+        
+        long authCost = System.currentTimeMillis() - startTime;
 
         if(!returnResult.isOk()) {
-            sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, System.currentTimeMillis() - startTime));
+            log.warn("登录认证失败: 用户={}, 类型={}, 原因={}, 耗时={}ms", 
+                    username, loginType, returnResult.getMsg(), authCost);
+            sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
             return ReturnResult.illegal(returnResult.getMsg());
         }
+        
         LoginResult returnResultData = returnResult.getData();
+        log.debug("登录认证通过, 用户ID: {}, Token长度: {}", 
+                returnResultData.getUserId(), 
+                returnResultData.getToken() != null ? returnResultData.getToken().length() : 0);
+        
         CookieUtil.set(response, authServerProperties.getCookieName(), returnResultData.getToken(), true);
+        log.debug("Cookie已设置: {}", authServerProperties.getCookieName());
+        
         String json = Json.toJson(returnResultData);
-        sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, System.currentTimeMillis() - startTime));
+        sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
+        
+        log.info("登录认证成功: 用户={}, 类型={}, 耗时={}ms", username, loginType, authCost);
+        log.debug("========== 登录认证结束 ==========");
+        
         return ReturnResult.ok(authInformation.encodeHex(json));
     }
 

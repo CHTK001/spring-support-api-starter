@@ -145,13 +145,10 @@ public class AuthServerProperties {
      * 用于令牌签名和加密的主密钥
      * </p>
      * <p>
-     * 生产环境中应使用强随机密钥并妥善保管
-     * </p>
-     * <p>
-     * 默认值：D518E462DF7B36828FA68CCD69FC6140
+     * 【安全警告】生产环境必须配置此值！建议通过环境变量或配置中心注入
      * </p>
      */
-    private String serviceKey = "D518E462DF7B36828FA68CCD69FC6140";
+    private String serviceKey;
 
     /**
      * 支持的认证协议列表

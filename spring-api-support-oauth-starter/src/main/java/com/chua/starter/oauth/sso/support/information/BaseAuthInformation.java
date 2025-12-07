@@ -102,15 +102,46 @@ public abstract class BaseAuthInformation implements AuthInformation {
      * 注册数据
      */
     private void decodeData() {
-        if (!isEncode) {
-            JsonObject jsonObject = Json.getJsonObject(data);
-            this.bodyData.putAll(jsonObject);
-            return;
+        long startTime = System.currentTimeMillis();
+        log.debug("开始解析认证数据, uuid: {}, isEncode: {}, encryption: {}", uuid, isEncode, encryption);
+        
+        try {
+            if (!isEncode) {
+                log.debug("未加密模式，直接解析JSON数据");
+                JsonObject jsonObject = Json.getJsonObject(data);
+                if (jsonObject != null) {
+                    this.bodyData.putAll(jsonObject);
+                    success.set(true);
+                    log.debug("JSON数据解析成功, 字段数: {}", bodyData.size());
+                } else {
+                    log.warn("JSON数据解析失败，数据为空或格式错误");
+                }
+                return;
+            }
+            
+            log.debug("加密模式，开始解密数据");
+            log.debug("serial长度: {}, data长度: {}", 
+                    serial != null ? serial.length() : 0, 
+                    data != null ? data.length() : 0);
+            
+            String decodeKey = Codec.build(encryption, uuid).decodeHex(serial);
+            log.debug("解密后的密钥长度: {}", decodeKey != null ? decodeKey.length() : 0);
+            
+            String decryptedData = Codec.build(encryption, decodeKey).decodeHex(data);
+            log.debug("解密后的数据长度: {}", decryptedData != null ? decryptedData.length() : 0);
+            
+            JsonObject jsonObject = Json.getJsonObject(decryptedData);
+            if (jsonObject != null) {
+                this.bodyData.putAll(jsonObject);
+                success.set(true);
+                log.debug("加密数据解析成功, 字段数: {}, 耗时: {}ms", bodyData.size(), System.currentTimeMillis() - startTime);
+            } else {
+                log.warn("加密数据解析失败，解密后的JSON为空");
+            }
+        } catch (Exception e) {
+            log.error("认证数据解析异常: {}, uuid: {}, 耗时: {}ms", e.getMessage(), uuid, System.currentTimeMillis() - startTime);
+            log.debug("解析异常详情", e);
         }
-        String decodeKey = Codec.build(encryption, uuid).decodeHex(serial);
-        JsonObject jsonObject = Json.getJsonObject(Codec.build(encryption, decodeKey).decodeHex(data));
-        this.bodyData.putAll(jsonObject);
-        success.set(true);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.annotations.Extension;
+import com.chua.common.support.task.limit.RateLimiter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.common.support.utils.CookieUtil;
@@ -86,6 +87,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
     )
     @ResponseBody
     @PostMapping("/login")
+    @RateLimiter(value = 30, mode = "ip", message = "登录请求过于频繁，请30秒后重试")
     public ReturnResult<String> login(
             @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
@@ -93,6 +95,17 @@ public class HttpProtocol implements Protocol, InitializingBean {
             RedirectAttributes redirectAttributes,
             RedirectAttributes modelMap
     ) {
+        long startTime = System.currentTimeMillis();
+        String clientIp = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        
+        log.debug("========== 登录请求开始 ==========");
+        log.debug("客户端IP: {}, User-Agent: {}", clientIp, userAgent);
+        log.debug("请求头 x-oauth-uuid: {}", request.getHeader("x-oauth-uuid"));
+        log.debug("请求头 x-oauth-serial: {}", request.getHeader("x-oauth-serial"));
+        log.debug("请求头 x-oauth-encode: {}", request.getHeader("x-oauth-encode"));
+        log.debug("请求数据长度: {}", authRequest.getData() != null ? authRequest.getData().length() : 0);
+        
         LoginAuthInformation authInformation = new LoginAuthInformation(
                 authServerProperties,
                 authRequest.getData(),
@@ -100,14 +113,25 @@ public class HttpProtocol implements Protocol, InitializingBean {
                 response,
                 applicationContext,
                 loginCheck);
+        
         if(!authInformation.isSuccessful()) {
+            log.warn("登录请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.illegal(authInformation.errorMessage());
         }
+        
+        log.debug("登录请求解析成功, 开始认证...");
         LoginAuthorization authorization = authInformation.authorization();
         ReturnResult<String> authentication = authorization.authentication();
+        
         if(authentication.isFailure()) {
+            log.warn("登录认证失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authentication.getMsg(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.error(authentication.getMsg());
         }
+        
+        log.info("登录认证成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        log.debug("========== 登录请求结束 ==========");
         return authentication;
     }
 
@@ -120,8 +144,15 @@ public class HttpProtocol implements Protocol, InitializingBean {
     @PostMapping("/logout")
     @ResponseBody
     @Operation(summary = "登出")
+    @RateLimiter(value = 60, mode = "ip", message = "登出请求过于频繁，请稍后重试")
     public ReturnResult<String> logout(@RequestBody AuthRequest authRequest,
                                         HttpServletRequest request, HttpServletResponse response) {
+        long startTime = System.currentTimeMillis();
+        String clientIp = request.getRemoteAddr();
+        
+        log.debug("========== 登出请求开始 ==========");
+        log.debug("客户端IP: {}", clientIp);
+        
         LogoutAuthInformation authInformation = new LogoutAuthInformation(
                 authServerProperties,
                 authRequest.getData(),
@@ -130,40 +161,87 @@ public class HttpProtocol implements Protocol, InitializingBean {
                 applicationContext,
                 loginCheck);
         if(!authInformation.isSuccessful()) {
+            log.warn("登出请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.illegal(authInformation.errorMessage());
         }
         LogoutAuthorization authorization = authInformation.authorization();
         ReturnResult<String> authentication = authorization.authentication();
         if(authentication.isFailure()) {
+            log.warn("登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authentication.getMsg(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.error(authentication.getMsg());
         }
+        
+        log.info("登出成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        log.debug("========== 登出请求结束 ==========");
         return authentication;
     }
 
     /**
-     * 登出api
+     * 登出API（内部调用）
+     * <p>
+     * 用于处理API方式的用户登出请求，支持不同的登出类型：
+     * - SINGLE: 单点登出，仅登出当前会话
+     * - ALL: 全局登出，登出用户所有会话
+     * </p>
      *
-     * @param data     数据
-     * @param type     类型
-     * @param request  请求
-     * @param response 响应
-     * @return 结果
+     * @param data     加密的登出数据
+     * @param type     登出类型
+     * @param request  HTTP请求
+     * @param response HTTP响应
+     * @return 登出结果
      */
-    private Object logoutApi(String data, LogoutType type, HttpServletRequest request, HttpServletResponse response) {
+    private ReturnResult<String> logoutApi(String data, LogoutType type, HttpServletRequest request, HttpServletResponse response) {
+        long startTime = System.currentTimeMillis();
+        String clientIp = request.getRemoteAddr();
+        
+        log.debug("========== API登出请求开始 ==========");
+        log.debug("客户端IP: {}, 登出类型: {}", clientIp, type);
+        
         if (Strings.isNullOrEmpty(data)) {
+            log.info("API登出成功(无数据) - 客户端IP: {}", clientIp);
             return ReturnResult.ok();
         }
 
-//        JsonObject jsonObject = Json.getJsonObject(Codec.build(encryption, serviceKey).decodeHex(data));
-//        String key = jsonObject.getString(OAUTH_KEY);
-//        JsonObject request1 = Json.getJsonObject(Codec.build(encryption, DigestUtils.md5Hex(key)).decodeHex(jsonObject.getString(OAUTH_VALUE)));
-//        String uid = request1.getString("uid");
-//        request.setAttribute("uid", uid);
-//        request.setAttribute("type", type);
-//        AuthRequest authRequest = new AuthRequest();
-//        authRequest.setType(type.name());
-//        return logoutWeb(authRequest, request, response);
-        return null;
+        try {
+            // 构建登出请求
+            AuthRequest authRequest = new AuthRequest();
+            authRequest.setData(data);
+            authRequest.setType(type != null ? type.name() : LogoutType.SINGLE.name());
+            
+            // 委托给标准登出流程处理
+            LogoutAuthInformation authInformation = new LogoutAuthInformation(
+                    authServerProperties,
+                    data,
+                    request,
+                    response,
+                    applicationContext,
+                    loginCheck);
+            
+            if (!authInformation.isSuccessful()) {
+                log.warn("API登出请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                        authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
+                return ReturnResult.illegal(authInformation.errorMessage());
+            }
+            
+            LogoutAuthorization authorization = authInformation.authorization();
+            ReturnResult<String> result = authorization.authentication();
+            
+            if (result.isFailure()) {
+                log.warn("API登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                        result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+            } else {
+                log.info("API登出成功 - 客户端IP: {}, 登出类型: {}, 耗时: {}ms", 
+                        clientIp, type, System.currentTimeMillis() - startTime);
+            }
+            
+            log.debug("========== API登出请求结束 ==========");
+            return result;
+        } catch (Exception e) {
+            log.error("API登出异常 - 客户端IP: {}, 异常: {}", clientIp, e.getMessage(), e);
+            return ReturnResult.error("登出失败: " + e.getMessage());
+        }
     }
 
     /**
@@ -173,6 +251,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
      */
     @PostMapping("/oauth")
     @ResponseBody
+    @RateLimiter(value = 200, mode = "ip", message = "鉴权请求过于频繁，请稍后重试")
     @Operation(
             summary = "用户鉴权",
             description = "验证用户权限，确认用户身份和访问权限",
@@ -185,6 +264,12 @@ public class HttpProtocol implements Protocol, InitializingBean {
             @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response) {
+        long startTime = System.currentTimeMillis();
+        String clientIp = request.getRemoteAddr();
+        
+        log.debug("========== 鉴权请求开始 ==========");
+        log.debug("客户端IP: {}", clientIp);
+        
         OauthAuthInformation authInformation = new OauthAuthInformation(
                 authServerProperties,
                 authRequest.getData(),
@@ -193,10 +278,21 @@ public class HttpProtocol implements Protocol, InitializingBean {
                 applicationContext,
                 loginCheck);
         if(!authInformation.isSuccessful()) {
+            log.warn("鉴权请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.illegal(authInformation.errorMessage());
         }
         OauthAuthorization authorization = authInformation.authorization();
-        return authorization.authentication();
+        ReturnResult<String> result = authorization.authentication();
+        
+        if(result.isFailure()) {
+            log.debug("鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+        } else {
+            log.debug("鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        }
+        log.debug("========== 鉴权请求结束 ==========");
+        return result;
     }
 
     /**
@@ -208,6 +304,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
      */
     @PostMapping("/upgrade")
     @ResponseBody
+    @RateLimiter(value = 60, mode = "ip", message = "令牌刷新请求过于频繁，请稍后重试")
     @Operation(
             summary = "令牌升级",
             description = "升级用户令牌，刷新令牌有效期或权限",
@@ -220,6 +317,12 @@ public class HttpProtocol implements Protocol, InitializingBean {
             @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response) {
+        long startTime = System.currentTimeMillis();
+        String clientIp = request.getRemoteAddr();
+        
+        log.debug("========== 令牌升级请求开始 ==========");
+        log.debug("客户端IP: {}", clientIp);
+        
         UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
                 authServerProperties,
                 authRequest.getData(),
@@ -228,10 +331,21 @@ public class HttpProtocol implements Protocol, InitializingBean {
                 applicationContext,
                 loginCheck);
         if(!authInformation.isSuccessful()) {
+            log.warn("令牌升级请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
             return ReturnResult.illegal(authInformation.errorMessage());
         }
         UpgradeAuthorization authorization = authInformation.authorization();
-        return authorization.authentication();
+        ReturnResult<String> result = authorization.authentication();
+        
+        if(result.isFailure()) {
+            log.warn("令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                    result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+        } else {
+            log.info("令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        }
+        log.debug("========== 令牌升级请求结束 ==========");
+        return result;
     }
 
 
