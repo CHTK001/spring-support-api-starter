@@ -6,4 +6,4 @@ plugin:
     client:
       enable: true
       port: 29170
-      host: 172.16.0.40
+      host: 172.16.2.226

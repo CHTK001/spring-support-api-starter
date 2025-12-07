@@ -3,7 +3,7 @@ spring:
     name: system
   profiles:
     active: dev
-    include: mybatis,swagger,api,ip,actuator
+    include: mybatis,swagger,api,ip,report,actuator
 server:
   port: 18170
   servlet:
