@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.device;
+package com.chua.starter.project.pojo.device;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,8 +26,8 @@ public class DevicePreviewUrlV1Request {
     /**
      * 预览类型
      */
-    @Schema(description = "预览类型;“hik”:HIK私有协议，使用视频SDK进行播放时，传入此类型；“rtsp”:RTSP协议；“rtmp”:RTMP协议；“hls”:HLS协议（HLS协议只支持海康SDK协议、EHOME协议、ONVIF协议接入的设备；只支持H264视频编码和AAC音频编码）。\n" +
-            "“ws”:Websocket协议（一般用于H5视频播放器取流播放）")
+    @Schema(description = "预览类型;"hik":HIK私有协议，使用视频SDK进行播放时，传入此类型；"rtsp":RTSP协议；"rtmp":RTMP协议；"hls":HLS协议（HLS协议只支持海康SDK协议、EHOME协议、ONVIF协议接入的设备；只支持H264视频编码和AAC音频编码）。\n" +
+            ""ws":Websocket协议（一般用于H5视频播放器取流播放）")
     private String protocol = "hls";
 
     /**
