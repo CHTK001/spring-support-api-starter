@@ -9,7 +9,7 @@ spring:
     # 当前激活的配置文件
     active: dev
     # 包含的配置文件列表
-    include: mybatis,swagger,socket,control,codec,ip,discovery,options,report
+    include: mybatis,swagger,socket,control,codec,ip,options,report
   main:
     # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
