@@ -14,6 +14,7 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.SysLoginService;
+import com.chua.starter.service.pojo.user.RefreshToken;
 import com.chua.starter.service.result.LoginResult;
 import com.chua.starter.service.result.UserInfoVO;
 import io.swagger.annotations.Api;

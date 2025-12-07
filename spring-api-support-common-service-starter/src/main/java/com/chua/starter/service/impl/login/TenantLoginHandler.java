@@ -3,6 +3,7 @@ package com.chua.starter.service.impl.login;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
@@ -40,11 +41,11 @@ public class TenantLoginHandler extends DefaultLoginHandler {
     SimpleSysUserService simpleSysUserService;
 
     @Override
-    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
 //        if (StringUtils.isEmpty(loginData.getTenantId())) {
 //            return Result.failed(REQUEST_PARAM_ERROR, "租户编码不能为空");
 //        }
-        Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
+        ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
             return check;
         }
@@ -63,11 +64,11 @@ public class TenantLoginHandler extends DefaultLoginHandler {
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+            return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != 200) {
-            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
+            return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
         }
 
         LoginResult loginResult = LoginResult.builder()
@@ -77,7 +78,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                 .refreshToken(accessToken.getRefreshToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return Result.success(loginResult);
+        return ReturnResult.success(loginResult);
     }
 
 }
