@@ -1,14 +1,14 @@
-﻿package com.chua.starter.tenant.handler;
+package com.chua.starter.tenant.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.tenant.mapper.SysUserTenantMapper;
-import com.chua.starter.service.model.SysRole;
-import com.chua.starter.system.entity.SysTenant;
-import com.chua.starter.service.model.SysUser;
-import com.chua.starter.service.model.SysUserRole;
+import com.chua.starter.entity.system.SysRole;
+import com.chua.starter.entity.system.SysTenant;
+import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysTenantMapper;
 import com.chua.starter.system.mapper.SysUserRoleMapper;

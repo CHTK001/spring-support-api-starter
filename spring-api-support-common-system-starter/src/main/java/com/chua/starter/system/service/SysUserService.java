@@ -3,7 +3,7 @@ package com.chua.starter.system.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.pojo.SysUserQuery;
+import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;

@@ -1,4 +1,4 @@
-﻿package com.chua.starter.oauth.sso.service.impl;
+package com.chua.starter.oauth.sso.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
@@ -6,8 +6,8 @@ import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.login.UserService;
 import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.service.model.SysUser;
-import com.chua.starter.service.model.SysUserThirdParty;
+import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.entity.system.SysUserThirdParty;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

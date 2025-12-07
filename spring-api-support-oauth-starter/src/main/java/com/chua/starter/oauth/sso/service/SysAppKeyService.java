@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysAppKey;
+import com.chua.starter.entity.system.SysAppKey;
 
 /**
  * 应用密钥Service
