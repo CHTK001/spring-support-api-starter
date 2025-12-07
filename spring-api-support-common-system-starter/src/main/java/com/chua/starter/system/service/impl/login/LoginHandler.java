@@ -2,7 +2,7 @@ package com.chua.starter.system.service.impl.login;
 
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
-import com.chua.starter.service.result.LoginResult;
+import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -14,7 +14,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.entity.SysUserLog;
 import com.chua.starter.system.mapper.SysUserLogMapper;
-import com.chua.starter.service.pojo.user.log.SysUserLogQuery;
+import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;

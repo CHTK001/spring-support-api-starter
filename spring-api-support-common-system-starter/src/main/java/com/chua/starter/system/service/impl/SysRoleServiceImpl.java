@@ -8,7 +8,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.model.SysRole;
+import com.chua.starter.system.model.SysRole;
 import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.pojo.role.RoleMenuUpdate;

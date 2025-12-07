@@ -4,10 +4,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.service.pojo.user.RefreshToken;
-import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
-import com.chua.starter.service.result.LoginResult;
-import com.chua.starter.service.result.UserInfoVO;
+import com.chua.starter.system.pojo.user.RefreshToken;
+import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
+import com.chua.starter.system.result.LoginResult;
+import com.chua.starter.system.result.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
