@@ -63,7 +63,7 @@ public class SysRoleController {
     @GetMapping("list")
     @Cacheable(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     public ReturnResult<List<SysRole>> list() {
-        return Result.ok(sysRoleService.list(
+        return ReturnResult.ok(sysRoleService.list(
                 Wrappers.<SysRole>lambdaQuery().ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
                 .eq(SysRole::getSysRoleStatus, 1)
                 .orderByAsc(SysRole::getSysRoleSort)
@@ -81,7 +81,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {
-            return Result.illegal("角色信息不存在");
+            return ReturnResult.illegal("角色信息不存在");
         }
 
         return sysRoleService.delete(roleId);
@@ -101,7 +101,7 @@ public class SysRoleController {
             @Validated(UpdateGroup.class) @RequestBody RoleMenuUpdate roleMenuUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.updateMenu(roles, roleMenuUpdate);
@@ -115,7 +115,7 @@ public class SysRoleController {
             @Validated(SelectGroup.class)  RoleMenuUpdate roleMenuUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.getMenu(roleMenuUpdate);
@@ -134,7 +134,7 @@ public class SysRoleController {
             @Validated(UpdateGroup.class) @RequestBody SysRole sysRole,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.updateRole(roles, sysRole);
@@ -151,7 +151,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysRoleService.saveRole(sysRole);
