@@ -87,7 +87,7 @@ public class DefaultLoginHandler implements LoginHandler {
      * @param request         request
      * @return Result
      */
-    protected Result<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
+    protected ReturnResult<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {

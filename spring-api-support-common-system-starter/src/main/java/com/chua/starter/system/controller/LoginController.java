@@ -14,9 +14,8 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.SysLoginService;
-import com.chua.starter.system.pojo.user.RefreshToken;
-import com.chua.starter.system.result.LoginResult;
-import com.chua.starter.system.result.UserInfoVO;
+import com.chua.starter.service.result.LoginResult;
+import com.chua.starter.service.result.UserInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -84,9 +83,9 @@ public class LoginController {
     @SysLog
     @TokenForIgnore
     public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
-                                            HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            BindingResult bindingResult) {
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }

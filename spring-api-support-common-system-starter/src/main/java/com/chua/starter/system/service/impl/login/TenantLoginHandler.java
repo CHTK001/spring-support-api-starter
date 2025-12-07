@@ -12,7 +12,7 @@ import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.impl.SysLoginServiceImpl;
-import com.chua.starter.system.result.LoginResult;
+import com.chua.starter.service.result.LoginResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
