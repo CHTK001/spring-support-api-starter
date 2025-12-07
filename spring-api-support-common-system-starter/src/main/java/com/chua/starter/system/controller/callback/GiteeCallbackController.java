@@ -17,7 +17,6 @@ import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.service.SysUserThirdPartyService;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.service.SysLoginCallbackService;
-import com.chua.starter.system.service.SysLoginService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
