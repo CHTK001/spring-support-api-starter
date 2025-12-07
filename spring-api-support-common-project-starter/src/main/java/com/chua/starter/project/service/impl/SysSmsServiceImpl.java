@@ -15,7 +15,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.project.mapper.SysSmsTemplateMapper;
 import com.chua.starter.project.service.*;
 import com.chua.starter.service.SysDictItemService;
-import com.chua.starter.service.entity.SysDictItem;
+import com.chua.starter.entity.service.SysDictItem;
 import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.entity.project.SysSmsLog;
 import com.chua.starter.entity.project.SysSmsTemplate;

@@ -5,7 +5,7 @@ import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.support.CameraService;
 import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.service.entity.SysDictItem;
+import com.chua.starter.entity.service.SysDictItem;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
