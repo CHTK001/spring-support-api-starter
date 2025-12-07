@@ -36,11 +36,11 @@ import java.util.Set;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 
 /**
- * 鐢ㄦ埛鎺ュ彛
+ * 用户接口
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "鐢ㄦ埛鎺ュ彛")
+@Tag(name = "用户接口")
 @RestController
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
@@ -49,12 +49,12 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     /**
-     * 鐢ㄦ埛鍒嗛〉鍒楄〃
+     * 用户分页列表
      *
      * @param sysUserQuery 鏉′欢
-     * @return 鐢ㄦ埛鍒嗛〉鍒楄〃
+     * @return 用户分页列表
      */
-    @Operation(summary = "鐢ㄦ埛鍒嗛〉鍒楄〃")
+    @Operation(summary = "用户分页列表")
     @GetMapping("/page")
     @Permission(role = {ADMIN})
     public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
@@ -63,11 +63,11 @@ public class SysUserController {
 
 
     /**
-     * 鑾峰彇褰撳墠鐢ㄦ埛甯冨眬
+     * 获取当前用户布局
      *
-     * @return 鑾峰彇褰撳墠鐢ㄦ埛甯冨眬
+     * @return 获取当前用户布局
      */
-    @Operation(summary = "鑾峰彇褰撳墠鐢ㄦ埛甯冨眬")
+    @Operation(summary = "获取当前用户布局")
     @GetMapping("/layout")
     public ReturnResult<UserLayout> getUserLayout(
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
@@ -75,33 +75,33 @@ public class SysUserController {
         return ReturnResult.ok(sysUserService.getUserLayout(userId, roles));
     }
     /**
-     * 淇濆瓨褰撳墠鐢ㄦ埛甯冨眬
+     * 保存当前用户布局
      *
-     * @return 鏇存柊鐢ㄦ埛
+     * @return 更新用户
      */
-    @Operation(summary = "淇濆瓨褰撳墠鐢ㄦ埛甯冨眬")
+    @Operation(summary = "保存当前用户布局")
     @PutMapping("/layout")
     public ReturnResult<UserLayout> saveUserLayout(
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId, @RequestBody UserLayout userLayout) {
         return ReturnResult.ok(sysUserService.saveUserLayout(userId, userLayout));
     }
     /**
-     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟
+     * 获取当前登录用户菜单
      *
-     * @return 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟
+     * @return 获取当前登录用户菜单
      */
-    @Operation(summary = "鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟")
+    @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")
     public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysUserService.getUserMenu(roles);
     }
 
     /**
-     * 鍒犻櫎鐢ㄦ埛
+     * 删除用户
      *
-     * @return 鏇存柊鐢ㄦ埛
+     * @return 更新用户
      */
-    @Operation(summary = "鍒犻櫎鐢ㄦ埛")
+    @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
     @SysLog
     @UserLogger
@@ -109,19 +109,19 @@ public class SysUserController {
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦");
+            return Result.illegal("用户信息不存在");
         }
 
         return sysUserService.delete(sysUserId);
     }
 
     /**
-     * 閲嶇疆鑷韩瀵嗙⒓
+     * 重置鑷韩瀵嗙⒓
      *
      * @param userId 鐢ㄦ埗ID
-     * @return 閲嶇疆鐢ㄦ埛瀵嗙⒓
+     * @return 重置用户瀵嗙⒓
      */
-    @Operation(summary = "閲嶇疆褰撳墠璐﹀彿瀵嗙⒓")
+    @Operation(summary = "重置当前账号瀵嗙⒓")
     @GetMapping("/resetOwner")
     @SysLog
     @Transactional(rollbackOn = Exception.class)
@@ -134,30 +134,30 @@ public class SysUserController {
     }
 
     /**
-     * 閲嶇疆鐢ㄦ埛瀵嗙⒓
+     * 重置用户瀵嗙⒓
      *
      * @param userId 鐢ㄦ埗ID
-     * @return 閲嶇疆鐢ㄦ埛瀵嗙⒓
+     * @return 重置用户瀵嗙⒓
      */
-    @Operation(summary = "閲嶇疆鐢ㄦ埛瀵嗙⒓")
+    @Operation(summary = "重置用户瀵嗙⒓")
     @GetMapping("/reset")
     @SysLog
     @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
-            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦");
+            return Result.illegal("用户信息不存在");
         }
 
         return sysUserService.reset(userId);
     }
 
     /**
-     * 鏇存柊褰撳墠璐﹀彿瀵嗙爜
+     * 更新当前账号密码
      *
-     * @return 鏇存柊鐢ㄦ埛
+     * @return 更新用户
      */
-    @Operation(summary = "鏇存柊鐢ㄦ埛鑷韩瀵嗙爜")
+    @Operation(summary = "更新用户鑷韩密码")
     @PutMapping("/updateOwner")
     @SysLog
     public ReturnResult<SysUser> updateOwner(
@@ -172,11 +172,11 @@ public class SysUserController {
         return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
     }
     /**
-     * 鏇存柊鐢ㄦ埛
+     * 更新用户
      *
-     * @return 鏇存柊鐢ㄦ埛
+     * @return 更新用户
      */
-    @Operation(summary = "鏇存柊鐢ㄦ埛")
+    @Operation(summary = "更新用户")
     @PutMapping("/update")
     @SysLog
     public ReturnResult<SysUser> update(
@@ -192,11 +192,11 @@ public class SysUserController {
     }
 
     /**
-     * 鏂板鐢ㄦ埛
+     * 鏂板用户
      *
-     * @return 鏂板鐢ㄦ埛
+     * @return 鏂板用户
      */
-    @Operation(summary = "鏂板鐢ㄦ埛")
+    @Operation(summary = "鏂板用户")
     @PostMapping("/save")
     @SysLog
     @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})

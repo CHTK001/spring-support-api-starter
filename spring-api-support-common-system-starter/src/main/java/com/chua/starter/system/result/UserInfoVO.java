@@ -14,12 +14,12 @@ import lombok.Data;
 import java.util.Set;
 
 /**
- * 鐢ㄦ埛鐧诲綍瑙嗗浘瀵硅薄
+ * 用户登录瑙嗗浘瀵硅薄
  *
  * @author haoxr
  * @since 2022/1/14
  */
-@Schema(description = "褰撳墠鐧诲綍鐢ㄦ埛瑙嗗浘瀵硅薄")
+@Schema(description = "当前登录用户视图对象")
 @Data
 public class UserInfoVO {
 
@@ -30,41 +30,41 @@ public class UserInfoVO {
     private Integer sysUserId;
 
     /**
-     * 璐﹀彿
+     * 账号
      */
     @TableField(value = "sys_user_username")
-    @ApiModelProperty(value = "璐﹀彿")
-    @Schema(description = "璐﹀彿")
-    @Size(max = 255, message = "璐﹀彿鏈€澶ч暱搴﹁灏忎簬 255")
-    @NotEmpty(message = "璐﹀彿涓嶈兘涓虹┖", groups = {AddGroup.class})
+    @ApiModelProperty(value = "账号")
+    @Schema(description = "账号")
+    @Size(max = 255, message = "账号鏈€澶ч暱搴﹁灏忎簬 255")
+    @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
     private String sysUserUsername;
 
     /**
-     * 鍚嶇О
+     * 名称
      */
     @TableField(value = "sys_user_nickname")
-    @ApiModelProperty(value = "鍚嶇О")
-    @Schema(description = "鍚嶇О")
-    @Size(max = 255, message = "鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255")
+    @ApiModelProperty(value = "名称")
+    @Schema(description = "名称")
+    @Size(max = 255, message = "名称鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserNickname;
 
     /**
-     * 鎵嬫満鍙"
+     * 手机号"
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "鎵嬫満鍙")
-    @Schema(description = "鎵嬫満鍙")
-    @Size(max = 255, message = "鎵嬫満鍙锋渶澶ч暱搴﹁灏忎簬 255")
+    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
+    @Size(max = 255, message = "手机号锋渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserPhone;
     /**
-     * 閭
+     * 邮箱
      */
     @TableField(value = "sys_user_email")
-    @ApiModelProperty(value = "閭")
-    @Schema(description = "閭")
-    @Size(max = 255, message = "閭鏈€澶ч暱搴﹁灏忎簬 255")
+    @ApiModelProperty(value = "邮箱")
+    @Schema(description = "邮箱")
+    @Size(max = 255, message = "邮箱鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserEmail;
-    @Schema(description = "澶村儚鍦板潃")
+    @Schema(description = "头像地址")
     private String avatar;
 
     /**
@@ -73,10 +73,10 @@ public class UserInfoVO {
     @Schema(description = "绉熸埛ID")
     private String tenantId;
 
-    @Schema(description = "鐢ㄦ埛瑙掕壊缂栫爜闆嗗悎")
+    @Schema(description = "用户角色编码闆嗗悎")
     private Set<String> roles;
 
-    @Schema(description = "鐢ㄦ埛鏉冮檺鏍囪瘑闆嗗悎")
+    @Schema(description = "用户权限鏍囪瘑闆嗗悎")
     private Set<String> perms;
 
 }

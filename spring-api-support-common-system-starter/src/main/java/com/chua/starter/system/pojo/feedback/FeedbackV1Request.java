@@ -4,30 +4,30 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 鍙嶉璇锋眰
+ * 反馈请求
  *
  * @author CH
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "鍙嶉璇锋眰")
+@Schema(description = "反馈请求")
 public class FeedbackV1Request {
 
     /**
-     * 鍙嶉绫诲瀷
+     * 反馈类型
      */
-    @Schema(description = "鍙嶉绫诲瀷")
+    @Schema(description = "反馈类型")
     private String sysFeedbackType;
 
     /**
-     * 鍙嶉鍐呭
+     * 反馈内容
      */
-    @Schema(description = "鍙嶉鍐呭")
+    @Schema(description = "反馈内容")
     private String sysFeedbackContent;
 
     /**
-     * 鍙嶉鍥剧墖
+     * 反馈图片
      */
-    @Schema(description = "鍙嶉鍥剧墖")
+    @Schema(description = "反馈图片")
     private String sysFeedbackImages;
 }

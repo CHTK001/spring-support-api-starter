@@ -73,7 +73,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("鏃犳潈闄愭柊澧炵粍浠");
+            return ReturnResult.error("无权限愭柊澧炵粍浠");
         }
         sysSfc.setSysSfcStatus(1);
         baseMapper.insert(sysSfc);
@@ -83,7 +83,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("鏃犳潈闄愪慨鏀圭粍浠");
+            return ReturnResult.error("无权限愪慨鏀圭粍浠");
         }
         return ReturnResult.of(baseMapper.updateById(sysSfc) > 0);
     }
@@ -91,7 +91,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<Boolean> delete(Long sysSfcId, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("鏃犳潈闄愬垹闄ょ粍浠");
+            return ReturnResult.error("无权限愬垹闄ょ粍浠");
         }
 
         if(baseMapper.deleteById(sysSfcId) > 0) {
@@ -124,7 +124,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
                 return ReturnResult.of(true);
             }
 
-            return ReturnResult.error("瀹夎澶辫触");
+            return ReturnResult.error("瀹夎失败");
         });
     }
 
@@ -145,7 +145,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
                 return ReturnResult.of(true);
             }
 
-            return ReturnResult.error("鍗歌浇澶辫触");
+            return ReturnResult.error("鍗歌浇失败");
         });
     }
 
@@ -153,7 +153,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     public ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId) {
         SysSfc sysSfc = baseMapper.selectById(sysSfcId);
         if(sysSfc.getSysSfcType() == 0 && StringUtils.isBlank(sysSfc.getSysSfcPath())) {
-            return ReturnResult.error("缁勪欢涓嶅瓨鍦");
+            return ReturnResult.error("缁勪欢不存在");
         }
 
         Integer sysSfcType = sysSfc.getSysSfcType();
@@ -178,7 +178,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
         File newFile = new File( sysSfc.getSysSfcPath());
         if(!newFile.exists()) {
-            return ReturnResult.error("缁勪欢涓嶅瓨鍦");
+            return ReturnResult.error("缁勪欢不存在");
         }
 
         try (FileInputStream fis = new FileInputStream(newFile)) {

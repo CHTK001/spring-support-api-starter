@@ -6,31 +6,31 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 閮ㄩ棬VO
+ * 部门VO
  *
  * @author CH
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "閮ㄩ棬VO")
+@Schema(description = "部门VO")
 public class SysDeptVO {
 
     /**
-     * 閮ㄩ棬ID
+     * 部门ID
      */
-    @Schema(description = "閮ㄩ棬ID")
+    @Schema(description = "部门ID")
     private Integer sysDeptId;
 
     /**
-     * 閮ㄩ棬鍚嶇О
+     * 部门名称
      */
-    @Schema(description = "閮ㄩ棬鍚嶇О")
+    @Schema(description = "部门名称")
     private String sysDeptName;
 
     /**
-     * 閮ㄩ棬缂栫爜
+     * 部门编码
      */
-    @Schema(description = "閮ㄩ棬缂栫爜")
+    @Schema(description = "部门编码")
     private String sysDeptCode;
 
     /**
@@ -40,14 +40,14 @@ public class SysDeptVO {
     private Integer sysDeptPid;
 
     /**
-     * 閮ㄩ棬閾捐矾
+     * 部门閾捐矾
      */
-    @Schema(description = "閮ㄩ棬閾捐矾")
+    @Schema(description = "部门閾捐矾")
     private String sysDeptTreeId;
 
     /**
-     * 鐘舵€?     */
-    @Schema(description = "鐘舵€")
+     * 状态?     */
+    @Schema(description = "状态")
     private Integer sysDeptStatus;
 
     /**

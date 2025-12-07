@@ -40,15 +40,15 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.Map;
 
 /**
- * gitee鎺ュ彛
+ * gitee接口
  *
  * @author CH
  * @since 2024/9/4
  */
 @Controller
 @Slf4j
-@Api(tags = "涓夋柟鐧诲綍鍥炶皟(gitee)")
-@Tag(name = "涓夋柟鐧诲綍鍥炶皟(gitee)")
+@Api(tags = "涓夋柟登录回调(gitee)")
+@Tag(name = "涓夋柟登录回调(gitee)")
 @RequestMapping("/v2/third/login/gitee")
 @RequiredArgsConstructor
 public class GiteeCallbackController {
@@ -61,9 +61,9 @@ public class GiteeCallbackController {
     final AuthClientProperties authProperties;
 
     /**
-     * 鏍￠獙鐮?
+     * 校验鐮?
      *
-     * @param request 璇锋眰
+     * @param request 请求
      */
     @Ignore
     @GetMapping("binder")
@@ -73,12 +73,12 @@ public class GiteeCallbackController {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         if(null == userId) {
-            attributes.addFlashAttribute("msg", "璇烽噸璇?閲嶆柊鐧诲綍閲嶈瘯");
+            attributes.addFlashAttribute("msg", "璇烽噸璇?閲嶆柊登录重试");
             return view;
         }
         long count = sysUserThirdPartyService.count(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
         if(count > 0) {
-            attributes.addFlashAttribute("msg", "宸茬粦瀹? 鏃犻』閲嶅缁戝畾");
+            attributes.addFlashAttribute("msg", "宸茬粦瀹? 鏃犻』重复绑定");
             return view;
         }
         String info = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_info");
@@ -118,9 +118,9 @@ public class GiteeCallbackController {
         return view;
     }
     /**
-     * 鏍￠獙鐮?
+     * 校验鐮?
      *
-     * @param request 璇锋眰
+     * @param request 请求
      */
     @Ignore
     @GetMapping("callback")

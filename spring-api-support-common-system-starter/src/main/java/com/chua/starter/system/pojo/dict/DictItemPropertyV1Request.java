@@ -13,9 +13,9 @@ import lombok.Data;
 public class DictItemPropertyV1Request {
 
     /**
-     * 瀛楀吀缂栫爜
+     * 瀛楀吀编码
      */
-    @Schema(description = "瀛楀吀缂栫爜")
+    @Schema(description = "瀛楀吀编码")
     private String dictCode;
 
     /**

@@ -14,23 +14,23 @@ import java.util.Set;
 @Mapper
 public interface SysMenuMapper extends BaseMapper<SysMenu> {
     /**
-     * 鍒犻櫎绉熸埛鑿滃崟
+     * 删除绉熸埛菜单
      *
      * @param sysTenantId 绉熸埛
-     * @param menuIds     鍙敤鑿滃崟
+     * @param menuIds     鍙敤菜单
      */
     void removeByTenantId(@Param("sysTenantId") Integer sysTenantId, @Param("menuIds") Set<Integer> menuIds);
 
     /**
-     * 鍒犻櫎鎵€鏈"
+     * 删除所有"
      *
      * @param sysTenantId 绉熸埛
      */
     void removeAllByTenantId(@Param("sysTenantId") Integer sysTenantId);
     /**
-     * 淇濆瓨
+     * 保存
      *
-     * @param sysMenu     鑿滃崟
+     * @param sysMenu     菜单
      * @param sysTenantId 绉熸埛
      */
     void saveForTenant(@Param("sysMenu") SysMenu sysMenu, @Param("sysTenantId") Integer sysTenantId);

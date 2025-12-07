@@ -3,7 +3,7 @@ package com.chua.starter.system.enums;
 import lombok.AllArgsConstructor;
 
 /**
- * 閫氱煡
+ * 通知
  * @author CH
  * @since 2024/8/7
  */
@@ -11,9 +11,9 @@ import lombok.AllArgsConstructor;
 public enum MessagePushEnum {
 
     /**
-     * 閭欢
+     * 邮箱欢
      */
-    EMAIL(1, "閭欢"),
+    EMAIL(1, "邮箱欢"),
 
     ;
 

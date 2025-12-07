@@ -42,7 +42,7 @@ import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
- * 鐧诲綍鎺ュ彛瀹炵幇
+ * 登录接口瀹炵幇
  *
  * @author CH
  * @since 2024/9/12
@@ -60,7 +60,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        log.info("\n鐧诲綍淇℃伅鍖呭惈 \n鐧诲綍璐﹀彿 -> {}\n鐧婚檰鏂瑰紡 -> {}", loginData.getUsername(), loginData.getLoginType());
+        log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }
@@ -71,7 +71,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
         if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "鏍￠獙鐮佷笉姝ｇ‘");
+                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确‘");
             }
             return null;
         }
@@ -81,13 +81,13 @@ public class SysLoginServiceImpl implements SysLoginService {
             ValueOperations valueOperations = redisTemplate.opsForValue();
             Object object = valueOperations.get(verifyCodeUlid);
             if (null == object || !code.equalsIgnoreCase(object.toString())) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "鏍￠獙鐮佷笉姝ｇ‘");
+                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确‘");
             }
 
             redisTemplate.delete(verifyCodeUlid);
             return null;
         }
-        return Result.failed(RESOURCE_CAPTCHA_ERROR, "璇烽噸鏂板埛鏂版牎楠岀爜");
+        return Result.failed(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
     }
 
     @Override
@@ -107,7 +107,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("鐧诲綍宸茶繃鏈");
+            return Result.failed("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -121,7 +121,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        return ReturnResult.fail("绗笁鏂圭櫥褰曟殏涓嶆敮鎸");
+        return ReturnResult.fail("绗笁鏂圭櫥褰曟殏不支持");
     }
 
     @Override
@@ -138,16 +138,16 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
-            return ReturnResult.fail("鐧诲綍绫诲瀷涓嶈兘涓虹┖");
+            return ReturnResult.fail("登录类型不能为空");
         }
         if (sysUserThirdPartyMapper.delete(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId).eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType())) > 0) {
             return ReturnResult.ok();
         }
-        return ReturnResult.fail("瑙ｇ粦澶辫触");
+        return ReturnResult.fail("解绑失败");
     }
 
     /**
-     * 鑾峰彇鐢ㄦ埛淇℃伅
+     * 获取用户信息
      *
      * @param token token
      * @return UserInfoVO
