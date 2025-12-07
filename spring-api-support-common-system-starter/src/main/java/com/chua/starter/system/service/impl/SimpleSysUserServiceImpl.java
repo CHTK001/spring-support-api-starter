@@ -11,9 +11,8 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.redis.support.constant.RedisConstant;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.service.mapper.SysUserMapper;
 import com.chua.starter.system.service.SimpleSysUserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -38,12 +37,11 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
 
     final StringRedisTemplate stringRedisTemplate;
 
-
     @Override
     public ReturnResult<Boolean> bind(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗重试!");
+            return ReturnResult.illegal("当前账号信息异常，请重新登录或者刷新后重试!");
         }
 
         String seed = Projects.getMainBoardSerialNumber() + IdUtils.createTid() + sysUser.getSysUserUsername() + System.currentTimeMillis();
@@ -58,7 +56,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> unbind(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗重试!");
+            return ReturnResult.illegal("当前账号信息异常，请重新登录或者刷新后重试!");
         }
         stringRedisTemplate.opsForHash().delete(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         sysUser.setSysUserTotpCode("");
@@ -86,7 +84,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> verify(String code, @NotNull String username) {
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, username);
         if (null == key) {
-            return Result.failed("璇峰厛绑定fa验证鐮");
+            return ReturnResult.illegal("请先绑定2fa验证码");
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
@@ -99,11 +97,11 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<String> generateUri(Integer sysUserId) {
         SysUser sysUser = baseMapper.selectById(sysUserId);
         if (null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗重试!");
+            return ReturnResult.illegal("当前账号信息异常，请重新登录或者刷新后重试!");
         }
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         if (null == key) {
-            return ReturnResult.illegal("璇峰厛绑定fa验证鐮");
+            return ReturnResult.illegal("请先绑定2fa验证码");
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);

@@ -2,25 +2,25 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.lang.code.Result;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.Joiner;
-import com.chua.starter.oauth.client.configuration.AuthClientProperties;
+import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.infomation.AuthenticationInformation;
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.entity.system.SysUserThirdParty;
+import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.pojo.user.RefreshToken;
 import com.chua.starter.system.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.system.result.LoginResult;
 import com.chua.starter.system.result.UserInfoVO;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.impl.login.LoginHandler;
+import com.google.common.base.Joiner;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
- * 登录接口瀹炵幇
+ * 登录接口实现
  *
  * @author CH
  * @since 2024/9/12
@@ -59,19 +59,19 @@ public class SysLoginServiceImpl implements SysLoginService {
     final RedisTemplate redisTemplate;
 
     @Override
-    public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+    public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }
 
     @SuppressWarnings("ALL")
-    public Result<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
+    public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
         if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确‘");
+                return ReturnResult.illegal("校验码不正确");
             }
             return null;
         }
@@ -81,13 +81,13 @@ public class SysLoginServiceImpl implements SysLoginService {
             ValueOperations valueOperations = redisTemplate.opsForValue();
             Object object = valueOperations.get(verifyCodeUlid);
             if (null == object || !code.equalsIgnoreCase(object.toString())) {
-                return Result.failed(RESOURCE_CAPTCHA_ERROR, "校验码不正确‘");
+                return ReturnResult.illegal("校验码不正确");
             }
 
             redisTemplate.delete(verifyCodeUlid);
             return null;
         }
-        return Result.failed(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
+        return ReturnResult.illegal("请重新刷新校验码");
     }
 
     @Override
@@ -103,11 +103,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    public Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
+    public ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("登录已过期");
+            return ReturnResult.illegal("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -115,13 +115,13 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .refreshToken(upgrade.getRefreshToken())
                 .accessToken(upgrade.getToken())
                 .build();
-        AuthenticationInformation.CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
-        return Result.success(loginResult);
+        CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
+        return ReturnResult.ok(loginResult);
     }
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        return ReturnResult.fail("绗笁鏂圭櫥褰曟殏不支持");
+        return ReturnResult.fail("第三方登录暂不支持");
     }
 
     @Override

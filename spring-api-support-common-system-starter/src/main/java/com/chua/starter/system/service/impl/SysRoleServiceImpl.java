@@ -53,13 +53,13 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         SysRole sysRole = baseMapper.selectById(roleId);
         if(null == sysRole) {
-            return ReturnResult.fail("角色不存在，璇峰埛鏂板悗重试!");
+            return ReturnResult.fail("角色不存在，请刷新后重试！");
         }
 
         Integer sysRoleInSystem = sysRole.getSysRoleInSystem();
 
         if(null != sysRoleInSystem && sysRoleInSystem == 1) {
-            return ReturnResult.fail("鍐呯疆角色不允许稿垹闄");
+            return ReturnResult.fail("系统角色不允许删除");
         }
 
         return ReturnResult.of(baseMapper.deleteById(roleId) > 0);
@@ -70,7 +70,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
         if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isSuperAdmin(roles)) {
-            return ReturnResult.fail("鍐呯疆角色不允许镐慨鏀");
+            return ReturnResult.fail("系统角色不允许修改");
         }
 
         sysRole.setSysRoleInSystem(null);
@@ -95,7 +95,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 AuthConstant.SUPER_ADMIN.equalsIgnoreCase(sysRoleCode) ||
                 AuthConstant.OPS.equalsIgnoreCase(sysRoleCode)
         ) {
-            return ReturnResult.fail("不允许告柊寤虹壒娈婅鑹");
+            return ReturnResult.fail("不允许添加系统角色");
         }
 
         SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
@@ -106,7 +106,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         if(baseMapper.insert(sysRole) > 0) {
             return ReturnResult.success(sysRole);
         }
-        return ReturnResult.error("鏂板失败");
+        return ReturnResult.error("新增失败");
     }
 
     @Override

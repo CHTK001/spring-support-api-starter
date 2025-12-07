@@ -5,7 +5,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.UserLogger;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;

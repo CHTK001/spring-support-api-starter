@@ -1,7 +1,6 @@
 package com.chua.starter.system.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.system.pojo.user.RefreshToken;
@@ -21,73 +20,74 @@ import java.util.List;
 public interface SysLoginService {
 
     /**
-     * 用户登录鏂规硶锛屾牴鎹櫥褰曟暟鎹繘琛岀敤鎴疯韩浠介獙璇?
+     * 用户登录方法，根据登录数据进行用户身份验证
      *
-     * @param loginData   登录数据瀵硅薄锛屽寘鍚敤鎴峰悕銆佸瘑鐮佺瓑信息
-     * @param request     HTTP请求瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑数据
-     * @param response    HTTP响应瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
-     * @param fingerprint
-     * @return 结果瀵硅薄锛屽寘鍚櫥褰曠粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
+     * @param loginData   登录数据对象，包含用户名、密码等信息
+     * @param request     HTTP请求对象，用于获取请求相关的数据
+     * @param response    HTTP响应对象，用于设置响应数据
+     * @param fingerprint 指纹
+     * @return 结果对象，包含登录结果和可能的附加信息
      */
-    Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
+    ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
 
     /**
-     * 获取当前登录用户鐨勪俊鎭?
+     * 获取当前登录用户的信息
      *
-     * @return 用户信息瀵硅薄锛屽寘鍚敤鎴风殑鍩烘湰信息
+     * @return 用户信息对象，包含用户的基本信息
      */
     UserInfoVO getUserLoginInfo();
+
     /**
-     * 获取当前登录用户鐨勪俊鎭?
+     * 获取当前登录用户的信息
      *
-     * @param token 用户鐨勪护鐗岋紝鐢ㄤ簬确认畾当前登录用户
-     * @return 用户信息瀵硅薄锛屽寘鍚敤鎴风殑鍩烘湰信息
+     * @param token 用户的令牌，用于确认当前登录用户
+     * @return 用户信息对象，包含用户的基本信息
      */
     UserInfoVO getUserLoginInfo(String token);
     /**
-     * 刷新用户浠ょ墝
+     * 刷新用户令牌
      *
-     * @param refreshToken 刷新浠ょ墝瀵硅薄锛屽寘鍚棫鐨勪护鐗屼俊鎭?
-     * @param request HTTP请求瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑数据
-     * @param response HTTP响应瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
-     * @return 结果瀵硅薄锛屽寘鍚埛鏂扮粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
+     * @param refreshToken 刷新令牌对象，包含旧的令牌信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含刷新结果和可能的附加信息
      */
-    Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
+    ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 涓夋柟登录
+     * 第三方登录
      *
-     * @param loginData 登录数据瀵硅薄锛屽寘鍚笁鏂圭櫥褰曚俊鎭?
-     * @param request HTTP请求瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑数据
-     * @param response HTTP响应瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
-     * @return 结果瀵硅薄锛屽寘鍚笁鏂圭櫥褰曠粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
+     * @param loginData 登录数据对象，包含第三方登录信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含第三方登录结果和可能的附加信息
      */
     ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 涓夋柟绑定
+     * 第三方绑定
      *
-     * @param loginData 登录数据瀵硅薄锛屽寘鍚笁鏂圭櫥褰曚俊鎭?
-     * @param request HTTP请求瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑数据
-     * @param response HTTP响应瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
-     * @return 结果瀵硅薄锛屽寘鍚笁鏂圭粦瀹氱粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
+     * @param loginData 登录数据对象，包含第三方登录信息
+     * @param request HTTP请求对象，用于获取请求相关的数据
+     * @param response HTTP响应对象，用于设置响应数据
+     * @return 结果对象，包含第三方绑定结果和可能的附加信息
      */
     ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 获取涓夋柟绑定信息
+     * 获取第三方绑定信息
      *
-     * @param userId 用户ID锛岀敤浜庣‘瀹氳获取绑定信息鐨勭敤鎴?
-     * @return 绑定信息列表锛屽寘鍚綋鍓嶇敤鎴风粦瀹氱殑涓夋柟信息
+     * @param userId 用户ID，用于确定要获取绑定信息的用户
+     * @return 绑定信息列表，包含当前用户绑定的第三方信息
      */
     ReturnResult<List<String>> thirdBindInfo(String userId);
 
     /**
-     * 涓夋柟解绑
+     * 第三方解绑
      *
-     * @param userId 用户ID锛岀敤浜庣‘瀹氳解绑鐨勭敤鎴?
-     * @param thirdPartyUnbindRequest 解绑请求瀵硅薄锛屽寘鍚解绑鐨勪笁鏂逛俊鎭?
-     * @return 操作结果瀵硅薄锛屽寘鍚搷浣滄槸鍚︽垚鍔熷拰鐩稿叧提示信息
+     * @param userId 用户ID，用于确定要解绑的用户
+     * @param thirdPartyUnbindRequest 解绑请求对象，包含要解绑的第三方信息
+     * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest);
 }
