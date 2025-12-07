@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +38,12 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
  * @author CH
  * @since 2024/9/12
  */
-@RestController
+@RestController("service:loginController")
 @Slf4j
 @Api(tags = "登录接口")
 @Tag(name = "登录接口")
 @RequestMapping("/v2/user")
+@ConditionalOnMissingBean(name = "loginController")
 @RequiredArgsConstructor
 public class LoginController {
 
