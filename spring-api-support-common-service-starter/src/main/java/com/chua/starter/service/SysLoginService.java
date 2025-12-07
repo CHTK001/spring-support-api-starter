@@ -1,7 +1,6 @@
 package com.chua.starter.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.service.pojo.user.RefreshToken;
@@ -30,7 +29,7 @@ public interface SysLoginService {
      * @param fingerprint
      * @return 结果对象，包含登录结果和可能的附加信息
      */
-    Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
+    ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
 
     /**
      * 获取当前登录用户的信息
@@ -55,7 +54,7 @@ public interface SysLoginService {
      * @param response     HTTP响应对象，用于设置响应数据
      * @return 结果对象，包含刷新结果和可能的附加信息
      */
-    Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
+    ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 三方登录
