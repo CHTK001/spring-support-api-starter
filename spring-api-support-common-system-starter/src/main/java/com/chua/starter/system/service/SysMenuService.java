@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 绯荤粺鑿滃崟鏈嶅姟鎺ュ彛锛屽畾涔変簡涓庣郴缁熻彍鍗曠浉鍏崇殑涓氬姟鎿嶄綔
- * 缁ф壙浜嗛€氱敤鐨勬湇鍔℃帴鍙Service<SysMenu>锛屾彁渚涗簡鏇村叿浣撶殑鑿滃崟鎿嶄綔鏂规硶
+ * 系统菜单服务接口锛屽畾涔変簡涓庣郴统计彍鍗曠浉鍏崇殑涓氬姟操作
+ * 缁ф壙浜嗛€氱敤鐨勬湇鍔℃帴鍙Service<SysMenu>锛屾彁渚涗簡鏇村叿浣撶殑菜单操作鏂规硶
  *
  * @since 2024/8/7
  * @author CH
@@ -22,73 +22,73 @@ public interface SysMenuService extends IService<SysMenu>{
 
 
     /**
-     * 鏍规嵁鏉′欢鏌ヨ绯荤粺鑿滃崟鍒楄〃
+     * 鏍规嵁鏉′欢查询系统菜单列表
      *
-     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
-     * @param roles   褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
+     * @param sysMenu 浣滀负查询鏉′欢鐨勭郴统计彍鍗曞璞★紝鍙互鎸囧畾部分灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles   当前用户鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬权限杩囨护
      * @param  ignoreType 蹇界暐鐨勭被鍨?
-     * @return 杩斿洖鍖归厤鐨勭郴缁熻彍鍗曞垪琛?
+     * @return 返回鍖归厤鐨勭郴统计彍鍗曞垪琛?
      */
     ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType);
 
     /**
-     * 鏌ヨ鎵€鏈夌郴缁熻彍鍗曠殑缂撳瓨鍒楄〃
-     * 璇ユ柟娉曡繑鍥炵殑缁撴灉浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
+     * 查询所有夌郴统计彍鍗曠殑缂撳瓨列表
+     * 璇ユ柟娉曡繑鍥炵殑结果浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
      *
-     * @return 杩斿洖鎵€鏈夌郴缁熻彍鍗曠殑鍒楄〃
+     * @return 返回所有夌郴统计彍鍗曠殑列表
      */
     List<SysMenu> listAll();
 
     /**
-     * 鍒嗛〉鏌ヨ绯荤粺鑿滃崟鍒楄〃
+     * 分页查询系统菜单列表
      *
-     * @param query 鍒嗛〉鏌ヨ瀵硅薄锛岃缃簡鍒嗛〉鐨勫ぇ灏忓拰褰撳墠椤电爜
-     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
-     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
-     * @return 杩斿洖鍒嗛〉鏌ヨ缁撴灉锛屽寘鍚簡鍒嗛〉淇℃伅鍜岃彍鍗曞垪琛?
+     * @param query 分页查询瀵硅薄锛岃缃簡分页鐨勫ぇ灏忓拰当前椤电爜
+     * @param sysMenu 浣滀负查询鏉′欢鐨勭郴统计彍鍗曞璞★紝鍙互鎸囧畾部分灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles 当前用户鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬权限杩囨护
+     * @return 返回分页查询结果锛屽寘鍚簡分页信息鍜岃彍鍗曞垪琛?
      */
     IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 鍒犻櫎鎸囧畾鐨勭郴缁熻彍鍗?
+     * 删除鎸囧畾鐨勭郴统计彍鍗?
      *
-     * @param menuId 瑕佸垹闄ょ殑绯荤粺鑿滃崟鐨処D
-     * @return 杩斿洖鍒犻櫎鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
+     * @param menuId 瑕佸垹闄ょ殑系统菜单鐨処D
+     * @return 返回删除操作鐨勭粨鏋滐紝鍖呮嫭鏄惁成功鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<Boolean> delete(Long menuId);
 
     /**
-     * 鏇存柊绯荤粺鑿滃崟鐨勪俊鎭?
+     * 更新系统菜单鐨勪俊鎭?
      *
-     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺鏍￠獙
-     * @param sysMenu 瑕佹洿鏂扮殑绯荤粺鑿滃崟瀵硅薄锛屽寘鍚洿鏂板悗鐨勫睘鎬у€?
-     * @return 杩斿洖鏇存柊鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
+     * @param roles 当前用户鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬权限校验
+     * @param sysMenu 瑕佹洿鏂扮殑系统菜单瀵硅薄锛屽寘鍚洿鏂板悗鐨勫睘鎬у€?
+     * @return 返回更新操作鐨勭粨鏋滐紝鍖呮嫭鏄惁成功鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu);
 
     /**
-     * 鏂板涓€涓郴缁熻彍鍗?
+     * 鏂板一个郴统计彍鍗?
      *
-     * @param sysMenu 鏂板鐨勭郴缁熻彍鍗曞璞★紝鍖呭惈鎵€鏈夊繀瑕佸睘鎬?
-     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺鏍￠獙
-     * @return 杩斿洖鏂板鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
+     * @param sysMenu 鏂板鐨勭郴统计彍鍗曞璞★紝鍖呭惈所有夊繀瑕佸睘鎬?
+     * @param roles 当前用户鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬权限校验
+     * @return 返回鏂板操作鐨勭粨鏋滐紝鍖呮嫭鏄惁成功鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 鏍规嵁鏉′欢鏌ヨ绯荤粺鑿滃崟鍒楄〃
+     * 鏍规嵁鏉′欢查询系统菜单列表
      *
-     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
-     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
-     * @return 杩斿洖鍖归厤鐨勭郴缁熻彍鍗曞垪琛?
+     * @param sysMenu 浣滀负查询鏉′欢鐨勭郴统计彍鍗曞璞★紝鍙互鎸囧畾部分灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles 当前用户鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬权限杩囨护
+     * @return 返回鍖归厤鐨勭郴统计彍鍗曞垪琛?
      */
     ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 鏌ヨ鎵€鏈夌郴缁熻彍鍗曠殑缂撳瓨鍒楄〃
-     * 璇ユ柟娉曡繑鍥炵殑缁撴灉浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
+     * 查询所有夌郴统计彍鍗曠殑缂撳瓨列表
+     * 璇ユ柟娉曡繑鍥炵殑结果浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
      *
-     * @return 杩斿洖鎵€鏈夌郴缁熻彍鍗曠殑鍒楄〃
+     * @return 返回所有夌郴统计彍鍗曠殑列表
      */
     ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles);
 }

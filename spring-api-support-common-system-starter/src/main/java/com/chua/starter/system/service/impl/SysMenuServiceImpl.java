@@ -68,7 +68,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("褰撳墠甯愬彿鏉冮檺涓嶈冻");
+                return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
             }
         }
 
@@ -125,7 +125,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("褰撳墠甯愬彿鏉冮檺涓嶈冻");
+                return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
             }
         }
 
@@ -203,7 +203,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
-            return ReturnResult.error("鑿滃崟涓嶅瓨鍦");
+            return ReturnResult.error("菜单不存在");
         }
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
@@ -212,11 +212,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
-                return ReturnResult.error("鐖剁骇鑿滃崟涓嶅瓨鍦");
+                return ReturnResult.error("父级菜单不存在");
             }
 
             if(StringUtils.transArrayContains(parentSysMenu.getSysMenuTreeId(), String.valueOf(sysMenu.getSysMenuId()))) {
-                return ReturnResult.error("涓嶈兘閫夋嫨鑷繁浣滀负鐖剁骇鑿滃崟");
+                return ReturnResult.error("涓嶈兘选择鑷繁浣滀负父级菜单");
             }
 
             menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
@@ -236,7 +236,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
-                return ReturnResult.error("鐖剁骇鑿滃崟涓嶅瓨鍦");
+                return ReturnResult.error("父级菜单不存在");
             }
             menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
         }

@@ -30,11 +30,11 @@ public class TotpController {
 
     final SimpleSysUserService simpleSysUserService;
     /**
-     * 缁戝畾
+     * 绑定
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "缁戝畾2fa瀵嗛挜")
+    @Operation(summary = "绑定2fa瀵嗛挜")
     @PutMapping("/bind")
     public ReturnResult<Boolean> bind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.bind(sysUserId);
@@ -42,11 +42,11 @@ public class TotpController {
 
 
     /**
-     * 瑙ｇ粦
+     * 解绑
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "瑙ｇ粦2fa瀵嗛挜")
+    @Operation(summary = "解绑2fa瀵嗛挜")
     @PutMapping("/unbind")
     public ReturnResult<Boolean> unbind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.unbind(sysUserId);

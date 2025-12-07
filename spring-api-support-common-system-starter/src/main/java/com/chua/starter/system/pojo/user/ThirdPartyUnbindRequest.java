@@ -4,18 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 涓夋柟瑙ｇ粦璇锋眰
+ * 涓夋柟解绑请求
  *
  * @author CH
  * @since 2024/9/6
  */
 @Data
-@Schema(description = "涓夋柟瑙ｇ粦璇锋眰")
+@Schema(description = "涓夋柟解绑请求")
 public class ThirdPartyUnbindRequest {
 
     /**
-     * 鐧诲綍绫诲瀷
+     * 登录类型
      */
-    @Schema(description = "鐧诲綍绫诲瀷")
+    @Schema(description = "登录类型")
     private String loginType;
 }

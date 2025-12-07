@@ -6,49 +6,49 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 鑿滃崟璁剧疆VO
+ * 菜单设置VO
  *
  * @author CH
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "鑿滃崟璁剧疆VO")
+@Schema(description = "菜单设置VO")
 public class SysMenuSettingVO {
 
     /**
-     * 鑿滃崟ID
+     * 菜单ID
      */
-    @Schema(description = "鑿滃崟ID")
+    @Schema(description = "菜单ID")
     private Integer sysMenuId;
 
     /**
-     * 鑿滃崟鍚嶇О
+     * 菜单名称
      */
-    @Schema(description = "鑿滃崟鍚嶇О")
+    @Schema(description = "菜单名称")
     private String sysMenuName;
 
     /**
-     * 鑿滃崟鏍囬
+     * 菜单标题
      */
-    @Schema(description = "鑿滃崟鏍囬")
+    @Schema(description = "菜单标题")
     private String sysMenuTitle;
 
     /**
-     * 鑿滃崟璺緞
+     * 菜单璺緞
      */
-    @Schema(description = "鑿滃崟璺緞")
+    @Schema(description = "菜单璺緞")
     private String sysMenuPath;
 
     /**
-     * 鑿滃崟鍥炬爣
+     * 菜单鍥炬爣
      */
-    @Schema(description = "鑿滃崟鍥炬爣")
+    @Schema(description = "菜单鍥炬爣")
     private String sysMenuIcon;
 
     /**
-     * 鑿滃崟绫诲瀷
+     * 菜单类型
      */
-    @Schema(description = "鑿滃崟绫诲瀷")
+    @Schema(description = "菜单类型")
     private Integer sysMenuType;
 
     /**

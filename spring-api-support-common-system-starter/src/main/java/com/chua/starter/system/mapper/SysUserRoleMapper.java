@@ -12,18 +12,18 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
     /**
-     * 淇濆瓨鐢ㄦ埛瑙掕壊
-     * @param sysUserId 鐢ㄦ埛ID
-     * @param roleCode 瑙掕壊缂栫爜
+     * 保存用户角色
+     * @param sysUserId 用户ID
+     * @param roleCode 角色编码
      */
     void saveUserRole(@Param("sysUserId") Integer sysUserId, @Param("roleCode") String roleCode);
 
     /**
-     * 鏌ヨ鐢ㄦ埛瑙掕壊
+     * 查询用户角色
      *
      * @param sysTenantId 绉熸埛ID
-     * @param sysUserId   鐢ㄦ埛ID
-     * @param sysRoleId   瑙掕壊ID
+     * @param sysUserId   用户ID
+     * @param sysRoleId   角色ID
      * @return SysUserRole
      */
     SysUserRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId,
@@ -31,9 +31,9 @@ public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
                                   @Param("sysRoleId") Integer sysRoleId);
 
     /**
-     * 淇濆瓨鐢ㄦ埛瑙掕壊
+     * 保存用户角色
      *
-     * @param sysUserRole 鐢ㄦ埛瑙掕壊
+     * @param sysUserRole 用户角色
      * @param sysTenantId 绉熸埛ID
      */
     void insertWithTenant(@Param("sysUserRole") SysUserRole sysUserRole, @Param("sysTenantId") Integer sysTenantId);

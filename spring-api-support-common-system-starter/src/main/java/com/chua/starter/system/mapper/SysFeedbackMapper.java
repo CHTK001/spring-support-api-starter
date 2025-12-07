@@ -11,11 +11,11 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface SysFeedbackMapper extends BaseMapper<SysFeedback> {
     /**
-     * 鍒嗛〉鏌ヨ
+     * 分页查询
      *
-     * @param page              鍒嗛〉瀵硅薄
-     * @param feedbackV1Request 璇锋眰
-     * @return 缁撴灉
+     * @param page              分页瀵硅薄
+     * @param feedbackV1Request 请求
+     * @return 结果
      */
     IPage<SysFeedback> pageFor(@Param("page") Page<SysFeedback> page, @Param("request") FeedbackV1Request feedbackV1Request);
 }
