@@ -347,10 +347,10 @@ public class UserService implements UserInfoService, Constant {
     }
 
     /**
-     * 处理登录失败，增加错误计数
+     * 处理登录失败，增加错误计数（原子操作）
      * <p>
-     * 记录用户登录失败次数，超过阈值后锁定账户。
-     * 使用Redis存储错误计数，并设置过期时间。
+     * 使用Redis原子操作记录用户登录失败次数，超过阈值后锁定账户。
+     * 避免高并发下的计数不准确问题。
      * </p>
      *
      * @param newAccessKey Redis键名
@@ -358,25 +358,26 @@ public class UserService implements UserInfoService, Constant {
      * @return 包含错误信息的用户结果
      */
     private UserResume check(String newAccessKey, Boolean hasKey) {
-        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
-
-        // 增加错误计数
-        if (null != hasKey && hasKey) {
-            int errorCount = Integer.parseInt(Objects.requireNonNull(valueOps.get(newAccessKey)));
-            valueOps.increment(newAccessKey);
-
-            // 如果达到最大错误次数，设置锁定状态
-            if (errorCount + 1 == count) {
-                stringRedisTemplate.expire(newAccessKey, timeout, TimeUnit.MINUTES);
-                return new UserResume("账号已被锁定");
-            }
-
-            return checkLimit(errorCount + 1);
-        } else {
-            // 首次错误，初始化计数器
-            valueOps.set(newAccessKey, "1", 24, TimeUnit.HOURS);
-            return checkLimit(1);
+        // 使用原子操作增加错误计数
+        Long errorCount = stringRedisTemplate.opsForValue().increment(newAccessKey);
+        if (errorCount == null) {
+            errorCount = 1L;
         }
+
+        // 首次错误，设置24小时过期
+        if (errorCount == 1) {
+            stringRedisTemplate.expire(newAccessKey, 24, TimeUnit.HOURS);
+        }
+
+        // 达到最大错误次数，锁定账户
+        if (errorCount >= count) {
+            // 锁定时重新设置较短的过期时间
+            stringRedisTemplate.expire(newAccessKey, timeout, TimeUnit.MINUTES);
+            log.warn("账户已被锁定: {}, 错误次数: {}", newAccessKey, errorCount);
+            return new UserResume("账户已被锁定，请" + timeout + "分钟后重试");
+        }
+
+        return checkLimit(errorCount.intValue());
     }
 
     /**
