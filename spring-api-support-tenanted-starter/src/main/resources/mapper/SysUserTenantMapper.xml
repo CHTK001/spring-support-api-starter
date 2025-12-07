@@ -7,7 +7,7 @@
         @author CH
         @since 2024/12/06
     -->
-    <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysUser">
+    <select id="selectOneByTenant" resultType="com.chua.starter.entity.system.SysUser">
         SELECT su.*
         FROM sys_user su
         WHERE su.sys_user_username = #{tenant.sysTenantUsername}

@@ -6,7 +6,7 @@
     INSERT INTO sys_user_role(sys_user_id, sys_role_id) VALUES(#{sysUserId}, (SELECT sys_role_id FROM sys_role WHERE sys_role_code = #{roleCode}))
   </insert>
 
-  <select id="selectOneByTenant" resultType="com.chua.starter.system.entity.SysUserRole">
+  <select id="selectOneByTenant" resultType="com.chua.starter.entity.system.SysUserRole">
     SELECT * FROM sys_user_role
     WHERE sys_user_id = #{sysUserId}
         AND sys_role_id = #{sysRoleId}

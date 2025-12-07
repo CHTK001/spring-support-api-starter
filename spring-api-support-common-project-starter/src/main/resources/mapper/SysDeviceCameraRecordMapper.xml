@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysDeviceCameraRecordMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysDeviceCameraRecord">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.project.SysDeviceCameraRecord">
     <!--@mbg.generated-->
     <!--@Table sys_device_camera_record-->
     <id column="sys_camera_record_id" jdbcType="INTEGER" property="sysCameraRecordId" />

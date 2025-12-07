@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysEmailLogMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysEmailLog">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.project.SysEmailLog">
     <!--@mbg.generated-->
     <!--@Table sys_email_log-->
     <id column="sys_email_log_id" jdbcType="INTEGER" property="sysEmailLogId" />

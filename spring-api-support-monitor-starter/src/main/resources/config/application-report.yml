@@ -7,5 +7,6 @@ plugin:
     server:
       protocol: websocket
       instances:
-        - port: ${server.port} + 10000
-        - port: ${server.port} + 10001
+        - port: 29170
+        - port: 29171
+    type: server

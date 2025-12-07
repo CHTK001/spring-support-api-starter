@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysAiVincentStyleMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysAiVincentStyle">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.project.SysAiVincentStyle">
     <!--@mbg.generated-->
     <!--@Table sys_ai_vincent_style-->
     <id column="sys_ai_vincent_style_id" jdbcType="INTEGER" property="sysAiVincentStyleId" />

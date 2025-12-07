@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.system.mapper.SysServiceMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysService">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.system.SysService">
     <!--@mbg.generated-->
     <!--@Table sys_service-->
     <id column="sys_service_id" jdbcType="INTEGER" property="sysServiceId" />

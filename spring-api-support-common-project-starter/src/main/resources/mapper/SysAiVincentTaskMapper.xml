@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysAiVincentTaskMapper">
 
-    <select id="history" resultType="com.chua.starter.system.entity.SysAiVincentTask">
+    <select id="history" resultType="com.chua.starter.entity.project.SysAiVincentTask">
         SELECT
             savt.sys_ai_vincent_task_condition,
             CONCAT(IFNULL(sp.sys_project_location_oss_address, 'http://127.0.0.1:11245'), '/', savt.sys_ai_vincent_task_local_url) sysAiVincentTaskLocalUrl,
