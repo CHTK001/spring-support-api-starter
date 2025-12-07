@@ -159,6 +159,7 @@ public class AuthServerProperties {
      * 可选值：
      * </p>
      * <ul>
+     * <li><strong>armeria</strong> - Armeria协议，基于Netty的高性能异步框架，支持HTTP/2和gRPC，【推荐】</li>
      * <li><strong>http</strong> - HTTP协议，基于RESTful API，兼容性好</li>
      * <li><strong>grpc</strong> - gRPC协议，基于HTTP/2，支持流式通信，性能优异</li>
      * <li><strong>tcp</strong> - TCP协议，二进制传输，高性能</li>
@@ -169,10 +170,10 @@ public class AuthServerProperties {
      * </ul>
      * <p>
      * <p>
-     * 默认值：[http]
+     * 默认值：[armeria, http] - 默认启用Armeria高性能协议，同时保留HTTP兼容
      * </p>
      */
-    private List<String> protocols = Lists.newArrayList("http");
+    private List<String> protocols = Lists.newArrayList("armeria", "http");
 
     /**
      * 是否启用AK/SK密钥校验
