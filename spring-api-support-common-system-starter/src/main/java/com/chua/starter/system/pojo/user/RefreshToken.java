@@ -8,9 +8,9 @@ import lombok.Data;
  * @since 2024/8/15
  */
 @Data
-@Schema(description = "鍒锋柊token")
+@Schema(description = "刷新token")
 public class RefreshToken {
 
-    @Schema(description = "鍒锋柊token")
+    @Schema(description = "刷新token")
     private String refreshToken;
 }

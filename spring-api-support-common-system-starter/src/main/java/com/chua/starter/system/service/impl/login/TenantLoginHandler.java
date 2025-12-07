@@ -23,7 +23,7 @@ import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
- * 榛樿鐧诲綍澶勭悊鍣?
+ * 默认登录处理鍣?
  *
  * @author CH
  * @since 2024/12/2
@@ -42,7 +42,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
     @Override
     public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
 //        if (StringUtils.isEmpty(loginData.getTenantId())) {
-//            return Result.failed(REQUEST_PARAM_ERROR, "绉熸埛缂栫爜涓嶈兘涓虹┖");
+//            return Result.failed(REQUEST_PARAM_ERROR, "绉熸埛编码不能为空");
 //        }
         Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
@@ -61,9 +61,9 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                         .build()
         );
 
-        log.info("鐧诲綍鑰楁椂:{}ms", System.currentTimeMillis() - startTime);
+        log.info("登录鑰楁椂:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "璐﹀彿鎴栬€呭瘑鐮佷笉姝ｇ‘");
+            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号鎴栬€呭瘑鐮佷笉姝ｇ‘");
         }
 
         if (accessToken.getCode() != 200) {

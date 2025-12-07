@@ -5,18 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 鐧诲綍鍝嶅簲瀵硅薄
+ * 登录响应瀵硅薄
  *
  */
-@Schema(description = "鐧诲綍鍝嶅簲瀵硅薄")
+@Schema(description = "登录响应瀵硅薄")
 @Data
 @Builder
 public class LoginResult {
 
-    @Schema(description = "璁块棶token")
+    @Schema(description = "访问token")
     private String accessToken;
 
-    @Schema(description = "token 绫诲瀷", example = "Bearer")
+    @Schema(description = "token 类型", example = "Bearer")
     private String tokenType;
 
     @Schema(description = "")

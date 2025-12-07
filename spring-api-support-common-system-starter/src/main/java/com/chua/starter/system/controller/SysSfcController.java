@@ -40,12 +40,12 @@ public class SysSfcController {
     private final SysSfcService sysSfcService;
 
     /**
-     * 瑙掕壊鍒嗛〉鍒楄〃
+     * 角色分页列表
      *
      * @param sysSfc 鏉′欢
-     * @return 瑙掕壊鍒嗛〉鍒楄〃
+     * @return 角色分页列表
      */
-    @Operation(summary = "缁勪欢鍒嗛〉鍒楄〃")
+    @Operation(summary = "缁勪欢分页列表")
     @GetMapping("/page")
     public ReturnPageResult<SysSfc> pageForRole(@ParameterObject Query<SysSfc> query, @ParameterObject SysSfc sysSfc,
                                                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -57,11 +57,11 @@ public class SysSfcController {
 
 
     /**
-     * 鑾峰彇缁勪欢鍒楄〃
+     * 获取组件列表
      *
-     * @return 缁勪欢鍒楄〃
+     * @return 组件列表
      */
-    @Operation(summary = "鑾峰彇缁勪欢")
+    @Operation(summary = "获取缁勪欢")
     @GetMapping("/get")
     public ReturnResult<String> getSfc(Long sysSfcId,
                                        @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -80,17 +80,17 @@ public class SysSfcController {
 
     public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, @Parameter(hidden = true) @UserValue("userId") String userId) {
         if(StringUtils.isBlank(sysSfcCategory)) {
-            return ReturnResult.fail("鍒嗙被涓嶈兘涓虹┖");
+            return ReturnResult.fail("鍒嗙被不能为空");
         }
         return sysSfcService.mine(sysSfcCategory, userId);
     }
     /**
-     * 娣诲姞缁勪欢
+     * 添加缁勪欢
      *
-     * @param sysSfc 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param sysSfc 数据
+     * @return 鏄惁成功
      */
-    @Operation(summary = "娣诲姞缁勪欢")
+    @Operation(summary = "添加缁勪欢")
     @PostMapping("/save")
     public ReturnResult<SysSfc> save(@RequestBody @Validated(AddGroup.class) SysSfc sysSfc, BindingResult bindingResult, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if (bindingResult.hasErrors()) {
@@ -100,12 +100,12 @@ public class SysSfcController {
     }
 
     /**
-     * 鏇存柊缁勪欢
+     * 更新缁勪欢
      *
-     * @param sysSfc 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param sysSfc 数据
+     * @return 鏄惁成功
      */
-    @Operation(summary = "鏇存柊缁勪欢")
+    @Operation(summary = "更新缁勪欢")
     @PutMapping("/update")
     public ReturnResult<Boolean> update(@RequestBody @Validated(UpdateGroup.class) SysSfc sysSfc,
                                         BindingResult bindingResult,
@@ -117,12 +117,12 @@ public class SysSfcController {
     }
 
     /**
-     * 鍒犻櫎缁勪欢
+     * 删除缁勪欢
      *
-     * @param sysSfcId 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param sysSfcId 数据
+     * @return 鏄惁成功
      */
-    @Operation(summary = "鍒犻櫎缁勪欢")
+    @Operation(summary = "删除缁勪欢")
     @DeleteMapping("/delete")
     public ReturnResult<Boolean> delete(Long sysSfcId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysSfcService.delete(sysSfcId, roles);
@@ -130,12 +130,12 @@ public class SysSfcController {
 
 
     /**
-     * 涓婁紶缁勪欢
+     * 上传缁勪欢
      *
-     * @param file 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param file 数据
+     * @return 鏄惁成功
      */
-    @Operation(summary = "涓婁紶缁勪欢")
+    @Operation(summary = "上传缁勪欢")
     @PostMapping("/upload")
     public ReturnResult<Boolean> uploadSfc(@RequestParam(value = "file") MultipartFile file, @Validated(UploadGroup.class) SysSfc sysSfc, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -148,8 +148,8 @@ public class SysSfcController {
     /**
      * 瀹夎缁勪欢
      *
-     * @param sysSfc 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param sysSfc 数据
+     * @return 鏄惁成功
      */
     @Operation(summary = "瀹夎缁勪欢")
     @PutMapping("/install")
@@ -162,8 +162,8 @@ public class SysSfcController {
     /**
      * 鍗歌浇缁勪欢
      *
-     * @param sysSfc 鏁版嵁
-     * @return 鏄惁鎴愬姛
+     * @param sysSfc 数据
+     * @return 鏄惁成功
      */
     @Operation(summary = "鍗歌浇缁勪欢")
     @PutMapping("/uninstall")
