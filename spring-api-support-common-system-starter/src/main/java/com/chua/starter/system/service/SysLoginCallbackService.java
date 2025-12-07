@@ -3,21 +3,21 @@ package com.chua.starter.system.service;
 import com.chua.starter.service.model.SysUser;
 
 /**
- * 登录回调
+ * 鐧诲綍鍥炶皟
  * @author CH
  * @since 2024/9/12
  */
 public interface SysLoginCallbackService {
     /**
-     * 根据用户id获取用户信息
-     * @param userId 用户id
-     * @return 用户信息
+     * 鏍规嵁鐢ㄦ埛id鑾峰彇鐢ㄦ埛淇℃伅
+     * @param userId 鐢ㄦ埛id
+     * @return 鐢ㄦ埛淇℃伅
      */
     SysUser getById(String userId);
 
     /**
-     * 更新用户信息
-     * @param sysUser 用户信息
+     * 鏇存柊鐢ㄦ埛淇℃伅
+     * @param sysUser 鐢ㄦ埛淇℃伅
      */
     void updateById(SysUser sysUser);
 }

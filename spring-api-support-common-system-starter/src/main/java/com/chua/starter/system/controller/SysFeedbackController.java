@@ -20,12 +20,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 反馈(缓存)
+ * 鍙嶉(缂撳瓨)
  *
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "反馈接口")
+@Tag(name = "鍙嶉鎺ュ彛")
 @RestController
 @RequestMapping("/v2/feedback")
 @RequiredArgsConstructor
@@ -35,26 +35,26 @@ public class SysFeedbackController {
     final SysFeedbackService sysFeedbackService;
 
     /**
-     * 反馈分页列表
+     * 鍙嶉鍒嗛〉鍒楄〃
      *
-     * @param feedbackV1Request 反馈请求
-     * @return 反馈分页列表
+     * @param feedbackV1Request 鍙嶉璇锋眰
+     * @return 鍙嶉鍒嗛〉鍒楄〃
      */
     @GetMapping("/page")
-    @Operation(summary = "反馈分页列表")
+    @Operation(summary = "鍙嶉鍒嗛〉鍒楄〃")
     public ReturnPageResult<SysFeedback> page(@ParameterObject FeedbackV1Request feedbackV1Request) {
         return sysFeedbackService.pageFor(feedbackV1Request);
     }
 
 
     /**
-     * 处理反馈问题
+     * 澶勭悊鍙嶉闂
      *
-     * @param request 反馈请求
-     * @return 反馈结果
+     * @param request 鍙嶉璇锋眰
+     * @return 鍙嶉缁撴灉
      */
     @PutMapping("/issue")
-    @Operation(summary = "处理反馈问题")
+    @Operation(summary = "澶勭悊鍙嶉闂")
     public ReturnResult<Boolean> issue(@Validated(UpdateGroup.class) @ParameterObject @RequestBody FeedbackIssueV1Request request,
                                        @UserValue UserResume userResume,
                                        BindingResult bindingResult
@@ -67,9 +67,9 @@ public class SysFeedbackController {
 
 
     /**
-     * 反馈统计
+     * 鍙嶉缁熻
      *
-     * @return 反馈统计
+     * @return 鍙嶉缁熻
      */
     public ReturnResult<FeedbackStatisticV1Response> statistic() {
         return null;

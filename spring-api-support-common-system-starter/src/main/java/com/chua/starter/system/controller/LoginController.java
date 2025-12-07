@@ -32,36 +32,36 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 
 /**
- * 登录
+ * 鐧诲綍
  * @author CH
  * @since 2024/9/12
  */
 @RestController
 @Slf4j
-@Api(tags = "登录接口")
-@Tag(name = "登录接口")
+@Api(tags = "鐧诲綍鎺ュ彛")
+@Tag(name = "鐧诲綍鎺ュ彛")
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class LoginController {
 
     final SysLoginService sysLoginService;
     /**
-     * 登录
+     * 鐧诲綍
      *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
+     * @param loginData     鐧诲綍淇℃伅
+     * @param request       璇锋眰
+     * @param response      鍝嶅簲
+     * @param bindingResult 鍙傛暟澶勭悊
+     * @return 缁撴灉
      */
-    @Operation(summary = "登录")
+    @Operation(summary = "鐧诲綍")
     @PostMapping("/login")
     @SysLog
     @UserLogger(module = "LOGIN",
-            name = "用户登录",
+            name = "鐢ㄦ埛鐧诲綍",
             action = Action.LOGIN,
             loginType = "WEB",
-            content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状�?#{#result.code}(#{#result.msg})]")
+            content = "#{#now} #{#args[0].username} 鐧诲綍绯荤粺, 鐧诲綍杩斿洖[鐘舵€?#{#result.code}(#{#result.msg})]")
     @Debounce(key = "#loginData.username #loginData.loginType")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
@@ -74,7 +74,7 @@ public class LoginController {
 
         return sysLoginService.login(loginData, request, response, fingerprint);
     }
-    @Operation(summary = "刷新token")
+    @Operation(summary = "鍒锋柊token")
     @PostMapping("/refresh-token")
     @SysLog
     @TokenForIgnore
@@ -89,18 +89,18 @@ public class LoginController {
         return sysLoginService.refresh(refreshToken, request, response);
     }
 
-    @Operation(summary = "注销")
-    @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系�? 登录返回[状�?#{#result.code}(#{#result.msg})]")
+    @Operation(summary = "娉ㄩ攢")
+    @UserLogger(module = "LOGIN", name = "鐢ㄦ埛鐧诲嚭", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 閫€鍑虹郴缁? 鐧诲綍杩斿洖[鐘舵€?#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
     public Result logout(@UserValue("token") String uid,String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
-            return Result.success("注销成功");
+            return Result.success("娉ㄩ攢鎴愬姛");
         }
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
         if (null == accessToken) {
-            return Result.failed("退出失败请稍后重试");
+            return Result.failed("閫€鍑哄け璐ヨ绋嶅悗閲嶈瘯");
         }
 
         if (accessToken.getCode() != 200) {
@@ -108,15 +108,15 @@ public class LoginController {
         }
 
         CookieUtil.remove(request, response, "x-oauth-cookie");
-        return Result.success("注销成功");
+        return Result.success("娉ㄩ攢鎴愬姛");
     }
 
     /**
-     * 获取当前登录用户信息
+     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛淇℃伅
      *
-     * @return 获取当前登录用户信息
+     * @return 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛淇℃伅
      */
-    @Operation(summary = "获取当前登录用户信息")
+    @Operation(summary = "鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛淇℃伅")
     @GetMapping("/me")
     public Result<UserInfoVO> getUserLoginInfo() {
         return Result.success(sysLoginService.getUserLoginInfo());

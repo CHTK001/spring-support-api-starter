@@ -19,13 +19,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 角色表
+ * 瑙掕壊琛?
  *
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "角色表")
-@Schema(description = "角色表")
+@ApiModel(description = "瑙掕壊琛?)
+@Schema(description = "瑙掕壊琛?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_role")
@@ -33,99 +33,99 @@ public class SysRole extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_role_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "角色ID")
-    @Schema(description = "角色ID")
-    @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class})
+    @ApiModelProperty(value = "瑙掕壊ID")
+    @Schema(description = "瑙掕壊ID")
+    @NotNull(message = "瑙掕壊ID涓嶈兘涓虹┖", groups = {UpdateGroup.class})
     private Integer sysRoleId;
 
     /**
-     * 角色名称
+     * 瑙掕壊鍚嶇О
      */
     @TableField(value = "sys_role_name")
-    @ApiModelProperty(value = "角色名称")
-    @Schema(description = "角色名称")
-    @Size(max = 255, message = "角色名称最大长度要小于 255")
+    @ApiModelProperty(value = "瑙掕壊鍚嶇О")
+    @Schema(description = "瑙掕壊鍚嶇О")
+    @Size(max = 255, message = "瑙掕壊鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysRoleName;
 
     /**
-     * 角色编码; 唯一
+     * 瑙掕壊缂栫爜; 鍞竴
      */
     @TableField(value = "sys_role_code")
-    @ApiModelProperty(value = "角色编码; 唯一")
-    @Schema(description = "角色编码; 唯一")
-    @Size(max = 255, message = "角色编码; 唯一最大长度要小于 255")
-    @NotEmpty(message = "角色编码; 唯一不能为空", groups = {AddGroup.class})
+    @ApiModelProperty(value = "瑙掕壊缂栫爜; 鍞竴")
+    @Schema(description = "瑙掕壊缂栫爜; 鍞竴")
+    @Size(max = 255, message = "瑙掕壊缂栫爜; 鍞竴鏈€澶ч暱搴﹁灏忎簬 255")
+    @NotEmpty(message = "瑙掕壊缂栫爜; 鍞竴涓嶈兘涓虹┖", groups = {AddGroup.class})
     private String sysRoleCode;
 
     /**
-     * 是否启用
+     * 鏄惁鍚敤
      */
     @TableField(value = "sys_role_status")
-    @ApiModelProperty(value = "是否启用; 0:不启用")
-    @Schema(description = "是否启用; 0:不启用")
+    @ApiModelProperty(value = "鏄惁鍚敤; 0:涓嶅惎鐢?)
+    @Schema(description = "鏄惁鍚敤; 0:涓嶅惎鐢?)
     private Integer sysRoleStatus;
 
     /**
-     * 优先级
+     * 浼樺厛绾?
      */
     @TableField(value = "sys_role_sort")
-    @ApiModelProperty(value = "优先级")
-    @Schema(description = "优先级")
+    @ApiModelProperty(value = "浼樺厛绾?)
+    @Schema(description = "浼樺厛绾?)
     private Integer sysRoleSort;
 
     /**
-     * 是否系统角色; 0:非系统角色
+     * 鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?
      */
     @TableField(value = "sys_role_in_system")
-    @ApiModelProperty(value = "是否系统角色; 0:非系统角色")
-    @Schema(description = "是否系统角色; 0:非系统角色")
+    @ApiModelProperty(value = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?)
+    @Schema(description = "鏄惁绯荤粺瑙掕壊; 0:闈炵郴缁熻鑹?)
     private Integer sysRoleInSystem;
 
     /**
-     * 备注
+     * 澶囨敞
      */
     @TableField(value = "sys_role_remark")
-    @ApiModelProperty(value = "备注")
-    @Schema(description = "备注")
-    @Size(max = 255, message = "备注最大长度要小于 255")
+    @ApiModelProperty(value = "澶囨敞")
+    @Schema(description = "澶囨敞")
+    @Size(max = 255, message = "澶囨敞鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysRoleRemark;
 
     /**
-     * 角色是否可读
+     * 瑙掕壊鏄惁鍙
      */
     @TableField(value = "sys_role_readable")
-    @ApiModelProperty(value = "角色是否可读")
-    @Schema(description = "角色是否可读")
+    @ApiModelProperty(value = "瑙掕壊鏄惁鍙")
+    @Schema(description = "瑙掕壊鏄惁鍙")
     private Integer sysRoleReadable = 0x0000_0001;
 
     /**
-     * 角色是否可写
+     * 瑙掕壊鏄惁鍙啓
      */
     @TableField(value = "sys_role_writeable")
-    @ApiModelProperty(value = "角色是否可写")
-    @Schema(description = "角色是否可写")
+    @ApiModelProperty(value = "瑙掕壊鏄惁鍙啓")
+    @Schema(description = "瑙掕壊鏄惁鍙啓")
     private Integer sysRoleWriteable;
 
     /**
-     * 角色是否可执行
+     * 瑙掕壊鏄惁鍙墽琛?
      */
     @TableField(value = "sys_role_executable")
-    @ApiModelProperty(value = "角色是否可执行")
-    @Schema(description = "角色是否可执行")
+    @ApiModelProperty(value = "瑙掕壊鏄惁鍙墽琛?)
+    @Schema(description = "瑙掕壊鏄惁鍙墽琛?)
     private Integer sysRoleExecutable;
 
     /**
-     * 角色可看板类型
+     * 瑙掕壊鍙湅鏉跨被鍨?
      */
     @TableField(value = "sys_role_board_card")
-    @ApiModelProperty(value = "角色可看板类型")
-    @Schema(description = "角色可看板类型")
+    @ApiModelProperty(value = "瑙掕壊鍙湅鏉跨被鍨?)
+    @Schema(description = "瑙掕壊鍙湅鏉跨被鍨?)
     private Integer sysRoleBoardCard;
 
     /**
-     * 用户ID
+     * 鐢ㄦ埛ID
      */
-    @Schema(description = "用户ID")
+    @Schema(description = "鐢ㄦ埛ID")
     @TableField(exist = false)
     private Integer sysUserId;
 }

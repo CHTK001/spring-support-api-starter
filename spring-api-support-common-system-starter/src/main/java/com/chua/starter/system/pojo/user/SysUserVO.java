@@ -18,129 +18,129 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 用户�?
+ * 鐢ㄦ埛琛?
  * @author CH
  * @since 2024/8/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "用户�?)
+@Schema(description = "鐢ㄦ埛琛?)
 public class SysUserVO  extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "")
     @Schema(description = "")
-    @NotNull(message = "不能为null")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysUserId;
 
     /**
-     * 账号
+     * 璐﹀彿
      */
     @TableField(value = "sys_user_username")
-    @ApiModelProperty(value = "账号")
-    @Schema(description = "账号")
-    @Size(max = 255, message = "账号最大长度要小于 255")
-    @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    @ApiModelProperty(value = "璐﹀彿")
+    @Schema(description = "璐﹀彿")
+    @Size(max = 255, message = "璐﹀彿鏈€澶ч暱搴﹁灏忎簬 255")
+    @NotEmpty(message = "璐﹀彿涓嶈兘涓虹┖", groups = {AddGroup.class})
     private String sysUserUsername;
 
     /**
-     * 名称
+     * 鍚嶇О
      */
     @TableField(value = "sys_user_nickname")
-    @ApiModelProperty(value = "名称")
-    @Schema(description = "名称")
-    @Size(max = 255, message = "名称最大长度要小于 255")
+    @ApiModelProperty(value = "鍚嶇О")
+    @Schema(description = "鍚嶇О")
+    @Size(max = 255, message = "鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserNickname;
 
     /**
-     * 是否启用�?：禁�?
+     * 鏄惁鍚敤锛?锛氱鐢?
      */
     @TableField(value = "sys_user_status")
-    @ApiModelProperty(value = "是否启用�?：禁�?)
-    @Schema(description = "是否启用�?：禁�?)
+    @ApiModelProperty(value = "鏄惁鍚敤锛?锛氱鐢?)
+    @Schema(description = "鏄惁鍚敤锛?锛氱鐢?)
     private Integer sysUserStatus;
 
     /**
-     * 手机�?
+     * 鎵嬫満鍙?
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "手机�?)
-    @Schema(description = "手机�?)
-    @Size(max = 255, message = "手机号最大长度要小于 255")
+    @ApiModelProperty(value = "鎵嬫満鍙?)
+    @Schema(description = "鎵嬫満鍙?)
+    @Size(max = 255, message = "鎵嬫満鍙锋渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserPhone;
     /**
-     * 邮箱
+     * 閭
      */
     @TableField(value = "sys_user_email")
-    @ApiModelProperty(value = "邮箱")
-    @Schema(description = "邮箱")
-    @Size(max = 255, message = "邮箱最大长度要小于 255")
+    @ApiModelProperty(value = "閭")
+    @Schema(description = "閭")
+    @Size(max = 255, message = "閭鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserEmail;
 
     /**
-     * 性别; 0:�?1:�? 2:其他
+     * 鎬у埆; 0:濂?1:鐢? 2:鍏朵粬
      */
     @TableField(value = "sys_user_sex")
-    @ApiModelProperty(value = "性别; 0:�?1:�? 2:其他")
-    @Schema(description = "性别; 0:�?1:�? 2:其他")
+    @ApiModelProperty(value = "鎬у埆; 0:濂?1:鐢? 2:鍏朵粬")
+    @Schema(description = "鎬у埆; 0:濂?1:鐢? 2:鍏朵粬")
     private Integer sysUserSex;
 
     /**
-     * 是否系统账号; 0: 非系统账�?
+     * 鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?
      */
     @TableField(value = "sys_user_in_system")
-    @ApiModelProperty(value = "是否系统账号; 0: 非系统账�?)
-    @Schema(description = "是否系统账号; 0: 非系统账�?)
+    @ApiModelProperty(value = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?)
+    @Schema(description = "鏄惁绯荤粺璐﹀彿; 0: 闈炵郴缁熻处鍙?)
     private Integer sysUserInSystem;
 
     /**
-     * 身份�?
+     * 韬唤璇?
      */
     @TableField(value = "sys_user_card")
-    @ApiModelProperty(value = "身份�?)
-    @Schema(description = "身份�?)
-    @Size(max = 255, message = "身份证最大长度要小于 255")
+    @ApiModelProperty(value = "韬唤璇?)
+    @Schema(description = "韬唤璇?)
+    @Size(max = 255, message = "韬唤璇佹渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserCard;
 
     /**
-     * 备注
+     * 澶囨敞
      */
     @TableField(value = "sys_user_remark")
-    @ApiModelProperty(value = "备注")
-    @Schema(description = "备注")
-    @Size(max = 255, message = "备注最大长度要小于 255")
+    @ApiModelProperty(value = "澶囨敞")
+    @Schema(description = "澶囨敞")
+    @Size(max = 255, message = "澶囨敞鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserRemark;
 
     /**
-     * 最后一次登录地�?
+     * 鏈€鍚庝竴娆＄櫥褰曞湴鐐?
      */
     @TableField(value = "sys_user_last_address")
-    @ApiModelProperty(value = "最后一次登录地�?)
-    @Schema(description = "最后一次登录地�?)
-    @Size(max = 255, message = "最后一次登录地点最大长度要小于 255")
+    @ApiModelProperty(value = "鏈€鍚庝竴娆＄櫥褰曞湴鐐?)
+    @Schema(description = "鏈€鍚庝竴娆＄櫥褰曞湴鐐?)
+    @Size(max = 255, message = "鏈€鍚庝竴娆＄櫥褰曞湴鐐规渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserLastAddress;
 
     /**
-     * 最后一次登录IP
+     * 鏈€鍚庝竴娆＄櫥褰旾P
      */
     @TableField(value = "sys_user_last_ip")
-    @ApiModelProperty(value = "最后一次登录IP")
-    @Schema(description = "最后一次登录IP")
-    @Size(max = 255, message = "最后一次登录IP最大长度要小于 255")
+    @ApiModelProperty(value = "鏈€鍚庝竴娆＄櫥褰旾P")
+    @Schema(description = "鏈€鍚庝竴娆＄櫥褰旾P")
+    @Size(max = 255, message = "鏈€鍚庝竴娆＄櫥褰旾P鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserLastIp;
     /**
-     * 注册IP
+     * 娉ㄥ唽IP
      */
     @TableField(value = "sys_user_register_ip")
-    @ApiModelProperty(value = "注册IP")
-    @Schema(description = "注册IP")
-    @Size(max = 255, message = "注册IP最大长度要小于 255")
+    @ApiModelProperty(value = "娉ㄥ唽IP")
+    @Schema(description = "娉ㄥ唽IP")
+    @Size(max = 255, message = "娉ㄥ唽IP鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserRegisterIp;
 
     /**
-     * 角色名称
+     * 瑙掕壊鍚嶇О
      */
-    @Schema(description = "角色(系统生成)")
+    @Schema(description = "瑙掕壊(绯荤粺鐢熸垚)")
     @TableField(exist = false)
     private List<SysRole> userRoles;
 }

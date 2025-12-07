@@ -13,19 +13,19 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "用户更新")
+@Schema(description = "鐢ㄦ埛鏇存柊")
 public class SysUserUpdate extends SysUser {
 
 
     /**
-     * 角色ID
+     * 瑙掕壊ID
      */
-    @Schema(description = "角色ID")
+    @Schema(description = "瑙掕壊ID")
     private List<String> roleIds;
 
     /**
-     * 是否更新角色
+     * 鏄惁鏇存柊瑙掕壊
      */
-    @Schema(description = "是否更新角色")
+    @Schema(description = "鏄惁鏇存柊瑙掕壊")
     private boolean updateRole;
 }

@@ -13,39 +13,36 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- *
+ * 鐢ㄦ埛 - 瑙掕壊鍏崇郴琛? *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
-
-/**
- * 用户 - 角色关系�?
- */
-@ApiModel(description = "用户 - 角色关系�?)
-@Schema(description = "用户 - 角色关系�?)
+@ApiModel(description = "鐢ㄦ埛 - 瑙掕壊鍏崇郴琛?)
+@Schema(description = "鐢ㄦ埛 - 瑙掕壊鍏崇郴琛?)
 @Data
 @TableName(value = "sys_user_role")
 public class SysUserRole implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "sys_user_role_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @NotNull(message = "不能为null")
+    @ApiModelProperty(value = "涓婚敭ID")
+    @Schema(description = "涓婚敭ID")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysUserRoleId;
 
     /**
-     * 用户ID
+     * 鐢ㄦ埛ID
      */
     @TableField(value = "sys_user_id")
-    @ApiModelProperty(value = "用户ID")
-    @Schema(description = "用户ID")
+    @ApiModelProperty(value = "鐢ㄦ埛ID")
+    @Schema(description = "鐢ㄦ埛ID")
     private Integer sysUserId;
 
     /**
-     * 角色ID
+     * 瑙掕壊ID
      */
     @TableField(value = "sys_role_id")
-    @ApiModelProperty(value = "角色ID")
-    @Schema(description = "角色ID")
+    @ApiModelProperty(value = "瑙掕壊ID")
+    @Schema(description = "瑙掕壊ID")
     private Integer sysRoleId;
 }

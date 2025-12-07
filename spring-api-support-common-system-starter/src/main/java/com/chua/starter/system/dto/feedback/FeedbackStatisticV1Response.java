@@ -1,7 +1,7 @@
 package com.chua.starter.system.dto.feedback;
 
 /**
- * 统计反馈信息
+ * 缁熻鍙嶉淇℃伅
  *
  * @author CH
  */

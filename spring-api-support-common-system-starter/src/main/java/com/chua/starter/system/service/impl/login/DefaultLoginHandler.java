@@ -27,7 +27,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 import static com.chua.starter.system.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_FACTORY;
 
 /**
- * 默认登录处理�?
+ * 榛樿鐧诲綍澶勭悊鍣?
  *
  * @author CH
  * @since 2024/12/2
@@ -60,9 +60,9 @@ public class DefaultLoginHandler implements LoginHandler {
                         .build()
         );
 
-        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
+        log.info("鐧诲綍鑰楁椂:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "璐﹀彿鎴栬€呭瘑鐮佷笉姝ｇ‘");
         }
 
         if (accessToken.getCode() != 200) {
@@ -80,7 +80,7 @@ public class DefaultLoginHandler implements LoginHandler {
     }
 
     /**
-     * 检查环�?
+     * 妫€鏌ョ幆澧?
      *
      * @param sysLoginService sysLoginService
      * @param loginData       loginData
@@ -92,18 +92,18 @@ public class DefaultLoginHandler implements LoginHandler {
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为�?);
+                return Result.failed(REQUEST_PARAM_ERROR, "楠岃瘉鐮佷笉鑳戒负绌?);
             }
             return sysLoginService.checkVerifyCode(loginData, request);
         }
 
         if(verifyCodeSetting.isCheckTotpCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为�?);
+                return Result.failed(REQUEST_PARAM_ERROR, "楠岃瘉鐮佷笉鑳戒负绌?);
             }
             ReturnResult<Boolean> verify = simpleSysUserService.verify(code, loginData.getUsername());
             if (!verify.isOk()) {
-                return Result.failed("验证码不正确");
+                return Result.failed("楠岃瘉鐮佷笉姝ｇ‘");
             }
 
         }

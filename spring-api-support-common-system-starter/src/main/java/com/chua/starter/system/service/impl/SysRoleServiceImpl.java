@@ -48,18 +48,18 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     @Override
     public ReturnResult<Boolean> delete(Long roleId) {
         if(null == roleId) {
-            return ReturnResult.fail("角色ID不能为空");
+            return ReturnResult.fail("瑙掕壊ID涓嶈兘涓虹┖");
         }
 
         SysRole sysRole = baseMapper.selectById(roleId);
         if(null == sysRole) {
-            return ReturnResult.fail("角色不存�? 请刷新后重试!");
+            return ReturnResult.fail("瑙掕壊涓嶅瓨鍦? 璇峰埛鏂板悗閲嶈瘯!");
         }
 
         Integer sysRoleInSystem = sysRole.getSysRoleInSystem();
 
         if(null != sysRoleInSystem && sysRoleInSystem == 1) {
-            return ReturnResult.fail("内置角色不允许删�?);
+            return ReturnResult.fail("鍐呯疆瑙掕壊涓嶅厑璁稿垹闄?);
         }
 
         return ReturnResult.of(baseMapper.deleteById(roleId) > 0);
@@ -70,7 +70,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
         if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isSuperAdmin(roles)) {
-            return ReturnResult.fail("内置角色不允许修�?);
+            return ReturnResult.fail("鍐呯疆瑙掕壊涓嶅厑璁镐慨鏀?);
         }
 
         sysRole.setSysRoleInSystem(null);
@@ -80,7 +80,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                     .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase())
                     .ne(SysRole::getSysRoleId, sysRole.getSysRoleId()));
             if(null != sysRole1) {
-                return ReturnResult.fail("角色编码已存�?);
+                return ReturnResult.fail("瑙掕壊缂栫爜宸插瓨鍦?);
             }
         }
 
@@ -95,18 +95,18 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 AuthConstant.SUPER_ADMIN.equalsIgnoreCase(sysRoleCode) ||
                 AuthConstant.OPS.equalsIgnoreCase(sysRoleCode)
         ) {
-            return ReturnResult.fail("不允许新建特殊角�?);
+            return ReturnResult.fail("涓嶅厑璁告柊寤虹壒娈婅鑹?);
         }
 
         SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
                 .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase()));
         if(null != sysRole1) {
-            return ReturnResult.fail("角色编码已存�?);
+            return ReturnResult.fail("瑙掕壊缂栫爜宸插瓨鍦?);
         }
         if(baseMapper.insert(sysRole) > 0) {
             return ReturnResult.success(sysRole);
         }
-        return ReturnResult.error("新增失败");
+        return ReturnResult.error("鏂板澶辫触");
     }
 
     @Override

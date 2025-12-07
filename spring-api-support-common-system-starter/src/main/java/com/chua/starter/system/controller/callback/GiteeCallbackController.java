@@ -40,15 +40,15 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.Map;
 
 /**
- * gitee接口
+ * gitee鎺ュ彛
  *
  * @author CH
  * @since 2024/9/4
  */
 @Controller
 @Slf4j
-@Api(tags = "三方登录回调(gitee)")
-@Tag(name = "三方登录回调(gitee)")
+@Api(tags = "涓夋柟鐧诲綍鍥炶皟(gitee)")
+@Tag(name = "涓夋柟鐧诲綍鍥炶皟(gitee)")
 @RequestMapping("/v2/third/login/gitee")
 @RequiredArgsConstructor
 public class GiteeCallbackController {
@@ -61,9 +61,9 @@ public class GiteeCallbackController {
     final AuthClientProperties authProperties;
 
     /**
-     * 校验�?
+     * 鏍￠獙鐮?
      *
-     * @param request 请求
+     * @param request 璇锋眰
      */
     @Ignore
     @GetMapping("binder")
@@ -73,12 +73,12 @@ public class GiteeCallbackController {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         if(null == userId) {
-            attributes.addFlashAttribute("msg", "请重�?重新登录重试");
+            attributes.addFlashAttribute("msg", "璇烽噸璇?閲嶆柊鐧诲綍閲嶈瘯");
             return view;
         }
         long count = sysUserThirdPartyService.count(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
         if(count > 0) {
-            attributes.addFlashAttribute("msg", "已绑�? 无须重复绑定");
+            attributes.addFlashAttribute("msg", "宸茬粦瀹? 鏃犻』閲嶅缁戝畾");
             return view;
         }
         String info = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_info");
@@ -118,9 +118,9 @@ public class GiteeCallbackController {
         return view;
     }
     /**
-     * 校验�?
+     * 鏍￠獙鐮?
      *
-     * @param request 请求
+     * @param request 璇锋眰
      */
     @Ignore
     @GetMapping("callback")
@@ -145,7 +145,7 @@ public class GiteeCallbackController {
         AuthUser authUser = (AuthUser) login.getData();
         SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid, authUser.getUuid()));
         if(null == userThirdParty) {
-            attributes.addFlashAttribute("msg", "第三方登录失�? 请重�?);
+            attributes.addFlashAttribute("msg", "绗笁鏂圭櫥褰曞け璐? 璇烽噸璇?);
             return new RedirectView();
         }
 

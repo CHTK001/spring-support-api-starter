@@ -18,81 +18,81 @@ public interface SysSfcService extends IService<SysSfc> {
 
 
     /**
-     * 分页列表
+     * 鍒嗛〉鍒楄〃
      *
-     * @param query   查询条件
-     * @param sysSfc 查询条件
-     * @param roles   角色
-     * @param userId  用户id
-     * @return 分页列表
+     * @param query   鏌ヨ鏉′欢
+     * @param sysSfc 鏌ヨ鏉′欢
+     * @param roles   瑙掕壊
+     * @param userId  鐢ㄦ埛id
+     * @return 鍒嗛〉鍒楄〃
      */
     IPage<SysSfc> pageForUserId(Query<SysSfc> query, SysSfc sysSfc, Set<String> roles, String userId);
 
 
     /**
-     * 上传组件
+     * 涓婁紶缁勪欢
      *
-     * @param file    文件
-     * @param sysSfc 组件信息
-     * @return 上传结果
+     * @param file    鏂囦欢
+     * @param sysSfc 缁勪欢淇℃伅
+     * @return 涓婁紶缁撴灉
      */
     ReturnResult<Boolean> uploadSfc(MultipartFile file, SysSfc sysSfc);
 
     /**
-     * 保存组件
+     * 淇濆瓨缁勪欢
      *
-     * @param sysSfc 组件信息
-     * @param roles  角色
-     * @return 保存结果
+     * @param sysSfc 缁勪欢淇℃伅
+     * @param roles  瑙掕壊
+     * @return 淇濆瓨缁撴灉
      */
     ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles);
 
     /**
-     * 更新组件
-     * @param sysSfc 组件信息
-     * @param roles 角色
-     * @return 更新结果
+     * 鏇存柊缁勪欢
+     * @param sysSfc 缁勪欢淇℃伅
+     * @param roles 瑙掕壊
+     * @return 鏇存柊缁撴灉
      */
     ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles);
 
     /**
-     * 删除组件
-     * @param sfcId 组件id
-     * @param roles 角色
-     * @return 删除结果
+     * 鍒犻櫎缁勪欢
+     * @param sfcId 缁勪欢id
+     * @param roles 瑙掕壊
+     * @return 鍒犻櫎缁撴灉
      */
     ReturnResult<Boolean> delete(Long sfcId, Set<String> roles);
 
     /**
-     * 安装组件
-     * @param sysSfc 组件信息
-     * @param userId 用户id
-     * @return 安装结果
+     * 瀹夎缁勪欢
+     * @param sysSfc 缁勪欢淇℃伅
+     * @param userId 鐢ㄦ埛id
+     * @return 瀹夎缁撴灉
      */
     ReturnResult<Boolean> install(SysSfc sysSfc, Integer userId);
 
     /**
-     * 卸载组件
-     * @param sysSfc 组件信息
-     * @param userId 用户id
-     * @return 卸载结果
+     * 鍗歌浇缁勪欢
+     * @param sysSfc 缁勪欢淇℃伅
+     * @param userId 鐢ㄦ埛id
+     * @return 鍗歌浇缁撴灉
      */
     ReturnResult<Boolean> uninstall(SysSfc sysSfc, Integer userId);
 
     /**
-     * 获取组件
-     * @param sysSfcId 组件id
-     * @param roles 角色
-     * @param userId 用户id
-     * @return 组件信息
+     * 鑾峰彇缁勪欢
+     * @param sysSfcId 缁勪欢id
+     * @param roles 瑙掕壊
+     * @param userId 鐢ㄦ埛id
+     * @return 缁勪欢淇℃伅
      */
     ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId);
 
     /**
-     * 我的组件
-     * @param sysSfcCategory 组件分类
-     * @param userId 用户id
-     * @return 组件列表
+     * 鎴戠殑缁勪欢
+     * @param sysSfcCategory 缁勪欢鍒嗙被
+     * @param userId 鐢ㄦ埛id
+     * @return 缁勪欢鍒楄〃
      */
     ReturnResult<List<SysSfc>> mine(String sysSfcCategory, String userId);
 }

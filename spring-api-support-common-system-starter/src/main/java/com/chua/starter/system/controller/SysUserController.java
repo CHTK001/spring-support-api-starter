@@ -36,11 +36,11 @@ import java.util.Set;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 
 /**
- * 用户接口
+ * 鐢ㄦ埛鎺ュ彛
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "用户接口")
+@Tag(name = "鐢ㄦ埛鎺ュ彛")
 @RestController
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
@@ -49,12 +49,12 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     /**
-     * 用户分页列表
+     * 鐢ㄦ埛鍒嗛〉鍒楄〃
      *
-     * @param sysUserQuery 条件
-     * @return 用户分页列表
+     * @param sysUserQuery 鏉′欢
+     * @return 鐢ㄦ埛鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "用户分页列表")
+    @Operation(summary = "鐢ㄦ埛鍒嗛〉鍒楄〃")
     @GetMapping("/page")
     @Permission(role = {ADMIN})
     public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
@@ -63,11 +63,11 @@ public class SysUserController {
 
 
     /**
-     * 获取当前用户布局
+     * 鑾峰彇褰撳墠鐢ㄦ埛甯冨眬
      *
-     * @return 获取当前用户布局
+     * @return 鑾峰彇褰撳墠鐢ㄦ埛甯冨眬
      */
-    @Operation(summary = "获取当前用户布局")
+    @Operation(summary = "鑾峰彇褰撳墠鐢ㄦ埛甯冨眬")
     @GetMapping("/layout")
     public ReturnResult<UserLayout> getUserLayout(
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
@@ -75,33 +75,33 @@ public class SysUserController {
         return ReturnResult.ok(sysUserService.getUserLayout(userId, roles));
     }
     /**
-     * 保存当前用户布局
+     * 淇濆瓨褰撳墠鐢ㄦ埛甯冨眬
      *
-     * @return 更新用户
+     * @return 鏇存柊鐢ㄦ埛
      */
-    @Operation(summary = "保存当前用户布局")
+    @Operation(summary = "淇濆瓨褰撳墠鐢ㄦ埛甯冨眬")
     @PutMapping("/layout")
     public ReturnResult<UserLayout> saveUserLayout(
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId, @RequestBody UserLayout userLayout) {
         return ReturnResult.ok(sysUserService.saveUserLayout(userId, userLayout));
     }
     /**
-     * 获取当前登录用户菜单
+     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟
      *
-     * @return 获取当前登录用户菜单
+     * @return 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟
      */
-    @Operation(summary = "获取当前登录用户菜单")
+    @Operation(summary = "鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鑿滃崟")
     @GetMapping("/menu")
     public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysUserService.getUserMenu(roles);
     }
 
     /**
-     * 删除用户
+     * 鍒犻櫎鐢ㄦ埛
      *
-     * @return 更新用户
+     * @return 鏇存柊鐢ㄦ埛
      */
-    @Operation(summary = "删除用户")
+    @Operation(summary = "鍒犻櫎鐢ㄦ埛")
     @DeleteMapping("/delete")
     @SysLog
     @UserLogger
@@ -109,55 +109,55 @@ public class SysUserController {
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
-            return Result.illegal("用户信息不存�?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦?);
         }
 
         return sysUserService.delete(sysUserId);
     }
 
     /**
-     * 重置自身密碼
+     * 閲嶇疆鑷韩瀵嗙⒓
      *
-     * @param userId 用戶ID
-     * @return 重置用户密碼
+     * @param userId 鐢ㄦ埗ID
+     * @return 閲嶇疆鐢ㄦ埛瀵嗙⒓
      */
-    @Operation(summary = "重置当前账号密碼")
+    @Operation(summary = "閲嶇疆褰撳墠璐﹀彿瀵嗙⒓")
     @GetMapping("/resetOwner")
     @SysLog
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
-            return Result.illegal("请重新登录或者联系管理员");
+            return Result.illegal("璇烽噸鏂扮櫥褰曟垨鑰呰仈绯荤鐞嗗憳");
         }
 
         return sysUserService.resetOwner(userId);
     }
 
     /**
-     * 重置用户密碼
+     * 閲嶇疆鐢ㄦ埛瀵嗙⒓
      *
-     * @param userId 用戶ID
-     * @return 重置用户密碼
+     * @param userId 鐢ㄦ埗ID
+     * @return 閲嶇疆鐢ㄦ埛瀵嗙⒓
      */
-    @Operation(summary = "重置用户密碼")
+    @Operation(summary = "閲嶇疆鐢ㄦ埛瀵嗙⒓")
     @GetMapping("/reset")
     @SysLog
     @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
-            return Result.illegal("用户信息不存�?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨鍦?);
         }
 
         return sysUserService.reset(userId);
     }
 
     /**
-     * 更新当前账号密码
+     * 鏇存柊褰撳墠璐﹀彿瀵嗙爜
      *
-     * @return 更新用户
+     * @return 鏇存柊鐢ㄦ埛
      */
-    @Operation(summary = "更新用户自身密码")
+    @Operation(summary = "鏇存柊鐢ㄦ埛鑷韩瀵嗙爜")
     @PutMapping("/updateOwner")
     @SysLog
     public ReturnResult<SysUser> updateOwner(
@@ -172,11 +172,11 @@ public class SysUserController {
         return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
     }
     /**
-     * 更新用户
+     * 鏇存柊鐢ㄦ埛
      *
-     * @return 更新用户
+     * @return 鏇存柊鐢ㄦ埛
      */
-    @Operation(summary = "更新用户")
+    @Operation(summary = "鏇存柊鐢ㄦ埛")
     @PutMapping("/update")
     @SysLog
     public ReturnResult<SysUser> update(
@@ -192,11 +192,11 @@ public class SysUserController {
     }
 
     /**
-     * 新增用户
+     * 鏂板鐢ㄦ埛
      *
-     * @return 新增用户
+     * @return 鏂板鐢ㄦ埛
      */
-    @Operation(summary = "新增用户")
+    @Operation(summary = "鏂板鐢ㄦ埛")
     @PostMapping("/save")
     @SysLog
     @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})

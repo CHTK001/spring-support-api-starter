@@ -89,11 +89,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<Boolean> delete(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("用户信息不存�?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟?);
         }
 
         if (1 == sysUser1.getSysUserInSystem()) {
-            return Result.illegal("系统账号不能删除");
+            return Result.illegal("绯荤粺璐﹀彿涓嶈兘鍒犻櫎");
         }
 
         return ReturnResult.of(removeById(userId));
@@ -103,7 +103,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> resetOwner(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("用户信息不存�? 请重新登录或者联系管理员");
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟? 璇烽噸鏂扮櫥褰曟垨鑰呰仈绯荤鐞嗗憳");
         }
 
         String newPassword = RandomUtils.randomString(8);
@@ -119,7 +119,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<String> reset(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
-            return Result.illegal("用户信息不存�?);
+            return Result.illegal("鐢ㄦ埛淇℃伅涓嶅瓨锟?);
         }
 
         String password = RandomUtils.randomString(8);
@@ -136,12 +136,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         Integer sysUserId = sysUser.getSysUserId();
         SysUser sysUser1;
         if (null == sysUserId) {
-            //更新自己账号
+            //鏇存柊鑷繁璐﹀彿
             sysUser1 = getById(userId);
         } else {
-            //更新指定账号
+            //鏇存柊鎸囧畾璐﹀彿
             if (!AuthConstant.hasAdmin(roles)) {
-                return Result.illegal("您的账号权限不足, 无法进行操作");
+                return Result.illegal("鎮ㄧ殑璐﹀彿鏉冮檺涓嶈冻, 鏃犳硶杩涜鎿嶄綔");
             }
             sysUser1 = getById(sysUserId);
         }
@@ -184,7 +184,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
         if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
         ) > 0L) {
-            return ReturnResult.illegal("账号已存�?);
+            return ReturnResult.illegal("璐﹀彿宸插瓨锟?);
         }
         sysUserUpdate.setSysUserSalt(RandomUtils.randomString(14));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
@@ -236,27 +236,27 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate) {
         SysUser sysUser = baseMapper.selectById(userId);
         if(null == sysUser) {
-            return ReturnResult.illegal("当前账号信息异常, 请重新登录或者刷新后重试!");
+            return ReturnResult.illegal("褰撳墠璐﹀彿淇℃伅寮傚父, 璇烽噸鏂扮櫥褰曟垨鑰呭埛鏂板悗閲嶈瘯!");
         }
 
         if(null != sysUser.getSysUserStatus() && sysUser.getSysUserStatus() == 0) {
-            return ReturnResult.illegal("您的账号已被禁用, 无法进行操作");
+            return ReturnResult.illegal("鎮ㄧ殑璐﹀彿宸茶绂佺敤, 鏃犳硶杩涜鎿嶄綔");
         }
 
         String oldPassword = sysUserPasswordUpdate.getOldPassword();
         if (StringUtils.isNotBlank(oldPassword)) {
             if (!DigestUtils.md5Hex(oldPassword + sysUser.getSysUserSalt()).equals(sysUser.getSysUserPassword())) {
-                return ReturnResult.illegal("当前密码错误");
+                return ReturnResult.illegal("褰撳墠瀵嗙爜閿欒");
             }
         } else {
-            return ReturnResult.illegal("当前密码不能为空");
+            return ReturnResult.illegal("褰撳墠瀵嗙爜涓嶈兘涓虹┖");
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
             sysUser.setSysUserSalt(RandomUtils.randomString(14));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
-            return ReturnResult.illegal("新密码不能为�?);
+            return ReturnResult.illegal("鏂板瘑鐮佷笉鑳戒负锟?);
         }
 
         updateById(sysUser);

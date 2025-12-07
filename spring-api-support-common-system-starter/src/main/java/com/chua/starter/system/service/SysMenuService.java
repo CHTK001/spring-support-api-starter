@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 系统菜单服务接口，定义了与系统菜单相关的业务操作
- * 继承了通用的服务接口IService<SysMenu>，提供了更具体的菜单操作方法
+ * 绯荤粺鑿滃崟鏈嶅姟鎺ュ彛锛屽畾涔変簡涓庣郴缁熻彍鍗曠浉鍏崇殑涓氬姟鎿嶄綔
+ * 缁ф壙浜嗛€氱敤鐨勬湇鍔℃帴鍙Service<SysMenu>锛屾彁渚涗簡鏇村叿浣撶殑鑿滃崟鎿嶄綔鏂规硶
  *
  * @since 2024/8/7
  * @author CH
@@ -22,73 +22,73 @@ public interface SysMenuService extends IService<SysMenu>{
 
 
     /**
-     * 根据条件查询系统菜单列表
+     * 鏍规嵁鏉′欢鏌ヨ绯荤粺鑿滃崟鍒楄〃
      *
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
-     * @param roles   当前用户拥有的角色集合，用于权限过滤
-     * @param  ignoreType 忽略的类�?
-     * @return 返回匹配的系统菜单列�?
+     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles   褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
+     * @param  ignoreType 蹇界暐鐨勭被鍨?
+     * @return 杩斿洖鍖归厤鐨勭郴缁熻彍鍗曞垪琛?
      */
     ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType);
 
     /**
-     * 查询所有系统菜单的缓存列表
-     * 该方法返回的结果会被缓存，使用了@Cacheable注解进行缓存管理
+     * 鏌ヨ鎵€鏈夌郴缁熻彍鍗曠殑缂撳瓨鍒楄〃
+     * 璇ユ柟娉曡繑鍥炵殑缁撴灉浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
      *
-     * @return 返回所有系统菜单的列表
+     * @return 杩斿洖鎵€鏈夌郴缁熻彍鍗曠殑鍒楄〃
      */
     List<SysMenu> listAll();
 
     /**
-     * 分页查询系统菜单列表
+     * 鍒嗛〉鏌ヨ绯荤粺鑿滃崟鍒楄〃
      *
-     * @param query 分页查询对象，设置了分页的大小和当前页码
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
-     * @param roles 当前用户拥有的角色集合，用于权限过滤
-     * @return 返回分页查询结果，包含了分页信息和菜单列�?
+     * @param query 鍒嗛〉鏌ヨ瀵硅薄锛岃缃簡鍒嗛〉鐨勫ぇ灏忓拰褰撳墠椤电爜
+     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
+     * @return 杩斿洖鍒嗛〉鏌ヨ缁撴灉锛屽寘鍚簡鍒嗛〉淇℃伅鍜岃彍鍗曞垪琛?
      */
     IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 删除指定的系统菜�?
+     * 鍒犻櫎鎸囧畾鐨勭郴缁熻彍鍗?
      *
-     * @param menuId 要删除的系统菜单的ID
-     * @return 返回删除操作的结果，包括是否成功和相关消�?
+     * @param menuId 瑕佸垹闄ょ殑绯荤粺鑿滃崟鐨処D
+     * @return 杩斿洖鍒犻櫎鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<Boolean> delete(Long menuId);
 
     /**
-     * 更新系统菜单的信�?
+     * 鏇存柊绯荤粺鑿滃崟鐨勪俊鎭?
      *
-     * @param roles 当前用户拥有的角色集合，用于权限校验
-     * @param sysMenu 要更新的系统菜单对象，包含更新后的属性�?
-     * @return 返回更新操作的结果，包括是否成功和相关消�?
+     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺鏍￠獙
+     * @param sysMenu 瑕佹洿鏂扮殑绯荤粺鑿滃崟瀵硅薄锛屽寘鍚洿鏂板悗鐨勫睘鎬у€?
+     * @return 杩斿洖鏇存柊鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu);
 
     /**
-     * 新增一个系统菜�?
+     * 鏂板涓€涓郴缁熻彍鍗?
      *
-     * @param sysMenu 新增的系统菜单对象，包含所有必要属�?
-     * @param roles 当前用户拥有的角色集合，用于权限校验
-     * @return 返回新增操作的结果，包括是否成功和相关消�?
+     * @param sysMenu 鏂板鐨勭郴缁熻彍鍗曞璞★紝鍖呭惈鎵€鏈夊繀瑕佸睘鎬?
+     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺鏍￠獙
+     * @return 杩斿洖鏂板鎿嶄綔鐨勭粨鏋滐紝鍖呮嫭鏄惁鎴愬姛鍜岀浉鍏虫秷鎭?
      */
     ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 根据条件查询系统菜单列表
+     * 鏍规嵁鏉′欢鏌ヨ绯荤粺鑿滃崟鍒楄〃
      *
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
-     * @param roles 当前用户拥有的角色集合，用于权限过滤
-     * @return 返回匹配的系统菜单列�?
+     * @param sysMenu 浣滀负鏌ヨ鏉′欢鐨勭郴缁熻彍鍗曞璞★紝鍙互鎸囧畾閮ㄥ垎灞炴€ц繘琛屾ā绯婃煡璇?
+     * @param roles 褰撳墠鐢ㄦ埛鎷ユ湁鐨勮鑹查泦鍚堬紝鐢ㄤ簬鏉冮檺杩囨护
+     * @return 杩斿洖鍖归厤鐨勭郴缁熻彍鍗曞垪琛?
      */
     ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 查询所有系统菜单的缓存列表
-     * 该方法返回的结果会被缓存，使用了@Cacheable注解进行缓存管理
+     * 鏌ヨ鎵€鏈夌郴缁熻彍鍗曠殑缂撳瓨鍒楄〃
+     * 璇ユ柟娉曡繑鍥炵殑缁撴灉浼氳缂撳瓨锛屼娇鐢ㄤ簡@Cacheable娉ㄨВ杩涜缂撳瓨绠＄悊
      *
-     * @return 返回所有系统菜单的列表
+     * @return 杩斿洖鎵€鏈夌郴缁熻彍鍗曠殑鍒楄〃
      */
     ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles);
 }

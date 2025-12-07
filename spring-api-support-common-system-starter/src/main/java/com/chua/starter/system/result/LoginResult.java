@@ -5,25 +5,25 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 登录响应对象
+ * 鐧诲綍鍝嶅簲瀵硅薄
  *
  */
-@Schema(description = "登录响应对象")
+@Schema(description = "鐧诲綍鍝嶅簲瀵硅薄")
 @Data
 @Builder
 public class LoginResult {
 
-    @Schema(description = "访问token")
+    @Schema(description = "璁块棶token")
     private String accessToken;
 
-    @Schema(description = "token 类型", example = "Bearer")
+    @Schema(description = "token 绫诲瀷", example = "Bearer")
     private String tokenType;
 
-    @Schema(description = "刷新token")
+    @Schema(description = "鍒锋柊token")
     private String refreshToken;
-    @Schema(description = "用户信息")
+    @Schema(description = "鐢ㄦ埛淇℃伅")
     private UserInfoVO userInfo;
-    @Schema(description = "过期时间(单位：毫�?")
+    @Schema(description = "杩囨湡鏃堕棿(鍗曚綅锛氭绉?")
     private Long expires;
 
 }

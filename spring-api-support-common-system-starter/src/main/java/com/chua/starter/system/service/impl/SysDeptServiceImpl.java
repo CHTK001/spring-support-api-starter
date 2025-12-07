@@ -61,10 +61,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != 0) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
-                return ReturnResult.illegal("上级部门不存�?);
+                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦?);
             }
             if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {
-                return ReturnResult.error("不能选择自己/子级作为父级菜单");
+                return ReturnResult.error("涓嶈兘閫夋嫨鑷繁/瀛愮骇浣滀负鐖剁骇鑿滃崟");
             }
 
             String menuTreeId = Joiner.on(",").join(parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
@@ -83,11 +83,11 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
-                return ReturnResult.illegal("上级部门不存�?);
+                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦?);
             }
 
             if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {
-                return ReturnResult.error("不能选择自己/子级作为父级菜单");
+                return ReturnResult.error("涓嶈兘閫夋嫨鑷繁/瀛愮骇浣滀负鐖剁骇鑿滃崟");
             }
 
             parentTreeId = parentSysDept.getSysDeptTreeId();

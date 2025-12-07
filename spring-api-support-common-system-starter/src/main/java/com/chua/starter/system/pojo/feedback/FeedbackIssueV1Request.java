@@ -1,44 +1,33 @@
 package com.chua.starter.system.pojo.feedback;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysFeedback;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * 反馈请求
+ * 鍙嶉闂璇锋眰
  *
  * @author CH
- * @since 2025/4/9 10:05
+ * @since 2024/8/20
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "反馈请求")
-public class FeedbackIssueV1Request extends Query<SysFeedback> {
+@Schema(description = "鍙嶉闂璇锋眰")
+public class FeedbackIssueV1Request {
 
     /**
-     * 反馈编码
+     * 鍙嶉ID
      */
-    @Schema(description = "问题编码")
+    @Schema(description = "鍙嶉ID")
     private Integer sysFeedbackId;
 
     /**
-     * 回复内容
+     * 鍥炲鍐呭
      */
-    @TableField(value = "sys_feedback_recover_content")
-    @Schema(description = "回复内容")
-    @NotBlank(message = "回复内容不能为空", groups = {UpdateGroup.class})
+    @Schema(description = "鍥炲鍐呭")
     private String sysFeedbackRecoverContent;
 
-
     /**
-     * 回复的图�?
+     * 鍥炲鍥剧墖
      */
-    @TableField(value = "sys_feedback_recover_images")
-    @Schema(description = "回复的图�?)
+    @Schema(description = "鍥炲鍥剧墖")
     private String sysFeedbackRecoverImages;
 }
