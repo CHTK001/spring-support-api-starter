@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service;
 
+import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.pojo.ServerMetricsData;
 import lombok.Data;
@@ -36,7 +37,7 @@ public class PrometheusDataCollectorService {
      */
     private RestTemplate createRestTemplate() {
         RestTemplate template = new RestTemplate();
-
+        restTemplate.setInterceptors(Collections.singletonList(new RestTemplateTraceIdInterceptor()));
         // 设置超时时间
         org.springframework.http.client.HttpComponentsClientHttpRequestFactory factory =
             new org.springframework.http.client.HttpComponentsClientHttpRequestFactory();
