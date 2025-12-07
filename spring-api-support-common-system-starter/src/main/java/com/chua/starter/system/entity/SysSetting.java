@@ -47,11 +47,11 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingName;
 
     /**
-     * 配置值
+     * 配置�?
      */
     @TableField(value = "sys_setting_value")
-    @ApiModelProperty(value = "配置值")
-    @Schema(description = "配置值")
+    @ApiModelProperty(value = "配置�?)
+    @Schema(description = "配置�?)
     @Size(max = 255, message = "配置值最大长度要小于 255")
     private String sysSettingValue;
     /**
@@ -72,14 +72,14 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingRemark;
 
     /**
-     * 优先级
+     * 优先�?
      */
     @TableField(value = "sys_setting_sort")
-    @ApiModelProperty(value = "优先级")
-    @Schema(description = "优先级")
+    @ApiModelProperty(value = "优先�?)
+    @Schema(description = "优先�?)
     private Integer sysSettingSort;
     /**
-     * 是否启用; 0:不启用
+     * 是否启用; 0:不启�?
      */
     @TableField(value = "sys_setting_version")
     @ApiModelProperty(value = "版本")
@@ -87,62 +87,62 @@ public class SysSetting extends SysBase implements Serializable {
     @Version
     private Integer sysSettingVersion;
     /**
-     * 是否启用; 0:不启用
+     * 是否启用; 0:不启�?
      */
     @TableField(value = "sys_setting_status")
-    @ApiModelProperty(value = "是否启用; 0:不启用")
-    @Schema(description = "是否启用; 0:不启用")
+    @ApiModelProperty(value = "是否启用; 0:不启�?)
+    @Schema(description = "是否启用; 0:不启�?)
     private Integer sysSettingStatus;
 
     /**
-     * 是否只有管理员生效
+     * 是否只有管理员生�?
      */
     @TableField(value = "sys_setting_admin")
-    @ApiModelProperty(value = "是否只有管理员生效; 0:不生效")
-    @Schema(description = "是否只有管理员生效; 0:不生效")
+    @ApiModelProperty(value = "是否只有管理员生�? 0:不生�?)
+    @Schema(description = "是否只有管理员生�? 0:不生�?)
     private Integer sysSettingAdmin;
 
     /**
-     * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
+     * 配置类型; 用于前端组件判断; e.g.BOOL：布�?
      */
     @TableField(value = "sys_setting_value_type")
-    @ApiModelProperty(value = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
-    @Schema(description = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
+    @ApiModelProperty(value = "配置类型; 用于前端组件判断; e.g.BOOL：布�?)
+    @Schema(description = "配置类型; 用于前端组件判断; e.g.BOOL：布�?)
     @Size(max = 255, message = "配置类型; 用于前端组件判断; e.g.BOOL：布尔最大长度要小于 255")
     private String sysSettingValueType;
 
     /**
-     * 配置所属分组
+     * 配置所属分�?
      */
     @TableField(value = "sys_setting_group")
-    @ApiModelProperty(value = "配置所属分组")
-    @Schema(description = "配置所属分组")
+    @ApiModelProperty(value = "配置所属分�?)
+    @Schema(description = "配置所属分�?)
     @Size(max = 255, message = "配置所属分组最大长度要小于 255")
     @NotNull(message = "配置名称不能为null", groups = {AddGroup.class})
     private String sysSettingGroup;
 
     /**
-     * 配置所属来源
+     * 配置所属来�?
      */
     @TableField(value = "sys_setting_collect")
-    @ApiModelProperty(value = "是否是多个配置集合;0:单个")
-    @Schema(description = "是否是多个配置集合;0:单个")
-    @Size(max = 255, message = "是否是多个配置集合;0:单个最大长度要小于 255")
+    @ApiModelProperty(value = "是否是多个配置集�?0:单个")
+    @Schema(description = "是否是多个配置集�?0:单个")
+    @Size(max = 255, message = "是否是多个配置集�?0:单个最大长度要小于 255")
     private Integer sysSettingCollect;
 
     /**
-     * 是否系统配置; 0:非系统配置
+     * 是否系统配置; 0:非系统配�?
      */
     @TableField(value = "sys_setting_in_system")
-    @ApiModelProperty(value = "是否系统配置; 0:非系统配置")
-    @Schema(description = "是否系统配置; 0:非系统配置")
+    @ApiModelProperty(value = "是否系统配置; 0:非系统配�?)
+    @Schema(description = "是否系统配置; 0:非系统配�?)
     private Integer sysSettingInSystem;
 
     /**
-     * 配置是否作用域系统启动
+     * 配置是否作用域系统启�?
      */
     @TableField(value = "sys_setting_app_inner")
-    @ApiModelProperty(value = "配置是否作用域系统启动")
-    @Schema(description = "配置是否作用域系统启动")
+    @ApiModelProperty(value = "配置是否作用域系统启�?)
+    @Schema(description = "配置是否作用域系统启�?)
     private Integer sysSettingAppInner;
 }

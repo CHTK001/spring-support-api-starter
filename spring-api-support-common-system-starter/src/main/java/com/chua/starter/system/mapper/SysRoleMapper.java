@@ -1,7 +1,7 @@
 package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.service.entity.SysRole;
+import com.chua.starter.service.model.SysRole;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,7 +23,7 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     List<SysRole> listByUserId(@Param("userIds") Set<Integer> userIds);
 
     /**
-     * 根据租户id查询管理员角色
+     * 根据租户id查询管理员角�?
      *
      * @param sysTenantId 租户id
      * @param sysRoleCode 角色编码
@@ -32,7 +32,7 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     SysRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId, @Param("sysRoleCode") String sysRoleCode);
 
     /**
-     * 根据租户id查询管理员角色
+     * 根据租户id查询管理员角�?
      *
      * @param sysTenantId 租户id
      * @param sysTenantId 租户ID

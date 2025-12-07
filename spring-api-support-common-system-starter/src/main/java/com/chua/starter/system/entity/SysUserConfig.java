@@ -21,10 +21,10 @@ import java.io.Serializable;
  * @author CH    
  */
 /**
- * 用户信息 - 用户设置表
+ * 用户信息 - 用户设置�?
  */
-@ApiModel(description="用户信息 - 用户设置表")
-@Schema(description="用户信息 - 用户设置表")
+@ApiModel(description="用户信息 - 用户设置�?)
+@Schema(description="用户信息 - 用户设置�?)
 @Data
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_user_config")

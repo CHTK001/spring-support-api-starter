@@ -45,10 +45,10 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackContent;
 
     /**
-     * 反馈类型;0:未处理, 1:已处理
+     * 反馈类型;0:未处�? 1:已处�?
      */
     @TableField(value = "sys_feedback_status")
-    @Schema(description = "反馈类型;0:未处理, 1:已处理")
+    @Schema(description = "反馈类型;0:未处�? 1:已处�?)
     private Integer sysFeedbackStatus;
 
     /**
@@ -59,10 +59,10 @@ public class SysFeedback extends SysBase {
     private Integer sysFeedbackDealBy;
 
     /**
-     * 处理人名称
+     * 处理人名�?
      */
     @TableField(value = "sys_feedback_deal_name")
-    @Schema(description = "处理人名称")
+    @Schema(description = "处理人名�?)
     private String sysFeedbackDealName;
 
     /**
@@ -80,9 +80,9 @@ public class SysFeedback extends SysBase {
     private LocalDateTime sysFeedbackRecoverTime;
 
     /**
-     * 回复的图片
+     * 回复的图�?
      */
     @TableField(value = "sys_feedback_recover_images")
-    @Schema(description = "回复的图片")
+    @Schema(description = "回复的图�?)
     private String sysFeedbackRecoverImages;
 }

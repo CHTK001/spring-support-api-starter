@@ -27,7 +27,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 import static com.chua.starter.system.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_FACTORY;
 
 /**
- * 默认登录处理器
+ * 默认登录处理�?
  *
  * @author CH
  * @since 2024/12/2
@@ -80,7 +80,7 @@ public class DefaultLoginHandler implements LoginHandler {
     }
 
     /**
-     * 检查环境
+     * 检查环�?
      *
      * @param sysLoginService sysLoginService
      * @param loginData       loginData
@@ -92,14 +92,14 @@ public class DefaultLoginHandler implements LoginHandler {
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
+                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为�?);
             }
             return sysLoginService.checkVerifyCode(loginData, request);
         }
 
         if(verifyCodeSetting.isCheckTotpCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
+                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为�?);
             }
             ReturnResult<Boolean> verify = simpleSysUserService.verify(code, loginData.getUsername());
             if (!verify.isOk()) {

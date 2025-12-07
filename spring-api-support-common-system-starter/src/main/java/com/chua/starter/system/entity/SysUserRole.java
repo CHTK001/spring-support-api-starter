@@ -19,10 +19,10 @@ import java.io.Serializable;
  */
 
 /**
- * 用户 - 角色关系表
+ * 用户 - 角色关系�?
  */
-@ApiModel(description = "用户 - 角色关系表")
-@Schema(description = "用户 - 角色关系表")
+@ApiModel(description = "用户 - 角色关系�?)
+@Schema(description = "用户 - 角色关系�?)
 @Data
 @TableName(value = "sys_user_role")
 public class SysUserRole implements Serializable {

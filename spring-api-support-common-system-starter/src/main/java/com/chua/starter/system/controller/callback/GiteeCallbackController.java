@@ -13,8 +13,8 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.SysUserThirdPartyService;
-import com.chua.starter.service.entity.SysUser;
-import com.chua.starter.service.entity.SysUserThirdParty;
+import com.chua.starter.service.model.SysUser;
+import com.chua.starter.service.model.SysUserThirdParty;
 import com.chua.starter.service.result.LoginResult;
 import com.chua.starter.system.service.SysLoginCallbackService;
 import com.chua.starter.system.service.SysLoginService;
@@ -61,7 +61,7 @@ public class GiteeCallbackController {
     final AuthClientProperties authProperties;
 
     /**
-     * 校验码
+     * 校验�?
      *
      * @param request 请求
      */
@@ -73,12 +73,12 @@ public class GiteeCallbackController {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         if(null == userId) {
-            attributes.addFlashAttribute("msg", "请重试/重新登录重试");
+            attributes.addFlashAttribute("msg", "请重�?重新登录重试");
             return view;
         }
         long count = sysUserThirdPartyService.count(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
         if(count > 0) {
-            attributes.addFlashAttribute("msg", "已绑定, 无须重复绑定");
+            attributes.addFlashAttribute("msg", "已绑�? 无须重复绑定");
             return view;
         }
         String info = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_info");
@@ -118,7 +118,7 @@ public class GiteeCallbackController {
         return view;
     }
     /**
-     * 校验码
+     * 校验�?
      *
      * @param request 请求
      */
@@ -145,7 +145,7 @@ public class GiteeCallbackController {
         AuthUser authUser = (AuthUser) login.getData();
         SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid, authUser.getUuid()));
         if(null == userThirdParty) {
-            attributes.addFlashAttribute("msg", "第三方登录失败, 请重试");
+            attributes.addFlashAttribute("msg", "第三方登录失�? 请重�?);
             return new RedirectView();
         }
 

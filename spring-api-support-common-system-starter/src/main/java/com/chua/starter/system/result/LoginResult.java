@@ -23,7 +23,7 @@ public class LoginResult {
     private String refreshToken;
     @Schema(description = "用户信息")
     private UserInfoVO userInfo;
-    @Schema(description = "过期时间(单位：毫秒)")
+    @Schema(description = "过期时间(单位：毫�?")
     private Long expires;
 
 }

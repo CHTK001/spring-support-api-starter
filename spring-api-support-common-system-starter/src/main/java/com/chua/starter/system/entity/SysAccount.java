@@ -57,10 +57,10 @@ public class SysAccount extends SysBase {
     private String sysAccountAvatar;
 
     /**
-     * 手机号
+     * 手机�?
      */
     @TableField(value = "sys_account_phone")
-    @Schema(description = "手机号")
+    @Schema(description = "手机�?)
     private String sysAccountPhone;
 
     /**

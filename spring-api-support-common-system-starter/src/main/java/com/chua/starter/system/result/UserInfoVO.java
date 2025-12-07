@@ -49,11 +49,11 @@ public class UserInfoVO {
     private String sysUserNickname;
 
     /**
-     * 手机号
+     * 手机�?
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "手机号")
-    @Schema(description = "手机号")
+    @ApiModelProperty(value = "手机�?)
+    @Schema(description = "手机�?)
     @Size(max = 255, message = "手机号最大长度要小于 255")
     private String sysUserPhone;
     /**

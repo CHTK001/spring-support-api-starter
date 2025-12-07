@@ -22,10 +22,10 @@ import java.math.BigDecimal;
  */
 
 /**
- * 用户日志表
+ * 用户日志�?
  */
-@ApiModel(description = "用户日志表")
-@Schema(description = "用户日志表")
+@ApiModel(description = "用户日志�?)
+@Schema(description = "用户日志�?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_log")
@@ -54,7 +54,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogLoginType;
 
     /**
-     * 浏览器
+     * 浏览�?
      */
     @TableField(value = "sys_log_ua")
     @ApiModelProperty(value = "浏览器ua")
@@ -63,19 +63,19 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUa;
 
     /**
-     * 浏览器指纹
+     * 浏览器指�?
      */
     @TableField(value = "sys_log_fingerprint")
-    @ApiModelProperty(value = "浏览器指纹")
-    @Schema(description = "浏览器指纹")
+    @ApiModelProperty(value = "浏览器指�?)
+    @Schema(description = "浏览器指�?)
     private String sysLogFingerprint;
 
     /**
-     * 浏览器
+     * 浏览�?
      */
     @TableField(value = "sys_log_browser")
-    @ApiModelProperty(value = "浏览器")
-    @Schema(description = "浏览器")
+    @ApiModelProperty(value = "浏览�?)
+    @Schema(description = "浏览�?)
     @Size(max = 255, message = "浏览器最大长度要小于 255")
     private String sysLogBrowser;
     /**
@@ -105,11 +105,11 @@ public class SysUserLog extends SysBase implements Serializable {
     @Size(max = 255, message = "请求地址最大长度要小于 255")
     private String sysLogAddress;
     /**
-     * 运营商
+     * 运营�?
      */
     @TableField(value = "sys_log_isp")
-    @ApiModelProperty(value = "运营商")
-    @Schema(description = "运营商")
+    @ApiModelProperty(value = "运营�?)
+    @Schema(description = "运营�?)
     @Size(max = 255, message = "运营商最大长度要小于 255")
     private String sysLogIsp;
     /**
@@ -147,11 +147,11 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogFrom;
 
     /**
-     * 请求状态; 0: 失败; 1: 成功
+     * 请求状�? 0: 失败; 1: 成功
      */
     @TableField(value = "sys_log_status")
-    @ApiModelProperty(value = "请求状态; 0: 失败; 1: 成功")
-    @Schema(description = "请求状态; 0: 失败; 1: 成功")
+    @ApiModelProperty(value = "请求状�? 0: 失败; 1: 成功")
+    @Schema(description = "请求状�? 0: 失败; 1: 成功")
     private Integer sysLogStatus;
     /**
      * 请求消息

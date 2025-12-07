@@ -11,8 +11,8 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.UrlUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.entity.SysSfc;
-import com.chua.starter.service.entity.SysSfcInstall;
+import com.chua.starter.system.entity.SysSfc;
+import com.chua.starter.system.entity.SysSfcInstall;
 import com.chua.starter.system.mapper.SysSfcInstallMapper;
 import com.chua.starter.system.mapper.SysSfcMapper;
 import com.chua.starter.system.service.SysSfcService;
@@ -49,7 +49,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<Boolean> uploadSfc(MultipartFile multipartFile, SysSfc sysSfc) {
         if(null == multipartFile) {
-            return ReturnResult.error("请上传组件");
+            return ReturnResult.error("请上传组�?);
         }
         Integer sysSfcId = sysSfc.getSysSfcId();
         File file = new File("./sfc/" + sysSfcId);
@@ -63,7 +63,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
             try (InputStream is = multipartFile.getInputStream()){
                 FileUtils.writeTo(is, filePath);
             } catch (IOException e) {
-                return ReturnResult.error("请重新上传");
+                return ReturnResult.error("请重新上�?);
             }
 
             return ReturnResult.of(true);
@@ -73,7 +73,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("无权限新增组件");
+            return ReturnResult.error("无权限新增组�?);
         }
         sysSfc.setSysSfcStatus(1);
         baseMapper.insert(sysSfc);
@@ -83,7 +83,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("无权限修改组件");
+            return ReturnResult.error("无权限修改组�?);
         }
         return ReturnResult.of(baseMapper.updateById(sysSfc) > 0);
     }
@@ -91,7 +91,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     @Override
     public ReturnResult<Boolean> delete(Long sysSfcId, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.error("无权限删除组件");
+            return ReturnResult.error("无权限删除组�?);
         }
 
         if(baseMapper.deleteById(sysSfcId) > 0) {
@@ -112,7 +112,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
                 .eq(SysSfcInstall::getSysSfcId, sysSfc.getSysSfcId())
                 .eq(SysSfcInstall::getUserId, userId)
         )) {
-            return ReturnResult.error(StringUtils.format("组件{}已安装", sysSfc.getSysSfcName()));
+            return ReturnResult.error(StringUtils.format("组件{}已安�?, sysSfc.getSysSfcName()));
         }
 
         return transactionTemplate.execute(stats -> {
@@ -134,7 +134,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
                 .eq(SysSfcInstall::getSysSfcId, sysSfc.getSysSfcId())
                 .eq(SysSfcInstall::getUserId, userId)
         )) {
-            return ReturnResult.error(StringUtils.format("组件{}未安装", sysSfc.getSysSfcName()));
+            return ReturnResult.error(StringUtils.format("组件{}未安�?, sysSfc.getSysSfcName()));
         }
 
         return transactionTemplate.execute(stats -> {
@@ -153,7 +153,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     public ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId) {
         SysSfc sysSfc = baseMapper.selectById(sysSfcId);
         if(sysSfc.getSysSfcType() == 0 && StringUtils.isBlank(sysSfc.getSysSfcPath())) {
-            return ReturnResult.error("组件不存在");
+            return ReturnResult.error("组件不存�?);
         }
 
         Integer sysSfcType = sysSfc.getSysSfcType();
@@ -178,7 +178,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
         File newFile = new File( sysSfc.getSysSfcPath());
         if(!newFile.exists()) {
-            return ReturnResult.error("组件不存在");
+            return ReturnResult.error("组件不存�?);
         }
 
         try (FileInputStream fis = new FileInputStream(newFile)) {

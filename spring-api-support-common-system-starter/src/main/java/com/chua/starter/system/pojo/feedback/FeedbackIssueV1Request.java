@@ -3,7 +3,7 @@ package com.chua.starter.system.pojo.feedback;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.entity.SysFeedback;
+import com.chua.starter.system.entity.SysFeedback;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -36,9 +36,9 @@ public class FeedbackIssueV1Request extends Query<SysFeedback> {
 
 
     /**
-     * 回复的图片
+     * 回复的图�?
      */
     @TableField(value = "sys_feedback_recover_images")
-    @Schema(description = "回复的图片")
+    @Schema(description = "回复的图�?)
     private String sysFeedbackRecoverImages;
 }

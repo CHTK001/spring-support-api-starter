@@ -8,8 +8,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.entity.SysRole;
-import com.chua.starter.service.entity.SysRoleMenu;
+import com.chua.starter.service.model.SysRole;
+import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.pojo.role.RoleMenuUpdate;
 import com.chua.starter.system.service.SysRoleMenuService;
@@ -53,13 +53,13 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         SysRole sysRole = baseMapper.selectById(roleId);
         if(null == sysRole) {
-            return ReturnResult.fail("角色不存在, 请刷新后重试!");
+            return ReturnResult.fail("角色不存�? 请刷新后重试!");
         }
 
         Integer sysRoleInSystem = sysRole.getSysRoleInSystem();
 
         if(null != sysRoleInSystem && sysRoleInSystem == 1) {
-            return ReturnResult.fail("内置角色不允许删除");
+            return ReturnResult.fail("内置角色不允许删�?);
         }
 
         return ReturnResult.of(baseMapper.deleteById(roleId) > 0);
@@ -70,7 +70,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
         if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isSuperAdmin(roles)) {
-            return ReturnResult.fail("内置角色不允许修改");
+            return ReturnResult.fail("内置角色不允许修�?);
         }
 
         sysRole.setSysRoleInSystem(null);
@@ -80,7 +80,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                     .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase())
                     .ne(SysRole::getSysRoleId, sysRole.getSysRoleId()));
             if(null != sysRole1) {
-                return ReturnResult.fail("角色编码已存在");
+                return ReturnResult.fail("角色编码已存�?);
             }
         }
 
@@ -95,13 +95,13 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 AuthConstant.SUPER_ADMIN.equalsIgnoreCase(sysRoleCode) ||
                 AuthConstant.OPS.equalsIgnoreCase(sysRoleCode)
         ) {
-            return ReturnResult.fail("不允许新建特殊角色");
+            return ReturnResult.fail("不允许新建特殊角�?);
         }
 
         SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
                 .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase()));
         if(null != sysRole1) {
-            return ReturnResult.fail("角色编码已存在");
+            return ReturnResult.fail("角色编码已存�?);
         }
         if(baseMapper.insert(sysRole) > 0) {
             return ReturnResult.success(sysRole);

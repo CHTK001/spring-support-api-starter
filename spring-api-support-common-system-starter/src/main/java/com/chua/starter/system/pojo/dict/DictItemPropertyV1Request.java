@@ -1,18 +1,18 @@
 package com.chua.starter.service.pojo.dict;
 
-import com.chua.starter.service.entity.SysDictItemProperty;
+import com.chua.starter.system.entity.SysDictItemProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 字典子项属性
+ * 字典子项属�?
  *
  * @author CH
  */
 @Data
-@Schema(description = "字典子项属性")
+@Schema(description = "字典子项属�?)
 public class DictItemPropertyV1Request {
 
     /**
@@ -22,8 +22,8 @@ public class DictItemPropertyV1Request {
     private Integer sysDictItemId;
 
     /**
-     * 字典子项属性
+     * 字典子项属�?
      */
-    @Schema(description = "字典子项属性")
+    @Schema(description = "字典子项属�?)
     private List<SysDictItemProperty> property;
 }

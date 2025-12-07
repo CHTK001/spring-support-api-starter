@@ -1,6 +1,6 @@
 package com.chua.starter.system.service.impl;
 
-import com.chua.starter.service.entity.SysUser;
+import com.chua.starter.service.model.SysUser;
 import com.chua.starter.system.service.SimpleSysUserService;
 import com.chua.starter.system.service.SysLoginCallbackService;
 import lombok.RequiredArgsConstructor;

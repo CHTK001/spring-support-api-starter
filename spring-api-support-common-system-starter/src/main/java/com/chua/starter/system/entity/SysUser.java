@@ -23,10 +23,10 @@ import java.util.List;
  */
 
 /**
- * 用户表
+ * 用户�?
  */
-@ApiModel(description = "用户表")
-@Schema(description = "用户表")
+@ApiModel(description = "用户�?)
+@Schema(description = "用户�?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user")
@@ -88,11 +88,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserAvatar;
 
     /**
-     * 盐
+     * �?
      */
     @TableField(value = "sys_user_salt")
-    @ApiModelProperty(value = "盐")
-    @Schema(description = "盐")
+    @ApiModelProperty(value = "�?)
+    @Schema(description = "�?)
     @Size(max = 255, message = "盐最大长度要小于 255")
     private String sysUserSalt;
 
@@ -106,11 +106,11 @@ public class SysUser extends SysBase implements Serializable {
 
 
     /**
-     * 是否删除; 0: 未删除
+     * 是否删除; 0: 未删�?
      */
     @TableField(value = "sys_user_delete")
-    @ApiModelProperty(value = "是否删除; 0: 未删除")
-    @Schema(description = "是否删除; 0: 未删除")
+    @ApiModelProperty(value = "是否删除; 0: 未删�?)
+    @Schema(description = "是否删除; 0: 未删�?)
     @TableLogic(value = "0", delval = "1")
     private Integer sysUserDelete;
 
@@ -124,19 +124,19 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysDeptId;
 
     /**
-     * 是否启用；0：禁用
+     * 是否启用�?：禁�?
      */
     @TableField(value = "sys_user_status")
-    @ApiModelProperty(value = "是否启用；0：禁用")
-    @Schema(description = "是否启用；0：禁用")
+    @ApiModelProperty(value = "是否启用�?：禁�?)
+    @Schema(description = "是否启用�?：禁�?)
     private Integer sysUserStatus;
 
     /**
-     * 手机号
+     * 手机�?
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "手机号")
-    @Schema(description = "手机号")
+    @ApiModelProperty(value = "手机�?)
+    @Schema(description = "手机�?)
     @Size(max = 255, message = "手机号最大长度要小于 255")
     private String sysUserPhone;
     /**
@@ -149,11 +149,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserEmail;
 
     /**
-     * 性别; 0:女;1:男; 2:其他
+     * 性别; 0:�?1:�? 2:其他
      */
     @TableField(value = "sys_user_sex")
-    @ApiModelProperty(value = "性别; 0:女;1:男; 2:其他")
-    @Schema(description = "性别; 0:女;1:男; 2:其他")
+    @ApiModelProperty(value = "性别; 0:�?1:�? 2:其他")
+    @Schema(description = "性别; 0:�?1:�? 2:其他")
     private Integer sysUserSex;
 
     /**
@@ -165,19 +165,19 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserLongCount;
 
     /**
-     * 是否系统账号; 0: 非系统账号
+     * 是否系统账号; 0: 非系统账�?
      */
     @TableField(value = "sys_user_in_system")
-    @ApiModelProperty(value = "是否系统账号; 0: 非系统账号")
-    @Schema(description = "是否系统账号; 0: 非系统账号")
+    @ApiModelProperty(value = "是否系统账号; 0: 非系统账�?)
+    @Schema(description = "是否系统账号; 0: 非系统账�?)
     private Integer sysUserInSystem;
 
     /**
-     * 身份证
+     * 身份�?
      */
     @TableField(value = "sys_user_card")
-    @ApiModelProperty(value = "身份证")
-    @Schema(description = "身份证")
+    @ApiModelProperty(value = "身份�?)
+    @Schema(description = "身份�?)
     @Size(max = 255, message = "身份证最大长度要小于 255")
     private String sysUserCard;
 
@@ -191,11 +191,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRemark;
 
     /**
-     * 最后一次登录地点
+     * 最后一次登录地�?
      */
     @TableField(value = "sys_user_last_address")
-    @ApiModelProperty(value = "最后一次登录地点")
-    @Schema(description = "最后一次登录地点")
+    @ApiModelProperty(value = "最后一次登录地�?)
+    @Schema(description = "最后一次登录地�?)
     @Size(max = 255, message = "最后一次登录地点最大长度要小于 255")
     private String sysUserLastAddress;
     /**
