@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.entity.SysUserLog;
-import com.chua.starter.service.pojo.user.log.SysUserLogQuery;
+import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 
 import java.util.Set;
 

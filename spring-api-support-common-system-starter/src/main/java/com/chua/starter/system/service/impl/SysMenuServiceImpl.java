@@ -14,7 +14,7 @@ import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.entity.SysMenu;
-import com.chua.starter.service.model.SysRole;
+import com.chua.starter.system.model.SysRole;
 import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysMenuMapper;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
