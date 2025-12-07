@@ -3,7 +3,7 @@ package com.chua.starter.project.scheduler.device;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.support.CameraService;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.service.entity.SysDictItem;
 import com.github.yulichang.toolkit.MPJWrappers;

@@ -2,7 +2,7 @@ package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.service.entity.SysCity;
+import com.chua.starter.entity.service.SysCity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

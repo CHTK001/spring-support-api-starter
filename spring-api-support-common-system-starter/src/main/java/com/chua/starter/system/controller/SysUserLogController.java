@@ -10,7 +10,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.system.entity.SysUserLog;
+import com.chua.starter.entity.system.SysUserLog;
 import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import io.swagger.v3.oas.annotations.Operation;

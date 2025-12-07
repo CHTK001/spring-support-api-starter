@@ -1,6 +1,6 @@
 package com.chua.starter.project.pojo.device;
 
-import com.chua.starter.project.entity.SysDeviceChannel;
+import com.chua.starter.entity.project.SysDeviceChannel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

@@ -1,7 +1,7 @@
 package com.chua.starter.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.service.model.SysUserThirdParty;
+import com.chua.starter.entity.system.SysUserThirdParty;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

@@ -6,7 +6,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.mapper.SysCityMapper;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.service.entity.SysCity;
+import com.chua.starter.entity.service.SysCity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

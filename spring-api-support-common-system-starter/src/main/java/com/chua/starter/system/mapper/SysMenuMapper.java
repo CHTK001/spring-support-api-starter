@@ -1,7 +1,7 @@
 package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.system.entity.SysMenu;
+import com.chua.starter.entity.system.SysMenu;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

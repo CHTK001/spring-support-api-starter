@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.project.entity.SysDeviceCameraRecord;
+import com.chua.starter.entity.project.SysDeviceCameraRecord;
 
 /**
  * 设备摄像头记录服务接口

@@ -4,23 +4,24 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 鏃ユ湡鏌ヨ
+ * 日期查询
  *
  * @author CH
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "鏃ユ湡鏌ヨ")
+@Schema(description = "日期查询")
 public class DateQuery {
 
     /**
-     * 寮€濮嬫棩鏈"     */
-    @Schema(description = "寮€濮嬫棩鏈")
+     * 开始日期
+     */
+    @Schema(description = "开始日期")
     private String startDate;
 
     /**
-     * 缁撴潫鏃ユ湡
+     * 结束日期
      */
-    @Schema(description = "缁撴潫鏃ユ湡")
+    @Schema(description = "结束日期")
     private String endDate;
 }

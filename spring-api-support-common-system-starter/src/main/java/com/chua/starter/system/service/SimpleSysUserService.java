@@ -2,7 +2,7 @@ package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 import jakarta.validation.constraints.NotNull;
 
 /**

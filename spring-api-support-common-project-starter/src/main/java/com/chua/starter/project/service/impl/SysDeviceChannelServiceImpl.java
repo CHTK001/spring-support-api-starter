@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.project.mapper.SysDeviceChannelMapper;
 import com.chua.starter.project.service.SysDeviceChannelService;
-import com.chua.starter.project.entity.SysDeviceChannel;
+import com.chua.starter.entity.project.SysDeviceChannel;
 import com.chua.starter.project.pojo.device.SysDeviceChannelV1Request;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

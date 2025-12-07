@@ -23,19 +23,8 @@
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-nacos-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-discovery-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-sse-starter</artifactId>
+            <artifactId>spring-api-support-common-entity-starter</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
@@ -48,11 +37,6 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-tenant-starter</artifactId>
             <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-alibaba-starter</artifactId>
         </dependency>
 
         <dependency>

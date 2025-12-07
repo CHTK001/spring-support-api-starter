@@ -3,7 +3,7 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.result.PutObjectResult;
-import com.chua.starter.service.entity.SysTaskSso;
+import com.chua.starter.entity.service.SysTaskSso;
 import com.chua.starter.service.pojo.sso.*;
 import org.springframework.web.multipart.MultipartFile;
 

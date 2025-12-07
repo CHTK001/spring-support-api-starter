@@ -2,7 +2,7 @@ package com.chua.starter.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.project.entity.SysAiVincentTemplate;
+import com.chua.starter.entity.project.SysAiVincentTemplate;
 
 import java.util.List;
 

@@ -18,8 +18,8 @@ import com.chua.starter.project.service.support.hikvision.query.SysDeviceCameraO
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
 import com.chua.starter.project.service.support.hikvision.yunyao.YunYaoEntranceFactory;
 import com.chua.starter.project.service.support.hikvision.yunyao.YunYaoResourceFactory;
-import com.chua.starter.project.entity.SysDeviceCardEvent;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysDeviceCardEvent;
+import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import lombok.extern.slf4j.Slf4j;

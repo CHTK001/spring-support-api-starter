@@ -2,7 +2,7 @@ package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.service.entity.SysDictItemProperty;
+import com.chua.starter.entity.service.SysDictItemProperty;
 import com.chua.starter.service.pojo.dict.DictItemPropertyV1Request;
 
 /**

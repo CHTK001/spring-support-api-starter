@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.project.entity.SysAiGroup;
+import com.chua.starter.entity.project.SysAiGroup;
 import com.baomidou.mybatisplus.extension.service.IService;
 import lombok.NonNull;
 

@@ -3,7 +3,7 @@ package com.chua.starter.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.entity.SysMessageHistory;
+import com.chua.starter.entity.service.SysMessageHistory;
 
 import java.util.List;
 
