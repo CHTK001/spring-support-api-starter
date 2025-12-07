@@ -5,7 +5,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -58,7 +57,7 @@ public class SysSecretController {
     @Permission(value = "sys:secret:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysSecretId) {
         if (null == sysSecretId) {
-            return Result.illegal("密钥信息不存在");
+            return ReturnResult.illegal("密钥信息不存在");
         }
 
         return sysSecretService.delete(sysSecretId);
@@ -78,7 +77,7 @@ public class SysSecretController {
             @Validated(UpdateGroup.class) @RequestBody SysSecret sysSecret,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSecretService.update(roles, sysSecret);
@@ -97,7 +96,7 @@ public class SysSecretController {
             @Validated(AddGroup.class) @RequestBody SysSecret sysSecret,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysSecretService.save(sysSecret, roles);
     }

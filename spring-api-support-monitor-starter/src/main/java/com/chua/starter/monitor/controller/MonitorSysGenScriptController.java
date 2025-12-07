@@ -2,7 +2,6 @@ package com.chua.starter.monitor.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptExecution;
 import com.chua.starter.monitor.pojo.ScriptManagementDTO;
@@ -46,10 +45,10 @@ public class MonitorSysGenScriptController {
             @RequestBody ScriptManagementDTO.ScriptQueryDTO queryDTO) {
         try {
             IPage<MonitorSysGenScript> page = monitorSysGenScriptService.getScriptPage(queryDTO);
-            return Result.ok(page);
+            return ReturnResult.ok(page);
         } catch (Exception e) {
             log.error("查询脚本列表失败", e);
-            return Result.error("查询脚本列表失败: " + e.getMessage());
+            return ReturnResult.error("查询脚本列表失败: " + e.getMessage());
         }
     }
 
@@ -63,12 +62,12 @@ public class MonitorSysGenScriptController {
         try {
             MonitorSysGenScript script = monitorSysGenScriptService.getScriptById(scriptId);
             if (script == null) {
-                return Result.error("脚本不存在");
+                return ReturnResult.error("脚本不存在");
             }
-            return Result.ok(script);
+            return ReturnResult.ok(script);
         } catch (Exception e) {
             log.error("获取脚本详情失败: scriptId={}", scriptId, e);
-            return Result.error("获取脚本详情失败: " + e.getMessage());
+            return ReturnResult.error("获取脚本详情失败: " + e.getMessage());
         }
     }
 
@@ -80,10 +79,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<MonitorSysGenScript> createScript(@Valid @RequestBody MonitorSysGenScript script) {
         try {
             MonitorSysGenScript result = monitorSysGenScriptService.createScript(script);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("创建脚本失败", e);
-            return Result.error("创建脚本失败: " + e.getMessage());
+            return ReturnResult.error("创建脚本失败: " + e.getMessage());
         }
     }
 
@@ -95,10 +94,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<MonitorSysGenScript> updateScript(@Valid @RequestBody MonitorSysGenScript script) {
         try {
             MonitorSysGenScript result = monitorSysGenScriptService.updateScript(script);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("更新脚本失败", e);
-            return Result.error("更新脚本失败: " + e.getMessage());
+            return ReturnResult.error("更新脚本失败: " + e.getMessage());
         }
     }
 
@@ -111,10 +110,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "脚本ID") @PathVariable @NotNull Integer scriptId) {
         try {
             boolean result = monitorSysGenScriptService.deleteScript(scriptId);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("删除脚本失败: scriptId={}", scriptId, e);
-            return Result.error("删除脚本失败: " + e.getMessage());
+            return ReturnResult.error("删除脚本失败: " + e.getMessage());
         }
     }
 
@@ -127,10 +126,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "脚本ID列表") @RequestBody List<Integer> scriptIds) {
         try {
             boolean result = monitorSysGenScriptService.batchDeleteScripts(scriptIds);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("批量删除脚本失败: scriptIds={}", scriptIds, e);
-            return Result.error("批量删除脚本失败: " + e.getMessage());
+            return ReturnResult.error("批量删除脚本失败: " + e.getMessage());
         }
     }
 
@@ -144,10 +143,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "脚本状态") @RequestParam @NotNull Integer status) {
         try {
             boolean result = monitorSysGenScriptService.updateScriptStatus(scriptId, status);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("更新脚本状态失败: scriptId={}, status={}", scriptId, status, e);
-            return Result.error("更新脚本状态失败: " + e.getMessage());
+            return ReturnResult.error("更新脚本状态失败: " + e.getMessage());
         }
     }
 
@@ -161,10 +160,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "新脚本名称") @RequestParam @NotNull String newScriptName) {
         try {
             MonitorSysGenScript result = monitorSysGenScriptService.copyScript(scriptId, newScriptName);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("复制脚本失败: scriptId={}, newScriptName={}", scriptId, newScriptName, e);
-            return Result.error("复制脚本失败: " + e.getMessage());
+            return ReturnResult.error("复制脚本失败: " + e.getMessage());
         }
     }
 
@@ -178,10 +177,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "排除的脚本ID") @RequestParam(required = false) Integer excludeId) {
         try {
             boolean available = monitorSysGenScriptService.isScriptNameAvailable(scriptName, excludeId);
-            return Result.ok(available);
+            return ReturnResult.ok(available);
         } catch (Exception e) {
             log.error("检查脚本名称失败: scriptName={}, excludeId={}", scriptName, excludeId, e);
-            return Result.error("检查脚本名称失败: " + e.getMessage());
+            return ReturnResult.error("检查脚本名称失败: " + e.getMessage());
         }
     }
 
@@ -195,10 +194,10 @@ public class MonitorSysGenScriptController {
             @RequestBody ScriptManagementDTO.ScriptExecuteRequestDTO requestDTO) {
         try {
             MonitorSysGenScriptExecution result = monitorSysGenScriptService.executeScript(scriptId, requestDTO);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("执行脚本失败: scriptId={}", scriptId, e);
-            return Result.error("执行脚本失败: " + e.getMessage());
+            return ReturnResult.error("执行脚本失败: " + e.getMessage());
         }
     }
 
@@ -211,10 +210,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "执行记录ID") @PathVariable @NotNull Long executionId) {
         try {
             boolean result = monitorSysGenScriptService.stopScriptExecution(executionId);
-            return Result.ok(result);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("停止脚本执行失败: executionId={}", executionId, e);
-            return Result.error("停止脚本执行失败: " + e.getMessage());
+            return ReturnResult.error("停止脚本执行失败: " + e.getMessage());
         }
     }
 
@@ -236,10 +235,10 @@ public class MonitorSysGenScriptController {
         try {
             IPage<MonitorSysGenScriptExecution> page = monitorSysGenScriptService.getExecutionHistory(
                     scriptId, serverId, status, triggerType, triggerUser, startTime, endTime, pageNum, pageSize);
-            return Result.ok(page);
+            return ReturnResult.ok(page);
         } catch (Exception e) {
             log.error("获取脚本执行历史失败: scriptId={}", scriptId, e);
-            return Result.error("获取脚本执行历史失败: " + e.getMessage());
+            return ReturnResult.error("获取脚本执行历史失败: " + e.getMessage());
         }
     }
 
@@ -259,10 +258,10 @@ public class MonitorSysGenScriptController {
         try {
             java.util.List<MonitorSysGenScriptExecution> list = monitorSysGenScriptService.getAllExecutionHistory(
                     scriptId, serverId, status, triggerType, triggerUser, startTime, endTime);
-            return Result.ok(list);
+            return ReturnResult.ok(list);
         } catch (Exception e) {
             log.error("获取所有脚本执行历史失败", e);
-            return Result.error("获取所有脚本执行历史失败: " + e.getMessage());
+            return ReturnResult.error("获取所有脚本执行历史失败: " + e.getMessage());
         }
     }
 
@@ -274,10 +273,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<Integer> cleanExpiredExecutions(@Parameter(description = "保留天数") @RequestParam(defaultValue = "30") Integer days) {
         try {
             int count = monitorSysGenScriptService.cleanExpiredExecutions(days);
-            return Result.ok(count);
+            return ReturnResult.ok(count);
         } catch (Exception e) {
             log.error("清理执行记录失败", e);
-            return Result.error("清理执行记录失败: " + e.getMessage());
+            return ReturnResult.error("清理执行记录失败: " + e.getMessage());
         }
     }
 
@@ -289,10 +288,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<Boolean> batchDeleteExecutions(@RequestBody java.util.List<Long> executionIds) {
         try {
             boolean ok = monitorSysGenScriptService.batchDeleteExecutions(executionIds);
-            return Result.ok(ok);
+            return ReturnResult.ok(ok);
         } catch (Exception e) {
             log.error("批量删除执行记录失败", e);
-            return Result.error("批量删除执行记录失败: " + e.getMessage());
+            return ReturnResult.error("批量删除执行记录失败: " + e.getMessage());
         }
     }
 
@@ -306,12 +305,12 @@ public class MonitorSysGenScriptController {
         try {
             MonitorSysGenScriptExecution execution = monitorSysGenScriptService.getExecutionDetail(executionId);
             if (execution == null) {
-                return Result.error("执行记录不存在");
+                return ReturnResult.error("执行记录不存在");
             }
-            return Result.ok(execution);
+            return ReturnResult.ok(execution);
         } catch (Exception e) {
             log.error("获取执行详情失败: executionId={}", executionId, e);
-            return Result.error("获取执行详情失败: " + e.getMessage());
+            return ReturnResult.error("获取执行详情失败: " + e.getMessage());
         }
     }
 
@@ -323,10 +322,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<List<MonitorSysGenScriptExecution>> getRunningExecutions() {
         try {
             List<MonitorSysGenScriptExecution> executions = monitorSysGenScriptService.getRunningExecutions();
-            return Result.ok(executions);
+            return ReturnResult.ok(executions);
         } catch (Exception e) {
             log.error("获取正在运行的执行记录失败", e);
-            return Result.error("获取正在运行的执行记录失败: " + e.getMessage());
+            return ReturnResult.error("获取正在运行的执行记录失败: " + e.getMessage());
         }
     }
 
@@ -338,10 +337,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<Map<String, Object>> getScriptStatistics() {
         try {
             Map<String, Object> statistics = monitorSysGenScriptService.getScriptStatistics();
-            return Result.ok(statistics);
+            return ReturnResult.ok(statistics);
         } catch (Exception e) {
             log.error("获取脚本统计信息失败", e);
-            return Result.error("获取脚本统计信息失败: " + e.getMessage());
+            return ReturnResult.error("获取脚本统计信息失败: " + e.getMessage());
         }
     }
 
@@ -354,10 +353,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "限制数量") @RequestParam(defaultValue = "10") Integer limit) {
         try {
             List<MonitorSysGenScript> scripts = monitorSysGenScriptService.getRecentScripts(limit);
-            return Result.ok(scripts);
+            return ReturnResult.ok(scripts);
         } catch (Exception e) {
             log.error("获取最近执行的脚本失败", e);
-            return Result.error("获取最近执行的脚本失败: " + e.getMessage());
+            return ReturnResult.error("获取最近执行的脚本失败: " + e.getMessage());
         }
     }
 
@@ -370,10 +369,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "限制数量") @RequestParam(defaultValue = "10") Integer limit) {
         try {
             List<MonitorSysGenScript> scripts = monitorSysGenScriptService.getPopularScripts(limit);
-            return Result.ok(scripts);
+            return ReturnResult.ok(scripts);
         } catch (Exception e) {
             log.error("获取热门脚本失败", e);
-            return Result.error("获取热门脚本失败: " + e.getMessage());
+            return ReturnResult.error("获取热门脚本失败: " + e.getMessage());
         }
     }
 
@@ -386,10 +385,10 @@ public class MonitorSysGenScriptController {
             @Parameter(description = "脚本ID") @PathVariable @NotNull Integer scriptId) {
         try {
             Map<String, Object> exportData = monitorSysGenScriptService.exportScript(scriptId);
-            return Result.ok(exportData);
+            return ReturnResult.ok(exportData);
         } catch (Exception e) {
             log.error("导出脚本失败: scriptId={}", scriptId, e);
-            return Result.error("导出脚本失败: " + e.getMessage());
+            return ReturnResult.error("导出脚本失败: " + e.getMessage());
         }
     }
 
@@ -401,10 +400,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<MonitorSysGenScript> importScript(@RequestBody Map<String, Object> scriptData) {
         try {
             MonitorSysGenScript script = monitorSysGenScriptService.importScript(scriptData);
-            return Result.ok(script);
+            return ReturnResult.ok(script);
         } catch (Exception e) {
             log.error("导入脚本失败", e);
-            return Result.error("导入脚本失败: " + e.getMessage());
+            return ReturnResult.error("导入脚本失败: " + e.getMessage());
         }
     }
 
@@ -416,10 +415,10 @@ public class MonitorSysGenScriptController {
     public ReturnResult<List<MonitorSysGenScript.ScriptType>> getSupportedScriptTypes() {
         try {
             List<MonitorSysGenScript.ScriptType> types = monitorSysGenScriptService.getSupportedScriptTypes();
-            return Result.ok(types);
+            return ReturnResult.ok(types);
         } catch (Exception e) {
             log.error("获取支持的脚本类型失败", e);
-            return Result.error("获取支持的脚本类型失败: " + e.getMessage());
+            return ReturnResult.error("获取支持的脚本类型失败: " + e.getMessage());
         }
     }
 }

@@ -12,7 +12,6 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.cache.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.SysProjectDefaultService;
@@ -81,7 +80,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     public ReturnResult<Boolean> delete(Integer sysProjectId) {
         SysProject sysProject = getOne(sysProjectId);
         if (null == sysProject) {
-            return Result.illegal("项目信息不存在");
+            return ReturnResult.illegal("项目信息不存在");
         }
         return transactionTemplate.execute(it -> {
             saveOrUpdateDefault(sysProject);
@@ -95,7 +94,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     public ReturnResult<Boolean> update(Set<String> roles, SysProject sysProject) {
         SysProject sysProject1 = getOne(sysProject.getSysProjectId());
         if (null == sysProject1) {
-            return Result.illegal("项目信息不存在");
+            return ReturnResult.illegal("项目信息不存在");
         }
         sysProject.setSysProjectCode(null);
         sysProject.setSysProjectDelete(null);
