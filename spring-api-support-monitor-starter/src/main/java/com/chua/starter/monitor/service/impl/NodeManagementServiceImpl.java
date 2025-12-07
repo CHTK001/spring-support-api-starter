@@ -72,10 +72,14 @@ public class NodeManagementServiceImpl implements NodeManagementService {
             }
 
             // 转换为 OnlineNodeInfo 列表，过滤掉转换失败的节点
+            // 注意：SyncServer.getAllClients() 已根据 IP + 端口去重
             List<OnlineNodeInfo> nodeList = allClients.values().stream()
                     .map(this::convertToOnlineNodeInfo)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+            
+            log.debug("获取在线节点：SyncServer 返回 {} 个客户端，转换成功 {} 个节点", 
+                    allClients.size(), nodeList.size());
 
             // 同步节点数据到数据库
             try {
