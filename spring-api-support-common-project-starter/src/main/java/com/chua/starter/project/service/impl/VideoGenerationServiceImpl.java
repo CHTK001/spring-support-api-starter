@@ -1,8 +1,8 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bigmodel.generations.image.VincentDiagramSetting;
-import com.chua.common.support.bigmodel.generations.video.*;
+import com.chua.deeplearning.support.ml.bigmodel.generations.image.VincentDiagramSetting;
+import com.chua.deeplearning.support.ml.bigmodel.generations.video.*;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -15,9 +15,9 @@ import com.chua.starter.project.service.VideoGenerationService;
 import com.chua.starter.project.entity.SysAiModule;
 import com.chua.starter.project.entity.SysAiVincentTask;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskRequest;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskResponse;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1SearchTaskRequest;
 import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

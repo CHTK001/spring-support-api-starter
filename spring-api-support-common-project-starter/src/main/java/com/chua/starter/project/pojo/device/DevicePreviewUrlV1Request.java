@@ -26,15 +26,13 @@ public class DevicePreviewUrlV1Request {
     /**
      * 预览类型
      */
-    @Schema(description = "预览类型;"hik":HIK私有协议，使用视频SDK进行播放时，传入此类型；"rtsp":RTSP协议；"rtmp":RTMP协议；"hls":HLS协议（HLS协议只支持海康SDK协议、EHOME协议、ONVIF协议接入的设备；只支持H264视频编码和AAC音频编码）。\n" +
-            ""ws":Websocket协议（一般用于H5视频播放器取流播放）")
+    @Schema(description = "预览类型;hik:HIK私有协议;rtsp:RTSP协议;rtmp:RTMP协议;hls:HLS协议;ws:Websocket协议")
     private String protocol = "hls";
 
     /**
      * 预览模式
      */
-    @Schema(description = "预览模式;0:UDP\n" +
-            "1:TCP")
+    @Schema(description = "预览模式;0:UDP;1:TCP")
     private Integer transMode = 1;
 
     /**
@@ -69,13 +67,13 @@ public class DevicePreviewUrlV1Request {
     /**
      * 过期时长，单位秒；针对hls/rtmp/flv设置有效期，相对时间；30秒-720天
      */
-    @Schema(description = "过期时长，单位秒；针对hls/rtmp/flv设置有效期，相对时间；30秒-720天")
+    @Schema(description = "过期时长，单位秒")
     private Integer expireTime = 365;
 
     /**
-     * 地址的类型，1-预览，2-本地录像回放，3-云存储录像回放，非必选，默认为1；回放仅支持rtmp、ezopen、flv协议
+     * 地址的类型，1-预览，2-本地录像回放，3-云存储录像回放
      */
-    @Schema(description = "地址的类型，1-预览，2-本地录像回放，3-云存储录像回放，非必选，默认为1；回放仅支持rtmp、ezopen、flv协议")
+    @Schema(description = "地址的类型，1-预览，2-本地录像回放，3-云存储录像回放")
     private Integer recordType = 2;
     /**
      * 是否支持H265

@@ -1,15 +1,15 @@
 package com.chua.starter.project.controller;
 
-import com.chua.common.support.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.project.service.ImageGenerationService;
 import com.chua.starter.project.entity.SysAiModule;
 import com.chua.starter.project.entity.SysAiVincentTask;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskRequest;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1AddTaskResponse;
-import com.chua.starter.system.pojo.vincent.VincentDiagramV1SearchTaskRequest;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskRequest;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskResponse;
+import com.chua.starter.project.pojo.vincent.VincentDiagramV1SearchTaskRequest;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

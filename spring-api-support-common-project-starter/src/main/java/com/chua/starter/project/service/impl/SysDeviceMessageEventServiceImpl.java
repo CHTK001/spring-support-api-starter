@@ -7,7 +7,7 @@ import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.SysDeviceMessageEventService;
 import com.chua.starter.project.service.support.CameraService;
 import com.chua.starter.project.entity.SysDeviceMessageEvent;
-import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

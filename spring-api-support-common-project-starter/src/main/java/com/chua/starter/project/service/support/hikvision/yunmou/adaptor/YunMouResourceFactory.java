@@ -18,7 +18,7 @@ import com.chua.starter.project.service.support.hikvision.yunmou.pojo.CardHistor
 import com.chua.starter.project.service.support.hikvision.yunmou.pojo.YunMouCardEventMessage;
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.net.URLEncoder;

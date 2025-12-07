@@ -20,7 +20,7 @@ import com.chua.starter.project.service.support.hikvision.yunyao.YunYaoEntranceF
 import com.chua.starter.project.service.support.hikvision.yunyao.YunYaoResourceFactory;
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import lombok.extern.slf4j.Slf4j;
 
