@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 2fa瀵嗛挜绠＄悊
+ * 2fa密钥管理
  * @author CH
  * @since 2024/12/10
  */
 @RestController
 @Slf4j
-@Api(tags = "2fa瀵嗛挜绠＄悊")
-@Tag(name = "2fa瀵嗛挜绠＄悊")
+@Api(tags = "2fa密钥管理")
+@Tag(name = "2fa密钥管理")
 @RequestMapping("/v2/login/totp")
 @RequiredArgsConstructor
 public class TotpController {
@@ -34,7 +34,7 @@ public class TotpController {
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "绑定2fa瀵嗛挜")
+    @Operation(summary = "绑定2fa密钥")
     @PutMapping("/bind")
     public ReturnResult<Boolean> bind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.bind(sysUserId);
@@ -46,28 +46,28 @@ public class TotpController {
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "解绑2fa瀵嗛挜")
+    @Operation(summary = "解绑2fa密钥")
     @PutMapping("/unbind")
     public ReturnResult<Boolean> unbind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.unbind(sysUserId);
     }
 
     /**
-     * 鐢熸垚
+     * 生成
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "鐢熸垚2fa瀵嗛挜")
+    @Operation(summary = "生成2fa密钥")
     @GetMapping("/generate")
     public ReturnResult<byte[]> generate(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.generate(sysUserId);
     }
     /**
-     * 鐢熸垚
+     * 生成
      * @param sysUserId sysUserId
      * @return ReturnResult
      */
-    @Operation(summary = "鐢熸垚2fa瀵嗛挜")
+    @Operation(summary = "生成2fa密钥URI")
     @GetMapping("/generateUri")
     public ReturnResult<String> generateUri(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.generateUri(sysUserId);

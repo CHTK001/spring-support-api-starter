@@ -41,7 +41,7 @@ public class SysDeptController {
     /**
      * 组织机构列表
      *
-     * @param sysDept 鏉′欢
+     * @param sysDept 条件
      * @return 组织机构分页列表
      */
     @Operation(summary = "组织机构列表")
@@ -78,30 +78,30 @@ public class SysDeptController {
     @Permission(value = "sys:dept:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-            @Validated(UpdateGroup.class) @RequestBody SysDept SysDept,
+            @Validated(UpdateGroup.class) @RequestBody SysDept sysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysDeptService.update(roles, SysDept);
+        return sysDeptService.update(roles, sysDept);
     }
 
     /**
-     * 鏂板组织机构
+     * 新增组织机构
      *
-     * @return 鏂板组织机构
+     * @return 新增组织机构
      */
-    @Operation(summary = "鏂板组织机构")
+    @Operation(summary = "新增组织机构")
     @PostMapping("/save")
     @Permission(value = "sys:dept:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDept> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-            @Validated(AddGroup.class) @RequestBody SysDept SysDept,
+            @Validated(AddGroup.class) @RequestBody SysDept sysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return sysDeptService.save(SysDept, roles);
+        return sysDeptService.save(sysDept, roles);
     }
 }

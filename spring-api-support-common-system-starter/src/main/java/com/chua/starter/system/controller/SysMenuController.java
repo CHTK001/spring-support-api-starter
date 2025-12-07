@@ -45,7 +45,7 @@ public class SysMenuController {
     /**
      * 菜单列表
      *
-     * @param sysMenu 鏉′欢
+     * @param sysMenu 条件
      * @return 菜单分页列表
      */
     @Operation(summary = "菜单列表")
@@ -57,7 +57,7 @@ public class SysMenuController {
     /**
      * 菜单列表
      *
-     * @param sysMenu 鏉′欢
+     * @param sysMenu 条件
      * @return 菜单分页列表
      */
     @Operation(summary = "菜单列表")
@@ -69,7 +69,7 @@ public class SysMenuController {
     /**
      * 菜单分页列表
      *
-     * @param sysMenu 鏉′欢
+     * @param sysMenu 条件
      * @return 菜单分页列表
      */
     @Operation(summary = "菜单分页列表")
@@ -118,11 +118,11 @@ public class SysMenuController {
     }
 
     /**
-     * 鏂板菜单
+     * 新增菜单
      *
-     * @return 鏂板菜单
+     * @return 新增菜单
      */
-    @Operation(summary = "鏂板菜单")
+    @Operation(summary = "新增菜单")
     @PostMapping("/save")
     @ApiPlatform("system")
     @Permission(value = "sys:menu:add", role = {SUPER_ADMIN, ADMIN})
