@@ -15,12 +15,12 @@ public class SysUserPasswordUpdate {
 
     /**
      * 鏃у瘑鐮?     */
-    @Schema(description = "鏃у瘑鐮?)
+    @Schema(description = "鏃у瘑鐮")
     private String oldPassword;
 
     /**
-     * 鏂板瘑鐮?     */
-    @Schema(description = "鏂板瘑鐮?)
+     * 鏂板瘑鐮"     */
+    @Schema(description = "鏂板瘑鐮")
     private String newPassword;
 
     /**

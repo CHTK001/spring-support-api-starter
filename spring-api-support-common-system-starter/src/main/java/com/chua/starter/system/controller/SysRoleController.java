@@ -82,7 +82,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {
-            return Result.illegal("瑙掕壊淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("瑙掕壊淇℃伅涓嶅瓨鍦");
         }
 
         return sysRoleService.delete(roleId);
@@ -90,11 +90,11 @@ public class SysRoleController {
 
 
     /**
-     * 缁欒鑹叉坊鍔犺彍鍗?
+     * 缁欒鑹叉坊鍔犺彍鍗"
      *
      * @return 鏇存柊瑙掕壊
      */
-    @Operation(summary = "缁欒鑹叉坊鍔犺彍鍗?)
+    @Operation(summary = "缁欒鑹叉坊鍔犺彍鍗")
     @PutMapping("/update_menu")
     @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(

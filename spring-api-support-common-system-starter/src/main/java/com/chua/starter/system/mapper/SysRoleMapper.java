@@ -32,7 +32,7 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     SysRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId, @Param("sysRoleCode") String sysRoleCode);
 
     /**
-     * 鏍规嵁绉熸埛id鏌ヨ绠＄悊鍛樿鑹?
+     * 鏍规嵁绉熸埛id鏌ヨ绠＄悊鍛樿鑹"
      *
      * @param sysTenantId 绉熸埛id
      * @param sysTenantId 绉熸埛ID

@@ -61,7 +61,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != 0) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
-                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦?);
+                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦");
             }
             if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {
                 return ReturnResult.error("涓嶈兘閫夋嫨鑷繁/瀛愮骇浣滀负鐖剁骇鑿滃崟");
@@ -83,7 +83,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
-                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦?);
+                return ReturnResult.illegal("涓婄骇閮ㄩ棬涓嶅瓨鍦");
             }
 
             if (StringUtils.transArrayContains(parentSysDept.getSysDeptTreeId(), String.valueOf(sysDept.getSysDeptId()))) {

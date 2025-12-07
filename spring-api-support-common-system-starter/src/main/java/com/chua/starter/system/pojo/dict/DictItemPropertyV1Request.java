@@ -9,7 +9,7 @@ import lombok.Data;
  * @since 2024/8/20
  */
 @Data
-@Schema(description = "瀛楀吀椤瑰睘鎬ц姹?)
+@Schema(description = "瀛楀吀椤瑰睘鎬ц姹")
 public class DictItemPropertyV1Request {
 
     /**
@@ -19,7 +19,7 @@ public class DictItemPropertyV1Request {
     private String dictCode;
 
     /**
-     * 瀛楀吀椤瑰€?     */
-    @Schema(description = "瀛楀吀椤瑰€?)
+     * 瀛楀吀椤瑰€"     */
+    @Schema(description = "瀛楀吀椤瑰€")
     private String dictItemValue;
 }

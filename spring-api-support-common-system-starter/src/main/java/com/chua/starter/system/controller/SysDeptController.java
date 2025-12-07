@@ -61,7 +61,7 @@ public class SysDeptController {
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
-            return Result.illegal("缁勭粐鏈烘瀯淇℃伅涓嶅瓨鍦?);
+            return Result.illegal("缁勭粐鏈烘瀯淇℃伅涓嶅瓨鍦");
         }
 
         return sysDeptService.delete(deptId);

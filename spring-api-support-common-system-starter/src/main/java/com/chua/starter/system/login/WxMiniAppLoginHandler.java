@@ -108,7 +108,7 @@
 //            WxMaPhoneNumberInfo phoneInfo = tencentMaHandler.getPhoneNumber(code);
 //            phoneNumber = phoneInfo.getPhoneNumber();
 //
-//            // 璋冪敤寰俊 API 鑾峰彇鐢ㄦ埛鐨勮缁嗕俊鎭?
+//            // 璋冪敤寰俊 API 鑾峰彇鐢ㄦ埛鐨勮缁嗕俊鎭"
 //            userInfo = tencentMaHandler.getUserInfo(loginData.getWxSessionKey(), loginData.getWxEncryptedData(), loginData.getWxIv());
 //            sysUser.setSysUserUnionId(userInfo.getUnionId());
 //
@@ -157,7 +157,7 @@
 //            }
 //            sysUserService.save(sysUser);
 //        } catch (TransactionException e) {
-//            return Result.failed("缁戝畾淇℃伅澶辫触, 璇烽噸璇?");
+//            return Result.failed("缁戝畾淇℃伅澶辫触, 璇烽噸璇"");
 //        }
 //
 //        return null;

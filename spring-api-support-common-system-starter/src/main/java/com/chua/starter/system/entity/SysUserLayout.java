@@ -62,9 +62,9 @@ public class SysUserLayout extends SysBase implements Serializable {
     private String sysLayoutComponent;
 
     /**
-     * 鎵€灞炵敤鎴?     */
+     * 鎵€灞炵敤鎴"     */
     @TableField(value = "sys_layout_user_id")
-    @ApiModelProperty(value = "鎵€灞炵敤鎴?)
-    @Schema(description = "鎵€灞炵敤鎴?)
+    @ApiModelProperty(value = "鎵€灞炵敤鎴")
+    @Schema(description = "鎵€灞炵敤鎴")
     private Integer sysLayoutUserId;
 }

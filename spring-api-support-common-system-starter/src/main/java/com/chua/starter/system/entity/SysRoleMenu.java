@@ -17,8 +17,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛?)
-@Schema(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛?)
+@ApiModel(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛")
+@Schema(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛")
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {

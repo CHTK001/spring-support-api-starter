@@ -24,8 +24,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/10/24
  */
-@ApiModel(description = "缁勪欢琛?)
-@Schema(description = "缁勪欢琛?)
+@ApiModel(description = "缁勪欢琛")
+@Schema(description = "缁勪欢琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sfc")
@@ -134,11 +134,11 @@ public class SysSfc extends SysBase implements Serializable {
     private String sysSfcContent;
 
     /**
-     * 缁勪欢鐘舵€? 0:鏈惎鐢?
+     * 缁勪欢鐘舵€; 0:鏈惎鐢
      */
     @TableField(value = "sys_sfc_status")
-    @ApiModelProperty(value = "缁勪欢鐘舵€? 0:鏈惎鐢?)
-    @Schema(description = "缁勪欢鐘舵€? 0:鏈惎鐢?)
+    @ApiModelProperty(value = "缁勪欢鐘舵€; 0:鏈惎鐢")
+    @Schema(description = "缁勪欢鐘舵€; 0:鏈惎鐢")
     private Integer sysSfcStatus;
 
     /**
@@ -167,10 +167,10 @@ public class SysSfc extends SysBase implements Serializable {
     private String sysSfcDesc;
 
     /**
-     * 鏄惁宸插畨瑁?
+     * 鏄惁宸插畨瑁"
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "鏄惁宸插畨瑁?)
-    @Schema(description = "鏄惁宸插畨瑁?)
+    @ApiModelProperty(value = "鏄惁宸插畨瑁")
+    @Schema(description = "鏄惁宸插畨瑁")
     private Integer sysSfcInstall;
 }

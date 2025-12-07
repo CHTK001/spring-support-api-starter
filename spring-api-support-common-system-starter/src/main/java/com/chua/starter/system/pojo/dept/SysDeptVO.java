@@ -47,11 +47,11 @@ public class SysDeptVO {
 
     /**
      * 鐘舵€?     */
-    @Schema(description = "鐘舵€?)
+    @Schema(description = "鐘舵€")
     private Integer sysDeptStatus;
 
     /**
-     * 瀛愰儴闂?     */
-    @Schema(description = "瀛愰儴闂?)
+     * 瀛愰儴闂"     */
+    @Schema(description = "瀛愰儴闂")
     private List<SysDeptVO> children;
 }

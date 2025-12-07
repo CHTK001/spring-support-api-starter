@@ -49,11 +49,11 @@ public class UserInfoVO {
     private String sysUserNickname;
 
     /**
-     * 鎵嬫満鍙?
+     * 鎵嬫満鍙"
      */
     @TableField(value = "sys_user_phone")
-    @ApiModelProperty(value = "鎵嬫満鍙?)
-    @Schema(description = "鎵嬫満鍙?)
+    @ApiModelProperty(value = "鎵嬫満鍙")
+    @Schema(description = "鎵嬫満鍙")
     @Size(max = 255, message = "鎵嬫満鍙锋渶澶ч暱搴﹁灏忎簬 255")
     private String sysUserPhone;
     /**

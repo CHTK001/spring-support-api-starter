@@ -145,7 +145,7 @@ public class GiteeCallbackController {
         AuthUser authUser = (AuthUser) login.getData();
         SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid, authUser.getUuid()));
         if(null == userThirdParty) {
-            attributes.addFlashAttribute("msg", "绗笁鏂圭櫥褰曞け璐? 璇烽噸璇?);
+            attributes.addFlashAttribute("msg", "第三方登录失败，请重试");
             return new RedirectView();
         }
 

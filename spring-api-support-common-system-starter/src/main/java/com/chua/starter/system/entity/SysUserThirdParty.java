@@ -20,8 +20,8 @@ import java.io.Serializable;
  * @author CH
  * @since 2024/9/6
  */
-@ApiModel(description = "鐢ㄦ埛涓夋柟缁戝畾琛?)
-@Schema(description = "鐢ㄦ埛涓夋柟缁戝畾琛?)
+@ApiModel(description = "鐢ㄦ埛涓夋柟缁戝畾琛")
+@Schema(description = "鐢ㄦ埛涓夋柟缁戝畾琛")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_third_party")
@@ -86,7 +86,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
          */
         GITEE,
         /**
-         * 寰俊灏忕▼搴?         */
+         * 寰俊灏忕▼搴"         */
         WX_MINI_APP
     }
 }
