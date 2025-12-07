@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.starter.common.support.annotations.DataScope;
 import com.chua.starter.service.query.SysUserQuery;
-import com.chua.starter.service.entity.SysUser;
+import com.chua.starter.service.model.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
