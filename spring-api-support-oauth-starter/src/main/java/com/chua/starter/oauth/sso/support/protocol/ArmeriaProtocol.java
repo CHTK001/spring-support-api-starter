@@ -6,10 +6,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
+import com.chua.starter.oauth.sso.support.information.ArmeriaAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
-import com.chua.starter.oauth.sso.support.information.TcpAuthInformation;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
@@ -99,8 +99,8 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
                 // 创建适配器请求/响应对象
-                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
-                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
+                ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
+                ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
                 
                 // 创建认证信息
                 OauthAuthInformation authInformation = new OauthAuthInformation(
@@ -136,8 +136,8 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
                 // 创建适配器请求/响应对象
-                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
-                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
+                ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
+                ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
                 
                 // 创建登录认证信息
                 LoginAuthInformation authInformation = new LoginAuthInformation(
@@ -173,8 +173,8 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
                 // 创建适配器请求/响应对象
-                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
-                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
+                ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
+                ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
                 
                 // 创建登出认证信息
                 LogoutAuthInformation authInformation = new LogoutAuthInformation(
@@ -210,8 +210,8 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
                 
                 // 创建适配器请求/响应对象
-                TcpAuthInformation.TcpRequest tcpRequest = createTcpRequest(ctx, req);
-                TcpAuthInformation.TcpResponse tcpResponse = new TcpAuthInformation.TcpResponse();
+                ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
+                ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
                 
                 // 创建升级认证信息
                 UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
@@ -248,12 +248,12 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
      * @param req Armeria HTTP 请求
      * @return TcpRequest 适配器对象
      */
-    private TcpAuthInformation.TcpRequest createTcpRequest(
+    private ArmeriaAuthInformation.ArmeriaRequest createTcpRequest(
             com.linecorp.armeria.server.ServiceRequestContext ctx, 
             com.linecorp.armeria.common.HttpRequest req) {
         // 获取客户端地址
         InetSocketAddress clientAddress = ctx.remoteAddress();
-        TcpAuthInformation.TcpRequest tcpRequest = new TcpAuthInformation.TcpRequest(clientAddress);
+        ArmeriaAuthInformation.ArmeriaRequest tcpRequest = new ArmeriaAuthInformation.ArmeriaRequest(clientAddress);
         
         // 复制请求头到 TcpRequest
         req.headers().forEach(header -> tcpRequest.setHeader(header.getKey().toString(), header.getValue()));
