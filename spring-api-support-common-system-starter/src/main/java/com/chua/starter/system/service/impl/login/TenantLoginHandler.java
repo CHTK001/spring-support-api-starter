@@ -23,7 +23,7 @@ import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
- * 默认登录处理鍣?
+ * 租户登录处理器
  *
  * @author CH
  * @since 2024/12/2
@@ -40,11 +40,8 @@ public class TenantLoginHandler extends DefaultLoginHandler {
     SimpleSysUserService simpleSysUserService;
 
     @Override
-    public Result<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-//        if (StringUtils.isEmpty(loginData.getTenantId())) {
-//            return Result.failed(REQUEST_PARAM_ERROR, "绉熸埛编码不能为空");
-//        }
-        Result<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+        ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
             return check;
         }
@@ -61,13 +58,13 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                         .build()
         );
 
-        log.info("登录鑰楁椂:{}ms", System.currentTimeMillis() - startTime);
+        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号鎴栬€呭瘑鐮佷笉姝ｇ‘");
+            return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != 200) {
-            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR, accessToken.getMessage());
         }
 
         LoginResult loginResult = LoginResult.builder()
@@ -77,7 +74,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                 .refreshToken(accessToken.getRefreshToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return Result.success(loginResult);
+        return ReturnResult.ok(loginResult);
     }
 
 }

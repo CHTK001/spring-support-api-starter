@@ -108,7 +108,7 @@ public class SysUserController {
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
-            return Result.illegal("用户信息不存在");
+            return ReturnResult.illegal("用户信息不存在");
         }
 
         return sysUserService.delete(sysUserId);
@@ -126,7 +126,7 @@ public class SysUserController {
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
-            return Result.illegal("请重新登录或者联系管理员");
+            return ReturnResult.illegal("请重新登录或者联系管理员");
         }
 
         return sysUserService.resetOwner(userId);
@@ -145,7 +145,7 @@ public class SysUserController {
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
-            return Result.illegal("用户信息不存在");
+            return ReturnResult.illegal("用户信息不存在");
         }
 
         return sysUserService.reset(userId);
@@ -165,7 +165,7 @@ public class SysUserController {
             @Validated(UpdateGroup.class) @RequestBody SysUserPasswordUpdate sysUserPasswordUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
@@ -184,7 +184,7 @@ public class SysUserController {
             @Validated(UpdateGroup.class) @RequestBody SysUserUpdate sysUser,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.updateUser(roles, userId, sysUser);
@@ -201,7 +201,7 @@ public class SysUserController {
     @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysUserService.saveUser(sysUserUpdate, request);

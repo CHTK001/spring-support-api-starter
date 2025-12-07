@@ -60,7 +60,7 @@ public class SysDeptController {
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
-            return Result.illegal("组织机构信息不存在");
+            return ReturnResult.illegal("组织机构信息不存在");
         }
 
         return sysDeptService.delete(deptId);
@@ -80,7 +80,7 @@ public class SysDeptController {
             @Validated(UpdateGroup.class) @RequestBody SysDept sysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDeptService.update(roles, sysDept);
@@ -99,7 +99,7 @@ public class SysDeptController {
             @Validated(AddGroup.class) @RequestBody SysDept sysDept,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysDeptService.save(sysDept, roles);
     }

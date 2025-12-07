@@ -77,7 +77,7 @@ public class SysUserLogController {
     @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
-            return Result.illegal("操作日志信息不存在");
+            return ReturnResult.illegal("操作日志信息不存在");
         }
 
         return sysUserLogService.delete(userLogId);
