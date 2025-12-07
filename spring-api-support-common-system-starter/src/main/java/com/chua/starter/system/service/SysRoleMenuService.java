@@ -1,7 +1,7 @@
 package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.system.entity.SysRoleMenu;
+import com.chua.starter.entity.system.SysRoleMenu;
 
 /**
  * 瑙掕壊- 鑿滃崟鍏崇郴琛?

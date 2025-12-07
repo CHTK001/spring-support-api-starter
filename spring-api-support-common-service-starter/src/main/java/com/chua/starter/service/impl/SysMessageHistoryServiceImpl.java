@@ -7,7 +7,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysMessageHistoryService;
 import com.chua.starter.service.mapper.SysMessageHistoryMapper;
-import com.chua.starter.service.entity.SysMessageHistory;
+import com.chua.starter.entity.service.SysMessageHistory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

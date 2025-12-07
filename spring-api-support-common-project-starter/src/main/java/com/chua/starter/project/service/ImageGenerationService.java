@@ -2,7 +2,7 @@ package com.chua.starter.project.service;
 
 import com.chua.deeplearning.support.ml.bigmodel.generations.image.ImageGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.project.entity.SysAiVincentTask;
+import com.chua.starter.entity.project.SysAiVincentTask;
 import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskRequest;
 import com.chua.starter.project.pojo.vincent.VincentDiagramV1AddTaskResponse;
 import com.chua.starter.project.pojo.vincent.VincentDiagramV1SearchTaskRequest;

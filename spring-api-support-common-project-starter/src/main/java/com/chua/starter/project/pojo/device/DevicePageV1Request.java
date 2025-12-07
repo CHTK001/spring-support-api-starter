@@ -1,7 +1,7 @@
 package com.chua.starter.project.pojo.device;
 
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.project.entity.SysDevice;
+import com.chua.starter.entity.project.SysDevice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

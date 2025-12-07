@@ -3,8 +3,8 @@ package com.chua.starter.project.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.project.entity.SysAiGroup;
-import com.chua.starter.project.entity.SysAiGroupMessage;
+import com.chua.starter.entity.project.SysAiGroup;
+import com.chua.starter.entity.project.SysAiGroupMessage;
 
 import java.util.List;
 

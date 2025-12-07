@@ -2,7 +2,7 @@ package com.chua.starter.project.pojo.project;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.project.entity.SysSmsTemplate;
+import com.chua.starter.entity.project.SysSmsTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

@@ -7,7 +7,7 @@ import com.chua.advanced.support.other.holiday.HolidayResolver;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.service.SysHolidayService;
 import com.chua.starter.service.mapper.SysHolidayMapper;
-import com.chua.starter.service.entity.SysHoliday;
+import com.chua.starter.entity.service.SysHoliday;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

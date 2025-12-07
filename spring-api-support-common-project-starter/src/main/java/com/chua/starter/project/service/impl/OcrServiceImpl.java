@@ -10,8 +10,8 @@ import com.chua.starter.project.pojo.ImageRequest;
 import com.chua.starter.project.service.OcrService;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.project.service.SysProjectService;
-import com.chua.starter.project.entity.SysAiModule;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysAiModule;
+import com.chua.starter.entity.project.SysProject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

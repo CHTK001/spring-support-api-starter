@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
-import com.chua.starter.service.entity.SysSetting;
+import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.request.AuthRequest;

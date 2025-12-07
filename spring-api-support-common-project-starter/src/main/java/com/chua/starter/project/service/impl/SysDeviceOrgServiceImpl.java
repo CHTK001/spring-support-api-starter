@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.project.mapper.SysDeviceOrgMapper;
 import com.chua.starter.project.service.SysDeviceOrgService;
-import com.chua.starter.project.entity.SysDeviceOrg;
+import com.chua.starter.entity.project.SysDeviceOrg;
 import org.springframework.stereotype.Service;
 
 /**

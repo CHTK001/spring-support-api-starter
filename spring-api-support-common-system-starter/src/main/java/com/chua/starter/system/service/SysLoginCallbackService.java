@@ -1,6 +1,6 @@
 package com.chua.starter.system.service;
 
-import com.chua.starter.system.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 
 /**
  * 鐧诲綍鍥炶皟

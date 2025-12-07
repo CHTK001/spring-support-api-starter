@@ -1,6 +1,6 @@
 package com.chua.starter.service.task;
 
-import com.chua.starter.service.entity.SysTaskSso;
+import com.chua.starter.entity.service.SysTaskSso;
 import com.chua.starter.service.SysTaskSsoService;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.project.pojo.project.ProjectDefaultFunctionV1Request;
 
 import java.util.Set;

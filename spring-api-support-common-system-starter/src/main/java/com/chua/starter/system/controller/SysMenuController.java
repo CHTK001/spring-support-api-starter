@@ -10,7 +10,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.system.entity.SysMenu;
+import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.service.SysMenuService;
 import io.swagger.v3.oas.annotations.Operation;

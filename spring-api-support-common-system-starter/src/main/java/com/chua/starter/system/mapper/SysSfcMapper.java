@@ -3,7 +3,7 @@ package com.chua.starter.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.starter.system.entity.SysSfc;
+import com.chua.starter.entity.system.SysSfc;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

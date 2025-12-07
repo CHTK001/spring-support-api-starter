@@ -23,7 +23,7 @@ import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.service.setting.VersionSetting;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
-import com.chua.starter.service.entity.SysSetting;
+import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;

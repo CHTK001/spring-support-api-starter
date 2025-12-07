@@ -6,7 +6,7 @@ import com.chua.starter.project.service.support.hikvision.HiYunYaoClientUtils;
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.adaptor.sub.ZyxxFactory;
 import com.chua.starter.project.service.support.hikvision.result.DeviceResourceResourcesResult;
-import com.chua.starter.project.entity.SysProject;
+import com.chua.starter.entity.project.SysProject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;

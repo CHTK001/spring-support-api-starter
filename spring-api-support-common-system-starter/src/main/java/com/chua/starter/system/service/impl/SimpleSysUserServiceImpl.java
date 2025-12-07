@@ -13,7 +13,7 @@ import com.chua.common.support.utils.IdUtils;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.system.mapper.SysUserMapper;
-import com.chua.starter.system.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.service.SimpleSysUserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

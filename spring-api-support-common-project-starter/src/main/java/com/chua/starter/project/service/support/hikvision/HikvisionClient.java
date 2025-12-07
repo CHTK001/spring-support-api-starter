@@ -18,7 +18,7 @@ import com.chua.starter.project.service.support.hikvision.result.OnlineResult;
 import com.chua.starter.project.service.support.hikvision.result.PreviewUrlResult;
 import com.chua.starter.project.service.support.hikvision.sdk.ArtemisHttpUtil;
 import com.chua.starter.project.service.support.hikvision.sdk.config.ArtemisConfig;
-import com.chua.starter.project.entity.SysDeviceCardEvent;
+import com.chua.starter.entity.project.SysDeviceCardEvent;
 import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import lombok.Getter;

@@ -19,7 +19,7 @@ import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.impl.login.LoginHandler;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
-import com.chua.starter.service.model.SysUserThirdParty;
+import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.service.pojo.user.RefreshToken;
 import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.service.result.LoginResult;
