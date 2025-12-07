@@ -16,81 +16,79 @@ import java.util.Set;
  */
 public interface SysSfcService extends IService<SysSfc> {
 
-
     /**
      * 分页列表
      *
-     * @param query   查询鏉′欢
-     * @param sysSfc 查询鏉′欢
+     * @param query   条件查询
+     * @param sysSfc 条件查询
      * @param roles   角色
      * @param userId  用户id
      * @return 分页列表
      */
     IPage<SysSfc> pageForUserId(Query<SysSfc> query, SysSfc sysSfc, Set<String> roles, String userId);
 
-
     /**
-     * 上传缁勪欢
+     * 上传组件
      *
      * @param file    文件
-     * @param sysSfc 缁勪欢信息
+     * @param sysSfc 组件信息
      * @return 上传结果
      */
     ReturnResult<Boolean> uploadSfc(MultipartFile file, SysSfc sysSfc);
 
     /**
-     * 保存缁勪欢
+     * 保存组件
      *
-     * @param sysSfc 缁勪欢信息
+     * @param sysSfc 组件信息
      * @param roles  角色
      * @return 保存结果
      */
     ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles);
 
     /**
-     * 更新缁勪欢
-     * @param sysSfc 缁勪欢信息
+     * 更新组件
+     * @param sysSfc 组件信息
      * @param roles 角色
      * @return 更新结果
      */
     ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles);
 
     /**
-     * 删除缁勪欢
-     * @param sfcId 缁勪欢id
+     * 删除组件
+     * @param sfcId 组件id
      * @param roles 角色
      * @return 删除结果
      */
     ReturnResult<Boolean> delete(Long sfcId, Set<String> roles);
 
     /**
-     * 瀹夎缁勪欢
-     * @param sysSfc 缁勪欢信息
+     * 安装组件
+     * @param sysSfc 组件信息
      * @param userId 用户id
-     * @return 瀹夎结果
+     * @return 安装结果
      */
     ReturnResult<Boolean> install(SysSfc sysSfc, Integer userId);
 
     /**
-     * 鍗歌浇缁勪欢
-     * @param sysSfc 缁勪欢信息
+     * 卸载组件
+     * @param sysSfc 组件信息
      * @param userId 用户id
-     * @return 鍗歌浇结果
+     * @return 卸载结果
      */
     ReturnResult<Boolean> uninstall(SysSfc sysSfc, Integer userId);
 
     /**
-     * 获取缁勪欢
-     * @param sysSfcId 缁勪欢id
+     * 获取组件
+     * @param sysSfcId 组件id
      * @param roles 角色
      * @param userId 用户id
-     * @return 缁勪欢信息
+     * @return 组件信息
      */
     ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId);
 
     /**
-     * 鎴戠殑缁勪欢
-     * @param sysSfcCategory 缁勪欢鍒嗙被
+     * 获取组件
+     * @param sysSfcCategory 组件分类
      * @param userId 用户id
      * @return 组件列表
      */

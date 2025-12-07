@@ -28,83 +28,86 @@ public class SysMenuVO {
     private String sysMenuName;
 
     /**
-     * 菜单标题
+     * 菜单标题
      */
-    @Schema(description = "菜单标题")
+    @Schema(description = "菜单标题")
     private String sysMenuTitle;
 
     /**
-     * 菜单璺緞
+     * 父菜单ID
      */
-    @Schema(description = "菜单璺緞")
-    private String sysMenuPath;
-
-    /**
-     * 菜单缁勪欢
-     */
-    @Schema(description = "菜单缁勪欢")
-    private String sysMenuComponent;
-
-    /**
-     * 菜单鍥炬爣
-     */
-    @Schema(description = "菜单鍥炬爣")
-    private String sysMenuIcon;
-
-    /**
-     * 鍙充晶鍥炬爣
-     */
-    @Schema(description = "鍙充晶鍥炬爣")
-    private String sysMenuExtraIcon;
-
-    /**
-     * 菜单类型; 0:菜单; 1:iframe; 2:澶栭摼; 3:鎸夐挳
-     */
-    @Schema(description = "菜单类型; 0:菜单; 1:iframe; 2:澶栭摼; 3:鎸夐挳")
-    private Integer sysMenuType;
-
-    /**
-     * 浼樺厛级别?     */
-    @Schema(description = "浼樺厛级别")
-    private Integer sysMenuSort;
-
-    /**
-     * 鐖惰彍鍗旾D
-     */
-    @Schema(description = "鐖惰彍鍗旾D")
+    @Schema(description = "父菜单ID")
     private Integer sysMenuPid;
 
     /**
-     * 菜单閾捐矾
+     * 菜单路径
      */
-    @Schema(description = "菜单閾捐矾")
+    @Schema(description = "菜单路径")
+    private String sysMenuPath;
+
+    /**
+     * 菜单组件
+     */
+    @Schema(description = "菜单组件")
+    private String sysMenuComponent;
+
+    /**
+     * 菜单图标
+     */
+    @Schema(description = "菜单图标")
+    private String sysMenuIcon;
+
+    /**
+     * 右侧图标
+     */
+    @Schema(description = "右侧图标")
+    private String sysMenuExtraIcon;
+
+    /**
+     * 菜单类型; 0:菜单; 1:iframe; 2:外链; 3:按钮
+     */
+    @Schema(description = "菜单类型; 0:菜单; 1:iframe; 2:外链; 3:按钮")
+    private Integer sysMenuType;
+
+    /**
+     * 优先级别
+     */
+    @Schema(description = "优先级别")
+    private Integer sysMenuSort;
+
+    /**
+     * 菜单链路
+     */
+    @Schema(description = "菜单链路")
     private String sysMenuTreeId;
 
     /**
-     * 权限鏍囪瘑
+     * 权限标识
      */
-    @Schema(description = "权限鏍囪瘑")
+    @Schema(description = "权限标识")
     private String sysMenuPerm;
 
     /**
-     * 鏄惁隐藏; 0:显示
+     * 是否隐藏; 0:显示
      */
-    @Schema(description = "鏄惁隐藏; 0:显示")
+    @Schema(description = "是否隐藏; 0:显示")
     private Integer sysMenuHidden;
 
     /**
-     * 鏄惁缂撳瓨; 0:鍚     */
-    @Schema(description = "鏄惁缂撳瓨; 0:鍚")
+     * 是否缓存; 0:否
+     */
+    @Schema(description = "是否缓存; 0:否")
     private Integer sysMenuKeepAlive;
 
     /**
-     * 重复畾鍚戝湴鍧€
+     * 重定向地址
      */
-    @Schema(description = "重复畾鍚戝湴鍧€")
+    @Schema(description = "重定向地址")
     private String sysMenuRedirect;
 
     /**
-     * 瀛愯彍鍗"     */
-    @Schema(description = "瀛愯彍鍗")
+     * 子菜单
+     */
+    @Schema(description = "子菜单")
     private List<SysMenuVO> children;
 }
