@@ -48,34 +48,49 @@ public class RedisTokenResolver implements TokenResolver {
     private LoginCheck loginCheck;
     @AutoInject
     private SysUserLogService sysUserLogService;
+    @AutoInject
+    private TokenBlacklistService tokenBlacklistService;
 
     @Override
     public ReturnResult<LoginResult> createToken(String address, UserResult userResult, String authType) {
+        String userId = userResult.getUserId();
+        
+        // 检查在线上限（基于 userId，不区分登录方式）
+        ReturnResult<Void> checkResult = checkOnlineLimit(userResult);
+        if (!checkResult.isOk()) {
+            return ReturnResult.error(checkResult.getMsg());
+        }
+
         TokenGeneration tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(authServerProperties.getTokenGeneration());
-        //token
-        String token = tokenGeneration.generation(userResult.getUid()) + "0" + DigestUtils.md5Hex(IdUtils.createTid());
         userResult.setAddress(address);
         String uid = userResult.getUid();
 
-//        String serviceKey = PRE_KEY + uid + ":" + generation;
+        // 使用 TokenBuilder 生成 Token 和 RefreshToken
+        String uidHash = tokenGeneration.generation(uid);
+        String token = TokenBuilder.generateAccessToken(userId, uidHash);
+        String refreshToken = TokenBuilder.generateRefreshToken(userId, uidHash);
+
         String redisKey = TOKEN_PRE + token;
-        String refreshToken = tokenGeneration.generation(userResult.getUid()) + "0" + DigestUtils.md5Hex(IdUtils.createTid());
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
 
-        AuthServerProperties.Online online = authServerProperties.getOnline();
-        if (online == AuthServerProperties.Online.SINGLE) {
-            unRegisterSingle(token);
-        }
-        ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
-        long expire = userResult.getExpireTime() == null ? authServerProperties.getExpire() : userResult.getExpireTime();
-        long refreshExpire = userResult.getExpireTime() == null ? authServerProperties.getRefreshExpire() : userResult.getExpireTime() + 86400L;
+        // 处理在线控制（SINGLE模式踢掉旧设备）
+        handleOnlineControl(userResult, token);
+
+        // 计算过期时间（用户配置 > 全局配置）
+        long expire = calculateExpireTime(userResult);
+        long refreshExpire = calculateRefreshExpireTime(userResult);
+        
         userResult.setExpireTime(expire);
         userResult.setRefreshToken(refreshToken);
         userResult.setRefreshExpireTime(refreshExpire);
+        userResult.setToken(token);
+
+        // 存储 Token
+        ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
         forValue.set(redisKey, userResult);
         forValue.set(redisRefreshKey, userResult);
 
-
+        // 设置过期时间
         if (expire > 0) {
             stringRedisTemplate.expire(redisKey, Duration.ofSeconds(expire));
             stringRedisTemplate.expire(redisRefreshKey, Duration.ofSeconds(refreshExpire));
@@ -84,6 +99,157 @@ public class RedisTokenResolver implements TokenResolver {
         LoginResult loginResult = new LoginResult(token);
         loginResult.setRefreshToken(refreshToken);
         return ReturnResult.ok(loginResult);
+    }
+
+    /**
+     * 检查在线上限
+     * <p>基于 userId 统计在线数量，不区分登录方式</p>
+     *
+     * @param userResult 用户信息
+     * @return 检查结果，失败时返回错误信息
+     */
+    private ReturnResult<Void> checkOnlineLimit(UserResult userResult) {
+        AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
+
+        // MULTIPLE 模式不限制
+        if (onlineMode == AuthServerProperties.Online.MULTIPLE) {
+            return ReturnResult.ok();
+        }
+
+        // SINGLE 模式允许登录（会踢掉旧设备）
+        if (onlineMode == AuthServerProperties.Online.SINGLE) {
+            return ReturnResult.ok();
+        }
+
+        // LIMIT 模式检查上限
+        if (onlineMode == AuthServerProperties.Online.LIMIT) {
+            int maxOnline = getMaxOnlineCount(userResult);
+            int currentOnline = countUserOnlineTokens(userResult.getUserId());
+            if (currentOnline >= maxOnline) {
+                return ReturnResult.error("已达到最大在线设备数量限制(" + maxOnline + ")，请先在其他设备退出登录");
+            }
+        }
+
+        return ReturnResult.ok();
+    }
+
+    /**
+     * 获取在线模式（用户配置 > 全局配置）
+     */
+    private AuthServerProperties.Online getOnlineMode(UserResult userResult) {
+        String userOnlineMode = userResult.getOnlineMode();
+        if (StringUtils.isNotBlank(userOnlineMode)) {
+            try {
+                return AuthServerProperties.Online.valueOf(userOnlineMode.toUpperCase());
+            } catch (Exception ignored) {
+            }
+        }
+        return authServerProperties.getOnline();
+    }
+
+    /**
+     * 获取最大在线数（用户配置 > 全局配置）
+     */
+    private int getMaxOnlineCount(UserResult userResult) {
+        if (userResult.getMaxOnlineCount() != null && userResult.getMaxOnlineCount() > 0) {
+            return userResult.getMaxOnlineCount();
+        }
+        return authServerProperties.getMaxOnlineCount();
+    }
+
+    /**
+     * 统计用户当前在线Token数量
+     * <p>基于 userId 统计，不区分登录方式</p>
+     *
+     * @param userId 用户ID
+     * @return 在线Token数量
+     */
+    private int countUserOnlineTokens(String userId) {
+        if (StringUtils.isBlank(userId)) {
+            return 0;
+        }
+        try {
+            String pattern = TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId);
+            Set<String> keys = stringRedisTemplate.keys(pattern);
+            return keys != null ? keys.size() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
+     * 删除用户所有Token（基于 userId，不区分登录方式）
+     *
+     * @param userId 用户ID
+     */
+    private void deleteUserAllTokens(String userId) {
+        if (StringUtils.isBlank(userId)) {
+            return;
+        }
+        // 删除所有 AccessToken
+        Set<String> tokenKeys = stringRedisTemplate.keys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId));
+        if (tokenKeys != null && !tokenKeys.isEmpty()) {
+            stringRedisTemplate.delete(tokenKeys);
+        }
+        // 删除所有 RefreshToken
+        Set<String> refreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPattern(userId));
+        if (refreshKeys != null && !refreshKeys.isEmpty()) {
+            stringRedisTemplate.delete(refreshKeys);
+        }
+    }
+
+    /**
+     * 计算 Token 过期时间
+     * <p>优先级：用户配置 > 全局配置</p>
+     *
+     * @param userResult 用户信息
+     * @return 过期时间（秒）
+     */
+    private long calculateExpireTime(UserResult userResult) {
+        // 用户级配置优先
+        if (userResult.getTokenExpire() != null && userResult.getTokenExpire() > 0) {
+            return userResult.getTokenExpire();
+        }
+        // 兼容旧字段
+        if (userResult.getExpireTime() != null && userResult.getExpireTime() > 0) {
+            return userResult.getExpireTime();
+        }
+        // 全局配置
+        return authServerProperties.getExpire();
+    }
+
+    /**
+     * 计算 RefreshToken 过期时间
+     * <p>优先级：用户配置 > 全局配置</p>
+     *
+     * @param userResult 用户信息
+     * @return 过期时间（秒）
+     */
+    private long calculateRefreshExpireTime(UserResult userResult) {
+        // 用户级配置优先
+        if (userResult.getRefreshTokenExpire() != null && userResult.getRefreshTokenExpire() > 0) {
+            return userResult.getRefreshTokenExpire();
+        }
+        // 全局配置
+        return authServerProperties.getRefreshExpire();
+    }
+
+    /**
+     * 处理在线控制
+     * <p>仅 SINGLE 模式需要踢掉旧设备，LIMIT 模式在 checkOnlineLimit 已拒绝</p>
+     *
+     * @param userResult 用户信息
+     * @param newToken   新Token
+     */
+    private void handleOnlineControl(UserResult userResult, String newToken) {
+        AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
+
+        // SINGLE 模式：踢掉该用户所有旧设备
+        if (onlineMode == AuthServerProperties.Online.SINGLE) {
+            deleteUserAllTokens(userResult.getUserId());
+        }
+        // LIMIT 模式：在 checkOnlineLimit 已检查，达到上限直接拒绝，不踢旧设备
+        // MULTIPLE 模式：不限制
     }
 
     /**
@@ -97,21 +263,46 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 单例模式
+     * 删除用户的所有 Token 和 RefreshToken
+     * <p>Token格式：oauth:token:AT{uid}{randomHex}</p>
+     * <p>RefreshToken格式：oauth:refresh:RT{uid}{randomHex}</p>
      *
-     * @param uid 用户信息
+     * @param uid 用户唯一标识
      */
     @SuppressWarnings("ALL")
     private void unRegisterUid(String uid) {
-        Set<String> keys = stringRedisTemplate.keys(TOKEN_PRE + uid + "*");
-        try {
-            stringRedisTemplate.delete(keys);
-        } catch (Throwable ignored) {
+        // 删除所有 Token（格式：oauth:token:AT{uid}*）
+        Set<String> tokenKeys = stringRedisTemplate.keys(TOKEN_PRE + "AT" + uid + "*");
+        if (tokenKeys != null && !tokenKeys.isEmpty()) {
+            try {
+                stringRedisTemplate.delete(tokenKeys);
+            } catch (Throwable ignored) {
+            }
         }
-        Set<String> keys1 = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + uid + "*");
-        try {
-            stringRedisTemplate.delete(keys1);
-        } catch (Throwable ignored) {
+        
+        // 删除所有 RefreshToken（格式：oauth:refresh:RT{uid}*）
+        Set<String> refreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + "RT" + uid + "*");
+        if (refreshKeys != null && !refreshKeys.isEmpty()) {
+            try {
+                stringRedisTemplate.delete(refreshKeys);
+            } catch (Throwable ignored) {
+            }
+        }
+        
+        // 兼容旧格式（无AT/RT前缀）
+        Set<String> oldTokenKeys = stringRedisTemplate.keys(TOKEN_PRE + uid + "*");
+        if (oldTokenKeys != null && !oldTokenKeys.isEmpty()) {
+            try {
+                stringRedisTemplate.delete(oldTokenKeys);
+            } catch (Throwable ignored) {
+            }
+        }
+        Set<String> oldRefreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + uid + "*");
+        if (oldRefreshKeys != null && !oldRefreshKeys.isEmpty()) {
+            try {
+                stringRedisTemplate.delete(oldRefreshKeys);
+            } catch (Throwable ignored) {
+            }
         }
     }
 
@@ -126,10 +317,21 @@ public class RedisTokenResolver implements TokenResolver {
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
         if (null != userResult) {
-            // 记录登出日志
-            recordLogoutLog(userResult, "WEB", LogoutType.LOGOUT);
+            // 记录登出日志（登录类型从 UserResult 获取）
+            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : "WEB";
+            recordLogoutLog(userResult, loginType, LogoutType.LOGOUT);
 
+            // 将 Token 加入黑名单
+            if (tokenBlacklistService != null) {
+                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.LOGOUT, 
+                        expire, userResult.getUserId(), userResult.getUsername());
+            }
+
+            // 删除 Token
             stringRedisTemplate.delete(TOKEN_PRE + token);
+            
+            // 删除 RefreshToken
             String refreshToken = userResult.getRefreshToken();
             if (StringUtils.isNotEmpty(refreshToken)) {
                 logoutRefresh(refreshToken);
@@ -141,18 +343,43 @@ public class RedisTokenResolver implements TokenResolver {
     @SuppressWarnings("ALL")
     public void logout(String uid, LogoutType type) {
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
-            // 记录注销日志
+            // 全部登出：删除该用户的所有 Token 和 RefreshToken
             recordLogoutLogByUid(uid, "WEB", type);
-
-            TokenGeneration tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(authServerProperties.getTokenGeneration());
-            unRegisterSingle(tokenGeneration.generation(uid));
+            unRegisterUid(uid);
             return;
         }
 
         if (type == LogoutType.LOGOUT) {
+            // 单个登出：uid 实际上是 token
             logout(uid);
         }
+    }
 
+    /**
+     * 根据 Token 登出当前设备
+     * <p>删除指定的 Token 和对应的 RefreshToken</p>
+     *
+     * @param token 访问令牌
+     */
+    public void logoutByToken(String token) {
+        if (StringUtils.isBlank(token)) {
+            return;
+        }
+        logout(token);
+    }
+
+    /**
+     * 登出用户所有设备
+     * <p>删除该用户的所有 Token 和 RefreshToken</p>
+     *
+     * @param uid 用户唯一标识
+     */
+    public void logoutAll(String uid) {
+        if (StringUtils.isBlank(uid)) {
+            return;
+        }
+        recordLogoutLogByUid(uid, "WEB", LogoutType.LOGOUT_ALL);
+        unRegisterUid(uid);
     }
 
     @Override
@@ -165,8 +392,14 @@ public class RedisTokenResolver implements TokenResolver {
         if (null == cv) {
             return ReturnResult.noAuth();
         }
-        cv = TOKEN_PRE + cv;
-        Object s = stringRedisTemplate.opsForValue().get(cv);
+
+        // 检查 Token 是否在黑名单中
+        if (tokenBlacklistService != null && tokenBlacklistService.isBlacklisted(cv)) {
+            return ReturnResult.noAuth("Token已失效");
+        }
+
+        String redisKey = TOKEN_PRE + cv;
+        Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
             return ReturnResult.noAuth();
         }
@@ -176,6 +409,13 @@ public class RedisTokenResolver implements TokenResolver {
         } else {
             userResult = (UserResult) s;
         }
+
+        // 检查用户是否被全局拉黑
+        if (tokenBlacklistService != null && userResult != null 
+                && tokenBlacklistService.isUserBlacklisted(userResult.getUserId())) {
+            return ReturnResult.noAuth("用户已被禁用");
+        }
+
         if (authServerProperties.isRenew()) {
             resetExpire(userResult, token);
         }
@@ -220,16 +460,63 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
+        // 验证 RefreshToken
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
         Object s = stringRedisTemplate.opsForValue().get(redisRefreshKey);
         if (null == s) {
             return ReturnResult.noAuth();
         }
-        String redisKey = TOKEN_PRE + token;
-        UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
-        userResult.setToken(token);
-        userResult.setRefreshToken(refreshToken);
-        return ReturnResult.ok(userResult, userResult.getLoginType());
+        
+        UserResult oldUserResult = BeanUtils.copyProperties(s, UserResult.class);
+        if (oldUserResult == null || StringUtils.isBlank(oldUserResult.getUserId())) {
+            return ReturnResult.noAuth();
+        }
+
+        // 使用 TokenBuilder 生成新的 Token（保持相同的 uidHash）
+        String userIdHash = TokenBuilder.extractUserIdHash(refreshToken);
+        String uidHash = TokenBuilder.extractUidHash(refreshToken);
+        if (userIdHash == null || uidHash == null) {
+            return ReturnResult.noAuth();
+        }
+        
+        String newToken = TokenBuilder.generateAccessToken(oldUserResult.getUserId(), uidHash);
+        String newRefreshToken = TokenBuilder.generateRefreshToken(oldUserResult.getUserId(), uidHash);
+
+        // 将旧 Token 加入黑名单并删除
+        if (StringUtils.isNotBlank(token)) {
+            if (tokenBlacklistService != null) {
+                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.REVOKED);
+            }
+            stringRedisTemplate.delete(TOKEN_PRE + token);
+        }
+        // 将旧 RefreshToken 加入黑名单并删除
+        if (tokenBlacklistService != null) {
+            tokenBlacklistService.addToBlacklist(refreshToken, TokenBlacklistService.BlacklistReason.REVOKED);
+        }
+        stringRedisTemplate.delete(redisRefreshKey);
+
+        // 计算过期时间
+        long expire = calculateExpireTime(oldUserResult);
+        long refreshExpire = calculateRefreshExpireTime(oldUserResult);
+
+        // 更新用户信息
+        oldUserResult.setToken(newToken);
+        oldUserResult.setRefreshToken(newRefreshToken);
+        oldUserResult.setExpireTime(expire);
+        oldUserResult.setRefreshExpireTime(refreshExpire);
+
+        // 存储新 Token
+        String newRedisKey = TOKEN_PRE + newToken;
+        String newRefreshRedisKey = TOKEN_REFRESH_PRE + newRefreshToken;
+        stringRedisTemplate.opsForValue().set(newRedisKey, oldUserResult);
+        stringRedisTemplate.opsForValue().set(newRefreshRedisKey, oldUserResult);
+        
+        if (expire > 0) {
+            stringRedisTemplate.expire(newRedisKey, Duration.ofSeconds(expire));
+            stringRedisTemplate.expire(newRefreshRedisKey, Duration.ofSeconds(refreshExpire));
+        }
+
+        return ReturnResult.ok(oldUserResult, oldUserResult.getLoginType());
     }
 
     @Override
@@ -244,7 +531,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         if (StringUtils.isNotBlank(refreshToken)) {
-            logoutRefresh(token);
+            logoutRefresh(refreshToken);
         }
     }
 
@@ -254,12 +541,23 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.error("用户代码不能为空");
         }
 
-        // userCode 等价于 uid，直接通过 loginCheck 获取用户信息
+        // 新格式：{uid}:{加密的userId}
+        String[] split = userCode.split(":");
+        if (split.length < 2) {
+            return ReturnResult.error("用户代码格式无效");
+        }
+        
         UserResult userResult = new UserResult();
         userResult.setUserCode(userCode);
-        String[] split = userCode.split("\\-");
         userResult.setUid(split[0]);
-        userResult.setUserId(com.chua.common.support.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey()));
+        
+        try {
+            String decryptedUserId = com.chua.common.support.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey());
+            userResult.setUserId(decryptedUserId);
+        } catch (Exception e) {
+            return ReturnResult.error("用户代码解析失败");
+        }
+        
         UserResume userResume = loginCheck.getUserInfo(userResult);
         if (null == userResume || null == userResume.getUserId()) {
             return ReturnResult.error("用户不存在");
@@ -351,5 +649,43 @@ public class RedisTokenResolver implements TokenResolver {
             // 日志记录失败不应影响登出流程，只记录错误
             System.err.println("记录登出日志失败: " + e.getMessage());
         }
+    }
+
+    // ==================== 在线状态查询 ====================
+
+    /**
+     * 查询用户在线状态
+     * <p>注意：参数是 userId（数据库主键），不是 uid</p>
+     *
+     * @param userId 用户ID（数据库主键）
+     * @return 在线状态信息
+     */
+    @Override
+    public OnlineStatus getOnlineStatus(String userId) {
+        if (StringUtils.isBlank(userId)) {
+            return new OnlineStatus();
+        }
+
+        // 查询当前在线数量（基于 userId）
+        int onlineCount = countUserOnlineTokens(userId);
+
+        // 获取全局配置的在线模式和最大数量
+        AuthServerProperties.Online onlineMode = authServerProperties.getOnline();
+        int maxOnlineCount;
+
+        switch (onlineMode) {
+            case SINGLE:
+                maxOnlineCount = 1;
+                break;
+            case LIMIT:
+                maxOnlineCount = authServerProperties.getMaxOnlineCount();
+                break;
+            case MULTIPLE:
+            default:
+                maxOnlineCount = -1; // 不限制
+                break;
+        }
+
+        return new OnlineStatus(onlineCount, maxOnlineCount, onlineMode.name());
     }
 }

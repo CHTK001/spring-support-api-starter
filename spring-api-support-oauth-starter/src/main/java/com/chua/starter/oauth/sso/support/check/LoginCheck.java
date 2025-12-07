@@ -109,16 +109,12 @@ public class LoginCheck {
             if (null != userResume && Strings.isNullOrEmpty(userResume.getMessage())) {
                 userResume.setLoginType(authType);
                 userResume.setUid(createUid(principal, authType));
-                userResume.setUserCode(
-                        userResume.getUid()
-                                + "-" +
-                                DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey())
-                                + "-" +
-                                DigestUtils.md5Hex(StringUtils.defaultString(userResume.getOpenId(), EMPTY_STRING))
-                                + "-" +
-                                DigestUtils.md5Hex(StringUtils.defaultString(userResume.getAppId(), EMPTY_STRING))
-                );
-                log.debug("用户验证成功, userId: {}, uid: {}", userResume.getUserId(), userResume.getUid());
+                // 优化 userCode 生成：简化结构，只保留必要信息
+                // 格式：{uid}:{加密的userId}
+                userResume.setUserCode(buildUserCode(userResume));
+                log.debug("用户验证成功, userId: {}, uid: {}, userCode长度: {}", 
+                        userResume.getUserId(), userResume.getUid(), 
+                        userResume.getUserCode() != null ? userResume.getUserCode().length() : 0);
                 break;
             }
         }
@@ -154,6 +150,28 @@ public class LoginCheck {
         
         log.debug("========== 登录检测结束 ==========");
         return token;
+    }
+
+    /**
+     * 构建用户编码
+     * <p>
+     * 优化后的 userCode 格式：{uid}:{加密的userId}
+     * </p>
+     * <ul>
+     *   <li>uid - 用户唯一标识（MD5）</li>
+     *   <li>加密的userId - 使用 AES 加密的用户ID</li>
+     * </ul>
+     *
+     * @param userResume 用户信息
+     * @return 用户编码
+     */
+    private String buildUserCode(UserResume userResume) {
+        if (userResume == null || userResume.getUid() == null || userResume.getUserId() == null) {
+            return null;
+        }
+        
+        String encryptedUserId = DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey());
+        return userResume.getUid() + ":" + encryptedUserId;
     }
 
     /**

@@ -9,6 +9,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
+import com.chua.starter.oauth.client.support.user.OpenIdGenerator;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -271,9 +272,15 @@ public class UserService implements UserInfoService, Constant {
         Set<String> permissions = getPermission(user);
         log.debug("权限加载耗时: {}ms", System.currentTimeMillis() - startTime);
 
+        // 生成 OpenID 和 UnionID
+        String userId = user.getSysUserId() + "";
+        String[] ids = OpenIdGenerator.generateSystemIds("web", userId);
+        
         // 构建用户结果对象 - 使用链式调用提高代码可读性
         return new UserResult()
-                .setUserId(user.getSysUserId() + "")
+                .setUserId(userId)
+                .setOpenId(ids[0])
+                .setUnionId(ids[1])
                 .setRoles(collect)
                 .setRolesByRole(roleInfo)
                 .setDeptId(user.getSysDeptId() + "")

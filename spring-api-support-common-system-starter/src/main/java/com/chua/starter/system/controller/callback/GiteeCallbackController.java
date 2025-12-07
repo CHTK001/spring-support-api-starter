@@ -152,7 +152,7 @@ public class GiteeCallbackController {
         Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
                 .put("loginType", "gitee")
                 .put("address", RequestUtils.getIpAddress()).build();
-        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
+        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.WEB, ext);
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")

@@ -326,13 +326,25 @@ public class AuthServerProperties {
      * </p>
      * <ul>
      * <li>SINGLE - 单点登录，同一用户只能在一个地方登录</li>
-     * <li>MULTIPLE - 多点登录，同一用户可以在多个地方同时登录</li>
+     * <li>MULTIPLE - 多点登录，同一用户可以在多个地方同时登录（无限制）</li>
+     * <li>LIMIT - 限制登录，同一用户最多在指定数量的设备上登录</li>
      * </ul>
      * <p>
      * 默认值：MULTIPLE
      * </p>
      */
     private Online online = Online.MULTIPLE;
+
+    /**
+     * 最大在线设备数量
+     * <p>
+     * 仅当 online = LIMIT 时生效
+     * </p>
+     * <p>
+     * 默认值：3
+     * </p>
+     */
+    private int maxOnlineCount = 3;
 
     /**
      * 用户信息校验模式集合
@@ -468,12 +480,18 @@ public class AuthServerProperties {
     public enum Online {
         /**
          * 只允许一个在线
+         * <p>新登录会踢掉所有旧设备</p>
          */
         SINGLE,
         /**
-         * 允许多个个在线
+         * 允许多个在线（不限制）
          */
-        MULTIPLE
+        MULTIPLE,
+        /**
+         * 限制在线数量
+         * <p>超过限制时踢掉最早登录的设备</p>
+         */
+        LIMIT
     }
 
 }
