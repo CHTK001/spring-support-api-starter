@@ -26,11 +26,11 @@ public class SysMenuVO {
 
 
     /**
-     * 父菜单
+     * 父菜�?
      */
     @TableField(value = "sys_menu_pid")
-    @ApiModelProperty(value = "父菜单")
-    @Schema(description = "父菜单")
+    @ApiModelProperty(value = "父菜�?)
+    @Schema(description = "父菜�?)
     private Integer sysMenuPid;
     /**
      * 菜单名称
@@ -51,9 +51,9 @@ public class SysMenuVO {
     private String component;
 
     /**
-     * 重定向
+     * 重定�?
      */
-    @Schema(description = "重定向")
+    @Schema(description = "重定�?)
     private String redirect;
 
 
@@ -76,9 +76,9 @@ public class SysMenuVO {
     private Meta meta;
 
     /**
-     * 子菜单
+     * 子菜�?
      */
-    @Schema(description = "子菜单")
+    @Schema(description = "子菜�?)
     private List<SysMenuVO> children = Collections.emptyList();
 
 
@@ -105,9 +105,9 @@ public class SysMenuVO {
         private String frameSrc;
 
         /**
-         * 激活路径
+         * 激活路�?
          */
-        @Schema(description = "激活路径")
+        @Schema(description = "激活路�?)
         private String activePath;
 
         /**
@@ -146,9 +146,9 @@ public class SysMenuVO {
         private String extraIcon;
 
         /**
-         * 是否显示父菜单
+         * 是否显示父菜�?
          */
-        @Schema(description = "是否显示父菜单")
+        @Schema(description = "是否显示父菜�?)
         private boolean showParent = true;
 
         /**

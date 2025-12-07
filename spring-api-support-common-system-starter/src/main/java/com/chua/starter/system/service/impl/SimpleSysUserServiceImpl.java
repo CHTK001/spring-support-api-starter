@@ -13,7 +13,7 @@ import com.chua.common.support.utils.IdUtils;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.mapper.SysUserMapper;
-import com.chua.starter.service.entity.SysUser;
+import com.chua.starter.service.model.SysUser;
 import com.chua.starter.system.service.SimpleSysUserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +86,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     public ReturnResult<Boolean> verify(String code, @NotNull String username) {
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, username);
         if (null == key) {
-            return Result.failed("请先绑定fa验证码");
+            return Result.failed("请先绑定fa验证�?);
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);
@@ -103,7 +103,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         }
         Object key = stringRedisTemplate.opsForHash().get(RedisConstant.TOTP_PREFIX, sysUser.getSysUserUsername());
         if (null == key) {
-            return ReturnResult.illegal("请先绑定fa验证码");
+            return ReturnResult.illegal("请先绑定fa验证�?);
         }
         String secretString = key.toString();
         byte[] bytes = secretString.getBytes(StandardCharsets.UTF_8);

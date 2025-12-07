@@ -12,7 +12,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.query.SysUserQuery;
-import com.chua.starter.service.entity.SysUser;
+import com.chua.starter.service.model.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.service.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.service.pojo.user.SysUserUpdate;
@@ -109,7 +109,7 @@ public class SysUserController {
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
-            return Result.illegal("用户信息不存在");
+            return Result.illegal("用户信息不存�?);
         }
 
         return sysUserService.delete(sysUserId);
@@ -146,7 +146,7 @@ public class SysUserController {
     @Transactional(rollbackOn = Exception.class)
     public ReturnResult<String> reset(Long userId) {
         if (null == userId) {
-            return Result.illegal("用户信息不存在");
+            return Result.illegal("用户信息不存�?);
         }
 
         return sysUserService.reset(userId);

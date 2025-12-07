@@ -1,7 +1,7 @@
 package com.chua.starter.system.pojo.feedback;
 
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.entity.SysFeedback;
+import com.chua.starter.system.entity.SysFeedback;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,9 +21,9 @@ public class FeedbackV1Request extends Query<SysFeedback> {
 
 
     /**
-     * 开始时间
+     * 开始时�?
      */
-    @Schema(description = "开始时间")
+    @Schema(description = "开始时�?)
     private LocalDateTime startTime;
 
     /**
@@ -39,8 +39,8 @@ public class FeedbackV1Request extends Query<SysFeedback> {
     private String sysFeedbackType;
 
     /**
-     * 反馈状态
+     * 反馈状�?
      */
-    @Schema(description = "反馈类型;0:未处理, 1:已处理")
+    @Schema(description = "反馈类型;0:未处�? 1:已处�?)
     private Integer sysFeedbackStatus;
 }

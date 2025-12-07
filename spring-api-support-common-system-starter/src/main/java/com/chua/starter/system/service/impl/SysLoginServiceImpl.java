@@ -17,7 +17,7 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
-import com.chua.starter.service.entity.SysUserThirdParty;
+import com.chua.starter.service.model.SysUserThirdParty;
 import com.chua.starter.service.pojo.user.RefreshToken;
 import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
 import com.chua.starter.service.result.LoginResult;
@@ -117,7 +117,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("登录已过期");
+            return Result.failed("登录已过�?);
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -133,7 +133,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
         if(null == authRequest) {
-            return ReturnResult.fail("第三方登录暂不支持");
+            return ReturnResult.fail("第三方登录暂不支�?);
         }
         long startTime = System.currentTimeMillis();
         AuthRequest requestRequest = authRequest.getRequest();

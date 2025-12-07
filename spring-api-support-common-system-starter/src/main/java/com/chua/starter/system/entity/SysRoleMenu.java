@@ -19,10 +19,10 @@ import java.io.Serializable;
  */
 
 /**
- * 角色 - 菜单关系表
+ * 角色 - 菜单关系�?
  */
-@ApiModel(description = "角色 - 菜单关系表")
-@Schema(description = "角色 - 菜单关系表")
+@ApiModel(description = "角色 - 菜单关系�?)
+@Schema(description = "角色 - 菜单关系�?)
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {

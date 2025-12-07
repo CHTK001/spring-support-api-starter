@@ -52,15 +52,15 @@ public class SysMenu extends SysBase implements Serializable {
      * 是否首页
      */
     @TableField(value = "sys_menu_home")
-    @ApiModelProperty(value = "是否首页; 0:否")
-    @Schema(description = "是否首页; 0:否")
+    @ApiModelProperty(value = "是否首页; 0:�?)
+    @Schema(description = "是否首页; 0:�?)
     private Integer sysMenuHome;
     /**
      * 菜单引擎
      */
     @TableField(value = "sys_menu_engine")
-    @ApiModelProperty(value = "是否engine布局主页；0: 否")
-    @Schema(description = "是否engine布局主页；0: 否")
+    @ApiModelProperty(value = "是否engine布局主页�?: �?)
+    @Schema(description = "是否engine布局主页�?: �?)
     private Integer sysMenuEngine;
 
     /**
@@ -80,7 +80,7 @@ public class SysMenu extends SysBase implements Serializable {
     /**
      * 按钮权限
      */
-    @Schema(description = "菜单激活")
+    @Schema(description = "菜单激�?)
     @TableField(value = "sys_menu_active_path")
     private String sysMenuActivePath;
     /**
@@ -99,20 +99,20 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuPath;
 
     /**
-     * 国际化
+     * 国际�?
      */
     @TableField(value = "sys_menu_i18n")
-    @ApiModelProperty(value = "国际化")
-    @Schema(description = "国际化")
+    @ApiModelProperty(value = "国际�?)
+    @Schema(description = "国际�?)
     @Size(max = 255, message = "国际化最大长度要小于 255")
     private String sysMenuI18n;
 
     /**
-     * 父菜单
+     * 父菜�?
      */
     @TableField(value = "sys_menu_pid")
-    @ApiModelProperty(value = "父菜单")
-    @Schema(description = "父菜单")
+    @ApiModelProperty(value = "父菜�?)
+    @Schema(description = "父菜�?)
     private Integer sysMenuPid;
 
     /**
@@ -159,25 +159,25 @@ public class SysMenu extends SysBase implements Serializable {
     private Integer sysMenuType;
 
     /**
-     * 优先级
+     * 优先�?
      */
     @TableField(value = "sys_menu_sort")
-    @ApiModelProperty(value = "优先级")
-    @Schema(description = "优先级")
+    @ApiModelProperty(value = "优先�?)
+    @Schema(description = "优先�?)
     private Integer sysMenuSort;
     /**
-     * 所属权限
+     * 所属权�?
      */
     @TableField(value = "sys_menu_role")
-    @ApiModelProperty(value = "所属权限")
-    @Schema(description = "所属权限")
+    @ApiModelProperty(value = "所属权�?)
+    @Schema(description = "所属权�?)
     private String sysMenuRole;
     /**
-     * 路由重定向
+     * 路由重定�?
      */
     @TableField(value = "sys_menu_redirect")
-    @ApiModelProperty(value = "路由重定向")
-    @Schema(description = "路由重定向")
+    @ApiModelProperty(value = "路由重定�?)
+    @Schema(description = "路由重定�?)
     private String sysMenuRedirect;
     /**
      * 进场动画
@@ -195,35 +195,35 @@ public class SysMenu extends SysBase implements Serializable {
     private String sysMenuLeaveTransition;
 
     /**
-     * 是否缓存；0:否
+     * 是否缓存�?:�?
      */
     @TableField(value = "sys_menu_keep_alive")
-    @ApiModelProperty(value = "是否缓存；0:否")
-    @Schema(description = "是否缓存；0:否")
+    @ApiModelProperty(value = "是否缓存�?:�?)
+    @Schema(description = "是否缓存�?:�?)
     private Integer sysMenuKeepAlive;
     /**
-     * 是否在标签栏隐藏；0:否
+     * 是否在标签栏隐藏�?:�?
      */
     @TableField(value = "sys_menu_hidden_tag")
-    @ApiModelProperty(value = "是否在标签栏隐藏；0:否")
-    @Schema(description = "是否在标签栏隐藏；0:否")
+    @ApiModelProperty(value = "是否在标签栏隐藏�?:�?)
+    @Schema(description = "是否在标签栏隐藏�?:�?)
     private Integer sysMenuHiddenTag;
     /**
-     * 是否固定标签；0:否
+     * 是否固定标签�?:�?
      */
     @TableField(value = "sys_menu_fixed_tag")
-    @ApiModelProperty(value = "是否固定标签；0:否")
-    @Schema(description = "是否固定标签；0:否")
+    @ApiModelProperty(value = "是否固定标签�?:�?)
+    @Schema(description = "是否固定标签�?:�?)
     private Integer sysMenuFixedTag;
     /**
-     * 是否隐藏；0:显示
+     * 是否隐藏�?:显示
      */
     @TableField(value = "sys_menu_hidden")
-    @ApiModelProperty(value = "是否隐藏；0:显示")
-    @Schema(description = "是否隐藏；0:显示")
+    @ApiModelProperty(value = "是否隐藏�?:显示")
+    @Schema(description = "是否隐藏�?:显示")
     private Integer sysMenuHidden;
     /**
-     * 是否隐藏；0:显示
+     * 是否隐藏�?:显示
      */
     @TableField(value = "sys_menu_show_parent")
     @ApiModelProperty(value = "当一个子级菜单是否隐藏父级菜单；0:显示")

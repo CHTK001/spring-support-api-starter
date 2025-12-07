@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.service.entity.SysMenu;
+import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 
@@ -24,10 +24,10 @@ public interface SysMenuService extends IService<SysMenu>{
     /**
      * 根据条件查询系统菜单列表
      *
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查询
+     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
      * @param roles   当前用户拥有的角色集合，用于权限过滤
-     * @param  ignoreType 忽略的类型
-     * @return 返回匹配的系统菜单列表
+     * @param  ignoreType 忽略的类�?
+     * @return 返回匹配的系统菜单列�?
      */
     ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType);
 
@@ -43,44 +43,44 @@ public interface SysMenuService extends IService<SysMenu>{
      * 分页查询系统菜单列表
      *
      * @param query 分页查询对象，设置了分页的大小和当前页码
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查询
+     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
      * @param roles 当前用户拥有的角色集合，用于权限过滤
-     * @return 返回分页查询结果，包含了分页信息和菜单列表
+     * @return 返回分页查询结果，包含了分页信息和菜单列�?
      */
     IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles);
 
     /**
-     * 删除指定的系统菜单
+     * 删除指定的系统菜�?
      *
      * @param menuId 要删除的系统菜单的ID
-     * @return 返回删除操作的结果，包括是否成功和相关消息
+     * @return 返回删除操作的结果，包括是否成功和相关消�?
      */
     ReturnResult<Boolean> delete(Long menuId);
 
     /**
-     * 更新系统菜单的信息
+     * 更新系统菜单的信�?
      *
      * @param roles 当前用户拥有的角色集合，用于权限校验
-     * @param sysMenu 要更新的系统菜单对象，包含更新后的属性值
-     * @return 返回更新操作的结果，包括是否成功和相关消息
+     * @param sysMenu 要更新的系统菜单对象，包含更新后的属性�?
+     * @return 返回更新操作的结果，包括是否成功和相关消�?
      */
     ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu);
 
     /**
-     * 新增一个系统菜单
+     * 新增一个系统菜�?
      *
-     * @param sysMenu 新增的系统菜单对象，包含所有必要属性
+     * @param sysMenu 新增的系统菜单对象，包含所有必要属�?
      * @param roles 当前用户拥有的角色集合，用于权限校验
-     * @return 返回新增操作的结果，包括是否成功和相关消息
+     * @return 返回新增操作的结果，包括是否成功和相关消�?
      */
     ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles);
 
     /**
      * 根据条件查询系统菜单列表
      *
-     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查询
+     * @param sysMenu 作为查询条件的系统菜单对象，可以指定部分属性进行模糊查�?
      * @param roles 当前用户拥有的角色集合，用于权限过滤
-     * @return 返回匹配的系统菜单列表
+     * @return 返回匹配的系统菜单列�?
      */
     ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles);
 

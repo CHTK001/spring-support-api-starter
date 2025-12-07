@@ -10,7 +10,7 @@ import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.service.entity.SysMenu;
+import com.chua.starter.system.entity.SysMenu;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.service.SysMenuService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,7 +90,7 @@ public class SysMenuController {
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {
-            return Result.illegal("菜单信息不存在");
+            return Result.illegal("菜单信息不存�?);
         }
 
         return sysMenuService.delete(sysMenuId);

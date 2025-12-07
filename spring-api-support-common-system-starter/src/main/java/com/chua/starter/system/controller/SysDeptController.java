@@ -7,7 +7,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.entity.SysDept;
+import com.chua.starter.system.entity.SysDept;
 import com.chua.starter.system.pojo.dept.SysDeptVO;
 import com.chua.starter.system.service.SysDeptService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +61,7 @@ public class SysDeptController {
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
-            return Result.illegal("组织机构信息不存在");
+            return Result.illegal("组织机构信息不存�?);
         }
 
         return sysDeptService.delete(deptId);
