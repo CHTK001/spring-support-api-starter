@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.project.mapper.SysDeviceCardEventMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysDeviceCardEvent">
+  <resultMap id="BaseResultMap" type="com.chua.starter.entity.project.SysDeviceCardEvent">
     <!--@mbg.generated-->
     <!--@Table sys_device_card_event-->
     <id column="sys_device_card_event_id" jdbcType="INTEGER" property="sysDeviceCardEventId" />

@@ -1,4 +1,4 @@
-package com.chua.starter.system.entity;
+package com.chua.starter.entity.system;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

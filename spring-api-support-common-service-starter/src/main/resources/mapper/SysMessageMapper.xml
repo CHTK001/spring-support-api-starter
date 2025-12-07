@@ -3,7 +3,7 @@
 <mapper namespace="com.chua.starter.service.mapper.SysMessageMapper">
 
     <!-- 通用字段映射 -->
-    <resultMap id="BaseResultMap" type="com.chua.starter.service.entity.SysMessage">
+    <resultMap id="BaseResultMap" type="com.chua.starter.entity.service.SysMessage">
         <id column="sys_message_id" property="sysMessageId"/>
         <result column="sys_message_title" property="sysMessageTitle"/>
         <result column="sys_message_content" property="sysMessageContent"/>
@@ -30,7 +30,7 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
-    <!-- 查询用户的消息列�?-->
+    <!-- 查询用户的消息列�?-->
     <select id="selectByUserId" resultMap="BaseResultMap">
         SELECT * FROM sys_message
         WHERE sys_message_status = 1
@@ -51,7 +51,7 @@
         AND (sys_message_expire_time IS NULL OR sys_message_expire_time > NOW())
     </select>
 
-    <!-- 批量标记为已�?-->
+    <!-- 批量标记为已�?-->
     <update id="batchMarkAsRead">
         UPDATE sys_message
         SET sys_message_read = 1,
