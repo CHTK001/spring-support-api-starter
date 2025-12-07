@@ -1,10 +1,10 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.ml.PredictResult;
-import com.chua.common.support.ml.feature.DetectionConfiguration;
-import com.chua.common.support.ml.function.FaceDetector;
-import com.chua.common.support.ml.identification.IdentificationEngine;
+import com.chua.deeplearning.support.ml.PredictResult;
+import com.chua.deeplearning.support.ml.feature.DetectionConfiguration;
+import com.chua.deeplearning.support.ml.function.FaceDetector;
+import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
 import com.chua.starter.project.service.OcrService;
@@ -55,12 +55,12 @@ public class OcrServiceImpl implements OcrService {
             throw new RuntimeException("文件不能为空");
         }
         DetectionConfiguration detectionConfiguration = DetectionConfiguration.builder()
-                .optAppKey(sysProject.getSysProjectAppKey())
-                .optAppId(sysProject.getSysProjectAppId())
-                .optSecretKey(sysProject.getSysProjectAppSecret())
-                .loadEnv(sysProject.getSysProjectEndpoint())
+                .apiKey(sysProject.getSysProjectAppKey())
+                .appId(sysProject.getSysProjectAppId())
+                .secretKey(sysProject.getSysProjectAppSecret())
+                .endpoint(sysProject.getSysProjectEndpoint())
                 .loadModelPath(sysProject.getSysProjectLocalPath())
-                .loadModelName(request.getModel())
+                .modelName(request.getModel())
                 .build();
         IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
         if (null == identificationEngine) {

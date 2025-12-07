@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 同步请求
+ * 模板请求
  *
  * @author CH
  */

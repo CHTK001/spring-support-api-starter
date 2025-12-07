@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bigmodel.BigModelCallback;
-import com.chua.common.support.bigmodel.BigModelClient;
-import com.chua.common.support.bigmodel.BigModelRequest.HistoryMessage;
-import com.chua.common.support.bigmodel.BigModelResponse;
-import com.chua.common.support.bigmodel.BigModelSetting;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelCallback;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.HistoryMessage;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelSetting;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -58,7 +58,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
         BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
         BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
-        return ReturnResult.of(bigModelClient.call(com.chua.common.support.bigmodel.BigModelRequest.builder()
+        return ReturnResult.of(bigModelClient.call(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
                 .prompt(request.getUser())
                 .system(request.getSystem())
                 .model(request.getModel())
@@ -128,7 +128,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         SseEmitter sseEmitter = sseTemplate.createSseEmitter(emitter);
         executorService.execute(() -> {
             try {
-                bigModelClient.callStream(com.chua.common.support.bigmodel.BigModelRequest.builder()
+                bigModelClient.callStream(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
                                 .prompt(request.getUser())
                                 .files(request.getFiles())
                                 .system(request.getSystem())

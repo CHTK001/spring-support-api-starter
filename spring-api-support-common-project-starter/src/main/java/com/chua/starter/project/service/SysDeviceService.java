@@ -12,10 +12,10 @@ import com.chua.starter.project.entity.SysDeviceOrg;
 import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import com.chua.starter.project.pojo.project.SyncV1Request;
 import com.chua.starter.project.pojo.project.TemplatePageV1Request;
-import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
-import com.chua.starter.system.pojo.device.DevicePageV1Request;
-import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
+import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.project.pojo.device.CheckDeviceOnlineV1Request;
+import com.chua.starter.project.pojo.device.DevicePageV1Request;
+import com.chua.starter.project.pojo.device.DeviceTimelineV1Request;
 
 import java.util.List;
 

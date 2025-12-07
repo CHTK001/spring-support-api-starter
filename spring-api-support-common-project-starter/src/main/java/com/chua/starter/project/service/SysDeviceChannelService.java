@@ -3,7 +3,7 @@ package com.chua.starter.project.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.entity.SysDeviceChannel;
-import com.chua.starter.system.pojo.device.SysDeviceChannelV1Request;
+import com.chua.starter.project.pojo.device.SysDeviceChannelV1Request;
 
 /**
  * 设备管道服务接口

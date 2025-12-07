@@ -22,18 +22,18 @@ public class ProjectDefaultFunctionV1Request {
     private Integer sysProjectId;
 
     /**
-     * 类型； 字典表6;
+     * 类型
      */
-    @Schema(description = "类型； 字典表6;")
+    @Schema(description = "类型")
     private Integer sysProjectDefaultType;
     /**
-     * 类型； 字典表6;
+     * 类型名称
      */
-    @Schema(description = "类型； 字典表6;")
+    @Schema(description = "类型名称")
     private String sysProjectDefaultTypeName;
 
     /**
-     * 设置默认值; 0: false
+     * 设置默认值
      */
     @Schema(description = "设置默认值; 0: false")
     @NotNull(message = "默认值不能为空", groups = UpdateGroup.class)

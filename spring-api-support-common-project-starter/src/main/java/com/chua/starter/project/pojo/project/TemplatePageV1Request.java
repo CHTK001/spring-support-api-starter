@@ -2,14 +2,14 @@ package com.chua.starter.project.pojo.project;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.system.entity.SysSmsTemplate;
+import com.chua.starter.project.entity.SysSmsTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 同步请求
+ * 模板分页请求
  *
  * @author CH
  */
@@ -45,7 +45,7 @@ public class TemplatePageV1Request extends Query<SysSmsTemplate> {
 
 
     /**
-     * 设备是否在线;0:离线
+     * 设备是否在线
      */
     @Schema(description = "设备是否在线;0:离线")
     private Integer sysDeviceOnline;

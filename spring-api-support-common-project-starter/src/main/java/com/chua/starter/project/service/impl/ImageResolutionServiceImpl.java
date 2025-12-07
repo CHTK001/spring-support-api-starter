@@ -1,7 +1,7 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bigmodel.resolution.*;
+import com.chua.deeplearning.support.ml.bigmodel.resolution.*;
 import com.chua.common.support.binary.ByteSourceMultiFile;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -14,8 +14,8 @@ import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.project.entity.SysAiModule;
 import com.chua.starter.project.entity.SysAiVincentTask;
 import com.chua.starter.project.entity.SysProject;
-import com.chua.starter.system.pojo.vincent.ImageResolutionAddTaskV2Request;
-import com.chua.starter.system.pojo.vincent.ImageResolutionSearchTaskV2Request;
+import com.chua.starter.project.pojo.vincent.ImageResolutionAddTaskV2Request;
+import com.chua.starter.project.pojo.vincent.ImageResolutionSearchTaskV2Request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.stereotype.Service;
