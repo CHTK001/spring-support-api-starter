@@ -1,7 +1,7 @@
-﻿package com.chua.starter.oauth.sso.mapper;
+package com.chua.starter.oauth.sso.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.service.model.SysUserRole;
+import com.chua.starter.entity.system.SysUserRole;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

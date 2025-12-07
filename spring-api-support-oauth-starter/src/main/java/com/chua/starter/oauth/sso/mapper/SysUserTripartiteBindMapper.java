@@ -1,8 +1,8 @@
-﻿package com.chua.starter.oauth.sso.mapper;
+package com.chua.starter.oauth.sso.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.oauth.sso.impl.SysUserTripartiteBind;
-import com.chua.starter.service.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

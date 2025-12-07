@@ -1,6 +1,6 @@
-﻿package com.chua.starter.oauth.sso.service;
+package com.chua.starter.oauth.sso.service;
 
-import com.chua.starter.service.model.SysUserLog;
+import com.chua.starter.entity.system.SysUserLog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

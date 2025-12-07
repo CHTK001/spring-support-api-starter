@@ -1,6 +1,6 @@
-﻿package com.chua.starter.oauth.sso.service;
+package com.chua.starter.oauth.sso.service;
 
-import com.chua.starter.service.model.SysUser;
+import com.chua.starter.entity.system.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
 /**
  * @author yemen
