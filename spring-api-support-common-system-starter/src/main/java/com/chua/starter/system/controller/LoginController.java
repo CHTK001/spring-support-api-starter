@@ -5,7 +5,7 @@ import com.chua.common.support.task.debounce.Debounce;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLogger;
-import com.chua.starter.common.support.result.Result;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
