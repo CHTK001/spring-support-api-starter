@@ -3,12 +3,10 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.chua.starter.oauth.sso.support.configuration.EnableRedisTokenManagerConfiguration
 org.springframework.boot.env.EnvironmentPostProcessor=\
   com.chua.starter.oauth.sso.support.configuration.EnableAuthServerConfiguration
-# OAuth协议处理器SPI配置
 com.chua.starter.oauth.sso.support.protocol.OAuthProtocolHandler=\
   com.chua.starter.oauth.sso.support.protocol.handler.CustomProtocolHandler,\
   com.chua.starter.oauth.sso.support.protocol.handler.JwtProtocolHandler,\
   com.chua.starter.oauth.sso.support.protocol.handler.JwtRsaProtocolHandler
-# OAuth协议实现SPI配置
 com.chua.starter.oauth.sso.support.protocol.Protocol=\
   com.chua.starter.oauth.sso.support.protocol.HttpProtocol,\
   com.chua.starter.oauth.sso.support.protocol.TcpProtocol,\

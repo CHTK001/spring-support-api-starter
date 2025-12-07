@@ -33,22 +33,11 @@ public class LoginAuthInformation extends BaseAuthInformation {
         this.sysUserLogService = applicationContext.getBean(SysUserLogService.class);
     }
 
-    // TCP协议构造函数
+    // Armeria协议构造函数
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
-                                TcpAuthInformation.TcpRequest request,
-                                TcpAuthInformation.TcpResponse response,
-                                ApplicationContext applicationContext,
-                                LoginCheck loginCheck) {
-        super(authServerProperties, data, request, response, applicationContext, loginCheck);
-        this.sysUserLogService = applicationContext.getBean(SysUserLogService.class);
-    }
-
-    // UDP协议构造函数
-    public LoginAuthInformation(AuthServerProperties authServerProperties,
-                                String data,
-                                UdpAuthInformation.UdpRequest request,
-                                UdpAuthInformation.UdpResponse response,
+                                ArmeriaAuthInformation.ArmeriaRequest request,
+                                ArmeriaAuthInformation.ArmeriaResponse response,
                                 ApplicationContext applicationContext,
                                 LoginCheck loginCheck) {
         super(authServerProperties, data, request, response, applicationContext, loginCheck);
@@ -59,10 +48,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
-        } else if (request instanceof TcpAuthInformation.TcpRequest) {
-            return ((TcpAuthInformation.TcpRequest) request).getHeader(headerName);
-        } else if (request instanceof UdpAuthInformation.UdpRequest) {
-            return ((UdpAuthInformation.UdpRequest) request).getHeader(headerName);
+        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
+            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getHeader(headerName);
         }
         return null;
     }
@@ -71,10 +58,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
-        } else if (response instanceof TcpAuthInformation.TcpResponse) {
-            ((TcpAuthInformation.TcpResponse) response).setHeader(headerName, headerValue);
-        } else if (response instanceof UdpAuthInformation.UdpResponse) {
-            ((UdpAuthInformation.UdpResponse) response).setHeader(headerName, headerValue);
+        } else if (response instanceof ArmeriaAuthInformation.ArmeriaResponse) {
+            ((ArmeriaAuthInformation.ArmeriaResponse) response).setHeader(headerName, headerValue);
         }
     }
 
@@ -82,10 +67,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
-        } else if (request instanceof TcpAuthInformation.TcpRequest) {
-            return ((TcpAuthInformation.TcpRequest) request).getRemoteAddr();
-        } else if (request instanceof UdpAuthInformation.UdpRequest) {
-            return ((UdpAuthInformation.UdpRequest) request).getRemoteAddr();
+        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
+            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getRemoteAddr();
         }
         return null;
     }
@@ -94,10 +77,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
-        } else if (request instanceof TcpAuthInformation.TcpRequest) {
-            return ((TcpAuthInformation.TcpRequest) request).getAttribute(attributeName);
-        } else if (request instanceof UdpAuthInformation.UdpRequest) {
-            return ((UdpAuthInformation.UdpRequest) request).getAttribute(attributeName);
+        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
+            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getAttribute(attributeName);
         }
         return null;
     }
@@ -106,10 +87,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
-        } else if (request instanceof TcpAuthInformation.TcpRequest) {
-            ((TcpAuthInformation.TcpRequest) request).setAttribute(attributeName, attributeValue);
-        } else if (request instanceof UdpAuthInformation.UdpRequest) {
-            ((UdpAuthInformation.UdpRequest) request).setAttribute(attributeName, attributeValue);
+        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
+            ((ArmeriaAuthInformation.ArmeriaRequest) request).setAttribute(attributeName, attributeValue);
         }
     }
 
