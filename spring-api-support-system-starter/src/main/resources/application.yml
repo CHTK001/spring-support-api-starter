@@ -3,10 +3,8 @@ spring:
     name: system
   profiles:
     active: dev
-    include: mybatis,swagger,socket,control,codec,ip,discovery,actuator
+    include: mybatis,swagger,control,codec,ip,actuator
 plugin:
-  parameter:
-    enable: true
   cors:
     enable: true
 server:

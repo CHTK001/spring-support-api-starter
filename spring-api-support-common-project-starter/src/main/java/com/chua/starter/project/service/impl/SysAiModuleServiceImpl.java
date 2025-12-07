@@ -7,8 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ObjectUtils;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
-import com.chua.starter.common.support.configuration.CacheCustomTenantedKeyGenerator;
+import com.chua.starter.common.support.cache.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
@@ -148,8 +147,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     }
 
     @Override
-    @ApiCacheKey("sys:ai:module:#{#model}:#{#sysProjectId}")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:ai:module:' + #model + ':' + #sysProjectId", keyGenerator = "customTenantedKeyGenerator")
     public SysAiModule getOneByCode(Integer sysProjectId, String model) {
         return com.chua.common.support.utils.CollectionUtils.findFirst(baseMapper.selectList(
                 Wrappers.<SysAiModule>lambdaQuery()

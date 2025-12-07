@@ -9,7 +9,6 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
 import com.chua.common.support.utils.*;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -176,8 +175,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @ApiCacheKey("'sys:menu:list:all'")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));
@@ -192,15 +190,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> delete(Long menuId) {
         return ReturnResult.guess(baseMapper.deleteById(menuId) > 0);
     }
 
     @Override
-    @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
@@ -226,8 +222,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @ApiCacheKey("'sys:menu:list:all'")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {

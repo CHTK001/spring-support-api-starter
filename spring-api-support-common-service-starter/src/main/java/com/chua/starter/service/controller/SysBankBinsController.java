@@ -1,7 +1,6 @@
 package com.chua.starter.service.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.SysBankBinsService;
 import com.chua.starter.entity.service.SysBankBins;
@@ -49,8 +48,7 @@ public class SysBankBinsController {
      */
     @Operation(summary = "所有银行卡bin")
     @GetMapping("/all")
-    @ApiCacheKey("'sys:bank:bin:all'")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:bank:bin:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysBankBins>> all() {
         return ReturnResult.ok(sysBankBinsService.all());
     }
