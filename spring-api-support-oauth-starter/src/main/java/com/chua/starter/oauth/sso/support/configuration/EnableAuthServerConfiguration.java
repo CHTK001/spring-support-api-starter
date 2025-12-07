@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -84,13 +85,24 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     AuthServerProperties authServerProperties;
     private List<HttpMessageConverter<?>> messageConverters;
 
+    /**
+     * 登录检查服务Bean
+     * <p>核心认证服务，负责处理登录验证逻辑</p>
+     *
+     * @param applicationContext Spring应用上下文
+     * @return 登录检查服务实例
+     */
+    @Bean
+    public LoginCheck loginCheck(ApplicationContext applicationContext) {
+        return new LoginCheck(authServerProperties, applicationContext);
+    }
+
+
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        BeanDefinitionRegistryUtils.registerBeanDefinition(registry, LoginCheck.class);
+        List<String> protocols = authServerProperties.getProtocols();
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
-
-        List<String> protocols = authServerProperties.getProtocols();
         if (protocols.isEmpty()) {
             log.info("未设置认证协议");
             return;
