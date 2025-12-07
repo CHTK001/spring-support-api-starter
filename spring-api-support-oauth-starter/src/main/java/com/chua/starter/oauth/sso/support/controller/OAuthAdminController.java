@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
@@ -55,7 +56,11 @@ public class OAuthAdminController {
 
     /**
      * 调试模式状态
+     * -- GETTER --
+     *  是否为调试模式
+
      */
+    @Getter
     private static volatile boolean debugMode = false;
 
     /**
@@ -167,13 +172,6 @@ public class OAuthAdminController {
         while (RECENT_REQUESTS.size() > MAX_RECORDS) {
             RECENT_REQUESTS.removeLast();
         }
-    }
-
-    /**
-     * 是否为调试模式
-     */
-    public static boolean isDebugMode() {
-        return debugMode;
     }
 
     // ==================== 服务器状态 ====================

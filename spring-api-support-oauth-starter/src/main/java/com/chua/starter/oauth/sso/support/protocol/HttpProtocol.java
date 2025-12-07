@@ -13,6 +13,7 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
+import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
@@ -125,13 +126,19 @@ public class HttpProtocol implements Protocol, InitializingBean {
         ReturnResult<String> authentication = authorization.authentication();
         
         if(authentication.isFailure()) {
+            long cost = System.currentTimeMillis() - startTime;
             log.warn("登录认证失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authentication.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+                    authentication.getMsg(), clientIp, cost);
+            // 记录失败请求
+            OAuthAdminController.recordRequest("LOGIN", clientIp, null, false, authentication.getMsg(), cost);
             return ReturnResult.error(authentication.getMsg());
         }
         
-        log.info("登录认证成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        long cost = System.currentTimeMillis() - startTime;
+        log.info("登录认证成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
         log.debug("========== 登录请求结束 ==========");
+        // 记录成功请求
+        OAuthAdminController.recordRequest("LOGIN", clientIp, null, true, "登录成功", cost);
         return authentication;
     }
 
@@ -168,13 +175,17 @@ public class HttpProtocol implements Protocol, InitializingBean {
         LogoutAuthorization authorization = authInformation.authorization();
         ReturnResult<String> authentication = authorization.authentication();
         if(authentication.isFailure()) {
+            long cost = System.currentTimeMillis() - startTime;
             log.warn("登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authentication.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+                    authentication.getMsg(), clientIp, cost);
+            OAuthAdminController.recordRequest("LOGOUT", clientIp, null, false, authentication.getMsg(), cost);
             return ReturnResult.error(authentication.getMsg());
         }
         
-        log.info("登出成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+        long cost = System.currentTimeMillis() - startTime;
+        log.info("登出成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
         log.debug("========== 登出请求结束 ==========");
+        OAuthAdminController.recordRequest("LOGOUT", clientIp, null, true, "登出成功", cost);
         return authentication;
     }
 
@@ -285,11 +296,13 @@ public class HttpProtocol implements Protocol, InitializingBean {
         OauthAuthorization authorization = authInformation.authorization();
         ReturnResult<String> result = authorization.authentication();
         
+        long cost = System.currentTimeMillis() - startTime;
         if(result.isFailure()) {
-            log.debug("鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+            log.debug("鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
+            OAuthAdminController.recordRequest("OAUTH", clientIp, null, false, result.getMsg(), cost);
         } else {
-            log.debug("鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+            log.debug("鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+            OAuthAdminController.recordRequest("OAUTH", clientIp, null, true, "鉴权成功", cost);
         }
         log.debug("========== 鉴权请求结束 ==========");
         return result;
@@ -338,11 +351,13 @@ public class HttpProtocol implements Protocol, InitializingBean {
         UpgradeAuthorization authorization = authInformation.authorization();
         ReturnResult<String> result = authorization.authentication();
         
+        long cost = System.currentTimeMillis() - startTime;
         if(result.isFailure()) {
-            log.warn("令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+            log.warn("令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
+            OAuthAdminController.recordRequest("UPGRADE", clientIp, null, false, result.getMsg(), cost);
         } else {
-            log.info("令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, System.currentTimeMillis() - startTime);
+            log.info("令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+            OAuthAdminController.recordRequest("UPGRADE", clientIp, null, true, "令牌升级成功", cost);
         }
         log.debug("========== 令牌升级请求结束 ==========");
         return result;
