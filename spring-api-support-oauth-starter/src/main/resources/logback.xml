@@ -32,6 +32,42 @@
     <logger name="*.mapper.*" level="DEBUG" additivity="false"/>
     <logger name="org.burningwave" level="OFF" additivity="false"/>
 
+    <!-- OAuth 认证模块详细日志配置 -->
+    <logger name="com.chua.starter.oauth.sso" level="${OAUTH_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+    
+    <!-- 登录服务日志 -->
+    <logger name="com.chua.starter.oauth.sso.login" level="${OAUTH_LOGIN_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+    
+    <!-- 协议处理日志 -->
+    <logger name="com.chua.starter.oauth.sso.support.protocol" level="${OAUTH_PROTOCOL_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+    
+    <!-- 认证信息处理日志 -->
+    <logger name="com.chua.starter.oauth.sso.support.information" level="${OAUTH_INFO_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+    
+    <!-- Token 处理日志 -->
+    <logger name="com.chua.starter.oauth.sso.support.token" level="${OAUTH_TOKEN_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+    
+    <!-- 第三方登录日志 -->
+    <logger name="com.chua.starter.oauth.sso.third" level="${OAUTH_THIRD_LOG_LEVEL:-DEBUG}" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async"/>
+    </logger>
+
     <!-- 按照每天生成日志文件 -->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log_file_location}/${projectArtifactId:-/}/logs.log</file>
