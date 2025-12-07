@@ -4,8 +4,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +30,22 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 @RestController
 @RequestMapping("/oauth/admin")
-@RequiredArgsConstructor
 @Slf4j
 @Tag(name = "OAuth管理", description = "OAuth认证服务管理接口")
 public class OAuthAdminController {
 
     private final AuthServerProperties authServerProperties;
+    
+    /**
+     * 日志系统（可能不存在）
+     */
     private final LoggingSystem loggingSystem;
+
+    public OAuthAdminController(AuthServerProperties authServerProperties,
+                                @Autowired(required = false) LoggingSystem loggingSystem) {
+        this.authServerProperties = authServerProperties;
+        this.loggingSystem = loggingSystem;
+    }
 
     /**
      * 最近请求记录（最多保留100条）
@@ -191,6 +200,10 @@ public class OAuthAdminController {
     // ==================== 辅助方法 ====================
 
     private void setLogLevel(String loggerName, LogLevel level) {
+        if (loggingSystem == null) {
+            log.warn("LoggingSystem 不可用，无法设置日志级别");
+            return;
+        }
         try {
             loggingSystem.setLogLevel(loggerName, level);
         } catch (Exception e) {
@@ -199,6 +212,9 @@ public class OAuthAdminController {
     }
 
     private String getLogLevel(String loggerName) {
+        if (loggingSystem == null) {
+            return "UNAVAILABLE";
+        }
         try {
             var config = loggingSystem.getLoggerConfiguration(loggerName);
             return config != null && config.getEffectiveLevel() != null 

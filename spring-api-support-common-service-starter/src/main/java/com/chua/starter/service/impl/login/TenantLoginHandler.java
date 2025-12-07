@@ -30,7 +30,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  */
 @SpiDefault
 @Slf4j
-@Spi("WEB-TENANT")
+@Spi("TENANT")
 public class TenantLoginHandler extends DefaultLoginHandler {
 
     @AutoInject
