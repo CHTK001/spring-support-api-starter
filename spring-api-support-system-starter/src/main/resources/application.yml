@@ -3,13 +3,8 @@ spring:
     name: system
   profiles:
     active: dev
-    include: mybatis,swagger,control,codec,ip,actuator
-plugin:
-  cors:
-    enable: true
+    include: mybatis,swagger,api,ip,actuator
 server:
   port: 18170
   servlet:
     context-path: /system/api
-  http2:
-    enabled: true
