@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.user;
+package com.chua.starter.service.pojo.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

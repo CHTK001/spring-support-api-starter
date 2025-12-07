@@ -7,7 +7,7 @@ import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.system.dto.feedback.FeedbackStatisticV1Response;
-import com.chua.starter.system.entity.SysFeedback;
+import com.chua.starter.service.entity.SysFeedback;
 import com.chua.starter.system.pojo.feedback.FeedbackIssueV1Request;
 import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 import com.chua.starter.system.service.SysFeedbackService;

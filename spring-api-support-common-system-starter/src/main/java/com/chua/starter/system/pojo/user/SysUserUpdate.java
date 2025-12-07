@@ -1,6 +1,6 @@
-package com.chua.starter.system.pojo.user;
+package com.chua.starter.service.pojo.user;
 
-import com.chua.starter.system.entity.SysUser;
+import com.chua.starter.service.entity.SysUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

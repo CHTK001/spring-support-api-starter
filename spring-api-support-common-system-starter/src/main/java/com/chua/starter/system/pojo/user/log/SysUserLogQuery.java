@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.user.log;
+package com.chua.starter.service.pojo.user.log;
 
 import com.chua.starter.system.pojo.DateQuery;
 import io.swagger.v3.oas.annotations.media.Schema;

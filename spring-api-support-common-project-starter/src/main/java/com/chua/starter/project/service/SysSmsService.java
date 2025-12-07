@@ -5,9 +5,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.project.entity.SysSmsLog;
 import com.chua.starter.project.entity.SysSmsTemplate;
-import com.chua.starter.system.pojo.sms.SmsPageV1Request;
-import com.chua.starter.system.pojo.sms.SmsRequest;
-import com.chua.starter.system.pojo.sms.SmsSyncV1Request;
+import com.chua.starter.project.pojo.sms.SmsPageV1Request;
+import com.chua.starter.project.pojo.sms.SmsRequest;
+import com.chua.starter.project.pojo.sms.SmsSyncV1Request;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.chua.starter.system.pojo.dept;
 
-import com.chua.starter.system.entity.SysDept;
+import com.chua.starter.service.entity.SysDept;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

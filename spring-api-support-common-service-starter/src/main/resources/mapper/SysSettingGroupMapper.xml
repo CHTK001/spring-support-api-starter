@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.service.mapper.SysSettingGroupMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.system.entity.SysSettingGroup">
+  <resultMap id="BaseResultMap" type="com.chua.starter.service.entity.SysSettingGroup">
     <!--@mbg.generated-->
     <!--@Table sys_setting_group-->
     <id column="sys_setting_group_id" jdbcType="INTEGER" property="sysSettingGroupId" />

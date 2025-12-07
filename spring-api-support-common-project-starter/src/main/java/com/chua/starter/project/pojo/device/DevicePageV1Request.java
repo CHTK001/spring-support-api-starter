@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 设备分页查询请求
+ * 同步请求
  *
  * @author CH
  */
@@ -45,4 +45,6 @@ public class DevicePageV1Request extends Query<SysDevice> {
      */
     @Schema(description = "设备是否在线;0:离线")
     private Integer sysDeviceOnline;
+
+
 }

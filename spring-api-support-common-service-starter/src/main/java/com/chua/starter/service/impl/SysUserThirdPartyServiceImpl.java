@@ -3,7 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.service.SysUserThirdPartyService;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.system.entity.SysUserThirdParty;
+import com.chua.starter.service.entity.SysUserThirdParty;
 import org.springframework.stereotype.Service;
 /**
  *

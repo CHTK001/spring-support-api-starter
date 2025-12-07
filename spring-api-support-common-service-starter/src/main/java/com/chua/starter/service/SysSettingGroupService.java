@@ -2,7 +2,7 @@ package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.system.entity.SysSettingGroup;
+import com.chua.starter.service.entity.SysSettingGroup;
 import lombok.NonNull;
 
 import java.util.List;
