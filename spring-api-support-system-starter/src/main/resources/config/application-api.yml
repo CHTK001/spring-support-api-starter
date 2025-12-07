@@ -7,11 +7,6 @@ plugin:
     # 版本控制配置
     # -----------------------------------------
     version:
-      # 开启版本控制
-      enable: false
-      # 版本号
-      name:
-      
     # -----------------------------------------
     # 平台配置
     # -----------------------------------------
@@ -21,14 +16,11 @@ plugin:
       # 平台类型（枚举：SYSTEM/TENANT/MONITOR/SCHEDULER/OAUTH）
       # 优先级高于 alias-name
       name: SYSTEM
-      # 平台别名（当 name 枚举无法满足需求时使用自定义名称）
-      alias-name:
-      
     # -----------------------------------------
     # 统一返回值配置
     # -----------------------------------------
     # 是否启用统一返回值包装
-    uniform: true
+#    uniform: true
 
     # -----------------------------------------
     # 响应编码配置
@@ -36,14 +28,6 @@ plugin:
     encode:
       # 开启响应编码功能
       enable: false
-      # 是否由其它对象注入参数
-      ext-inject: false
-      # 开启响应加密
-      response-enable: false
-      # 编解码器类型（sm2/aes/rsa等）
-      codec-type: sm2
-      # 加密白名单（不需要加密的接口路径）
-      white-list: []
 
     # -----------------------------------------
     # 请求解码配置
@@ -51,9 +35,3 @@ plugin:
     decode:
       # 开启请求解码功能
       enable: false
-      # 是否由其它对象注入参数
-      ext-inject: false
-      # 请求解密密钥
-      codec-request-key:
-      # 解码器类型（sm4/aes等）
-      codec-type: sm4

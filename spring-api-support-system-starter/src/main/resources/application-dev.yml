@@ -20,16 +20,6 @@ logging:
 
 
 plugin:
-  table:
-    packages: com.chua.starter.admin.entity
-    enable: true
   oauth:
     address: http://172.16.0.40:19180/oauth
     protocol: static
-  file:
-    storage:
-      enabled: true
-      properties:
-        - port: 11245,11246
-          endpoint: ..
-          bucket: ai
