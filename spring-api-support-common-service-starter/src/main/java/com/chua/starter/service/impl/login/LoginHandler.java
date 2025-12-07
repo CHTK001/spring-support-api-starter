@@ -1,7 +1,6 @@
 package com.chua.starter.service.impl.login;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.service.impl.SysLoginServiceImpl;
 import com.chua.starter.service.result.LoginResult;

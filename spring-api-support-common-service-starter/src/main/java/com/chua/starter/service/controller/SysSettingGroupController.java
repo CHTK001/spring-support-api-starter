@@ -1,9 +1,8 @@
 package com.chua.starter.service.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
+import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.service.SysSettingGroupService;
 import com.chua.starter.entity.service.SysSettingGroup;
@@ -66,7 +65,7 @@ public class SysSettingGroupController {
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> delete(Long sysSettingGroupMapperId) {
         if (null == sysSettingGroupMapperId) {
-            return Result.illegal("设置信息不存在");
+            return ReturnResult.illegal("设置信息不存在");
         }
 
         return sysSettingGroupService.deleteForGroup(sysSettingGroupMapperId);
@@ -85,7 +84,7 @@ public class SysSettingGroupController {
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> saveOrUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody SysSettingGroup sysSettingGroup, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingGroupService.saveOrUpdateForGroup(sysSettingGroup, roles);
@@ -103,7 +102,7 @@ public class SysSettingGroupController {
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> batchUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody List<SysSettingGroup> sysSettingGroups, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysSettingGroupService.batchUpdate(sysSettingGroups, roles);

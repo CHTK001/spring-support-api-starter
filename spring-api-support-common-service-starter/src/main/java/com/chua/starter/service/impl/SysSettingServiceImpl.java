@@ -9,8 +9,9 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.*;
+import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
+import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
-import com.chua.starter.common.support.codec.CodecSetting;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -234,7 +235,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     public void afterPropertiesSet() throws Exception {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
-        globalSettingFactory.register("config", new CodecSetting());
+        globalSettingFactory.register("config", new ApiResponseEncodeConfiguration());
+        globalSettingFactory.register("config", new ApiRequestDecodeSetting());
         globalSettingFactory.register("config", new VersionSetting());
         globalSettingFactory.register("default", new GuestDefaultSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());

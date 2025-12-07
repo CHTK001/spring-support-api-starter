@@ -1,9 +1,9 @@
 package com.chua.starter.service.controller;
 
-import com.chua.starter.common.support.result.Result;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.entity.service.SysCity;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.entity.service.SysCity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +46,7 @@ public class SysCityController {
     @Operation(summary = "获取下级行政区划")
     @GetMapping("/children")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:city:' + #query.parentCode", keyGenerator = "customTenantedKeyGenerator")
-    public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
+    public ReturnResult<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
     }
 
@@ -60,7 +60,7 @@ public class SysCityController {
     @Operation(summary = "获取下级以及子集行政区划")
     @GetMapping("/childrenAll")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:city:all:' + #query.parentCode", keyGenerator = "customTenantedKeyGenerator")
-    public Result<List<SysCity>> childrenAll(@ParameterObject SysCityQuery query) {
+    public ReturnResult<List<SysCity>> childrenAll(@ParameterObject SysCityQuery query) {
         return sysCityService.childrenAll(query);
     }
 }

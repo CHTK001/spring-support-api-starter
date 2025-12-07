@@ -6,7 +6,6 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.CacheConstant;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -126,7 +125,7 @@ public class SysDictItemController {
     @Permission(value = "sys:dict:item:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictItemId) {
         if (null == sysDictItemId) {
-            return Result.illegal("字典子项信息不存在");
+            return ReturnResult.illegal("字典子项信息不存在");
         }
 
         return sysDictItemService.delete(sysDictItemId);
@@ -146,7 +145,7 @@ public class SysDictItemController {
             @Validated(UpdateGroup.class) @RequestBody SysDictItem sysDictItem,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictItemService.update(roles, sysDictItem);
@@ -165,7 +164,7 @@ public class SysDictItemController {
                 @Validated(AddGroup.class) @RequestBody SysDictItem sysDictItem,
                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysDictItemService.save(sysDictItem, roles);

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.ApiFieldIgnore;
+import com.chua.starter.common.support.api.annotations.ApiFieldIgnore;
 import com.chua.starter.common.support.group.IgnoreGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
