@@ -1,4 +1,4 @@
-﻿package com.chua.starter.oauth.sso.support.token;
+package com.chua.starter.oauth.sso.support.token;
 
 import com.chua.common.support.annotations.Extension;
 import com.chua.common.support.bean.BeanUtils;
@@ -17,7 +17,7 @@ import com.chua.starter.oauth.sso.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.generation.TokenGeneration;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import com.chua.starter.service.model.SysUserLog;
+import com.chua.starter.entity.system.SysUserLog;
 import jakarta.servlet.http.Cookie;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.redis.core.RedisTemplate;

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.mapper.SysAppKeyMapper;
 import com.chua.starter.oauth.sso.service.SysAppKeyService;
-import com.chua.starter.system.entity.SysAppKey;
+import com.chua.starter.entity.system.SysAppKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.system.entity.SysAppKey;
+import com.chua.starter.entity.system.SysAppKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;

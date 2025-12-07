@@ -10,7 +10,7 @@ import com.chua.starter.common.support.annotations.UserLogger;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.system.pojo.SysUserQuery;
+import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;

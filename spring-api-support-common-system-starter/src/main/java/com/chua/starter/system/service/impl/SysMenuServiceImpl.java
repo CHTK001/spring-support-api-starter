@@ -153,7 +153,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             meta.setI18nKey(sysMenu1.getSysMenuI18n());
             meta.setFrameSrc(sysMenu1.getSysMenuFrameSrc());
             meta.setActivePath(sysMenu1.getSysMenuActivePath());
-            meta.setAuths(Splitter.on(",").trimResults().omitEmptyStrings().split(sysMenu1.getSysMenuPerm()));
+            meta.setAuths(Splitter.on(",").trimResults().omitEmptyStrings().splitToList(sysMenu1.getSysMenuPerm()));
             meta.setShowLink(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0));
             meta.setShowParent(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuShowParent(), 0), 0));
             meta.setKeepAlive(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1));
