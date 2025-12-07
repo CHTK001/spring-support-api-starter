@@ -9,8 +9,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
-import com.chua.starter.common.support.configuration.CacheCustomTenantedKeyGenerator;
+import com.chua.starter.common.support.cache.configuration.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.result.Result;
@@ -54,8 +53,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
-    @ApiCacheKey("'sys:project:' + #sysProjectId")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:project:' + #sysProjectId", keyGenerator = "customTenantedKeyGenerator")
     public SysProject getOne(Integer sysProjectId) {
         SysProject sysProject = new SysProject();
         sysProject.setSysProjectId(sysProjectId);
@@ -64,8 +62,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
-    @ApiCacheKey("'sys:project:' + #typeName")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:project:' + #typeName", keyGenerator = "customTenantedKeyGenerator")
     public SysProject getDefaultByType(String typeName) {
         IPage<SysProject> defaultByType = baseMapper.getDefaultByType(new Page<>(1, 1), typeName);
         return CollectionUtils.findFirst(defaultByType.getRecords());
@@ -80,8 +77,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
-    @ApiCacheKey("'sys:project:' + #sysProjectId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:project:' + #sysProjectId", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> delete(Integer sysProjectId) {
         SysProject sysProject = getOne(sysProjectId);
         if (null == sysProject) {
@@ -95,8 +91,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
     }
 
     @Override
-    @ApiCacheKey("'sys:project:' + #sysProject.sysProjectId")
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:project:' + #sysProject.sysProjectId", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysProject sysProject) {
         SysProject sysProject1 = getOne(sysProject.getSysProjectId());
         if (null == sysProject1) {

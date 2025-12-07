@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
@@ -179,8 +178,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      *                    例如：SysDictItem.builder().sysDictId(1).build()
      */
     @Override
-    @ApiCacheKey("'sys:dict:id:' + #sysDictItem.sysDictId")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:id:' + #sysDictItem.sysDictId", keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheId(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -192,8 +190,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      *                    例如：SysDictItem.builder().sysDictCode("dict_code").build()
      */
     @Override
-    @ApiCacheKey("'sys:dict:code:' + #sysDictItem.sysDictCode")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:code:' + #sysDictItem.sysDictCode", keyGenerator = "customTenantedKeyGenerator")
     public void deleteCacheCode(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -205,8 +202,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      *                    例如：SysDictItem.builder().sysDictId(1).build()
      */
     @Override
-    @ApiCacheKey("'sys:dict:pid:' + #sysDictItem.sysDictId")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pid:' + #sysDictItem.sysDictId", keyGenerator = "customTenantedKeyGenerator")
     public void deleteCachePid(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -218,8 +214,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      *                    例如：SysDictItem.builder().sysDictCode("parent_dict_code").build()
      */
     @Override
-    @ApiCacheKey("'sys:dict:pcode:' + #sysDictItem.sysDictCode")
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pcode:' + #sysDictItem.sysDictCode", keyGenerator = "customTenantedKeyGenerator")
     public void deleteCachePcode(SysDictItem sysDictItem) {
         //NOTHING
     }

@@ -6,7 +6,6 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.result.Result;
@@ -71,8 +70,7 @@ public class SysSettingController {
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
     @Ignore
-    @ApiCacheKey("'sys:setting:default'")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
@@ -86,9 +84,8 @@ public class SysSettingController {
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
-    @ApiCacheKey("'sys:setting:' + #sysSettingUpdate.sysSettingGroup")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:' + #sysSettingUpdate.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
         if(!AuthConstant.hasAdmin(roles)) {

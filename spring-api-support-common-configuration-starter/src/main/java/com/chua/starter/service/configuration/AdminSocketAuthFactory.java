@@ -19,7 +19,7 @@ import java.util.Map;
  * @author CH
  */
 @Configuration
-@ConditionalOnClass(name = {"com.chua.starter.oauth.client.support.execute.AuthClientExecute"})
+@ConditionalOnClass(name = {"com.chua.starter.oauth.client.support.execute.AuthClientExecute", "com.chua.socket.support.auth.SocketAuthFactory"})
 public class AdminSocketAuthFactory implements SocketAuthFactory {
 
 

@@ -4,7 +4,6 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.result.Result;
@@ -49,8 +48,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表(父code码查询)")
     @GetMapping("/pCode")
-    @ApiCacheKey("'sys:dict:pcode:' + #sysDictCode")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pcode:' + #sysDictCode", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> pCode(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");
@@ -65,8 +63,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表(code码查询)")
     @GetMapping("/code")
-    @ApiCacheKey("'sys:dict:code:' + #sysDictCode")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:code:' + #sysDictCode", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> code(@ParameterObject Query<SysDictItem> query, String sysDictCode, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictCode) {
             return ReturnResult.illegal("字典不能为空");
@@ -82,8 +79,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表(父ID)")
     @GetMapping("/pList")
-    @ApiCacheKey("'sys:dict:pid:' + #sysDictId")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pid:' + #sysDictId", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> pList(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");
@@ -98,8 +94,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
-    @ApiCacheKey("'sys:dict:id:' + #sysDictId")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:id:' + #sysDictId", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysDictItem>> list(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
             return ReturnResult.illegal("字典不能为空");

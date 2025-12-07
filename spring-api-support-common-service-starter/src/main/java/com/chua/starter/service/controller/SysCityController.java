@@ -1,6 +1,5 @@
 package com.chua.starter.service.controller;
 
-import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.query.SysCityQuery;
@@ -46,8 +45,7 @@ public class SysCityController {
     @ApiOperation("获取下级行政区划")
     @Operation(summary = "获取下级行政区划")
     @GetMapping("/children")
-    @ApiCacheKey("'sys:city:' + #query.parentCode")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:city:' + #query.parentCode", keyGenerator = "customTenantedKeyGenerator")
     public Result<List<SysCity>> queryCity(@ParameterObject SysCityQuery query) {
         return sysCityService.queryCity(query);
     }
@@ -61,8 +59,7 @@ public class SysCityController {
     @ApiOperation("获取下级以及子集行政区划")
     @Operation(summary = "获取下级以及子集行政区划")
     @GetMapping("/childrenAll")
-    @ApiCacheKey("'sys:city:all:' + #query.parentCode")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:city:all:' + #query.parentCode", keyGenerator = "customTenantedKeyGenerator")
     public Result<List<SysCity>> childrenAll(@ParameterObject SysCityQuery query) {
         return sysCityService.childrenAll(query);
     }

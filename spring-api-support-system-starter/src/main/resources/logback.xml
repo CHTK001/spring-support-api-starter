@@ -9,13 +9,13 @@
 
     <!-- 彩色日志 -->
     <!-- 彩色日志依赖的渲染类 -->
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
-                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+                    class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
-                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+                    class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <conversionRule conversionWord="traceId" converterClass="com.chua.starter.service.logback.TraceMessageConverter"/>
+    <conversionRule conversionWord="traceId" class="com.chua.starter.service.logback.TraceMessageConverter"/>
 
     <property name="log_file_location" value="./logs/system"/>
 
@@ -63,8 +63,7 @@
     </appender>
 
     <!-- 至多只能配置一个root -->
-    <root>
-        <level value="INFO"/>
+    <root level="INFO">
         <appender-ref ref="console"/>
         <appender-ref ref="async"/>
     </root>
