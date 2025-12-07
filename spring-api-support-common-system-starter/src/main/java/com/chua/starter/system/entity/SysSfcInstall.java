@@ -17,41 +17,40 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serializable;
 
 /**
+ * 用户安装的组件
  *
+ * @author CH
  * @since 2024/10/24
- * @author CH    
  */
-/**
- * 用户安装的组�?
- */
-@ApiModel(description="用户安装的组�?)
-@Schema(description="用户安装的组�?)
+@ApiModel(description = "用户安装的组件")
+@Schema(description = "用户安装的组件")
 @Data
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sfc_install")
 public class SysSfcInstall extends SysBase implements Serializable {
+
     @TableId(value = "sys_sfc_install_id", type = IdType.AUTO)
-    @ApiModelProperty(value="")
-    @Schema(description="")
+    @ApiModelProperty(value = "主键ID")
+    @Schema(description = "主键ID")
     @NotNull(message = "不能为null")
     private Integer sysSfcInstallId;
 
     /**
-     * 安裝的用户ID
+     * 安装的用户ID
      */
     @TableField(value = "user_id")
-    @ApiModelProperty(value="安裝的用户ID")
-    @Schema(description="安裝的用户ID")
-    @Size(max = 255,message = "安裝的用户ID最大长度要小于 255")
+    @ApiModelProperty(value = "安装的用户ID")
+    @Schema(description = "安装的用户ID")
+    @Size(max = 255, message = "安装的用户ID最大长度要小于 255")
     private Integer userId;
 
     /**
      * 组件ID
      */
     @TableField(value = "sys_sfc_id")
-    @ApiModelProperty(value="组件ID")
-    @Schema(description="组件ID")
-    @Size(max = 255,message = "组件ID最大长度要小于 255")
+    @ApiModelProperty(value = "组件ID")
+    @Schema(description = "组件ID")
+    @Size(max = 255, message = "组件ID最大长度要小于 255")
     private Integer sysSfcId;
 }

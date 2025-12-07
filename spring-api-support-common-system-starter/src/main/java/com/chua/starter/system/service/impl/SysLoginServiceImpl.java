@@ -1,22 +1,19 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.function.Joiner;
+import com.chua.common.support.lang.code.Result;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
-import com.chua.starter.common.support.result.Result;
-import com.chua.starter.common.support.utils.CookieUtil;
+import com.chua.common.support.utils.Joiner;
+import com.chua.starter.oauth.client.configuration.AuthClientProperties;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
-import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.oauth.client.support.infomation.AuthenticationInformation;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.service.model.SysUserThirdParty;
 import com.chua.starter.service.pojo.user.RefreshToken;
 import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
@@ -28,10 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.cache.AuthStateCache;
-import me.zhyd.oauth.request.AuthRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -50,6 +43,7 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 
 /**
  * 登录接口实现
+ *
  * @author CH
  * @since 2024/9/12
  */
@@ -63,11 +57,6 @@ public class SysLoginServiceImpl implements SysLoginService {
     final RestTemplate restTemplate;
     final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     final RedisTemplate redisTemplate;
-    @Lazy
-    @Autowired
-    private SysSettingService sysSettingService;
-    public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
-
 
     @Override
     public Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
@@ -112,12 +101,13 @@ public class SysLoginServiceImpl implements SysLoginService {
         userInfoVO.setPerms(userLoginInfo.getPermission());
         return userInfoVO;
     }
+
     @Override
     public Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return Result.failed("登录已过�?);
+            return Result.failed("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(getUserLoginInfo(upgrade.getToken()))
@@ -125,22 +115,13 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .refreshToken(upgrade.getRefreshToken())
                 .accessToken(upgrade.getToken())
                 .build();
-        CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
+        AuthenticationInformation.CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
         return Result.success(loginResult);
     }
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
-        if(null == authRequest) {
-            return ReturnResult.fail("第三方登录暂不支�?);
-        }
-        long startTime = System.currentTimeMillis();
-        AuthRequest requestRequest = authRequest.getRequest();
-        String authorize = requestRequest.authorize(authRequest.getState());
-
-        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
-        return ReturnResult.ok(authorize);
+        return ReturnResult.fail("第三方登录暂不支持");
     }
 
     @Override
@@ -156,10 +137,10 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
-        if(StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
+        if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
             return ReturnResult.fail("登录类型不能为空");
         }
-        if(sysUserThirdPartyMapper.delete(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId).eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType())) > 0) {
+        if (sysUserThirdPartyMapper.delete(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId).eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType())) > 0) {
             return ReturnResult.ok();
         }
         return ReturnResult.fail("解绑失败");
