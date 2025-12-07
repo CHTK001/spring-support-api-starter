@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.project;
+package com.chua.starter.project.pojo.project;
 
 import com.chua.common.support.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;

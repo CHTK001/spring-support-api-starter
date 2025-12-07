@@ -21,7 +21,7 @@ import com.chua.starter.project.service.support.hikvision.yunyao.YunYaoResourceF
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.project.entity.SysProject;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
+import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;

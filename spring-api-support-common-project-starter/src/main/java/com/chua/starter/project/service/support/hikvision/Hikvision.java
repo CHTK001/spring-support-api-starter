@@ -16,7 +16,7 @@ import com.chua.starter.project.entity.SysDevice;
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.project.entity.SysProject;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
+import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;

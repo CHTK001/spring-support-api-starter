@@ -10,7 +10,7 @@ import com.chua.starter.project.service.support.hikvision.query.SysDeviceCameraO
 import com.chua.starter.project.service.support.hikvision.result.OnOffline;
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.system.pojo.device.DevicePreviewUrlV1Request;
+import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
 
 import java.util.List;
 

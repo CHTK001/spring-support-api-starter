@@ -9,9 +9,13 @@ import com.chua.starter.project.entity.SysDevice;
 import com.chua.starter.project.entity.SysDeviceCameraRecord;
 import com.chua.starter.project.entity.SysDeviceCardEvent;
 import com.chua.starter.project.entity.SysDeviceOrg;
-import com.chua.starter.system.pojo.device.*;
-import com.chua.starter.system.pojo.project.SyncV1Request;
-import com.chua.starter.system.pojo.project.TemplatePageV1Request;
+import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
+import com.chua.starter.project.pojo.project.SyncV1Request;
+import com.chua.starter.project.pojo.project.TemplatePageV1Request;
+import com.chua.starter.system.pojo.device.CardDevicePageV1Request;
+import com.chua.starter.system.pojo.device.CheckDeviceOnlineV1Request;
+import com.chua.starter.system.pojo.device.DevicePageV1Request;
+import com.chua.starter.system.pojo.device.DeviceTimelineV1Request;
 
 import java.util.List;
 

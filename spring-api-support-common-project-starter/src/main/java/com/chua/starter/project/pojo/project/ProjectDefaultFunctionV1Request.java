@@ -1,4 +1,4 @@
-package com.chua.starter.system.pojo.project;
+package com.chua.starter.project.pojo.project;
 
 import com.chua.common.support.validator.group.UpdateGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
