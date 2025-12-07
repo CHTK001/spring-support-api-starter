@@ -5,7 +5,6 @@ import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;

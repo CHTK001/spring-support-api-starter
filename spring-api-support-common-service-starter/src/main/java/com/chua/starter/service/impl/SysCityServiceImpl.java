@@ -1,12 +1,12 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.starter.common.support.result.Result;
+import com.chua.starter.entity.service.SysCity;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.mapper.SysCityMapper;
 import com.chua.starter.service.query.SysCityQuery;
-import com.chua.starter.entity.service.SysCity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -33,10 +33,10 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
      * @return 返回一个Result对象，其中包含查询结果的城市列表。如果查询没有结果，列表将为空
      */
     @Override
-    public Result<List<SysCity>> queryCity(SysCityQuery query) {
+    public ReturnResult<List<SysCity>> queryCity(SysCityQuery query) {
         List<SysCity> sysCities = baseMapper.cascadeList(query);
         if ("LIST".equals(query.getReturnType())) {
-            return Result.success(sysCities);
+            return ReturnResult.success(sysCities);
         }
 
         TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
@@ -48,7 +48,7 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return node;
         });
 
-        return Result.success(treeNode.toList());
+        return ReturnResult.success(treeNode.toList());
     }
 
     /**
@@ -62,10 +62,10 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
      * @return 返回一个Result对象，其中包含查询结果的城市列表。如果查询没有结果，列表将为空
      */
     @Override
-    public Result<List<SysCity>> childrenAll(SysCityQuery query) {
+    public ReturnResult<List<SysCity>> childrenAll(SysCityQuery query) {
         List<SysCity> sysCities = baseMapper.childrenAll(query);
         if ("LIST".equals(query.getReturnType())) {
-            return Result.success(sysCities);
+            return ReturnResult.success(sysCities);
         }
 
         TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
@@ -77,6 +77,6 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return node;
         });
 
-        return Result.success(treeNode.toList());
+        return ReturnResult.success(treeNode.toList());
     }
 }

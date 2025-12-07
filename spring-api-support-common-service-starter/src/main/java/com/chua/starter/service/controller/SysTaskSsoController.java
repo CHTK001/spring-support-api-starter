@@ -4,7 +4,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.oss.result.PutObjectResult;
 import com.chua.common.support.validator.group.UploadGroup;
 import com.chua.starter.common.support.annotations.SysLog;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.service.pojo.sso.*;
 import com.chua.starter.service.SysTaskSsoService;
 import io.swagger.annotations.Api;
@@ -49,11 +48,11 @@ public class SysTaskSsoController {
                                                 BindingResult bindingResult
                                           ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         if(null == file) {
-            return Result.illegal("文件不能为空");
+            return ReturnResult.illegal("文件不能为空");
         }
         return sysTaskSsoService.upload(request, file);
     }
@@ -71,7 +70,7 @@ public class SysTaskSsoController {
                                                               BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         return sysTaskSsoService.createTask(request);
     }
@@ -88,10 +87,10 @@ public class SysTaskSsoController {
                                                                   BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
-            return Result.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
         if(null == multipartFile) {
-            return Result.illegal("文件不能为空");
+            return ReturnResult.illegal("文件不能为空");
         }
         return sysTaskSsoService.uploadTask(request, multipartFile);
     }

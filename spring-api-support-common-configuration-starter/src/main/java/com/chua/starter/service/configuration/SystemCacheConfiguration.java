@@ -1,6 +1,6 @@
 package com.chua.starter.service.configuration;
 
-import com.chua.starter.common.support.properties.CacheProperties;
+import com.chua.starter.common.support.cache.CacheProperties;
 import com.chua.starter.redis.support.CacheConfiguration;
 import com.chua.starter.service.constant.SystemConstant;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

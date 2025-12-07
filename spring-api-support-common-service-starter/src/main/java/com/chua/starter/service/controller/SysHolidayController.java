@@ -1,8 +1,8 @@
 package com.chua.starter.service.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.ApiPlatform;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.service.SysHolidayService;
 import com.chua.starter.entity.service.SysHoliday;
 import io.swagger.v3.oas.annotations.Operation;

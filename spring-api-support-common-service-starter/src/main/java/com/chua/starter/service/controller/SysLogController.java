@@ -3,7 +3,6 @@ package com.chua.starter.service.controller;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -61,7 +60,7 @@ public class SysLogController {
     @Permission(value = "sys:log:delete", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long logId) {
         if (null == logId) {
-            return Result.illegal("系统日志信息不存在");
+            return ReturnResult.illegal("系统日志信息不存在");
         }
 
         return sysLogService.delete(logId);

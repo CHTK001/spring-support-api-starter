@@ -6,7 +6,6 @@ import com.chua.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.result.Result;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -62,11 +61,11 @@ public class DefaultLoginHandler implements LoginHandler {
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+            return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != 200) {
-            return Result.failed(REQUEST_PARAM_ERROR, accessToken.getMessage());
+            return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
         }
 
         LoginResult loginResult = LoginResult.builder()
@@ -76,7 +75,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 .refreshToken(accessToken.getRefreshToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return Result.success(loginResult);
+        return ReturnResult.success(loginResult);
     }
 
     /**
@@ -92,18 +91,18 @@ public class DefaultLoginHandler implements LoginHandler {
         GuestDefaultSetting verifyCodeSetting = GLOBAL_SETTING_FACTORY.get(GuestDefaultSetting.class);
         if (verifyCodeSetting.isCheckCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
+                return ReturnResult.failure(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
             return sysLoginService.checkVerifyCode(loginData, request);
         }
 
         if (verifyCodeSetting.isCheckTotpCodeOpen()) {
             if (StringUtils.isEmpty(code)) {
-                return Result.failed(REQUEST_PARAM_ERROR, "验证码不能为空");
+                return ReturnResult.failure(REQUEST_PARAM_ERROR, "验证码不能为空");
             }
             ReturnResult<Boolean> verify = simpleSysUserService.verify(code, loginData.getUsername());
             if (!verify.isOk()) {
-                return Result.failed("验证码不正确");
+                return ReturnResult.failure("验证码不正确");
             }
 
         }
