@@ -22,6 +22,7 @@ rebel.xml
 *.jpeg
 *.avif
 0
+*.bak
 *flow.md
 .cache*.json
 *.class
