@@ -1,6 +1,7 @@
 package com.chua.starter.service.controller;
 
 import com.chua.common.support.constant.Action;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.task.debounce.Debounce;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
@@ -25,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +39,12 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
  * @author CH
  * @since 2024/9/12
  */
-@RestController
+@RestController("service:loginController")
 @Slf4j
 @Api(tags = "登录接口")
 @Tag(name = "登录接口")
 @RequestMapping("/v2/user")
+@ConditionalOnMissingBean(name = "loginController")
 @RequiredArgsConstructor
 public class LoginController {
 
@@ -65,11 +68,11 @@ public class LoginController {
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @Debounce(key = "#loginData.username #loginData.loginType")
-    public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
-                                     BindingResult bindingResult) {
+    public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
+                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Result.failed(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -81,7 +84,7 @@ public class LoginController {
     @PostMapping("/refresh-token")
     @SysLog
     @TokenForIgnore
-    public Result<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
+    public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                             HttpServletRequest request,
                                             HttpServletResponse response,
                                             BindingResult bindingResult) {
@@ -96,7 +99,7 @@ public class LoginController {
     @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
-    public Result logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
+    public ReturnResult logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isEmpty(uid)) {
             return Result.success("注销成功");
         }

@@ -2,7 +2,7 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.system.service.SimpleSysUserService;
+import com.chua.starter.service.SimpleSysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
