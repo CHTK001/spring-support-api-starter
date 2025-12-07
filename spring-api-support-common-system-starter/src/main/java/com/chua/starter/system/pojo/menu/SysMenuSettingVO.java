@@ -1,6 +1,6 @@
 package com.chua.starter.system.pojo.menu;
 
-import com.chua.starter.service.entity.SysMenu;
+import com.chua.starter.system.entity.SysMenu;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,9 +17,9 @@ import java.util.List;
 public class SysMenuSettingVO extends SysMenu {
 
     /**
-     * 子菜单
+     * 子菜�?
      */
-    @Schema(description = "子菜单")
+    @Schema(description = "子菜�?)
     private List<SysMenuSettingVO> children;
 
 }

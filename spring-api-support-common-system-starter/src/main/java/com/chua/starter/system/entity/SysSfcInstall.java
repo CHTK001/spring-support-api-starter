@@ -22,10 +22,10 @@ import java.io.Serializable;
  * @author CH    
  */
 /**
- * 用户安装的组件
+ * 用户安装的组�?
  */
-@ApiModel(description="用户安装的组件")
-@Schema(description="用户安装的组件")
+@ApiModel(description="用户安装的组�?)
+@Schema(description="用户安装的组�?)
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper=true)

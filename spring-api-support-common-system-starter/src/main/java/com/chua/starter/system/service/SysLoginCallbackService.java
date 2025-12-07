@@ -1,6 +1,6 @@
 package com.chua.starter.system.service;
 
-import com.chua.starter.service.entity.SysUser;
+import com.chua.starter.service.model.SysUser;
 
 /**
  * 登录回调

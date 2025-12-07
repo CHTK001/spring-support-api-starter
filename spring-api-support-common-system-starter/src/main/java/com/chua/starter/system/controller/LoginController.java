@@ -61,7 +61,7 @@ public class LoginController {
             name = "用户登录",
             action = Action.LOGIN,
             loginType = "WEB",
-            content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+            content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状�?#{#result.code}(#{#result.msg})]")
     @Debounce(key = "#loginData.username #loginData.loginType")
     public Result<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                      HttpServletRequest request,
@@ -90,7 +90,7 @@ public class LoginController {
     }
 
     @Operation(summary = "注销")
-    @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系�? 登录返回[状�?#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
     public Result logout(@UserValue("token") String uid,String loginType, HttpServletRequest request, HttpServletResponse response) {

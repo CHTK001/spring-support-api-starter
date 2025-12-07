@@ -25,10 +25,10 @@ import java.io.Serializable;
  */
 
 /**
- * 组件库
+ * 组件�?
  */
-@ApiModel(description = "组件库")
-@Schema(description = "组件库")
+@ApiModel(description = "组件�?)
+@Schema(description = "组件�?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sfc")
@@ -135,11 +135,11 @@ public class SysSfc extends SysBase implements Serializable {
     @Schema(description = "组件内容")
     private String sysSfcContent;
     /**
-     * 组件状态; 0:未启用
+     * 组件状�? 0:未启�?
      */
     @TableField(value = "sys_sfc_status")
-    @ApiModelProperty(value = "组件状态; 0:未启用")
-    @Schema(description = "组件状态; 0:未启用")
+    @ApiModelProperty(value = "组件状�? 0:未启�?)
+    @Schema(description = "组件状�? 0:未启�?)
     private Integer sysSfcStatus;
     /**
      * 延迟时间; 2000
@@ -165,10 +165,10 @@ public class SysSfc extends SysBase implements Serializable {
     @Size(max = 255, message = "组件描述最大长度要小于 255")
     private String sysSfcDesc;
     /**
-     * 是否已安装
+     * 是否已安�?
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "是否已安装")
-    @Schema(description = "是否已安装")
+    @ApiModelProperty(value = "是否已安�?)
+    @Schema(description = "是否已安�?)
     private Integer sysSfcInstall;
 }

@@ -15,9 +15,9 @@ import java.util.Date;
 public class DateQuery {
 
     /**
-     * 开始时间
+     * 开始时�?
      */
-    @Schema(description = "开始时间")
+    @Schema(description = "开始时�?)
     private Date startDate;
 
     /**

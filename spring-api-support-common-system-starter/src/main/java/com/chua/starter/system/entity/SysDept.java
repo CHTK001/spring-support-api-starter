@@ -50,27 +50,27 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptName;
 
     /**
-     * 部门负责人
+     * 部门负责�?
      */
     @TableField(value = "sys_dept_principal")
-    @ApiModelProperty(value = "部门负责人")
-    @Schema(description = "部门负责人")
+    @ApiModelProperty(value = "部门负责�?)
+    @Schema(description = "部门负责�?)
     @Size(max = 255, message = "部门负责人最大长度要小于 255")
     private String sysDeptPrincipal;
     /**
-     * 负责人联系方式
+     * 负责人联系方�?
      */
     @TableField(value = "sys_dept_contact")
-    @ApiModelProperty(value = "负责人联系方式")
-    @Schema(description = "负责人联系方式")
+    @ApiModelProperty(value = "负责人联系方�?)
+    @Schema(description = "负责人联系方�?)
     @Size(max = 255, message = "负责人联系方式最大长度要小于 255")
     private String sysDeptContact;
     /**
-     * 优先级
+     * 优先�?
      */
     @TableField(value = "sys_dept_sort")
-    @ApiModelProperty(value = "优先级")
-    @Schema(description = "优先级")
+    @ApiModelProperty(value = "优先�?)
+    @Schema(description = "优先�?)
     @Size(max = 255, message = "优先级最大长度要小于 255")
     private Integer sysDeptSort;
     /**
@@ -83,11 +83,11 @@ public class SysDept extends SysBase implements Serializable {
     @NotBlank(message = "机构编码不能为空", groups = {AddGroup.class})
     private String sysDeptCode;
     /**
-     * 父机构
+     * 父机�?
      */
     @TableField(value = "sys_dept_pid")
-    @ApiModelProperty(value = "父机构")
-    @Schema(description = "父机构")
+    @ApiModelProperty(value = "父机�?)
+    @Schema(description = "父机�?)
     private Integer sysDeptPid;
 
     /**
@@ -100,11 +100,11 @@ public class SysDept extends SysBase implements Serializable {
     private String sysDeptTreeId;
 
     /**
-     * 状态; 是否禁用; 0:启用
+     * 状�? 是否禁用; 0:启用
      */
     @TableField(value = "sys_dept_status")
-    @ApiModelProperty(value = "状态; 是否禁用; 0:启用")
-    @Schema(description = "状态; 是否禁用; 0:启用")
+    @ApiModelProperty(value = "状�? 是否禁用; 0:启用")
+    @Schema(description = "状�? 是否禁用; 0:启用")
     private Integer sysDeptStatus;
     /**
      * 备注
@@ -116,11 +116,11 @@ public class SysDept extends SysBase implements Serializable {
 
 
     /**
-     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见
+     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?
      */
     @TableField(value = "sys_dept_data_permission")
-    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
-    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
+    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?)
+    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可�?4:所在部门及子级可见;5:选择的部门可�?)
     private Integer sysDeptDataPermission;
 
     /**

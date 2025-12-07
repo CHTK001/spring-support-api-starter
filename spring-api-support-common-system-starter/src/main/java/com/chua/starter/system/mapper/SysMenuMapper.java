@@ -1,7 +1,7 @@
 package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chua.starter.service.entity.SysMenu;
+import com.chua.starter.system.entity.SysMenu;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,7 +22,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
     void removeByTenantId(@Param("sysTenantId") Integer sysTenantId, @Param("menuIds") Set<Integer> menuIds);
 
     /**
-     * 删除所有
+     * 删除所�?
      *
      * @param sysTenantId 租户
      */

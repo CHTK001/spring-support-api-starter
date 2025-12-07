@@ -13,7 +13,7 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.constant.SystemConstant;
-import com.chua.starter.service.entity.SysRole;
+import com.chua.starter.service.model.SysRole;
 import com.chua.starter.system.pojo.role.RoleMenuUpdate;
 import com.chua.starter.system.service.SysRoleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,7 +82,7 @@ public class SysRoleController {
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {
-            return Result.illegal("角色信息不存在");
+            return Result.illegal("角色信息不存�?);
         }
 
         return sysRoleService.delete(roleId);
@@ -90,11 +90,11 @@ public class SysRoleController {
 
 
     /**
-     * 给角色添加菜单
+     * 给角色添加菜�?
      *
      * @return 更新角色
      */
-    @Operation(summary = "给角色添加菜单")
+    @Operation(summary = "给角色添加菜�?)
     @PutMapping("/update_menu")
     @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(

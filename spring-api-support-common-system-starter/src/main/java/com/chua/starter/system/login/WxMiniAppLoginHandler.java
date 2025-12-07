@@ -16,7 +16,7 @@
 //import com.chua.starter.service.SysCityService;
 //import com.chua.starter.service.impl.SysLoginServiceImpl;
 //import com.chua.starter.service.impl.login.LoginHandler;
-//import com.chua.starter.service.entity.SysCity;
+//import com.chua.starter.system.entity.SysCity;
 //import com.chua.tencent.support.miniapp.TencentMaHandler;
 //import jakarta.servlet.http.HttpServletRequest;
 //import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@
 //import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 //
 ///**
-// * wx登录处理器
+// * wx登录处理�?
 // *
 // * @author CH
 // * @since 2024/12/2
@@ -42,7 +42,7 @@
 //    @AutoInject
 //    private TencentMaHandler tencentMaHandler;
 //    /**
-//     * 用户第三方登录
+//     * 用户第三方登�?
 //     */
 //    @AutoInject
 //    private SysUserStudentService sysUserService;
@@ -62,7 +62,7 @@
 //        String openid = loginData.getUsername();
 //        String code = loginData.getPassword();
 //        Result<LoginResult> res = null;
-//        // 调用微信 API 获取用户的 openid 和 session_key
+//        // 调用微信 API 获取用户�?openid �?session_key
 //        res = check(openid, code, loginData, "PTYH");
 //        if (null != res) {
 //            return res;
@@ -108,7 +108,7 @@
 //            WxMaPhoneNumberInfo phoneInfo = tencentMaHandler.getPhoneNumber(code);
 //            phoneNumber = phoneInfo.getPhoneNumber();
 //
-//            // 调用微信 API 获取用户的详细信息
+//            // 调用微信 API 获取用户的详细信�?
 //            userInfo = tencentMaHandler.getUserInfo(loginData.getWxSessionKey(), loginData.getWxEncryptedData(), loginData.getWxIv());
 //            sysUser.setSysUserUnionId(userInfo.getUnionId());
 //
@@ -157,7 +157,7 @@
 //            }
 //            sysUserService.save(sysUser);
 //        } catch (TransactionException e) {
-//            return Result.failed("绑定信息失败, 请重试!");
+//            return Result.failed("绑定信息失败, 请重�?");
 //        }
 //
 //        return null;

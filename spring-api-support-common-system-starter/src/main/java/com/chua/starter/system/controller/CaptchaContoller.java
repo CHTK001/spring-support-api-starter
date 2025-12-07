@@ -29,14 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 校验码
+ * 校验�?
  *
  * @author CH
  */
 @RestController
 @Slf4j
-@Api(tags = "校验码")
-@Tag(name = "校验码")
+@Api(tags = "校验�?)
+@Tag(name = "校验�?)
 @Ignore
 @RequestMapping("/v2/captcha")
 @SuppressWarnings("ALL")
@@ -117,18 +117,18 @@ public class CaptchaContoller {
     }
 
     /**
-     * 校验码
+     * 校验�?
      *
      * @param request 请求
      */
-    @ApiOperation("获取验证码")
-    @Operation(summary = "获取验证码")
+    @ApiOperation("获取验证�?)
+    @Operation(summary = "获取验证�?)
     @GetMapping
     @TokenForIgnore
     public CaptchaResult captchaBase64(HttpServletRequest request, HttpServletResponse response) {
         Captcha captcha = createCaptcha();
         String captchaText = captcha.text();
-        log.info("当前校验码: {}", captchaText);
+        log.info("当前校验�? {}", captchaText);
         String captchaBase64 = captcha.toBase64();
         try {
             HttpSession session = request.getSession();
@@ -148,7 +148,7 @@ public class CaptchaContoller {
 
 
     /**
-     * 验证码响应对象
+     * 验证码响应对�?
      *
      * @author haoxr
      * @since 2023/03/24

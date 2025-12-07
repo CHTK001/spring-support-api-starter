@@ -10,7 +10,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.entity.SysUserLog;
+import com.chua.starter.system.entity.SysUserLog;
 import com.chua.starter.service.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,7 +78,7 @@ public class SysUserLogController {
     @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {
-            return Result.illegal("操作日志信息不存在");
+            return Result.illegal("操作日志信息不存�?);
         }
 
         return sysUserLogService.delete(userLogId);

@@ -12,14 +12,14 @@ import lombok.Data;
 public class SysUserPasswordUpdate {
 
     /**
-     * 新密码
+     * 新密�?
      */
-    @Schema(description = "新密码")
+    @Schema(description = "新密�?)
     private String newPassword;
 
     /**
-     * 旧密码
+     * 旧密�?
      */
-    @Schema(description = "旧密码")
+    @Schema(description = "旧密�?)
     private String oldPassword;
 }

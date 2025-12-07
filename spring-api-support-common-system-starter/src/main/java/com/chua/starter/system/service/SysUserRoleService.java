@@ -1,10 +1,10 @@
 package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.starter.service.entity.SysUserRole;
+import com.chua.starter.system.entity.SysUserRole;
 
 /**
- * 用户 - 角色关联表
+ * 用户 - 角色关联�?
  * @author CH
  * @since 2024/8/7
  */

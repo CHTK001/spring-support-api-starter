@@ -13,9 +13,9 @@ import com.chua.starter.common.support.annotations.ApiCacheKey;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
-import com.chua.starter.service.entity.SysMenu;
-import com.chua.starter.service.entity.SysRole;
-import com.chua.starter.service.entity.SysRoleMenu;
+import com.chua.starter.system.entity.SysMenu;
+import com.chua.starter.service.model.SysRole;
+import com.chua.starter.system.entity.SysRoleMenu;
 import com.chua.starter.system.mapper.SysMenuMapper;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
@@ -203,7 +203,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
-            return ReturnResult.error("菜单不存在");
+            return ReturnResult.error("菜单不存�?);
         }
         String menuTreeId = "";
         if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
@@ -212,7 +212,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
-                return ReturnResult.error("父级菜单不存在");
+                return ReturnResult.error("父级菜单不存�?);
             }
 
             if(StringUtils.transArrayContains(parentSysMenu.getSysMenuTreeId(), String.valueOf(sysMenu.getSysMenuId()))) {
@@ -236,7 +236,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
-                return ReturnResult.error("父级菜单不存在");
+                return ReturnResult.error("父级菜单不存�?);
             }
             menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
         }

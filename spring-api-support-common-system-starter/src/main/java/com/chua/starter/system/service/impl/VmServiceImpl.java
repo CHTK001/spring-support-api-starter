@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ExecutorService;
 
 /**
- * 虚拟机接口
+ * 虚拟机接�?
  * @author CH
  * @since 2024/9/11
  */

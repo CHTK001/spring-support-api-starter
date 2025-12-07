@@ -22,10 +22,10 @@ import java.io.Serializable;
  */
 
 /**
- * 用户三方绑定表
+ * 用户三方绑定�?
  */
-@ApiModel(description = "用户三方绑定表")
-@Schema(description = "用户三方绑定表")
+@ApiModel(description = "用户三方绑定�?)
+@Schema(description = "用户三方绑定�?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_third_party")
@@ -89,7 +89,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
          */
         GITEE,
         /**
-         * 微信小程序
+         * 微信小程�?
          */
         WX_MINI_APP
     }

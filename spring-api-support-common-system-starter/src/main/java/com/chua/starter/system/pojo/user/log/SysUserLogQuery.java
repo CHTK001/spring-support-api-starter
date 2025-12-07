@@ -41,9 +41,9 @@ public class SysUserLogQuery extends DateQuery {
     private String sysLogIp;
 
     /**
-     * 请求状态; 0: 失败; 1: 成功
+     * 请求状�? 0: 失败; 1: 成功
      */
-    @Schema(description = "请求状态; 0: 失败; 1: 成功")
+    @Schema(description = "请求状�? 0: 失败; 1: 成功")
     private Integer sysLogStatus;
 
 }

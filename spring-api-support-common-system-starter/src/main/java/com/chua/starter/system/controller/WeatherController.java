@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 外部控制器
+ * 外部控制�?
  *
  * @author CH
  * @version 1.0.0
