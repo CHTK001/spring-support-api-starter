@@ -9,7 +9,7 @@ import com.chua.starter.system.pojo.feedback.FeedbackIssueV1Request;
 import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 
 /**
- * 反馈服务
+ * 鍙嶉鏈嶅姟
  *
  * @author Administrator
  */
@@ -17,19 +17,19 @@ public interface SysFeedbackService extends IService<SysFeedback> {
 
 
     /**
-     * 分页查询
+     * 鍒嗛〉鏌ヨ
      *
-     * @param feedbackV1Request 请求
-     * @return 数据
+     * @param feedbackV1Request 璇锋眰
+     * @return 鏁版嵁
      */
     ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request);
 
     /**
-     * 处理反馈问题
+     * 澶勭悊鍙嶉闂
      *
-     * @param request    请求
+     * @param request    璇锋眰
      * @param userResume
-     * @return 数据
+     * @return 鏁版嵁
      */
     ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume);
 }

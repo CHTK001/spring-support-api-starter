@@ -18,26 +18,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 外部控制�?
+ * 澶栭儴鎺у埗鍣?
  *
  * @author CH
  * @version 1.0.0
  * @since 2024/02/22
  */
 @RestController
-@Api(value = "天气接口", tags = "天气接口")
-@Tag(name = "天气接口")
+@Api(value = "澶╂皵鎺ュ彛", tags = "澶╂皵鎺ュ彛")
+@Tag(name = "澶╂皵鎺ュ彛")
 @RequestMapping("/v1/weather")
 public class WeatherController {
 
     /**
-     * 天气
+     * 澶╂皵
      *
-     * @param request 城市
+     * @param request 鍩庡競
      * @return {@link ReturnResult}<{@link Weather}>
      */
-    @ApiOperation("获取当前地址天气")
-    @Operation(summary = "获取当前地址天气")
+    @ApiOperation("鑾峰彇褰撳墠鍦板潃澶╂皵")
+    @Operation(summary = "鑾峰彇褰撳墠鍦板潃澶╂皵")
     @GetMapping("address")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR,
             key = "'cache:weather:' + T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress()")
@@ -50,13 +50,13 @@ public class WeatherController {
         return ReturnResult.of(weather);
     }
     /**
-     * 天气
+     * 澶╂皵
      *
-     * @param city 城市
+     * @param city 鍩庡競
      * @return {@link ReturnResult}<{@link Weather}>
      */
-    @Operation(summary = "根据城市获取天气")
-    @ApiOperation("根据城市获取天气")
+    @Operation(summary = "鏍规嵁鍩庡競鑾峰彇澶╂皵")
+    @ApiOperation("鏍规嵁鍩庡競鑾峰彇澶╂皵")
     @GetMapping("city")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR, key = "'cache:weather:'+#p0")
     public ReturnResult<Weather> getWeather(@RequestParam(value = "city", required = false) String city) {

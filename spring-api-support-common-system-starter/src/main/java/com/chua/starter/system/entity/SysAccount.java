@@ -10,26 +10,26 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 账号管理
+ * 璐﹀彿绠＄悊
  *
  * @author CH
  * @since 2024/8/7
  */
-@Schema(description = "用户管理")
+@Schema(description = "鐢ㄦ埛绠＄悊")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_account")
 public class SysAccount extends SysBase {
 
     @TableId(value = "sys_account_id", type = IdType.AUTO)
-    @Schema(description = "账号ID")
+    @Schema(description = "璐﹀彿ID")
     private Integer sysAccountId;
 
     /**
-     * 账号类型; wechat
+     * 璐﹀彿绫诲瀷; wechat
      */
     @TableField(value = "sys_account_type")
-    @Schema(description = "账号类型; wechat")
+    @Schema(description = "璐﹀彿绫诲瀷; wechat")
     private String sysAccountType;
 
     /**
@@ -47,58 +47,57 @@ public class SysAccount extends SysBase {
     private String sysAccountUnionid;
 
     /**
-     * 名称
+     * 鍚嶇О
      */
     @TableField(value = "sys_account_name")
-    @Schema(description = "名称")
+    @Schema(description = "鍚嶇О")
     private String sysAccountName;
 
     /**
-     * 头像
+     * 澶村儚
      */
     @TableField(value = "sys_account_avatar")
-    @Schema(description = "头像")
+    @Schema(description = "澶村儚")
     private String sysAccountAvatar;
 
     /**
-     * 手机号
-     */
+     * 鎵嬫満鍙?     */
     @TableField(value = "sys_account_phone")
-    @Schema(description = "手机号")
+    @Schema(description = "鎵嬫満鍙?)
     private String sysAccountPhone;
 
     /**
-     * 邮箱
+     * 閭
      */
     @TableField(value = "sys_account_email")
-    @Schema(description = "邮箱")
+    @Schema(description = "閭")
     private String sysAccountEmail;
 
     /**
-     * 是否禁用
+     * 鏄惁绂佺敤
      */
     @TableField(value = "sys_account_forbidden")
-    @Schema(description = "是否禁用")
+    @Schema(description = "鏄惁绂佺敤")
     private Boolean sysAccountForbidden;
 
     /**
-     * 登录次数
+     * 鐧诲綍娆℃暟
      */
     @TableField(value = "sys_account_login_count")
-    @Schema(description = "登录次数")
+    @Schema(description = "鐧诲綍娆℃暟")
     private Integer sysAccountLoginCount;
 
     /**
-     * 最后登录ip
+     * 鏈€鍚庣櫥褰昳p
      */
     @TableField(value = "sys_account_last_ip")
-    @Schema(description = "最后登录ip")
+    @Schema(description = "鏈€鍚庣櫥褰昳p")
     private String sysAccountLastIp;
 
     /**
-     * 登录地址
+     * 鐧诲綍鍦板潃
      */
     @TableField(value = "sys_account_last_ip_address")
-    @Schema(description = "登录地址")
+    @Schema(description = "鐧诲綍鍦板潃")
     private String sysAccountLastIpAddress;
 }

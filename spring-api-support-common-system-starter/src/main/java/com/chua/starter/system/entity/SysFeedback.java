@@ -12,77 +12,78 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 系统反馈
+ * 绯荤粺鍙嶉
+ *
+ * @author CH
+ * @since 2024/8/7
  */
-@Schema(description = "系统反馈")
+@Schema(description = "绯荤粺鍙嶉")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_feedback")
 public class SysFeedback extends SysBase {
+
     @TableId(value = "sys_feedback_id", type = IdType.AUTO)
-    @Schema(description = "")
+    @Schema(description = "鍙嶉ID")
     private Integer sysFeedbackId;
 
     /**
-     * 反馈类型
+     * 鍙嶉绫诲瀷
      */
     @TableField(value = "sys_feedback_type")
-    @Schema(description = "反馈类型")
+    @Schema(description = "鍙嶉绫诲瀷")
     private String sysFeedbackType;
 
     /**
-     * 反馈图片
+     * 鍙嶉鍥剧墖
      */
     @TableField(value = "sys_feedback_images")
-    @Schema(description = "反馈图片")
+    @Schema(description = "鍙嶉鍥剧墖")
     private String sysFeedbackImages;
 
     /**
-     * 反馈内容
+     * 鍙嶉鍐呭
      */
     @TableField(value = "sys_feedback_content")
-    @Schema(description = "反馈内容")
+    @Schema(description = "鍙嶉鍐呭")
     private String sysFeedbackContent;
 
     /**
-     * 反馈类型;0:未处�? 1:已处�?
-     */
+     * 鍙嶉鐘舵€?0:鏈鐞? 1:宸插鐞?     */
     @TableField(value = "sys_feedback_status")
-    @Schema(description = "反馈类型;0:未处�? 1:已处�?)
+    @Schema(description = "鍙嶉鐘舵€?0:鏈鐞? 1:宸插鐞?)
     private Integer sysFeedbackStatus;
 
     /**
-     * 处理人ID
+     * 澶勭悊浜篒D
      */
     @TableField(value = "sys_feedback_deal_by")
-    @Schema(description = "处理人ID")
+    @Schema(description = "澶勭悊浜篒D")
     private Integer sysFeedbackDealBy;
 
     /**
-     * 处理人名�?
-     */
+     * 澶勭悊浜哄悕绉?     */
     @TableField(value = "sys_feedback_deal_name")
-    @Schema(description = "处理人名�?)
+    @Schema(description = "澶勭悊浜哄悕绉?)
     private String sysFeedbackDealName;
 
     /**
-     * 回复内容
+     * 鍥炲鍐呭
      */
     @TableField(value = "sys_feedback_recover_content")
-    @Schema(description = "回复内容")
+    @Schema(description = "鍥炲鍐呭")
     private String sysFeedbackRecoverContent;
 
     /**
-     * 回复时间
+     * 鍥炲鏃堕棿
      */
     @TableField(value = "sys_feedback_recover_time")
-    @Schema(description = "回复时间")
+    @Schema(description = "鍥炲鏃堕棿")
     private LocalDateTime sysFeedbackRecoverTime;
 
     /**
-     * 回复的图�?
-     */
+     * 鍥炲鐨勫浘鐗?     */
     @TableField(value = "sys_feedback_recover_images")
-    @Schema(description = "回复的图�?)
+    @Schema(description = "鍥炲鐨勫浘鐗?)
     private String sysFeedbackRecoverImages;
 }

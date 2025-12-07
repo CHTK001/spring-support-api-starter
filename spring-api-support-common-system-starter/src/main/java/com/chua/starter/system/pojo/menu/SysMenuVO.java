@@ -1,196 +1,110 @@
 package com.chua.starter.system.pojo.menu;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
+ * 鑿滃崟VO
+ *
  * @author CH
- * @since 2024/8/12
+ * @since 2024/8/20
  */
 @Data
-@Schema(description = "菜单")
+@Schema(description = "鑿滃崟VO")
 public class SysMenuVO {
-    @TableId(value = "sys_menu_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @NotNull(message = "不能为null")
+
+    /**
+     * 鑿滃崟ID
+     */
+    @Schema(description = "鑿滃崟ID")
     private Integer sysMenuId;
 
+    /**
+     * 鑿滃崟鍚嶇О
+     */
+    @Schema(description = "鑿滃崟鍚嶇О")
+    private String sysMenuName;
 
     /**
-     * 父菜�?
+     * 鑿滃崟鏍囬
      */
-    @TableField(value = "sys_menu_pid")
-    @ApiModelProperty(value = "父菜�?)
-    @Schema(description = "父菜�?)
+    @Schema(description = "鑿滃崟鏍囬")
+    private String sysMenuTitle;
+
+    /**
+     * 鑿滃崟璺緞
+     */
+    @Schema(description = "鑿滃崟璺緞")
+    private String sysMenuPath;
+
+    /**
+     * 鑿滃崟缁勪欢
+     */
+    @Schema(description = "鑿滃崟缁勪欢")
+    private String sysMenuComponent;
+
+    /**
+     * 鑿滃崟鍥炬爣
+     */
+    @Schema(description = "鑿滃崟鍥炬爣")
+    private String sysMenuIcon;
+
+    /**
+     * 鍙充晶鍥炬爣
+     */
+    @Schema(description = "鍙充晶鍥炬爣")
+    private String sysMenuExtraIcon;
+
+    /**
+     * 鑿滃崟绫诲瀷; 0:鑿滃崟; 1:iframe; 2:澶栭摼; 3:鎸夐挳
+     */
+    @Schema(description = "鑿滃崟绫诲瀷; 0:鑿滃崟; 1:iframe; 2:澶栭摼; 3:鎸夐挳")
+    private Integer sysMenuType;
+
+    /**
+     * 浼樺厛绾?     */
+    @Schema(description = "浼樺厛绾?)
+    private Integer sysMenuSort;
+
+    /**
+     * 鐖惰彍鍗旾D
+     */
+    @Schema(description = "鐖惰彍鍗旾D")
     private Integer sysMenuPid;
-    /**
-     * 菜单名称
-     */
-    @Schema(description = "菜单名称")
-    private String name;
 
     /**
-     * 菜单路径
+     * 鑿滃崟閾捐矾
      */
-    @Schema(description = "菜单路径")
-    private String path;
+    @Schema(description = "鑿滃崟閾捐矾")
+    private String sysMenuTreeId;
 
     /**
-     * 菜单组件
+     * 鏉冮檺鏍囪瘑
      */
-    @Schema(description = "菜单组件")
-    private String component;
+    @Schema(description = "鏉冮檺鏍囪瘑")
+    private String sysMenuPerm;
 
     /**
-     * 重定�?
+     * 鏄惁闅愯棌; 0:鏄剧ず
      */
-    @Schema(description = "重定�?)
-    private String redirect;
-
+    @Schema(description = "鏄惁闅愯棌; 0:鏄剧ず")
+    private Integer sysMenuHidden;
 
     /**
-     * 进场动画
-     */
-    @Schema(description = "进场动画")
-    private String enterTransition;
+     * 鏄惁缂撳瓨; 0:鍚?     */
+    @Schema(description = "鏄惁缂撳瓨; 0:鍚?)
+    private Integer sysMenuKeepAlive;
 
     /**
-     * 离场动画
+     * 閲嶅畾鍚戝湴鍧€
      */
-    @Schema(description = "离场动画")
-    private String leaveTransition;
+    @Schema(description = "閲嶅畾鍚戝湴鍧€")
+    private String sysMenuRedirect;
 
     /**
-     * 菜单
-     */
-    @Schema(description = "菜单信息")
-    private Meta meta;
-
-    /**
-     * 子菜�?
-     */
-    @Schema(description = "子菜�?)
-    private List<SysMenuVO> children = Collections.emptyList();
-
-
-    @Schema(description = "菜单信息")
-    @Data
-    public static class Meta {
-
-        /**
-         * 菜单标题
-         */
-        @Schema(description = "菜单标题")
-        private String title;
-
-        /**
-         * 菜单i18n
-         */
-        @Schema(description = "菜单i18n")
-        private String i18nKey;
-
-        /**
-         * iframe 链接地址
-         */
-        @Schema(description = "iframe 链接地址")
-        private String frameSrc;
-
-        /**
-         * 激活路�?
-         */
-        @Schema(description = "激活路�?)
-        private String activePath;
-
-        /**
-         * 权限
-         */
-        @Schema(description = "权限")
-        private String[] auths;
-        /**
-         * 是否显示链接
-         */
-        @Schema(description = "是否显示链接")
-        private Boolean showLink;
-
-        /**
-         * 菜单图标
-         */
-        @Schema(description = "菜单图标")
-        private String icon;
-
-        /**
-         * 是否首页
-         */
-        @Schema(description = "是否首页")
-        private Boolean home;
-
-        /**
-         * 是否引擎
-         */
-        @Schema(description = "是否引擎")
-        private Boolean engine;
-
-        /**
-         * 额外图标
-         */
-        @Schema(description = "额外图标")
-        private String extraIcon;
-
-        /**
-         * 是否显示父菜�?
-         */
-        @Schema(description = "是否显示父菜�?)
-        private boolean showParent = true;
-
-        /**
-         * 是否缓存
-         */
-        @Schema(description = "是否缓存")
-        private boolean keepAlive;
-
-        /**
-         * 是否隐藏
-         */
-        @Schema(description = "是否隐藏")
-        private boolean hiddenTag;
-        /**
-         * 是否固定
-         */
-        @Schema(description = "是否固定")
-        private boolean fixedTag;
-
-        /**
-         * 排序
-         */
-        @Schema(description = "排序")
-        private Integer rank;
-
-
-        /**
-         * 过渡动画
-         */
-        @Schema(description = "过渡动画")
-        private Transition transition;
-        /**
-         * 过渡动画
-         */
-        @Data
-        public static class Transition {
-
-            @Schema(description = "离场动画")
-            private String leaveTransition;
-            @Schema(description = "进场动画")
-            private String enterTransition;
-        }
-    }
-
+     * 瀛愯彍鍗?     */
+    @Schema(description = "瀛愯彍鍗?)
+    private List<SysMenuVO> children;
 }

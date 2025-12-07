@@ -13,37 +13,36 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 角色 - 菜单关系表
- *
+ * 瑙掕壊 - 鑿滃崟鍏崇郴琛? *
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "角色 - 菜单关系表")
-@Schema(description = "角色 - 菜单关系表")
+@ApiModel(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛?)
+@Schema(description = "瑙掕壊 - 鑿滃崟鍏崇郴琛?)
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "主键ID")
-    @Schema(description = "主键ID")
-    @NotNull(message = "不能为null")
+    @ApiModelProperty(value = "涓婚敭ID")
+    @Schema(description = "涓婚敭ID")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysRoleMenuId;
 
     /**
-     * 角色ID
+     * 瑙掕壊ID
      */
     @TableField(value = "sys_role_id")
-    @ApiModelProperty(value = "角色ID")
-    @Schema(description = "角色ID")
+    @ApiModelProperty(value = "瑙掕壊ID")
+    @Schema(description = "瑙掕壊ID")
     private Integer sysRoleId;
 
     /**
-     * 菜单ID
+     * 鑿滃崟ID
      */
     @TableField(value = "sys_menu_id")
-    @ApiModelProperty(value = "菜单ID")
-    @Schema(description = "菜单ID")
+    @ApiModelProperty(value = "鑿滃崟ID")
+    @Schema(description = "鑿滃崟ID")
     private Integer sysMenuId;
 }

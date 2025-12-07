@@ -14,80 +14,80 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- * 登录接口
+ * 鐧诲綍鎺ュ彛
  * @author CH
  * @since 2024/9/12
  */
 public interface SysLoginService {
 
     /**
-     * 用户登录方法，根据登录数据进行用户身份验�?
+     * 鐢ㄦ埛鐧诲綍鏂规硶锛屾牴鎹櫥褰曟暟鎹繘琛岀敤鎴疯韩浠介獙璇?
      *
-     * @param loginData   登录数据对象，包含用户名、密码等信息
-     * @param request     HTTP请求对象，用于获取请求相关的数据
-     * @param response    HTTP响应对象，用于设置响应数�?
+     * @param loginData   鐧诲綍鏁版嵁瀵硅薄锛屽寘鍚敤鎴峰悕銆佸瘑鐮佺瓑淇℃伅
+     * @param request     HTTP璇锋眰瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑鏁版嵁
+     * @param response    HTTP鍝嶅簲瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
      * @param fingerprint
-     * @return 结果对象，包含登录结果和可能的附加信�?
+     * @return 缁撴灉瀵硅薄锛屽寘鍚櫥褰曠粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
      */
     Result<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
 
     /**
-     * 获取当前登录用户的信�?
+     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鐨勪俊鎭?
      *
-     * @return 用户信息对象，包含用户的基本信息
+     * @return 鐢ㄦ埛淇℃伅瀵硅薄锛屽寘鍚敤鎴风殑鍩烘湰淇℃伅
      */
     UserInfoVO getUserLoginInfo();
     /**
-     * 获取当前登录用户的信�?
+     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鐨勪俊鎭?
      *
-     * @param token 用户的令牌，用于确定当前登录用户
-     * @return 用户信息对象，包含用户的基本信息
+     * @param token 鐢ㄦ埛鐨勪护鐗岋紝鐢ㄤ簬纭畾褰撳墠鐧诲綍鐢ㄦ埛
+     * @return 鐢ㄦ埛淇℃伅瀵硅薄锛屽寘鍚敤鎴风殑鍩烘湰淇℃伅
      */
     UserInfoVO getUserLoginInfo(String token);
     /**
-     * 刷新用户令牌
+     * 鍒锋柊鐢ㄦ埛浠ょ墝
      *
-     * @param refreshToken 刷新令牌对象，包含旧的令牌信�?
-     * @param request HTTP请求对象，用于获取请求相关的数据
-     * @param response HTTP响应对象，用于设置响应数�?
-     * @return 结果对象，包含刷新结果和可能的附加信�?
+     * @param refreshToken 鍒锋柊浠ょ墝瀵硅薄锛屽寘鍚棫鐨勪护鐗屼俊鎭?
+     * @param request HTTP璇锋眰瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑鏁版嵁
+     * @param response HTTP鍝嶅簲瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
+     * @return 缁撴灉瀵硅薄锛屽寘鍚埛鏂扮粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
      */
     Result<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 三方登录
+     * 涓夋柟鐧诲綍
      *
-     * @param loginData 登录数据对象，包含三方登录信�?
-     * @param request HTTP请求对象，用于获取请求相关的数据
-     * @param response HTTP响应对象，用于设置响应数�?
-     * @return 结果对象，包含三方登录结果和可能的附加信�?
+     * @param loginData 鐧诲綍鏁版嵁瀵硅薄锛屽寘鍚笁鏂圭櫥褰曚俊鎭?
+     * @param request HTTP璇锋眰瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑鏁版嵁
+     * @param response HTTP鍝嶅簲瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
+     * @return 缁撴灉瀵硅薄锛屽寘鍚笁鏂圭櫥褰曠粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
      */
     ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 三方绑定
+     * 涓夋柟缁戝畾
      *
-     * @param loginData 登录数据对象，包含三方登录信�?
-     * @param request HTTP请求对象，用于获取请求相关的数据
-     * @param response HTTP响应对象，用于设置响应数�?
-     * @return 结果对象，包含三方绑定结果和可能的附加信�?
+     * @param loginData 鐧诲綍鏁版嵁瀵硅薄锛屽寘鍚笁鏂圭櫥褰曚俊鎭?
+     * @param request HTTP璇锋眰瀵硅薄锛岀敤浜庤幏鍙栬姹傜浉鍏崇殑鏁版嵁
+     * @param response HTTP鍝嶅簲瀵硅薄锛岀敤浜庤缃搷搴旀暟鎹?
+     * @return 缁撴灉瀵硅薄锛屽寘鍚笁鏂圭粦瀹氱粨鏋滃拰鍙兘鐨勯檮鍔犱俊鎭?
      */
     ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * 获取三方绑定信息
+     * 鑾峰彇涓夋柟缁戝畾淇℃伅
      *
-     * @param userId 用户ID，用于确定要获取绑定信息的用�?
-     * @return 绑定信息列表，包含当前用户绑定的三方信息
+     * @param userId 鐢ㄦ埛ID锛岀敤浜庣‘瀹氳鑾峰彇缁戝畾淇℃伅鐨勭敤鎴?
+     * @return 缁戝畾淇℃伅鍒楄〃锛屽寘鍚綋鍓嶇敤鎴风粦瀹氱殑涓夋柟淇℃伅
      */
     ReturnResult<List<String>> thirdBindInfo(String userId);
 
     /**
-     * 三方解绑
+     * 涓夋柟瑙ｇ粦
      *
-     * @param userId 用户ID，用于确定要解绑的用�?
-     * @param thirdPartyUnbindRequest 解绑请求对象，包含要解绑的三方信�?
-     * @return 操作结果对象，包含操作是否成功和相关提示信息
+     * @param userId 鐢ㄦ埛ID锛岀敤浜庣‘瀹氳瑙ｇ粦鐨勭敤鎴?
+     * @param thirdPartyUnbindRequest 瑙ｇ粦璇锋眰瀵硅薄锛屽寘鍚瑙ｇ粦鐨勪笁鏂逛俊鎭?
+     * @return 鎿嶄綔缁撴灉瀵硅薄锛屽寘鍚搷浣滄槸鍚︽垚鍔熷拰鐩稿叧鎻愮ず淇℃伅
      */
     ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest);
 }

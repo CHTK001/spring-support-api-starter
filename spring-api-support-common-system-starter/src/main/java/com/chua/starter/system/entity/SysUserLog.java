@@ -17,173 +17,172 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
+ * 鐢ㄦ埛鏃ュ織琛? *
  * @author CH
  * @since 2024/8/8
  */
-
-/**
- * 用户日志�?
- */
-@ApiModel(description = "用户日志�?)
-@Schema(description = "用户日志�?)
+@ApiModel(description = "鐢ㄦ埛鏃ュ織琛?)
+@Schema(description = "鐢ㄦ埛鏃ュ織琛?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_log")
 public class SysUserLog extends SysBase implements Serializable {
+
     @TableId(value = "sys_log_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "")
-    @Schema(description = "")
-    @NotNull(message = "不能为null")
+    @ApiModelProperty(value = "鏃ュ織ID")
+    @Schema(description = "鏃ュ織ID")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysLogId;
 
     /**
-     * 账号
+     * 璐﹀彿
      */
     @TableField(value = "sys_log_username")
-    @ApiModelProperty(value = "账号")
-    @Schema(description = "账号")
-    @Size(max = 255, message = "账号最大长度要小于 255")
+    @ApiModelProperty(value = "璐﹀彿")
+    @Schema(description = "璐﹀彿")
+    @Size(max = 255, message = "璐﹀彿鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogUsername;
+
     /**
-     * 登录方式
+     * 鐧诲綍鏂瑰紡
      */
     @TableField(value = "sys_log_login_type")
-    @ApiModelProperty(value = "登录方式")
-    @Schema(description = "登录方式")
-    @Size(max = 255, message = "账号最大长度要小于 255")
+    @ApiModelProperty(value = "鐧诲綍鏂瑰紡")
+    @Schema(description = "鐧诲綍鏂瑰紡")
+    @Size(max = 255, message = "鐧诲綍鏂瑰紡鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogLoginType;
 
     /**
-     * 浏览�?
+     * 娴忚鍣║A
      */
     @TableField(value = "sys_log_ua")
-    @ApiModelProperty(value = "浏览器ua")
-    @Schema(description = "浏览器ua")
-    @Size(max = 255, message = "浏览器ua最大长度要小于 255")
+    @ApiModelProperty(value = "娴忚鍣╱a")
+    @Schema(description = "娴忚鍣╱a")
+    @Size(max = 255, message = "娴忚鍣╱a鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogUa;
 
     /**
-     * 浏览器指�?
-     */
+     * 娴忚鍣ㄦ寚绾?     */
     @TableField(value = "sys_log_fingerprint")
-    @ApiModelProperty(value = "浏览器指�?)
-    @Schema(description = "浏览器指�?)
+    @ApiModelProperty(value = "娴忚鍣ㄦ寚绾?)
+    @Schema(description = "娴忚鍣ㄦ寚绾?)
     private String sysLogFingerprint;
 
     /**
-     * 浏览�?
-     */
+     * 娴忚鍣?     */
     @TableField(value = "sys_log_browser")
-    @ApiModelProperty(value = "浏览�?)
-    @Schema(description = "浏览�?)
-    @Size(max = 255, message = "浏览器最大长度要小于 255")
+    @ApiModelProperty(value = "娴忚鍣?)
+    @Schema(description = "娴忚鍣?)
+    @Size(max = 255, message = "娴忚鍣ㄦ渶澶ч暱搴﹁灏忎簬 255")
     private String sysLogBrowser;
+
     /**
-     * 系统
+     * 绯荤粺
      */
     @TableField(value = "sys_log_system")
-    @ApiModelProperty(value = "系统")
-    @Schema(description = "系统")
-    @Size(max = 255, message = "系统最大长度要小于 255")
+    @ApiModelProperty(value = "绯荤粺")
+    @Schema(description = "绯荤粺")
+    @Size(max = 255, message = "绯荤粺鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogSystem;
 
     /**
-     * 请求IP
+     * 璇锋眰IP
      */
     @TableField(value = "sys_log_ip")
-    @ApiModelProperty(value = "请求IP")
-    @Schema(description = "请求IP")
-    @Size(max = 255, message = "请求IP最大长度要小于 255")
+    @ApiModelProperty(value = "璇锋眰IP")
+    @Schema(description = "璇锋眰IP")
+    @Size(max = 255, message = "璇锋眰IP鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogIp;
 
     /**
-     * 请求地址
+     * 璇锋眰鍦板潃
      */
     @TableField(value = "sys_log_address")
-    @ApiModelProperty(value = "请求地址")
-    @Schema(description = "请求地址")
-    @Size(max = 255, message = "请求地址最大长度要小于 255")
+    @ApiModelProperty(value = "璇锋眰鍦板潃")
+    @Schema(description = "璇锋眰鍦板潃")
+    @Size(max = 255, message = "璇锋眰鍦板潃鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogAddress;
+
     /**
-     * 运营�?
-     */
+     * 杩愯惀鍟?     */
     @TableField(value = "sys_log_isp")
-    @ApiModelProperty(value = "运营�?)
-    @Schema(description = "运营�?)
-    @Size(max = 255, message = "运营商最大长度要小于 255")
+    @ApiModelProperty(value = "杩愯惀鍟?)
+    @Schema(description = "杩愯惀鍟?)
+    @Size(max = 255, message = "杩愯惀鍟嗘渶澶ч暱搴﹁灏忎簬 255")
     private String sysLogIsp;
+
     /**
-     * 请求地址
+     * 璇锋眰URL
      */
     @TableField(value = "sys_log_url")
-    @ApiModelProperty(value = "请求地址")
-    @Schema(description = "请求地址")
-    @Size(max = 255, message = "请求地址最大长度要小于 255")
+    @ApiModelProperty(value = "璇锋眰URL")
+    @Schema(description = "璇锋眰URL")
+    @Size(max = 255, message = "璇锋眰URL鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogUrl;
+
     /**
-     * 应用名称
+     * 搴旂敤鍚嶇О
      */
     @TableField(value = "sys_log_app_name")
-    @ApiModelProperty(value = "应用名称")
-    @Schema(description = "应用名称")
+    @ApiModelProperty(value = "搴旂敤鍚嶇О")
+    @Schema(description = "搴旂敤鍚嶇О")
     private String sysLogAppName;
 
     /**
-     * 请求参数
+     * 璇锋眰鍙傛暟
      */
     @TableField(value = "sys_log_param")
-    @ApiModelProperty(value = "请求参数")
-    @Schema(description = "请求参数")
-    @Size(max = 255, message = "请求参数最大长度要小于 255")
+    @ApiModelProperty(value = "璇锋眰鍙傛暟")
+    @Schema(description = "璇锋眰鍙傛暟")
+    @Size(max = 255, message = "璇锋眰鍙傛暟鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogParam;
 
     /**
-     * 请求模块
+     * 璇锋眰妯″潡
      */
     @TableField(value = "sys_log_from")
-    @ApiModelProperty(value = "请求模块")
-    @Schema(description = "请求模块")
-    @Size(max = 255, message = "请求模块最大长度要小于 255")
+    @ApiModelProperty(value = "璇锋眰妯″潡")
+    @Schema(description = "璇锋眰妯″潡")
+    @Size(max = 255, message = "璇锋眰妯″潡鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysLogFrom;
 
     /**
-     * 请求状�? 0: 失败; 1: 成功
+     * 璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛
      */
     @TableField(value = "sys_log_status")
-    @ApiModelProperty(value = "请求状�? 0: 失败; 1: 成功")
-    @Schema(description = "请求状�? 0: 失败; 1: 成功")
+    @ApiModelProperty(value = "璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛")
+    @Schema(description = "璇锋眰鐘舵€? 0: 澶辫触; 1: 鎴愬姛")
     private Integer sysLogStatus;
+
     /**
-     * 请求消息
+     * 璇锋眰娑堟伅
      */
     @TableField(value = "sys_log_message")
-    @ApiModelProperty(value = "请求消息")
-    @Schema(description = "请求消息")
+    @ApiModelProperty(value = "璇锋眰娑堟伅")
+    @Schema(description = "璇锋眰娑堟伅")
     private String sysLogMessage;
 
     /**
-     * 耗时
+     * 鑰楁椂
      */
     @TableField(value = "sys_log_cost")
-    @ApiModelProperty(value = "耗时")
-    @Schema(description = "耗时")
+    @ApiModelProperty(value = "鑰楁椂")
+    @Schema(description = "鑰楁椂")
     private BigDecimal sysLogCost;
 
-
     /**
-     * 部门ID
+     * 閮ㄩ棬ID
      */
     @TableField(value = "sys_dept_id")
-    @ApiModelProperty(value = "部门ID")
-    @Schema(description = "部门ID")
+    @ApiModelProperty(value = "閮ㄩ棬ID")
+    @Schema(description = "閮ㄩ棬ID")
     private Integer sysDeptId;
 
     /**
-     * 机构名称
+     * 鏈烘瀯鍚嶇О
      */
     @TableField(exist = false)
-    @ApiModelProperty(value = "机构名称")
-    @Schema(description = "机构名称")
+    @ApiModelProperty(value = "鏈烘瀯鍚嶇О")
+    @Schema(description = "鏈烘瀯鍚嶇О")
     private String sysDeptName;
-
 }

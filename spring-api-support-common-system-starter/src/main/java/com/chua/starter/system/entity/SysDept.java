@@ -19,13 +19,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 组织机构
+ * 缁勭粐鏈烘瀯
  *
  * @author CH
  * @since 2024/8/7
  */
-@ApiModel(description = "组织机构")
-@Schema(description = "组织机构")
+@ApiModel(description = "缁勭粐鏈烘瀯")
+@Schema(description = "缁勭粐鏈烘瀯")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_dept")
@@ -33,102 +33,102 @@ public class SysDept extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_dept_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "机构ID")
-    @Schema(description = "机构ID")
-    @NotNull(message = "机构ID不能为空", groups = UpdateGroup.class)
+    @ApiModelProperty(value = "鏈烘瀯ID")
+    @Schema(description = "鏈烘瀯ID")
+    @NotNull(message = "鏈烘瀯ID涓嶈兘涓虹┖", groups = UpdateGroup.class)
     private Integer sysDeptId;
 
     /**
-     * 机构名称
+     * 鏈烘瀯鍚嶇О
      */
     @TableField(value = "sys_dept_name")
-    @ApiModelProperty(value = "机构名称")
-    @Schema(description = "机构名称")
-    @Size(max = 255, message = "机构名称最大长度要小于 255")
+    @ApiModelProperty(value = "鏈烘瀯鍚嶇О")
+    @Schema(description = "鏈烘瀯鍚嶇О")
+    @Size(max = 255, message = "鏈烘瀯鍚嶇О鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysDeptName;
 
     /**
-     * 部门负责人
+     * 閮ㄩ棬璐熻矗浜?
      */
     @TableField(value = "sys_dept_principal")
-    @ApiModelProperty(value = "部门负责人")
-    @Schema(description = "部门负责人")
-    @Size(max = 255, message = "部门负责人最大长度要小于 255")
+    @ApiModelProperty(value = "閮ㄩ棬璐熻矗浜?)
+    @Schema(description = "閮ㄩ棬璐熻矗浜?)
+    @Size(max = 255, message = "閮ㄩ棬璐熻矗浜烘渶澶ч暱搴﹁灏忎簬 255")
     private String sysDeptPrincipal;
 
     /**
-     * 负责人联系方式
+     * 璐熻矗浜鸿仈绯绘柟寮?
      */
     @TableField(value = "sys_dept_contact")
-    @ApiModelProperty(value = "负责人联系方式")
-    @Schema(description = "负责人联系方式")
-    @Size(max = 255, message = "负责人联系方式最大长度要小于 255")
+    @ApiModelProperty(value = "璐熻矗浜鸿仈绯绘柟寮?)
+    @Schema(description = "璐熻矗浜鸿仈绯绘柟寮?)
+    @Size(max = 255, message = "璐熻矗浜鸿仈绯绘柟寮忔渶澶ч暱搴﹁灏忎簬 255")
     private String sysDeptContact;
 
     /**
-     * 优先级
+     * 浼樺厛绾?
      */
     @TableField(value = "sys_dept_sort")
-    @ApiModelProperty(value = "优先级")
-    @Schema(description = "优先级")
+    @ApiModelProperty(value = "浼樺厛绾?)
+    @Schema(description = "浼樺厛绾?)
     private Integer sysDeptSort;
 
     /**
-     * 机构编码
+     * 鏈烘瀯缂栫爜
      */
     @TableField(value = "sys_dept_code")
-    @ApiModelProperty(value = "机构编码")
-    @Schema(description = "机构编码")
-    @Size(max = 255, message = "机构编码最大长度要小于 255")
-    @NotBlank(message = "机构编码不能为空", groups = {AddGroup.class})
+    @ApiModelProperty(value = "鏈烘瀯缂栫爜")
+    @Schema(description = "鏈烘瀯缂栫爜")
+    @Size(max = 255, message = "鏈烘瀯缂栫爜鏈€澶ч暱搴﹁灏忎簬 255")
+    @NotBlank(message = "鏈烘瀯缂栫爜涓嶈兘涓虹┖", groups = {AddGroup.class})
     private String sysDeptCode;
 
     /**
-     * 父机构
+     * 鐖舵満鏋?
      */
     @TableField(value = "sys_dept_pid")
-    @ApiModelProperty(value = "父机构")
-    @Schema(description = "父机构")
+    @ApiModelProperty(value = "鐖舵満鏋?)
+    @Schema(description = "鐖舵満鏋?)
     private Integer sysDeptPid;
 
     /**
-     * 机构链路
+     * 鏈烘瀯閾捐矾
      */
     @TableField(value = "sys_dept_tree_id")
-    @ApiModelProperty(value = "机构链路")
-    @Schema(description = "机构链路")
-    @Size(max = 255, message = "机构链路最大长度要小于 255")
+    @ApiModelProperty(value = "鏈烘瀯閾捐矾")
+    @Schema(description = "鏈烘瀯閾捐矾")
+    @Size(max = 255, message = "鏈烘瀯閾捐矾鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysDeptTreeId;
 
     /**
-     * 状态; 是否禁用; 0:启用
+     * 鐘舵€? 鏄惁绂佺敤; 0:鍚敤
      */
     @TableField(value = "sys_dept_status")
-    @ApiModelProperty(value = "状态; 是否禁用; 0:启用")
-    @Schema(description = "状态; 是否禁用; 0:启用")
+    @ApiModelProperty(value = "鐘舵€? 鏄惁绂佺敤; 0:鍚敤")
+    @Schema(description = "鐘舵€? 鏄惁绂佺敤; 0:鍚敤")
     private Integer sysDeptStatus;
 
     /**
-     * 备注
+     * 澶囨敞
      */
     @TableField(value = "sys_dept_remark")
-    @ApiModelProperty(value = "备注")
-    @Schema(description = "备注")
+    @ApiModelProperty(value = "澶囨敞")
+    @Schema(description = "澶囨敞")
     private String sysDeptRemark;
 
     /**
-     * 数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见
+     * 鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?
      */
     @TableField(value = "sys_dept_data_permission")
-    @ApiModelProperty(value = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
-    @Schema(description = "数据权限类型;1:全部可见;2:本人可见;3:所在部门可见;4:所在部门及子级可见;5:选择的部门可见")
+    @ApiModelProperty(value = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?)
+    @Schema(description = "鏁版嵁鏉冮檺绫诲瀷;1:鍏ㄩ儴鍙;2:鏈汉鍙;3:鎵€鍦ㄩ儴闂ㄥ彲瑙?4:鎵€鍦ㄩ儴闂ㄥ強瀛愮骇鍙;5:閫夋嫨鐨勯儴闂ㄥ彲瑙?)
     private Integer sysDeptDataPermission;
 
     /**
-     * 数据权限可见的部门ID列表
+     * 鏁版嵁鏉冮檺鍙鐨勯儴闂↖D鍒楄〃
      */
     @TableField(value = "sys_dept_data_permission_dept_id")
-    @ApiModelProperty(value = "数据权限可见的部门ID列表")
-    @Schema(description = "数据权限可见的部门ID列表")
+    @ApiModelProperty(value = "鏁版嵁鏉冮檺鍙鐨勯儴闂↖D鍒楄〃")
+    @Schema(description = "鏁版嵁鏉冮檺鍙鐨勯儴闂↖D鍒楄〃")
     private String sysDeptDataPermissionDeptId;
 }

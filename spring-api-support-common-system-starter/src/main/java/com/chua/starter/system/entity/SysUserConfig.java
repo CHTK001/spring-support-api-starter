@@ -16,39 +16,38 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 用户信息 - 用户设置表
- *
+ * 鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛? *
  * @author CH
  * @since 2024/8/30
  */
-@ApiModel(description = "用户信息 - 用户设置表")
-@Schema(description = "用户信息 - 用户设置表")
+@ApiModel(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛?)
+@Schema(description = "鐢ㄦ埛淇℃伅 - 鐢ㄦ埛璁剧疆琛?)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_config")
 public class SysUserConfig extends SysBase implements Serializable {
 
     @TableId(value = "sys_user_config_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "配置ID")
-    @Schema(description = "配置ID")
-    @NotNull(message = "不能为null")
+    @ApiModelProperty(value = "閰嶇疆ID")
+    @Schema(description = "閰嶇疆ID")
+    @NotNull(message = "涓嶈兘涓簄ull")
     private Integer sysUserConfigId;
 
     /**
-     * 微信openid
+     * 寰俊openid
      */
     @TableField(value = "sys_user_config_wx_openid")
-    @ApiModelProperty(value = "微信openid")
-    @Schema(description = "微信openid")
-    @Size(max = 255, message = "微信openid最大长度要小于 255")
+    @ApiModelProperty(value = "寰俊openid")
+    @Schema(description = "寰俊openid")
+    @Size(max = 255, message = "寰俊openid鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserConfigWxOpenid;
 
     /**
-     * 微信unionid
+     * 寰俊unionid
      */
     @TableField(value = "sys_user_config_wx_unionid")
-    @ApiModelProperty(value = "微信unionid")
-    @Schema(description = "微信unionid")
-    @Size(max = 255, message = "微信unionid最大长度要小于 255")
+    @ApiModelProperty(value = "寰俊unionid")
+    @Schema(description = "寰俊unionid")
+    @Size(max = 255, message = "寰俊unionid鏈€澶ч暱搴﹁灏忎簬 255")
     private String sysUserConfigWxUnionid;
 }

@@ -13,20 +13,20 @@ import java.util.List;
  * @since 2024/8/8
  */
 @Data
-@Schema(description = "角色菜单")
+@Schema(description = "瑙掕壊鑿滃崟")
 public class RoleMenuUpdate {
 
     /**
-     * 角色ID
+     * 瑙掕壊ID
      */
-    @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
-    @Schema(description = "角色ID")
+    @NotNull(message = "瑙掕壊ID涓嶈兘涓虹┖", groups = {UpdateGroup.class, SelectGroup.class})
+    @Schema(description = "瑙掕壊ID")
     private Integer roleId;
 
     /**
-     * 菜单ID
+     * 鑿滃崟ID
      */
-    @NotNull(message = "菜单ID不能为空", groups = {UpdateGroup.class})
-    @Schema(description = "菜单ID")
+    @NotNull(message = "鑿滃崟ID涓嶈兘涓虹┖", groups = {UpdateGroup.class})
+    @Schema(description = "鑿滃崟ID")
     private List<Integer> menuId;
 }

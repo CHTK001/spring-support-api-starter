@@ -44,10 +44,10 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     /**
-     * 创建日志
+     * 鍒涘缓鏃ュ織
      *
-     * @param userLoggerInfo 日志
-     * @return 日志
+     * @param userLoggerInfo 鏃ュ織
+     * @return 鏃ュ織
      */
     private SysUserLog createSysUserLog(UserLoggerInfo userLoggerInfo) {
         SysUserLog sysUserLog = new SysUserLog();

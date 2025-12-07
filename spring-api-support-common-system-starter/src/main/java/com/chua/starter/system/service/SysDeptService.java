@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 系统部门服务接口
- * 该接口定义了与系统部门相关的业务操作，包括查询、增删改�?
+ * 绯荤粺閮ㄩ棬鏈嶅姟鎺ュ彛
+ * 璇ユ帴鍙ｅ畾涔変簡涓庣郴缁熼儴闂ㄧ浉鍏崇殑涓氬姟鎿嶄綔锛屽寘鎷煡璇€佸鍒犳敼绛?
  * @since 2024/8/7
  * @author CH
  */
@@ -18,37 +18,37 @@ public interface SysDeptService extends IService<SysDept>{
 
 
     /**
-     * 查询部门列表
-     * 根据部门查询条件和角色集合，返回符合条件的部门列�?
-     * @param sysDept 部门查询条件
-     * @param roles 角色集合，用于权限控制或筛�?
-     * @return 部门列表，包含每个部门的详细信息
+     * 鏌ヨ閮ㄩ棬鍒楄〃
+     * 鏍规嵁閮ㄩ棬鏌ヨ鏉′欢鍜岃鑹查泦鍚堬紝杩斿洖绗﹀悎鏉′欢鐨勯儴闂ㄥ垪琛?
+     * @param sysDept 閮ㄩ棬鏌ヨ鏉′欢
+     * @param roles 瑙掕壊闆嗗悎锛岀敤浜庢潈闄愭帶鍒舵垨绛涢€?
+     * @return 閮ㄩ棬鍒楄〃锛屽寘鍚瘡涓儴闂ㄧ殑璇︾粏淇℃伅
      */
     List<SysDeptVO> list(SysDept sysDept, Set<String> roles);
 
     /**
-     * 删除部门
-     * 根据部门ID进行部门删除操作，返回删除结�?
-     * @param deptId 部门ID，唯一标识要删除的部门
-     * @return 删除结果，包含成功与否的标志和提示信�?
+     * 鍒犻櫎閮ㄩ棬
+     * 鏍规嵁閮ㄩ棬ID杩涜閮ㄩ棬鍒犻櫎鎿嶄綔锛岃繑鍥炲垹闄ょ粨鏋?
+     * @param deptId 閮ㄩ棬ID锛屽敮涓€鏍囪瘑瑕佸垹闄ょ殑閮ㄩ棬
+     * @return 鍒犻櫎缁撴灉锛屽寘鍚垚鍔熶笌鍚︾殑鏍囧織鍜屾彁绀轰俊鎭?
      */
     ReturnResult<Boolean> delete(Long deptId);
 
     /**
-     * 更新部门信息
-     * 根据角色集合和部门信息更新部门，返回更新结果
-     * @param roles 角色集合，用于权限控制或筛�?
-     * @param sysDept 待更新的部门信息
-     * @return 更新结果，包含成功与否的标志和提示信�?
+     * 鏇存柊閮ㄩ棬淇℃伅
+     * 鏍规嵁瑙掕壊闆嗗悎鍜岄儴闂ㄤ俊鎭洿鏂伴儴闂紝杩斿洖鏇存柊缁撴灉
+     * @param roles 瑙掕壊闆嗗悎锛岀敤浜庢潈闄愭帶鍒舵垨绛涢€?
+     * @param sysDept 寰呮洿鏂扮殑閮ㄩ棬淇℃伅
+     * @return 鏇存柊缁撴灉锛屽寘鍚垚鍔熶笌鍚︾殑鏍囧織鍜屾彁绀轰俊鎭?
      */
     ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept);
 
     /**
-     * 新增部门
-     * 根据部门信息和角色集合，新增一个部门，返回新增结果
-     * @param sysDept 待新增的部门信息
-     * @param roles 角色集合，用于权限控制或筛�?
-     * @return 新增结果，包含成功与否的标志和提示信�?
+     * 鏂板閮ㄩ棬
+     * 鏍规嵁閮ㄩ棬淇℃伅鍜岃鑹查泦鍚堬紝鏂板涓€涓儴闂紝杩斿洖鏂板缁撴灉
+     * @param sysDept 寰呮柊澧炵殑閮ㄩ棬淇℃伅
+     * @param roles 瑙掕壊闆嗗悎锛岀敤浜庢潈闄愭帶鍒舵垨绛涢€?
+     * @return 鏂板缁撴灉锛屽寘鍚垚鍔熶笌鍚︾殑鏍囧織鍜屾彁绀轰俊鎭?
      */
     ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles);
 }

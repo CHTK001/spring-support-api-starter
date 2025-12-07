@@ -30,7 +30,7 @@
 //import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 //
 ///**
-// * wx登录处理�?
+// * wx鐧诲綍澶勭悊鍣?
 // *
 // * @author CH
 // * @since 2024/12/2
@@ -42,7 +42,7 @@
 //    @AutoInject
 //    private TencentMaHandler tencentMaHandler;
 //    /**
-//     * 用户第三方登�?
+//     * 鐢ㄦ埛绗笁鏂圭櫥褰?
 //     */
 //    @AutoInject
 //    private SysUserStudentService sysUserService;
@@ -51,7 +51,7 @@
 //    private TransactionTemplate transactionTemplate;
 //
 //    /**
-//     * 城市
+//     * 鍩庡競
 //     */
 //    @AutoInject
 //    private SysCityService sysCityService;
@@ -62,7 +62,7 @@
 //        String openid = loginData.getUsername();
 //        String code = loginData.getPassword();
 //        Result<LoginResult> res = null;
-//        // 调用微信 API 获取用户�?openid �?session_key
+//        // 璋冪敤寰俊 API 鑾峰彇鐢ㄦ埛鐨?openid 鍜?session_key
 //        res = check(openid, code, loginData, "PTYH");
 //        if (null != res) {
 //            return res;
@@ -76,9 +76,9 @@
 //                ImmutableBuilder.<String, Object>builderOfMap().put("address", address).build()
 //        );
 //
-//        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
+//        log.info("鐧诲綍鑰楁椂:{}ms", System.currentTimeMillis() - startTime);
 //        if (null == accessToken) {
-//            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+//            return Result.failed(USERNAME_OR_PASSWORD_ERROR, "璐﹀彿鎴栬€呭瘑鐮佷笉姝ｇ‘");
 //        }
 //
 //        if (accessToken.getCode() != 200) {
@@ -104,26 +104,26 @@
 //
 //
 //        try {
-//            // 调用微信 API 获取用户的手机号
+//            // 璋冪敤寰俊 API 鑾峰彇鐢ㄦ埛鐨勬墜鏈哄彿
 //            WxMaPhoneNumberInfo phoneInfo = tencentMaHandler.getPhoneNumber(code);
 //            phoneNumber = phoneInfo.getPhoneNumber();
 //
-//            // 调用微信 API 获取用户的详细信�?
+//            // 璋冪敤寰俊 API 鑾峰彇鐢ㄦ埛鐨勮缁嗕俊鎭?
 //            userInfo = tencentMaHandler.getUserInfo(loginData.getWxSessionKey(), loginData.getWxEncryptedData(), loginData.getWxIv());
 //            sysUser.setSysUserUnionId(userInfo.getUnionId());
 //
 //        } catch (WxErrorException e) {
 //            return Result.failed(e.getError().getErrorMsg());
 //        }
-//        // 获取用户昵称
+//        // 鑾峰彇鐢ㄦ埛鏄电О
 //        nickName = userInfo.getNickName();
-//        // 获取用户头像
+//        // 鑾峰彇鐢ㄦ埛澶村儚
 //        avatarUrl = userInfo.getAvatarUrl();
-//        // 获取用户国家
+//        // 鑾峰彇鐢ㄦ埛鍥藉
 //        String country = userInfo.getCountry();
-//        // 获取用户省份
+//        // 鑾峰彇鐢ㄦ埛鐪佷唤
 //        province = userInfo.getProvince();
-//        // 获取用户城市
+//        // 鑾峰彇鐢ㄦ埛鍩庡競
 //        String city = userInfo.getCity();
 //
 //        sysUser.setSysUserNickname(nickName);
@@ -157,7 +157,7 @@
 //            }
 //            sysUserService.save(sysUser);
 //        } catch (TransactionException e) {
-//            return Result.failed("绑定信息失败, 请重�?");
+//            return Result.failed("缁戝畾淇℃伅澶辫触, 璇烽噸璇?");
 //        }
 //
 //        return null;

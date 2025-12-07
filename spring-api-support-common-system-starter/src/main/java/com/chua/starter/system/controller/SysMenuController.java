@@ -30,12 +30,12 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 菜单接口
+ * 鑿滃崟鎺ュ彛
  *
  * @author CH
  * @since 2024/8/7
  */
-@Tag(name = "菜单接口")
+@Tag(name = "鑿滃崟鎺ュ彛")
 @RestController
 @RequestMapping("/v2/menu")
 @RequiredArgsConstructor
@@ -43,54 +43,54 @@ public class SysMenuController {
 
     private final SysMenuService sysMenuService;
     /**
-     * 菜单列表
+     * 鑿滃崟鍒楄〃
      *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
+     * @param sysMenu 鏉′欢
+     * @return 鑿滃崟鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "菜单列表")
+    @Operation(summary = "鑿滃崟鍒楄〃")
     @GetMapping("/all")
     public ReturnResult<List<SysMenu>> all(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysMenuService.all(sysMenu, roles);
     }
 
     /**
-     * 菜单列表
+     * 鑿滃崟鍒楄〃
      *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
+     * @param sysMenu 鏉′欢
+     * @return 鑿滃崟鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "菜单列表")
+    @Operation(summary = "鑿滃崟鍒楄〃")
     @GetMapping("/list")
     public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysMenuService.listMenu(sysMenu, roles);
     }
 
     /**
-     * 菜单分页列表
+     * 鑿滃崟鍒嗛〉鍒楄〃
      *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
+     * @param sysMenu 鏉′欢
+     * @return 鑿滃崟鍒嗛〉鍒楄〃
      */
-    @Operation(summary = "菜单分页列表")
+    @Operation(summary = "鑿滃崟鍒嗛〉鍒楄〃")
     @GetMapping("/page")
     public ReturnPageResult<SysMenu> pageForRole(@ParameterObject Query<SysMenu> query, @ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysMenuService.pageForMenu(query, sysMenu, roles));
     }
 
     /**
-     * 删除菜单
+     * 鍒犻櫎鑿滃崟
      *
-     * @return 更新菜单
+     * @return 鏇存柊鑿滃崟
      */
-    @Operation(summary = "删除菜单")
+    @Operation(summary = "鍒犻櫎鑿滃崟")
     @DeleteMapping("/delete")
     @ApiPlatform("system")
     @Transactional(rollbackOn = Exception.class)
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {
-            return Result.illegal("菜单信息不存�?);
+            return Result.illegal("鑿滃崟淇℃伅涓嶅瓨鍦?);
         }
 
         return sysMenuService.delete(sysMenuId);
@@ -98,11 +98,11 @@ public class SysMenuController {
 
 
     /**
-     * 更新菜单
+     * 鏇存柊鑿滃崟
      *
-     * @return 更新菜单
+     * @return 鏇存柊鑿滃崟
      */
-    @Operation(summary = "更新菜单")
+    @Operation(summary = "鏇存柊鑿滃崟")
     @PutMapping("/update")
     @ApiPlatform("system")
     @Permission(value = "sys:menu:update", role = {SUPER_ADMIN, ADMIN})
@@ -118,11 +118,11 @@ public class SysMenuController {
     }
 
     /**
-     * 新增菜单
+     * 鏂板鑿滃崟
      *
-     * @return 新增菜单
+     * @return 鏂板鑿滃崟
      */
-    @Operation(summary = "新增菜单")
+    @Operation(summary = "鏂板鑿滃崟")
     @PostMapping("/save")
     @ApiPlatform("system")
     @Permission(value = "sys:menu:add", role = {SUPER_ADMIN, ADMIN})
