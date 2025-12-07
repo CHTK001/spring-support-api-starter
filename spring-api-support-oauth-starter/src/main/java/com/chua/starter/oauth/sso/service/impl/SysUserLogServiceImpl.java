@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.service.impl;
+﻿package com.chua.starter.oauth.sso.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.geo.GeoCity;
@@ -8,7 +8,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.mapper.SysUserLogMapper;
 import com.chua.starter.oauth.sso.service.IptablesService;
 import com.chua.starter.oauth.sso.service.SysUserLogService;
-import com.chua.starter.system.entity.SysUserLog;
+import com.chua.starter.service.model.SysUserLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;

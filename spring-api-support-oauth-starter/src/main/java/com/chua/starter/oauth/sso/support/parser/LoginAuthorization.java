@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.support.parser;
+﻿package com.chua.starter.oauth.sso.support.parser;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -10,7 +10,7 @@ import com.chua.starter.oauth.sso.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import com.chua.starter.system.entity.SysUserLog;
+import com.chua.starter.service.model.SysUserLog;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
