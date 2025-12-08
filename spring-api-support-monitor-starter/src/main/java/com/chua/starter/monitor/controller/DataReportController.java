@@ -19,16 +19,28 @@ import java.util.Map;
 
 /**
  * 数据上报控制器
+ * <p>
  * 处理客户端的数据上报请求
- * 
+ * </p>
+ * <p>
+ * <b>注意：此控制器已废弃，请使用节点方式上报</b>
+ * </p>
+ * <ul>
+ *   <li>节点上报通过 SyncClient 连接到 SyncServer</li>
+ *   <li>使用 Topic: monitor/device/metrics 上报设备指标</li>
+ *   <li>服务端通过 SyncConfiguration 处理上报数据</li>
+ * </ul>
+ *
  * @author CH
  * @since 2024/12/25
+ * @deprecated 使用节点方式上报替代，参考 {@link com.chua.starter.monitor.configuration.SyncConfiguration}
  */
 @Slf4j
 @RestController
 @RequestMapping("/data-report")
-@Api(tags = "数据上报管理")
+@Api(tags = "数据上报管理（已废弃）")
 @RequiredArgsConstructor
+@Deprecated
 public class DataReportController {
 
     private final MonitorSysGenServerDataReportService dataReportService;
@@ -38,13 +50,18 @@ public class DataReportController {
 
     /**
      * 客户端数据上报接口
-     * 
-     * @param serverId 服务器ID
+     * <p>
+     * <b>已废弃：请使用节点方式上报</b>
+     * </p>
+     *
+     * @param serverId   服务器ID
      * @param reportData 上报的数据
      * @return 处理结果
+     * @deprecated 使用节点方式上报替代
      */
+    @Deprecated
     @PostMapping("/submit/{serverId}")
-    @ApiOperation("客户端数据上报")
+    @ApiOperation("客户端数据上报（已废弃）")
     public ReturnResult<MonitorSysGenServerMetrics> submitData(
             @ApiParam("服务器ID") @PathVariable Integer serverId,
             @ApiParam("上报数据") @RequestBody Map<String, Object> reportData) {
@@ -58,7 +75,7 @@ public class DataReportController {
                 return ReturnResult.error("服务器配置不存在");
             }
             
-            // 检查服务器是否启用API上报
+            // 检查服务器是否启用节点上报
             try {
                 ReturnResult<MonitorSysGenServerSetting> settingResult =
                     serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
@@ -68,8 +85,8 @@ public class DataReportController {
                 }
 
                 MonitorSysGenServerSetting setting = settingResult.getData();
-                if (!"API".equals(setting.getMonitorSysGenServerSettingDataReportMethod())) {
-                    return ReturnResult.error("服务器未启用API上报模式");
+                if (!"NODE".equals(setting.getMonitorSysGenServerSettingDataReportMethod())) {
+                    return ReturnResult.error("服务器未启用节点上报模式");
                 }
             } catch (Exception e) {
                 log.error("获取服务器配置失败: serverId={}", serverId, e);

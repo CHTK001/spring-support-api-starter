@@ -568,4 +568,13 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
      */
     IPage<MonitorSysGenServer> pageUngroupedServers(Page<MonitorSysGenServer> page, MonitorSysGenServer entity);
 
+    /**
+     * 根据 IP 地址查找服务器
+     *
+     * @param ipAddress IP 地址
+     * @return 服务器信息，未找到返回 null
+     * @author CH
+     * @since 1.0.0
+     */
+    MonitorSysGenServer findByIpAddress(String ipAddress);
 }

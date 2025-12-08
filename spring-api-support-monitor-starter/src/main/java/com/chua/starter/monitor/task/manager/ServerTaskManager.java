@@ -383,9 +383,9 @@ public class ServerTaskManager {
                             continue;
                         }
                         long now = System.currentTimeMillis();
-                        // 指标采集（非API上报）
+                        // 指标采集（非节点上报）
                         String rm = s.getMonitorSysGenServerSettingDataReportMethod();
-                        if (!"API".equalsIgnoreCase(rm)) {
+                        if (!"NODE".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastMetrics >= freq * 1000L) {
                                 metricsCollectionStep.run(server, s);
@@ -406,8 +406,8 @@ public class ServerTaskManager {
                             healthCheckStep.run(server, s);
                             lastHealth = now;
                         }
-                        // 数据推送（非API上报）
-                        if (!"API".equalsIgnoreCase(rm)) {
+                        // 数据推送（非节点上报）
+                        if (!"NODE".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastDataPush >= freq * 1000L) {
                                 dataPushStep.run(server, s);

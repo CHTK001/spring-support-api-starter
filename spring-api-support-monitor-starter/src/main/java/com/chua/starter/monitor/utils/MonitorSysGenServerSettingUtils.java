@@ -76,7 +76,7 @@ public class MonitorSysGenServerSettingUtils {
      *
      * @param setting 服务器配置设置对象 {@link MonitorSysGenServerSetting}
      * @return 数据上报方式描述文本
-     * @example setting.getMonitorSysGenServerSettingDataReportMethod() = "API" 返回 "接口上报"
+     * @example setting.getMonitorSysGenServerSettingDataReportMethod() = "NODE" 返回 "节点上报"
      */
     public static String getDataReportMethodDesc(MonitorSysGenServerSetting setting) {
         if (setting == null || setting.getMonitorSysGenServerSettingDataReportMethod() == null) {

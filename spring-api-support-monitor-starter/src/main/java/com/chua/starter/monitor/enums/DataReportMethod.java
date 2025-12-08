@@ -9,7 +9,7 @@ package com.chua.starter.monitor.enums;
 public enum DataReportMethod {
     NONE("NONE", "不支持上报"),
     LOCAL("LOCAL", "本地上报"),
-    API("API", "接口上报"),
+    NODE("NODE", "节点上报"),
     PROMETHEUS("PROMETHEUS", "Prometheus");
 
     private final String code;

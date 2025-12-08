@@ -1,10 +1,15 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.monitor.entity.DeviceMetrics;
 import com.chua.starter.monitor.entity.MonitorJobLog;
+import com.chua.starter.monitor.entity.MonitorSysGenServer;
+import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
+import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import com.chua.sync.support.spi.SyncMessageHandler;
@@ -20,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +57,12 @@ public class SyncConfiguration {
 
     @Autowired
     private MonitorSysGenServerDeviceReportService deviceReportService;
+
+    @Autowired
+    private MonitorSysGenServerService serverService;
+
+    @Autowired
+    private MonitorSysGenServerSettingService serverSettingService;
 
     @PostConstruct
     public void init() {
@@ -145,12 +157,27 @@ public class SyncConfiguration {
 
     /**
      * 处理设备指标上报
-     * 与 DeviceReportController 逻辑一致
+     * <p>
+     * 支持客户端指定上报的指标类型
+     * 会检查服务器是否启用节点上报模式
+     * </p>
+     *
+     * @param sessionId 会话ID
+     * @param data      上报数据
+     * @author CH
+     * @since 1.0.0
      */
+    @SuppressWarnings("unchecked")
     private void handleDeviceMetrics(String sessionId, Map<String, Object> data) {
         String ipAddress = getString(data, "ipAddress");
         String deviceId = getString(data, "deviceId");
-        log.debug("[DeviceMetrics] 收到设备指标: sessionId={}, deviceId={}, ip={}", sessionId, deviceId, ipAddress);
+
+        // 获取客户端上报的指标类型列表
+        List<String> reportedMetrics = (List<String>) data.get("reportedMetrics");
+        long reportTime = getLong(data, "reportTime");
+
+        log.debug("[DeviceMetrics] 收到设备指标: sessionId={}, ip={}, metrics={}, reportTime={}",
+                sessionId, ipAddress, reportedMetrics, reportTime);
 
         try {
             if (ipAddress == null || ipAddress.isEmpty()) {
@@ -158,17 +185,42 @@ public class SyncConfiguration {
                 return;
             }
 
-            // 转换为 DeviceMetrics 对象
-            DeviceMetrics metrics = convertToDeviceMetrics(data);
+            // 根据 IP 查找服务器配置
+            MonitorSysGenServer server = serverService.findByIpAddress(ipAddress);
+            if (server == null) {
+                log.debug("[DeviceMetrics] 未找到服务器配置，跳过上报模式检查: ip={}", ipAddress);
+            } else {
+                // 检查服务器是否启用节点上报模式
+                try {
+                    ReturnResult<MonitorSysGenServerSetting> settingResult =
+                            serverSettingService.getOrCreateSetting(server.getMonitorSysGenServerId());
 
-            // 使用 deviceReportService 处理（与 DeviceReportController 一致）
+                    if (settingResult.isOk() && settingResult.getData() != null) {
+                        MonitorSysGenServerSetting setting = settingResult.getData();
+                        String reportMethod = setting.getMonitorSysGenServerSettingDataReportMethod();
+                        // 只允许 NODE 模式的节点上报
+                        if (!"NODE".equals(reportMethod)) {
+                            log.warn("[DeviceMetrics] 服务器未配置为节点上报模式，拒绝上报: ip={}, serverId={}, reportMethod={}",
+                                    ipAddress, server.getMonitorSysGenServerId(), reportMethod);
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("[DeviceMetrics] 获取服务器配置失败: ip={}", ipAddress, e);
+                }
+            }
+
+            // 转换为 DeviceMetrics 对象（仅转换上报的指标）
+            DeviceMetrics metrics = convertToDeviceMetrics(data, reportedMetrics);
+
+            // 使用 deviceReportService 处理
             // 内部会：1. 更新统计 2. 根据IP查找服务器 3. 保存到Redis 4. WebSocket推送
             var result = deviceReportService.handleDeviceMetrics(metrics);
 
             if (result.isOk()) {
-                log.debug("[DeviceMetrics] 处理成功: deviceId={}, result={}", deviceId, result.getData());
+                log.debug("[DeviceMetrics] 处理成功: ip={}, metrics={}", ipAddress, reportedMetrics);
             } else {
-                log.warn("[DeviceMetrics] 处理失败: deviceId={}, error={}", deviceId, result.getMsg());
+                log.warn("[DeviceMetrics] 处理失败: ip={}, error={}", ipAddress, result.getMsg());
             }
 
         } catch (Exception e) {
@@ -178,11 +230,37 @@ public class SyncConfiguration {
 
     /**
      * 转换为 DeviceMetrics 对象
+     *
+     * @param data 上报数据
+     * @return DeviceMetrics
+     * @author CH
+     * @since 1.0.0
      */
     private DeviceMetrics convertToDeviceMetrics(Map<String, Object> data) {
+        return convertToDeviceMetrics(data, null);
+    }
+
+    /**
+     * 转换为 DeviceMetrics 对象（仅转换指定的指标类型）
+     * <p>
+     * 支持新的数据结构：
+     * - CPU: cpuUsage, cpuUser, cpuSystem, cpuWait, cpuTime
+     * - 内存: memory.memoryTotal, memory.memoryUsed, memory.memoryUsage, memory.memoryTime
+     * - 磁盘: disks[].name, total, used, free, usage, type, time
+     * - 网卡: networks[].name, receiveBytes, transmitBytes, time
+     * </p>
+     *
+     * @param data            上报数据
+     * @param reportedMetrics 上报的指标类型列表（null 表示全部）
+     * @return DeviceMetrics
+     * @author CH
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    private DeviceMetrics convertToDeviceMetrics(Map<String, Object> data, List<String> reportedMetrics) {
         DeviceMetrics metrics = new DeviceMetrics();
 
-        // IP 地址（匹配服务器用）
+        // IP 地址（始终设置）
         metrics.setIpAddress(getString(data, "ipAddress"));
 
         // 操作系统信息（更新服务器配置用）
@@ -190,12 +268,86 @@ public class SyncConfiguration {
         metrics.setOsVersion(getString(data, "osVersion"));
         metrics.setOsArch(getString(data, "osArch"));
 
-        // 指标数据
-        metrics.setCpuUsage(getDouble(data, "cpuUsage"));
-        metrics.setMemoryUsage(getDouble(data, "memoryUsage"));
-        metrics.setDiskUsage(getDouble(data, "diskUsage"));
-        metrics.setNetworkInBytes(getLong(data, "networkInBytes"));
-        metrics.setNetworkOutBytes(getLong(data, "networkOutBytes"));
+        // 根据上报的指标类型设置数据
+        boolean hasAll = reportedMetrics == null || reportedMetrics.isEmpty();
+
+        // CPU（从顶层字段读取）
+        if (hasAll || reportedMetrics.contains("cpu")) {
+            metrics.setCpuUsage(getDouble(data, "cpuUsage"));
+        }
+
+        // 内存（从嵌套对象读取）
+        if (hasAll || reportedMetrics.contains("memory")) {
+            Object memoryObj = data.get("memory");
+            if (memoryObj instanceof Map) {
+                Map<String, Object> memoryData = (Map<String, Object>) memoryObj;
+                metrics.setTotalMemory(MapUtils.getLong(memoryData, "memoryTotal"));
+                metrics.setUsedMemory(MapUtils.getLong(memoryData, "memoryUsed"));
+                metrics.setAvailableMemory(MapUtils.getLong(memoryData, "memoryFree"));
+                metrics.setMemoryUsage(MapUtils.getDouble(memoryData, "memoryUsage"));
+            } else {
+                // 兼容旧格式
+                metrics.setMemoryUsage(getDouble(data, "memoryUsage"));
+            }
+        }
+
+        // 磁盘（优先使用汇总字段，其次从列表计算）
+        if (hasAll || reportedMetrics.contains("disk")) {
+            // 优先使用客户端计算的汇总数据
+            Long diskTotal = getLong(data, "diskTotal");
+            Long diskUsed = getLong(data, "diskUsed");
+            Long diskFree = getLong(data, "diskFree");
+
+            if (diskTotal != null && diskTotal > 0) {
+                metrics.setTotalDisk(diskTotal);
+                metrics.setUsedDisk(diskUsed);
+                metrics.setAvailableDisk(diskFree);
+                metrics.setDiskUsage(Math.round((double) diskUsed / diskTotal * 100 * 100.0) / 100.0);
+            } else {
+                // 从列表计算
+                Object disksObj = data.get("disks");
+                if (disksObj instanceof List) {
+                    List<Map<String, Object>> diskList = (List<Map<String, Object>>) disksObj;
+                    long totalDisk = 0;
+                    long usedDisk = 0;
+                    long freeDisk = 0;
+                    for (Map<String, Object> disk : diskList) {
+                        totalDisk += MapUtils.getLong(disk, "total", 0L);
+                        usedDisk += MapUtils.getLong(disk, "used", 0L);
+                        freeDisk += MapUtils.getLong(disk, "free", 0L);
+                    }
+                    metrics.setTotalDisk(totalDisk);
+                    metrics.setUsedDisk(usedDisk);
+                    metrics.setAvailableDisk(freeDisk);
+                    if (totalDisk > 0) {
+                        metrics.setDiskUsage(Math.round((double) usedDisk / totalDisk * 100 * 100.0) / 100.0);
+                    }
+                } else {
+                    // 兼容旧格式
+                    metrics.setDiskUsage(getDouble(data, "diskUsage"));
+                }
+            }
+        }
+
+        // 网卡（从列表读取，计算总量）
+        if (hasAll || reportedMetrics.contains("network")) {
+            Object networksObj = data.get("networks");
+            if (networksObj instanceof List) {
+                List<Map<String, Object>> networkList = (List<Map<String, Object>>) networksObj;
+                long totalIn = 0;
+                long totalOut = 0;
+                for (Map<String, Object> net : networkList) {
+                    totalIn += MapUtils.getLong(net, "receiveBytes", 0L);
+                    totalOut += MapUtils.getLong(net, "transmitBytes", 0L);
+                }
+                metrics.setNetworkInBytes(totalIn);
+                metrics.setNetworkOutBytes(totalOut);
+            } else {
+                // 兼容旧格式
+                metrics.setNetworkInBytes(getLong(data, "networkInBytes"));
+                metrics.setNetworkOutBytes(getLong(data, "networkOutBytes"));
+            }
+        }
 
         metrics.setCollectTime(LocalDateTime.now());
         return metrics;
