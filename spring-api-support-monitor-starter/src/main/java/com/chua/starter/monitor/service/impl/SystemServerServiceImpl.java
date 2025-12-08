@@ -313,13 +313,8 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     }
 
     @Override
-    public Object getRunningServerInstance(Integer serverId) {
+    public ProtocolServer getRunningServerInstance(Integer serverId) {
         return runningServerInstances.get(serverId);
-    }
-
-    @Override
-    public Map<Integer, Object> getAllRunningServerInstances() {
-        return new HashMap<>(runningServerInstances);
     }
 
     @Override

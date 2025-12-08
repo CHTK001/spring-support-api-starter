@@ -7,6 +7,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
+import com.chua.starter.monitor.pojo.ViewerConfigVO;
+import com.chua.starter.monitor.pojo.ViewerInfoVO;
 
 import java.util.List;
 import java.util.Map;
@@ -210,5 +212,32 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      * @param config   预览扩展名配置
      */
     void applyPreviewExtensionConfigForSetting(Integer serverId, com.chua.starter.monitor.pojo.PreviewExtensionConfigVo config);
+
+    // ==================== Viewer 视图查看器配置 ====================
+
+    /**
+     * 获取可用的视图查看器列表（通过SPI发现）
+     *
+     * @param settingId 配置ID
+     * @return 查看器信息列表
+     */
+    ReturnResult<List<ViewerInfoVO>> getViewerList(Integer settingId);
+
+    /**
+     * 获取视图查看器配置
+     *
+     * @param settingId 配置ID
+     * @return 查看器配置
+     */
+    ReturnResult<ViewerConfigVO> getViewerConfig(Integer settingId);
+
+    /**
+     * 保存视图查看器配置
+     *
+     * @param settingId 配置ID
+     * @param config    查看器配置
+     * @return 保存结果
+     */
+    ReturnResult<Boolean> saveViewerConfig(Integer settingId, ViewerConfigVO config);
 
 }

@@ -8,7 +8,10 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
+import com.chua.starter.monitor.pojo.ViewerConfigVO;
+import com.chua.starter.monitor.pojo.ViewerInfoVO;
 import com.chua.starter.monitor.service.SystemServerSettingService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -317,5 +320,66 @@ public class SystemServerSettingController {
             @ApiParam("配置ID") @PathVariable Integer settingId,
             @ApiParam("配置数据") @RequestBody Map<String, Object> config) {
         return systemServerSettingService.saveFilterConfig(settingId, config);
+    }
+
+    // ==================== Viewer 视图查看器配置 ====================
+
+    /**
+     * 获取可用的视图查看器列表（通过SPI发现）
+     *
+     * @param settingId 配置ID
+     * @return 查看器信息列表
+     */
+    @GetMapping("/{settingId}/viewers")
+    @ApiOperation("获取可用的视图查看器列表")
+    public ReturnResult<List<ViewerInfoVO>> getViewerListForSetting(
+            @ApiParam("配置ID") @PathVariable Integer settingId) {
+        try {
+            return systemServerSettingService.getViewerList(settingId);
+        } catch (Exception e) {
+            log.error("获取视图查看器列表失败", e);
+            return ReturnResult.error("获取视图查看器列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取视图查看器配置
+     *
+     * @param settingId 配置ID
+     * @return 查看器配置（包含禁用的查看器列表）
+     */
+    @GetMapping("/{settingId}/viewer-config")
+    @ApiOperation("获取视图查看器配置")
+    public ReturnResult<ViewerConfigVO> getViewerConfigForSetting(
+            @ApiParam("配置ID") @PathVariable Integer settingId) {
+        try {
+            return systemServerSettingService.getViewerConfig(settingId);
+        } catch (Exception e) {
+            log.error("获取视图查看器配置失败", e);
+            return ReturnResult.error("获取视图查看器配置失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 保存视图查看器配置
+     * <p>
+     * 配置内容包括：
+     * - disabledViewers: 禁用的查看器名称列表
+     *
+     * @param settingId 配置ID
+     * @param config    查看器配置
+     * @return 是否保存成功
+     */
+    @PostMapping("/{settingId}/viewer-config")
+    @ApiOperation("保存视图查看器配置")
+    public ReturnResult<Boolean> saveViewerConfigForSetting(
+            @ApiParam("配置ID") @PathVariable Integer settingId,
+            @ApiParam("查看器配置") @RequestBody ViewerConfigVO config) {
+        try {
+            return systemServerSettingService.saveViewerConfig(settingId, config);
+        } catch (Exception e) {
+            log.error("保存视图查看器配置失败", e);
+            return ReturnResult.error("保存视图查看器配置失败: " + e.getMessage());
+        }
     }
 }

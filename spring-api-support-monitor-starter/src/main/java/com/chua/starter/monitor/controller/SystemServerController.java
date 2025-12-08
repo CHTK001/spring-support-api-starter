@@ -254,19 +254,4 @@ public class SystemServerController {
     public ReturnResult<Boolean> applyConfigChanges(@ApiParam("服务器ID") @PathVariable Integer id) {
         return systemServerService.applyConfigChanges(id);
     }
-
-    /**
-     * 获取运行中的服务器实例信息
-     */
-    @GetMapping("/running-instances")
-    @ApiOperation("获取运行中的服务器实例信息")
-    public ReturnResult<Map<Integer, Object>> getRunningInstances() {
-        try {
-            Map<Integer, Object> instances = systemServerService.getAllRunningServerInstances();
-            return ReturnResult.ok(instances);
-        } catch (Exception e) {
-            log.error("获取运行中的服务器实例失败", e);
-            return ReturnResult.error("获取实例信息失败: " + e.getMessage());
-        }
-    }
 }
