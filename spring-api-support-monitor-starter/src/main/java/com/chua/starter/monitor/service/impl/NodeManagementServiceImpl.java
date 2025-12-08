@@ -10,6 +10,7 @@ import com.chua.starter.monitor.service.NodeSystemService;
 import com.chua.starter.monitor.service.NodeManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NodeManagementServiceImpl implements NodeManagementService {
 
-    private final SyncServer syncServer;
+    /**
+     * SyncServer 可选依赖，当未配置时为 null
+     */
+    @Autowired(required = false)
+    private SyncServer syncServer;
+    
     private final NodeSystemService nodeSystemService;
 
     // 缓存最后一次获取的节点列表，避免频繁调用发现服务
