@@ -326,10 +326,12 @@ public class NodeManagementServiceImpl implements NodeManagementService {
                     clientInfo.getClientIpAddress() + ":" + clientInfo.getClientPort());
             nodeInfo.setIpAddress(clientInfo.getClientIpAddress());
             nodeInfo.setPort(clientInfo.getClientPort());
-
             // 状态信息
+
             nodeInfo.setStatus(clientInfo.isClientOnline() ? OnlineNodeInfo.NodeStatus.ONLINE : OnlineNodeInfo.NodeStatus.OFFLINE);
             nodeInfo.setConnectTime(LocalDateTime.now());
+            nodeInfo.setContextPath(clientInfo.getClientContextPath());
+            nodeInfo.setActuatorPath(clientInfo.getClientActuatorPath());
             
             // 从心跳时间设置最后心跳时间
             if (clientInfo.getClientLastHeartbeatTime() > 0) {
@@ -389,9 +391,13 @@ public class NodeManagementServiceImpl implements NodeManagementService {
             }
             nodeMetadata.put("clientId", clientInfo.getClientId());
             nodeMetadata.put("osName", clientInfo.getClientOsName());
-            nodeMetadata.put("osVersion", clientInfo.getClientOsVersion());
-            nodeMetadata.put("cpuCores", clientInfo.getClientCpuCores());
-            nodeMetadata.put("totalMemory", clientInfo.getClientTotalMemory());
+            // 从 clientMetadata 中获取详细信息
+            Map<String, Object> clientMeta = clientInfo.getClientMetadata();
+            if (clientMeta != null) {
+                nodeMetadata.put("osVersion", clientMeta.get("osVersion"));
+                nodeMetadata.put("cpuCores", clientMeta.get("cpuCores"));
+                nodeMetadata.put("totalMemory", clientMeta.get("totalMemory"));
+            }
             nodeInfo.setMetadata(nodeMetadata);
 
             return nodeInfo;
