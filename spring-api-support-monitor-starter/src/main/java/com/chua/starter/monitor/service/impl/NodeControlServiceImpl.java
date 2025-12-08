@@ -558,10 +558,8 @@ public class NodeControlServiceImpl implements NodeControlService {
      * @return URL
      */
     private String buildActuatorUrl(OnlineNodeInfo nodeInfo, String endpoint) {
-        Map<String, Object> metadata = nodeInfo.getMetadata();
-        String contextPath = MapUtils.getString(metadata, "contextPath", "");
-        String endpointsUrl = MapUtils.getString(metadata, "endpointsUrl", "actuator");
-
+        String contextPath = nodeInfo.getContextPath();
+        String endpointsUrl =nodeInfo.getActuatorPath();
         return String.format("http://%s:%d/%s",
                 nodeInfo.getIpAddress(),
                 nodeInfo.getPort(),
