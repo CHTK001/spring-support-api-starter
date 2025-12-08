@@ -65,6 +65,13 @@ public class OnlineNodeInfo implements Serializable {
     private Integer port;
 
     /**
+     * 上下文路径
+     */
+    @ApiModelProperty(value = "上下文路径")
+    @Schema(description = "上下文路径")
+    private String contextPath;
+
+    /**
      * 节点状态
      */
     @ApiModelProperty(value = "节点状态")
