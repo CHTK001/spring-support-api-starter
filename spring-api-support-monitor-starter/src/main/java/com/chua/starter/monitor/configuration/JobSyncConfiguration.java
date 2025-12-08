@@ -226,43 +226,43 @@ public class JobSyncConfiguration {
 
             // 覆盖更新客户端信息
             // Spring 应用信息
-            clientInfo.setAppName(getString(data, "applicationName"));
-            clientInfo.setActiveProfiles(getString(data, "activeProfiles"));
-            clientInfo.setContextPath(getString(data, "contextPath"));
-            clientInfo.setServerPort(getInt(data, "serverPort"));
-            clientInfo.setServiceUrl(getString(data, "serviceUrl"));
+            clientInfo.setClientAppName(getString(data, "applicationName"));
+            clientInfo.setClientActiveProfiles(getString(data, "activeProfiles"));
+            clientInfo.setClientContextPath(getString(data, "contextPath"));
+            clientInfo.setClientPort(getInt(data, "serverPort"));
+            clientInfo.setClientUrl(getString(data, "serviceUrl"));
 
             // 网络信息
-            clientInfo.setIpAddress(getString(data, "ipAddress"));
-            clientInfo.setHostname(getString(data, "hostname"));
+            clientInfo.setClientIpAddress(getString(data, "ipAddress"));
+            clientInfo.setClientHostname(getString(data, "hostname"));
 
             // JVM 信息
-            clientInfo.setJavaVersion(getString(data, "javaVersion"));
-            clientInfo.setPid(getLong(data, "pid"));
+            clientInfo.setClientJavaVersion(getString(data, "javaVersion"));
+            clientInfo.setClientPid(getLong(data, "pid"));
 
             // 操作系统
-            clientInfo.setOsName(getString(data, "osName"));
-            clientInfo.setOsVersion(getString(data, "osVersion"));
+            clientInfo.setClientOsName(getString(data, "osName"));
+            clientInfo.setClientOsVersion(getString(data, "osVersion"));
 
             // 时间信息
-            clientInfo.setStartTime(getLong(data, "startTime"));
-            clientInfo.setLastHeartbeatTime(System.currentTimeMillis());
-            clientInfo.setOnline(true);
+            clientInfo.setClientStartTime(getLong(data, "startTime"));
+            clientInfo.setClientLastHeartbeatTime(System.currentTimeMillis());
+            clientInfo.setClientOnline(true);
 
             // 运行时信息存到 metadata
-            if (clientInfo.getMetadata() == null) {
-                clientInfo.setMetadata(new java.util.HashMap<>());
+            if (clientInfo.getClientMetadata() == null) {
+                clientInfo.setClientMetadata(new java.util.HashMap<>());
             }
-            clientInfo.getMetadata().put("jvmName", getString(data, "jvmName"));
-            clientInfo.getMetadata().put("jvmVersion", getString(data, "jvmVersion"));
-            clientInfo.getMetadata().put("osArch", getString(data, "osArch"));
-            clientInfo.getMetadata().put("uptime", getLong(data, "uptime"));
-            clientInfo.getMetadata().put("heapUsed", getLong(data, "heapUsed"));
-            clientInfo.getMetadata().put("heapMax", getLong(data, "heapMax"));
-            clientInfo.getMetadata().put("threadCount", getInt(data, "threadCount"));
+            clientInfo.getClientMetadata().put("jvmName", getString(data, "jvmName"));
+            clientInfo.getClientMetadata().put("jvmVersion", getString(data, "jvmVersion"));
+            clientInfo.getClientMetadata().put("osArch", getString(data, "osArch"));
+            clientInfo.getClientMetadata().put("uptime", getLong(data, "uptime"));
+            clientInfo.getClientMetadata().put("heapUsed", getLong(data, "heapUsed"));
+            clientInfo.getClientMetadata().put("heapMax", getLong(data, "heapMax"));
+            clientInfo.getClientMetadata().put("threadCount", getInt(data, "threadCount"));
 
             log.debug("[AppReport] 更新应用信息: app={}, address={}:{}",
-                    clientInfo.getAppName(), clientInfo.getIpAddress(), clientInfo.getServerPort());
+                    clientInfo.getClientAppName(), clientInfo.getClientIpAddress(), clientInfo.getClientPort());
 
         } catch (Exception e) {
             log.error("[AppReport] 处理应用信息上报失败: sessionId={}", sessionId, e);
