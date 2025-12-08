@@ -48,9 +48,7 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 服务器配置设置ID
      *
-     * @see MonitorSysGenServerSettingController#getById
      * @see MonitorSysGenServerSettingController#update
-     * @see MonitorSysGenServerSettingController#delete
      * @see MonitorSysGenServerSettingService#getById
      * @see MonitorSysGenServerSettingService#updateById
      * @see MonitorSysGenServerSettingMapper#selectById
