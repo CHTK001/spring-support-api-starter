@@ -21,11 +21,12 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * API上报处理器
- * 用于处理远程服务器通过API接口上报的数据
+ * 节点上报处理器
+ * 用于处理远程服务器通过节点方式上报的数据
  *
  * @author CH
  * @since 2024/12/25
+ * @deprecated 此类名称将在后续版本更改为 NodeReportHandler
  */
 @Slf4j
 @Component
@@ -38,7 +39,7 @@ public class ApiReportHandler implements ReportHandler {
 
     @Override
     public String getReportType() {
-        return "API";
+        return "NODE";
     }
 
     @Override
@@ -50,7 +51,7 @@ public class ApiReportHandler implements ReportHandler {
 
             if (settingResult.isOk() && settingResult.getData() != null) {
                 MonitorSysGenServerSetting setting = settingResult.getData();
-                return "API".equals(setting.getMonitorSysGenServerSettingDataReportMethod())
+                return "NODE".equals(setting.getMonitorSysGenServerSettingDataReportMethod())
                         && server.getMonitorSysGenServerIsLocal() != null
                         && server.getMonitorSysGenServerIsLocal() == 0;
             }
@@ -64,7 +65,7 @@ public class ApiReportHandler implements ReportHandler {
     @Override
     public ReturnResult<MonitorSysGenServerMetrics> handleReport(MonitorSysGenServer server, Map<String, Object> reportData) {
         try {
-            log.debug("开始处理API上报数据: serverId={}", server.getMonitorSysGenServerId());
+            log.debug("开始处理节点上报数据: serverId={}", server.getMonitorSysGenServerId());
 
             if (reportData == null || reportData.isEmpty()) {
                 return ReturnResult.error("上报数据不能为空");
