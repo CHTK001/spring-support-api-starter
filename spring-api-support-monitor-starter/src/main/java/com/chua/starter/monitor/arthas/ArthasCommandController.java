@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,6 +40,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/v1/arthas")
 @Tag(name = "Arthas 命令执行(HTTP)")
+@Lazy
 public class ArthasCommandController {
 
     private static final String ARTHAS_META_KEY = com.chua.starter.monitor.arthas.support.ArthasProxyUtils.ARTHAS_META_KEY;

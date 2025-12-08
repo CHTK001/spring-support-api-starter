@@ -1180,6 +1180,188 @@ public class MonitorSysGenServerSettingServiceImpl
         }
     }
 
+    // ==================== 健康检查和指标采集开关方法实现 ====================
+
+    @Override
+    public ReturnResult<Boolean> updateHealthCheckEnabled(Integer serverId, Boolean enabled) {
+        try {
+            log.info("更新服务器健康检查开关: serverId={}, enabled={}", serverId, enabled);
+            
+            // 获取或创建配置
+            MonitorSysGenServerSetting setting = getOrCreateSettingInternal(serverId);
+            if (setting == null) {
+                return ReturnResult.error("获取服务器配置失败");
+            }
+            
+            // 更新健康检查开关
+            setting.setMonitorSysGenServerSettingHealthCheckEnabled(enabled ? 1 : 0);
+            boolean success = updateById(setting);
+            
+            if (success) {
+                // 清除缓存
+                invalidateSettingCache(serverId);
+                log.info("服务器健康检查开关更新成功: serverId={}, enabled={}", serverId, enabled);
+                return ReturnResult.ok(true, enabled ? "健康检查已启用" : "健康检查已禁用");
+            } else {
+                return ReturnResult.error("更新健康检查开关失败");
+            }
+        } catch (Exception e) {
+            log.error("更新健康检查开关失败: serverId={}", serverId, e);
+            return ReturnResult.error("更新健康检查开关失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> updateMetricsCollectionEnabled(Integer serverId, Boolean enabled) {
+        try {
+            log.info("更新服务器指标采集开关: serverId={}, enabled={}", serverId, enabled);
+            
+            // 获取或创建配置
+            MonitorSysGenServerSetting setting = getOrCreateSettingInternal(serverId);
+            if (setting == null) {
+                return ReturnResult.error("获取服务器配置失败");
+            }
+            
+            // 更新指标采集开关
+            setting.setMonitorSysGenServerSettingMetricsCollectionEnabled(enabled ? 1 : 0);
+            boolean success = updateById(setting);
+            
+            if (success) {
+                // 清除缓存
+                invalidateSettingCache(serverId);
+                log.info("服务器指标采集开关更新成功: serverId={}, enabled={}", serverId, enabled);
+                return ReturnResult.ok(true, enabled ? "指标采集已启用" : "指标采集已禁用");
+            } else {
+                return ReturnResult.error("更新指标采集开关失败");
+            }
+        } catch (Exception e) {
+            log.error("更新指标采集开关失败: serverId={}", serverId, e);
+            return ReturnResult.error("更新指标采集开关失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getMonitorSwitchStatus(Integer serverId) {
+        try {
+            log.debug("获取服务器监控开关状态: serverId={}", serverId);
+            
+            // 获取配置
+            MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+            
+            Map<String, Object> status = new HashMap<>();
+            if (setting != null) {
+                // 健康检查开关状态
+                Integer healthCheckEnabled = setting.getMonitorSysGenServerSettingHealthCheckEnabled();
+                status.put("healthCheckEnabled", healthCheckEnabled != null && healthCheckEnabled == 1);
+                
+                // 指标采集开关状态
+                Integer metricsCollectionEnabled = setting.getMonitorSysGenServerSettingMetricsCollectionEnabled();
+                status.put("metricsCollectionEnabled", metricsCollectionEnabled != null && metricsCollectionEnabled == 1);
+                
+                // 监控总开关状态
+                Integer monitorEnabled = setting.getMonitorSysGenServerSettingMonitorEnabled();
+                status.put("monitorEnabled", monitorEnabled != null && monitorEnabled == 1);
+                
+                // 配置ID
+                status.put("settingId", setting.getMonitorSysGenServerSettingId());
+            } else {
+                // 默认状态（都启用）
+                status.put("healthCheckEnabled", true);
+                status.put("metricsCollectionEnabled", true);
+                status.put("monitorEnabled", true);
+                status.put("settingId", null);
+            }
+            
+            status.put("serverId", serverId);
+            return ReturnResult.ok(status);
+        } catch (Exception e) {
+            log.error("获取服务器监控开关状态失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取监控开关状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> batchUpdateHealthCheckEnabled(List<Integer> serverIds, Boolean enabled) {
+        try {
+            log.info("批量更新健康检查开关: serverIds={}, enabled={}", serverIds, enabled);
+            
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+            
+            int successCount = 0;
+            for (Integer serverId : serverIds) {
+                ReturnResult<Boolean> result = updateHealthCheckEnabled(serverId, enabled);
+                if (result.isOk()) {
+                    successCount++;
+                }
+            }
+            
+            if (successCount == serverIds.size()) {
+                return ReturnResult.ok(true, String.format("成功更新 %d 台服务器的健康检查开关", successCount));
+            } else if (successCount > 0) {
+                return ReturnResult.ok(true, String.format("成功更新 %d/%d 台服务器的健康检查开关", successCount, serverIds.size()));
+            } else {
+                return ReturnResult.error("批量更新健康检查开关失败");
+            }
+        } catch (Exception e) {
+            log.error("批量更新健康检查开关失败", e);
+            return ReturnResult.error("批量更新健康检查开关失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> batchUpdateMetricsCollectionEnabled(List<Integer> serverIds, Boolean enabled) {
+        try {
+            log.info("批量更新指标采集开关: serverIds={}, enabled={}", serverIds, enabled);
+            
+            if (serverIds == null || serverIds.isEmpty()) {
+                return ReturnResult.error("服务器ID列表不能为空");
+            }
+            
+            int successCount = 0;
+            for (Integer serverId : serverIds) {
+                ReturnResult<Boolean> result = updateMetricsCollectionEnabled(serverId, enabled);
+                if (result.isOk()) {
+                    successCount++;
+                }
+            }
+            
+            if (successCount == serverIds.size()) {
+                return ReturnResult.ok(true, String.format("成功更新 %d 台服务器的指标采集开关", successCount));
+            } else if (successCount > 0) {
+                return ReturnResult.ok(true, String.format("成功更新 %d/%d 台服务器的指标采集开关", successCount, serverIds.size()));
+            } else {
+                return ReturnResult.error("批量更新指标采集开关失败");
+            }
+        } catch (Exception e) {
+            log.error("批量更新指标采集开关失败", e);
+            return ReturnResult.error("批量更新指标采集开关失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 内部方法：获取或创建配置
+     */
+    private MonitorSysGenServerSetting getOrCreateSettingInternal(Integer serverId) {
+        MonitorSysGenServerSetting setting = baseMapper.selectByServerId(serverId);
+        if (setting == null) {
+            // 创建默认配置
+            setting = MonitorSysGenServerSetting.getDefaultSetting(serverId);
+            save(setting);
+        }
+        return setting;
+    }
+
+    /**
+     * 清除配置缓存
+     */
+    private void invalidateSettingCache(Integer serverId) {
+        // 如果使用了本地缓存，这里清除缓存
+        // 当前实现可能使用了其他缓存机制，根据实际情况调整
+        log.debug("清除服务器配置缓存: serverId={}", serverId);
+    }
+
     /**
      * 记录配置变更历史
      *

@@ -34,6 +34,11 @@ public class SystemServerSettingFileStorageController {
     public ReturnResult<Boolean> save(@ApiParam("配置") @RequestBody SystemServerSettingFileStorage config) {
         return fileStorageService.saveOne(config);
     }
+    @PutMapping("/update")
+    @ApiOperation("保存或更新单个文件存储配置(保存即热应用)")
+    public ReturnResult<Boolean> update(@ApiParam("配置") @RequestBody SystemServerSettingFileStorage config) {
+        return fileStorageService.saveOne(config);
+    }
 
     // 预留：一次性覆盖保存全部（前端未使用，如需可打开）
 //    @PostMapping("/save-all")

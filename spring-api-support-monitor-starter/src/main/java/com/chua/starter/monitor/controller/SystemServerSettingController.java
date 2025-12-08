@@ -301,26 +301,6 @@ public class SystemServerSettingController {
         return systemServerSettingService.batchUpdateEnabled(settingIds, enabled);
     }
 
-    /**
-     * 获取ServletFilter配置
-     */
-    @GetMapping("/{settingId}/config")
-    @ApiOperation("获取ServletFilter配置")
-    public ReturnResult<Map<String, Object>> getFilterConfig(
-            @ApiParam("配置ID") @PathVariable Integer settingId) {
-        return systemServerSettingService.getFilterConfig(settingId);
-    }
-
-    /**
-     * 保存ServletFilter配置
-     */
-    @PostMapping("/{settingId}/config")
-    @ApiOperation("保存ServletFilter配置")
-    public ReturnResult<Boolean> saveFilterConfig(
-            @ApiParam("配置ID") @PathVariable Integer settingId,
-            @ApiParam("配置数据") @RequestBody Map<String, Object> config) {
-        return systemServerSettingService.saveFilterConfig(settingId, config);
-    }
 
     // ==================== Viewer 视图查看器配置 ====================
 
