@@ -403,7 +403,7 @@ public class NodeLoggerConfigServiceImpl implements NodeLoggerConfigService {
 
             final Map<String, Object> metadata = onlineNodes.getMetadata();
             final String contextPath = onlineNodes.getContextPath();
-            final String endpointsUrl = MapUtils.getString(metadata, "endpointsUrl");
+            final String endpointsUrl = onlineNodes.getActuatorPath();
             // 构建日志器配置获取URL
             final String loggersUrl = String.format("http://%s:%d/%s", ipAddress, port,
                     com.chua.common.support.utils.StringUtils.removeStart(
