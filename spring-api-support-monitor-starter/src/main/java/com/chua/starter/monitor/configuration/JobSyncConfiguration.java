@@ -226,7 +226,7 @@ public class JobSyncConfiguration {
 
             // 覆盖更新客户端信息
             // Spring 应用信息
-            clientInfo.setClientAppName(getString(data, "applicationName"));
+            clientInfo.setClientApplicationName(getString(data, "applicationName"));
             clientInfo.setClientActiveProfiles(getString(data, "activeProfiles"));
             clientInfo.setClientContextPath(getString(data, "contextPath"));
             clientInfo.setClientPort(getInt(data, "serverPort"));
@@ -262,7 +262,7 @@ public class JobSyncConfiguration {
             clientInfo.getClientMetadata().put("threadCount", getInt(data, "threadCount"));
 
             log.debug("[AppReport] 更新应用信息: app={}, address={}:{}",
-                    clientInfo.getClientAppName(), clientInfo.getClientIpAddress(), clientInfo.getClientPort());
+                    clientInfo.getClientApplicationName(), clientInfo.getClientIpAddress(), clientInfo.getClientPort());
 
         } catch (Exception e) {
             log.error("[AppReport] 处理应用信息上报失败: sessionId={}", sessionId, e);

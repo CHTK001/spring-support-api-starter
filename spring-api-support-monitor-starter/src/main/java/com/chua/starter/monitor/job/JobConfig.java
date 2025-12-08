@@ -24,7 +24,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 作业配置
@@ -153,13 +152,13 @@ public class JobConfig {
             ClientInfo clientInfo = entry.getValue();
             
             // 匹配应用名
-            if (!targetAppName.equals(clientInfo.getAppName())) {
+            if (!targetAppName.equals(clientInfo.getClientApplicationName())) {
                 continue;
             }
             
             // 匹配环境 (如果配置了)
             if (targetProfile != null && !targetProfile.isEmpty()) {
-                Map<String, Object> metadata = clientInfo.getMetadata();
+                Map<String, Object> metadata = clientInfo.getClientMetadata();
                 String clientProfile = metadata != null ? (String) metadata.get("applicationActive") : null;
                 if (clientProfile != null && !targetProfile.equals(clientProfile)) {
                     continue;
@@ -168,13 +167,13 @@ public class JobConfig {
 
             // 构建 Discovery 对象（使用 Builder 模式）
             Map<String, String> discoveryMetadata = new HashMap<>();
-            discoveryMetadata.put("applicationName", clientInfo.getAppName());
-            if (clientInfo.getMetadata() != null) {
-                clientInfo.getMetadata().forEach((k, v) -> discoveryMetadata.put(k, String.valueOf(v)));
+            discoveryMetadata.put("applicationName", clientInfo.getClientApplicationName());
+            if (clientInfo.getClientMetadata() != null) {
+                clientInfo.getClientMetadata().forEach((k, v) -> discoveryMetadata.put(k, String.valueOf(v)));
             }
             Discovery discovery = Discovery.builder()
-                    .host(clientInfo.getIpAddress())
-                    .port(clientInfo.getServerPort())
+                    .host(clientInfo.getClientIpAddress())
+                    .port(clientInfo.getClientPort())
                     .serverId(entry.getKey())
                     .metadata(discoveryMetadata)
                     .build();
