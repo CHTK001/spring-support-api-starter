@@ -117,7 +117,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
             }
 
             for (Map.Entry<String, ClientInfo> entry : syncServer.getAllClients().entrySet()) {
-                if (nodeClientFunction.equals(entry.getValue().getClientAppName())) {
+                if (nodeClientFunction.equals(entry.getValue().getClientApplicationName())) {
                     return entry.getKey();
                 }
             }

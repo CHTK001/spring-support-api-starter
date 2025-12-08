@@ -265,18 +265,18 @@ public class NodeController {
 
             // 构建元数据
             Map<String, String> metadata = new HashMap<>();
-            metadata.put("applicationName", clientInfo.getAppName());
-            metadata.put("instanceId", clientInfo.getInstanceId());
-            metadata.put("hostname", clientInfo.getHostname());
-            if (clientInfo.getMetadata() != null) {
-                clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+            metadata.put("applicationName", clientInfo.getClientApplicationName());
+            metadata.put("instanceId", clientInfo.getClientInstanceId());
+            metadata.put("hostname", clientInfo.getClientHostname());
+            if (clientInfo.getClientMetadata() != null) {
+                clientInfo.getClientMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
             }
 
             // 使用 Builder 模式构建 Discovery
             Discovery discovery = Discovery.builder()
                     .serverId(entry.getKey())
-                    .host(clientInfo.getIpAddress())
-                    .port(clientInfo.getServerPort())
+                    .host(clientInfo.getClientIpAddress())
+                    .port(clientInfo.getClientPort())
                     .metadata(metadata)
                     .build();
 

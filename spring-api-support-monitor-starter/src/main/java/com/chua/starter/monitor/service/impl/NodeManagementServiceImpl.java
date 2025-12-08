@@ -321,7 +321,7 @@ public class NodeManagementServiceImpl implements NodeManagementService {
 
             // 基本信息
             nodeInfo.setNodeId(generateNodeId(clientInfo));
-            nodeInfo.setApplicationName(clientInfo.getClientAppName() != null ? clientInfo.getClientAppName() : "unknown");
+            nodeInfo.setApplicationName(clientInfo.getClientApplicationName() != null ? clientInfo.getClientApplicationName() : "unknown");
             nodeInfo.setNodeName(clientInfo.getClientHostname() != null ? clientInfo.getClientHostname() : 
                     clientInfo.getClientIpAddress() + ":" + clientInfo.getClientPort());
             nodeInfo.setIpAddress(clientInfo.getClientIpAddress());

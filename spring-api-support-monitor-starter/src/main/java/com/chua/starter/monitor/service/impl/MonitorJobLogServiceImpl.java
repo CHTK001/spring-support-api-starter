@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 监控日志
@@ -110,7 +109,7 @@ public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, M
         Map<String, ClientInfo> allClients = syncServer.getAllClients();
         ClientInfo matchedClient = allClients.values().stream()
                 .filter(clientInfo -> {
-                    String appName = clientInfo.getClientAppName();
+                    String appName = clientInfo.getClientApplicationName();
                     String address = clientInfo.getClientIpAddress() + ":" + clientInfo.getClientPort();
                     return appName != null && appName.equals(monitorJobLog.getJobLogApp()) &&
                             monitorJobLog.getJobLogTriggerAddress() != null &&
