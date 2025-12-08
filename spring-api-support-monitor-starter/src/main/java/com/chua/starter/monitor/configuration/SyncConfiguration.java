@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.monitor.entity.DeviceMetrics;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.service.MonitorJobLogService;
@@ -7,7 +8,9 @@ import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import com.chua.sync.support.spi.SyncMessageHandler;
+
 import java.util.function.BiConsumer;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -33,7 +36,7 @@ import java.util.Map;
 @Configuration
 @ConditionalOnClass(SyncServer.class)
 @ConditionalOnBean(SyncServer.class)
-public class JobSyncConfiguration {
+public class SyncConfiguration {
 
     private static final String TOPIC_JOB_RESULT = "monitor/job/result";
     private static final String TOPIC_DEVICE_METRICS = "monitor/device/metrics";
@@ -101,35 +104,20 @@ public class JobSyncConfiguration {
     }
 
     private String getString(Map<String, Object> data, String key) {
-        Object v = data.get(key);
-        return v != null ? v.toString() : null;
+        return MapUtils.getString(data, key);
+
     }
 
     private int getInt(Map<String, Object> data, String key) {
-        Object v = data.get(key);
-        if (v instanceof Number) return ((Number) v).intValue();
-        if (v != null) return Integer.parseInt(v.toString());
-        return 0;
+        return MapUtils.getIntValue(data, key);
     }
 
     private long getLong(Map<String, Object> data, String key) {
-        Object v = data.get(key);
-        if (v instanceof Number) return ((Number) v).longValue();
-        if (v != null) return Long.parseLong(v.toString());
-        return 0L;
+        return MapUtils.getLong(data, key);
     }
 
     private Double getDouble(Map<String, Object> data, String key) {
-        Object v = data.get(key);
-        if (v instanceof Number) return ((Number) v).doubleValue();
-        if (v != null) {
-            try {
-                return Double.parseDouble(v.toString());
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
+        return MapUtils.getDouble(data, key);
     }
 
     /**
@@ -227,7 +215,6 @@ public class JobSyncConfiguration {
             // 覆盖更新客户端信息
             // Spring 应用信息
             clientInfo.setClientApplicationName(getString(data, "applicationName"));
-            clientInfo.setClientActiveProfiles(getString(data, "activeProfiles"));
             clientInfo.setClientContextPath(getString(data, "contextPath"));
             clientInfo.setClientPort(getInt(data, "serverPort"));
             clientInfo.setClientUrl(getString(data, "serviceUrl"));
@@ -236,30 +223,31 @@ public class JobSyncConfiguration {
             clientInfo.setClientIpAddress(getString(data, "ipAddress"));
             clientInfo.setClientHostname(getString(data, "hostname"));
 
-            // JVM 信息
+            // 系统信息（核心）
+            clientInfo.setClientOsName(getString(data, "osName"));
             clientInfo.setClientJavaVersion(getString(data, "javaVersion"));
             clientInfo.setClientPid(getLong(data, "pid"));
 
-            // 操作系统
-            clientInfo.setClientOsName(getString(data, "osName"));
-            clientInfo.setClientOsVersion(getString(data, "osVersion"));
-
             // 时间信息
-            clientInfo.setClientStartTime(getLong(data, "startTime"));
+            long startTime = getLong(data, "startTime");
+            clientInfo.setClientStartTime(startTime);
+            clientInfo.setClientUptime(System.currentTimeMillis() - startTime);
             clientInfo.setClientLastHeartbeatTime(System.currentTimeMillis());
             clientInfo.setClientOnline(true);
 
-            // 运行时信息存到 metadata
+            // 详细信息存到 metadata
             if (clientInfo.getClientMetadata() == null) {
                 clientInfo.setClientMetadata(new java.util.HashMap<>());
             }
-            clientInfo.getClientMetadata().put("jvmName", getString(data, "jvmName"));
-            clientInfo.getClientMetadata().put("jvmVersion", getString(data, "jvmVersion"));
-            clientInfo.getClientMetadata().put("osArch", getString(data, "osArch"));
-            clientInfo.getClientMetadata().put("uptime", getLong(data, "uptime"));
-            clientInfo.getClientMetadata().put("heapUsed", getLong(data, "heapUsed"));
-            clientInfo.getClientMetadata().put("heapMax", getLong(data, "heapMax"));
-            clientInfo.getClientMetadata().put("threadCount", getInt(data, "threadCount"));
+            Map<String, Object> metadata = clientInfo.getClientMetadata();
+            metadata.put("activeProfiles", getString(data, "activeProfiles"));
+            metadata.put("osVersion", getString(data, "osVersion"));
+            metadata.put("osArch", getString(data, "osArch"));
+            metadata.put("jvmName", getString(data, "jvmName"));
+            metadata.put("jvmVersion", getString(data, "jvmVersion"));
+            metadata.put("heapUsed", getLong(data, "heapUsed"));
+            metadata.put("heapMax", getLong(data, "heapMax"));
+            metadata.put("threadCount", getInt(data, "threadCount"));
 
             log.debug("[AppReport] 更新应用信息: app={}, address={}:{}",
                     clientInfo.getClientApplicationName(), clientInfo.getClientIpAddress(), clientInfo.getClientPort());
