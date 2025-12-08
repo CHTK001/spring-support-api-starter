@@ -1,6 +1,8 @@
 package com.chua.starter.entity.service;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +25,7 @@ public class SysCity implements Serializable {
     /**
      * 区划代码
      */
-    @TableField("sys_city_code")
+    @TableId(value = "sys_city_code", type = IdType.INPUT)
     @Schema(description = "区划代码")
     @ApiModelProperty("区划代码")
     private String sysCityCode;

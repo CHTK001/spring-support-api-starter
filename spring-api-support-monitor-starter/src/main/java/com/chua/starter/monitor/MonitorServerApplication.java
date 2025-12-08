@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @EnableConfigurationProperties(ReportGenProperties.class)
-@MapperScan({"com.chua.starter.**.mapper"})
+@MapperScan("com.chua.starter.monitor.mapper")
 @ServletComponentScan
 @SpringBootApplication
 public class MonitorServerApplication {
