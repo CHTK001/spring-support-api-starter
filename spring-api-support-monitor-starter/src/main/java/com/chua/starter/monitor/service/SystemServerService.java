@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.protocol.server.ProtocolServer;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServer;
 
@@ -98,14 +99,7 @@ public interface SystemServerService extends IService<SystemServer> {
      * @param serverId 服务器ID
      * @return 服务器实例
      */
-    Object getRunningServerInstance(Integer serverId);
-
-    /**
-     * 获取所有运行中的服务器实例
-     *
-     * @return 服务器实例映射
-     */
-    Map<Integer, Object> getAllRunningServerInstances();
+    ProtocolServer getRunningServerInstance(Integer serverId);
 
     /**
      * 应用配置更改到运行中的服务器

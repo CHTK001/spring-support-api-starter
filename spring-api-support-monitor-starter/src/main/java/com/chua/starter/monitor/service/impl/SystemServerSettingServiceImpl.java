@@ -4,8 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.protocol.filter.ServletFilter;
+import com.chua.common.support.protocol.filter.ViewServletFilter;
+import com.chua.common.support.protocol.filter.view.ViewerManager;
+import com.chua.common.support.protocol.server.ProtocolServer;
+import com.chua.common.support.protocol.filter.view.Viewer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.SpiOption;
 import com.chua.common.support.spi.definition.ServiceDefinition;
@@ -14,6 +19,8 @@ import com.chua.starter.monitor.entity.SystemServerSettingItem;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
 import com.chua.starter.monitor.pojo.PreviewExtensionConfigVo;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
+import com.chua.starter.monitor.pojo.ViewerConfigVO;
+import com.chua.starter.monitor.pojo.ViewerInfoVO;
 import com.chua.starter.monitor.service.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;
@@ -628,7 +635,7 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
 
         try {
             // 获取运行中的服务器实例
-            Object runningServer = systemServerService.getRunningServerInstance(serverId);
+            ProtocolServer runningServer = systemServerService.getRunningServerInstance(serverId);
             if (runningServer == null) {
                 log.warn("服务器未运行，配置将在下次启动时生效: serverId={}", serverId);
                 return;
@@ -649,48 +656,177 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
      * @param runningServer 运行中的服务器实例
      * @param config        预览扩展名配置
      */
-    private void applyViewFilterConfig(Object runningServer, PreviewExtensionConfigVo config) {
+    private void applyViewFilterConfig(ProtocolServer runningServer, PreviewExtensionConfigVo config) {
         try {
-            // 通过反射获取 ViewServletFilter 并更新配置
-            java.lang.reflect.Method getFilterMethod = runningServer.getClass().getMethod("getFilter", String.class);
-            Object viewFilter = getFilterMethod.invoke(runningServer, "view");
-
+            // 获取 ViewServletFilter
+            var viewFilter = runningServer.getFilter(ViewServletFilter.class);
             if (viewFilter == null) {
                 log.debug("ViewServletFilter 未安装，跳过配置更新");
                 return;
             }
 
             // 清空并重新设置禁用扩展名
-            java.lang.reflect.Method clearDisabledMethod = viewFilter.getClass().getMethod("clearDisabledExtensions");
-            clearDisabledMethod.invoke(viewFilter);
-
+            viewFilter.clearDisabledExtensions();
             if (config.getDisabledExtensions() != null && !config.getDisabledExtensions().isEmpty()) {
-                java.lang.reflect.Method addDisabledMethod = viewFilter.getClass()
-                        .getMethod("addDisabledExtensions", String[].class);
-                addDisabledMethod.invoke(viewFilter,
-                        (Object) config.getDisabledExtensions().toArray(new String[0]));
+                viewFilter.addDisabledExtensions(config.getDisabledExtensions().toArray(new String[0]));
             }
 
             // 清空并重新设置允许扩展名
-            java.lang.reflect.Method clearAllowedMethod = viewFilter.getClass().getMethod("clearAllowedExtensions");
-            clearAllowedMethod.invoke(viewFilter);
-
+            viewFilter.clearAllowedExtensions();
             if (config.getAllowedExtensions() != null && !config.getAllowedExtensions().isEmpty()) {
-                java.lang.reflect.Method addAllowedMethod = viewFilter.getClass()
-                        .getMethod("addAllowedExtensions", String[].class);
-                addAllowedMethod.invoke(viewFilter,
-                        (Object) config.getAllowedExtensions().toArray(new String[0]));
+                viewFilter.addAllowedExtensions(config.getAllowedExtensions().toArray(new String[0]));
             }
 
             // 设置白名单模式
-            java.lang.reflect.Method setModeMethod = viewFilter.getClass().getMethod("setWhitelistMode", boolean.class);
-            setModeMethod.invoke(viewFilter, Boolean.TRUE.equals(config.getWhitelistMode()));
+            viewFilter.setWhitelistMode(Boolean.TRUE.equals(config.getWhitelistMode()));
 
             log.debug("ViewServletFilter 配置已更新");
-        } catch (NoSuchMethodException e) {
-            log.debug("服务器不支持 ViewServletFilter 热更新: {}", e.getMessage());
         } catch (Exception e) {
             log.warn("更新 ViewServletFilter 配置失败: {}", e.getMessage());
+        }
+    }
+
+    // ==================== Viewer 视图查看器配置 ====================
+
+    @Override
+    public ReturnResult<List<ViewerInfoVO>> getViewerList(Integer settingId) {
+        try {
+            List<ViewerInfoVO> viewerList = new ArrayList<>();
+
+            // 使用 ServiceProvider 获取所有 Viewer
+            ServiceProvider<Viewer> provider = ServiceProvider.of(Viewer.class);
+
+            // 获取已保存的禁用查看器列表
+            ViewerConfigVO savedConfig = getViewerConfigFromDb(settingId);
+            List<String> disabledViewers = savedConfig.getDisabledViewers() != null
+                    ? savedConfig.getDisabledViewers()
+                    : new ArrayList<>();
+
+            // 收集所有查看器信息
+            for (Viewer viewer : provider.collect(true)) {
+                ViewerInfoVO viewerInfo = ViewerInfoVO.builder()
+                        .name(viewer.getViewerName())
+                        .description(viewer.getDescription())
+                        .priority(viewer.getPriority())
+                        .enabled(!disabledViewers.contains(viewer.getViewerName()))
+                        .supportedContentTypes(viewer.getSupportedContentTypes())
+                        .supportedExtensions(viewer.getSupportedExtensions())
+                        .targetFormat(viewer.getTargetFormat())
+                        .build();
+                viewerList.add(viewerInfo);
+            }
+
+            // 按优先级排序
+            viewerList.sort((a, b) -> Integer.compare(a.getPriority(), b.getPriority()));
+
+            log.debug("获取到 {} 个视图查看器", viewerList.size());
+            return ReturnResult.ok(viewerList);
+        } catch (Exception e) {
+            log.error("获取视图查看器列表失败", e);
+            return ReturnResult.error("获取视图查看器列表失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<ViewerConfigVO> getViewerConfig(Integer settingId) {
+        try {
+            ViewerConfigVO config = getViewerConfigFromDb(settingId);
+            return ReturnResult.ok(config);
+        } catch (Exception e) {
+            log.error("获取视图查看器配置失败", e);
+            return ReturnResult.error("获取视图查看器配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Boolean> saveViewerConfig(Integer settingId, ViewerConfigVO config) {
+        try {
+            SystemServerSetting setting = getById(settingId);
+            if (setting == null) {
+                return ReturnResult.error("配置不存在");
+            }
+
+            // 将配置转换为 JSON 保存
+            String configJson = Json.toJson(config);
+            setting.setSystemServerSettingConfig(configJson);
+            updateById(setting);
+
+            // 热应用配置到运行中的服务器
+            applyViewerConfigToRunningServer(setting.getSystemServerSettingServerId(), config);
+
+            log.info("视图查看器配置已保存并热应用: settingId={}", settingId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("保存视图查看器配置失败", e);
+            return ReturnResult.error("保存视图查看器配置失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从数据库获取查看器配置
+     *
+     * @param settingId 配置ID
+     * @return 查看器配置
+     */
+    private ViewerConfigVO getViewerConfigFromDb(Integer settingId) {
+        SystemServerSetting setting = getById(settingId);
+        if (setting == null || setting.getSystemServerSettingConfig() == null) {
+            return new ViewerConfigVO();
+        }
+        try {
+            return Json.fromJson(
+                    setting.getSystemServerSettingConfig(),
+                    ViewerConfigVO.class
+            );
+        } catch (Exception e) {
+            log.warn("解析查看器配置失败: {}", e.getMessage());
+            return new ViewerConfigVO();
+        }
+    }
+
+    /**
+     * 应用查看器配置到运行中的服务器
+     *
+     * @param serverId 服务器ID
+     * @param config   查看器配置
+     */
+    private void applyViewerConfigToRunningServer(Integer serverId, ViewerConfigVO config) {
+        try {
+            var runningServer = systemServerService.getRunningServerInstance(serverId);
+            if (runningServer == null) {
+                log.debug("服务器未运行，跳过热应用: serverId={}", serverId);
+                return;
+            }
+
+            // 获取 ViewServletFilter
+            var viewFilter = runningServer.getFilter(ViewServletFilter.class);
+            if (viewFilter == null) {
+                log.debug("ViewServletFilter 未安装，跳过配置更新");
+                return;
+            }
+
+            // 获取 ViewerManager
+            var viewerManager = viewFilter.getViewerManager();
+            if (viewerManager == null) {
+                log.debug("ViewerManager 未初始化，跳过配置更新");
+                return;
+            }
+
+            // 获取禁用的查看器列表
+            var disabledViewers = config.getDisabledViewers() != null
+                    ? config.getDisabledViewers()
+                    : new ArrayList<String>();
+
+            // 遍历所有查看器，设置启用/禁用状态
+            for (var viewer : viewerManager.getAllViewers()) {
+                var viewerName = viewer.getViewerName();
+                var enabled = !disabledViewers.contains(viewerName);
+                viewerManager.setViewerEnabled(viewerName, enabled);
+            }
+
+            log.info("视图查看器配置已热应用: serverId={}, 禁用查看器数={}", serverId, disabledViewers.size());
+        } catch (Exception e) {
+            log.warn("应用视图查看器配置失败: {}", e.getMessage());
         }
     }
 

@@ -2,27 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chua.starter.monitor.mapper.SystemServerMapper">
 
-    <!-- 分页查询服务器列表 -->
+    <!-- 分页查询服务器列表（包含过滤器数量） -->
     <select id="pageFor" resultType="com.chua.starter.monitor.entity.SystemServer">
-        SELECT * FROM system_server
+        SELECT 
+            s.*,
+            (SELECT COUNT(*) FROM system_server_setting ss 
+             WHERE ss.system_server_setting_server_id = s.system_server_id) AS filter_count
+        FROM system_server s
         <where>
             <if test="entity.systemServerName != null and entity.systemServerName != ''">
-                AND system_server_name LIKE CONCAT('%', #{entity.systemServerName}, '%')
+                AND s.system_server_name LIKE CONCAT('%', #{entity.systemServerName}, '%')
             </if>
             <if test="entity.systemServerHost != null and entity.systemServerHost != ''">
-                AND system_server_host LIKE CONCAT('%', #{entity.systemServerHost}, '%')
+                AND s.system_server_host LIKE CONCAT('%', #{entity.systemServerHost}, '%')
             </if>
             <if test="entity.systemServerPort != null">
-                AND system_server_port = #{entity.systemServerPort}
+                AND s.system_server_port = #{entity.systemServerPort}
             </if>
             <if test="entity.systemServerStatus != null">
-                AND system_server_status = #{entity.systemServerStatus.name}
+                AND s.system_server_status = #{entity.systemServerStatus.name}
             </if>
             <if test="entity.systemServerType != null and entity.systemServerType != ''">
-                AND system_server_type = #{entity.systemServerType}
+                AND s.system_server_type = #{entity.systemServerType}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY s.create_time DESC
     </select>
 
     <!-- 根据服务器类型查询服务器列表 -->
