@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.*;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/arthas")
 @Api(tags = "Arthas 控制台代理")
 @Tag(name = "Arthas 控制台代理")
+@Lazy
 public class ArthasConsoleProxyController {
 
     /** 节点元数据中的 Arthas Tunnel 地址键名 */
