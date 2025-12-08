@@ -168,21 +168,21 @@ public class MonitorAppServiceImpl extends ServiceImpl<MonitorAppMapper, Monitor
     private Discovery convertToDiscovery(ClientInfo clientInfo) {
         // 构建元数据（Discovery.metadata 类型为 Map<String, String>）
         Map<String, String> metadata = new HashMap<>();
-        metadata.put("applicationName", clientInfo.getAppName());
-        metadata.put("contextPath", clientInfo.getContextPath());
-        metadata.put("hostname", clientInfo.getHostname());
-        metadata.put("osName", clientInfo.getOsName());
-        metadata.put("javaVersion", clientInfo.getJavaVersion());
+        metadata.put("applicationName", clientInfo.getClientAppName());
+        metadata.put("contextPath", clientInfo.getClientContextPath());
+        metadata.put("hostname", clientInfo.getClientHostname());
+        metadata.put("osName", clientInfo.getClientOsName());
+        metadata.put("javaVersion", clientInfo.getClientJavaVersion());
 
         // 合并原有元数据
-        if (clientInfo.getMetadata() != null) {
-            clientInfo.getMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
+        if (clientInfo.getClientMetadata() != null) {
+            clientInfo.getClientMetadata().forEach((k, v) -> metadata.put(k, String.valueOf(v)));
         }
 
         // 使用 Builder 模式构建 Discovery
         return Discovery.builder()
-                .host(clientInfo.getIpAddress())
-                .port(clientInfo.getServerPort())
+                .host(clientInfo.getClientIpAddress())
+                .port(clientInfo.getClientPort())
                 .serverId(clientInfo.getClientId())
                 .metadata(metadata)
                 .build();

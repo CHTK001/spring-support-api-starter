@@ -110,8 +110,8 @@ public class MonitorJobLogServiceImpl extends ServiceImpl<MonitorJobLogMapper, M
         Map<String, ClientInfo> allClients = syncServer.getAllClients();
         ClientInfo matchedClient = allClients.values().stream()
                 .filter(clientInfo -> {
-                    String appName = clientInfo.getAppName();
-                    String address = clientInfo.getIpAddress() + ":" + clientInfo.getServerPort();
+                    String appName = clientInfo.getClientAppName();
+                    String address = clientInfo.getClientIpAddress() + ":" + clientInfo.getClientPort();
                     return appName != null && appName.equals(monitorJobLog.getJobLogApp()) &&
                             monitorJobLog.getJobLogTriggerAddress() != null &&
                             monitorJobLog.getJobLogTriggerAddress().contains(address);

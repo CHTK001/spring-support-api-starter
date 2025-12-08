@@ -321,34 +321,34 @@ public class NodeManagementServiceImpl implements NodeManagementService {
 
             // 基本信息
             nodeInfo.setNodeId(generateNodeId(clientInfo));
-            nodeInfo.setApplicationName(clientInfo.getAppName() != null ? clientInfo.getAppName() : "unknown");
-            nodeInfo.setNodeName(clientInfo.getHostname() != null ? clientInfo.getHostname() : 
-                    clientInfo.getIpAddress() + ":" + clientInfo.getServerPort());
-            nodeInfo.setIpAddress(clientInfo.getIpAddress());
-            nodeInfo.setPort(clientInfo.getServerPort());
+            nodeInfo.setApplicationName(clientInfo.getClientAppName() != null ? clientInfo.getClientAppName() : "unknown");
+            nodeInfo.setNodeName(clientInfo.getClientHostname() != null ? clientInfo.getClientHostname() : 
+                    clientInfo.getClientIpAddress() + ":" + clientInfo.getClientPort());
+            nodeInfo.setIpAddress(clientInfo.getClientIpAddress());
+            nodeInfo.setPort(clientInfo.getClientPort());
 
             // 状态信息
-            nodeInfo.setStatus(clientInfo.isOnline() ? OnlineNodeInfo.NodeStatus.ONLINE : OnlineNodeInfo.NodeStatus.OFFLINE);
+            nodeInfo.setStatus(clientInfo.isClientOnline() ? OnlineNodeInfo.NodeStatus.ONLINE : OnlineNodeInfo.NodeStatus.OFFLINE);
             nodeInfo.setConnectTime(LocalDateTime.now());
             
             // 从心跳时间设置最后心跳时间
-            if (clientInfo.getLastHeartbeatTime() > 0) {
+            if (clientInfo.getClientLastHeartbeatTime() > 0) {
                 nodeInfo.setLastHeartbeatTime(java.time.LocalDateTime.ofInstant(
-                        java.time.Instant.ofEpochMilli(clientInfo.getLastHeartbeatTime()),
+                        java.time.Instant.ofEpochMilli(clientInfo.getClientLastHeartbeatTime()),
                         java.time.ZoneId.systemDefault()));
             } else {
                 nodeInfo.setLastHeartbeatTime(LocalDateTime.now());
             }
 
             // 健康状态从元数据获取，默认为在线即健康
-            nodeInfo.setHealthy(clientInfo.isOnline());
+            nodeInfo.setHealthy(clientInfo.isClientOnline());
 
             // 版本和类型信息
-            nodeInfo.setVersion(clientInfo.getJavaVersion() != null ? clientInfo.getJavaVersion() : "unknown");
+            nodeInfo.setVersion(clientInfo.getClientJavaVersion() != null ? clientInfo.getClientJavaVersion() : "unknown");
             nodeInfo.setNodeType("monitor");
 
             // 性能信息（从元数据中获取，如果有的话）
-            Map<String, Object> metadata = clientInfo.getMetadata();
+            Map<String, Object> metadata = clientInfo.getClientMetadata();
             if (metadata != null) {
                 Double cpuUsage = MapUtils.getDouble(metadata, "cpuUsage");
                 if (cpuUsage != null && cpuUsage >= 0 && cpuUsage <= 100) {
@@ -388,16 +388,16 @@ public class NodeManagementServiceImpl implements NodeManagementService {
                 nodeMetadata.putAll(metadata);
             }
             nodeMetadata.put("clientId", clientInfo.getClientId());
-            nodeMetadata.put("osName", clientInfo.getOsName());
-            nodeMetadata.put("osVersion", clientInfo.getOsVersion());
-            nodeMetadata.put("cpuCores", clientInfo.getCpuCores());
-            nodeMetadata.put("totalMemory", clientInfo.getTotalMemory());
+            nodeMetadata.put("osName", clientInfo.getClientOsName());
+            nodeMetadata.put("osVersion", clientInfo.getClientOsVersion());
+            nodeMetadata.put("cpuCores", clientInfo.getClientCpuCores());
+            nodeMetadata.put("totalMemory", clientInfo.getClientTotalMemory());
             nodeInfo.setMetadata(nodeMetadata);
 
             return nodeInfo;
 
         } catch (Exception e) {
-            log.error("转换ClientInfo对象失败: ip={}, port={}", clientInfo.getIpAddress(), clientInfo.getServerPort(), e);
+            log.error("转换ClientInfo对象失败: ip={}, port={}", clientInfo.getClientIpAddress(), clientInfo.getClientPort(), e);
             return null;
         }
     }
@@ -406,7 +406,7 @@ public class NodeManagementServiceImpl implements NodeManagementService {
      * 生成节点ID（与NodeSystemService保持一致，使用MD5）
      */
     private String generateNodeId(ClientInfo clientInfo) {
-        return nodeSystemService.generateNodeId(clientInfo.getIpAddress(), clientInfo.getServerPort());
+        return nodeSystemService.generateNodeId(clientInfo.getClientIpAddress(), clientInfo.getClientPort());
     }
 
 }
