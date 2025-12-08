@@ -275,4 +275,55 @@ public interface MonitorSysGenServerSettingService extends IService<MonitorSysGe
      * @return NODE客户端列表
      */
     ReturnResult<List<Map<String, Object>>> getAvailableNodeClients();
+
+    // ==================== 健康检查和指标采集开关方法 ====================
+
+    /**
+     * 更新健康检查启用状态
+     *
+     * @param serverId 服务器ID
+     * @param enabled  是否启用
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    ReturnResult<Boolean> updateHealthCheckEnabled(Integer serverId, Boolean enabled);
+
+    /**
+     * 更新指标采集启用状态
+     *
+     * @param serverId 服务器ID
+     * @param enabled  是否启用
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    ReturnResult<Boolean> updateMetricsCollectionEnabled(Integer serverId, Boolean enabled);
+
+    /**
+     * 获取服务器监控开关状态
+     *
+     * @param serverId 服务器ID
+     * @return 开关状态信息（包含healthCheckEnabled和metricsCollectionEnabled）
+     * @since 2024/12/08
+     */
+    ReturnResult<Map<String, Object>> getMonitorSwitchStatus(Integer serverId);
+
+    /**
+     * 批量更新健康检查启用状态
+     *
+     * @param serverIds 服务器ID列表
+     * @param enabled   是否启用
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    ReturnResult<Boolean> batchUpdateHealthCheckEnabled(List<Integer> serverIds, Boolean enabled);
+
+    /**
+     * 批量更新指标采集启用状态
+     *
+     * @param serverIds 服务器ID列表
+     * @param enabled   是否启用
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    ReturnResult<Boolean> batchUpdateMetricsCollectionEnabled(List<Integer> serverIds, Boolean enabled);
 }

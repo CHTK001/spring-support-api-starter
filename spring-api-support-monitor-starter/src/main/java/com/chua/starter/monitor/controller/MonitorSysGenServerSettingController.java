@@ -511,4 +511,108 @@ public class MonitorSysGenServerSettingController {
     public ReturnResult<List<Map<String, Object>>> getAvailableNodeClients() {
         return monitorSysGenServerSettingService.getAvailableNodeClients();
     }
+
+    // ==================== 健康检查和指标采集开关接口 ====================
+
+    /**
+     * 切换健康检查开关
+     * 启用或禁用服务器的健康检查功能
+     *
+     * @param serverId 服务器ID
+     * @param enabled  是否启用 (true:启用 false:禁用)
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    @ResponseBody
+    @Operation(summary = "切换健康检查开关", description = "启用或禁用服务器的健康检查功能")
+    @PutMapping("server/{serverId}/health-check/{enabled}")
+    public ReturnResult<Boolean> toggleHealthCheckForServer(
+            @PathVariable Integer serverId,
+            @PathVariable Boolean enabled) {
+        return monitorSysGenServerSettingService.updateHealthCheckEnabled(serverId, enabled);
+    }
+
+    /**
+     * 切换指标采集开关
+     * 启用或禁用服务器的性能指标采集功能
+     *
+     * @param serverId 服务器ID
+     * @param enabled  是否启用 (true:启用 false:禁用)
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    @ResponseBody
+    @Operation(summary = "切换指标采集开关", description = "启用或禁用服务器的性能指标采集功能")
+    @PutMapping("server/{serverId}/metrics-collection/{enabled}")
+    public ReturnResult<Boolean> toggleMetricsCollectionForServer(
+            @PathVariable Integer serverId,
+            @PathVariable Boolean enabled) {
+        return monitorSysGenServerSettingService.updateMetricsCollectionEnabled(serverId, enabled);
+    }
+
+    /**
+     * 获取服务器健康检查和指标采集状态
+     *
+     * @param serverId 服务器ID
+     * @return 开关状态信息
+     * @since 2024/12/08
+     */
+    @ResponseBody
+    @Operation(summary = "获取服务器监控开关状态", description = "获取服务器的健康检查和指标采集开关状态")
+    @GetMapping("server/{serverId}/monitor-switches")
+    public ReturnResult<Map<String, Object>> getMonitorSwitchesForServer(@PathVariable Integer serverId) {
+        return monitorSysGenServerSettingService.getMonitorSwitchStatus(serverId);
+    }
+
+    /**
+     * 批量切换健康检查开关
+     *
+     * @param requestBody 请求体，包含serverIds和enabled
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    @ResponseBody
+    @Operation(summary = "批量切换健康检查开关", description = "批量启用或禁用多个服务器的健康检查功能")
+    @PutMapping("batch/health-check")
+    public ReturnResult<Boolean> batchToggleHealthCheck(@RequestBody Map<String, Object> requestBody) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Integer> serverIds = (List<Integer>) requestBody.get("serverIds");
+            Boolean enabled = (Boolean) requestBody.get("enabled");
+
+            if (serverIds == null || enabled == null) {
+                return ReturnResult.error("serverIds和enabled参数不能为空");
+            }
+
+            return monitorSysGenServerSettingService.batchUpdateHealthCheckEnabled(serverIds, enabled);
+        } catch (Exception e) {
+            return ReturnResult.error("参数格式错误: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量切换指标采集开关
+     *
+     * @param requestBody 请求体，包含serverIds和enabled
+     * @return 操作结果
+     * @since 2024/12/08
+     */
+    @ResponseBody
+    @Operation(summary = "批量切换指标采集开关", description = "批量启用或禁用多个服务器的指标采集功能")
+    @PutMapping("batch/metrics-collection")
+    public ReturnResult<Boolean> batchToggleMetricsCollection(@RequestBody Map<String, Object> requestBody) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Integer> serverIds = (List<Integer>) requestBody.get("serverIds");
+            Boolean enabled = (Boolean) requestBody.get("enabled");
+
+            if (serverIds == null || enabled == null) {
+                return ReturnResult.error("serverIds和enabled参数不能为空");
+            }
+
+            return monitorSysGenServerSettingService.batchUpdateMetricsCollectionEnabled(serverIds, enabled);
+        } catch (Exception e) {
+            return ReturnResult.error("参数格式错误: " + e.getMessage());
+        }
+    }
 }
