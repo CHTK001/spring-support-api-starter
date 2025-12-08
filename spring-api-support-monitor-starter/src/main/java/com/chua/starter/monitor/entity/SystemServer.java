@@ -132,6 +132,14 @@ public class SystemServer extends SysBase {
     private Integer systemServerTimeout;
 
     /**
+     * 过滤器数量（非数据库字段，用于列表展示）
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "过滤器数量")
+    @Schema(description = "过滤器数量")
+    private Integer filterCount;
+
+    /**
      * 系统服务器启动状态枚举
      */
     @Getter
