@@ -111,6 +111,43 @@
 
 ---
 
+### Actuator 日志级别管理（2025-12-08）
+
+新增通过 SyncServer 下发日志级别设置命令到指定节点的功能。
+
+**接口：**
+
+- `POST /v1/actuator/log-level`
+  - 说明：设置指定节点的日志级别，通过 SyncServer 下发到客户端
+  - 入参：
+    ```json
+    {
+      "clientId": "可选，优先使用",
+      "ipAddress": "节点IP地址，与clientId二选一",
+      "port": 8080,
+      "loggerName": "日志器名称，如 com.chua.xxx 或 ROOT",
+      "logLevel": "日志级别: TRACE, DEBUG, INFO, WARN, ERROR, OFF"
+    }
+    ```
+  - 出参：`ReturnResult<Boolean>`
+  - Topic：`monitor/control/log-level`
+
+**命令格式：**
+```json
+{
+  "action": "SET_LOG_LEVEL",
+  "loggerName": "com.chua.xxx",
+  "level": "DEBUG",
+  "timestamp": 1733664000000
+}
+```
+
+**客户端处理：**
+- 客户端需订阅 `monitor/control/log-level` 主题
+- 收到命令后通过 `LoggingSystem` 动态修改日志级别
+
+---
+
 ### ACME 证书管理
 - 接口：
   - POST /v1/cert/account/save：保存/更新 ACME 账户
