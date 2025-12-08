@@ -9,3 +9,5 @@ plugin:
       host: 172.16.2.226
       info:
         host: 172.16.3.66
+      metrics:
+        interval: 5
