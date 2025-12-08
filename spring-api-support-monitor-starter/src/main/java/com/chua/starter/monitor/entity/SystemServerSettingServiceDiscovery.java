@@ -37,10 +37,10 @@ public class SystemServerSettingServiceDiscovery extends SysBase {
     @Schema(description = "服务器ID")
     private Integer serviceDiscoveryServerId;
 
-    /** 模式: SPRING/TABLE/HAZELCAST */
+    /** 模式: MONITOR/SPRING/TABLE/HAZELCAST */
     @TableField("service_discovery_mode")
-    @ApiModelProperty("服务发现模式: SPRING/TABLE/HAZELCAST")
-    @Schema(description = "服务发现模式: SPRING/TABLE/HAZELCAST")
+    @ApiModelProperty("服务发现模式: MONITOR/SPRING/TABLE/HAZELCAST")
+    @Schema(description = "服务发现模式: MONITOR/SPRING/TABLE/HAZELCAST")
     @Size(max = 50)
     private String serviceDiscoveryMode;
 
@@ -63,5 +63,48 @@ public class SystemServerSettingServiceDiscovery extends SysBase {
     @ApiModelProperty("是否启用")
     @Schema(description = "是否启用")
     private Boolean serviceDiscoveryEnabled;
+
+    // ==================== Monitor 模式配置 ====================
+
+    /** Monitor服务地址（当模式为MONITOR时使用） */
+    @TableField("service_discovery_monitor_host")
+    @ApiModelProperty("Monitor服务地址")
+    @Schema(description = "Monitor服务地址，用于连接SyncServer")
+    @Size(max = 255)
+    private String serviceDiscoveryMonitorHost;
+
+    /** Monitor服务端口（当模式为MONITOR时使用） */
+    @TableField("service_discovery_monitor_port")
+    @ApiModelProperty("Monitor服务端口")
+    @Schema(description = "Monitor服务端口，用于连接SyncServer")
+    private Integer serviceDiscoveryMonitorPort;
+
+    // ==================== Hazelcast 模式配置 ====================
+
+    /** Hazelcast集群名称 */
+    @TableField("service_discovery_hazelcast_cluster_name")
+    @ApiModelProperty("Hazelcast集群名称")
+    @Schema(description = "Hazelcast集群名称")
+    @Size(max = 200)
+    private String serviceDiscoveryHazelcastClusterName;
+
+    /** Hazelcast成员地址（多个用逗号分隔） */
+    @TableField("service_discovery_hazelcast_members")
+    @ApiModelProperty("Hazelcast成员地址")
+    @Schema(description = "Hazelcast成员地址，多个用逗号分隔")
+    @Size(max = 1000)
+    private String serviceDiscoveryHazelcastMembers;
+
+    /** Hazelcast端口 */
+    @TableField("service_discovery_hazelcast_port")
+    @ApiModelProperty("Hazelcast端口")
+    @Schema(description = "Hazelcast端口")
+    private Integer serviceDiscoveryHazelcastPort;
+
+    /** Hazelcast连接超时（秒） */
+    @TableField("service_discovery_hazelcast_timeout")
+    @ApiModelProperty("Hazelcast连接超时(秒)")
+    @Schema(description = "Hazelcast连接超时，单位秒")
+    private Integer serviceDiscoveryHazelcastTimeout;
 }
 
