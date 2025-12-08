@@ -38,32 +38,3 @@ CREATE TABLE IF NOT EXISTS `monitor_sys_file_share` (
     INDEX `idx_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文件分享表';
 
-
--- 服务发现配置表添加 Monitor 和 Hazelcast 模式相关字段
--- @author CH
--- @since 2024/12/08
-
--- 添加 Monitor 模式相关字段
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_monitor_host VARCHAR(255) DEFAULT NULL COMMENT 'Monitor服务地址，用于连接SyncServer';
-
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_monitor_port INT DEFAULT NULL COMMENT 'Monitor服务端口，用于连接SyncServer';
-
--- 添加 Hazelcast 模式相关字段
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_hazelcast_cluster_name VARCHAR(200) DEFAULT NULL COMMENT 'Hazelcast集群名称';
-
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_hazelcast_members VARCHAR(1000) DEFAULT NULL COMMENT 'Hazelcast成员地址，多个用逗号分隔';
-
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_hazelcast_port INT DEFAULT NULL COMMENT 'Hazelcast端口';
-
-ALTER TABLE system_server_setting_service_discovery
-    ADD COLUMN IF NOT EXISTS service_discovery_hazelcast_timeout INT DEFAULT NULL COMMENT 'Hazelcast连接超时，单位秒';
-
--- 更新 mode 字段的注释，增加 MONITOR 选项
-ALTER TABLE system_server_setting_service_discovery
-    MODIFY COLUMN service_discovery_mode VARCHAR(50) DEFAULT NULL COMMENT '服务发现模式: MONITOR/SPRING/TABLE/HAZELCAST';
-
