@@ -12,6 +12,7 @@ import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingItem;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
+import com.chua.starter.monitor.pojo.PreviewExtensionConfigVo;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.service.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
@@ -616,6 +617,80 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
         } catch (Exception e) {
             log.error("保存ServletFilter配置失败: settingId={}", settingId, e);
             return ReturnResult.error("保存配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void applyPreviewExtensionConfigForSetting(Integer serverId, PreviewExtensionConfigVo config) {
+        log.info("应用预览扩展名配置到服务器[{}]: whitelistMode={}, disabled={}, allowed={}",
+                serverId, config.getWhitelistMode(),
+                config.getDisabledExtensions(), config.getAllowedExtensions());
+
+        try {
+            // 获取运行中的服务器实例
+            Object runningServer = systemServerService.getRunningServerInstance(serverId);
+            if (runningServer == null) {
+                log.warn("服务器未运行，配置将在下次启动时生效: serverId={}", serverId);
+                return;
+            }
+
+            // 查找 ViewServletFilter 并更新配置
+            applyViewFilterConfig(runningServer, config);
+
+            log.info("预览扩展名配置已成功应用到服务器[{}]", serverId);
+        } catch (Exception e) {
+            log.error("应用预览扩展名配置失败: serverId={}", serverId, e);
+        }
+    }
+
+    /**
+     * 应用配置到 ViewServletFilter
+     *
+     * @param runningServer 运行中的服务器实例
+     * @param config        预览扩展名配置
+     */
+    private void applyViewFilterConfig(Object runningServer, PreviewExtensionConfigVo config) {
+        try {
+            // 通过反射获取 ViewServletFilter 并更新配置
+            java.lang.reflect.Method getFilterMethod = runningServer.getClass().getMethod("getFilter", String.class);
+            Object viewFilter = getFilterMethod.invoke(runningServer, "view");
+
+            if (viewFilter == null) {
+                log.debug("ViewServletFilter 未安装，跳过配置更新");
+                return;
+            }
+
+            // 清空并重新设置禁用扩展名
+            java.lang.reflect.Method clearDisabledMethod = viewFilter.getClass().getMethod("clearDisabledExtensions");
+            clearDisabledMethod.invoke(viewFilter);
+
+            if (config.getDisabledExtensions() != null && !config.getDisabledExtensions().isEmpty()) {
+                java.lang.reflect.Method addDisabledMethod = viewFilter.getClass()
+                        .getMethod("addDisabledExtensions", String[].class);
+                addDisabledMethod.invoke(viewFilter,
+                        (Object) config.getDisabledExtensions().toArray(new String[0]));
+            }
+
+            // 清空并重新设置允许扩展名
+            java.lang.reflect.Method clearAllowedMethod = viewFilter.getClass().getMethod("clearAllowedExtensions");
+            clearAllowedMethod.invoke(viewFilter);
+
+            if (config.getAllowedExtensions() != null && !config.getAllowedExtensions().isEmpty()) {
+                java.lang.reflect.Method addAllowedMethod = viewFilter.getClass()
+                        .getMethod("addAllowedExtensions", String[].class);
+                addAllowedMethod.invoke(viewFilter,
+                        (Object) config.getAllowedExtensions().toArray(new String[0]));
+            }
+
+            // 设置白名单模式
+            java.lang.reflect.Method setModeMethod = viewFilter.getClass().getMethod("setWhitelistMode", boolean.class);
+            setModeMethod.invoke(viewFilter, Boolean.TRUE.equals(config.getWhitelistMode()));
+
+            log.debug("ViewServletFilter 配置已更新");
+        } catch (NoSuchMethodException e) {
+            log.debug("服务器不支持 ViewServletFilter 热更新: {}", e.getMessage());
+        } catch (Exception e) {
+            log.warn("更新 ViewServletFilter 配置失败: {}", e.getMessage());
         }
     }
 

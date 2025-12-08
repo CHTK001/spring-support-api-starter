@@ -203,4 +203,12 @@ public interface SystemServerSettingService extends IService<SystemServerSetting
      */
     ReturnResult<Boolean> saveFilterConfig(Integer settingId, Map<String, Object> config);
 
+    /**
+     * 应用预览扩展名配置到运行中的服务器
+     *
+     * @param serverId 服务器ID
+     * @param config   预览扩展名配置
+     */
+    void applyPreviewExtensionConfigForSetting(Integer serverId, com.chua.starter.monitor.pojo.PreviewExtensionConfigVo config);
+
 }
