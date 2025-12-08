@@ -168,7 +168,7 @@ public class MonitorAppServiceImpl extends ServiceImpl<MonitorAppMapper, Monitor
     private Discovery convertToDiscovery(ClientInfo clientInfo) {
         // 构建元数据（Discovery.metadata 类型为 Map<String, String>）
         Map<String, String> metadata = new HashMap<>();
-        metadata.put("applicationName", clientInfo.getClientAppName());
+        metadata.put("applicationName", clientInfo.getClientApplicationName());
         metadata.put("contextPath", clientInfo.getClientContextPath());
         metadata.put("hostname", clientInfo.getClientHostname());
         metadata.put("osName", clientInfo.getClientOsName());
