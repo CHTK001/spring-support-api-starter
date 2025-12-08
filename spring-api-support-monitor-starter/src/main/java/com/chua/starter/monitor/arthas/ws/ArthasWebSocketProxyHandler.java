@@ -7,6 +7,7 @@ import com.chua.starter.monitor.service.NodeManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Lazy
 public class ArthasWebSocketProxyHandler extends AbstractWebSocketHandler {
 
     /** 节点元数据中的 Arthas Tunnel 地址键名 */

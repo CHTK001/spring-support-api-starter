@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
@@ -24,6 +26,7 @@ public class MonitorSysGenFileSystemSetting extends SysBase {
     /**
      * 配置ID
      */
+    @TableId(value = "monitor_sys_gen_file_system_setting_id", type = IdType.AUTO)
     @ApiModelProperty(value = "配置ID")
     @Schema(description = "配置ID")
     private Integer monitorSysGenFileSystemSettingId;

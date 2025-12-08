@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiParam;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +33,11 @@ import java.util.Map;
 @RequestMapping("/alert-history")
 @Api(tags = "告警历史管理")
 @RequiredArgsConstructor
-@Validated
 public class AlertHistoryController {
 
-    private final MonitorSysGenServerAlertHistoryService alertHistoryService;
+    @Lazy
+    @Autowired
+    private MonitorSysGenServerAlertHistoryService alertHistoryService;
 
     /**
      * 分页查询告警历史
