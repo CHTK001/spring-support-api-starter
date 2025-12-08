@@ -2744,4 +2744,23 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
 
         return baseMapper.selectPage(page, wrapper);
     }
+
+    /**
+     * 根据 IP 地址查找服务器
+     *
+     * @param ipAddress IP 地址
+     * @return 服务器信息，未找到返回 null
+     * @author CH
+     * @since 1.0.0
+     */
+    @Override
+    public MonitorSysGenServer findByIpAddress(String ipAddress) {
+        if (StringUtils.isBlank(ipAddress)) {
+            return null;
+        }
+        LambdaQueryWrapper<MonitorSysGenServer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MonitorSysGenServer::getMonitorSysGenServerHost, ipAddress);
+        List<MonitorSysGenServer> list = baseMapper.selectList(wrapper);
+        return list.isEmpty() ? null : list.get(0);
+    }
 }
