@@ -147,8 +147,8 @@ public class FileStorageServletFilterHandler implements ServletFilterHandler {
         builder.watermarkX(MapUtils.getIntValue(collect, "watermarkX", 0));
         builder.watermarkY(MapUtils.getIntValue(collect, "watermarkY", 0));
         builder.watermarkWay(WatermarkUtils.WatermarkWay.valueOf(MapUtils.getString(collect, "watermarkWay", "NORMAL").toUpperCase()));
-        builder.plugins(MapUtils.getString(collect, "pluginsStr", "").split(","));
-        builder.settings(MapUtils.getString(collect, "settingsStr", "").split(","));
+        builder.plugins(MapUtils.getStringArray(collect, "plugins" ));
+        builder.settings(MapUtils.getStringArray(collect, "settings"));
         return builder.build();
     }
 }

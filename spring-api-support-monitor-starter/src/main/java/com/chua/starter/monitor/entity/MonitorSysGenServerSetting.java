@@ -889,6 +889,33 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Schema(description = "WebSocket清理间隔 (分钟)")
     private Integer monitorSysGenServerSettingWebSocketCleanupInterval;
 
+    // ==================== 健康检查和指标采集开关 ====================
+
+    /**
+     * 是否启用健康检查 0:否 1:是
+     * 控制服务器健康状态检测任务的开关
+     *
+     * @see HealthCheckStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
+     * @see ServerTaskManager#createHealthCheckTask
+     * @since 2024/12/08
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_health_check_enabled")
+    @ApiModelProperty(value = "是否启用健康检查")
+    @Schema(description = "是否启用健康检查 0:否 1:是")
+    private Integer monitorSysGenServerSettingHealthCheckEnabled;
+
+    /**
+     * 是否启用指标采集 0:否 1:是
+     * 控制服务器性能指标数据采集任务的开关
+     *
+     * @see ServerTaskManager#createMetricsCollectionTask
+     * @since 2024/12/08
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_metrics_collection_enabled")
+    @ApiModelProperty(value = "是否启用指标采集")
+    @Schema(description = "是否启用指标采集 0:否 1:是")
+    private Integer monitorSysGenServerSettingMetricsCollectionEnabled;
+
     // ==================== Prometheus 配置 ====================
 
     /**
@@ -1022,6 +1049,10 @@ public class MonitorSysGenServerSetting extends SysBase {
         // 其他配置
         setting.setMonitorSysGenServerSettingPerformanceSuggestionEnabled(1);
         setting.setMonitorSysGenServerSettingStatus(1);
+
+        // 健康检查和指标采集配置（默认启用）
+        setting.setMonitorSysGenServerSettingHealthCheckEnabled(1);
+        setting.setMonitorSysGenServerSettingMetricsCollectionEnabled(1);
 
         return setting;
     }
