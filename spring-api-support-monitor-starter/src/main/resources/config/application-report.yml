@@ -13,3 +13,7 @@ plugin:
       instances:
         - port: 29170
         - port: 29171
+  report:
+    server:
+      job:
+        enable: true
