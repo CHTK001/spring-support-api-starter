@@ -24,6 +24,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 作业配置
@@ -35,6 +37,23 @@ import java.util.*;
 public class JobConfig {
 
     private static final JobConfig INSTANCE = new JobConfig();
+    
+    /**
+     * 调度任务查询缓存
+     * key: 缓存键 (时间戳_数量)
+     * value: 缓存数据包装对象
+     */
+    private final ConcurrentHashMap<String, ScheduleJobCacheEntry> scheduleJobCache = new ConcurrentHashMap<>();
+    
+    /**
+     * 缓存过期时间（毫秒），默认3秒
+     */
+    private static final long CACHE_EXPIRE_MS = 3000L;
+    
+    /**
+     * 缓存版本号，用于快速失效缓存
+     */
+    private final AtomicLong cacheVersion = new AtomicLong(0);
     private ReportJobProperties reportJobProperties;
     private ApplicationContext applicationContext;
     private MonitorSender monitorSender;
@@ -158,8 +177,7 @@ public class JobConfig {
             
             // 匹配环境 (如果配置了)
             if (targetProfile != null && !targetProfile.isEmpty()) {
-                Map<String, Object> metadata = clientInfo.getClientMetadata();
-                String clientProfile = metadata != null ? (String) metadata.get("applicationActive") : null;
+                String clientProfile = clientInfo.getClientApplicationActive();
                 if (clientProfile != null && !targetProfile.equals(clientProfile)) {
                     continue;
                 }
@@ -168,6 +186,7 @@ public class JobConfig {
             // 构建 Discovery 对象（使用 Builder 模式）
             Map<String, String> discoveryMetadata = new HashMap<>();
             discoveryMetadata.put("applicationName", clientInfo.getClientApplicationName());
+            discoveryMetadata.put("applicationActive", clientInfo.getClientApplicationActive());
             if (clientInfo.getClientMetadata() != null) {
                 clientInfo.getClientMetadata().forEach((k, v) -> discoveryMetadata.put(k, String.valueOf(v)));
             }
@@ -215,11 +234,99 @@ public class JobConfig {
         return new RedisLock(redissonClient.getLock(name));
     }
 
+    /**
+     * 查询待调度的任务（带缓存）
+     * <p>
+     * 缓存策略：
+     * 1. 使用本地缓存，过期时间3秒
+     * 2. 缓存键由时间戳和数量组成
+     * 3. 任务增删改时清除缓存
+     * </p>
+     *
+     * @param l            触发时间阈值
+     * @param preReadCount 预读取数量
+     * @return 待调度任务列表
+     */
     public List<MonitorJob> scheduleJobQuery(long l, int preReadCount) {
-        return monitorJobService.page(new Page<MonitorJob>(1, preReadCount), Wrappers.<MonitorJob>lambdaQuery().eq(MonitorJob::getJobTriggerStatus, 1)
-                .le(MonitorJob::getJobTriggerNextTime, l)
-                .orderByDesc(MonitorJob::getJobId)
+        // 构建缓存键：使用时间窗口（按秒取整）+ 数量
+        long timeWindow = l / 1000;
+        String cacheKey = timeWindow + "_" + preReadCount;
+        long currentVersion = cacheVersion.get();
+        
+        // 尝试从缓存获取
+        ScheduleJobCacheEntry cacheEntry = scheduleJobCache.get(cacheKey);
+        if (cacheEntry != null && !cacheEntry.isExpired() && cacheEntry.getVersion() == currentVersion) {
+            return cacheEntry.getData();
+        }
+        
+        // 缓存未命中或已过期，从数据库查询
+        List<MonitorJob> result = monitorJobService.page(
+                new Page<MonitorJob>(1, preReadCount), 
+                Wrappers.<MonitorJob>lambdaQuery()
+                        .eq(MonitorJob::getJobTriggerStatus, 1)
+                        .le(MonitorJob::getJobTriggerNextTime, l)
+                        .orderByDesc(MonitorJob::getJobId)
         ).getRecords();
+        
+        // 更新缓存
+        scheduleJobCache.put(cacheKey, new ScheduleJobCacheEntry(result, currentVersion));
+        
+        // 清理过期缓存（简单策略：缓存数量超过100时清理）
+        if (scheduleJobCache.size() > 100) {
+            cleanExpiredCache();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 清除调度任务查询缓存
+     * <p>
+     * 在任务增删改时调用，使缓存立即失效
+     * </p>
+     */
+    public void clearScheduleJobCache() {
+        cacheVersion.incrementAndGet();
+        scheduleJobCache.clear();
+    }
+    
+    /**
+     * 清理过期缓存
+     */
+    private void cleanExpiredCache() {
+        long currentVersion = cacheVersion.get();
+        scheduleJobCache.entrySet().removeIf(entry -> 
+                entry.getValue().isExpired() || entry.getValue().getVersion() != currentVersion);
+    }
+    
+    /**
+     * 调度任务缓存条目
+     *
+     * @author CH
+     * @since 2024/03/08
+     */
+    private static class ScheduleJobCacheEntry {
+        private final List<MonitorJob> data;
+        private final long expireTime;
+        private final long version;
+        
+        public ScheduleJobCacheEntry(List<MonitorJob> data, long version) {
+            this.data = data;
+            this.expireTime = System.currentTimeMillis() + CACHE_EXPIRE_MS;
+            this.version = version;
+        }
+        
+        public List<MonitorJob> getData() {
+            return data;
+        }
+        
+        public long getVersion() {
+            return version;
+        }
+        
+        public boolean isExpired() {
+            return System.currentTimeMillis() > expireTime;
+        }
     }
 
     public void scheduleUpdate(MonitorJob jobInfo) {
