@@ -108,8 +108,8 @@ public class MonitorJobController extends AbstractSwaggerController<MonitorJobSe
      * @param jobId 任务id
      * @return {@link ReturnResult}<{@link String}>
      */
-    @Operation(summary = "更新数据")
-    @GetMapping("/stop")
+    @Operation(summary = "停止任务")
+    @RequestMapping(value = "/stop", method = {RequestMethod.GET, RequestMethod.POST})
     @Permission("sys:monitor:job:stop")
     public ReturnResult<String> pause(int jobId) {
         return service.stop(jobId);
