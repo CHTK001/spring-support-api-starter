@@ -2,7 +2,6 @@ package com.chua.starter.monitor.job.trigger;
 
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.MapUtils;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.entity.MonitorJob;
 import com.chua.starter.monitor.entity.MonitorJobLog;
@@ -96,12 +95,8 @@ public class XxlJobTrigger {
         triggerParam.setGlueSource(jobInfo.getJobGlueSource());
         triggerParam.setGlueUpdatetime(null == jobInfo.getJobGlueUpdatetime() ? 0 : jobInfo.getJobGlueUpdatetime().getTime());
 
-        // 3、init address
+        // 3、init address (已在 JobConfig.getAddress 中完成环境过滤)
         Set<Discovery> address = JobConfig.getInstance().getAddress(triggerParam, jobInfo);
-        //3.1 过滤环境
-        address = address.stream().filter(it -> {
-            return jobInfo.getJobApplicationActive().equals(MapUtils.getString(it.getMetadata(), "applicationActive"));
-        }).collect(Collectors.toUnmodifiableSet());
 
         // 4、trigger remote executor
         ReturnResult<String> triggerResult = null;

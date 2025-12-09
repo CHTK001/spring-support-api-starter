@@ -16,4 +16,4 @@ plugin:
   report:
     server:
       job:
-        enable: true
+        enable: false
