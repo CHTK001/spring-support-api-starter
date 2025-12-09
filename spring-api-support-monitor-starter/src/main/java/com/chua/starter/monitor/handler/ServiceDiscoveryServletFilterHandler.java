@@ -6,6 +6,7 @@ import com.chua.common.support.discovery.*;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetAddress;
 import com.chua.common.support.objects.ConfigureObjectContext;
+import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
 import com.chua.common.support.utils.MapUtils;
@@ -17,6 +18,8 @@ import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscovery;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscoveryMapping;
 import com.chua.starter.monitor.service.MonitorAppService;
 import com.chua.starter.monitor.service.SystemServerSettingServiceDiscoveryService;
+import com.chua.sync.support.discovery.SyncServerServiceDiscovery;
+import com.chua.sync.support.server.SyncServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -41,6 +44,9 @@ import java.util.List;
 public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandler {
 
     static HazelcastServiceDiscovery HAZELCAST_SERVICE_DISCOVERY = null;
+
+    @AutoInject
+    SyncServer syncServer;
     /**
      * 根据服务器配置创建 ServiceDiscoveryServletFilter
      *
@@ -151,62 +157,7 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
      * @return 配置好的 ServiceDiscovery 实例
      */
     private ServiceDiscovery createMonitorServiceDiscovery() {
-        DefaultServiceDiscovery serviceDiscovery = new DefaultServiceDiscovery(new DiscoveryOption());
-        
-        try {
-            MonitorAppService monitorAppService = SpringBeanUtils.getBean(MonitorAppService.class);
-            if (monitorAppService == null) {
-                log.warn("无法获取 MonitorAppService，MONITOR 模式服务发现将为空");
-                return serviceDiscovery;
-            }
-
-            // 获取所有应用列表
-            ReturnResult<List<MonitorApplication>> listResult = monitorAppService.list(new MonitorApplication());
-            if (!listResult.isOk() || listResult.getData() == null) {
-                log.warn("获取 Monitor 应用列表失败");
-                return serviceDiscovery;
-            }
-
-            List<MonitorApplication> applications = listResult.getData();
-            log.info("MONITOR 模式加载 {} 个应用", applications.size());
-
-            // 遍历所有应用，注册服务发现
-            for (MonitorApplication app : applications) {
-                String appName = app.getMonitorApplicationName();
-                List<Discovery> discoveries = app.getMonitorRequests();
-
-                if (StringUtils.isEmpty(appName) || discoveries == null || discoveries.isEmpty()) {
-                    continue;
-                }
-
-                // 服务路径使用应用名称
-                String servicePath = StringUtils.startWithAppend(appName, "/");
-
-                // 注册该应用的所有实例
-                for (Discovery discovery : discoveries) {
-                    if (discovery == null) {
-                        continue;
-                    }
-
-                    // 设置 uriSpec 为应用名称路径
-                    discovery.setUriSpec(servicePath);
-
-                    // 设置协议，默认 http
-                    if (StringUtils.isEmpty(discovery.getProtocol())) {
-                        discovery.setProtocol("http");
-                    }
-
-                    serviceDiscovery.registerService(servicePath, discovery);
-                    log.debug("MONITOR 模式注册服务: {} -> {}:{}", servicePath, discovery.getHost(), discovery.getPort());
-                }
-            }
-
-            log.info("MONITOR 模式服务发现初始化完成");
-        } catch (Exception e) {
-            log.error("创建 MONITOR 模式服务发现失败", e);
-        }
-
-        return serviceDiscovery;
+        return new SyncServerServiceDiscovery(syncServer);
     }
 
     private Discovery toDiscovery(String address, Integer weight) {
