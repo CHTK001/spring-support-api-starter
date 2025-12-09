@@ -367,6 +367,7 @@ public class SyncConfiguration {
             // 覆盖更新客户端信息
             // Spring 应用信息
             clientInfo.setClientApplicationName(getString(data, "applicationName"));
+            clientInfo.setClientApplicationActive(getString(data, "applicationActive"));
             clientInfo.setClientContextPath(getString(data, "contextPath"));
             clientInfo.setClientPort(getInt(data, "serverPort"));
             clientInfo.setClientUrl(getString(data, "serviceUrl"));

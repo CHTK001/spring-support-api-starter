@@ -203,10 +203,16 @@
             <artifactId>utils-support-image-starter</artifactId>
         </dependency>
 
-        <!-- ACME 证书支持模块 -->
+        <!-- ACME 证书支持模块 - 使用 acme4j 替代 utils-support-acme-starter -->
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-acme-starter</artifactId>
+            <groupId>org.shredzone.acme4j</groupId>
+            <artifactId>acme4j-client</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.shredzone.acme4j</groupId>
+            <artifactId>acme4j-utils</artifactId>
+            <version>3.4.0</version>
         </dependency>
 
         <dependency>
