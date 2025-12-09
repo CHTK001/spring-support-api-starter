@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.acme;
 
-import com.chua.common.support.spi.Spi;
+import com.chua.common.support.annotations.Spi;
 
 import java.util.List;
 
