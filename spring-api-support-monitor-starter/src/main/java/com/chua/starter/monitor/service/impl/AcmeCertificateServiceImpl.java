@@ -1,14 +1,14 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.chua.acme.support.client.AcmeClient;
-import com.chua.advanced.support.lang.acme.AcmeCertificate;
-import com.chua.advanced.support.lang.acme.AcmeCertificateStatus;
-import com.chua.advanced.support.lang.acme.AcmeValidationResult;
-import com.chua.advanced.support.lang.acme.AcmeValidationType;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.monitor.acme.AcmeCertificateResult;
+import com.chua.starter.monitor.acme.AcmeConnectionResult;
+import com.chua.starter.monitor.acme.AcmeProvider;
+import com.chua.starter.monitor.acme.AcmeValidationInfo;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
 import com.chua.starter.monitor.entity.MonitorAcmeOrder;
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * ACME 证书服务实现
@@ -95,7 +94,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
 
         List<String> sans = request.getSanDomains() == null ? List.of() : request.getSanDomains();
-        String sanStr = sans.stream().filter(StringUtils::isNotEmpty).collect(Collectors.joining(","));
+        String sanStr = String.join(",", sans.stream().filter(StringUtils::isNotEmpty).toList());
         String challenge = StringUtils.defaultString(request.getChallengeType(), "HTTP-01");
 
         // 新建证书记录（pending）
@@ -114,37 +113,55 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         if (!sans.isEmpty()) {
             domains.addAll(sans.stream().filter(StringUtils::isNotEmpty).toList());
         }
-        AcmeValidationType validationType = mapValidationType(challenge);
 
-        log.info("[ACME] 准备申请证书, certId={}, domain={}, san={}, type={}", certId, cert.getAcmeCertPrimaryDomain(), sanStr, validationType);
+        log.info("[ACME] 准备申请证书, certId={}, domain={}, san={}, challenge={}", certId, cert.getAcmeCertPrimaryDomain(), sanStr, challenge);
 
-        // 初始化 ACME 客户端并连接
-        AcmeClient client = new AcmeClient(account.getAcmeAccountServer(), account.getAcmeAccountEmail());
-        if (!client.connect()) {
+        // 通过 SPI 获取 ACME 提供者
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension("acme4j");
+        if (provider == null) {
             cert.setAcmeCertStatus("failed");
+            cert.setAcmeCertLastError("ACME 服务提供者不可用");
             certificateMapper.updateById(cert);
-            return ReturnResult.illegal("连接 ACME 服务器失败: " + account.getAcmeAccountServer());
+            return ReturnResult.illegal("ACME 服务提供者不可用，请检查 SPI 配置");
         }
 
-        // 拉取并保存挑战信息，便于外部完成验证（HTTP-01/DNS-01）
-        List<Map<String, Object>> validations = new ArrayList<>();
-        for (String domain : domains) {
-            try {
-                AcmeValidationResult vr = client.validateDomain(domain, validationType);
-                Map<String, Object> item = new HashMap<>();
-                item.put("domain", domain);
-                item.put("type", validationType.getCode());
-                item.put("token", vr.getToken());
-                item.put("keyAuthorization", vr.getKeyAuthorization());
-                item.put("httpPath", vr.getHttpChallengePath());
-                item.put("httpContent", vr.getHttpChallengeContent());
-                item.put("dnsName", vr.getDnsRecordName());
-                item.put("dnsValue", vr.getDnsRecordValue());
-                validations.add(item);
-            } catch (Exception ex) {
-                log.warn("[ACME] 获取域名验证信息失败: domain={}", domain, ex);
-            }
+        // 连接 ACME 服务器
+        AcmeConnectionResult connResult = provider.connect(
+                account.getAcmeAccountServer(),
+                account.getAcmeAccountEmail(),
+                account.getAcmeAccountPrivateKeyPem()
+        );
+        if (!connResult.isSuccess()) {
+            cert.setAcmeCertStatus("failed");
+            cert.setAcmeCertLastError(connResult.getErrorMessage());
+            certificateMapper.updateById(cert);
+            provider.close();
+            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getErrorMessage());
         }
+
+        // 保存账户私钥（如果是新生成的）
+        if (account.getAcmeAccountPrivateKeyPem() == null && connResult.getAccountPrivateKeyPem() != null) {
+            account.setAcmeAccountPrivateKeyPem(connResult.getAccountPrivateKeyPem());
+            account.setAcmeAccountStatus("valid");
+            accountMapper.updateById(account);
+        }
+
+        // 获取验证信息
+        List<AcmeValidationInfo> validationInfos = provider.getValidationInfo(domains, challenge);
+        List<Map<String, Object>> validations = new ArrayList<>();
+        for (AcmeValidationInfo info : validationInfos) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("domain", info.getDomain());
+            item.put("type", info.getChallengeType());
+            item.put("token", info.getToken());
+            item.put("keyAuthorization", info.getKeyAuthorization());
+            item.put("httpPath", info.getHttpPath());
+            item.put("httpContent", info.getHttpContent());
+            item.put("dnsName", info.getDnsRecordName());
+            item.put("dnsValue", info.getDnsRecordValue());
+            validations.add(item);
+        }
+
         // 写入订单记录（validating）
         MonitorAcmeOrder order = new MonitorAcmeOrder();
         order.setAcmeAccountId(account.getAcmeAccountId());
@@ -153,24 +170,34 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         order.setAcmeAuthzUrls(Json.toJson(validations));
         orderMapper.insert(order);
 
-        // 尝试直接申请（若外部已就绪会直接成功；否则会失败并转为等待人工验证）
+        // 尝试直接申请证书
         try {
-            AcmeCertificate acmeCertificate = client.requestCertificate(domains, validationType);
-            // 成功：落库证书与有效期
-            fillCertificateSuccess(cert, acmeCertificate);
-            certificateMapper.updateById(cert);
+            AcmeCertificateResult certResult = provider.requestCertificate(domains, challenge);
+            if (certResult.isSuccess()) {
+                // 成功：落库证书与有效期
+                fillCertificateSuccess(cert, certResult);
+                certificateMapper.updateById(cert);
 
-            order.setAcmeOrderStatus("valid");
-            orderMapper.updateById(order);
-            log.info("[ACME] 证书签发成功: certId={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
-            return ReturnResult.ok(certId, "证书已签发");
+                order.setAcmeOrderStatus("valid");
+                orderMapper.updateById(order);
+                log.info("[ACME] 证书签发成功: certId={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
+                return ReturnResult.ok(certId, "证书已签发");
+            } else {
+                // 失败：保持校验信息供外部配置
+                log.warn("[ACME] 证书申请未完成，等待验证: certId={}, err={}", certId, certResult.getErrorMessage());
+                cert.setAcmeCertStatus("validating");
+                cert.setAcmeCertLastError(certResult.getErrorMessage());
+                certificateMapper.updateById(cert);
+                return ReturnResult.ok(certId, "已生成验证信息，请按返回的HTTP/DNS要求完成验证后稍后重试");
+            }
         } catch (Exception e) {
-            // 失败：保持校验信息供外部配置，状态置为 validating
             log.warn("[ACME] 证书申请未完成，等待验证: certId={}, err={}", certId, e.getMessage());
             cert.setAcmeCertStatus("validating");
             cert.setAcmeCertLastError(shortMsg(e));
             certificateMapper.updateById(cert);
             return ReturnResult.ok(certId, "已生成验证信息，请按返回的HTTP/DNS要求完成验证后稍后重试");
+        } finally {
+            provider.close();
         }
     }
 
@@ -193,31 +220,45 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
         log.info("[ACME] 续签证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
-        // 准备客户端
-        AcmeClient client = new AcmeClient(account.getAcmeAccountServer(), account.getAcmeAccountEmail());
-        if (!client.connect()) {
-            return ReturnResult.illegal("连接 ACME 服务器失败: " + account.getAcmeAccountServer());
+        // 通过 SPI 获取 ACME 提供者
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension("acme4j");
+        if (provider == null) {
+            return ReturnResult.illegal("ACME 服务提供者不可用");
         }
 
-        // 构造待续签证书信息（按存量域名与验证类型）
+        // 连接 ACME 服务器
+        AcmeConnectionResult connResult = provider.connect(
+                account.getAcmeAccountServer(),
+                account.getAcmeAccountEmail(),
+                account.getAcmeAccountPrivateKeyPem()
+        );
+        if (!connResult.isSuccess()) {
+            provider.close();
+            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getErrorMessage());
+        }
+
+        // 续签证书
         List<String> domains = buildDomains(cert);
-        AcmeValidationType validationType = mapValidationType(cert.getAcmeCertChallengeType());
-        AcmeCertificate pending = AcmeCertificate.builder()
-                .primaryDomain(cert.getAcmeCertPrimaryDomain())
-                .domains(domains)
-                .validationType(validationType)
-                .status(AcmeCertificateStatus.PENDING)
-                .build();
+        String challenge = cert.getAcmeCertChallengeType();
         try {
-            AcmeCertificate renewed = client.renewCertificate(pending);
-            fillCertificateSuccess(cert, renewed);
-            certificateMapper.updateById(cert);
-            return ReturnResult.ok(true, "续签成功");
+            AcmeCertificateResult certResult = provider.renewCertificate(domains, challenge);
+            if (certResult.isSuccess()) {
+                fillCertificateSuccess(cert, certResult);
+                certificateMapper.updateById(cert);
+                log.info("[ACME] 续签成功: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
+                return ReturnResult.ok(true, "续签成功");
+            } else {
+                cert.setAcmeCertLastError(certResult.getErrorMessage());
+                certificateMapper.updateById(cert);
+                return ReturnResult.illegal("续签失败: " + certResult.getErrorMessage());
+            }
         } catch (Exception e) {
             log.error("[ACME] 续签失败: id={}", certId, e);
             cert.setAcmeCertLastError(shortMsg(e));
             certificateMapper.updateById(cert);
             return ReturnResult.illegal("续签失败: " + e.getMessage());
+        } finally {
+            provider.close();
         }
     }
 
@@ -240,24 +281,38 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
         log.warn("[ACME] 吊销证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
-        AcmeClient client = new AcmeClient(account.getAcmeAccountServer(), account.getAcmeAccountEmail());
-        if (!client.connect()) {
-            return ReturnResult.illegal("连接 ACME 服务器失败: " + account.getAcmeAccountServer());
+        // 通过 SPI 获取 ACME 提供者
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension("acme4j");
+        if (provider == null) {
+            return ReturnResult.illegal("ACME 服务提供者不可用");
         }
+
+        // 连接 ACME 服务器
+        AcmeConnectionResult connResult = provider.connect(
+                account.getAcmeAccountServer(),
+                account.getAcmeAccountEmail(),
+                account.getAcmeAccountPrivateKeyPem()
+        );
+        if (!connResult.isSuccess()) {
+            provider.close();
+            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getErrorMessage());
+        }
+
         try {
-            AcmeCertificate current = AcmeCertificate.builder()
-                    .primaryDomain(cert.getAcmeCertPrimaryDomain())
-                    .domains(buildDomains(cert))
-                    .validationType(mapValidationType(cert.getAcmeCertChallengeType()))
-                    .status(AcmeCertificateStatus.VALID)
-                    .build();
-            client.revokeCertificate(current);
-            cert.setAcmeCertStatus("revoked");
-            certificateMapper.updateById(cert);
-            return ReturnResult.ok(true);
+            boolean revoked = provider.revokeCertificate(cert.getAcmeCertChainPem());
+            if (revoked) {
+                cert.setAcmeCertStatus("revoked");
+                certificateMapper.updateById(cert);
+                log.info("[ACME] 证书吊销成功: id={}", certId);
+                return ReturnResult.ok(true);
+            } else {
+                return ReturnResult.illegal("吊销失败");
+            }
         } catch (Exception e) {
             log.error("[ACME] 吊销失败: id={}", certId, e);
             return ReturnResult.illegal("吊销失败: " + e.getMessage());
+        } finally {
+            provider.close();
         }
     }
 
@@ -368,24 +423,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     // ======================== 内部工具方法 ========================
 
     /**
-     * 映射挑战类型字符串到枚举
-     */
-    private AcmeValidationType mapValidationType(String challenge) {
-        if (StringUtils.isEmpty(challenge)) {
-            return AcmeValidationType.HTTP_01;
-        }
-        String c = challenge.trim().toUpperCase();
-        if (c.startsWith("DNS")) {
-            return AcmeValidationType.DNS_01;
-        }
-        if (c.startsWith("TLS")) {
-            return AcmeValidationType.TLS_ALPN_01;
-        }
-        return AcmeValidationType.HTTP_01;
-    }
-
-    /**
      * 构建域名列表（主域名 + SAN）
+     *
+     * @param cert 证书实体
+     * @return 域名列表
      */
     private List<String> buildDomains(MonitorAcmeCertificate cert) {
         List<String> domains = new ArrayList<>();
@@ -402,29 +443,37 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
     /**
      * 成功签发/续签后回填证书信息到实体
+     *
+     * @param target 目标证书实体
+     * @param src    证书申请结果
      */
-    private void fillCertificateSuccess(MonitorAcmeCertificate target, AcmeCertificate src) {
+    private void fillCertificateSuccess(MonitorAcmeCertificate target, AcmeCertificateResult src) {
         target.setAcmeCertStatus("valid");
-        if (src.getValidFrom() != null) {
-            target.setAcmeCertNotBefore(src.getValidFrom().format(DATE));
+        if (src.getNotBefore() != null) {
+            target.setAcmeCertNotBefore(src.getNotBefore().format(DATE));
         }
-        if (src.getValidTo() != null) {
-            target.setAcmeCertNotAfter(src.getValidTo().format(DATE));
+        if (src.getNotAfter() != null) {
+            target.setAcmeCertNotAfter(src.getNotAfter().format(DATE));
             // 计划续签日期：到期前 N 天
-            LocalDateTime renewAt = src.getValidTo().minusDays(Math.max(acmeProperties.getRenewDaysBefore(), 7));
+            LocalDateTime renewAt = src.getNotAfter().minusDays(Math.max(acmeProperties.getRenewDaysBefore(), 7));
             target.setAcmeCertRenewAt(renewAt.format(DATE));
         }
-        target.setAcmeCertChainPem(src.getCertificateContent());
-        target.setAcmeCertKeyPem(src.getPrivateKey());
+        target.setAcmeCertChainPem(src.getCertificatePem());
+        target.setAcmeCertKeyPem(src.getPrivateKeyPem());
         target.setAcmeCertLastError(null);
     }
 
     /**
      * 提取简短异常信息
+     *
+     * @param e 异常
+     * @return 简短信息
      */
     private String shortMsg(Exception e) {
         String msg = e.getMessage();
-        if (msg == null) {return "";}
+        if (msg == null) {
+            return "";
+        }
         return msg.length() > 512 ? msg.substring(0, 512) : msg;
     }
 }
