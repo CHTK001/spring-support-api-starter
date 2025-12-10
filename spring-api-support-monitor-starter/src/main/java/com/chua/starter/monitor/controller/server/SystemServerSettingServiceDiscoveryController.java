@@ -3,7 +3,7 @@ package com.chua.starter.monitor.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscovery;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscoveryMapping;
-import com.chua.starter.monitor.service.SystemServerSettingServiceDiscoveryService;
+import com.chua.starter.monitor.service.server.SystemServerSettingServiceDiscoveryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

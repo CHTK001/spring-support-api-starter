@@ -12,7 +12,7 @@ import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscovery;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscoveryMapping;
-import com.chua.starter.monitor.service.SystemServerSettingServiceDiscoveryService;
+import com.chua.starter.monitor.service.server.SystemServerSettingServiceDiscoveryService;
 
 import java.util.List;
 

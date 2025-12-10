@@ -2,7 +2,7 @@ package com.chua.starter.monitor.controller.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemServerSettingFileStorage;
-import com.chua.starter.monitor.service.SystemServerSettingFileStorageService;
+import com.chua.starter.monitor.service.server.SystemServerSettingFileStorageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

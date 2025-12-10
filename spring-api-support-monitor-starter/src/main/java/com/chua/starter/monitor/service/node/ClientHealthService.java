@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.ClientHealthReport;
+import com.chua.starter.monitor.pojo.node.ClientHealthReport;
 import com.chua.starter.monitor.pojo.ClientHealthStatus;
 
 import java.util.List;

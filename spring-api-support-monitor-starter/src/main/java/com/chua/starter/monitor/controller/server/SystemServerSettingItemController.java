@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.SystemServerSettingItem;
-import com.chua.starter.monitor.service.SystemServerSettingItemService;
+import com.chua.starter.monitor.service.server.SystemServerSettingItemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
