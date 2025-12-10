@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.node;
 
 
 import com.chua.common.support.discovery.Discovery;
