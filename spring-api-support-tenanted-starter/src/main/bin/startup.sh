@@ -18,6 +18,7 @@ CONFIG_DIR="${APP_HOME}/config"
 LIB_DIR="${APP_HOME}/lib"
 LOG_DIR="${APP_HOME}/logs"
 PID_FILE="${APP_HOME}/${APP_NAME}.pid"
+BACKUP_DIR="${APP_HOME}/backup"
 
 # 调试端口配置
 DEFAULT_DEBUG_PORT=5005
@@ -29,7 +30,6 @@ DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-${APP_VERSION}}"
 DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_NAME:-${APP_NAME}}"
 DOCKER_PORT="${DOCKER_PORT:-8080}"
 DOCKER_HOST_PORT="${DOCKER_HOST_PORT:-8080}"
-DOCKERFILE_PATH="${APP_HOME}/Dockerfile"
 
 # JVM配置
 JAVA_OPTS="${JAVA_OPTS:--Xms512m -Xmx1024m -XX:+UseG1GC}"
@@ -62,9 +62,13 @@ show_help() {
     echo "  jvm         查看JVM信息"
     echo "  tuning      JVM调优建议"
     echo "  analyze     CPU/内存分析"
+    echo "  dump        生成转储文件 (heap/thread/all)"
     echo "  arthas      启动Arthas诊断"
     echo "  backup      备份配置/JAR"
     echo "  restore     还原配置/JAR"
+    echo "  upgrade         从压缩包升级 (支持 zip/tar.gz)"
+    echo "  rollback        回滚到上一个还原点"
+    echo "  rollback-status 查看还原点状态"
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}Docker 命令:${NC}"
@@ -84,7 +88,25 @@ show_help() {
     echo "  --docker-port <port>  指定容器内部端口 (默认: 8080)"
     echo "  --host-port <port>    指定主机映射端口 (默认: 8080)"
     echo "  --image-tag <tag>     指定镜像标签 (默认: ${APP_VERSION})"
+    echo "  --package <path>      升级包路径 (zip/tar.gz)"
+    echo "  --no-restart          升级后不自动重启"
+    echo "  --output <path>       dump 输出目录 (默认: logs/dump)"
     echo "  --help, -h            显示帮助信息"
+    echo ""
+    echo -e "${YELLOW}示例:${NC}"
+    echo "  $0 start                              # 启动应用"
+    echo "  $0 stop                               # 停止应用"
+    echo "  $0 restart                            # 重启应用"
+    echo "  $0 status                             # 查看状态"
+    echo "  $0 debug --debug-port 5006            # 调试模式启动"
+    echo "  $0 dump heap                          # 生成堆转储"
+    echo "  $0 dump thread --output /tmp/dump     # 线程转储到指定目录"
+    echo "  $0 analyze cpu                        # CPU 分析"
+    echo "  $0 upgrade --package app-4.1.0.zip    # 从压缩包升级"
+    echo "  $0 rollback                           # 回滚到还原点"
+    echo "  $0 publish                            # Docker 一键发布"
+    echo "  $0 docker-deploy --host-port 9090     # 自定义端口发布"
+    echo "  $0 docker-logs                        # 查看容器日志"
     echo ""
 }
 
@@ -207,279 +229,200 @@ run_restore() {
 }
 
 # ============================================================
-# Docker 相关函数
+# Dump 转储功能
 # ============================================================
 
-# 检查 Docker 环境
-check_docker() {
-    if ! command -v docker &> /dev/null; then
-        echo -e "${RED}[错误] 未找到 Docker 环境${NC}"
-        echo "请先安装 Docker: https://docs.docker.com/get-docker/"
+run_dump() {
+    local mode="${1:-all}"
+    local output_dir="${2:-${LOG_DIR}/dump}"
+    local pid=$(get_pid)
+    
+    if [ -z "$pid" ]; then
+        echo -e "${RED}[错误] ${APP_NAME} 未在运行${NC}"
         exit 1
     fi
     
-    if ! docker info &> /dev/null; then
-        echo -e "${RED}[错误] Docker 服务未运行${NC}"
-        echo "请启动 Docker 服务"
-        exit 1
-    fi
-    echo -e "${BLUE}Docker: $(docker --version)${NC}"
-}
-
-# 生成 Dockerfile
-generate_dockerfile() {
-    if [ -f "${DOCKERFILE_PATH}" ]; then
-        echo -e "${BLUE}使用现有 Dockerfile: ${DOCKERFILE_PATH}${NC}"
-        return 0
+    # 创建输出目录
+    mkdir -p "${output_dir}"
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    
+    echo -e "${BLUE}==========================================${NC}"
+    echo -e "${GREEN}  生成 Dump 转储${NC}"
+    echo -e "  PID: ${pid}"
+    echo -e "  模式: ${mode}"
+    echo -e "  输出目录: ${output_dir}"
+    echo -e "${BLUE}==========================================${NC}"
+    
+    # 检查 jmap 和 jstack 命令
+    local jmap_cmd="jmap"
+    local jstack_cmd="jstack"
+    if [ -n "$JAVA_HOME" ]; then
+        jmap_cmd="$JAVA_HOME/bin/jmap"
+        jstack_cmd="$JAVA_HOME/bin/jstack"
     fi
     
-    echo -e "${BLUE}生成 Dockerfile...${NC}"
-    cat > "${DOCKERFILE_PATH}" << 'EOF'
-# ============================================================
-# Dockerfile - 租户系统
-# 作者: CH
-# 创建时间: 2024/12/10
-# ============================================================
-FROM eclipse-temurin:21-jre-alpine
-
-LABEL maintainer="CH"
-LABEL description="租户系统 Docker 镜像"
-
-# 设置工作目录
-WORKDIR /app
-
-# 设置时区
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# 创建必要目录
-RUN mkdir -p /app/config /app/lib /app/logs
-
-# 复制应用文件
-COPY *.jar /app/app.jar
-COPY config/ /app/config/
-
-# 复制 lib 目录 (如果存在)
-COPY lib/ /app/lib/
-
-# JVM 参数
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs"
-ENV SPRING_OPTS="--spring.config.location=classpath:/,file:/app/config/ --spring.profiles.active=prod"
-
-# 暴露端口
-EXPOSE 8080
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget -q --spider http://localhost:8080/actuator/health || exit 1
-
-# 启动命令
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dloader.path=/app/config,/app/lib -jar /app/app.jar $SPRING_OPTS"]
-EOF
-    echo -e "${GREEN}[成功] Dockerfile 已生成${NC}"
+    case "${mode}" in
+        heap)
+            dump_heap "${pid}" "${output_dir}" "${timestamp}" "${jmap_cmd}"
+            ;;
+        thread)
+            dump_thread "${pid}" "${output_dir}" "${timestamp}" "${jstack_cmd}"
+            ;;
+        all)
+            dump_heap "${pid}" "${output_dir}" "${timestamp}" "${jmap_cmd}"
+            dump_thread "${pid}" "${output_dir}" "${timestamp}" "${jstack_cmd}"
+            ;;
+        *)
+            echo -e "${RED}[错误] 未知的 dump 模式: ${mode}${NC}"
+            echo "支持的模式: heap, thread, all"
+            exit 1
+            ;;
+    esac
+    
+    echo -e "\n${GREEN}[完成] Dump 文件已保存到: ${output_dir}${NC}"
 }
 
-# 获取完整镜像名称
-get_full_image_name() {
-    if [ -n "${DOCKER_REGISTRY}" ]; then
-        echo "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+# 生成堆转储
+dump_heap() {
+    local pid="$1"
+    local output_dir="$2"
+    local timestamp="$3"
+    local jmap_cmd="$4"
+    local heap_file="${output_dir}/heapdump_${timestamp}.hprof"
+    
+    echo -e "\n${BLUE}[堆转储] 生成中...${NC}"
+    
+    if ! command -v "${jmap_cmd}" &> /dev/null; then
+        echo -e "${RED}[错误] 未找到 jmap 命令${NC}"
+        echo "请确保已安装 JDK 并设置 JAVA_HOME"
+        return 1
+    fi
+    
+    # 生成堆转储
+    "${jmap_cmd}" -dump:format=b,file="${heap_file}" "${pid}" 2>&1
+    
+    if [ $? -eq 0 ] && [ -f "${heap_file}" ]; then
+        local size=$(du -h "${heap_file}" | cut -f1)
+        echo -e "${GREEN}  ✓ 堆转储: ${heap_file} (${size})${NC}"
     else
-        echo "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+        echo -e "${RED}  ✗ 堆转储失败${NC}"
     fi
 }
 
-# 构建 Docker 镜像
+# 生成线程转储
+dump_thread() {
+    local pid="$1"
+    local output_dir="$2"
+    local timestamp="$3"
+    local jstack_cmd="$4"
+    local thread_file="${output_dir}/threaddump_${timestamp}.txt"
+    
+    echo -e "\n${BLUE}[线程转储] 生成中...${NC}"
+    
+    if ! command -v "${jstack_cmd}" &> /dev/null; then
+        echo -e "${RED}[错误] 未找到 jstack 命令${NC}"
+        echo "请确保已安装 JDK 并设置 JAVA_HOME"
+        return 1
+    fi
+    
+    # 生成线程转储
+    "${jstack_cmd}" -l "${pid}" > "${thread_file}" 2>&1
+    
+    if [ $? -eq 0 ] && [ -f "${thread_file}" ]; then
+        local lines=$(wc -l < "${thread_file}")
+        echo -e "${GREEN}  ✓ 线程转储: ${thread_file} (${lines} 行)${NC}"
+        
+        # 简单分析线程状态
+        echo -e "\n${BLUE}[线程状态统计]${NC}"
+        echo -e "  RUNNABLE:      $(grep -c 'java.lang.Thread.State: RUNNABLE' "${thread_file}" 2>/dev/null || echo 0)"
+        echo -e "  WAITING:       $(grep -c 'java.lang.Thread.State: WAITING' "${thread_file}" 2>/dev/null || echo 0)"
+        echo -e "  TIMED_WAITING: $(grep -c 'java.lang.Thread.State: TIMED_WAITING' "${thread_file}" 2>/dev/null || echo 0)"
+        echo -e "  BLOCKED:       $(grep -c 'java.lang.Thread.State: BLOCKED' "${thread_file}" 2>/dev/null || echo 0)"
+        
+        # 检查死锁
+        if grep -q "Found.*deadlock" "${thread_file}" 2>/dev/null; then
+            echo -e "\n${RED}[警告] 检测到死锁!${NC}"
+        fi
+    else
+        echo -e "${RED}  ✗ 线程转储失败${NC}"
+    fi
+}
+
+# ============================================================
+# 升级和回滚功能 (调用外部脚本)
+# ============================================================
+
+run_upgrade() {
+    local package_path="$1"
+    local no_restart="$2"
+    local opts=""
+    
+    [ -n "${package_path}" ] && opts="${opts} --package ${package_path}"
+    [ "${no_restart}" = "true" ] && opts="${opts} --no-restart"
+    
+    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" upgrade ${opts}
+}
+
+run_rollback() {
+    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" rollback
+}
+
+run_rollback_status() {
+    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" status
+}
+
+# ============================================================
+# Docker 相关函数 (调用外部脚本)
+# ============================================================
+
 docker_build() {
-    check_docker
-    generate_dockerfile
-    
-    local image_name=$(get_full_image_name)
-    
-    echo -e "${BLUE}==========================================${NC}"
-    echo -e "${GREEN}  构建 Docker 镜像${NC}"
-    echo -e "  镜像名称: ${image_name}"
-    echo -e "  构建目录: ${APP_HOME}"
-    echo -e "${BLUE}==========================================${NC}"
-    
-    # 检查 JAR 文件是否存在
-    if [ ! -f "${APP_HOME}/${JAR_NAME}" ]; then
-        echo -e "${RED}[错误] JAR 文件不存在: ${APP_HOME}/${JAR_NAME}${NC}"
-        exit 1
-    fi
-    
-    # 构建镜像
-    cd "${APP_HOME}"
-    docker build -t "${image_name}" -t "${DOCKER_IMAGE_NAME}:latest" . 
-    
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[成功] 镜像构建完成: ${image_name}${NC}"
-        docker images | grep "${DOCKER_IMAGE_NAME}"
-    else
-        echo -e "${RED}[失败] 镜像构建失败${NC}"
-        exit 1
-    fi
+    bash "${SCRIPT_DIR}/script/docker.sh" build --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
-# 停止并删除旧容器
-docker_stop_container() {
-    check_docker
-    
-    if docker ps -a --format '{{.Names}}' | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
-        echo -e "${BLUE}停止容器: ${DOCKER_CONTAINER_NAME}...${NC}"
-        docker stop "${DOCKER_CONTAINER_NAME}" 2>/dev/null
-        docker rm "${DOCKER_CONTAINER_NAME}" 2>/dev/null
-        echo -e "${GREEN}[成功] 容器已停止并删除${NC}"
-    else
-        echo -e "${YELLOW}[提示] 容器 ${DOCKER_CONTAINER_NAME} 不存在${NC}"
-    fi
-}
-
-# 启动 Docker 容器
-docker_start_container() {
-    check_docker
-    
-    local image_name=$(get_full_image_name)
-    
-    # 检查容器是否已运行
-    if docker ps --format '{{.Names}}' | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
-        echo -e "${YELLOW}[警告] 容器 ${DOCKER_CONTAINER_NAME} 已在运行${NC}"
-        return 1
-    fi
-    
-    # 检查镜像是否存在
-    if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^${image_name}$"; then
-        echo -e "${YELLOW}[警告] 镜像不存在，开始构建...${NC}"
-        docker_build
-    fi
-    
-    echo -e "${BLUE}==========================================${NC}"
-    echo -e "${GREEN}  启动 Docker 容器${NC}"
-    echo -e "  容器名称: ${DOCKER_CONTAINER_NAME}"
-    echo -e "  端口映射: ${DOCKER_HOST_PORT}:${DOCKER_PORT}"
-    echo -e "${BLUE}==========================================${NC}"
-    
-    docker run -d \
-        --name "${DOCKER_CONTAINER_NAME}" \
-        -p "${DOCKER_HOST_PORT}:${DOCKER_PORT}" \
-        -v "${LOG_DIR}:/app/logs" \
-        -e TZ=Asia/Shanghai \
-        --restart unless-stopped \
-        "${image_name}"
-    
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[成功] 容器已启动${NC}"
-        sleep 2
-        docker_status
-    else
-        echo -e "${RED}[失败] 容器启动失败${NC}"
-        exit 1
-    fi
-}
-
-# 重启 Docker 容器
-docker_restart_container() {
-    docker_stop_container
-    sleep 2
-    docker_start_container
-}
-
-# 一键构建并部署
 docker_deploy() {
-    echo -e "${BLUE}==========================================${NC}"
-    echo -e "${GREEN}  一键部署 Docker 应用${NC}"
-    echo -e "${BLUE}==========================================${NC}"
-    
-    # 步骤1: 构建镜像
-    echo -e "\n${YELLOW}[步骤 1/3] 构建镜像...${NC}"
-    docker_build
-    
-    # 步骤2: 停止旧容器
-    echo -e "\n${YELLOW}[步骤 2/3] 停止旧容器...${NC}"
-    docker_stop_container
-    
-    # 步骤3: 启动新容器
-    echo -e "\n${YELLOW}[步骤 3/3] 启动新容器...${NC}"
-    docker_start_container
-    
-    echo -e "\n${GREEN}==========================================${NC}"
-    echo -e "${GREEN}  部署完成!${NC}"
-    echo -e "${GREEN}  访问地址: http://localhost:${DOCKER_HOST_PORT}${NC}"
-    echo -e "${GREEN}==========================================${NC}"
+    bash "${SCRIPT_DIR}/script/docker.sh" deploy --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
-# 查看容器状态
+docker_start_container() {
+    bash "${SCRIPT_DIR}/script/docker.sh" start --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+}
+
+docker_stop_container() {
+    bash "${SCRIPT_DIR}/script/docker.sh" stop --name "$APP_NAME"
+}
+
+docker_restart_container() {
+    bash "${SCRIPT_DIR}/script/docker.sh" restart --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+}
+
 docker_status() {
-    check_docker
-    
-    echo -e "${BLUE}==========================================${NC}"
-    echo -e "${GREEN}  Docker 容器状态${NC}"
-    echo -e "${BLUE}==========================================${NC}"
-    
-    if docker ps --format '{{.Names}}' | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
-        echo -e "${GREEN}[运行中]${NC} ${DOCKER_CONTAINER_NAME}"
-        echo ""
-        docker ps --filter "name=${DOCKER_CONTAINER_NAME}" --format "table {{.ID}}\t{{.Status}}\t{{.Ports}}"
-        echo ""
-        echo -e "${BLUE}容器资源使用:${NC}"
-        docker stats "${DOCKER_CONTAINER_NAME}" --no-stream --format "table {{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
-    elif docker ps -a --format '{{.Names}}' | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
-        echo -e "${YELLOW}[已停止]${NC} ${DOCKER_CONTAINER_NAME}"
-        docker ps -a --filter "name=${DOCKER_CONTAINER_NAME}" --format "table {{.ID}}\t{{.Status}}"
-    else
-        echo -e "${YELLOW}[不存在]${NC} 容器 ${DOCKER_CONTAINER_NAME} 未创建"
-    fi
+    bash "${SCRIPT_DIR}/script/docker.sh" status --name "$APP_NAME"
 }
 
-# 查看容器日志
 docker_logs() {
-    check_docker
-    
     local lines="${1:-100}"
-    
-    if ! docker ps -a --format '{{.Names}}' | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
-        echo -e "${YELLOW}[警告] 容器 ${DOCKER_CONTAINER_NAME} 不存在${NC}"
-        return 1
-    fi
-    
-    echo -e "${BLUE}显示最近 ${lines} 行日志...${NC}"
-    docker logs --tail "${lines}" -f "${DOCKER_CONTAINER_NAME}"
+    bash "${SCRIPT_DIR}/script/docker.sh" logs --name "$APP_NAME" --lines "$lines"
 }
 
-# 清理旧镜像
 docker_clean() {
-    check_docker
-    
-    echo -e "${BLUE}清理旧镜像...${NC}"
-    
-    # 保留最新版本，删除其他版本
-    local images=$(docker images "${DOCKER_IMAGE_NAME}" --format "{{.ID}} {{.Tag}}" | grep -v "latest" | grep -v "${DOCKER_IMAGE_TAG}" | awk '{print $1}')
-    
-    if [ -n "${images}" ]; then
-        echo "${images}" | xargs docker rmi -f 2>/dev/null
-        echo -e "${GREEN}[成功] 旧镜像已清理${NC}"
-    else
-        echo -e "${YELLOW}[提示] 没有需要清理的旧镜像${NC}"
-    fi
-    
-    # 清理悬空镜像
-    docker image prune -f 2>/dev/null
-    
-    echo -e "\n${BLUE}当前镜像列表:${NC}"
-    docker images | grep "${DOCKER_IMAGE_NAME}"
+    bash "${SCRIPT_DIR}/script/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
 }
 
 COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|tuning|analyze|arthas|backup|restore|debug) COMMAND="$1"; shift ;;
+        start|stop|restart|status|jvm|tuning|analyze|dump|arthas|backup|restore|upgrade|rollback|rollback-status|debug) COMMAND="$1"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish) COMMAND="$1"; shift ;;
-        cpu|mem|all|config|jar) EXTRA_MODE="$1"; shift ;;
+        cpu|mem|all|config|jar|heap|thread) EXTRA_MODE="$1"; shift ;;
         --jvm-opts) CUSTOM_JVM_OPTS="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
         --docker-port) DOCKER_PORT="$2"; shift 2 ;;
         --host-port) DOCKER_HOST_PORT="$2"; shift 2 ;;
         --image-tag) DOCKER_IMAGE_TAG="$2"; shift 2 ;;
+        --package) UPGRADE_PACKAGE="$2"; shift 2 ;;
+        --no-restart) NO_RESTART="true"; shift ;;
+        --output) DUMP_OUTPUT="$2"; shift 2 ;;
         --help|-h) show_help; exit 0 ;;
         *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
     esac
@@ -496,8 +439,12 @@ case "$COMMAND" in
     tuning) show_tuning ;;
     arthas) start_arthas ;;
     analyze) run_analyze "${EXTRA_MODE:-cpu}" ;;
+    dump) run_dump "${EXTRA_MODE:-all}" "${DUMP_OUTPUT}" ;;
     backup) run_backup "${EXTRA_MODE:-all}" ;;
     restore) run_restore "${EXTRA_MODE:-all}" ;;
+    upgrade) run_upgrade "${UPGRADE_PACKAGE}" "${NO_RESTART}" ;;
+    rollback) run_rollback ;;
+    rollback-status) run_rollback_status ;;
     docker-build) docker_build ;;
     docker-deploy|publish) docker_deploy ;;
     docker-start) docker_start_container ;;
