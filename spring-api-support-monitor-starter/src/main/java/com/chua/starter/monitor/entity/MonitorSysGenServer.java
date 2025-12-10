@@ -11,7 +11,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerLogConfigMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.impl.MonitorSysGenServerServiceImpl;
 import com.chua.starter.monitor.utils.ServerInfoDetector;
 import com.chua.starter.monitor.utils.ServerLogUtils;

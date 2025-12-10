@@ -13,8 +13,8 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
 // 移除 FileManagementMode 导入，改为使用字符串比较
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.ServerTaskManagementService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ServerTaskManagementService;
 import com.chua.starter.monitor.task.manager.ServerTaskManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;

@@ -11,7 +11,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenScriptMapper;
 import com.chua.starter.monitor.pojo.ScriptManagementDTO;
 import com.chua.starter.monitor.service.MonitorSysGenScriptService;
 import com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.SshCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
