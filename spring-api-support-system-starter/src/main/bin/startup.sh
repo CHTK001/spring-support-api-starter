@@ -54,6 +54,8 @@ show_help() {
     echo "  tuning      JVM调优建议"
     echo "  analyze     CPU/内存分析"
     echo "  arthas      启动Arthas诊断"
+    echo "  backup      备份配置/JAR"
+    echo "  restore     还原配置/JAR"
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
@@ -170,12 +172,15 @@ run_analyze() {
     bash "${SCRIPT_DIR}/script/cpu-analysis.sh" "$pid" "${1:-cpu}" "$APP_NAME"
 }
 
+run_backup() { bash "${SCRIPT_DIR}/script/backup-restore.sh" backup "${1:-all}"; }
+run_restore() { bash "${SCRIPT_DIR}/script/backup-restore.sh" restore "${1:-all}"; }
+
 COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|tuning|analyze|arthas|debug) COMMAND="$1"; shift ;;
-        cpu|mem|all) ANALYZE_MODE="$1"; shift ;;
+        start|stop|restart|status|jvm|tuning|analyze|arthas|backup|restore|debug) COMMAND="$1"; shift ;;
+        cpu|mem|all|config|jar) EXTRA_MODE="$1"; shift ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
         --help|-h) show_help; exit 0 ;;
         *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
@@ -192,6 +197,8 @@ case "$COMMAND" in
     jvm) show_jvm_info ;;
     tuning) show_tuning ;;
     arthas) start_arthas ;;
-    analyze) run_analyze "${ANALYZE_MODE:-cpu}" ;;
+    analyze) run_analyze "${EXTRA_MODE:-cpu}" ;;
+    backup) run_backup "${EXTRA_MODE:-all}" ;;
+    restore) run_restore "${EXTRA_MODE:-all}" ;;
     *) show_help; exit 1 ;;
 esac
