@@ -12,7 +12,6 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.query.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
-import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
@@ -29,7 +28,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
@@ -41,7 +39,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
  */
 @Tag(name = "用户接口")
 @RestController
-@RequestMapping("/v2/login")
+@RequestMapping("/v2/user")
 @RequiredArgsConstructor
 public class SysUserController {
 
@@ -84,17 +82,6 @@ public class SysUserController {
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId, @RequestBody UserLayout userLayout) {
         return ReturnResult.ok(sysUserService.saveUserLayout(userId, userLayout));
     }
-    /**
-     * 获取当前登录用户菜单
-     *
-     * @return 获取当前登录用户菜单
-     */
-    @Operation(summary = "获取当前登录用户菜单")
-    @GetMapping("/menu")
-    public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return sysUserService.getUserMenu(roles);
-    }
-
     /**
      * 删除用户
      *

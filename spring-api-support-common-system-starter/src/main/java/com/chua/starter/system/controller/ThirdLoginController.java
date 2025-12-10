@@ -33,7 +33,7 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @Slf4j
 @Api(tags = "第三方登录接口")
 @Tag(name = "第三方登录接口")
-@RequestMapping("/v2/login")
+@RequestMapping("/v2/user")
 @RequiredArgsConstructor
 public class ThirdLoginController {
 

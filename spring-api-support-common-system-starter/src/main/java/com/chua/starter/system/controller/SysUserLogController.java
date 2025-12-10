@@ -32,7 +32,7 @@ import java.util.Set;
  */
 @Tag(name = "操作日志接口")
 @RestController
-@RequestMapping("/v2/login/log")
+@RequestMapping("/v2/user/log")
 @RequiredArgsConstructor
 public class SysUserLogController {
 
