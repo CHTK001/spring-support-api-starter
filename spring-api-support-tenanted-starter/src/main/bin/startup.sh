@@ -37,8 +37,9 @@ JAVA_OPTS="${JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOG_D
 JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.path=${LOG_DIR}"
 
 # Spring配置
+SPRING_PROFILE="${SPRING_PROFILE:-prod}"
 SPRING_OPTS="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"
-SPRING_OPTS="${SPRING_OPTS} --spring.profiles.active=${SPRING_PROFILE:-prod}"
+SPRING_OPTS="${SPRING_OPTS} --spring.profiles.active=${SPRING_PROFILE}"
 
 # 颜色定义
 RED='\033[0;31m'
@@ -91,12 +92,18 @@ show_help() {
     echo "  --image-tag <tag>     指定镜像标签 (默认: ${APP_VERSION})"
     echo "  --package <path>      升级包路径 (zip/tar.gz)"
     echo "  --no-restart          升级后不自动重启"
+    echo "  --dev                 使用开发环境 (dev)"
+    echo "  --prod                使用生产环境 (prod, 默认)"
+    echo "  --test                使用测试环境 (test)"
     echo "  --output <path>       dump 输出目录 (默认: logs/dump)"
     echo "  --tail                启动后跟踪日志输出"
     echo "  --help, -h            显示帮助信息"
     echo ""
     echo -e "${YELLOW}示例:${NC}"
     echo "  $0 start --java /usr/bin/java        # 指定 Java 启动"
+    echo "  $0 start --dev                        # 使用开发环境启动"
+    echo "  $0 start --prod                       # 使用生产环境启动"
+    echo "  $0 start --test                       # 使用测试环境启动"
     echo "  $0 start --tail                       # 启动并跟踪日志"
     echo "  $0 start                              # 启动应用"
     echo "  $0 stop                               # 停止应用"
@@ -174,6 +181,7 @@ start_app() {
     echo -e "${BLUE}==========================================${NC}"
     echo -e "${GREEN}  ${APP_NAME} 启动中...${NC}"
     echo -e "  版本: ${APP_VERSION}"
+    echo -e "  环境: ${SPRING_PROFILE}"
     [ "${DEBUG_MODE}" = "true" ] && echo -e "  调试端口: ${DEBUG_PORT}"
     echo -e "${BLUE}==========================================${NC}"
     
@@ -438,6 +446,9 @@ while [ $# -gt 0 ]; do
         start|stop|restart|status|jvm|tuning|analyze|dump|arthas|backup|restore|upgrade|rollback|rollback-status|debug) COMMAND="$1"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish) COMMAND="$1"; shift ;;
         cpu|mem|all|config|jar|heap|thread) EXTRA_MODE="$1"; shift ;;
+        --dev) SPRING_PROFILE="dev"; shift ;;
+        --prod) SPRING_PROFILE="prod"; shift ;;
+        --test) SPRING_PROFILE="test"; shift ;;
         --java) CUSTOM_JAVA="$2"; shift 2 ;;
         --jvm-opts) CUSTOM_JVM_OPTS="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
