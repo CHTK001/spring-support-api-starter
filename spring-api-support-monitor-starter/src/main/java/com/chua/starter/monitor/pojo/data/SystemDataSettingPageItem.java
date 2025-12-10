@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.data;
 
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import io.swagger.v3.oas.annotations.media.Schema;
