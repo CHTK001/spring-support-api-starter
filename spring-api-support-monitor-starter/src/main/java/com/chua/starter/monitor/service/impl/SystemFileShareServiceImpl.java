@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.SystemFileShare;
 import com.chua.starter.monitor.mapper.SystemFileShareMapper;
-import com.chua.starter.monitor.service.SystemFileShareService;
+import com.chua.starter.monitor.service.file.SystemFileShareService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

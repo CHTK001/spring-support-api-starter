@@ -6,7 +6,7 @@ import com.chua.common.support.protocol.filter.storage.BucketAddress;
 import com.chua.common.support.protocol.filter.storage.SignedFileAccessHandler;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.SystemFileShare;
-import com.chua.starter.monitor.service.SystemFileShareService;
+import com.chua.starter.monitor.service.file.SystemFileShareService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.extern.slf4j.Slf4j;

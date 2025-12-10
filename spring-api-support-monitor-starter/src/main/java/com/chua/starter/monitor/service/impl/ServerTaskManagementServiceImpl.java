@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.service.ServerTaskManagementService;
+import com.chua.starter.monitor.service.server.ServerTaskManagementService;
 import com.chua.starter.monitor.task.manager.ServerTaskManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

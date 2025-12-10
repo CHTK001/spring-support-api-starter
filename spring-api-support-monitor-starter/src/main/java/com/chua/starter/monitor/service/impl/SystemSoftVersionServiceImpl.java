@@ -6,7 +6,7 @@ import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.mapper.SystemSoftVersionMapper;
 import com.chua.starter.monitor.entity.SystemSoftVersion;
-import com.chua.starter.monitor.service.SystemSoftVersionService;
+import com.chua.starter.monitor.service.docker.SystemSoftVersionService;
 /**
  *
  * @author CH

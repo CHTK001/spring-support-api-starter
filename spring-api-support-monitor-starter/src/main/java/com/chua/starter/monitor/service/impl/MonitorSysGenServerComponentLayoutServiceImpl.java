@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.MonitorSysGenServerComponentLayout;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentLayoutMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerComponentLayoutService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerComponentLayoutService;
 import com.chua.common.support.lang.code.ReturnResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

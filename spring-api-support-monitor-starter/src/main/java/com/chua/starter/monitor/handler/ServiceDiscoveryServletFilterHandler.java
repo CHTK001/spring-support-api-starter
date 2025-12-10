@@ -3,50 +3,32 @@ package com.chua.starter.monitor.handler;
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.discovery.*;
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.net.NetAddress;
 import com.chua.common.support.objects.ConfigureObjectContext;
-import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.protocol.filter.ServiceDiscoveryServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
-import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
-import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscovery;
 import com.chua.starter.monitor.entity.SystemServerSettingServiceDiscoveryMapping;
-import com.chua.starter.monitor.service.MonitorAppService;
-import com.chua.starter.monitor.service.SystemServerSettingServiceDiscoveryService;
-import com.chua.sync.support.discovery.SyncServerServiceDiscovery;
-import com.chua.sync.support.server.SyncServer;
-import lombok.extern.slf4j.Slf4j;
+import com.chua.starter.monitor.service.server.SystemServerSettingServiceDiscoveryService;
 
 import java.util.List;
 
 /**
  * ServiceDiscovery 过滤器处理器
- * <p>
- * 支持模式：MONITOR/SPRING/TABLE/HAZELCAST，并可配置默认负载均衡策略 balance
- * <ul>
- *   <li>MONITOR: 从 Monitor 应用列表获取服务发现信息</li>
- *   <li>SPRING: 从 Spring 容器获取 ServiceDiscovery Bean</li>
- *   <li>TABLE: 从数据库表读取服务映射配置</li>
- *   <li>HAZELCAST: 使用 Hazelcast 分布式服务发现</li>
- * </ul>
+ *
+ * 支持模式：SPRING/TABLE/HAZELCAST，并可配置默认负载均衡策略 balance
  *
  * @author CH
  * @since 2025/8/11 17:01
  */
-@Slf4j
 @Spi("serviceDiscovery")
 @SpiDefault
 public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandler {
 
     static HazelcastServiceDiscovery HAZELCAST_SERVICE_DISCOVERY = null;
-
-    @AutoInject
-    SyncServer syncServer;
     /**
      * 根据服务器配置创建 ServiceDiscoveryServletFilter
      *
@@ -84,28 +66,12 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
         return servletFilter;
     }
 
-    /**
-     * 根据模式创建 ServiceDiscovery 实例
-     *
-     * @param mode             服务发现模式
-     * @param config           服务发现配置
-     * @param discoveryService 服务发现服务
-     * @param serverId         服务器ID
-     * @return ServiceDiscovery 实例
-     */
     private ServiceDiscovery createServiceDiscoveryByMode(String mode,
                                                           SystemServerSettingServiceDiscovery config,
                                                           SystemServerSettingServiceDiscoveryService discoveryService,
                                                           Integer serverId) {
-        // MONITOR 模式：从 Monitor 应用列表获取服务发现信息
-        if ("MONITOR".equalsIgnoreCase(mode)) {
-            log.debug("使用 MONITOR 模式创建服务发现");
-            return createMonitorServiceDiscovery();
-        }
-
-        // TABLE / DEFAULT 模式：使用内置的 DefaultServiceDiscovery，并加载映射
         if ("TABLE".equalsIgnoreCase(mode) || "DEFAULT".equalsIgnoreCase(mode)) {
-            log.debug("使用 TABLE 模式创建服务发现");
+            // 表模式：使用内置的 DefaultServiceDiscovery，并加载映射
             DefaultServiceDiscovery defaultServiceDiscovery = new DefaultServiceDiscovery(new DiscoveryOption());
             List<SystemServerSettingServiceDiscoveryMapping> mappings =
                     discoveryService.listMappingsByServerId(serverId);
@@ -118,46 +84,31 @@ public class ServiceDiscoveryServletFilterHandler implements ServletFilterHandle
                     Discovery discovery = toDiscovery(m.getServiceDiscoveryAddress(), m.getServiceDiscoveryWeight());
                     if (discovery != null) {
                         defaultServiceDiscovery.registerService(path, discovery);
-                        log.debug("TABLE模式注册服务: {} -> {}", path, m.getServiceDiscoveryAddress());
                     }
                 }
             }
             return defaultServiceDiscovery;
         }
 
-        // HAZELCAST 模式
         if ("HAZELCAST".equalsIgnoreCase(mode)) {
-            if (null != HAZELCAST_SERVICE_DISCOVERY) {
+            if(null != HAZELCAST_SERVICE_DISCOVERY) {
                 return HAZELCAST_SERVICE_DISCOVERY;
             }
-            log.debug("使用 HAZELCAST 模式创建服务发现");
+            // Hazelcast模式
             HazelcastServiceDiscovery hazelcastServiceDiscovery = new HazelcastServiceDiscovery(new DiscoveryOption());
             try {
                 hazelcastServiceDiscovery.start();
                 HAZELCAST_SERVICE_DISCOVERY = hazelcastServiceDiscovery;
-            } catch (Exception e) {
-                log.warn("启动 Hazelcast 服务发现失败", e);
+            } catch (Exception ignored) {
             }
             return hazelcastServiceDiscovery;
         }
 
-        // SPRING 模式（默认）：从Spring容器中获取 ServiceDiscovery
-        log.debug("使用 SPRING 模式创建服务发现");
+        // SPRING模式（默认）：从Spring容器中获取 ServiceDiscovery
         if (config != null && StringUtils.isNotBlank(config.getServiceDiscoveryBeanName())) {
             return SpringBeanUtils.getBean(config.getServiceDiscoveryBeanName(), ServiceDiscovery.class);
         }
         return SpringBeanUtils.getBean(ServiceDiscovery.class);
-    }
-
-    /**
-     * 创建 MONITOR 模式的服务发现
-     * <p>
-     * 从 MonitorAppService 获取所有应用列表，将每个应用的实例注册到服务发现中
-     *
-     * @return 配置好的 ServiceDiscovery 实例
-     */
-    private ServiceDiscovery createMonitorServiceDiscovery() {
-        return new SyncServerServiceDiscovery(syncServer);
     }
 
     private Discovery toDiscovery(String address, Integer weight) {

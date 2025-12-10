@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.SystemServerSettingItem;
 import com.chua.starter.monitor.mapper.SystemServerSettingItemMapper;
-import com.chua.starter.monitor.service.SystemServerSettingItemService;
+import com.chua.starter.monitor.service.server.SystemServerSettingItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

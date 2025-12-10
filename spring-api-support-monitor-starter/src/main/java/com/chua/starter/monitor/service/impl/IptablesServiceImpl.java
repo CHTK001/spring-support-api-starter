@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.properties.IpProperties;
-import com.chua.starter.monitor.service.IptablesService;
+import com.chua.starter.monitor.service.server.IptablesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
