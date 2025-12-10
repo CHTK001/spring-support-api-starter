@@ -17,8 +17,11 @@ import com.chua.starter.service.SysLoginService;
 import com.chua.starter.service.pojo.user.RefreshToken;
 import com.chua.starter.service.result.LoginResult;
 import com.chua.starter.service.result.UserInfoVO;
+import com.chua.starter.system.pojo.menu.SysMenuVO;
+import com.chua.starter.system.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
@@ -48,6 +54,7 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
 public class LoginController {
 
     final SysLoginService sysLoginService;
+    final SysUserService sysUserService;
 
     /**
      * 登录
@@ -68,10 +75,10 @@ public class LoginController {
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @Debounce(key = "#loginData.username #loginData.loginType")
     public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
-                                     BindingResult bindingResult) {
+                                           HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
+                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -125,5 +132,20 @@ public class LoginController {
     @GetMapping("/me")
     public ReturnResult<UserInfoVO> getUserLoginInfo() {
         return ReturnResult.ok(sysLoginService.getUserLoginInfo());
+    }
+
+    /**
+     * 获取当前登录用户菜单
+     *
+     * @param roles 用户角色集合
+     * @return 菜单列表
+     * @author CH
+     * @since 2024/12/10
+     * @version 1.0
+     */
+    @Operation(summary = "获取当前登录用户菜单")
+    @GetMapping("/menu")
+    public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysUserService.getUserMenu(roles);
     }
 }
