@@ -38,8 +38,6 @@ JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.path=${LOG_DIR}"
 
 # Spring配置
 SPRING_PROFILE="${SPRING_PROFILE:-prod}"
-SPRING_OPTS="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"
-SPRING_OPTS="${SPRING_OPTS} --spring.profiles.active=${SPRING_PROFILE}"
 
 # 颜色定义
 RED='\033[0;31m'
@@ -178,7 +176,9 @@ start_app() {
     check_java
     build_loader_path
     
-    local start_opts="${SPRING_OPTS}"
+    # 构建 Spring 启动参数（在参数解析之后）
+    local start_opts="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"
+    start_opts="${start_opts} --spring.profiles.active=${SPRING_PROFILE}"
     
     echo -e "${BLUE}==========================================${NC}"
     echo -e "${GREEN}  ${APP_NAME} 启动中...${NC}"
