@@ -10,7 +10,7 @@ import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.pojo.ViewerConfigVO;
 import com.chua.starter.monitor.pojo.ViewerInfoVO;
-import com.chua.starter.monitor.service.SystemServerSettingService;
+import com.chua.starter.monitor.service.server.SystemServerSettingService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
