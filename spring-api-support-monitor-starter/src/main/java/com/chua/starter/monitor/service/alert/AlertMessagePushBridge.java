@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.alert;
 
 import com.chua.starter.monitor.entity.MonitorSysGenAlertPushConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;

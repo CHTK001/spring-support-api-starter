@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.arthas;
 
 import com.chua.starter.monitor.entity.MonitorArthasSession;
 import com.chua.starter.monitor.mapper.MonitorArthasSessionMapper;

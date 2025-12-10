@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.data;
 
 import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
