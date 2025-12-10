@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.app;
 
 import com.chua.common.support.http.HttpClient;
 import com.chua.common.support.http.HttpMethod;
