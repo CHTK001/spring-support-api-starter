@@ -1,7 +1,0 @@
-plugin:
-  report:
-    client:
-      address: http://127.0.0.1:19170
-      enable: true
-      report:
-        - all

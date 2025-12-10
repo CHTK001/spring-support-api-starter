@@ -45,12 +45,6 @@
             <artifactId>spring-support-swagger-starter</artifactId>
         </dependency>
 
-        <!-- freemarker -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-freemarker</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -63,12 +57,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-service-starter</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-discovery-starter</artifactId>
         </dependency>
 
         <dependency>
@@ -111,12 +106,6 @@
             <artifactId>spring-support-datasource-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-system-starter</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
         <!-- Armeria 依赖 -->
         <dependency>
             <groupId>com.chua</groupId>
@@ -125,43 +114,10 @@
         </dependency>
 
         <!-- RSocket 依赖 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-rsocket-starter</artifactId>
-            <version>4.0.0.33</version>
-        </dependency>
 
         <!-- gRPC 依赖 -->
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
 
         <!-- gRPC Spring Boot Starter -->
-        <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-server-spring-boot-starter</artifactId>
-            <version>2.15.0.RELEASE</version>
-        </dependency>
 
     </dependencies>
 
