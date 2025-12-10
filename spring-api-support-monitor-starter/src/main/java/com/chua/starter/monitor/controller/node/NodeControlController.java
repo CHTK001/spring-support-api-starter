@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.controller.node;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.NodeControlRequest;
+import com.chua.starter.monitor.pojo.node.NodeControlRequest;
 import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
-import com.chua.starter.monitor.service.NodeControlService;
+import com.chua.starter.monitor.service.node.NodeControlService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

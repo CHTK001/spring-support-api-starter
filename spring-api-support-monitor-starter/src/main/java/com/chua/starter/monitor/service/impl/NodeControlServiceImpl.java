@@ -8,7 +8,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.pojo.node.NodeControlRequest;
 import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
-import com.chua.starter.monitor.service.NodeControlService;
+import com.chua.starter.monitor.service.node.NodeControlService;
 import com.chua.starter.monitor.service.node.NodeManagementService;
 import com.chua.sync.support.server.SyncServer;
 import lombok.RequiredArgsConstructor;

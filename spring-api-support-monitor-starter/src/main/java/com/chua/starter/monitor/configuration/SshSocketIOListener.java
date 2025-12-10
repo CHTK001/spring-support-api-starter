@@ -12,7 +12,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
-import com.chua.starter.monitor.service.SshCommandService;
+import com.chua.starter.monitor.service.node.SshCommandService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
