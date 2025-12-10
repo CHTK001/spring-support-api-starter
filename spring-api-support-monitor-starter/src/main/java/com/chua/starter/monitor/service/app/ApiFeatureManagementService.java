@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.app;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.ApiFeatureVO;
+import com.chua.starter.monitor.pojo.app.ApiFeatureVO;
 
 import java.util.List;
 import java.util.Map;

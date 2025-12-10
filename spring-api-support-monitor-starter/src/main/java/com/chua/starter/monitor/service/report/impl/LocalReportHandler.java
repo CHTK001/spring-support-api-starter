@@ -11,7 +11,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.UnifiedAlertService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.service.report.ReportHandler;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;

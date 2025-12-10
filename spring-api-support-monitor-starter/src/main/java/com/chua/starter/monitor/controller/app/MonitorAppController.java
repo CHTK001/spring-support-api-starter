@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.pojo.OpenApi;
-import com.chua.starter.monitor.service.MonitorAppService;
+import com.chua.starter.monitor.service.app.MonitorAppService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.v3.oas.annotations.Operation;

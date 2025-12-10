@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.job;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -12,8 +12,8 @@ import com.chua.starter.monitor.job.JobHelper;
 import com.chua.starter.monitor.job.TriggerTypeEnum;
 import com.chua.starter.monitor.job.pojo.JobStatisticResult;
 import com.chua.starter.monitor.job.trigger.JobTriggerPoolHelper;
-import com.chua.starter.monitor.service.MonitorJobLogService;
-import com.chua.starter.monitor.service.MonitorJobService;
+import com.chua.starter.monitor.service.job.MonitorJobLogService;
+import com.chua.starter.monitor.service.job.MonitorJobService;
 import com.chua.starter.mybatis.controller.AbstractSwaggerController;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;

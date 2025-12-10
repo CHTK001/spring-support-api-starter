@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.starter.monitor.entity.MonitorSysGenAlertPushConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
-import com.chua.starter.monitor.service.AlertMessagePushBridge;
+import com.chua.starter.monitor.service.alert.AlertMessagePushBridge;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

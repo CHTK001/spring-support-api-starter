@@ -5,7 +5,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.ServerLatencyService;
-import com.chua.starter.monitor.service.UnifiedAlertService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.task.manager.TaskStep;
 import com.chua.starter.monitor.utils.ServerLogUtils;
 import lombok.RequiredArgsConstructor;

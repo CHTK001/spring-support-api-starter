@@ -6,7 +6,7 @@ import com.chua.starter.monitor.entity.MonitorJob;
 import com.chua.starter.monitor.job.JobHelper;
 import com.chua.starter.monitor.job.SchedulerTypeEnum;
 import com.chua.starter.monitor.mapper.MonitorJobMapper;
-import com.chua.starter.monitor.service.MonitorJobService;
+import com.chua.starter.monitor.service.job.MonitorJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

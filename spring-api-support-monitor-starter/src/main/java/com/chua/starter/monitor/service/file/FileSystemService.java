@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystem;
-import com.chua.starter.monitor.pojo.FileInitUploadDTO;
+import com.chua.starter.monitor.pojo.file.FileInitUploadDTO;
 import com.chua.starter.monitor.pojo.FileSystemStatisticsDTO;
 import com.chua.starter.monitor.pojo.FileUploadStatusDTO;
 import com.chua.starter.monitor.pojo.response.FileSystemResponse;
