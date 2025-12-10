@@ -15,11 +15,12 @@
 
 ### 可用选项
 
-| 参数     | 环境 | 说明             |
-| -------- | ---- | ---------------- |
-| `--dev`  | dev  | 开发环境         |
-| `--prod` | prod | 生产环境（默认） |
-| `--test` | test | 测试环境         |
+| 参数               | 环境   | 说明                                          |
+| ------------------ | ------ | --------------------------------------------- |
+| `--dev`            | dev    | 开发环境                                      |
+| `--prod`           | prod   | 生产环境（默认）                              |
+| `--test`           | test   | 测试环境                                      |
+| `--profile <name>` | 自定义 | 指定任意自定义环境（如 uat、pre、staging 等） |
 
 ### 默认行为
 
@@ -41,6 +42,12 @@
 
 # 使用生产环境启动（显式指定）
 ./startup.sh start --prod
+
+# 使用自定义环境启动（UAT）
+./startup.sh start --profile uat
+
+# 使用自定义环境启动（预发布）
+./startup.sh start --profile pre
 ```
 
 ### 2. 结合其他参数
@@ -57,6 +64,12 @@
 
 # 开发环境 + 跟踪日志
 ./startup.sh start --dev --tail
+
+# UAT 环境 + 自定义端口
+./startup.sh start --profile uat -port 8090
+
+# 预发布环境 + JVM 参数
+./startup.sh start --profile pre --jvm-opts '-Xms1g -Xmx2g'
 ```
 
 ### 3. 重启应用并切换环境
@@ -90,7 +103,9 @@ src/main/resources/
 ├── application.yml              # 通用配置
 ├── application-dev.yml          # 开发环境配置
 ├── application-test.yml         # 测试环境配置
-└── application-prod.yml         # 生产环境配置
+├── application-prod.yml         # 生产环境配置
+├── application-uat.yml          # UAT 环境配置（可选）
+└── application-pre.yml          # 预发布环境配置（可选）
 ```
 
 ## 环境变量方式
@@ -122,6 +137,7 @@ export SPRING_PROFILE=dev
 2. **只能指定一个环境参数**，后面的会覆盖前面的
 3. **环境参数对所有命令生效**，包括 start、restart、debug 等
 4. **配置文件必须存在**，否则启动会失败
+5. **`--profile` 参数支持任意环境名称**，只要对应的 `application-<name>.yml` 文件存在即可
 
 ## 常见问题
 
@@ -132,6 +148,25 @@ A: 查看启动日志或应用日志中的 `spring.profiles.active` 配置。
 ### Q: 可以同时激活多个环境吗？
 
 A: 当前脚本只支持单一环境，如需多环境可修改 `SPRING_OPTS` 变量。
+
+### Q: `--profile` 和 `--dev/--prod/--test` 有什么区别？
+
+A: `--dev/--prod/--test` 是快捷方式，`--profile` 更灵活，可以指定任意自定义环境名称。
+
+### Q: 如何使用多个自定义环境？
+
+A: 创建对应的配置文件，然后使用 `--profile` 指定：
+
+```bash
+# UAT 环境
+./startup.sh start --profile uat
+
+# 预发布环境
+./startup.sh start --profile pre
+
+# Staging 环境
+./startup.sh start --profile staging
+```
 
 ### Q: 环境参数不生效怎么办？
 
@@ -144,6 +179,7 @@ A: 检查：
 ## 更新日志
 
 - **2024-12-10**: 为所有 startup.sh 添加环境参数支持
-- 支持 --dev、--prod、--test 参数
-- 启动时显示当前环境
-- 更新帮助文档和使用示例
+  - 支持 --dev、--prod、--test 快捷参数
+  - 支持 --profile 自定义环境参数
+  - 启动时显示当前环境
+  - 更新帮助文档和使用示例
