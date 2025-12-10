@@ -8,7 +8,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingHistoryService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

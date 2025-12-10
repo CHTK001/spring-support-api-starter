@@ -23,7 +23,7 @@ import com.chua.starter.service.SysFileSystemPartService;
 import com.chua.starter.service.SysFileSystemService;
 import com.chua.starter.service.mapper.SysFileSystemMapper;
 import com.chua.starter.service.pojo.sso.*;
-import com.chua.starter.service.properties.SsoProperties;
+import com.chua.starter.service.properties.FileSystemProperties;
 import com.chua.starter.service.task.SysFileSystemMergeTaskRegistration;
 import com.chua.starter.service.task.SysFileSystemWrapper;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +58,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private static final long CHUNK_SIZE = 1024 * 1024 * 100L;
     private final TransactionTemplate transactionTemplate;
     private final SysFileSystemPartService sysFileSystemPartService;
-    private final SsoProperties ssoProperties;
+    private final FileSystemProperties fileSystemProperties;
     private final SysFileSystemMergeTaskRegistration mergeTaskRegistration;
 
     @Override
@@ -223,7 +223,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         // 更新分片状态
         part.setSysFileSystemPartStatus(SysFileSystemPart.Status.COMPLETED);
         part.setSysFileSystemPartMd5(request.getFileMd5());
-        part.setSysFileSystemPartLocalPath(FileUtils.normalize(ssoProperties.getTempPath(), request.getTaskId(), request.getTaskSeq() + ""));
+        part.setSysFileSystemPartLocalPath(FileUtils.normalize(fileSystemProperties.getTempPath(), request.getTaskId(), request.getTaskSeq() + ""));
 
         try {
             part.transferFrom(multipartFile);

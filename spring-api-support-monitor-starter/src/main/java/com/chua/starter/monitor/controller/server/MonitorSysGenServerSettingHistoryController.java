@@ -3,7 +3,7 @@ package com.chua.starter.monitor.controller.server;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

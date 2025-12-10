@@ -13,7 +13,7 @@ import com.chua.starter.monitor.enums.AlertLevel;
 import com.chua.starter.monitor.enums.AlertStatus;
 import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.monitor.service.alert.AlertDetectionService;
-import com.chua.starter.monitor.service.MonitorSysGenServerAlertHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerAlertHistoryService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 
