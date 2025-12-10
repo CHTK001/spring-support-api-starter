@@ -56,12 +56,12 @@ public class ArthasCommandController {
     @Operation(summary = "执行 Arthas 命令(HTTP)", description = "内部通过WS连接上游arthas，发送命令并收集输出一段时间后返回")
     public ReturnResult<Map<String, Object>> exec(@RequestBody ExecRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getNodeId()) || StringUtils.isBlank(req.getCommand())) {
+            if (req == null || StringUtils.isBlank(req.nodeId()) || StringUtils.isBlank(req.command())) {
                 return ReturnResult.error("参数无效：nodeId/command 不能为空");
             }
             int collectMs = req.getCollectMillis() == null || req.getCollectMillis() <= 0 ? 3000 : req.getCollectMillis();
 
-            ReturnResult<OnlineNodeInfo> nodeResult = nodeManagementService.getNodeDetails(req.getNodeId());
+            ReturnResult<OnlineNodeInfo> nodeResult = nodeManagementService.getNodeDetails(req.nodeId());
             if (!nodeResult.isSuccess() || nodeResult.getData() == null) {
                 return ReturnResult.error("节点不可用");
             }
@@ -77,7 +77,7 @@ public class ArthasCommandController {
 
             MonitorArthasTunnelConfig monitorArthasTunnelConfig = monitorArthasTunnelConfigMapper.selectOne(
                     Wrappers.<MonitorArthasTunnelConfig>lambdaQuery()
-                            .eq(MonitorArthasTunnelConfig::getMonitorArthasTunnelConfigServerId, req.getNodeId())
+                            .eq(MonitorArthasTunnelConfig::getMonitorArthasTunnelConfigServerId, req.nodeId())
                     , false);
             if (null == monitorArthasTunnelConfig) {
                 monitorArthasTunnelConfig = MonitorArthasTunnelConfig.EMPTY;
@@ -89,7 +89,7 @@ public class ArthasCommandController {
                                 .headers("Content-Type", "application/json")
                                 .uri(URI.create(StringUtils.defaultIfBlank(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api")))
                                 .POST(HttpRequest.BodyPublishers.ofString("{\"action\":\"exec\",\"command\":\"%s\"}".formatted(
-                                        req.getCommand()
+                                        req.command()
                                 )))
                                 .build(),
                         HttpResponse.BodyHandlers.ofByteArray()
@@ -100,8 +100,8 @@ public class ArthasCommandController {
                 String bodyStr = new String(httpResponse.body());
                 //System.out.println();
                 return ReturnResult.success(Map.of(
-                        "nodeId", req.getNodeId(),
-                        "command", req.getCommand(),
+                        "nodeId", req.nodeId(),
+                        "command", req.command(),
                         "collectMillis", collectMs,
                         "output", Json.getJsonObject(bodyStr)));
             }
@@ -117,11 +117,11 @@ public class ArthasCommandController {
     @Operation(summary = "异步执行 Arthas 命令", description = "异步启动命令执行，返回sessionId和consumerId用于后续拉取结果")
     public ReturnResult<AsyncExecResponse> asyncExec(@RequestBody AsyncExecRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getNodeId()) || StringUtils.isBlank(req.getCommand())) {
+            if (req == null || StringUtils.isBlank(req.nodeId()) || StringUtils.isBlank(req.command())) {
                 return ReturnResult.error("参数无效：nodeId/command 不能为空");
             }
 
-            ReturnResult<OnlineNodeInfo> nodeResult = nodeManagementService.getNodeDetails(req.getNodeId());
+            ReturnResult<OnlineNodeInfo> nodeResult = nodeManagementService.getNodeDetails(req.nodeId());
             if (!nodeResult.isSuccess() || nodeResult.getData() == null) {
                 return ReturnResult.error("节点不可用");
             }
@@ -133,14 +133,14 @@ public class ArthasCommandController {
 
             MonitorArthasTunnelConfig monitorArthasTunnelConfig = monitorArthasTunnelConfigMapper.selectOne(
                     Wrappers.<MonitorArthasTunnelConfig>lambdaQuery()
-                            .eq(MonitorArthasTunnelConfig::getMonitorArthasTunnelConfigServerId, req.getNodeId())
+                            .eq(MonitorArthasTunnelConfig::getMonitorArthasTunnelConfigServerId, req.nodeId())
                     , false);
             if (null == monitorArthasTunnelConfig) {
                 monitorArthasTunnelConfig = MonitorArthasTunnelConfig.EMPTY;
             }
 
             String httpUrl = StringUtils.defaultIfBlank(monitorArthasTunnelConfig.getArthasTunnelConfigHttp(), "http://127.0.0.1:8563/api");
-            List<MonitorArthasSession> runningSessionsByNodeId = sessionService.getRunningSessionsByNodeId(req.getNodeId());
+            List<MonitorArthasSession> runningSessionsByNodeId = sessionService.getRunningSessionsByNodeId(req.nodeId());
             if(runningSessionsByNodeId.isEmpty()) {
                 return ReturnResult.success();
             }
@@ -155,7 +155,7 @@ public class ArthasCommandController {
                             "sessionId": "%s",
                             "consumerId": "%s",
                         }""".formatted(
-                                req.getCommand(),
+                                req.command(),
                                 UUID.randomUUID().toString(),
                                 monitorArthasSession.getSessionId(),
                                 monitorArthasSession.getConsumerId()
@@ -215,7 +215,7 @@ public class ArthasCommandController {
             cmd = "thread -n " + n;
         }
         ExecRequest er = new ExecRequest();
-        er.setNodeId(req.getNodeId());
+        er.setNodeId(req.nodeId());
         er.setCommand(cmd);
         er.setCollectMillis(req.getCollectMillis());
         return exec(er);
@@ -231,7 +231,7 @@ public class ArthasCommandController {
     @Operation(summary = "执行 jvm 命令(HTTP)")
     public ReturnResult<Map<String, Object>> jvm(@RequestBody SimpleRequest req) {
         ExecRequest er = new ExecRequest();
-        er.setNodeId(req.getNodeId());
+        er.setNodeId(req.nodeId());
         er.setCommand("jvm");
         er.setCollectMillis(req.getCollectMillis());
         return exec(er);
@@ -241,7 +241,7 @@ public class ArthasCommandController {
     @Operation(summary = "执行 heap 命令(HTTP)")
     public ReturnResult<Map<String, Object>> heap(@RequestBody SimpleRequest req) {
         ExecRequest er = new ExecRequest();
-        er.setNodeId(req.getNodeId());
+        er.setNodeId(req.nodeId());
         er.setCommand("heap");
         er.setCollectMillis(req.getCollectMillis());
         return exec(er);
@@ -262,7 +262,7 @@ public class ArthasCommandController {
     @PostMapping("/trace")
     @Operation(summary = "执行 trace 命令(HTTP)")
     public ReturnResult<Map<String, Object>> trace(@RequestBody TraceRequest req) {
-        if (StringUtils.isBlank(req.getNodeId()) || StringUtils.isBlank(StringUtils.trimToEmpty(req.getClassPattern()))) {
+        if (StringUtils.isBlank(req.nodeId()) || StringUtils.isBlank(StringUtils.trimToEmpty(req.getClassPattern()))) {
             return ReturnResult.error("参数无效：nodeId/classPattern 不能为空");
         }
         StringBuilder sb = new StringBuilder("trace ");
@@ -275,7 +275,7 @@ public class ArthasCommandController {
         if (req.getCount() != null && req.getCount() > 0) sb.append("-n ").append(req.getCount()).append(' ');
         if (req.getExpand() != null && req.getExpand() > 0) sb.append("-x ").append(req.getExpand()).append(' ');
         ExecRequest er = new ExecRequest();
-        er.setNodeId(req.getNodeId());
+        er.setNodeId(req.nodeId());
         er.setCommand(sb.toString().trim());
         er.setCollectMillis(req.getCollectMillis());
         return exec(er);
@@ -290,12 +290,12 @@ public class ArthasCommandController {
     @Operation(summary = "创建 Arthas 会话", description = "创建新的Arthas会话，返回sessionId和consumerId")
     public ReturnResult<AsyncExecResponse> initSession(@RequestBody AsyncExecRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getNodeId())) {
+            if (req == null || StringUtils.isBlank(req.nodeId())) {
                 return ReturnResult.error("参数无效：nodeId 不能为空");
             }
 
             // 获取节点信息和HTTP地址
-            String httpUrl = getNodeHttpUrl(req.getNodeId());
+            String httpUrl = getNodeHttpUrl(req.nodeId());
             if (httpUrl == null) {
                 return ReturnResult.error("无法获取节点的Arthas HTTP地址");
             }
@@ -336,22 +336,22 @@ public class ArthasCommandController {
                 Integer jobId = null;
                 String jobStatus = null;
                 String commandState = null;
-                if (StringUtils.isNotBlank(req.getCommand())) {
-                    Map<String, Object> execResult = executeAsyncCommandWithDetails(client, httpUrl, sessionId, req.getCommand());
+                if (StringUtils.isNotBlank(req.command())) {
+                    Map<String, Object> execResult = executeAsyncCommandWithDetails(client, httpUrl, sessionId, req.command());
                     jobId = (Integer) execResult.get("jobId");
                     jobStatus = (String) execResult.get("jobStatus");
                     commandState = (String) execResult.get("state");
                 }
 
                 // 3. 保存完整的session数据到数据库
-                String commandType = sessionService.extractCommandType(req.getCommand());
+                String commandType = sessionService.extractCommandType(req.command());
                 MonitorArthasSession session = sessionService.createSession(
                     sessionId,
                     consumerId,
                     jobId,
-                    req.getNodeId(),
+                    req.nodeId(),
                     httpUrl,
-                    StringUtils.defaultIfBlank(req.getCommand(), ""),
+                    StringUtils.defaultIfBlank(req.command(), ""),
                     commandType
                 );
 
@@ -372,13 +372,10 @@ public class ArthasCommandController {
                 session.setRemark(remark.toString());
                 sessionService.updateSession(session);
 
-                AsyncExecResponse response = new AsyncExecResponse();
-                response.setSessionId(sessionId);
-                response.setConsumerId(consumerId);
-                response.setJobId(jobId);
+                AsyncExecResponse response = new AsyncExecResponse(sessionId, consumerId, jobId);
 
                 log.info("创建Arthas会话成功: sessionId={}, consumerId={}, nodeId={}, command={}, state={}, jobId={}",
-                    sessionId, consumerId, req.getNodeId(), req.getCommand(), state, jobId);
+                    sessionId, consumerId, req.nodeId(), req.command(), state, jobId);
                 return ReturnResult.success(response);
 
             }
@@ -395,20 +392,20 @@ public class ArthasCommandController {
     @Operation(summary = "拉取 Arthas 命令执行结果", description = "根据sessionId和consumerId拉取命令执行结果")
     public ReturnResult<Map<String, Object>> pullResults(@RequestBody PullResultsRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getSessionId()) || StringUtils.isBlank(req.getConsumerId())) {
+            if (req == null || StringUtils.isBlank(req.sessionId()) || StringUtils.isBlank(req.consumerId())) {
                 return ReturnResult.error("参数无效：sessionId/consumerId 不能为空");
             }
 
             // 从数据库获取session信息
-            MonitorArthasSession session = sessionService.getSessionBySessionId(req.getSessionId());
+            MonitorArthasSession session = sessionService.getSessionBySessionId(req.sessionId());
             if (session == null) {
-                return ReturnResult.error("Session不存在或已过期: " + req.getSessionId());
+                return ReturnResult.error("Session不存在或已过期: " + req.sessionId());
             }
 
             try (HttpClient client = HttpClient.newHttpClient()) {
                 // 调用 Arthas HTTP API 的拉取结果接口
                 String requestBody = String.format("{\"action\":\"pull_results\",\"sessionId\":\"%s\",\"consumerId\":\"%s\"}",
-                        req.getSessionId(), req.getConsumerId());
+                        req.sessionId(), req.consumerId());
 
                 HttpResponse<byte[]> httpResponse = client.send(HttpRequest.newBuilder()
                                 .timeout(Duration.ofSeconds(5))
@@ -422,19 +419,19 @@ public class ArthasCommandController {
                 if (httpResponse.statusCode() != 200) {
                     // HTTP请求失败，可能是会话失效，尝试重新创建会话
                     log.warn("拉取结果失败，可能会话失效，尝试重新创建: sessionId={}, statusCode={}",
-                        req.getSessionId(), httpResponse.statusCode());
+                        req.sessionId(), httpResponse.statusCode());
 
                     // 标记原session为已中断
-                    sessionService.interruptSession(req.getSessionId());
+                    sessionService.interruptSession(req.sessionId());
 
                     // 重新创建会话
                     AsyncExecResponse newSession = recreateSession(session.getNodeId(), session.getCommand());
 
                     // 返回新的session信息，让前端使用新的sessionId和consumerId
                     return ReturnResult.success(Map.of(
-                            "sessionId", newSession.getSessionId(),
-                            "consumerId", newSession.getConsumerId(),
-                            "jobId", newSession.getJobId(),
+                            "sessionId", newSession.sessionId(),
+                            "consumerId", newSession.consumerId(),
+                            "jobId", newSession.jobId(),
                             "recreated", true,
                             "message", "原会话失效，已重新创建会话"
                     ));
@@ -450,22 +447,22 @@ public class ArthasCommandController {
 
                 if ("FAILED".equals(state) || "REFUSED".equals(state)) {
                     // 会话状态异常，可能需要重新创建
-                    log.warn("会话状态异常，尝试重新创建: sessionId={}, state={}", req.getSessionId(), state);
+                    log.warn("会话状态异常，尝试重新创建: sessionId={}, state={}", req.sessionId(), state);
 
                     // 更新原session的备注信息
                     session.setRemark("pull_results失败: state=" + state + ", 已重新创建会话");
                     sessionService.updateSession(session);
 
                     // 标记原session为已中断
-                    sessionService.interruptSession(req.getSessionId());
+                    sessionService.interruptSession(req.sessionId());
 
                     // 重新创建会话
                     AsyncExecResponse newSession = recreateSession(session.getNodeId(), session.getCommand());
 
                     return ReturnResult.success(Map.of(
-                            "sessionId", newSession.getSessionId(),
-                            "consumerId", newSession.getConsumerId(),
-                            "jobId", newSession.getJobId(),
+                            "sessionId", newSession.sessionId(),
+                            "consumerId", newSession.consumerId(),
+                            "jobId", newSession.jobId(),
                             "recreated", true,
                             "message", "会话状态异常，已重新创建会话"
                     ));
@@ -479,8 +476,8 @@ public class ArthasCommandController {
                     jobStatus = (String) bodyMap.get("jobStatus");
                     if ("TERMINATED".equals(jobStatus)) {
                         // 任务已完成，标记session为已完成
-                        sessionService.completeSession(req.getSessionId());
-                        log.info("Arthas任务已完成，标记session为已完成: sessionId={}", req.getSessionId());
+                        sessionService.completeSession(req.sessionId());
+                        log.info("Arthas任务已完成，标记session为已完成: sessionId={}", req.sessionId());
 
                         // 更新session的备注信息
                         session.setRemark("任务已完成: jobStatus=" + jobStatus + ", state=" + state);
@@ -501,29 +498,29 @@ public class ArthasCommandController {
                 }
 
                 return ReturnResult.success(Map.of(
-                        "sessionId", req.getSessionId(),
-                        "consumerId", req.getConsumerId(),
+                        "sessionId", req.sessionId(),
+                        "consumerId", req.consumerId(),
                         "body", responseData,
                         "recreated", false
                 ));
             }
         } catch (Exception e) {
-            log.error("拉取 Arthas 命令结果失败: sessionId={}", req.getSessionId(), e);
+            log.error("拉取 Arthas 命令结果失败: sessionId={}", req.sessionId(), e);
 
             // 如果是网络异常或其他异常，也尝试重新创建会话
             try {
-                MonitorArthasSession session = sessionService.getSessionBySessionId(req.getSessionId());
+                MonitorArthasSession session = sessionService.getSessionBySessionId(req.sessionId());
                 if (session != null) {
                     // 标记原session为已中断
-                    sessionService.interruptSession(req.getSessionId());
+                    sessionService.interruptSession(req.sessionId());
 
                     // 重新创建会话
                     AsyncExecResponse newSession = recreateSession(session.getNodeId(), session.getCommand());
 
                     return ReturnResult.success(Map.of(
-                            "sessionId", newSession.getSessionId(),
-                            "consumerId", newSession.getConsumerId(),
-                            "jobId", newSession.getJobId(),
+                            "sessionId", newSession.sessionId(),
+                            "consumerId", newSession.consumerId(),
+                            "jobId", newSession.jobId(),
                             "recreated", true,
                             "message", "网络异常，已重新创建会话"
                     ));
@@ -543,17 +540,17 @@ public class ArthasCommandController {
     @Operation(summary = "中断 Arthas 命令执行", description = "根据sessionId和jobId中断正在执行的命令")
     public ReturnResult<Map<String, Object>> interruptJob(@RequestBody InterruptJobRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getSessionId())) {
+            if (req == null || StringUtils.isBlank(req.sessionId())) {
                 return ReturnResult.error("参数无效：sessionId 不能为空");
             }
 
             // 从数据库获取session信息
-            MonitorArthasSession session = sessionService.getSessionBySessionId(req.getSessionId());
+            MonitorArthasSession session = sessionService.getSessionBySessionId(req.sessionId());
             if (session == null) {
                 // session不存在，直接返回成功（可能已经被清理了）
-                log.warn("要中断的session不存在: sessionId={}", req.getSessionId());
+                log.warn("要中断的session不存在: sessionId={}", req.sessionId());
                 return ReturnResult.success(Map.of(
-                        "sessionId", req.getSessionId(),
+                        "sessionId", req.sessionId(),
                         "message", "Session不存在，可能已被清理",
                         "interrupted", true
                 ));
@@ -562,7 +559,7 @@ public class ArthasCommandController {
             try (HttpClient client = HttpClient.newHttpClient()) {
                 // 调用 Arthas HTTP API 的中断任务接口
                 String requestBody = String.format("{\"action\":\"interrupt_job\",\"sessionId\":\"%s\"}",
-                    req.getSessionId());
+                    req.sessionId());
 
                 HttpResponse<byte[]> httpResponse = client.send(HttpRequest.newBuilder()
                                 .timeout(Duration.ofSeconds(5))
@@ -577,34 +574,34 @@ public class ArthasCommandController {
                 Map<String, Object> responseData = Json.getJsonObject(bodyStr);
 
                 // 无论HTTP请求是否成功，都标记session为已中断
-                sessionService.interruptSession(req.getSessionId());
-                log.info("Arthas任务已中断，标记session为已中断: sessionId={}", req.getSessionId());
+                sessionService.interruptSession(req.sessionId());
+                log.info("Arthas任务已中断，标记session为已中断: sessionId={}", req.sessionId());
 
                 if (httpResponse.statusCode() != 200) {
                     log.warn("中断命令HTTP请求失败，但已标记session为中断: sessionId={}, statusCode={}",
-                        req.getSessionId(), httpResponse.statusCode());
+                        req.sessionId(), httpResponse.statusCode());
                 }
 
                 return ReturnResult.success(Map.of(
-                        "sessionId", req.getSessionId(),
+                        "sessionId", req.sessionId(),
                         "jobId", session.getJobId(),
                         "result", responseData,
                         "interrupted", true
                 ));
             }
         } catch (Exception e) {
-            log.error("中断 Arthas 命令失败: sessionId={}", req.getSessionId(), e);
+            log.error("中断 Arthas 命令失败: sessionId={}", req.sessionId(), e);
 
             // 即使中断失败，也标记session为已中断
             try {
-                sessionService.interruptSession(req.getSessionId());
-                log.info("中断命令异常，但已标记session为已中断: sessionId={}", req.getSessionId());
+                sessionService.interruptSession(req.sessionId());
+                log.info("中断命令异常，但已标记session为已中断: sessionId={}", req.sessionId());
             } catch (Exception markEx) {
                 log.error("标记session为中断状态失败", markEx);
             }
 
             return ReturnResult.success(Map.of(
-                    "sessionId", req.getSessionId(),
+                    "sessionId", req.sessionId(),
                     "message", "中断请求已处理，session已标记为中断状态",
                     "interrupted", true
             ));
@@ -769,12 +766,12 @@ public class ArthasCommandController {
     @Operation(summary = "获取或创建节点的可用会话", description = "先检查是否有可用会话，没有则创建新会话")
     public ReturnResult<AsyncExecResponse> getOrCreateSession(@RequestBody AsyncExecRequest req) {
         try {
-            if (req == null || StringUtils.isBlank(req.getNodeId())) {
+            if (req == null || StringUtils.isBlank(req.nodeId())) {
                 return ReturnResult.error("参数无效：nodeId 不能为空");
             }
 
             // 1. 先查找节点是否有可用的运行中会话
-            List<MonitorArthasSession> runningSessions = sessionService.getRunningSessionsByNodeId(req.getNodeId());
+            List<MonitorArthasSession> runningSessions = sessionService.getRunningSessionsByNodeId(req.nodeId());
 
             // 过滤出可用的会话（最近创建的，且未过期的）
             MonitorArthasSession availableSession = null;
@@ -798,41 +795,39 @@ public class ArthasCommandController {
             if (availableSession != null) {
                 // 2. 找到可用会话，如果需要执行新命令，则执行
                 Integer jobId = availableSession.getJobId();
-                if (StringUtils.isNotBlank(req.getCommand()) &&
-                    !req.getCommand().equals(availableSession.getCommand())) {
+                if (StringUtils.isNotBlank(req.command()) &&
+                    !req.command().equals(availableSession.getCommand())) {
 
                     // 执行新命令
                     try (HttpClient client = HttpClient.newHttpClient()) {
                         Map<String, Object> execResult = executeAsyncCommandWithDetails(
                             client, availableSession.getHttpUrl(),
-                            availableSession.getSessionId(), req.getCommand());
+                            availableSession.getSessionId(), req.command());
                         jobId = (Integer) execResult.get("jobId");
 
                         // 更新会话信息
-                        availableSession.setCommand(req.getCommand());
+                        availableSession.setCommand(req.command());
                         availableSession.setJobId(jobId);
-                        availableSession.setCommandType(sessionService.extractCommandType(req.getCommand()));
-                        availableSession.setRemark("复用会话执行新命令: " + req.getCommand());
+                        availableSession.setCommandType(sessionService.extractCommandType(req.command()));
+                        availableSession.setRemark("复用会话执行新命令: " + req.command());
                         sessionService.updateSession(availableSession);
                     }
                 }
 
-                AsyncExecResponse response = new AsyncExecResponse();
-                response.setSessionId(availableSession.getSessionId());
-                response.setConsumerId(availableSession.getConsumerId());
-                response.setJobId(jobId);
+                AsyncExecResponse response = new AsyncExecResponse(
+                    availableSession.getSessionId(), availableSession.getConsumerId(), jobId);
 
                 log.info("复用现有会话: sessionId={}, nodeId={}, command={}",
-                    availableSession.getSessionId(), req.getNodeId(), req.getCommand());
+                    availableSession.getSessionId(), req.nodeId(), req.command());
                 return ReturnResult.success(response);
             } else {
                 // 3. 没有可用会话，创建新会话
-                log.info("未找到可用会话，创建新会话: nodeId={}", req.getNodeId());
+                log.info("未找到可用会话，创建新会话: nodeId={}", req.nodeId());
                 return initSession(req);
             }
 
         } catch (Exception e) {
-            log.error("获取或创建会话失败: nodeId={}", req.getNodeId(), e);
+            log.error("获取或创建会话失败: nodeId={}", req.nodeId(), e);
             return ReturnResult.error("获取或创建会话失败: " + e.getMessage());
         }
     }
@@ -860,66 +855,39 @@ public class ArthasCommandController {
 
     /**
      * 异步执行请求体
+     *
+     * @param nodeId  节点ID（必填）
+     * @param command 要执行的 arthas 命令（必填）
      */
-    @lombok.Data
-    public static class AsyncExecRequest {
-        /**
-         * 节点ID（必填）
-         */
-        private String nodeId;
-        /**
-         * 要执行的 arthas 命令（必填）
-         */
-        private String command;
+    public record AsyncExecRequest(String nodeId, String command) {
     }
 
     /**
      * 异步执行响应
+     *
+     * @param sessionId  会话ID
+     * @param consumerId 消费者ID
+     * @param jobId      任务ID
      */
-    @lombok.Data
-    public static class AsyncExecResponse {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 消费者ID
-         */
-        private String consumerId;
-        /**
-         * 任务ID
-         */
-        private Integer jobId;
+    public record AsyncExecResponse(String sessionId, String consumerId, Integer jobId) {
     }
 
     /**
      * 拉取结果请求体
+     *
+     * @param sessionId  会话ID
+     * @param consumerId 消费者ID
      */
-    @lombok.Data
-    public static class PullResultsRequest {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 消费者ID
-         */
-        private String consumerId;
+    public record PullResultsRequest(String sessionId, String consumerId) {
     }
 
     /**
      * 中断任务请求体
+     *
+     * @param sessionId 会话ID
+     * @param jobId     任务ID
      */
-    @lombok.Data
-    public static class InterruptJobRequest {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 任务ID
-         */
-        private Integer jobId;
+    public record InterruptJobRequest(String sessionId, Integer jobId) {
     }
 
     // ========== 私有辅助方法 ==========
