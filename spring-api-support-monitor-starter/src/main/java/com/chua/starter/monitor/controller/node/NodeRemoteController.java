@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.RemoteOperationRequest;
 import com.chua.starter.monitor.pojo.RemoteOperationResponse;
 import com.chua.starter.monitor.service.node.NodeRemoteService;
+import com.chua.starter.monitor.service.script.MonitorSysGenScriptUploadRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -34,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
 public class NodeRemoteController {
 
     private final NodeRemoteService nodeRemoteService;
-    private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
+    private final MonitorSysGenScriptUploadRecordService uploadRecordService;
 
     /**
      * 执行远程操作
