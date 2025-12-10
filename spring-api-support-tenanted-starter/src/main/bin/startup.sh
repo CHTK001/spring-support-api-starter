@@ -95,6 +95,7 @@ show_help() {
     echo "  --dev                 使用开发环境 (dev)"
     echo "  --prod                使用生产环境 (prod, 默认)"
     echo "  --test                使用测试环境 (test)"
+    echo "  --profile <name>      指定自定义环境 (如: uat, pre)"
     echo "  --output <path>       dump 输出目录 (默认: logs/dump)"
     echo "  --tail                启动后跟踪日志输出"
     echo "  --help, -h            显示帮助信息"
@@ -104,6 +105,7 @@ show_help() {
     echo "  $0 start --dev                        # 使用开发环境启动"
     echo "  $0 start --prod                       # 使用生产环境启动"
     echo "  $0 start --test                       # 使用测试环境启动"
+    echo "  $0 start --profile uat                # 使用自定义环境启动"
     echo "  $0 start --tail                       # 启动并跟踪日志"
     echo "  $0 start                              # 启动应用"
     echo "  $0 stop                               # 停止应用"
@@ -449,6 +451,7 @@ while [ $# -gt 0 ]; do
         --dev) SPRING_PROFILE="dev"; shift ;;
         --prod) SPRING_PROFILE="prod"; shift ;;
         --test) SPRING_PROFILE="test"; shift ;;
+        --profile) SPRING_PROFILE="$2"; shift 2 ;;
         --java) CUSTOM_JAVA="$2"; shift 2 ;;
         --jvm-opts) CUSTOM_JVM_OPTS="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
