@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.docker;
 
 import com.chua.docker.support.client.DockerProtocolClient;
 import lombok.Data;
