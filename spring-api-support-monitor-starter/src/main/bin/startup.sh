@@ -52,6 +52,7 @@ show_help() {
     echo "  stop        停止应用"
     echo "  restart     重启应用"
     echo "  status      查看应用状态"
+    echo "  jvm         查看JVM信息"
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
@@ -216,6 +217,13 @@ restart_app() {
     start_app
 }
 
+# 查看JVM信息
+show_jvm_info() {
+    local pid=$(get_pid)
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
+    bash "${SCRIPT_DIR}/script/jvm-info.sh" "$pid" "$APP_NAME"
+}
+
 # 解析参数
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
@@ -223,7 +231,7 @@ DEBUG_MODE="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|debug)
+        start|stop|restart|status|jvm|debug)
             COMMAND="$1"
             shift
             ;;
@@ -262,6 +270,9 @@ case "$COMMAND" in
         ;;
     status)
         check_status
+        ;;
+    jvm)
+        show_jvm_info
         ;;
     *)
         show_help
