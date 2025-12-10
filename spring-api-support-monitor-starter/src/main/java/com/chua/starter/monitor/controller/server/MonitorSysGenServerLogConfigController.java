@@ -2,7 +2,7 @@ package com.chua.starter.monitor.controller.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerLogConfig;
-import com.chua.starter.monitor.service.MonitorSysGenServerLogConfigService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerLogConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
