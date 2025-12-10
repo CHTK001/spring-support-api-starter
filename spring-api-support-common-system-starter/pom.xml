@@ -35,11 +35,6 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-excel-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
         </dependency>
 
@@ -47,11 +42,10 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-configuration-starter</artifactId>
-            <version>4.0.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

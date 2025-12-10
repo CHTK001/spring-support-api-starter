@@ -16,3 +16,8 @@ management:
     # 其他端点配置示例：
     # shutdown:
     #   enabled: false    # 关闭shutdown端点
+  # 健康检查配置
+  health:
+    # 禁用数据库健康检查(避免使用错误的数据源配置)
+    db:
+      enabled: false
