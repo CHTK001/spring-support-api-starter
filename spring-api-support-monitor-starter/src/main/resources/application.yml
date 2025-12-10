@@ -8,8 +8,8 @@ spring:
   profiles:
     # 当前激活的配置文件
     active: dev
-    # 包含的配置文件列表
-    include: mybatis,swagger,socket,api,ip,report
+    # 包含的配置文件列表(dev放在最后确保数据源配置生效)
+    include: mybatis,swagger,socket,api,ip,report,actuator
   main:
     # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
