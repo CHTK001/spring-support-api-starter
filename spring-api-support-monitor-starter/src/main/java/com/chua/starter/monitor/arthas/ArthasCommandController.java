@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorArthasSession;
 import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
 import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
-import com.chua.starter.monitor.pojo.OnlineNodeInfo;
+import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.pojo.arthas.*;
 import com.chua.starter.monitor.service.arthas.MonitorArthasSessionService;
 import com.chua.starter.monitor.service.NodeManagementService;
