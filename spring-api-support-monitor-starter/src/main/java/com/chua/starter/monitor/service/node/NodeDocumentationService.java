@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service.node;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.NodeApiExecuteRequest;
-import com.chua.starter.monitor.pojo.NodeApiGroup;
+import com.chua.starter.monitor.pojo.node.NodeApiExecuteRequest;
+import com.chua.starter.monitor.pojo.node.NodeApiGroup;
 
 import java.util.List;
 import java.util.Map;

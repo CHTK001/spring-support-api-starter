@@ -2,8 +2,8 @@ package com.chua.starter.monitor.controller.node;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.BatchOperationResultDTO;
-import com.chua.starter.monitor.pojo.NodeLoggerConfigDTO;
-import com.chua.starter.monitor.pojo.NodeLoggerStatsDTO;
+import com.chua.starter.monitor.pojo.node.NodeLoggerConfigDTO;
+import com.chua.starter.monitor.pojo.node.NodeLoggerStatsDTO;
 import com.chua.starter.monitor.service.NodeLoggerConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
