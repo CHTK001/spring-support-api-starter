@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemDataSetting;
-import com.chua.starter.monitor.pojo.SystemDataSettingPageItem;
+import com.chua.starter.monitor.pojo.data.SystemDataSettingPageItem;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

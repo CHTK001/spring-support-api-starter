@@ -1,0 +1,20 @@
+# 设置默认行为
+* text=auto
+
+# Shell 脚本强制使用 LF 换行符
+*.sh text eol=lf
+*.bash text eol=lf
+
+# 批处理文件使用 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制文件不做转换
+*.jar binary
+*.war binary
+*.zip binary
+*.gz binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary

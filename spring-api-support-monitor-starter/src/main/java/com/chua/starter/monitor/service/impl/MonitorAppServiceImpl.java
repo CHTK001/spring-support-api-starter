@@ -16,7 +16,7 @@ import com.chua.sync.support.server.SyncServer;
 import com.chua.starter.monitor.entity.MonitorApplication;
 import com.chua.starter.monitor.mapper.MonitorAppMapper;
 import com.chua.starter.monitor.pojo.OpenApi;
-import com.chua.starter.monitor.service.MonitorAppService;
+import com.chua.starter.monitor.service.app.MonitorAppService;
 import com.chua.starter.mybatis.entity.Query;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

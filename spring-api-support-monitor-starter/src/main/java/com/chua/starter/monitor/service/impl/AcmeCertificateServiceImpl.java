@@ -15,10 +15,11 @@ import com.chua.starter.monitor.entity.MonitorAcmeOrder;
 import com.chua.starter.monitor.mapper.MonitorAcmeAccountMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeCertificateMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
-import com.chua.starter.monitor.pojo.AcmeApplyCertRequest;
-import com.chua.starter.monitor.pojo.AcmeCertificateDetailVo;
+import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
+import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
+import com.chua.starter.monitor.pojo.acme.CertStats;
 import com.chua.starter.monitor.properties.AcmeProperties;
-import com.chua.starter.monitor.service.AcmeCertificateService;
+import com.chua.starter.monitor.service.acme.AcmeCertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -308,8 +309,8 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
      * @return 统计信息
      */
     @Override
-    public ReturnResult<AcmeCertificateDetailVo.CertStats> getCertStatsForCert() {
-        AcmeCertificateDetailVo.CertStats stats = new AcmeCertificateDetailVo.CertStats();
+    public ReturnResult<CertStats> getCertStatsForCert() {
+        CertStats stats = new CertStats();
 
         // 账户总数
         stats.setAccountCount(accountMapper.selectCount(null));

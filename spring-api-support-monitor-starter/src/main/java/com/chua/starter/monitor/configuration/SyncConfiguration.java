@@ -6,7 +6,7 @@ import com.chua.starter.monitor.entity.DeviceMetrics;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorJobLogService;
+import com.chua.starter.monitor.service.job.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;

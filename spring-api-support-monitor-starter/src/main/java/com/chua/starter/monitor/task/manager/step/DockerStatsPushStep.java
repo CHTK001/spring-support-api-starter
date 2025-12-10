@@ -7,7 +7,7 @@ import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.entity.SystemSoftContainerStats;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftContainerMapper;
-import com.chua.starter.monitor.service.SystemSoftContainerStatsService;
+import com.chua.starter.monitor.service.docker.SystemSoftContainerStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

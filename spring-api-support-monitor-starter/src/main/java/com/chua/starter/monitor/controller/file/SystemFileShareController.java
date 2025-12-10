@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemFileShare;
 import com.chua.starter.monitor.pojo.request.CreateShareLinkRequest;
 import com.chua.starter.monitor.pojo.response.ShareLinkResponse;
-import com.chua.starter.monitor.service.SystemFileShareService;
+import com.chua.starter.monitor.service.file.SystemFileShareService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;

@@ -6,7 +6,7 @@ import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.pojo.NodeControlRequest;
-import com.chua.starter.monitor.pojo.NodeMetricsDTO;
+import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.service.NodeControlService;
 import com.chua.starter.monitor.service.NodeManagementService;

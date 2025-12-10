@@ -13,7 +13,7 @@ import com.chua.starter.monitor.job.pojo.JobStatistic;
 import com.chua.starter.monitor.job.pojo.JobStatisticResult;
 import com.chua.starter.monitor.mapper.MonitorJobLogMapper;
 import com.chua.starter.monitor.sender.MonitorSender;
-import com.chua.starter.monitor.service.MonitorJobLogService;
+import com.chua.starter.monitor.service.job.MonitorJobLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
