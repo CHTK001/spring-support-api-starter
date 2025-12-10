@@ -5,7 +5,7 @@ import com.chua.common.support.oss.result.PutObjectResult;
 import com.chua.common.support.validator.group.UploadGroup;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.service.pojo.sso.*;
-import com.chua.starter.service.SysTaskSsoService;
+import com.chua.starter.service.SysFileSystemService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,10 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "文件上传接口")
 @RequestMapping("/v2/file")
 @RequiredArgsConstructor
-public class SysTaskSsoController {
+public class SysFileSystemController {
 
-
-    private final SysTaskSsoService sysTaskSsoService;
+    private final SysFileSystemService sysFileSystemService;
 
     /**
      * 上传文件
@@ -54,7 +53,7 @@ public class SysTaskSsoController {
         if(null == file) {
             return ReturnResult.illegal("文件不能为空");
         }
-        return sysTaskSsoService.upload(request, file);
+        return sysFileSystemService.uploadForFileSystem(request, file);
     }
 
 
@@ -72,7 +71,7 @@ public class SysTaskSsoController {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return sysTaskSsoService.createTask(request);
+        return sysFileSystemService.createTaskForFileSystem(request);
     }
     /**
      * 创建分片任务
@@ -92,7 +91,7 @@ public class SysTaskSsoController {
         if(null == multipartFile) {
             return ReturnResult.illegal("文件不能为空");
         }
-        return sysTaskSsoService.uploadTask(request, multipartFile);
+        return sysFileSystemService.uploadTaskForFileSystem(request, multipartFile);
     }
 
 
