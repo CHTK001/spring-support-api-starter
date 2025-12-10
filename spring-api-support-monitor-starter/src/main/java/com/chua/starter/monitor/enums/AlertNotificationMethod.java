@@ -11,6 +11,7 @@ public enum AlertNotificationMethod {
     SMS("SMS", "短信"),
     WEBHOOK("WEBHOOK", "Webhook"),
     DINGTALK("DINGTALK", "钉钉"),
+    SOCKET("SOCKET", "网页通知"),
     WECHAT("WECHAT", "微信");
 
     private final String code;
