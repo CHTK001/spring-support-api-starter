@@ -14,7 +14,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.ServerConnectionService;
+import com.chua.starter.monitor.service.server.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
