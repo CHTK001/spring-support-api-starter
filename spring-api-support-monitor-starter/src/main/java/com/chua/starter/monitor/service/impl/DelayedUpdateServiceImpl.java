@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
 import com.chua.starter.monitor.service.DelayedUpdateService;
-import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

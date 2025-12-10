@@ -2,9 +2,9 @@ package com.chua.starter.monitor.controller.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.ServerHealthScoreService;
+import com.chua.starter.monitor.service.server.ServerHealthScoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

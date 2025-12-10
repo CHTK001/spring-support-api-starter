@@ -3,7 +3,7 @@ package com.chua.starter.monitor.task.manager.step;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.ServerLatencyService;
+import com.chua.starter.monitor.service.server.ServerLatencyService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.task.manager.TaskStep;
 import lombok.RequiredArgsConstructor;
