@@ -8,8 +8,8 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServerLog;
 import com.chua.starter.monitor.entity.SystemServerSetting;
-import com.chua.starter.monitor.service.IptablesService;
-import com.chua.starter.monitor.service.SystemServerLogService;
+import com.chua.starter.monitor.service.server.IptablesService;
+import com.chua.starter.monitor.service.server.SystemServerLogService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
