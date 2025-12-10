@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.script;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;

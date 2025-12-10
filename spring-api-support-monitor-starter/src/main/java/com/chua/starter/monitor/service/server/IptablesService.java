@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.server;
 
 import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;

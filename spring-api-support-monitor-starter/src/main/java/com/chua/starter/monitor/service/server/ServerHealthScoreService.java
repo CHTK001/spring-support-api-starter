@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.server;
 
 import com.chua.starter.monitor.configuration.MetricsThresholdConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
