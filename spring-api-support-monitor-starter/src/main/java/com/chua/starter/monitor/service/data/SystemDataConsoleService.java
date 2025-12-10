@@ -7,13 +7,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.starter.monitor.pojo.ServerStatic;
-import com.chua.starter.monitor.pojo.data.ValueCount;
-import com.chua.starter.monitor.pojo.data.TableOpenResponse;
-import com.chua.starter.monitor.pojo.data.ColumnInfo;
-import com.chua.starter.monitor.pojo.data.TableStructureInfo;
-import com.chua.starter.monitor.pojo.data.UpdateRowRequest;
-import com.chua.starter.monitor.pojo.data.DeleteRowRequest;
-import com.chua.starter.monitor.pojo.data.InsertRowRequest;
+import com.chua.starter.monitor.pojo.data.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -148,7 +142,7 @@ public interface SystemDataConsoleService {
      *                  例如：100, 1000
      * @return 表数据响应，包含列信息、数据行和注释
      */
-    ReturnResult<com.chua.starter.monitor.pojo.TableOpenResponse> openTable(Integer settingId, String nodePath, Integer limit);
+    ReturnResult<TableOpenResponse> openTable(Integer settingId, String nodePath, Integer limit);
 
     /**
      * 表分析：对每个字段进行分组统计（频次）
@@ -209,7 +203,7 @@ public interface SystemDataConsoleService {
      * @param tableName 表名
      * @return 字段信息列表
      */
-    List<com.chua.starter.monitor.pojo.ColumnInfo> listColumns(Integer settingId, String tableName);
+    List<ColumnInfo> listColumns(Integer settingId, String tableName);
 
     /**
      * 获取表结构详情
@@ -218,7 +212,7 @@ public interface SystemDataConsoleService {
      * @param tableName 表名
      * @return 表结构信息
      */
-    com.chua.starter.monitor.pojo.TableStructureInfo getTableStructure(Integer settingId, String tableName);
+    TableStructureInfo getTableStructure(Integer settingId, String tableName);
 
     /**
      * 添加字段

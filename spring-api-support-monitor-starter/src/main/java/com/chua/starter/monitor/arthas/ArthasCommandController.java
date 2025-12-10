@@ -7,7 +7,7 @@ import com.chua.starter.monitor.entity.MonitorArthasSession;
 import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
 import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.service.MonitorArthasSessionService;
+import com.chua.starter.monitor.service.arthas.MonitorArthasSessionService;
 import com.chua.starter.monitor.service.NodeManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -19,8 +19,7 @@ LIB_DIR="${APP_HOME}/lib"
 LOG_DIR="${APP_HOME}/logs"
 PID_FILE="${APP_HOME}/${APP_NAME}.pid"
 
-# 默认端口配置
-DEFAULT_PORT=8080
+# 调试端口配置
 DEFAULT_DEBUG_PORT=5005
 
 # JVM配置
@@ -54,7 +53,6 @@ show_help() {
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
-    echo "  --port <port>         指定应用端口 (默认: ${DEFAULT_PORT})"
     echo "  --debug-port <port>   指定调试端口 (默认: ${DEFAULT_DEBUG_PORT})"
     echo "  --help, -h            显示帮助信息"
     echo ""
@@ -108,11 +106,10 @@ start_app() {
     build_loader_path
     
     local start_opts="${SPRING_OPTS}"
-    [ -n "${APP_PORT}" ] && start_opts="${start_opts} --server.port=${APP_PORT}"
     
     echo -e "${BLUE}==========================================${NC}"
     echo -e "${GREEN}  ${APP_NAME} 启动中...${NC}"
-    echo -e "  版本: ${APP_VERSION} | 端口: ${APP_PORT:-${DEFAULT_PORT}}"
+    echo -e "  版本: ${APP_VERSION}"
     [ "${DEBUG_MODE}" = "true" ] && echo -e "  调试端口: ${DEBUG_PORT}"
     echo -e "${BLUE}==========================================${NC}"
     
@@ -146,12 +143,11 @@ stop_app() {
 
 restart_app() { stop_app; sleep 2; start_app; }
 
-COMMAND="start"; APP_PORT=""; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"
+COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
         start|stop|restart|status|debug) COMMAND="$1"; shift ;;
-        --port) APP_PORT="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
         --help|-h) show_help; exit 0 ;;
         *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
