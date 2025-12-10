@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.node;
 
 import com.chua.common.support.utils.MapUtils;
 import io.swagger.annotations.ApiModel;

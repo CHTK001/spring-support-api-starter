@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.node;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
