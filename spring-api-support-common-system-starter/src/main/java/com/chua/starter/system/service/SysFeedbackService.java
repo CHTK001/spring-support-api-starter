@@ -25,10 +25,10 @@ public interface SysFeedbackService extends IService<SysFeedback> {
     ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request);
 
     /**
-     * 处理反馈闂
+     * 处理反馈问题
      *
      * @param request    请求
-     * @param userResume
+     * @param userResume 用户信息
      * @return 数据
      */
     ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume);
