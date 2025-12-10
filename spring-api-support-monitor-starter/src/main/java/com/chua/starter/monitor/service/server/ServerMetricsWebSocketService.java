@@ -343,7 +343,7 @@ public class ServerMetricsWebSocketService {
                 case "prometheus":
                     return collectMetricsFromPrometheus(server);
                 case "api":
-                    return collectMetricsFromDatabase(server); // 接口推送的数据已存储在数据库中
+                    return collectMetricsFromDatabase(server); // 接口推送的数据已存储在Redis中
                 case "local":
                     return collectMetricsFromLocal(server); // 本地采集方式，直接调用oshi
                 default:
@@ -441,17 +441,22 @@ public class ServerMetricsWebSocketService {
      */
     private MonitorSysGenServerMetrics collectMetricsFromDatabase(MonitorSysGenServer server) {
         try {
-            // 获取最新的指标数据（客户端推送的数据已存储在数据库中）
+            log.debug("尝试从Redis获取服务器 {} (ID={}) 的最新指标数据（API推送方式）", 
+                server.getMonitorSysGenServerName(), server.getMonitorSysGenServerId());
+            
+            // 获取最新的指标数据（客户端推送的数据已存储在Redis中）
             ReturnResult<MonitorSysGenServerMetrics> latestMetrics = metricsService.getLatestMetrics(server.getMonitorSysGenServerId());
             if (latestMetrics != null && latestMetrics.getData() != null) {
-                log.debug("从数据库获取服务器 {} 最新指标数据", server.getMonitorSysGenServerName());
+                log.debug("从Redis成功获取服务器 {} 最新指标数据", server.getMonitorSysGenServerName());
                 return latestMetrics.getData();
             }
 
-            log.warn("服务器 {} 没有找到最新的指标数据", server.getMonitorSysGenServerName());
+            log.warn("服务器 {} (ID={}) 没有找到最新的指标数据，可能原因：1.服务端未开启或客户端未启动 2.客户端未成功推送数据 3.Redis数据过期 4.Redis连接异常", 
+                server.getMonitorSysGenServerName(), server.getMonitorSysGenServerId());
             return null;
         } catch (Exception e) {
-            log.error("从数据库收集指标失败", e);
+            log.error("从Redis收集服务器 {} (ID={}) 指标失败: {}", 
+                server.getMonitorSysGenServerName(), server.getMonitorSysGenServerId(), e.getMessage(), e);
             return null;
         }
     }

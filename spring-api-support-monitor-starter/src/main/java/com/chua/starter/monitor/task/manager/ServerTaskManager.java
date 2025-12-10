@@ -80,6 +80,7 @@ public class ServerTaskManager {
     private final LocalSystemDataCollector localSystemDataCollector;
     private final ServerLatencyService serverLatencyService;
     private final MonitorProperties monitorProperties;
+    private final com.chua.starter.monitor.service.server.MonitorSysGenGlobalSettingService globalSettingService;
     
     // ==================== 任务步骤组件 ====================
     
@@ -215,6 +216,9 @@ public class ServerTaskManager {
 
     /**
      * 全局调度器：将原多个全局任务合并为单线程循环触发
+     * <p>
+     * 根据全局配置的开关状态，有选择地执行各个全局任务
+     * </p>
      */
     private void startGlobalDispatcher() {
         Future<?> dispatcher = executorService.submit(() -> {
@@ -230,47 +234,75 @@ public class ServerTaskManager {
             long lastBackup = 0L;
             while (running) {
                 try {
+                    // 检查全局调度器是否启用
+                    if (!globalSettingService.isGlobalDispatcherEnabled()) {
+                        log.debug("全局调度器已禁用，跳过本次调度");
+                        Thread.sleep(5_000L);
+                        continue;
+                    }
+
                     long now = System.currentTimeMillis();
-                    if (now - lastStatusSummary >= 60_000) {
+                    
+                    // 服务器状态汇总推送（60秒）
+                    if (globalSettingService.isStatusSummaryEnabled() && now - lastStatusSummary >= 60_000) {
                         pushServerStatusSummary();
                         lastStatusSummary = now;
                     }
-                    if (now - lastPerformanceTrends >= 300_000) {
+                    
+                    // 性能趋势推送（5分钟）
+                    if (globalSettingService.isPerformanceTrendsEnabled() && now - lastPerformanceTrends >= 300_000) {
                         pushPerformanceTrends();
                         lastPerformanceTrends = now;
                     }
-                    if (now - lastConnectionStats >= 30_000) {
+                    
+                    // 连接统计推送（30秒）
+                    if (globalSettingService.isConnectionStatsEnabled() && now - lastConnectionStats >= 30_000) {
                         pushConnectionStatistics();
                         lastConnectionStats = now;
                     }
-                    if (now - lastHealthStatus >= 300_000) {
+                    
+                    // 健康状态推送（5分钟）
+                    if (globalSettingService.isHealthStatusEnabled() && now - lastHealthStatus >= 300_000) {
                         pushHealthStatus();
                         lastHealthStatus = now;
                     }
-                    if (now - lastGlobalAlert >= 120_000) {
+                    
+                    // 全局告警处理（2分钟）
+                    if (globalSettingService.isGlobalAlertEnabled() && now - lastGlobalAlert >= 120_000) {
                         processGlobalAlerts();
                         lastGlobalAlert = now;
                     }
-                    if (now - lastCleanup >= 3_600_000) {
+                    
+                    // 无效任务清理（1小时）
+                    if (globalSettingService.isCleanupEnabled() && now - lastCleanup >= 3_600_000) {
                         cleanupInvalidTasks();
                         lastCleanup = now;
                     }
-                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) {
+                    
+                    // 配置刷新（60秒）
+                    if (globalSettingService.isConfigRefreshEnabled() && now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) {
                         refreshAllConfigs();
                         lastConfigRefresh = now;
                     }
-                    if (now - lastFileUploadCheck >= 30_000) {
+                    
+                    // 文件上传检查（30秒）
+                    if (globalSettingService.isFileUploadCheckEnabled() && now - lastFileUploadCheck >= 30_000) {
                         checkUploadTaskStatus();
                         lastFileUploadCheck = now;
                     }
-                    if (now - lastDataCleanup >= 24L * 3_600_000) {
+                    
+                    // 数据清理（24小时）
+                    if (globalSettingService.isDataCleanupEnabled() && now - lastDataCleanup >= 24L * 3_600_000) {
                         cleanupTempFilesAndCache();
                         lastDataCleanup = now;
                     }
-                    if (now - lastBackup >= 1_800_000) {
+                    
+                    // 备份任务（30分钟）
+                    if (globalSettingService.isBackupEnabled() && now - lastBackup >= 1_800_000) {
                         executeBackupTasks();
                         lastBackup = now;
                     }
+                    
                     Thread.sleep(1_000L);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
@@ -1184,6 +1216,20 @@ public class ServerTaskManager {
         if (taskInfo != null) {
             taskInfo.setTaskRunning(true);
             log.info("恢复服务器 {} 的所有任务", serverId);
+        }
+    }
+
+    /**
+     * 刷新全局配置
+     * <p>
+     * 当全局配置更新后，调用此方法使配置立即生效
+     * </p>
+     */
+    public void refreshGlobalConfig() {
+        try {
+            log.info("全局配置已更新，将在下次调度周期生效");
+        } catch (Exception e) {
+            log.error("刷新全局配置失败", e);
         }
     }
 

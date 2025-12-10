@@ -182,13 +182,24 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
         try {
             String key = REDIS_LATEST_PREFIX + serverId;
             Map<String, String> latestData = null;
+            Exception redisException = null;
+            
             try {
                 latestData = timeSeriesService.hGet(key);
-            } catch (Exception ignored) {
+                log.debug("从Redis获取服务器 {} 最新指标数据，key={}, 数据是否为空={}", 
+                    serverId, key, (latestData == null || latestData.isEmpty()));
+            } catch (Exception e) {
+                redisException = e;
+                log.warn("从Redis获取服务器 {} 指标数据失败: {}", serverId, e.getMessage());
             }
 
             if (latestData == null || latestData.isEmpty()) {
                 // 当指标数据为空时，触发指标推送
+                if (redisException != null) {
+                    log.info("服务器 {} 指标数据为空（Redis异常），触发指标推送", serverId);
+                } else {
+                    log.info("服务器 {} 指标数据为空（Redis无数据），触发指标推送", serverId);
+                }
                 triggerMetricsPushForEmptyData(serverId);
                 return ReturnResult.ok(null);
             }
