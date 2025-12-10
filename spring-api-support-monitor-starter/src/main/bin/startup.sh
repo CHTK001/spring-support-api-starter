@@ -92,10 +92,12 @@ show_help() {
     echo "  --package <path>      升级包路径 (zip/tar.gz)"
     echo "  --no-restart          升级后不自动重启"
     echo "  --output <path>       dump 输出目录 (默认: logs/dump)"
+    echo "  --tail                启动后跟踪日志输出"
     echo "  --help, -h            显示帮助信息"
     echo ""
     echo -e "${YELLOW}示例:${NC}"
     echo "  $0 start --java /usr/bin/java        # 指定 Java 启动"
+    echo "  $0 start --tail                       # 启动并跟踪日志"
     echo "  $0 start                              # 启动应用"
     echo "  $0 stop                               # 停止应用"
     echo "  $0 restart                            # 重启应用"
@@ -188,6 +190,8 @@ start_app() {
     if ps -p "$new_pid" > /dev/null 2>&1; then
         echo -e "${GREEN}[成功] 已启动 (PID: $new_pid)${NC}"
         echo -e "日志文件: ${LOG_DIR}/startup.log"
+        # 如果指定了 --tail 参数，跟踪日志
+        [ "${TAIL_LOG}" = "true" ] && tail -f "${LOG_DIR}/startup.log"
     else
         echo -e "${RED}[失败] 启动失败${NC}"
         echo -e "${YELLOW}错误日志:${NC}"
@@ -427,7 +431,7 @@ docker_clean() {
     bash "${SCRIPT_DIR}/script/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
 }
 
-COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""; CUSTOM_JAVA=""
+COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""; CUSTOM_JAVA=""; TAIL_LOG="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -443,6 +447,7 @@ while [ $# -gt 0 ]; do
         --package) UPGRADE_PACKAGE="$2"; shift 2 ;;
         --no-restart) NO_RESTART="true"; shift ;;
         --output) DUMP_OUTPUT="$2"; shift 2 ;;
+        --tail) TAIL_LOG="true"; shift ;;
         --help|-h) show_help; exit 0 ;;
         *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
     esac
