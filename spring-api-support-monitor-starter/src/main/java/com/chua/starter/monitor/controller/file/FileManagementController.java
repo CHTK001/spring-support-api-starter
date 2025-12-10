@@ -6,7 +6,7 @@ import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
 import com.chua.starter.monitor.pojo.RemoteOperationResponse;
-import com.chua.starter.monitor.service.MonitorSysGenScriptService;
+import com.chua.starter.monitor.service.script.MonitorSysGenScriptService;
 import com.chua.starter.monitor.service.node.NodeRemoteService;
 import com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
