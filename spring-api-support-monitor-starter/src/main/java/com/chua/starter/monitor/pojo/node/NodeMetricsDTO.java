@@ -100,6 +100,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * CPU指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -142,6 +145,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 内存指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -178,6 +184,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 磁盘指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -220,6 +229,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 磁盘分区信息
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -262,6 +274,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 网络指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -304,6 +319,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * JVM指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -376,6 +394,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 内存池信息
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -412,6 +433,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * 线程指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -454,6 +478,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * GC指标
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
@@ -484,6 +511,9 @@ public class NodeMetricsDTO implements Serializable {
 
     /**
      * GC收集器信息
+     *
+     * @author CH
+     * @since 2025/12/08
      */
     @Data
     @Builder
