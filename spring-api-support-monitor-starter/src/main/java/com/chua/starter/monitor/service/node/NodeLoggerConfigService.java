@@ -2,8 +2,8 @@ package com.chua.starter.monitor.service.node;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.BatchOperationResultDTO;
-import com.chua.starter.monitor.pojo.NodeLoggerConfigDTO;
-import com.chua.starter.monitor.pojo.NodeLoggerStatsDTO;
+import com.chua.starter.monitor.pojo.node.NodeLoggerConfigDTO;
+import com.chua.starter.monitor.pojo.node.NodeLoggerStatsDTO;
 
 import java.util.List;
 
