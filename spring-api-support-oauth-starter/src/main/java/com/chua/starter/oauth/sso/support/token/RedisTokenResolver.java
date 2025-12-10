@@ -24,6 +24,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,6 +89,9 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setRefreshToken(refreshToken);
         userResult.setRefreshExpireTime(refreshExpire);
         userResult.setToken(token);
+
+        // 清理 ext 中不可序列化的值
+        sanitizeExt(userResult);
 
         // 存储 Token
         ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
@@ -232,6 +240,55 @@ public class RedisTokenResolver implements TokenResolver {
         }
         // 全局配置
         return authServerProperties.getRefreshExpire();
+    }
+
+    /**
+     * 清理 ext 中不可序列化的值
+     * <p>
+     * 将 LocalDateTime、LocalDate 等类型转换为字符串格式，确保 Redis 序列化正常
+     * </p>
+     *
+     * @param userResult 用户信息
+     * @author CH
+     * @since 1.0.0
+     */
+    private void sanitizeExt(UserResult userResult) {
+        Map<String, Object> ext = userResult.getExt();
+        if (ext == null || ext.isEmpty()) {
+            return;
+        }
+        
+        Map<String, Object> sanitized = new HashMap<>(ext.size());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        for (Map.Entry<String, Object> entry : ext.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) {
+                sanitized.put(entry.getKey(), null);
+            } else if (value instanceof LocalDateTime localDateTime) {
+                // LocalDateTime 转为字符串
+                sanitized.put(entry.getKey(), localDateTime.format(dateTimeFormatter));
+            } else if (value instanceof LocalDate localDate) {
+                // LocalDate 转为字符串
+                sanitized.put(entry.getKey(), localDate.format(dateFormatter));
+            } else if (value instanceof Date date) {
+                // Date 转为时间戳
+                sanitized.put(entry.getKey(), date.getTime());
+            } else if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+                // 基本类型直接保留
+                sanitized.put(entry.getKey(), value);
+            } else {
+                // 其他类型尝试转为字符串
+                try {
+                    sanitized.put(entry.getKey(), value.toString());
+                } catch (Exception e) {
+                    // 转换失败则跳过
+                }
+            }
+        }
+        
+        userResult.setExt(sanitized);
     }
 
     /**
