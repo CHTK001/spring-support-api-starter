@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller.data;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.service.SystemDataFieldCommentService;
+import com.chua.starter.monitor.service.data.SystemDataFieldCommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Schema;
