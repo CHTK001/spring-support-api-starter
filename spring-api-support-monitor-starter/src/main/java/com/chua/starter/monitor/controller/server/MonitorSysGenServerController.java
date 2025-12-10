@@ -8,7 +8,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.pojo.ServerWithConfigDto;
 import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.utils.ServerLogUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;

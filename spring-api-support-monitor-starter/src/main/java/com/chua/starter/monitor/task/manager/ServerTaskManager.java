@@ -6,11 +6,11 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.properties.MonitorProperties;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.ServerMetricsWebSocketService;
-import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.service.ServerLatencyService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ServerMetricsWebSocketService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.server.ServerLatencyService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.service.data.PrometheusDataCollectorService;
 import com.chua.starter.monitor.task.manager.step.*;
@@ -461,7 +461,7 @@ public class ServerTaskManager {
                             }
                         }
                         // 数据推送（非节点上报）
-                        if (!"NODE".equalsIgnoreCase(rm)) {
+                        if (!"NODE".equalsIgnoreCase(rm) && !"API".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastDataPush >= freq * 1000L) {
                                 dataPushStep.run(server, s);

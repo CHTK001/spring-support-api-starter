@@ -3,7 +3,7 @@ package com.chua.starter.monitor.task.manager.step;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.ServerLatencyService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.task.manager.TaskStep;

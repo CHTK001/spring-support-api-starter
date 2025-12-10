@@ -7,7 +7,7 @@ import com.chua.common.support.protocol.client.ProtocolClientFactory;
 import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
