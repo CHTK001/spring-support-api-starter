@@ -2,8 +2,8 @@ package com.chua.starter.monitor.arthas.ws;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.arthas.support.ArthasProxyUtils;
-import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.service.NodeManagementService;
+import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
+import com.chua.starter.monitor.service.node.NodeManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
