@@ -42,7 +42,7 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
 
     @Override
     public boolean push(MonitorSysGenAlertPushConfig config, MonitorSysGenServerAlertHistory alert) {
-        String channel = config.getMonitorSysGenAlertPushConfigChannel();
+        String channel = config.getMonitorSysGenAlertPushConfigChannel().getCode();
         log.info("[AlertPush] channel={} endpoint={} title={} server={} type={}",
                 channel,
                 config.getMonitorSysGenAlertPushConfigEndpoint(),
@@ -51,7 +51,7 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
                 alert.getMonitorSysGenServerAlertHistoryType());
 
         // 如果是网页推送通道，调用系统消息服务
-        if ("WEB_PUSH".equalsIgnoreCase(channel)) {
+        if ("SOCKET".equalsIgnoreCase(channel)) {
             return pushToWebMessage(alert);
         }
 
@@ -60,14 +60,14 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
 
     @Override
     public boolean pushBatch(MonitorSysGenAlertPushConfig config, List<MonitorSysGenServerAlertHistory> alerts) {
-        String channel = config.getMonitorSysGenAlertPushConfigChannel();
+        String channel = config.getMonitorSysGenAlertPushConfigChannel().getCode();
         log.info("[AlertPushBatch] channel={} endpoint={} size={}",
                 channel,
                 config.getMonitorSysGenAlertPushConfigEndpoint(),
                 alerts == null ? 0 : alerts.size());
 
         // 如果是网页推送通道，批量推送到系统消息
-        if ("WEB_PUSH".equalsIgnoreCase(channel) && alerts != null) {
+        if ("SOCKET".equalsIgnoreCase(channel) && alerts != null) {
             int successCount = 0;
             for (MonitorSysGenServerAlertHistory alert : alerts) {
                 if (pushToWebMessage(alert)) {
@@ -104,7 +104,7 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
             message.setSysMessageContent(content);
             message.setSysMessageType(MESSAGE_TYPE_SYSTEM);
             // 告警级别映射到消息级别
-            message.setSysMessageLevel(mapAlertLevelToMessageLevel(alert.getMonitorSysGenServerAlertHistoryLevel()));
+            message.setSysMessageLevel(mapAlertLevelToMessageLevel(alert.getMonitorSysGenServerAlertHistoryLevel().getCode()));
             message.setSysMessageSenderId(0);
             message.setSysMessageSenderName("系统监控");
             // 0表示广播给所有用户
@@ -145,16 +145,16 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
         sb.append("服务器ID: ").append(alert.getMonitorSysGenServerAlertHistoryServerId()).append("\n");
         sb.append("告警类型: ").append(alert.getMonitorSysGenServerAlertHistoryType()).append("\n");
         sb.append("告警级别: ").append(alert.getMonitorSysGenServerAlertHistoryLevel()).append("\n");
-        if (alert.getMonitorSysGenServerAlertHistoryMessage() != null) {
-            sb.append("告警详情: ").append(alert.getMonitorSysGenServerAlertHistoryMessage()).append("\n");
+        if (alert.getMonitorSysGenServerAlertHistoryContent() != null) {
+            sb.append("告警详情: ").append(alert.getMonitorSysGenServerAlertHistoryContent()).append("\n");
         }
         if (alert.getMonitorSysGenServerAlertHistoryCurrentValue() != null) {
             sb.append("当前值: ").append(alert.getMonitorSysGenServerAlertHistoryCurrentValue()).append("\n");
         }
-        if (alert.getMonitorSysGenServerAlertHistoryThreshold() != null) {
-            sb.append("阈值: ").append(alert.getMonitorSysGenServerAlertHistoryThreshold()).append("\n");
+        if (alert.getMonitorSysGenServerAlertHistoryThresholdValue() != null) {
+            sb.append("阈值: ").append(alert.getMonitorSysGenServerAlertHistoryThresholdValue()).append("\n");
         }
-        sb.append("告警时间: ").append(alert.getMonitorSysGenServerAlertHistoryAlertTime());
+        sb.append("告警时间: ").append(alert.getMonitorSysGenServerAlertHistoryTriggerTime());
         return sb.toString();
     }
 
@@ -171,7 +171,6 @@ public class AlertMessagePushBridgeImpl implements AlertMessagePushBridge {
         return switch (alertLevel.toUpperCase()) {
             case "CRITICAL", "EMERGENCY" -> "ERROR";
             case "HIGH", "WARNING" -> "WARNING";
-            case "MEDIUM" -> "INFO";
             default -> "INFO";
         };
     }
