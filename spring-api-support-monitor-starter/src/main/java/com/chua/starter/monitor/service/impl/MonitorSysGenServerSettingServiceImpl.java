@@ -1,7 +1,5 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,12 +8,11 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSettingHistory;
-// 移除 FileManagementMode 导入，改为使用字符串比较
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingHistoryMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.server.ServerTaskManagementService;
 import com.chua.starter.monitor.task.manager.ServerTaskManager;
+import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +45,6 @@ public class MonitorSysGenServerSettingServiceImpl
         implements MonitorSysGenServerSettingService {
 
     private final MonitorSysGenServerSettingHistoryMapper historyMapper;
-
-    @Autowired
-    @Lazy
-    private ServerTaskManagementService serverTaskManagementService;
 
     @Autowired
     @Lazy
@@ -235,7 +228,7 @@ public class MonitorSysGenServerSettingServiceImpl
      * 清理指定服务器的缓存
      */
     @CacheEvict(value = "serverSetting", key = "#serverId")
-    private void clearCacheForServer(Integer serverId) {
+    public void clearCacheForServer(Integer serverId) {
         // 这个方法只是为了触发缓存清理
         log.debug("清理服务器 {} 的缓存", serverId);
     }

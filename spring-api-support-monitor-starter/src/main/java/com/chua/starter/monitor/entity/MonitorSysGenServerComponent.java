@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.monitor.controller.server.MonitorSysGenServerComponentController;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerComponentService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerComponentService;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

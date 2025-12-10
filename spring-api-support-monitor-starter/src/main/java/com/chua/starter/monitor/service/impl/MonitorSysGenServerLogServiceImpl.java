@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerLog;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerLogMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerLogService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

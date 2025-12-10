@@ -11,7 +11,7 @@ import com.chua.common.support.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.service.SysFileSystemPartService;
-import com.chua.starter.service.properties.SsoProperties;
+import com.chua.starter.service.properties.FileSystemProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -42,14 +43,14 @@ import java.util.concurrent.TimeUnit;
 public class SysFileSystemMergeTaskRegistration {
 
     private final SysFileSystemPartService sysFileSystemPartService;
-    private final SsoProperties ssoProperties;
+    private final FileSystemProperties fileSystemProperties;
     private final Environment environment;
 
     private ThreadPoolExecutor executor;
 
     @PostConstruct
     public void init() {
-        int corePoolSize = ssoProperties.getMergeTaskPoolSize();
+        int corePoolSize = fileSystemProperties.getMergeTaskPoolSize();
         executor = new ThreadPoolExecutor(
                 corePoolSize,
                 corePoolSize * 2,
@@ -105,13 +106,13 @@ public class SysFileSystemMergeTaskRegistration {
 
             // 上传到存储
             PutObjectResult result = uploadToStorage(sysFileSystem, mergedData);
-            if (result == null || !result.isValid()) {
+            if (result == null || !result.getResultCode().isSuccessful()) {
                 throw new RuntimeException("上传存储失败");
             }
 
             // 更新状态为完成
             sysFileSystem.setSysFileSystemStatus(SysFileSystem.Status.COMPLETED);
-            sysFileSystem.setSysFileSystemPath(result.getPath());
+            sysFileSystem.setSysFileSystemPath(result.getUrl());
             sysFileSystem.setSysFileSystemHttpUrl(result.getUrl());
             wrapper.getSysFileSystemService().updateById(sysFileSystem);
 
@@ -185,13 +186,13 @@ public class SysFileSystemMergeTaskRegistration {
             for (SysFileSystemPart part : parts) {
                 String localPath = part.getSysFileSystemPartLocalPath();
                 if (localPath != null) {
-                    FileUtils.deleteQuietly(new java.io.File(localPath));
+                    FileUtils.forceDeleteDirectory(new File(localPath));
                 }
             }
 
             // 删除任务目录
-            String taskDir = FileUtils.normalize(ssoProperties.getTempPath(), taskId);
-            FileUtils.deleteDirectory(new java.io.File(taskDir));
+            String taskDir = FileUtils.normalize(fileSystemProperties.getTempPath(), taskId);
+            FileUtils.deleteDirectory(new File(taskDir));
             log.info("临时文件清理完成: taskId={}", taskId);
         } catch (Exception e) {
             log.warn("临时文件清理失败: taskId={}", taskId, e);

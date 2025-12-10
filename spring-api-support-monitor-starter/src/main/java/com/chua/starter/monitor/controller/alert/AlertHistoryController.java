@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.enums.AlertStatus;
-import com.chua.starter.monitor.service.MonitorSysGenServerAlertHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerAlertHistoryService;
 import com.chua.starter.mybatis.entity.Query;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

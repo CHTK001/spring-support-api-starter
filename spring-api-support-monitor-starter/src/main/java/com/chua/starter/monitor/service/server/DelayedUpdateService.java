@@ -1,6 +1,4 @@
-package com.chua.starter.monitor.service;
-
-import lombok.Data;
+package com.chua.starter.monitor.service.server;
 
 /**
  * 延迟更新服务

@@ -1,10 +1,11 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.server;
 
 import com.chua.common.support.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerConnectionStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
