@@ -613,7 +613,6 @@ public class MonitorSysGenServerSettingServiceImpl
                     template.setMonitorSysGenServerSettingProcessMonitorEnabled(1);
                     template.setMonitorSysGenServerSettingServiceMonitorEnabled(1);
                     template.setMonitorSysGenServerSettingPortMonitorEnabled(1);
-                    template.setMonitorSysGenServerSettingLogMonitorEnabled(1);
                     break;
 
                 case "prometheus":

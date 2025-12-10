@@ -10,6 +10,7 @@ import com.chua.starter.monitor.service.job.MonitorJobLogService;
 import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import com.chua.sync.support.spi.SyncMessageHandler;
@@ -63,6 +64,9 @@ public class SyncConfiguration {
 
     @Autowired
     private MonitorSysGenServerSettingService serverSettingService;
+
+    @Autowired
+    private UnifiedAlertService unifiedAlertService;
 
     @PostConstruct
     public void init() {
@@ -219,6 +223,24 @@ public class SyncConfiguration {
 
             if (result.isOk()) {
                 log.debug("[DeviceMetrics] 处理成功: ip={}, metrics={}", ipAddress, reportedMetrics);
+                
+                // 如果数据处理成功且找到了服务器，进行告警检测
+                if (server != null) {
+                    try {
+                        // 使用统一告警服务检测和推送节点上报数据的告警
+                        ReturnResult<Boolean> alertResult = 
+                            unifiedAlertService.checkAndPushApiReportAlerts(server.getMonitorSysGenServerId(), data);
+                        
+                        if (alertResult.isOk() && alertResult.getData() != null && alertResult.getData()) {
+                            log.info("[DeviceMetrics] 节点上报数据检测到告警并已推送: ip={}, serverId={}", 
+                                    ipAddress, server.getMonitorSysGenServerId());
+                        }
+                    } catch (Exception alertEx) {
+                        // 告警检测失败不影响数据上报的成功
+                        log.error("[DeviceMetrics] 节点上报数据告警检测失败: ip={}, serverId={}", 
+                                ipAddress, server.getMonitorSysGenServerId(), alertEx);
+                    }
+                }
             } else {
                 log.warn("[DeviceMetrics] 处理失败: ip={}, error={}", ipAddress, result.getMsg());
             }
