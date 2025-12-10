@@ -67,11 +67,15 @@ public class SysFeedbackController {
 
 
     /**
-     * 反馈统计
+     * 反馈统计
      *
-     * @return 反馈统计
+     * @return 反馈统计
+     * @author CH
+     * @since 2024/12/10
      */
+    @GetMapping("/statistic")
+    @Operation(summary = "反馈统计")
     public ReturnResult<FeedbackStatisticV1Response> statistic() {
-        return null;
+        return sysFeedbackService.statistic();
     }
 }
