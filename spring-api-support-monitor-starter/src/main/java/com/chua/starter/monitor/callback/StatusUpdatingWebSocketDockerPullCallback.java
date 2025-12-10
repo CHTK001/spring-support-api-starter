@@ -6,7 +6,7 @@ import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
-import com.chua.starter.monitor.service.SystemSoftImageService;
+import com.chua.starter.monitor.service.docker.SystemSoftImageService;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

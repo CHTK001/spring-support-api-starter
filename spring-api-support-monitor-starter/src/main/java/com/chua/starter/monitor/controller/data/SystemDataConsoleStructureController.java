@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.controller.data;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.ColumnInfo;
-import com.chua.starter.monitor.pojo.TableStructureInfo;
-import com.chua.starter.monitor.service.SystemDataConsoleService;
+import com.chua.starter.monitor.pojo.data.ColumnInfo;
+import com.chua.starter.monitor.pojo.data.TableStructureInfo;
+import com.chua.starter.monitor.service.data.SystemDataConsoleService;
 import com.chua.starter.monitor.spi.metadata.StructureMetadata;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

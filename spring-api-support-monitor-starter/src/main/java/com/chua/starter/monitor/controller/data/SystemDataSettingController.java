@@ -11,7 +11,7 @@ import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.ServerStatic;
-import com.chua.starter.monitor.pojo.data.SystemCapabilities;
+import com.chua.starter.monitor.pojo.SystemCapabilities;
 import com.chua.starter.monitor.pojo.data.SystemDataSettingPageItem;
 import com.chua.starter.monitor.service.data.SystemDataConsoleService;
 import com.chua.starter.monitor.service.data.SystemDataSettingService;
