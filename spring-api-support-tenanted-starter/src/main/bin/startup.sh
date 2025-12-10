@@ -100,7 +100,7 @@ show_help() {
     echo "  $0 start --tail                       # 启动并跟踪日志"
     echo "  $0 start                              # 启动应用"
     echo "  $0 stop                               # 停止应用"
-    echo "  $0 restart                            # 重启应用"
+    echo "  $0 restart                            # 重启应用"数据上报方式改成指标上报方式
     echo "  $0 status                             # 查看状态"
     echo "  $0 debug --debug-port 5006            # 调试模式启动"
     echo "  $0 dump heap                          # 生成堆转储"
