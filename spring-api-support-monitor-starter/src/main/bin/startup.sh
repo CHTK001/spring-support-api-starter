@@ -61,6 +61,7 @@ show_help() {
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
+    echo "  --jvm-opts <opts>     自定义JVM参数 (如: '-Xms1g -Xmx2g')"
     echo "  --debug-port <port>   指定调试端口 (默认: ${DEFAULT_DEBUG_PORT})"
     echo "  --help, -h            显示帮助信息"
     echo ""
@@ -162,6 +163,7 @@ start_app() {
     echo -e "${BLUE}==========================================${NC}"
     
     local java_opts="${JAVA_OPTS}"
+    [ -n "${CUSTOM_JVM_OPTS}" ] && java_opts="${CUSTOM_JVM_OPTS}"
     if [ "${DEBUG_MODE}" = "true" ]; then
         java_opts="${java_opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
     fi
@@ -253,6 +255,7 @@ run_restore() { bash "${SCRIPT_DIR}/script/backup-restore.sh" restore "${1:-all}
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
 DEBUG_MODE="false"
+CUSTOM_JVM_OPTS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -263,6 +266,10 @@ while [ $# -gt 0 ]; do
         cpu|mem|all|config|jar)
             EXTRA_MODE="$1"
             shift
+            ;;
+        --jvm-opts)
+            CUSTOM_JVM_OPTS="$2"
+            shift 2
             ;;
         --debug-port)
             DEBUG_PORT="$2"

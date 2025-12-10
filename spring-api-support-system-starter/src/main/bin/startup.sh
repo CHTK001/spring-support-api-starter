@@ -59,6 +59,7 @@ show_help() {
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
+    echo "  --jvm-opts <opts>     自定义JVM参数 (如: '-Xms1g -Xmx2g')"
     echo "  --debug-port <port>   指定调试端口 (默认: ${DEFAULT_DEBUG_PORT})"
     echo "  --help, -h            显示帮助信息"
     echo ""
@@ -120,6 +121,7 @@ start_app() {
     echo -e "${BLUE}==========================================${NC}"
     
     local java_opts="${JAVA_OPTS}"
+    [ -n "${CUSTOM_JVM_OPTS}" ] && java_opts="${CUSTOM_JVM_OPTS}"
     [ "${DEBUG_MODE}" = "true" ] && java_opts="${java_opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
     
     nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${LOG_DIR}/startup.log" 2>&1 &
@@ -175,12 +177,13 @@ run_analyze() {
 run_backup() { bash "${SCRIPT_DIR}/script/backup-restore.sh" backup "${1:-all}"; }
 run_restore() { bash "${SCRIPT_DIR}/script/backup-restore.sh" restore "${1:-all}"; }
 
-COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"
+COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
         start|stop|restart|status|jvm|tuning|analyze|arthas|backup|restore|debug) COMMAND="$1"; shift ;;
         cpu|mem|all|config|jar) EXTRA_MODE="$1"; shift ;;
+        --jvm-opts) CUSTOM_JVM_OPTS="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
         --help|-h) show_help; exit 0 ;;
         *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
