@@ -9,7 +9,7 @@ import com.chua.starter.monitor.pojo.NodeControlRequest;
 import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
 import com.chua.starter.monitor.service.NodeControlService;
-import com.chua.starter.monitor.service.NodeManagementService;
+import com.chua.starter.monitor.service.node.NodeManagementService;
 import com.chua.sync.support.server.SyncServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

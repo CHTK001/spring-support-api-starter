@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.NodeSystem;
 import com.chua.starter.monitor.mapper.NodeSystemMapper;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.service.NodeSystemService;
+import com.chua.starter.monitor.service.node.NodeSystemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
