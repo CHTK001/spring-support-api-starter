@@ -312,7 +312,7 @@ public interface SystemDataConsoleService {
      * @param req       更新行请求
      * @return 是否成功
      */
-    Boolean updateTableRow(Integer settingId, com.chua.starter.monitor.pojo.UpdateRowRequest req);
+    Boolean updateTableRow(Integer settingId, UpdateRowRequest req);
 
     /**
      * 删除表数据行
@@ -321,7 +321,7 @@ public interface SystemDataConsoleService {
      * @param req       删除行请求
      * @return 是否成功
      */
-    Boolean deleteTableRow(Integer settingId, com.chua.starter.monitor.pojo.DeleteRowRequest req);
+    Boolean deleteTableRow(Integer settingId, DeleteRowRequest req);
 
     /**
      * 插入表数据行
@@ -330,7 +330,7 @@ public interface SystemDataConsoleService {
      * @param req       插入行请求
      * @return 是否成功
      */
-    Boolean insertTableRow(Integer settingId, com.chua.starter.monitor.pojo.InsertRowRequest req);
+    Boolean insertTableRow(Integer settingId, InsertRowRequest req);
 }
 
 
