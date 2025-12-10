@@ -53,6 +53,8 @@ show_help() {
     echo "  restart     重启应用"
     echo "  status      查看应用状态"
     echo "  jvm         查看JVM信息"
+    echo "  tuning      JVM调优建议"
+    echo "  arthas      启动Arthas诊断"
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
@@ -224,6 +226,17 @@ show_jvm_info() {
     bash "${SCRIPT_DIR}/script/jvm-info.sh" "$pid" "$APP_NAME"
 }
 
+show_tuning() {
+    local pid=$(get_pid)
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
+    bash "${SCRIPT_DIR}/script/jvm-tuning.sh" "$pid" "$APP_NAME"
+}
+
+start_arthas() {
+    local pid=$(get_pid)
+    bash "${SCRIPT_DIR}/script/arthas-install.sh" "$pid"
+}
+
 # 解析参数
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
@@ -231,7 +244,7 @@ DEBUG_MODE="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|debug)
+        start|stop|restart|status|jvm|tuning|arthas|debug)
             COMMAND="$1"
             shift
             ;;
@@ -273,6 +286,12 @@ case "$COMMAND" in
         ;;
     jvm)
         show_jvm_info
+        ;;
+    tuning)
+        show_tuning
+        ;;
+    arthas)
+        start_arthas
         ;;
     *)
         show_help
