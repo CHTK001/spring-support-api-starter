@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.acme;
 
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
