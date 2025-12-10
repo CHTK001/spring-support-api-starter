@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.SystemSoftRecord;
 import com.chua.starter.monitor.mapper.SystemSoftRecordMapper;
-import com.chua.starter.monitor.service.SystemSoftRecordService;
+import com.chua.starter.monitor.service.docker.SystemSoftRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

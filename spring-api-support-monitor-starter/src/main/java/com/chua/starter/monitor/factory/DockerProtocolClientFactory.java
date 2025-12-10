@@ -8,14 +8,14 @@ import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.enums.DockerConnectionType;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.chua.starter.monitor.pojo.DockerClientCreateResult;
+import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

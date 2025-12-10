@@ -12,10 +12,10 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.enums.AlertLevel;
 import com.chua.starter.monitor.enums.AlertStatus;
 import com.chua.starter.monitor.enums.AlertType;
-import com.chua.starter.monitor.service.AlertDetectionService;
-import com.chua.starter.monitor.service.MonitorSysGenServerAlertHistoryService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.alert.AlertDetectionService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerAlertHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;

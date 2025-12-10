@@ -4,7 +4,7 @@ import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.report.ReportHandler;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;

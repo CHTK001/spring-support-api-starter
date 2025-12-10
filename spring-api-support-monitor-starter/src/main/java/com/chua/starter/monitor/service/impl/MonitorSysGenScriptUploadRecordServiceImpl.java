@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
 import com.chua.starter.monitor.mapper.MonitorSysGenScriptUploadRecordMapper;
-import com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService;
+import com.chua.starter.monitor.service.script.MonitorSysGenScriptUploadRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

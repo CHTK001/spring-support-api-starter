@@ -8,9 +8,10 @@ import com.chua.starter.monitor.entity.SystemSoftContainerStats;
 import com.chua.starter.monitor.entity.SystemSoftContainerStatus;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftContainerMapper;
-import com.chua.starter.monitor.service.DockerCallbackService;
-import com.chua.starter.monitor.service.SystemSoftContainerService;
-import com.chua.starter.monitor.service.SystemSoftContainerStatsService;
+import com.chua.starter.monitor.service.docker.DockerCallbackService;
+import com.chua.starter.monitor.service.docker.SystemSoftContainerService;
+import com.chua.starter.monitor.service.docker.SystemSoftContainerStatsService;
+import com.chua.starter.monitor.service.docker.SystemSoftRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
     private DockerCallbackService dockerCallbackService;
     @Autowired
     @Lazy
-    private com.chua.starter.monitor.service.SystemSoftRecordService systemSoftRecordService;
+    private SystemSoftRecordService systemSoftRecordService;
 
     // 用于存储日志推送任务的Map
     private final Map<Integer, LogPushTask> logPushTasks = new ConcurrentHashMap<>();

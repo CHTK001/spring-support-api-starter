@@ -6,9 +6,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorArthasSession;
 import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
 import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
-import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.service.MonitorArthasSessionService;
-import com.chua.starter.monitor.service.NodeManagementService;
+import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
+import com.chua.starter.monitor.pojo.arthas.*;
+import com.chua.starter.monitor.service.arthas.MonitorArthasSessionService;
+import com.chua.starter.monitor.service.node.NodeManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -192,15 +193,6 @@ public class ArthasCommandController {
 
     // ========== 语义化HTTP接口：thread/jvm/heap/trace ==========
 
-    @lombok.Data
-    public static class ThreadRequest {
-        private String nodeId;
-        private String threadId; // 优先
-        private Boolean blocking; // 仅阻塞
-        private Integer count; // -n
-        private Integer collectMillis;
-    }
-
     @PostMapping("/thread")
     @Operation(summary = "执行 thread 命令(HTTP)")
     public ReturnResult<Map<String, Object>> thread(@RequestBody ThreadRequest req) {
@@ -221,12 +213,6 @@ public class ArthasCommandController {
         return exec(er);
     }
 
-    @lombok.Data
-    public static class SimpleRequest {
-        private String nodeId;
-        private Integer collectMillis;
-    }
-
     @PostMapping("/jvm")
     @Operation(summary = "执行 jvm 命令(HTTP)")
     public ReturnResult<Map<String, Object>> jvm(@RequestBody SimpleRequest req) {
@@ -245,18 +231,6 @@ public class ArthasCommandController {
         er.setCommand("heap");
         er.setCollectMillis(req.getCollectMillis());
         return exec(er);
-    }
-
-    @lombok.Data
-    public static class TraceRequest {
-        private String nodeId;
-        private String classPattern; // 必填
-        private String methodPattern; // 可选，默认 *
-        private String condition; // 可选
-        private Boolean useRegex; // -E
-        private Integer count; // -n
-        private Integer expand; // -x
-        private Integer collectMillis;
     }
 
     @PostMapping("/trace")
@@ -835,91 +809,6 @@ public class ArthasCommandController {
             log.error("获取或创建会话失败: nodeId={}", req.getNodeId(), e);
             return ReturnResult.error("获取或创建会话失败: " + e.getMessage());
         }
-    }
-
-    // ========== Session 管理接口 ==========
-
-    /**
-     * 请求体
-     */
-    @lombok.Data
-    public static class ExecRequest {
-        /**
-         * 节点ID（必填）
-         */
-        private String nodeId;
-        /**
-         * 要执行的 arthas 命令（必填），例如：thread -n 20
-         */
-        private String command;
-        /**
-         * 收集输出的毫秒数（可选，默认3000ms）
-         */
-        private Integer collectMillis;
-    }
-
-    /**
-     * 异步执行请求体
-     */
-    @lombok.Data
-    public static class AsyncExecRequest {
-        /**
-         * 节点ID（必填）
-         */
-        private String nodeId;
-        /**
-         * 要执行的 arthas 命令（必填）
-         */
-        private String command;
-    }
-
-    /**
-     * 异步执行响应
-     */
-    @lombok.Data
-    public static class AsyncExecResponse {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 消费者ID
-         */
-        private String consumerId;
-        /**
-         * 任务ID
-         */
-        private Integer jobId;
-    }
-
-    /**
-     * 拉取结果请求体
-     */
-    @lombok.Data
-    public static class PullResultsRequest {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 消费者ID
-         */
-        private String consumerId;
-    }
-
-    /**
-     * 中断任务请求体
-     */
-    @lombok.Data
-    public static class InterruptJobRequest {
-        /**
-         * 会话ID
-         */
-        private String sessionId;
-        /**
-         * 任务ID
-         */
-        private Integer jobId;
     }
 
     // ========== 私有辅助方法 ==========

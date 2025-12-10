@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.job;
 
 import com.chua.starter.monitor.properties.AcmeProperties;
-import com.chua.starter.monitor.service.AcmeCertificateService;
+import com.chua.starter.monitor.service.acme.AcmeCertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

@@ -5,7 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenAlertPushConfig;
 import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.monitor.mapper.MonitorSysGenAlertPushConfigMapper;
-import com.chua.starter.monitor.service.MonitorSysGenAlertPushConfigService;
+import com.chua.starter.monitor.service.message.MonitorSysGenAlertPushConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
