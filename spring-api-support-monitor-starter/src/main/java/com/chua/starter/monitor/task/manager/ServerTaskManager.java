@@ -42,10 +42,25 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 /**
- * 服务器任务管理器 根据服务器ID管理各种类型的定时任务 支持动态创建、更新、删除任务
+ * 服务器任务管理器
+ * <p>
+ * 负责管理所有服务器的监控任务，使用 Java 21 虚拟线程实现高并发任务处理。
+ * </p>
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/12/28
+ * @see MonitorSysGenServerSetting 服务器配置实体（任务执行依赖的配置项）
+ * @see MonitorSysGenServer 服务器实体
+ * @see MonitorProperties 监控属性配置
+ * @see PortMonitorStep 端口监控步骤
+ * @see HealthCheckStep 健康检查步骤
+ * @see MetricsCollectionStep 指标采集步骤
+ * @see AlertDetectionStep 告警检测步骤
+ * @see DataPushStep 数据推送步骤
+ * @see OnlineCheckStep 在线检测步骤
+ * @see LatencyCheckStep 延迟检测步骤
+ * @see DockerStatsPushStep Docker状态推送步骤
  */
 @Slf4j
 @Component
@@ -53,17 +68,21 @@ import java.util.stream.Stream;
 @SuppressWarnings("ALL")
 public class ServerTaskManager {
 
+    // ==================== 依赖服务 ====================
+    
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final ServerMetricsWebSocketService serverMetricsWebSocketService;
     private final UnifiedAlertService unifiedAlertService;
-    @SuppressWarnings("unused") // 保留用于未来扩展
+    @SuppressWarnings("unused")
     private final MonitorSysGenServerMetricsService metricsService;
     private final PrometheusDataCollectorService prometheusDataCollectorService;
     private final LocalSystemDataCollector localSystemDataCollector;
     private final ServerLatencyService serverLatencyService;
     private final MonitorProperties monitorProperties;
-    // 拆分后的步骤组件
+    
+    // ==================== 任务步骤组件 ====================
+    
     private final PortMonitorStep portMonitorStep;
     private final HealthCheckStep healthCheckStep;
     private final MetricsCollectionStep metricsCollectionStep;
@@ -71,34 +90,30 @@ public class ServerTaskManager {
     private final DataPushStep dataPushStep;
     private final OnlineCheckStep onlineCheckStep;
     private final LatencyCheckStep latencyCheckStep;
-    private final LogCleanupStep logCleanupStep;
-    private final CacheCleanupStep cacheCleanupStep;
-    private final WebSocketCleanupStep webSocketCleanupStep;
     private final DockerStatsPushStep dockerStatsPushStep;
 
-    // 虚拟线程执行器
+    // ==================== 执行器和任务存储 ====================
+    
     private ExecutorService executorService;
-
-    // 存储每个服务器的任务信息
     private static final Map<Integer, ServerTaskInfo> serverTasks = new ConcurrentHashMap<>();
-
-    // 全局任务（不依赖特定服务器）
     private static final Map<String, Future<?>> globalTasks = new ConcurrentHashMap<>();
-
-    // 内存中的配置缓存
     private static final Map<Integer, MonitorSysGenServerSetting> configCache = new ConcurrentHashMap<>();
 
-    // 配置刷新间隔（秒）
+    // ==================== 常量配置 ====================
+    
     private static final int CONFIG_REFRESH_INTERVAL = 60;
 
-    // 任务运行状态控制
+    // ==================== 运行状态标志 ====================
+    
     private volatile boolean running = true;
-
-    // 全局任务是否已启动
     private volatile boolean globalTasksStarted = false;
 
     /**
      * 刷新所有服务器配置
+     * <p>
+     * 遍历所有启用状态的服务器，逐个刷新其配置缓存。
+     * 此方法由全局调度器定期调用，确保配置缓存与数据库保持同步。
+     * </p>
      */
     private void refreshAllConfigs() {
         try {
@@ -117,6 +132,17 @@ public class ServerTaskManager {
         }
     }
 
+    /**
+     * 初始化任务管理器
+     * <p>
+     * 在Spring容器启动后自动调用，完成以下初始化工作：
+     * <ul>
+     *   <li>检查是否启用后端定时检测推送任务</li>
+     *   <li>创建虚拟线程执行器</li>
+     *   <li>异步启动所有服务器的监控任务</li>
+     * </ul>
+     * </p>
+     */
     @PostConstruct
     public void init() {
         // 检查是否启用后端定时检测推送任务
@@ -136,6 +162,18 @@ public class ServerTaskManager {
         log.info("服务器任务管理器初始化完成");
     }
 
+    /**
+     * 销毁任务管理器
+     * <p>
+     * 在Spring容器关闭前自动调用，完成以下清理工作：
+     * <ul>
+     *   <li>停止所有运行中的任务</li>
+     *   <li>取消所有服务器任务和全局任务</li>
+     *   <li>清空配置缓存</li>
+     *   <li>关闭线程池</li>
+     * </ul>
+     * </p>
+     */
     @PreDestroy
     public void destroy() {
         log.info("正在关闭服务器任务管理器...");
@@ -306,6 +344,13 @@ public class ServerTaskManager {
 
     /**
      * 初始化所有服务器的任务
+     * <p>
+     * 遍历所有启用状态的服务器，为每个服务器创建监控任务。
+     * 首次调用时会同时启动全局任务。
+     * </p>
+     * 
+     * @see #createServerTasks(Integer)
+     * @see #startGlobalDispatcher()
      */
     public void initializeServerTasks() {
         try {
@@ -377,10 +422,7 @@ public class ServerTaskManager {
                 long lastPort = 0L;
                 long lastOnline = 0L;
                 long lastLatency = 0L;
-                long lastLogCleanup = 0L;
-                long lastCacheCleanup = 0L;
-                long lastWsCleanup = 0L;
-                long lastDockerStats = 0L; // 添加Docker状态推送时间戳
+                long lastDockerStats = 0L;
                 while (taskInfo.isTaskRunning() && running) {
                     try {
                         MonitorSysGenServerSetting s = getCachedConfig(server.getMonitorSysGenServerId());
@@ -389,9 +431,11 @@ public class ServerTaskManager {
                             continue;
                         }
                         long now = System.currentTimeMillis();
-                        // 指标采集（非节点上报）
+                        // 指标采集（需要开启指标采集开关且非节点上报）
                         String rm = s.getMonitorSysGenServerSettingDataReportMethod();
-                        if (!"NODE".equalsIgnoreCase(rm)) {
+                        boolean metricsEnabled = s.getMonitorSysGenServerSettingMetricsCollectionEnabled() != null 
+                            && s.getMonitorSysGenServerSettingMetricsCollectionEnabled() == 1;
+                        if (metricsEnabled && !"NODE".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastMetrics >= freq * 1000L) {
                                 metricsCollectionStep.run(server, s);
@@ -406,11 +450,15 @@ public class ServerTaskManager {
                                 lastAlerts = now;
                             }
                         }
-                        // 健康检查
-                        int hi = getEffectiveHealthCheckInterval(s);
-                        if (now - lastHealth >= hi * 1000L) {
-                            healthCheckStep.run(server, s);
-                            lastHealth = now;
+                        // 健康检查（需要开启健康检查开关）
+                        boolean healthCheckEnabled = s.getMonitorSysGenServerSettingHealthCheckEnabled() != null 
+                            && s.getMonitorSysGenServerSettingHealthCheckEnabled() == 1;
+                        if (healthCheckEnabled) {
+                            int hi = getEffectiveHealthCheckInterval(s);
+                            if (now - lastHealth >= hi * 1000L) {
+                                healthCheckStep.run(server, s);
+                                lastHealth = now;
+                            }
                         }
                         // 数据推送（非节点上报）
                         if (!"NODE".equalsIgnoreCase(rm)) {
@@ -453,30 +501,6 @@ public class ServerTaskManager {
                                 lastLatency = now;
                             }
                         }
-                        // 日志清理（每日）
-                        if (s.getMonitorSysGenServerSettingLogCleanupEnabled() != null && s.getMonitorSysGenServerSettingLogCleanupEnabled() == 1) {
-                            if (now - lastLogCleanup >= 24L * 3_600_000) {
-                                logCleanupStep.run(server, s);
-                                lastLogCleanup = now;
-                            }
-                        }
-                        // 缓存清理（每小时）
-                        if (s.getMonitorSysGenServerSettingTempFileCleanupEnabled() != null && s.getMonitorSysGenServerSettingTempFileCleanupEnabled() == 1) {
-                            if (now - lastCacheCleanup >= 3_600_000) {
-                                cacheCleanupStep.run(server, s);
-                                lastCacheCleanup = now;
-                            }
-                        }
-                        // WebSocket 清理（默认每10分钟）
-                        if (s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() != null && s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() == 1) {
-                            Integer itv = s.getMonitorSysGenServerSettingWebSocketCleanupInterval();
-                            if (itv == null || itv <= 0) itv = 10;
-                            if (now - lastWsCleanup >= itv * 60_000L) {
-                                webSocketCleanupStep.run(server, s);
-                                lastWsCleanup = now;
-                            }
-                        }
-
                         // Docker状态推送
                         if (s.getMonitorSysGenServerSettingDockerEnabled() != null &&
                                 s.getMonitorSysGenServerSettingDockerEnabled() == 1) {

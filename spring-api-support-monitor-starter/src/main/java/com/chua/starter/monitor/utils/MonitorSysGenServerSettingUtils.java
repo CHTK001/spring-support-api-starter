@@ -161,18 +161,6 @@ public class MonitorSysGenServerSettingUtils {
     }
 
     /**
-     * 判断是否启用日志监控
-     *
-     * @param setting 服务器配置设置对象 {@link MonitorSysGenServerSetting}
-     * @return true: 启用日志监控, false: 禁用日志监控
-     * @example setting.getMonitorSysGenServerSettingLogMonitorEnabled() == 1 返回 true
-     */
-    public static boolean isLogMonitorEnabled(MonitorSysGenServerSetting setting) {
-        return setting != null && setting.getMonitorSysGenServerSettingLogMonitorEnabled() != null
-                && setting.getMonitorSysGenServerSettingLogMonitorEnabled() == 1;
-    }
-
-    /**
      * 判断是否使用代理
      *
      * @param setting 服务器配置设置对象 {@link MonitorSysGenServerSetting}

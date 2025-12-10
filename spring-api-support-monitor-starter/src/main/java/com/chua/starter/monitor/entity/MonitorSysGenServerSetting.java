@@ -17,9 +17,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerSettingMapper;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.task.manager.ServerTaskManager;
-import com.chua.starter.monitor.task.manager.step.CacheCleanupStep;
 import com.chua.starter.monitor.task.manager.step.HealthCheckStep;
-import com.chua.starter.monitor.task.manager.step.LogCleanupStep;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -192,9 +190,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 监控间隔(秒)
-     * @see ServerTaskManager#getEffectiveMonitorInterval
-     * @see ServerTaskManager#getEffectiveCollectionFrequency
-     * @see ServerTaskManager#getEffectiveHealthCheckInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_monitor_interval")
     @ApiModelProperty(value = "监控间隔(秒)")
@@ -278,8 +273,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 是否启用告警 0:否 1:是
      *
-     * @see MonitorSysGenServerSettingController#updateAlertSettings
-     * @see MonitorSysGenServerSettingService#updateAlertSettings
      * @see MonitorSysGenServerSettingMapper#selectAlertEnabledSettings
      * @see MonitorSysGenServerSetting#getDefaultSetting
      */
@@ -338,8 +331,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 数据收集频率 (秒) - 多久收集一次指标数据
-     * @see ServerTaskManager#createMetricsCollectionTask
-     * @see ServerTaskManager#createDataPushTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_data_collection_frequency")
     @ApiModelProperty(value = "数据收集频率")
@@ -626,7 +617,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      *
      * @see MonitorSysGenServerSettingController#saveOrUpdate
      * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_port_monitor_enabled")
     @ApiModelProperty(value = "是否启用端口监控")
@@ -644,60 +634,11 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Size(max = 1000, message = "监控端口列表最大长度要小于 1000")
     private String monitorSysGenServerSettingMonitorPorts;
 
-    /**
-     * 是否启用日志监控 0:否 1:是
-     *
-     * @see MonitorSysGenServerSettingController#saveOrUpdate
-     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_log_monitor_enabled")
-    @ApiModelProperty(value = "是否启用日志监控")
-    @Schema(description = "是否启用日志监控")
-    private Integer monitorSysGenServerSettingLogMonitorEnabled;
-
-    /**
-     * 日志文件路径列表 (JSON格式)
-     *
-     * @see MonitorSysGenServerSettingController#saveOrUpdate
-     * @see MonitorSysGenServerSettingService#saveOrUpdateSetting
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_log_file_paths")
-    @ApiModelProperty(value = "日志文件路径列表")
-    @Schema(description = "日志文件路径列表 (JSON格式)")
-    @Size(max = 2000, message = "日志文件路径列表最大长度要小于 2000")
-    private String monitorSysGenServerSettingLogFilePaths;
-
-    /**
-     * 连接超时时间 (秒)
-     *
-     * @see ServerTaskManager#getEffectiveHealthCheckInterval
-     * @see ServerTaskManager#getEffectiveMonitorInterval
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_connection_timeout")
-    @ApiModelProperty(value = "连接超时时间")
-    @Schema(description = "连接超时时间 (秒)")
-    private Integer monitorSysGenServerSettingConnectionTimeout;
-
-    /**
-     * 读取超时时间 (秒)
-     *
-     * @see ServerTaskManager#getEffectiveHealthCheckInterval
-     * @see ServerTaskManager#getEffectiveMonitorInterval
-     */
-    @TableField(value = "monitor_sys_gen_server_setting_read_timeout")
-    @ApiModelProperty(value = "读取超时时间")
-    @Schema(description = "读取超时时间 (秒)")
-    private Integer monitorSysGenServerSettingReadTimeout;
-
     // ==================== 文件管理配置 ====================
 
     /**
      * 文件管理方式 (NONE:不启用, SSH:SSH模式, API:API模式, NODE:NODE模式, LOCAL:本地模式)
      * 
-     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getFileManagementConfigTemplate
-     *      获取配置模板
-     * @see com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl#getFileManagementService
-     *      实际选择实现
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_mode")
     @ApiModelProperty(value = "文件管理方式")
@@ -707,10 +648,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 文件管理API配置 (JSON格式，仅在API模式下使用)
      * 
-     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#validateFileManagementConfig
-     *      验证配置
-     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getFileManagementConfigTemplate
-     *      模板
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_api_config")
     @ApiModelProperty(value = "文件管理API配置")
@@ -721,7 +658,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 选择的NODE客户端ID (仅在NODE模式下使用)
      * 
-     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#getAvailableNodeClients
      *      获取可用客户端
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_node_client")
@@ -733,7 +669,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 是否启用文件管理 0:否 1:是
      * 
-     * @see com.chua.starter.monitor.controller.MonitorSysGenServerSettingController#testFileManagementConnection
      *      测试连接
      */
     @TableField(value = "monitor_sys_gen_server_setting_file_management_enabled")
@@ -760,7 +695,6 @@ public class MonitorSysGenServerSetting extends SysBase {
     /**
      * 客户端健康状态检查间隔 (秒)
      * @see HealthCheckStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
-     * @see ServerTaskManager#createHealthCheckTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_client_health_check_interval")
     @ApiModelProperty(value = "客户端健康状态检查间隔")
@@ -781,7 +715,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 端口检查间隔 (秒)
      *
      * @see com.chua.starter.monitor.task.manager.step.PortMonitorStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_port_check_interval")
     @ApiModelProperty(value = "端口检查间隔")
@@ -792,7 +725,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 是否启用在线状态检查 0:否 1:是
      *
      * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_enabled")
     @ApiModelProperty(value = "是否启用在线状态检查")
@@ -803,7 +735,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 在线状态检查间隔 (秒)
      *
      * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_interval")
     @ApiModelProperty(value = "在线状态检查间隔")
@@ -814,7 +745,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 在线状态检查间隔 (秒)
      *
      * @see com.chua.starter.monitor.task.manager.step.OnlineCheckStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_online_check_timeout")
     @ApiModelProperty(value = "在线状态检查超时时间(ms)")
@@ -825,7 +755,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 是否启用延迟检测 0:否 1:是
      *
      * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
-     * @see ServerTaskManager#getEffectiveMonitorInterval
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_enabled")
     @ApiModelProperty(value = "是否启用延迟检测")
@@ -836,7 +765,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 延迟检测间隔 (秒)
      *
      * @see com.chua.starter.monitor.task.manager.step.LatencyCheckStep#run
-     * @see ServerTaskManager#latencyCheckStep
      */
     @TableField(value = "monitor_sys_gen_server_setting_latency_check_interval")
     @ApiModelProperty(value = "延迟检测间隔")
@@ -845,7 +773,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用日志清理 0:否 1:是
-     * @see LogCleanupStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_log_cleanup_enabled")
     @ApiModelProperty(value = "是否启用日志清理")
@@ -854,7 +781,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用临时文件清理 0:否 1:是
-     * @see CacheCleanupStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
      */
     @TableField(value = "monitor_sys_gen_server_setting_temp_file_cleanup_enabled")
     @ApiModelProperty(value = "是否启用临时文件清理")
@@ -871,7 +797,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * 是否启用WebSocket清理 0:否 1:是
-     * @see ServerTaskManager#createWebSocketCleanupTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_enabled")
     @ApiModelProperty(value = "是否启用WebSocket清理")
@@ -880,7 +805,6 @@ public class MonitorSysGenServerSetting extends SysBase {
 
     /**
      * WebSocket清理间隔 (分钟)
-     * @see ServerTaskManager#createWebSocketCleanupTask
      */
     @TableField(value = "monitor_sys_gen_server_setting_websocket_cleanup_interval")
     @ApiModelProperty(value = "WebSocket清理间隔")
@@ -894,7 +818,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 控制服务器健康状态检测任务的开关
      *
      * @see HealthCheckStep#run(MonitorSysGenServer, MonitorSysGenServerSetting)
-     * @see ServerTaskManager#createHealthCheckTask
      * @since 2024/12/08
      */
     @TableField(value = "monitor_sys_gen_server_setting_health_check_enabled")
@@ -906,7 +829,6 @@ public class MonitorSysGenServerSetting extends SysBase {
      * 是否启用指标采集 0:否 1:是
      * 控制服务器性能指标数据采集任务的开关
      *
-     * @see ServerTaskManager#createMetricsCollectionTask
      * @since 2024/12/08
      */
     @TableField(value = "monitor_sys_gen_server_setting_metrics_collection_enabled")
@@ -1027,11 +949,6 @@ public class MonitorSysGenServerSetting extends SysBase {
         setting.setMonitorSysGenServerSettingProcessMonitorEnabled(0);
         setting.setMonitorSysGenServerSettingServiceMonitorEnabled(0);
         setting.setMonitorSysGenServerSettingPortMonitorEnabled(0);
-        setting.setMonitorSysGenServerSettingLogMonitorEnabled(0);
-
-        // 超时配置
-        setting.setMonitorSysGenServerSettingConnectionTimeout(0);
-        setting.setMonitorSysGenServerSettingReadTimeout(60);
 
         // 文件管理配置
         setting.setMonitorSysGenServerSettingFileManagementEnabled(0);
