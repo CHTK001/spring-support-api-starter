@@ -4,7 +4,7 @@ import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 
 import com.chua.starter.monitor.pojo.ClientHealthReport;
 import com.chua.starter.monitor.pojo.ClientHealthStatus;
-import com.chua.starter.monitor.service.ClientHealthService;
+import com.chua.starter.monitor.service.node.ClientHealthService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;

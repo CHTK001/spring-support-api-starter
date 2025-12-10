@@ -9,7 +9,7 @@ import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.monitor.mapper.MonitorSysGenAlertPushConfigMapper;
 import com.chua.starter.monitor.service.alert.AlertMessagePushBridge;
 import com.chua.starter.monitor.service.alert.AlertNotificationDispatcher;
-import com.chua.starter.monitor.service.MonitorSysGenMessagePushTemplateService;
+import com.chua.starter.monitor.service.message.MonitorSysGenMessagePushTemplateService;
 import com.chua.starter.monitor.spi.MessagePushSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
