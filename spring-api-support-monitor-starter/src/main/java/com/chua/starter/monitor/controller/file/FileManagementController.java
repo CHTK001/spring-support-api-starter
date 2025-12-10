@@ -6,9 +6,13 @@ import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptUploadRecord;
 import com.chua.starter.monitor.pojo.RemoteOperationResponse;
+import com.chua.starter.monitor.service.file.FileSystemService;
+import com.chua.starter.monitor.service.node.NodeSystemService;
 import com.chua.starter.monitor.service.script.MonitorSysGenScriptService;
 import com.chua.starter.monitor.service.node.NodeRemoteService;
 import com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl;
+import com.chua.starter.monitor.service.script.MonitorSysGenScriptUploadRecordService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,13 +48,13 @@ import java.util.List;
 public class FileManagementController {
 
     private final FileManagementFacadeServiceImpl fileManagementFacadeService;
-    private final com.chua.starter.monitor.service.MonitorSysGenScriptUploadRecordService uploadRecordService;
-    private final com.chua.starter.monitor.service.MonitorSysGenServerService monitorSysGenServerService;
-    private final com.chua.starter.monitor.service.NodeSystemService nodeSystemService;
+    private final MonitorSysGenScriptUploadRecordService uploadRecordService;
+    private final MonitorSysGenServerService monitorSysGenServerService;
+    private final NodeSystemService nodeSystemService;
 
     private final MonitorSysGenScriptService monitorSysGenScriptService;
     private final NodeRemoteService nodeRemoteService;
-    private final com.chua.starter.monitor.service.file.FileSystemService fileSystemService;
+    private final FileSystemService fileSystemService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")
