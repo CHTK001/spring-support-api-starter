@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo.node;
 
-import com.chua.starter.monitor.pojo.NodeApiInfo;
+import com.chua.starter.monitor.pojo.node.NodeApiInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

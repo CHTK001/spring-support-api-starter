@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo.node;
 
-import com.chua.starter.monitor.pojo.ClientHealthReport;
+import com.chua.starter.monitor.pojo.node.ClientHealthReport;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
