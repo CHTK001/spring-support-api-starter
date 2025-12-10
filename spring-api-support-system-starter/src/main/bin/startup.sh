@@ -83,6 +83,7 @@ show_help() {
     echo "  docker-clean     清理旧镜像"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
+    echo "  --java <path>         指定 Java 路径 (如: /usr/lib/jvm/java-21/bin/java)"
     echo "  --jvm-opts <opts>     自定义JVM参数 (如: '-Xms1g -Xmx2g')"
     echo "  --debug-port <port>   指定调试端口 (默认: ${DEFAULT_DEBUG_PORT})"
     echo "  --docker-port <port>  指定容器内部端口 (默认: 8080)"
@@ -94,6 +95,7 @@ show_help() {
     echo "  --help, -h            显示帮助信息"
     echo ""
     echo -e "${YELLOW}示例:${NC}"
+    echo "  $0 start --java /usr/bin/java        # 指定 Java 启动"
     echo "  $0 start                              # 启动应用"
     echo "  $0 stop                               # 停止应用"
     echo "  $0 restart                            # 重启应用"
@@ -111,7 +113,15 @@ show_help() {
 }
 
 check_java() {
-    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    # 优先使用用户指定的 Java 路径
+    if [ -n "$CUSTOM_JAVA" ]; then
+        if [ -x "$CUSTOM_JAVA" ]; then
+            JAVA_CMD="$CUSTOM_JAVA"
+        else
+            echo -e "${RED}[错误] 指定的 Java 路径不存在或不可执行: ${CUSTOM_JAVA}${NC}"
+            exit 1
+        fi
+    elif [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
         JAVA_CMD="$JAVA_HOME/bin/java"
     elif command -v java &> /dev/null; then
         JAVA_CMD="java"
@@ -121,7 +131,7 @@ check_java() {
         JAVA_CMD="/usr/local/bin/java"
     else
         echo -e "${RED}[错误] 未找到Java环境${NC}"
-        echo "请设置 JAVA_HOME 或确保 java 在 PATH 中"
+        echo "请设置 JAVA_HOME 或使用 --java 指定 Java 路径"
         exit 1
     fi
     echo -e "${BLUE}Java: ${JAVA_CMD}${NC}"
@@ -417,13 +427,14 @@ docker_clean() {
     bash "${SCRIPT_DIR}/script/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
 }
 
-COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""
+COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""; CUSTOM_JAVA=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
         start|stop|restart|status|jvm|tuning|analyze|dump|arthas|backup|restore|upgrade|rollback|rollback-status|debug) COMMAND="$1"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish) COMMAND="$1"; shift ;;
         cpu|mem|all|config|jar|heap|thread) EXTRA_MODE="$1"; shift ;;
+        --java) CUSTOM_JAVA="$2"; shift 2 ;;
         --jvm-opts) CUSTOM_JVM_OPTS="$2"; shift 2 ;;
         --debug-port) DEBUG_PORT="$2"; shift 2 ;;
         --docker-port) DOCKER_PORT="$2"; shift 2 ;;
