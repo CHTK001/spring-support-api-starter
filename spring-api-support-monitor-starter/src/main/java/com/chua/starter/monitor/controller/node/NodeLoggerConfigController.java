@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.BatchOperationResultDTO;
 import com.chua.starter.monitor.pojo.node.NodeLoggerConfigDTO;
 import com.chua.starter.monitor.pojo.node.NodeLoggerStatsDTO;
-import com.chua.starter.monitor.service.NodeLoggerConfigService;
+import com.chua.starter.monitor.service.node.NodeLoggerConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
