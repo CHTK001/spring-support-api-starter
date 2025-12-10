@@ -6,7 +6,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.enums.AlertLevel;
 import com.chua.starter.monitor.enums.AlertStatus;
 import com.chua.starter.monitor.enums.AlertType;
-import com.chua.starter.monitor.service.MonitorSysGenMessagePushTemplateService;
+import com.chua.starter.monitor.service.message.MonitorSysGenMessagePushTemplateService;
 import com.chua.starter.monitor.spi.MessagePushSender;
 import com.chua.common.support.spi.ServiceProvider;
 import io.swagger.v3.oas.annotations.Operation;

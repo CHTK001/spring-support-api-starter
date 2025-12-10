@@ -5,7 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenScript;
 import com.chua.starter.monitor.entity.MonitorSysGenScriptExecution;
 import com.chua.starter.monitor.pojo.ScriptManagementDTO;
-import com.chua.starter.monitor.service.MonitorSysGenScriptService;
+import com.chua.starter.monitor.service.script.MonitorSysGenScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
