@@ -61,15 +61,20 @@ show_help() {
 }
 
 check_java() {
-    if [ -z "$JAVA_HOME" ]; then
-        JAVA_CMD="java"
-    else
+    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
         JAVA_CMD="$JAVA_HOME/bin/java"
-    fi
-    if ! command -v "$JAVA_CMD" &> /dev/null; then
+    elif command -v java &> /dev/null; then
+        JAVA_CMD="java"
+    elif [ -x "/usr/bin/java" ]; then
+        JAVA_CMD="/usr/bin/java"
+    elif [ -x "/usr/local/bin/java" ]; then
+        JAVA_CMD="/usr/local/bin/java"
+    else
         echo -e "${RED}[错误] 未找到Java环境${NC}"
+        echo "请设置 JAVA_HOME 或确保 java 在 PATH 中"
         exit 1
     fi
+    echo -e "${BLUE}Java: ${JAVA_CMD}${NC}"
 }
 
 build_loader_path() {

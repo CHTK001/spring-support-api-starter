@@ -77,16 +77,31 @@ show_help() {
 
 # 检查Java环境
 check_java() {
-    if [ -z "$JAVA_HOME" ]; then
-        JAVA_CMD="java"
-    else
+    # 优先使用 JAVA_HOME
+    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
         JAVA_CMD="$JAVA_HOME/bin/java"
-    fi
-    
-    if ! command -v "$JAVA_CMD" &> /dev/null; then
-        echo -e "${RED}[错误] 未找到Java环境，请设置JAVA_HOME或确保java在PATH中${NC}"
+    elif command -v java &> /dev/null; then
+        JAVA_CMD="java"
+    elif [ -x "/usr/bin/java" ]; then
+        JAVA_CMD="/usr/bin/java"
+    elif [ -x "/usr/local/bin/java" ]; then
+        JAVA_CMD="/usr/local/bin/java"
+    else
+        echo -e "${RED}[错误] 未找到Java环境${NC}"
+        echo -e "${YELLOW}请执行以下操作之一:${NC}"
+        echo "  1. 设置 JAVA_HOME 环境变量: export JAVA_HOME=/path/to/java"
+        echo "  2. 确保 java 在 PATH 中"
+        echo ""
+        echo -e "${YELLOW}常见 Java 路径:${NC}"
+        echo "  - /usr/lib/jvm/java-21-openjdk"
+        echo "  - /usr/lib/jvm/java-17-openjdk"
+        echo "  - /usr/java/latest"
         exit 1
     fi
+    
+    # 验证 Java 版本
+    echo -e "${BLUE}Java 路径: ${JAVA_CMD}${NC}"
+    $JAVA_CMD -version 2>&1 | head -1
 }
 
 # 构建loader.path
