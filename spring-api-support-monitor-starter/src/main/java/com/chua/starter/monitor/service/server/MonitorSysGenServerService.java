@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.pojo.server.ServerWithConfigDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

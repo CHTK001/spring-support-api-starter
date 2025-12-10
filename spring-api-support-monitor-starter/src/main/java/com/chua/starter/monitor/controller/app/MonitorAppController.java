@@ -3,7 +3,7 @@ package com.chua.starter.monitor.controller.app;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorApplication;
-import com.chua.starter.monitor.pojo.OpenApi;
+import com.chua.starter.monitor.pojo.node.OpenApi;
 import com.chua.starter.monitor.service.app.MonitorAppService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;

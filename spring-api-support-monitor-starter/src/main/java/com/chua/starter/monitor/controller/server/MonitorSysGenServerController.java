@@ -6,7 +6,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.pojo.ServerWithConfigDto;
+import com.chua.starter.monitor.pojo.server.ServerWithConfigDto;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.utils.ServerLogUtils;
