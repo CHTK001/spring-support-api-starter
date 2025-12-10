@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.node;
 
 import com.chua.starter.monitor.pojo.NodeApiInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
