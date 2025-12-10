@@ -7,7 +7,7 @@ import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.ServerLatencyService;
+import com.chua.starter.monitor.service.server.ServerLatencyService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

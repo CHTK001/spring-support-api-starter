@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorSysGenServerDataReportService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerDataReportService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;

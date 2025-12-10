@@ -2,7 +2,7 @@ package com.chua.starter.monitor.controller.data;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.monitor.service.MonitorSysGenServerDeviceReportService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerDeviceReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
