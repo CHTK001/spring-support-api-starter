@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @EnableCaching
 @EnableScheduling
-@MapperScan({"com.chua.starter.**.mapper"})
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.tenant", "com.chua.starter.service.**"})
+@MapperScan({"com.chua.starter.system.mapper"})
+@SpringBootApplication
 public class SystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(SystemApplication.class, args);

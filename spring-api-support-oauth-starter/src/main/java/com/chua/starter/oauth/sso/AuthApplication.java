@@ -16,9 +16,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @author CH
  * @since 2022/7/25 10:59
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
 @EnableConfigurationProperties(TenantDataSourceProperties.class)
-@MapperScan({"com.chua.starter.oauth.sso"})
+@MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service.mapper"})
 @OpenAPIDefinition(
         info = @Info(
                 title = "统一认证中心API",
