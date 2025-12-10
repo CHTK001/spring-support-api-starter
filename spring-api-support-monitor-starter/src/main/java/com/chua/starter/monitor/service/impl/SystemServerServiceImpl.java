@@ -22,7 +22,7 @@ import com.chua.starter.monitor.handler.ServletFilterHandler;
 import com.chua.starter.monitor.mapper.SystemServerMapper;
 import com.chua.starter.monitor.mapper.SystemServerSettingAddressRateLimitMapper;
 import com.chua.starter.monitor.mapper.SystemServerSettingIPRateLimitMapper;
-import com.chua.starter.monitor.service.SystemServerService;
+import com.chua.starter.monitor.service.server.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingFileStorageService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;

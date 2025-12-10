@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service.impl;
+﻿package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -21,7 +21,7 @@ import com.chua.starter.monitor.pojo.PreviewExtensionConfigVo;
 import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
 import com.chua.starter.monitor.pojo.ViewerConfigVO;
 import com.chua.starter.monitor.pojo.ViewerInfoVO;
-import com.chua.starter.monitor.service.SystemServerService;
+import com.chua.starter.monitor.service.server.SystemServerService;
 import com.chua.starter.monitor.service.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.SystemServerSettingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
