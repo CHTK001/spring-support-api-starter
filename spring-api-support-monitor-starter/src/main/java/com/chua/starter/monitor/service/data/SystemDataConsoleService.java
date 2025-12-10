@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.data;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandResult;
