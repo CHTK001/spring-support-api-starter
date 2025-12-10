@@ -153,23 +153,52 @@ public class SysFileSystemController {
     }
 
     /**
-     * 切换文件服务开关
+     * 启动文件服务器
      *
-     * @param enabled 是否启用
      * @return 操作结果
      */
-    @Operation(summary = "切换文件服务开关")
-    @PostMapping("/setting/toggle-server")
+    @Operation(summary = "启动文件服务器")
+    @PostMapping("/server/start")
     @Permission(role = {"admin", "superadmin"})
     @SysLog
-    public ReturnResult<Boolean> toggleServerForFileSystem(@RequestParam Boolean enabled) {
-        SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
-        if (setting == null) {
-            return ReturnResult.error("未找到有效配置");
-        }
-        setting.setSysFileSystemSettingHttpServerEnabled(enabled);
-        boolean result = sysFileSystemSettingService.updateById(setting);
-        return result ? ReturnResult.ok(true) : ReturnResult.error("切换失败");
+    public ReturnResult<Boolean> startServerForFileSystem() {
+        return sysFileSystemSettingService.startFileServerForFileSystem();
+    }
+
+    /**
+     * 停止文件服务器
+     *
+     * @return 操作结果
+     */
+    @Operation(summary = "停止文件服务器")
+    @PostMapping("/server/stop")
+    @Permission(role = {"admin", "superadmin"})
+    @SysLog
+    public ReturnResult<Boolean> stopServerForFileSystem() {
+        return sysFileSystemSettingService.stopFileServerForFileSystem();
+    }
+
+    /**
+     * 获取文件服务器状态
+     *
+     * @return 服务器状态（running/stopped）
+     */
+    @Operation(summary = "获取文件服务器状态")
+    @GetMapping("/server/status")
+    public ReturnResult<String> getServerStatusForFileSystem() {
+        return sysFileSystemSettingService.getFileServerStatusForFileSystem();
+    }
+
+    /**
+     * 检查端口是否可用
+     *
+     * @param port 端口号
+     * @return 是否可用
+     */
+    @Operation(summary = "检查端口是否可用")
+    @GetMapping("/server/check-port")
+    public ReturnResult<Boolean> checkPortForFileSystem(@RequestParam Integer port) {
+        return sysFileSystemSettingService.checkPortAvailableForFileSystem(port);
     }
 
     // ==================== 统计接口 ====================

@@ -34,4 +34,33 @@ public interface SysFileSystemSettingService extends IService<SysFileSystemSetti
      * @return 操作结果
      */
     ReturnResult<Boolean> initDefaultSettingForFileSystem();
+
+    /**
+     * 启动文件服务器
+     *
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> startFileServerForFileSystem();
+
+    /**
+     * 停止文件服务器
+     *
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> stopFileServerForFileSystem();
+
+    /**
+     * 获取文件服务器状态
+     *
+     * @return 服务器运行状态（running/stopped）
+     */
+    ReturnResult<String> getFileServerStatusForFileSystem();
+
+    /**
+     * 检查端口是否可用
+     *
+     * @param port 端口号
+     * @return 是否可用
+     */
+    ReturnResult<Boolean> checkPortAvailableForFileSystem(Integer port);
 }
