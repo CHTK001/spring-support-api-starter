@@ -50,7 +50,7 @@ public class FileManagementController {
 
     private final MonitorSysGenScriptService monitorSysGenScriptService;
     private final NodeRemoteService nodeRemoteService;
-    private final com.chua.starter.monitor.service.FileSystemService fileSystemService;
+    private final com.chua.starter.monitor.service.file.FileSystemService fileSystemService;
 
     @Operation(summary = "列出文件", description = "获取指定路径下的文件列表")
     @GetMapping("/list")

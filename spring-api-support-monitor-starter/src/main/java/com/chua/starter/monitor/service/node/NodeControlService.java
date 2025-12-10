@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.NodeControlRequest;
-import com.chua.starter.monitor.pojo.NodeMetricsDTO;
+import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
 
 import java.util.List;
 import java.util.Map;

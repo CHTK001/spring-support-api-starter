@@ -12,11 +12,11 @@ import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
-import com.chua.starter.monitor.pojo.DockerClientCreateResult;
+import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
-import com.chua.starter.monitor.service.DockerCallbackService;
-import com.chua.starter.monitor.service.SystemSoftImageService;
+import com.chua.starter.monitor.service.docker.DockerCallbackService;
+import com.chua.starter.monitor.service.docker.SystemSoftImageService;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.github.dockerjava.api.model.Image;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     private DockerCallbackService dockerCallbackService;
     @Autowired
     @Lazy
-    private com.chua.starter.monitor.service.SystemSoftRecordService systemSoftRecordService;
+    private com.chua.starter.monitor.service.docker.SystemSoftRecordService systemSoftRecordService;
 
     /**
      * 根据条件查询镜像列表

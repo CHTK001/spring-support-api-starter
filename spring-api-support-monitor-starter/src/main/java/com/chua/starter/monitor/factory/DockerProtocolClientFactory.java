@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.chua.starter.monitor.pojo.DockerClientCreateResult;
+import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
