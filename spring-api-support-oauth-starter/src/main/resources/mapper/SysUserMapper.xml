@@ -1,48 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chua.starter.oauth.sso.mapper.SysUserMapper">
-  <resultMap id="BaseResultMap" type="com.chua.starter.entity.system.SysUser">
-    <!--@mbg.generated-->
-    <!--@Table sys_user-->
-    <id column="sys_user_id" jdbcType="INTEGER" property="sysUserId" />
-    <result column="sys_user_username" jdbcType="VARCHAR" property="sysUserUsername" />
-    <result column="sys_user_nickname" jdbcType="VARCHAR" property="sysUserNickname" />
-    <result column="sys_user_password" jdbcType="VARCHAR" property="sysUserPassword" />
-    <result column="sys_user_salt" jdbcType="VARCHAR" property="sysUserSalt" />
-    <result column="sys_user_delete" jdbcType="INTEGER" property="sysUserDelete" />
-    <result column="sys_user_status" jdbcType="INTEGER" property="sysUserStatus" />
-    <result column="sys_user_phone" jdbcType="VARCHAR" property="sysUserPhone" />
-    <result column="sys_user_email" jdbcType="VARCHAR" property="sysUserEmail" />
-    <result column="sys_user_sex" jdbcType="INTEGER" property="sysUserSex" />
-    <result column="sys_user_full_address" jdbcType="VARCHAR" property="sysUserFullAddress" />
-    <result column="sys_user_in_system" jdbcType="INTEGER" property="sysUserInSystem" />
-    <result column="sys_user_avatar" jdbcType="LONGVARCHAR" property="sysUserAvatar" />
-    <result column="sys_user_card" jdbcType="VARCHAR" property="sysUserCard" />
-    <result column="sys_dept_id" jdbcType="INTEGER" property="sysDeptId" />
-    <result column="sys_user_remark" jdbcType="VARCHAR" property="sysUserRemark" />
-    <result column="sys_user_last_address" jdbcType="VARCHAR" property="sysUserLastAddress" />
-    <result column="sys_user_register_address" jdbcType="VARCHAR" property="sysUserRegisterAddress" />
-    <result column="sys_user_last_ip" jdbcType="VARCHAR" property="sysUserLastIp" />
-    <result column="sys_user_register_ip" jdbcType="VARCHAR" property="sysUserRegisterIp" />
-    <result column="sys_user_login_count" jdbcType="INTEGER" property="sysUserLoginCount" />
-    <result column="sys_client_id" jdbcType="VARCHAR" property="sysClientId" />
-    <result column="sys_user_totp_code" jdbcType="VARCHAR" property="sysUserTotpCode" />
-    <result column="create_name" jdbcType="VARCHAR" property="createName" />
-    <result column="create_by" jdbcType="INTEGER" property="createBy" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="update_name" jdbcType="VARCHAR" property="updateName" />
-    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    sys_user_id, sys_user_username, sys_user_nickname, sys_user_password, sys_user_salt, 
-    sys_user_delete, sys_user_status, sys_user_phone, sys_user_email, sys_user_sex, sys_user_full_address, 
-    sys_user_in_system, sys_user_avatar, sys_user_card, sys_dept_id, sys_user_remark, 
-    sys_user_last_address, sys_user_register_address, sys_user_last_ip, sys_user_register_ip, 
-    sys_user_login_count, sys_client_id, sys_user_totp_code, create_name, create_by, 
-    create_time, update_time, update_name, update_by
-  </sql>
+<mapper namespace="com.chua.starter.service.mapper.SysUserMapper">
     <select id="selectPermission" resultType="java.lang.String">
         SELECT
         sm.sys_menu_perm
