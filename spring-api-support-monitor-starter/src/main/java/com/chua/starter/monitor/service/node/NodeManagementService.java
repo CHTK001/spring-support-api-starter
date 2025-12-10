@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service.node;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.pojo.NodeStatistics;
+import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
+import com.chua.starter.monitor.pojo.node.NodeStatistics;
 
 import java.util.List;
 import java.util.Map;

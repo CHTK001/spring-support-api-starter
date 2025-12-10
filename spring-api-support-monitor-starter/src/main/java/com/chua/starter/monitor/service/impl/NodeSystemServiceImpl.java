@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.NodeSystem;
 import com.chua.starter.monitor.mapper.NodeSystemMapper;
-import com.chua.starter.monitor.pojo.OnlineNodeInfo;
+import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.service.node.NodeSystemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
