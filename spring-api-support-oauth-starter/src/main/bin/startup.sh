@@ -54,6 +54,7 @@ show_help() {
     echo "  status      查看应用状态"
     echo "  jvm         查看JVM信息"
     echo "  tuning      JVM调优建议"
+    echo "  analyze     CPU/内存分析"
     echo "  arthas      启动Arthas诊断"
     echo "  debug       以调试模式启动"
     echo ""
@@ -222,6 +223,12 @@ start_arthas() {
     bash "${SCRIPT_DIR}/script/arthas-install.sh" "$pid"
 }
 
+run_analyze() {
+    local pid=$(get_pid)
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
+    bash "${SCRIPT_DIR}/script/cpu-analysis.sh" "$pid" "${1:-cpu}" "$APP_NAME"
+}
+
 # 解析参数
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
@@ -229,8 +236,12 @@ DEBUG_MODE="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|tuning|arthas|debug)
+        start|stop|restart|status|jvm|tuning|analyze|arthas|debug)
             COMMAND="$1"
+            shift
+            ;;
+        cpu|mem|all)
+            ANALYZE_MODE="$1"
             shift
             ;;
         --debug-port)
@@ -277,6 +288,9 @@ case "$COMMAND" in
         ;;
     arthas)
         start_arthas
+        ;;
+    analyze)
+        run_analyze "${ANALYZE_MODE:-cpu}"
         ;;
     *)
         show_help
