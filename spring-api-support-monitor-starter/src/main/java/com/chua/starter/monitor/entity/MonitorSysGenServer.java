@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
-import com.chua.starter.monitor.controller.MonitorSysGenServerController;
+import com.chua.starter.monitor.controller.server.MonitorSysGenServerController;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerComponentMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerLogConfigMapper;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
