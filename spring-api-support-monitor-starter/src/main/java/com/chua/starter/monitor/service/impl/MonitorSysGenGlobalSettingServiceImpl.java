@@ -30,6 +30,11 @@ public class MonitorSysGenGlobalSettingServiceImpl
         implements MonitorSysGenGlobalSettingService {
 
     /**
+     * 全局配置固定ID（系统只允许存在一条记录）
+     */
+    private static final Integer GLOBAL_SETTING_ID = 1;
+    
+    /**
      * 全局配置缓存（使用AtomicReference保证线程安全）
      */
     private final AtomicReference<MonitorSysGenGlobalSetting> cachedSetting = new AtomicReference<>();
@@ -56,15 +61,17 @@ public class MonitorSysGenGlobalSettingServiceImpl
                 return ReturnResult.ok(cached);
             }
             
-            // 缓存失效，从数据库查询
+            // 缓存失效，从数据库查询（只查询ID=1的记录）
             log.debug("缓存失效，从数据库查询全局配置");
-            List<MonitorSysGenGlobalSetting> list = list();
-            if (list.isEmpty()) {
-                // 如果不存在，创建默认配置
+            MonitorSysGenGlobalSetting setting = getById(GLOBAL_SETTING_ID);
+            
+            if (setting == null) {
+                // 如果不存在，创建默认配置（ID固定为1）
                 MonitorSysGenGlobalSetting defaultSetting = MonitorSysGenGlobalSetting.getDefaultSetting();
+                defaultSetting.setMonitorSysGenGlobalSettingId(GLOBAL_SETTING_ID);
                 boolean saved = save(defaultSetting);
                 if (saved) {
-                    log.info("创建默认全局配置成功");
+                    log.info("创建默认全局配置成功（ID=1）");
                     updateCache(defaultSetting);
                     return ReturnResult.ok(defaultSetting);
                 } else {
@@ -73,7 +80,6 @@ public class MonitorSysGenGlobalSettingServiceImpl
                 }
             }
             
-            MonitorSysGenGlobalSetting setting = list.get(0);
             updateCache(setting);
             return ReturnResult.ok(setting);
         } catch (Exception e) {
@@ -89,33 +95,36 @@ public class MonitorSysGenGlobalSettingServiceImpl
                 return ReturnResult.error("配置信息不能为空");
             }
 
-            // 获取现有配置
-            List<MonitorSysGenGlobalSetting> list = list();
-            if (list.isEmpty()) {
-                // 新增
-                boolean saved = save(setting);
-                if (saved) {
-                    log.info("保存全局配置成功");
-                    updateCache(setting);
-                    return ReturnResult.ok(setting);
+            // 强制设置ID为1，确保只操作全局配置记录
+            setting.setMonitorSysGenGlobalSettingId(GLOBAL_SETTING_ID);
+            
+            // 检查记录是否存在
+            MonitorSysGenGlobalSetting existing = getById(GLOBAL_SETTING_ID);
+            
+            boolean success;
+            if (existing == null) {
+                // 不存在则新增
+                success = save(setting);
+                if (success) {
+                    log.info("创建全局配置成功（ID=1）");
                 } else {
-                    log.error("保存全局配置失败");
-                    return ReturnResult.error("保存全局配置失败");
+                    log.error("创建全局配置失败");
+                    return ReturnResult.error("创建全局配置失败");
                 }
             } else {
-                // 更新第一条记录
-                MonitorSysGenGlobalSetting existing = list.get(0);
-                setting.setMonitorSysGenGlobalSettingId(existing.getMonitorSysGenGlobalSettingId());
-                boolean updated = updateById(setting);
-                if (updated) {
-                    log.info("更新全局配置成功");
-                    updateCache(setting);
-                    return ReturnResult.ok(setting);
+                // 存在则更新
+                success = updateById(setting);
+                if (success) {
+                    log.info("更新全局配置成功（ID=1）");
                 } else {
                     log.error("更新全局配置失败");
                     return ReturnResult.error("更新全局配置失败");
                 }
             }
+            
+            // 更新缓存
+            updateCache(setting);
+            return ReturnResult.ok(setting);
         } catch (Exception e) {
             log.error("保存或更新全局配置失败: {}", e.getMessage(), e);
             return ReturnResult.error("保存或更新全局配置失败: " + e.getMessage());
