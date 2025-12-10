@@ -2,11 +2,11 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 
-import com.chua.starter.monitor.pojo.ClientHealthReport;
-import com.chua.starter.monitor.pojo.ClientHealthStatus;
-import com.chua.starter.monitor.service.ClientHealthService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.pojo.node.ClientHealthReport;
+import com.chua.starter.monitor.pojo.node.ClientHealthStatus;
+import com.chua.starter.monitor.service.node.ClientHealthService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.common.support.lang.code.ReturnResult;

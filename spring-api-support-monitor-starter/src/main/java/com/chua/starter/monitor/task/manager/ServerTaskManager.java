@@ -6,7 +6,13 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.properties.MonitorProperties;
-import com.chua.starter.monitor.service.*;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ServerMetricsWebSocketService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.server.ServerLatencyService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
+import com.chua.starter.monitor.service.data.PrometheusDataCollectorService;
 import com.chua.starter.monitor.task.manager.step.*;
 import com.chua.starter.monitor.task.manager.step.DockerStatsPushStep;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
@@ -36,10 +42,25 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 /**
- * 服务器任务管理器 根据服务器ID管理各种类型的定时任务 支持动态创建、更新、删除任务
+ * 服务器任务管理器
+ * <p>
+ * 负责管理所有服务器的监控任务，使用 Java 21 虚拟线程实现高并发任务处理。
+ * </p>
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/12/28
+ * @see MonitorSysGenServerSetting 服务器配置实体（任务执行依赖的配置项）
+ * @see MonitorSysGenServer 服务器实体
+ * @see MonitorProperties 监控属性配置
+ * @see PortMonitorStep 端口监控步骤
+ * @see HealthCheckStep 健康检查步骤
+ * @see MetricsCollectionStep 指标采集步骤
+ * @see AlertDetectionStep 告警检测步骤
+ * @see DataPushStep 数据推送步骤
+ * @see OnlineCheckStep 在线检测步骤
+ * @see LatencyCheckStep 延迟检测步骤
+ * @see DockerStatsPushStep Docker状态推送步骤
  */
 @Slf4j
 @Component
@@ -47,17 +68,22 @@ import java.util.stream.Stream;
 @SuppressWarnings("ALL")
 public class ServerTaskManager {
 
+    // ==================== 依赖服务 ====================
+    
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final ServerMetricsWebSocketService serverMetricsWebSocketService;
     private final UnifiedAlertService unifiedAlertService;
-    @SuppressWarnings("unused") // 保留用于未来扩展
+    @SuppressWarnings("unused")
     private final MonitorSysGenServerMetricsService metricsService;
     private final PrometheusDataCollectorService prometheusDataCollectorService;
     private final LocalSystemDataCollector localSystemDataCollector;
     private final ServerLatencyService serverLatencyService;
     private final MonitorProperties monitorProperties;
-    // 拆分后的步骤组件
+    private final com.chua.starter.monitor.service.server.MonitorSysGenGlobalSettingService globalSettingService;
+    
+    // ==================== 任务步骤组件 ====================
+    
     private final PortMonitorStep portMonitorStep;
     private final HealthCheckStep healthCheckStep;
     private final MetricsCollectionStep metricsCollectionStep;
@@ -65,34 +91,30 @@ public class ServerTaskManager {
     private final DataPushStep dataPushStep;
     private final OnlineCheckStep onlineCheckStep;
     private final LatencyCheckStep latencyCheckStep;
-    private final LogCleanupStep logCleanupStep;
-    private final CacheCleanupStep cacheCleanupStep;
-    private final WebSocketCleanupStep webSocketCleanupStep;
     private final DockerStatsPushStep dockerStatsPushStep;
 
-    // 虚拟线程执行器
+    // ==================== 执行器和任务存储 ====================
+    
     private ExecutorService executorService;
-
-    // 存储每个服务器的任务信息
     private static final Map<Integer, ServerTaskInfo> serverTasks = new ConcurrentHashMap<>();
-
-    // 全局任务（不依赖特定服务器）
     private static final Map<String, Future<?>> globalTasks = new ConcurrentHashMap<>();
-
-    // 内存中的配置缓存
     private static final Map<Integer, MonitorSysGenServerSetting> configCache = new ConcurrentHashMap<>();
 
-    // 配置刷新间隔（秒）
+    // ==================== 常量配置 ====================
+    
     private static final int CONFIG_REFRESH_INTERVAL = 60;
 
-    // 任务运行状态控制
+    // ==================== 运行状态标志 ====================
+    
     private volatile boolean running = true;
-
-    // 全局任务是否已启动
     private volatile boolean globalTasksStarted = false;
 
     /**
      * 刷新所有服务器配置
+     * <p>
+     * 遍历所有启用状态的服务器，逐个刷新其配置缓存。
+     * 此方法由全局调度器定期调用，确保配置缓存与数据库保持同步。
+     * </p>
      */
     private void refreshAllConfigs() {
         try {
@@ -111,6 +133,17 @@ public class ServerTaskManager {
         }
     }
 
+    /**
+     * 初始化任务管理器
+     * <p>
+     * 在Spring容器启动后自动调用，完成以下初始化工作：
+     * <ul>
+     *   <li>检查是否启用后端定时检测推送任务</li>
+     *   <li>创建虚拟线程执行器</li>
+     *   <li>异步启动所有服务器的监控任务</li>
+     * </ul>
+     * </p>
+     */
     @PostConstruct
     public void init() {
         // 检查是否启用后端定时检测推送任务
@@ -130,6 +163,18 @@ public class ServerTaskManager {
         log.info("服务器任务管理器初始化完成");
     }
 
+    /**
+     * 销毁任务管理器
+     * <p>
+     * 在Spring容器关闭前自动调用，完成以下清理工作：
+     * <ul>
+     *   <li>停止所有运行中的任务</li>
+     *   <li>取消所有服务器任务和全局任务</li>
+     *   <li>清空配置缓存</li>
+     *   <li>关闭线程池</li>
+     * </ul>
+     * </p>
+     */
     @PreDestroy
     public void destroy() {
         log.info("正在关闭服务器任务管理器...");
@@ -171,6 +216,9 @@ public class ServerTaskManager {
 
     /**
      * 全局调度器：将原多个全局任务合并为单线程循环触发
+     * <p>
+     * 根据全局配置的开关状态，有选择地执行各个全局任务
+     * </p>
      */
     private void startGlobalDispatcher() {
         Future<?> dispatcher = executorService.submit(() -> {
@@ -186,47 +234,75 @@ public class ServerTaskManager {
             long lastBackup = 0L;
             while (running) {
                 try {
+                    // 检查全局调度器是否启用
+                    if (!globalSettingService.isGlobalDispatcherEnabled()) {
+                        log.debug("全局调度器已禁用，跳过本次调度");
+                        Thread.sleep(5_000L);
+                        continue;
+                    }
+
                     long now = System.currentTimeMillis();
-                    if (now - lastStatusSummary >= 60_000) {
+                    
+                    // 服务器状态汇总推送（60秒）
+                    if (globalSettingService.isStatusSummaryEnabled() && now - lastStatusSummary >= 60_000) {
                         pushServerStatusSummary();
                         lastStatusSummary = now;
                     }
-                    if (now - lastPerformanceTrends >= 300_000) {
+                    
+                    // 性能趋势推送（5分钟）
+                    if (globalSettingService.isPerformanceTrendsEnabled() && now - lastPerformanceTrends >= 300_000) {
                         pushPerformanceTrends();
                         lastPerformanceTrends = now;
                     }
-                    if (now - lastConnectionStats >= 30_000) {
+                    
+                    // 连接统计推送（30秒）
+                    if (globalSettingService.isConnectionStatsEnabled() && now - lastConnectionStats >= 30_000) {
                         pushConnectionStatistics();
                         lastConnectionStats = now;
                     }
-                    if (now - lastHealthStatus >= 300_000) {
+                    
+                    // 健康状态推送（5分钟）
+                    if (globalSettingService.isHealthStatusEnabled() && now - lastHealthStatus >= 300_000) {
                         pushHealthStatus();
                         lastHealthStatus = now;
                     }
-                    if (now - lastGlobalAlert >= 120_000) {
+                    
+                    // 全局告警处理（2分钟）
+                    if (globalSettingService.isGlobalAlertEnabled() && now - lastGlobalAlert >= 120_000) {
                         processGlobalAlerts();
                         lastGlobalAlert = now;
                     }
-                    if (now - lastCleanup >= 3_600_000) {
+                    
+                    // 无效任务清理（1小时）
+                    if (globalSettingService.isCleanupEnabled() && now - lastCleanup >= 3_600_000) {
                         cleanupInvalidTasks();
                         lastCleanup = now;
                     }
-                    if (now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) {
+                    
+                    // 配置刷新（60秒）
+                    if (globalSettingService.isConfigRefreshEnabled() && now - lastConfigRefresh >= CONFIG_REFRESH_INTERVAL * 1000L) {
                         refreshAllConfigs();
                         lastConfigRefresh = now;
                     }
-                    if (now - lastFileUploadCheck >= 30_000) {
+                    
+                    // 文件上传检查（30秒）
+                    if (globalSettingService.isFileUploadCheckEnabled() && now - lastFileUploadCheck >= 30_000) {
                         checkUploadTaskStatus();
                         lastFileUploadCheck = now;
                     }
-                    if (now - lastDataCleanup >= 24L * 3_600_000) {
+                    
+                    // 数据清理（24小时）
+                    if (globalSettingService.isDataCleanupEnabled() && now - lastDataCleanup >= 24L * 3_600_000) {
                         cleanupTempFilesAndCache();
                         lastDataCleanup = now;
                     }
-                    if (now - lastBackup >= 1_800_000) {
+                    
+                    // 备份任务（30分钟）
+                    if (globalSettingService.isBackupEnabled() && now - lastBackup >= 1_800_000) {
                         executeBackupTasks();
                         lastBackup = now;
                     }
+                    
                     Thread.sleep(1_000L);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
@@ -300,6 +376,13 @@ public class ServerTaskManager {
 
     /**
      * 初始化所有服务器的任务
+     * <p>
+     * 遍历所有启用状态的服务器，为每个服务器创建监控任务。
+     * 首次调用时会同时启动全局任务。
+     * </p>
+     * 
+     * @see #createServerTasks(Integer)
+     * @see #startGlobalDispatcher()
      */
     public void initializeServerTasks() {
         try {
@@ -371,10 +454,7 @@ public class ServerTaskManager {
                 long lastPort = 0L;
                 long lastOnline = 0L;
                 long lastLatency = 0L;
-                long lastLogCleanup = 0L;
-                long lastCacheCleanup = 0L;
-                long lastWsCleanup = 0L;
-                long lastDockerStats = 0L; // 添加Docker状态推送时间戳
+                long lastDockerStats = 0L;
                 while (taskInfo.isTaskRunning() && running) {
                     try {
                         MonitorSysGenServerSetting s = getCachedConfig(server.getMonitorSysGenServerId());
@@ -383,9 +463,11 @@ public class ServerTaskManager {
                             continue;
                         }
                         long now = System.currentTimeMillis();
-                        // 指标采集（非节点上报）
+                        // 指标采集（需要开启指标采集开关且非节点上报）
                         String rm = s.getMonitorSysGenServerSettingDataReportMethod();
-                        if (!"NODE".equalsIgnoreCase(rm)) {
+                        boolean metricsEnabled = s.getMonitorSysGenServerSettingMetricsCollectionEnabled() != null 
+                            && s.getMonitorSysGenServerSettingMetricsCollectionEnabled() == 1;
+                        if (metricsEnabled && !"NODE".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastMetrics >= freq * 1000L) {
                                 metricsCollectionStep.run(server, s);
@@ -400,14 +482,18 @@ public class ServerTaskManager {
                                 lastAlerts = now;
                             }
                         }
-                        // 健康检查
-                        int hi = getEffectiveHealthCheckInterval(s);
-                        if (now - lastHealth >= hi * 1000L) {
-                            healthCheckStep.run(server, s);
-                            lastHealth = now;
+                        // 健康检查（需要开启健康检查开关）
+                        boolean healthCheckEnabled = s.getMonitorSysGenServerSettingHealthCheckEnabled() != null 
+                            && s.getMonitorSysGenServerSettingHealthCheckEnabled() == 1;
+                        if (healthCheckEnabled) {
+                            int hi = getEffectiveHealthCheckInterval(s);
+                            if (now - lastHealth >= hi * 1000L) {
+                                healthCheckStep.run(server, s);
+                                lastHealth = now;
+                            }
                         }
                         // 数据推送（非节点上报）
-                        if (!"NODE".equalsIgnoreCase(rm)) {
+                        if (!"NODE".equalsIgnoreCase(rm) && !"API".equalsIgnoreCase(rm)) {
                             int freq = getEffectiveCollectionFrequency(s);
                             if (now - lastDataPush >= freq * 1000L) {
                                 dataPushStep.run(server, s);
@@ -447,30 +533,6 @@ public class ServerTaskManager {
                                 lastLatency = now;
                             }
                         }
-                        // 日志清理（每日）
-                        if (s.getMonitorSysGenServerSettingLogCleanupEnabled() != null && s.getMonitorSysGenServerSettingLogCleanupEnabled() == 1) {
-                            if (now - lastLogCleanup >= 24L * 3_600_000) {
-                                logCleanupStep.run(server, s);
-                                lastLogCleanup = now;
-                            }
-                        }
-                        // 缓存清理（每小时）
-                        if (s.getMonitorSysGenServerSettingTempFileCleanupEnabled() != null && s.getMonitorSysGenServerSettingTempFileCleanupEnabled() == 1) {
-                            if (now - lastCacheCleanup >= 3_600_000) {
-                                cacheCleanupStep.run(server, s);
-                                lastCacheCleanup = now;
-                            }
-                        }
-                        // WebSocket 清理（默认每10分钟）
-                        if (s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() != null && s.getMonitorSysGenServerSettingWebSocketCleanupEnabled() == 1) {
-                            Integer itv = s.getMonitorSysGenServerSettingWebSocketCleanupInterval();
-                            if (itv == null || itv <= 0) itv = 10;
-                            if (now - lastWsCleanup >= itv * 60_000L) {
-                                webSocketCleanupStep.run(server, s);
-                                lastWsCleanup = now;
-                            }
-                        }
-
                         // Docker状态推送
                         if (s.getMonitorSysGenServerSettingDockerEnabled() != null &&
                                 s.getMonitorSysGenServerSettingDockerEnabled() == 1) {
@@ -1154,6 +1216,20 @@ public class ServerTaskManager {
         if (taskInfo != null) {
             taskInfo.setTaskRunning(true);
             log.info("恢复服务器 {} 的所有任务", serverId);
+        }
+    }
+
+    /**
+     * 刷新全局配置
+     * <p>
+     * 当全局配置更新后，调用此方法使配置立即生效
+     * </p>
+     */
+    public void refreshGlobalConfig() {
+        try {
+            log.info("全局配置已更新，将在下次调度周期生效");
+        } catch (Exception e) {
+            log.error("刷新全局配置失败", e);
         }
     }
 

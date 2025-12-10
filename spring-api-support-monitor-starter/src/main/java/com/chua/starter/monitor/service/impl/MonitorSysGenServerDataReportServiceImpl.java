@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.service.MonitorSysGenServerDataReportService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerDataReportService;
 import com.chua.starter.monitor.service.report.ReportManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

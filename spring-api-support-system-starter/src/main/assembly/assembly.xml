@@ -53,6 +53,16 @@
             <fileMode>0755</fileMode>
         </fileSet>
         
+        <!-- 复制脚本目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/bin/script</directory>
+            <outputDirectory>/bin/script</outputDirectory>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        
         <!-- 复制文档 -->
         <fileSet>
             <directory>${project.basedir}</directory>

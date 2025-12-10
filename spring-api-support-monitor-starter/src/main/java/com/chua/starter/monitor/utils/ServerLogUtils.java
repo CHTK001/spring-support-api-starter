@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.utils;
 
 import com.chua.starter.monitor.entity.MonitorSysGenServerLog;
-import com.chua.starter.monitor.service.MonitorSysGenServerLogService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

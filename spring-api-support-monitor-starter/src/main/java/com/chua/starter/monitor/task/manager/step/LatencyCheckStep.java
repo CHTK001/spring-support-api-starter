@@ -2,9 +2,9 @@ package com.chua.starter.monitor.task.manager.step;
 
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.ServerLatencyService;
-import com.chua.starter.monitor.service.UnifiedAlertService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.ServerLatencyService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import com.chua.starter.monitor.task.manager.TaskStep;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

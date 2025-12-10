@@ -8,10 +8,10 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.MonitorSysGenServerMetricsService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.ServerMetricsWebSocketService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ServerMetricsWebSocketService;
 import com.chua.starter.redis.support.service.TimeSeriesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -182,13 +182,24 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
         try {
             String key = REDIS_LATEST_PREFIX + serverId;
             Map<String, String> latestData = null;
+            Exception redisException = null;
+            
             try {
                 latestData = timeSeriesService.hGet(key);
-            } catch (Exception ignored) {
+                log.debug("从Redis获取服务器 {} 最新指标数据，key={}, 数据是否为空={}", 
+                    serverId, key, (latestData == null || latestData.isEmpty()));
+            } catch (Exception e) {
+                redisException = e;
+                log.warn("从Redis获取服务器 {} 指标数据失败: {}", serverId, e.getMessage());
             }
 
             if (latestData == null || latestData.isEmpty()) {
                 // 当指标数据为空时，触发指标推送
+                if (redisException != null) {
+                    log.info("服务器 {} 指标数据为空（Redis异常），触发指标推送", serverId);
+                } else {
+                    log.info("服务器 {} 指标数据为空（Redis无数据），触发指标推送", serverId);
+                }
                 triggerMetricsPushForEmptyData(serverId);
                 return ReturnResult.ok(null);
             }
@@ -954,28 +965,26 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
 
     /**
      * 设置指标数据的过期时间
+     * 根据服务器配置中的保留天数设置 Redis 数据过期时间
+     *
+     * @param serverId 服务器ID
+     * @param redisKey Redis键
      */
     private void setMetricsExpireTime(Integer serverId, String redisKey) {
         try {
             // 获取服务器配置
             var settingResult = serverSettingService.getOrCreateSetting(serverId);
             if (!settingResult.isOk() || settingResult.getData() == null) {
-                log.warn("获取服务器配置失败，使用默认过期时间: serverId={}", serverId);
-                // TODO: 使用默认30天过期时间 - 需要实现Redis过期时间设置
-                // timeSeriesService.expire(redisKey, 30 * 24 * 60 * 60);
-                log.debug("暂时跳过设置过期时间，需要实现Redis过期功能: key={}", redisKey);
+                log.warn("获取服务器配置失败，使用默认过期时间30天: serverId={}", serverId);
+                // 使用默认30天过期时间
+                timeSeriesService.expire(redisKey, 30L * 24 * 60 * 60);
                 return;
             }
 
             MonitorSysGenServerSetting setting = settingResult.getData();
 
-            // 获取指标存储时间配置，优先使用具体指标的配置，其次使用通用配置
+            // 获取指标保留天数配置
             Integer retentionDays = setting.getMonitorSysGenServerSettingMetricsRetentionDays();
-
-            // 检查是否有更细粒度的配置
-            if (setting.getMonitorSysGenServerSettingCpuRetentionDays() != null) {
-                retentionDays = setting.getMonitorSysGenServerSettingCpuRetentionDays();
-            }
 
             // 如果没有配置，使用默认30天
             if (retentionDays == null || retentionDays <= 0) {
@@ -983,16 +992,23 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
             }
 
             // 设置过期时间（转换为秒）
-            int expireSeconds = retentionDays * 24 * 60 * 60;
-            // TODO: 实现Redis过期时间设置
-            // timeSeriesService.expire(redisKey, expireSeconds);
+            long expireSeconds = (long) retentionDays * 24 * 60 * 60;
+            boolean success = timeSeriesService.expire(redisKey, expireSeconds);
 
-            log.debug("配置指标数据过期时间: key={}, days={}, seconds={} (暂未实现)", redisKey, retentionDays, expireSeconds);
+            if (success) {
+                log.debug("设置指标数据过期时间成功: key={}, days={}", redisKey, retentionDays);
+            } else {
+                log.warn("设置指标数据过期时间失败: key={}, days={}", redisKey, retentionDays);
+            }
 
         } catch (Exception e) {
-            log.error("设置指标数据过期时间失败: key={}, serverId={}", redisKey, serverId, e);
-            // TODO: 出错时使用默认30天过期时间 - 需要实现Redis过期功能
-            log.debug("暂时跳过设置默认过期时间，需要实现Redis过期功能: key={}", redisKey);
+            log.error("设置指标数据过期时间异常: key={}, serverId={}", redisKey, serverId, e);
+            // 出错时使用默认30天过期时间
+            try {
+                timeSeriesService.expire(redisKey, 30L * 24 * 60 * 60);
+            } catch (Exception ex) {
+                log.error("设置默认过期时间也失败: key={}", redisKey, ex);
+            }
         }
     }
 

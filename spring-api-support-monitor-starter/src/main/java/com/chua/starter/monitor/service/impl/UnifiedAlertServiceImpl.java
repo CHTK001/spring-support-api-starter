@@ -9,10 +9,11 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.service.AlertDetectionService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.UnifiedAlertService;
+import com.chua.starter.monitor.service.alert.AlertDetectionService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
+import com.chua.starter.monitor.service.alert.AlertNotificationDispatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
     private final MonitorSysGenServerService serverService;
     private final MonitorSysGenServerSettingService serverSettingService;
     private final SocketSessionTemplate socketSessionTemplate;
-    private final com.chua.starter.monitor.service.AlertNotificationDispatcher alertNotificationDispatcher;
+    private final AlertNotificationDispatcher alertNotificationDispatcher;
 
 
     @Override

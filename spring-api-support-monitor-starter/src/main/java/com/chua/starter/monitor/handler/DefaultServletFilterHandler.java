@@ -11,7 +11,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingItem;
-import com.chua.starter.monitor.service.SystemServerSettingItemService;
+import com.chua.starter.monitor.service.server.SystemServerSettingItemService;
 
 import java.util.HashMap;
 import java.util.List;

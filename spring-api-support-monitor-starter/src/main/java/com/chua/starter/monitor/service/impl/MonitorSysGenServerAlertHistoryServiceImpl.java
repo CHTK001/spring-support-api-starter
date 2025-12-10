@@ -14,7 +14,7 @@ import com.chua.starter.monitor.enums.AlertLevel;
 import com.chua.starter.monitor.enums.AlertStatus;
 import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerAlertHistoryMapper;
-import com.chua.starter.monitor.service.MonitorSysGenServerAlertHistoryService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerAlertHistoryService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import lombok.RequiredArgsConstructor;

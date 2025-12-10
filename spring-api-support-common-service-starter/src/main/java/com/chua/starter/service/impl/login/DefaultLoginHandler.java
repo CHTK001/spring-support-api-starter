@@ -37,9 +37,6 @@ import static com.chua.starter.service.impl.SysLoginServiceImpl.GLOBAL_SETTING_F
 public class DefaultLoginHandler implements LoginHandler {
 
     @AutoInject
-    StringRedisTemplate stringRedisTemplate;
-
-    @AutoInject
     SimpleSysUserService simpleSysUserService;
 
     @Override

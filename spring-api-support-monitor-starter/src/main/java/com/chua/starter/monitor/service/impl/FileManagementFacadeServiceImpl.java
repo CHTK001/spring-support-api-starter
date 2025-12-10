@@ -1,11 +1,11 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.FileOperationRequest;
-import com.chua.starter.monitor.pojo.FileOperationResponse;
+import com.chua.starter.monitor.pojo.file.FileOperationRequest;
+import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.service.FileManagementService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.file.FileManagementService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

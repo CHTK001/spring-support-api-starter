@@ -1,15 +1,15 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.FileInfo;
-import com.chua.starter.monitor.pojo.FileOperationRequest;
-import com.chua.starter.monitor.pojo.FileOperationResponse;
+import com.chua.starter.monitor.pojo.file.FileInfo;
+import com.chua.starter.monitor.pojo.file.FileOperationRequest;
+import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.pojo.FileManagementApiConfig;
-import com.chua.starter.monitor.service.ClientHealthService;
-import com.chua.starter.monitor.service.FileManagementService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.pojo.file.FileManagementApiConfig;
+import com.chua.starter.monitor.service.node.ClientHealthService;
+import com.chua.starter.monitor.service.file.FileManagementService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.utils.MonitorSysGenServerSettingUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
