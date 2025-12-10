@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.file;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.app;
 
 import com.chua.common.support.utils.MapUtils;
 import lombok.AllArgsConstructor;
