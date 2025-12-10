@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorArthasTunnelConfig;
 import com.chua.starter.monitor.entity.NodeSystem;
 import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
-import com.chua.starter.monitor.service.NodeSystemService;
+import com.chua.starter.monitor.service.node.NodeSystemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

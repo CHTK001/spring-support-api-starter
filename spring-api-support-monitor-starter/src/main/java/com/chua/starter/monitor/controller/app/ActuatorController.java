@@ -7,7 +7,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.actuator.ActuatorAuthenticationFilter;
 import com.chua.starter.monitor.pojo.app.ActuatorRequest;
-import com.chua.starter.monitor.pojo.LogLevelRequest;
+import com.chua.starter.monitor.pojo.node.LogLevelRequest;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import io.swagger.v3.oas.annotations.Operation;
