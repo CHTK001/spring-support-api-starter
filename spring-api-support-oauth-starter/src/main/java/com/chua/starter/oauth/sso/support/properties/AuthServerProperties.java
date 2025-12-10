@@ -148,7 +148,7 @@ public class AuthServerProperties {
      * 【安全警告】生产环境必须配置此值！建议通过环境变量或配置中心注入
      * </p>
      */
-    private String serviceKey;
+    private String serviceKey = "1234567890oOlIi0";
 
     /**
      * 支持的认证协议列表

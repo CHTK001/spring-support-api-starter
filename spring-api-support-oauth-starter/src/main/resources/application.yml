@@ -2,11 +2,6 @@ spring:
   profiles:
     active: dev
     include: mybatis,socket,report,ip
-  sql:
-    init:
-      data-locations: classpath:*.db
-      mode: always
-      continue-on-error: true
   application:
     name: oss
 
