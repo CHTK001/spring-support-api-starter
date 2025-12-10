@@ -3,8 +3,9 @@ package com.chua.starter.monitor.service.acme;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
-import com.chua.starter.monitor.pojo.AcmeApplyCertRequest;
-import com.chua.starter.monitor.pojo.AcmeCertificateDetailVo;
+import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
+import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
+import com.chua.starter.monitor.pojo.acme.CertStats;
 
 /**
  * ACME 证书服务接口
@@ -62,7 +63,7 @@ public interface AcmeCertificateService {
      *
      * @return 统计信息
      */
-    ReturnResult<AcmeCertificateDetailVo.CertStats> getCertStatsForCert();
+    ReturnResult<CertStats> getCertStatsForCert();
 
     /**
      * 检查并续签即将到期的证书（定时任务调用）

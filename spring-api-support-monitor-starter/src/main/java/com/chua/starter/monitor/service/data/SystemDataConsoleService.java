@@ -7,7 +7,13 @@ import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.starter.monitor.pojo.ServerStatic;
-import com.chua.starter.monitor.pojo.ValueCount;
+import com.chua.starter.monitor.pojo.data.ValueCount;
+import com.chua.starter.monitor.pojo.data.TableOpenResponse;
+import com.chua.starter.monitor.pojo.data.ColumnInfo;
+import com.chua.starter.monitor.pojo.data.TableStructureInfo;
+import com.chua.starter.monitor.pojo.data.UpdateRowRequest;
+import com.chua.starter.monitor.pojo.data.DeleteRowRequest;
+import com.chua.starter.monitor.pojo.data.InsertRowRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

@@ -22,7 +22,7 @@ import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.*;
 import com.chua.starter.monitor.service.DockerCallbackService;
 import com.chua.starter.monitor.service.SystemSoftService;
-import com.chua.starter.monitor.service.SystemSoftVersionService;
+import com.chua.starter.monitor.service.docker.SystemSoftVersionService;
 import com.github.dockerjava.api.model.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,7 +2,7 @@ package com.chua.starter.monitor.controller.file;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystemSetting;
-import com.chua.starter.monitor.service.FileSystemSettingService;
+import com.chua.starter.monitor.service.file.FileSystemSettingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

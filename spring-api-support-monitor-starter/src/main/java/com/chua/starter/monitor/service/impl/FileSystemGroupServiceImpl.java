@@ -7,7 +7,7 @@ import com.chua.starter.monitor.entity.FileSystem;
 import com.chua.starter.monitor.entity.FileSystemGroup;
 import com.chua.starter.monitor.mapper.FileSystemGroupMapper;
 import com.chua.starter.monitor.mapper.FileSystemMapper;
-import com.chua.starter.monitor.service.FileSystemGroupService;
+import com.chua.starter.monitor.service.file.FileSystemGroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

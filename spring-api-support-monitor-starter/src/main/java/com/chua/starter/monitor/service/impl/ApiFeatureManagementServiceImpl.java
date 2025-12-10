@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.ApiFeatureVO;
+import com.chua.starter.monitor.pojo.app.ApiFeatureVO;
 import com.chua.starter.monitor.pojo.OnlineNodeInfo;
-import com.chua.starter.monitor.service.ApiFeatureManagementService;
+import com.chua.starter.monitor.service.app.ApiFeatureManagementService;
 import com.chua.starter.monitor.service.NodeManagementService;
 import com.chua.sync.support.server.SyncServer;
 import lombok.RequiredArgsConstructor;

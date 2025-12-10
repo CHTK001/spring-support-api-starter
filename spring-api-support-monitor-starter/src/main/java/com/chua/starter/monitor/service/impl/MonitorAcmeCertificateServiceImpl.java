@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
 import com.chua.starter.monitor.mapper.MonitorAcmeCertificateMapper;
-import com.chua.starter.monitor.service.MonitorAcmeCertificateService;
+import com.chua.starter.monitor.service.acme.MonitorAcmeCertificateService;
 import org.springframework.stereotype.Service;
 
 /**

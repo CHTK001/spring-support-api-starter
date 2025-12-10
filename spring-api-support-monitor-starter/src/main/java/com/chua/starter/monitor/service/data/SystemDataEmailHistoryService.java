@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemDataEmailHistory;
-import com.chua.starter.monitor.pojo.EmailFetch;
+import com.chua.starter.monitor.pojo.data.EmailFetch;
 import com.chua.starter.monitor.pojo.response.EmailBackupResponse;
 import com.chua.starter.monitor.pojo.response.EmailFetchResponse;
 import org.springframework.web.multipart.MultipartFile;

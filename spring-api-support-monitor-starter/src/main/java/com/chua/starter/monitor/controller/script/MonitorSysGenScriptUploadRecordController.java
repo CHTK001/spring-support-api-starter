@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.script;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystemSetting;
 import com.chua.starter.monitor.mapper.FileSystemSettingMapper;
-import com.chua.starter.monitor.service.FileSystemSettingService;
+import com.chua.starter.monitor.service.file.FileSystemSettingService;
 import lombok.RequiredArgsConstructor;
 import java.util.concurrent.CompletableFuture;
 import com.chua.starter.monitor.task.FileSystemMergeQueue;

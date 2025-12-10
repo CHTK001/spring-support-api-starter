@@ -7,12 +7,13 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
 import com.chua.starter.monitor.entity.MonitorAcmeOrder;
-import com.chua.starter.monitor.pojo.AcmeApplyCertRequest;
-import com.chua.starter.monitor.pojo.AcmeCertificateDetailVo;
-import com.chua.starter.monitor.service.AcmeCertificateService;
-import com.chua.starter.monitor.service.MonitorAcmeAccountService;
-import com.chua.starter.monitor.service.MonitorAcmeCertificateService;
-import com.chua.starter.monitor.service.MonitorAcmeOrderService;
+import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
+import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
+import com.chua.starter.monitor.pojo.acme.CertStats;
+import com.chua.starter.monitor.service.acme.AcmeCertificateService;
+import com.chua.starter.monitor.service.acme.MonitorAcmeAccountService;
+import com.chua.starter.monitor.service.acme.MonitorAcmeCertificateService;
+import com.chua.starter.monitor.service.acme.MonitorAcmeOrderService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.annotations.Api;
@@ -311,7 +312,7 @@ public class AcmeCertificateController {
      */
     @GetMapping("/stats")
     @Operation(summary = "获取证书统计信息 ForCert")
-    public ReturnResult<AcmeCertificateDetailVo.CertStats> statsForCert() {
+    public ReturnResult<CertStats> statsForCert() {
         return acmeCertificateService.getCertStatsForCert();
     }
 }

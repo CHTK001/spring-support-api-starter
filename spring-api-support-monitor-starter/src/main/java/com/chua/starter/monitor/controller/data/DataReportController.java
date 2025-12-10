@@ -7,7 +7,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.MonitorSysGenServerDataReportService;
 import com.chua.starter.monitor.service.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
-import com.chua.starter.monitor.service.UnifiedAlertService;
+import com.chua.starter.monitor.service.alert.UnifiedAlertService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
