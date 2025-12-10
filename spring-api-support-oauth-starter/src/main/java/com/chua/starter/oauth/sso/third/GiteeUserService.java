@@ -2,10 +2,10 @@ package com.chua.starter.oauth.sso.third;
 
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.mapper.SysUserMapper;
 import com.chua.starter.oauth.sso.mapper.SysUserTripartiteBindMapper;
 import com.chua.starter.oauth.sso.login.UserService;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.service.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,9 +25,6 @@ public class GiteeUserService extends UserService {
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
-    private SysUserMapper sysUserMapper;
 
     @Override
     public UserResume checkLogin(String username, String password, String address, Object ext) {
