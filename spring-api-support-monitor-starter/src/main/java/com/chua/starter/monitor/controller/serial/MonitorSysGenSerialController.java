@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.monitor.entity.MonitorSysGenSerial;
-import com.chua.starter.monitor.service.MonitorSysGenSerialService;
+import com.chua.starter.monitor.service.serial.MonitorSysGenSerialService;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.v3.oas.annotations.Operation;

@@ -26,7 +26,7 @@ public class NodeApiExecuteRequest {
     private String contextPath;
 
     @Schema(description = "API信息")
-    private com.chua.starter.monitor.pojo.NodeApiInfo api;
+    private NodeApiInfo api;
 
     @Schema(description = "路径参数")
     private Map<String, String> pathParams;
