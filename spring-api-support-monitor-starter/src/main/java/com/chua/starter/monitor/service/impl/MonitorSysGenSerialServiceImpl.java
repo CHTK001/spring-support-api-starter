@@ -10,7 +10,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenSerial;
 import com.chua.starter.monitor.mapper.MonitorSysGenSerialMapper;
-import com.chua.starter.monitor.service.MonitorSysGenSerialService;
+import com.chua.starter.monitor.service.serial.MonitorSysGenSerialService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

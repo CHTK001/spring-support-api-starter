@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenMessagePushTemplate;
 import com.chua.starter.monitor.mapper.MonitorSysGenMessagePushTemplateMapper;
-import com.chua.starter.monitor.service.MonitorSysGenMessagePushTemplateService;
+import com.chua.starter.monitor.service.message.MonitorSysGenMessagePushTemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
