@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
-import com.chua.starter.monitor.service.DelayedUpdateService;
+import com.chua.starter.monitor.service.server.DelayedUpdateService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerMetricsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

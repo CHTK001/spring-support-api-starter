@@ -9,7 +9,7 @@ import com.chua.starter.monitor.mapper.MonitorArthasTunnelConfigMapper;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.pojo.arthas.*;
 import com.chua.starter.monitor.service.arthas.MonitorArthasSessionService;
-import com.chua.starter.monitor.service.NodeManagementService;
+import com.chua.starter.monitor.service.node.NodeManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
