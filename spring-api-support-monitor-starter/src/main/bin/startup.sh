@@ -58,6 +58,7 @@ show_help() {
     echo "  arthas      启动Arthas诊断"
     echo "  backup      备份配置/JAR"
     echo "  restore     还原配置/JAR"
+    echo "  docker      Docker构建/部署"
     echo "  debug       以调试模式启动"
     echo ""
     echo -e "${YELLOW}选项:${NC}"
@@ -251,6 +252,14 @@ run_analyze() {
 run_backup() { bash "${SCRIPT_DIR}/script/backup-restore.sh" backup "${1:-all}"; }
 run_restore() { bash "${SCRIPT_DIR}/script/backup-restore.sh" restore "${1:-all}"; }
 
+run_docker() {
+    local action="$1"; shift
+    case "$action" in
+        build) bash "${SCRIPT_DIR}/script/docker-build.sh" --name "$APP_NAME" --version "$APP_VERSION" "$@" ;;
+        *) bash "${SCRIPT_DIR}/script/docker-deploy.sh" "$action" --name "$APP_NAME" --version "$APP_VERSION" "$@" ;;
+    esac
+}
+
 # 解析参数
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
@@ -259,12 +268,16 @@ CUSTOM_JVM_OPTS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|tuning|analyze|arthas|backup|restore|debug)
+        start|stop|restart|status|jvm|tuning|analyze|arthas|backup|restore|docker|debug)
             COMMAND="$1"
             shift
             ;;
         cpu|mem|all|config|jar)
             EXTRA_MODE="$1"
+            shift
+            ;;
+        build|deploy|upgrade|rollback|logs|clean)
+            DOCKER_ACTION="$1"
             shift
             ;;
         --jvm-opts)
@@ -324,6 +337,9 @@ case "$COMMAND" in
         ;;
     restore)
         run_restore "${EXTRA_MODE:-all}"
+        ;;
+    docker)
+        run_docker "${DOCKER_ACTION:-}" "$@"
         ;;
     *)
         show_help
