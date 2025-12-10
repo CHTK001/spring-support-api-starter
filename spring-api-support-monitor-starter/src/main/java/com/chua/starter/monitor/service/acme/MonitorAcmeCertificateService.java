@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.acme;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
