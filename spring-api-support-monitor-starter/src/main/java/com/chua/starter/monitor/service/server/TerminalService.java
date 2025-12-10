@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;//package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.server;//package com.chua.starter.monitor.service.server;
 //
 //import com.chua.ssh.support.ssh.SshClient;
 //import com.chua.sshj.support.ssh.SshjClient;

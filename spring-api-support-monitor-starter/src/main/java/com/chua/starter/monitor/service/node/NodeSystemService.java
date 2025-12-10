@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.service;
+package com.chua.starter.monitor.service.node;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.monitor.entity.NodeSystem;
