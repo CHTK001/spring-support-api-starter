@@ -6,7 +6,7 @@ import com.chua.starter.monitor.pojo.file.FileOperationRequest;
 import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.file.FileManagementService;
-import com.chua.starter.monitor.service.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import lombok.extern.slf4j.Slf4j;

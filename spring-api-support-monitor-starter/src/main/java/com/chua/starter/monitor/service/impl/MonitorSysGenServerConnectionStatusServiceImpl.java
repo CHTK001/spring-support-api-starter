@@ -10,9 +10,9 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerConnectionStatusMapper
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionCheckResult;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionHealthReport;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionStatistics;
-import com.chua.starter.monitor.service.MonitorSysGenServerConnectionStatusService;
-import com.chua.starter.monitor.service.MonitorSysGenServerService;
-import com.chua.starter.monitor.service.ServerConnectionService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerConnectionStatusService;
+import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.ServerConnectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
