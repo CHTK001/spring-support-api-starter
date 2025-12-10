@@ -9,10 +9,10 @@ plugin:
   sync:
     type: server
     server:
-      protocol: websocket
       instances:
         - port: 29170
         - port: 29171
+      enable: true
   report:
     server:
       job:
