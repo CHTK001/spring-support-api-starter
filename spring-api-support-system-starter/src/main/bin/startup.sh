@@ -3,7 +3,7 @@
 # 平台系统启动脚本
 # 作者: CH
 # 创建时间: 2024/12/08
-# 版本: 2.0.0
+# 版本: 1.0.0
 # ============================================================
 
 # 基础配置
@@ -171,9 +171,18 @@ start_app() {
     
     nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${LOG_DIR}/startup.log" 2>&1 &
     
-    echo "$!" > "${PID_FILE}"
+    local new_pid=$!
+    echo "$new_pid" > "${PID_FILE}"
     sleep 2
-    ps -p "$!" > /dev/null 2>&1 && echo -e "${GREEN}[成功] 已启动 (PID: $!)${NC}" || echo -e "${RED}[失败] 启动失败${NC}"
+    
+    if ps -p "$new_pid" > /dev/null 2>&1; then
+        echo -e "${GREEN}[成功] 已启动 (PID: $new_pid)${NC}"
+        echo -e "日志文件: ${LOG_DIR}/startup.log"
+    else
+        echo -e "${RED}[失败] 启动失败${NC}"
+        echo -e "${YELLOW}错误日志:${NC}"
+        [ -f "${LOG_DIR}/startup.log" ] && tail -20 "${LOG_DIR}/startup.log"
+    fi
 }
 
 stop_app() {
