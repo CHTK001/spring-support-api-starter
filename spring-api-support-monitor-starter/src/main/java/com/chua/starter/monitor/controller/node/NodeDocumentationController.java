@@ -3,7 +3,7 @@ package com.chua.starter.monitor.controller.node;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.node.NodeApiExecuteRequest;
 import com.chua.starter.monitor.pojo.node.NodeApiGroup;
-import com.chua.starter.monitor.service.NodeDocumentationService;
+import com.chua.starter.monitor.service.node.NodeDocumentationService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

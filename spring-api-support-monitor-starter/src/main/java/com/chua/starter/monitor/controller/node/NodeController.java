@@ -4,7 +4,7 @@ package com.chua.starter.monitor.controller.node;
 import com.chua.common.support.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.node.ClientHealthStatus;
-import com.chua.starter.monitor.service.ClientHealthService;
+import com.chua.starter.monitor.service.node.ClientHealthService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import io.swagger.v3.oas.annotations.Operation;
