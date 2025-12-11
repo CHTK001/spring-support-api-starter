@@ -90,13 +90,17 @@ spring-support-oauth-client-starter (OAuth客户端)
 
 ### 1. 添加依赖
 
-在应用模块中添加依赖：
+在应用模块中添加依赖**认证服务端**（auth-starter）：
 
 ```xml
+<!-- 认证接口规范 -->
 <dependency>
     <groupId>com.chua</groupId>
     <artifactId>spring-api-support-common-auth-starter</artifactId>
 </dependency>
+
+<!-- OAuth服务端实现 -->
+<!-- auth-starter已经包含了服务端实现 -->
 ```
 
 ### 2. 配置 OAuth
@@ -240,6 +244,6 @@ com.your.package.CustomLoginHandler
 ## 相关模块
 
 - `spring-support-oauth-client-starter` - OAuth 客户端实现
-- `spring-api-support-oauth-starter` - OAuth 服务端实现
+- `spring-api-support-auth-starter` - OAuth 服务端实现
 - `spring-api-support-common-entity-starter` - 实体定义
-- `spring-api-support-common-configuration-starter` - 配置定义
+- `spring-support-common-starter` - 公共基础模块
