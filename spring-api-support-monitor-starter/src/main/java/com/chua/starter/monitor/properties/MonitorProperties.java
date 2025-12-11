@@ -19,6 +19,11 @@ public class MonitorProperties {
     public static final String PRE = "plugin.monitor.server";
 
     /**
+     * 是否启用监控服务
+     */
+    private boolean enable = false;
+
+    /**
      * 是否启用后端定时检测推送任务
      */
     private boolean enableScheduledTasks = true;
