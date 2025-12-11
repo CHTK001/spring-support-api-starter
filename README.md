@@ -99,7 +99,40 @@ Common层模块
 - MySQL 8.0+
 - Redis 6.0+
 
-### 2. 数据库初始化
+### 2. 功能开关配置
+
+每个应用模块都有独立的功能开关配置，位于 `src/main/resources/config/application-plugin.yml`：
+
+**监控服务**：
+
+```yaml
+plugin:
+  monitor:
+    server:
+      enable: true # 默认启用
+```
+
+**OAuth 认证服务**：
+
+```yaml
+plugin:
+  oauth:
+    server:
+      enable: true # 默认启用
+```
+
+**系统服务**：
+
+```yaml
+plugin:
+  system:
+    server:
+      enable: true # 默认启用
+```
+
+> 💡 **说明**：所有应用服务默认启用。如需关闭某个服务，将对应的 `enable` 设置为 `false` 即可。
+
+### 3. 数据库初始化
 
 ```sql
 -- 创建数据库
