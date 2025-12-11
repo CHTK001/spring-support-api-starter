@@ -1,4 +1,4 @@
-package com.chua.starter.system.auth.config;
+package com.chua.starter.system.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
