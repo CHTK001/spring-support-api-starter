@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.login;
+package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.bean.BeanUtils;
@@ -13,7 +13,8 @@ import com.chua.starter.oauth.client.support.user.OpenIdGenerator;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.mapper.SysDeptMapper;
+import com.chua.starter.oauth.client.support.user.UserInfoService;
+import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysUser;
@@ -63,26 +64,30 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  * </ul>
  *
  * @author CH
+ * @since 1.0.0
  */
 @Slf4j
 @Service
 @Spi("WEB")
 @LoginType("WEB")
 @Tag(name = "用户登录服务", description = "标准Web用户名密码登录验证")
-public class UserService implements UserInfoService, Constant {
+public class UserLoginService implements UserInfoService, Constant {
 
     /**
      * 用户权限缓存过期时间(分钟)
      */
     private static final long PERMISSION_CACHE_TIMEOUT = 30;
+    
     /**
      * 用户角色缓存过期时间(分钟)
      */
     private static final long ROLE_CACHE_TIMEOUT = 30;
+    
     /**
      * 登录尝试失败最大次数
      */
     private final int count = 6;
+    
     /**
      * 账户锁定时间(分钟)
      */
@@ -157,7 +162,7 @@ public class UserService implements UserInfoService, Constant {
             return check(newAccessKey, errorCountStr != null);
         }
 
-        // 更新用户登录信息 - 异步更新以提高响应速度
+        // 更新用户登录信息
         user.setSysUserLastIp(address);
         sysUserMapper.updateById(user);
 
@@ -269,6 +274,7 @@ public class UserService implements UserInfoService, Constant {
                 dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
             }
         }
+        
         // 获取用户权限信息 - 优先从缓存获取
         startTime = System.currentTimeMillis();
         Set<String> permissions = getPermission(user);
@@ -299,9 +305,7 @@ public class UserService implements UserInfoService, Constant {
                         .put("userDashboard", userDashboard)
                         .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
                         .build()
-                )
-
-                ;
+                );
     }
 
 

@@ -3,7 +3,7 @@ package com.chua.starter.oauth.sso.third;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.mapper.SysUserTripartiteBindMapper;
-import com.chua.starter.oauth.sso.login.UserService;
+import com.chua.starter.system.login.UserLoginService;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @LoginType("gitee")
-public class GiteeUserService extends UserService {
+public class GiteeUserService extends UserLoginService {
     @Autowired
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
     @Autowired
