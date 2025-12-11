@@ -2,8 +2,8 @@ package com.chua.starter.auth.handler;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
-import com.chua.starter.auth.service.impl.SysLoginServiceImpl;
 import com.chua.starter.auth.result.LoginResult;
+import com.chua.starter.auth.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -17,14 +17,14 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface LoginHandler {
 
     /**
-     * 执行用户登录操作
+     * 登录处理
      *
-     * @param sysLoginService 登录服务实现类，用于处理登录逻辑
-     * @param loginData       登录所需的数据，包含用户凭证等信息
-     * @param request         HTTP请求对象，可用于获取请求相关数据
-     * @param response        HTTP响应对象，可用于设置登录后的响应数据
-     * @param fingerprint     浏览器指纹
-     * @return 返回登录结果，包含登录是否成功及用户相关信息
+     * @param sysLoginService 登录服务
+     * @param loginData       登录数据
+     * @param request         请求
+     * @param response        响应
+     * @param fingerprint     设备指纹
+     * @return 登录结果
      */
     ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
 }
