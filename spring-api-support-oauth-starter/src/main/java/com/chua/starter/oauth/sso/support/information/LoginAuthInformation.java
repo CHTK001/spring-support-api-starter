@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.information;
 
 import com.chua.common.support.utils.MapUtils;
-import com.chua.starter.oauth.sso.service.SysUserLogService;
+import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
