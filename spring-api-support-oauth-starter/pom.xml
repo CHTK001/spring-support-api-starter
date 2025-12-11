@@ -23,10 +23,10 @@
     </properties>
 
     <dependencies>
-        <!-- 认证模块 - 定义认证接口规范 -->
+        <!-- OAuth认证模块 - 定义认证接口规范 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-auth-starter</artifactId>
+            <artifactId>spring-api-support-common-oauth-starter</artifactId>
         </dependency>
 
         <dependency>
