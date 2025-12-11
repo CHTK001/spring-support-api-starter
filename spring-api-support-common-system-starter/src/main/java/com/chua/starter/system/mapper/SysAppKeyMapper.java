@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.mapper;
+package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.system.SysAppKey;
@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
 /**
- * 应用密钥Mapper
+ * 应用密钥 Mapper
  *
  * @author CH
  * @since 2025/10/23
@@ -33,4 +33,3 @@ public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
             "sys_app_key_last_used_time = #{lastUsedTime} WHERE sys_app_key_app_id = #{appId}")
     void updateUseInfo(@Param("appId") String appId, @Param("lastUsedTime") Long lastUsedTime);
 }
-

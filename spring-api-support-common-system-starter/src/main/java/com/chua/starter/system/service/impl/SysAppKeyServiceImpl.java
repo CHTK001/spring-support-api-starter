@@ -1,10 +1,9 @@
-package com.chua.starter.oauth.sso.service.impl;
+package com.chua.starter.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.oauth.sso.mapper.SysAppKeyMapper;
-import com.chua.starter.oauth.sso.service.SysAppKeyService;
+import com.chua.starter.system.mapper.SysAppKeyMapper;
+import com.chua.starter.system.service.SysAppKeyService;
 import com.chua.starter.entity.system.SysAppKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
- * 应用密钥Service实现
+ * 应用密钥 Service 实现
  *
  * @author CH
  * @since 2025/10/23
@@ -99,4 +98,3 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
         }
     }
 }
-
