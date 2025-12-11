@@ -95,7 +95,7 @@ public class TenantUserService implements UserInfoService, Constant {
     private final int count = 6;
     
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    protected StringRedisTemplate stringRedisTemplate;
 
     /**
      * 账户锁定时间(分钟)
@@ -421,8 +421,7 @@ public class TenantUserService implements UserInfoService, Constant {
                 .setPermission(permissions)
                 .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
-                .setLoginCnt(user.getSysUserLongCount())
-                .setName(user.getSysUserNickname())
+                .setNickName(user.getSysUserNickname())
                 .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
                         .put("userDashboardGrid", userDashboardGrid)
