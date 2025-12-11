@@ -1,4 +1,4 @@
-package com.chua.starter.system.auth.handler;
+package com.chua.starter.system.handler;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;

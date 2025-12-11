@@ -13,8 +13,8 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.service.SysLoginService;
-import com.chua.starter.system.auth.handler.LoginHandler;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.system.pojo.RefreshToken;
@@ -56,8 +56,6 @@ public class SysLoginServiceImpl implements SysLoginService {
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     private final AuthClientProperties authProperties;
-    private final TransactionTemplate transactionTemplate;
-    private final RestTemplate restTemplate;
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     private final RedisTemplate redisTemplate;
 

@@ -1,4 +1,4 @@
-package com.chua.starter.system.auth.handler;
+package com.chua.starter.system.handler;
 
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.annotations.SpiDefault;
@@ -9,8 +9,8 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import com.chua.starter.system.pojo.LoginResult;
+import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

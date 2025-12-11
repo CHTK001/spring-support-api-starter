@@ -171,7 +171,7 @@ spring:
 
 #### 方式一：IDE 启动
 
-- OAuth 服务端：运行 `com.chua.starter.oauth.sso.AuthApplication`
+- OAuth 服务端：运行 `com.chua.starter.oauth.sso.support.AuthApplication`
 - 系统应用：运行对应的 Application 类
 
 #### 方式二：命令行启动

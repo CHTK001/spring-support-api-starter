@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.configuration;
+package com.chua.starter.oauth.sso.support.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
