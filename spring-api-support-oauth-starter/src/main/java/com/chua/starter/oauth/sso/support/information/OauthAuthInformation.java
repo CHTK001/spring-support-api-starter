@@ -86,6 +86,22 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     /**
+     * 获取ApplicationContext
+     * @return ApplicationContext
+     */
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    /**
+     * 获取LoginCheck
+     * @return LoginCheck
+     */
+    public LoginCheck getLoginCheck() {
+        return loginCheck;
+    }
+
+    /**
      * 获取授权信息
      * @return 授权信息
      */

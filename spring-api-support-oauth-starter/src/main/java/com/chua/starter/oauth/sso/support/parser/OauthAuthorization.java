@@ -1,13 +1,23 @@
 package com.chua.starter.oauth.sso.support.parser;
 
+import com.chua.common.support.crypto.Hex;
+import com.chua.common.support.crypto.digest.HMac;
+import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.oauth.client.support.entity.AppKeySecret;
+import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.oauth.sso.service.SysAppKeyService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.handler.AuthorizationHandler;
+import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * 鉴权信息
@@ -79,8 +89,10 @@ public final class OauthAuthorization implements Authorization {
         }
         
         // 2. 根据参数类型自动选择
-        for (AuthorizationHandler handler : ServiceProvider.of(AuthorizationHandler.class).getExtensions()) {
-            if (handler.supports(subProtocol, token, userCode)) {
+        ServiceProvider<AuthorizationHandler> provider = ServiceProvider.of(AuthorizationHandler.class);
+        for (String name : provider.getExtensions()) {
+            AuthorizationHandler handler = provider.getExtension(name);
+            if (handler != null && handler.supports(subProtocol, token, userCode)) {
                 log.debug("根据参数类型选择处理器: {}", handler.getClass().getSimpleName());
                 return handler;
             }
@@ -88,7 +100,7 @@ public final class OauthAuthorization implements Authorization {
         
         // 3. 使用默认处理器
         log.debug("使用默认认证处理器");
-        return ServiceProvider.of(AuthorizationHandler.class).getNewExtension();
+        return provider.getNewExtension("default");
     }
 
     /**
@@ -161,7 +173,7 @@ public final class OauthAuthorization implements Authorization {
             }
 
             // 7. 构建待签名字符串
-            String xBody = HexUtils.encodeHexString(DigestUtils.md5(body.getBytes(StandardCharsets.UTF_8)));
+            String xBody = Hex.encodeHexString(DigestUtils.md5(body.getBytes(StandardCharsets.UTF_8)));
             String signStr = String.format("x-body=%s&x-random=%s&x-time=%s", xBody, xRandom, xTime);
             log.info("待签名字符串: {}", signStr);
             log.info("请求体摘要: {}", xBody);
