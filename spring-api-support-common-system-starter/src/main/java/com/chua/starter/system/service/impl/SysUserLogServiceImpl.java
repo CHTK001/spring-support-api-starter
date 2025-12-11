@@ -18,6 +18,7 @@ import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.util.Set;
  * @author CH
  * @since 2024/8/8
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService, ApplicationListener<UserLoggerInfo> {
@@ -117,5 +119,19 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
                 .eq(ObjectUtils.isNotEmpty(sysUserLogQuery.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLogQuery.getSysLogStatus())
                 .orderByDesc(SysUserLog::getCreateTime)
         );
+    }
+
+    @Override
+    public void asyncSaveUserLog(SysUserLog sysUserLog) {
+        if (null == sysUserLog) {
+            return;
+        }
+        Thread.ofVirtual().start(() -> {
+            try {
+                baseMapper.insert(sysUserLog);
+            } catch (Exception e) {
+                log.error("异步保存用户日志失败: {}", e.getMessage());
+            }
+        });
     }
 }
