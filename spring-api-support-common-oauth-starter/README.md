@@ -1,8 +1,8 @@
-# spring-api-support-common-auth-starter
+# spring-api-support-common-oauth-starter
 
 ## 模块说明
 
-**统一认证授权模块** - 提供登录、注册、权限验证等功能，所有应用模块共享统一的认证逻辑。
+**统一 OAuth 认证模块** - 提供登录、注册、Token 管理等功能，所有应用模块共享统一的 OAuth 认证逻辑。
 
 ## 设计理念
 
@@ -51,7 +51,7 @@
 ## 模块结构
 
 ```
-spring-api-support-common-auth-starter/
+spring-api-support-common-oauth-starter/
 ├── controller/
 │   └── LoginController.java              # 登录控制器
 ├── service/
@@ -79,7 +79,7 @@ spring-api-support-common-auth-starter/
 ```
 应用模块 (system-starter, monitor-starter等)
     ↓ 依赖
-spring-api-support-common-auth-starter (认证模块)
+spring-api-support-common-oauth-starter (OAuth认证模块)
     ↓ 依赖
 spring-api-support-common-entity-starter (实体定义)
 spring-api-support-common-configuration-starter (配置定义)
@@ -93,10 +93,10 @@ spring-support-oauth-client-starter (OAuth客户端)
 在应用模块中添加依赖**认证服务端**（oauth-starter）：
 
 ```xml
-<!-- 认证接口规范 -->
+<!-- OAuth认证接口规范 -->
 <dependency>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-common-auth-starter</artifactId>
+    <artifactId>spring-api-support-common-oauth-starter</artifactId>
 </dependency>
 
 <!-- OAuth服务端实现 -->
