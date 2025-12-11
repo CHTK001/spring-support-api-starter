@@ -45,7 +45,7 @@ Spring API Support OAuth Starter 是一个功能完整的 OAuth 认证服务端/
 ```xml
 <dependency>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-auth-starter</artifactId>
+    <artifactId>spring-api-support-oauth-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -466,7 +466,7 @@ logging:
 
 ```dockerfile
 FROM openjdk:21-jdk-slim
-COPY target/spring-api-support-auth-starter.jar /app.jar
+COPY target/spring-api-support-oauth-starter.jar /app.jar
 EXPOSE 19180 9090
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
