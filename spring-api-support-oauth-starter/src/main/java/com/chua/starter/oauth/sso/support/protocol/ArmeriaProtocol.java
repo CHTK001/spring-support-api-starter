@@ -17,6 +17,8 @@ import com.chua.starter.oauth.sso.support.information.ArmeriaAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
+import com.chua.starter.oauth.sso.support.parser.TemporaryTokenAuthorization;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
@@ -251,7 +253,6 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
         
         // 临时令牌端点
         builder.service(contextPath + "/temporary-token", (ctx, req) -> {
-            long startTime = System.currentTimeMillis();
             try {
                 String body = req.aggregate().join().contentUtf8();
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -259,10 +260,9 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 // 创建适配器请求/响应对象
                 ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
                 ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
-                String clientIp = tcpRequest.getRemoteAddr();
                 
-                // 创建认证信息
-                OauthAuthInformation authInformation = new OauthAuthInformation(
+                // 使用 TemporaryTokenAuthInformation 解析请求
+                TemporaryTokenAuthInformation authInformation = new TemporaryTokenAuthInformation(
                         authServerProperties,
                         authRequest.getData(),
                         tcpRequest,
@@ -276,72 +276,11 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                             Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
                 }
                 
-                // 获取源令牌和扩展参数
-                Map<String, Object> bodyData = authInformation.getBodyData();
-                String sourceToken = MapUtils.getString(bodyData, "x-oauth-source-token");
-                Map<String, Object> ext = MapUtils.getMap(bodyData, "x-oauth-ext");
+                // 使用 TemporaryTokenAuthorization 执行创建逻辑
+                TemporaryTokenAuthorization authorization = authInformation.authorization();
+                ReturnResult<String> result = authorization.authentication();
                 
-                if (Strings.isNullOrEmpty(sourceToken)) {
-                    log.warn("临时令牌创建失败: 源令牌为空, 客户端IP: {}", clientIp);
-                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
-                            Json.toJson(ReturnResult.illegal("源令牌不能为空")));
-                }
-                
-                // 获取 TokenResolver 验证源令牌
-                TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class)
-                        .getExtension(authServerProperties.getTokenManagement());
-                if (tokenResolver == null) {
-                    log.error("临时令牌创建失败: TokenResolver 不可用");
-                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
-                            Json.toJson(ReturnResult.error("令牌服务不可用")));
-                }
-                
-                // 验证源令牌
-                ReturnResult<UserResume> resolveResult = tokenResolver.resolve(null, sourceToken);
-                if (resolveResult.isFailure()) {
-                    log.warn("临时令牌创建失败: 源令牌无效, 客户端IP: {}, 耗时: {}ms",
-                            clientIp, System.currentTimeMillis() - startTime);
-                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
-                            Json.toJson(ReturnResult.error("源令牌无效")));
-                }
-                
-                UserResume sourceUserResume = resolveResult.getData();
-                
-                // 解析过期时间和允许的URL
-                long expireTime = MapUtils.getLong(ext, "expireTime", 10L);
-                expireTime = Math.max(1, Math.min(expireTime, 3600));
-                String allowedUrls = MapUtils.getString(ext, "allowedUrls");
-                
-                // 基于源用户信息创建临时令牌
-                UserResult temporaryUser = new UserResult();
-                temporaryUser.setUserId(sourceUserResume.getUserId());
-                temporaryUser.setUsername(sourceUserResume.getUsername());
-                temporaryUser.setRoles(sourceUserResume.getRoles());
-                temporaryUser.setPermission(sourceUserResume.getPermission());
-                temporaryUser.setExpireTime(expireTime);
-                temporaryUser.setLoginType("TEMPORARY");
-                
-                // 设置临时令牌的扩展属性
-                Map<String, Object> options = new HashMap<>();
-                options.put("allowedUrls", Strings.isNullOrEmpty(allowedUrls) ? "*" : allowedUrls);
-                options.put("expireTime", String.valueOf(expireTime));
-                temporaryUser.setExt(options);
-                
-                // 创建临时令牌
-                ReturnResult<LoginResult> createResult = tokenResolver.createToken(clientIp, temporaryUser, "TEMPORARY");
-                if (createResult.isFailure()) {
-                    log.warn("临时令牌创建失败: {}, 客户端IP: {}, 耗时: {}ms",
-                            createResult.getMsg(), clientIp, System.currentTimeMillis() - startTime);
-                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
-                            Json.toJson(ReturnResult.error(createResult.getMsg())));
-                }
-                
-                LoginResult loginResult = createResult.getData();
-                log.info("临时令牌创建成功, 客户端IP: {}, 过期时间: {}秒, 耗时: {}ms", 
-                        clientIp, expireTime, System.currentTimeMillis() - startTime);
-                
-                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
-                        Json.toJson(ReturnResult.ok(loginResult.getToken())));
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, Json.toJson(result));
             } catch (Exception e) {
                 log.error("临时令牌创建失败", e);
                 return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 

@@ -19,6 +19,8 @@ import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
+import com.chua.starter.oauth.sso.support.parser.TemporaryTokenAuthorization;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
 import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
@@ -390,14 +392,8 @@ public class HttpProtocol implements Protocol, InitializingBean {
             @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
             HttpServletRequest request,
             HttpServletResponse response) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-
-        log.debug("========== 临时令牌创建请求开始 ==========");
-        log.debug("客户端IP: {}", clientIp);
-
-        // 使用 OauthAuthInformation 解析请求
-        OauthAuthInformation authInformation = new OauthAuthInformation(
+        // 使用 TemporaryTokenAuthInformation 解析请求
+        TemporaryTokenAuthInformation authInformation = new TemporaryTokenAuthInformation(
                 authServerProperties,
                 authRequest.getData(),
                 request,
@@ -406,84 +402,14 @@ public class HttpProtocol implements Protocol, InitializingBean {
                 loginCheck);
 
         if (!authInformation.isSuccessful()) {
-            log.warn("临时令牌请求解析失败: {}, 客户端IP: {}, 耗时: {}ms",
-                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
+            log.warn("临时令牌请求解析失败: {}, 客户端IP: {}",
+                    authInformation.errorMessage(), authInformation.getClientIp());
             return ReturnResult.illegal(authInformation.errorMessage());
         }
 
-        // 获取源令牌和扩展参数
-        Map<String, Object> bodyData = authInformation.getBodyData();
-        String sourceToken = MapUtils.getString(bodyData, "x-oauth-source-token");
-        Map<String, Object> ext = MapUtils.getMap(bodyData, "x-oauth-ext");
-
-        if (Strings.isNullOrEmpty(sourceToken)) {
-            log.warn("临时令牌创建失败: 源令牌为空, 客户端IP: {}", clientIp);
-            return ReturnResult.illegal("源令牌不能为空");
-        }
-
-        // 获取 TokenResolver 验证源令牌
-        try {
-            TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class)
-                    .getExtension(authServerProperties.getTokenManagement());
-            if (tokenResolver == null) {
-                log.error("临时令牌创建失败: TokenResolver 不可用");
-                return ReturnResult.error("令牌服务不可用");
-            }
-
-            // 验证源令牌
-            ReturnResult<UserResume> resolveResult = tokenResolver.resolve(null, sourceToken);
-            if (resolveResult.isFailure()) {
-                log.warn("临时令牌创建失败: 源令牌无效, 客户端IP: {}, 耗时: {}ms",
-                        clientIp, System.currentTimeMillis() - startTime);
-                OAuthAdminController.recordRequest("TEMPORARY_TOKEN", clientIp, null, false, "源令牌无效",
-                        System.currentTimeMillis() - startTime);
-                return ReturnResult.error("源令牌无效");
-            }
-
-            UserResume sourceUserResume = resolveResult.getData();
-
-            // 解析过期时间和允许的URL
-            long expireTime = MapUtils.getLong(ext, "expireTime", 10L);
-            expireTime = Math.max(1, Math.min(expireTime, 3600));
-            String allowedUrls = MapUtils.getString(ext, "allowedUrls");
-
-            // 基于源用户信息创建临时令牌
-            UserResult temporaryUser = new UserResult();
-            temporaryUser.setUserId(sourceUserResume.getUserId());
-            temporaryUser.setUsername(sourceUserResume.getUsername());
-            temporaryUser.setRoles(sourceUserResume.getRoles());
-            temporaryUser.setPermission(sourceUserResume.getPermission());
-            temporaryUser.setExpireTime(expireTime);
-            temporaryUser.setLoginType("TEMPORARY");
-
-            // 设置临时令牌的扩展属性
-            Map<String, Object> options = new java.util.HashMap<>();
-            options.put("allowedUrls", Strings.isNullOrEmpty(allowedUrls) ? "*" : allowedUrls);
-            options.put("expireTime", String.valueOf(expireTime));
-            temporaryUser.setExt(options);
-
-            // 创建临时令牌
-            ReturnResult<LoginResult> createResult = tokenResolver.createToken(clientIp, temporaryUser, "TEMPORARY");
-            if (createResult.isFailure()) {
-                log.warn("临时令牌创建失败: {}, 客户端IP: {}, 耗时: {}ms",
-                        createResult.getMsg(), clientIp, System.currentTimeMillis() - startTime);
-                OAuthAdminController.recordRequest("TEMPORARY_TOKEN", clientIp, null, false, createResult.getMsg(),
-                        System.currentTimeMillis() - startTime);
-                return ReturnResult.error(createResult.getMsg());
-            }
-
-            LoginResult loginResult = createResult.getData();
-            long cost = System.currentTimeMillis() - startTime;
-            log.info("临时令牌创建成功, 客户端IP: {}, 过期时间: {}秒, 耗时: {}ms", clientIp, expireTime, cost);
-            log.debug("========== 临时令牌创建请求结束 ==========");
-            OAuthAdminController.recordRequest("TEMPORARY_TOKEN", clientIp, null, true, "临时令牌创建成功", cost);
-
-            // 返回临时令牌
-            return ReturnResult.ok(loginResult.getToken());
-        } catch (Exception e) {
-            log.error("临时令牌创建异常: {}, 客户端IP: {}", e.getMessage(), clientIp, e);
-            return ReturnResult.error("临时令牌创建失败: " + e.getMessage());
-        }
+        // 使用 TemporaryTokenAuthorization 执行创建逻辑
+        TemporaryTokenAuthorization authorization = authInformation.authorization();
+        return authorization.authentication();
     }
 
     @Override
