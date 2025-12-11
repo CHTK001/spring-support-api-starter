@@ -31,10 +31,33 @@
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
 
-        <!-- OAuth认证模块 - 提供登录服务 -->
+        <!-- OAuth客户端 - 用于登录认证 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-oauth-starter</artifactId>
+            <artifactId>spring-support-oauth-client-starter</artifactId>
+        </dependency>
+
+        <!-- Redis支持 - 用于缓存和会话管理 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.1.2</version>
         </dependency>
 
         <dependency>
