@@ -81,6 +81,13 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-configuration-starter</artifactId>
         </dependency>
+
+        <!-- 腾讯微信小程序支持 - 用于微信登录（可选） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-tencent-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
