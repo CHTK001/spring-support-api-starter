@@ -1,9 +1,8 @@
-package com.chua.starter.oauth.sso.service.impl;
+package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.system.login.UserLoginService;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.service.mapper.SysUserMapper;
@@ -29,22 +28,6 @@ import java.util.concurrent.TimeUnit;
  *   <li>OpenID与用户ID映射缓存，提高查询效率</li>
  * </ul>
  *
- * <h2>使用场景</h2>
- * <ul>
- *   <li>微信小程序用户无感知登录</li>
- *   <li>小程序内部功能授权</li>
- *   <li>微信用户身份与系统用户身份的映射</li>
- *   <li>小程序多端同步登录状态</li>
- * </ul>
- *
- * <h2>性能优化</h2>
- * <ul>
- *   <li>OpenID与用户ID映射关系缓存</li>
- *   <li>批量查询替代多次单条查询</li>
- *   <li>延迟加载用户详细信息</li>
- *   <li>精确的日志记录与性能监控</li>
- * </ul>
- *
  * @author CH
  * @since 2024/12/2
  */
@@ -52,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @LoginType("MINI_APP")
 @Tag(name = "微信小程序登录", description = "基于微信小程序OpenID的用户登录验证")
-public class WeixinMiniAppService extends UserLoginService {
+public class WeixinMiniAppLoginService extends UserLoginService {
 
     /**
      * OpenID映射缓存过期时间（分钟）
@@ -112,7 +95,7 @@ public class WeixinMiniAppService extends UserLoginService {
                     Wrappers.<SysUserThirdParty>lambdaQuery()
                             .eq(SysUserThirdParty::getSysUserThirdPartyUid, openId)
                             .eq(SysUserThirdParty::getSysUserThirdPartyType, SysUserThirdParty.Type.WX_MINI_APP.name())
-                            .last("LIMIT 1") // 限制只返回一条记录，提高查询效率
+                            .last("LIMIT 1")
             );
 
             log.debug("小程序用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
