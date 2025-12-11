@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-@LoginType("MINI_APP")
+@LoginType("WECHAT")
 @Tag(name = "微信小程序登录", description = "基于微信小程序OpenID的用户登录验证")
 public class WeixinMiniAppLoginService extends UserLoginService {
 
