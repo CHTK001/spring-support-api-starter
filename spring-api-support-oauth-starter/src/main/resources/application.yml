@@ -1,7 +1,7 @@
 spring:
   profiles:
     active: dev
-    include: mybatis,socket,report,ip,actuator
+    include: plugin,mybatis,socket,report,ip,actuator
   application:
     name: oss
 

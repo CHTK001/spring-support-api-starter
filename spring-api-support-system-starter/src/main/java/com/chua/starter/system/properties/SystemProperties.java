@@ -18,5 +18,5 @@ public class SystemProperties {
     /**
      * 是否启用系统服务
      */
-    private boolean enable = false;
+    private boolean enable = true;
 }
