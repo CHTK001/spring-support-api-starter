@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso;
+package com.chua.starter.oauth.sso.support;
 
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
