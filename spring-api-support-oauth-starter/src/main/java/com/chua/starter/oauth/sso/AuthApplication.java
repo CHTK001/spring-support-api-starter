@@ -1,6 +1,5 @@
 package com.chua.starter.oauth.sso;
 
-import com.chua.starter.oauth.sso.properties.TenantDataSourceProperties;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -19,7 +18,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @since 2022/7/25 10:59
  */
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
-@EnableConfigurationProperties({TenantDataSourceProperties.class, AuthServerProperties.class})
+@EnableConfigurationProperties({AuthServerProperties.class})
 @MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service.mapper"})
 @ConditionalOnProperty(prefix = "plugin.oauth.server", name = "enable", havingValue = "true", matchIfMissing = false)
 @OpenAPIDefinition(
