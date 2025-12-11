@@ -30,7 +30,9 @@ import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.request.AuthGiteeRequest;
+import me.zhyd.oauth.request.AuthGithubRequest;
 import me.zhyd.oauth.request.AuthRequest;
+import me.zhyd.oauth.request.AuthWeChatOpenRequest;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,11 +211,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.getCallback());
-        switch (loginData.getLoginType()) {
-            case "gitee":
-                return new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
-        }
-        return null;
+        return switch (loginData.getLoginType()) {
+            case "gitee" -> new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
+            case "wechat" -> new SysSettingThirdPartyRequest<>(new AuthWeChatOpenRequest(authConfig, authStateCache), authStateCache, state);
+            case "github" -> new SysSettingThirdPartyRequest<>(new AuthGithubRequest(authConfig, authStateCache), authStateCache, state);
+            default -> null;
+        };
     }
 
     private void upgradeVersion(SysSetting version) {
