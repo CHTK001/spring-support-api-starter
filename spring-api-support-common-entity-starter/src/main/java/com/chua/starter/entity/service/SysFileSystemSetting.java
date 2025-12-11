@@ -154,6 +154,33 @@ public class SysFileSystemSetting extends SysBase implements Serializable {
     private Boolean sysFileSystemSettingPreviewEnabled;
 
     /**
+     * 是否启用 Webjar 支持
+     */
+    @ColumnDesc("是否启用Webjar支持")
+    @TableField(value = "sys_file_system_setting_webjar_enabled")
+    @ApiModelProperty(value = "是否启用Webjar支持")
+    @Schema(description = "是否启用Webjar支持")
+    private Boolean sysFileSystemSettingWebjarEnabled;
+
+    /**
+     * 是否启用远程文件支持
+     */
+    @ColumnDesc("是否启用远程文件支持")
+    @TableField(value = "sys_file_system_setting_remote_file_enabled")
+    @ApiModelProperty(value = "是否启用远程文件支持")
+    @Schema(description = "是否启用远程文件支持")
+    private Boolean sysFileSystemSettingRemoteFileEnabled;
+
+    /**
+     * 是否启用视图预览
+     */
+    @ColumnDesc("是否启用视图预览")
+    @TableField(value = "sys_file_system_setting_view_enabled")
+    @ApiModelProperty(value = "是否启用视图预览")
+    @Schema(description = "是否启用视图预览（Office文档转换等，参考ViewServletFilter）")
+    private Boolean sysFileSystemSettingViewEnabled;
+
+    /**
      * HTTP访问域名
      */
     @ColumnDesc("HTTP访问域名")
@@ -259,6 +286,9 @@ public class SysFileSystemSetting extends SysBase implements Serializable {
         setting.setSysFileSystemSettingHttpServerContext("/file");
         setting.setSysFileSystemSettingDownloadEnabled(true);
         setting.setSysFileSystemSettingPreviewEnabled(true);
+        setting.setSysFileSystemSettingWebjarEnabled(false);
+        setting.setSysFileSystemSettingRemoteFileEnabled(false);
+        setting.setSysFileSystemSettingViewEnabled(true);
         setting.setSysFileSystemSettingMaxFileSizeMb(1024);
         setting.setSysFileSystemSettingRetentionDays(0);
         setting.setSysFileSystemSettingEnabled(true);
