@@ -1,4 +1,4 @@
-package com.chua.starter.service.controller;
+package com.chua.starter.auth.controller;
 
 import com.chua.common.support.constant.Action;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -13,10 +13,10 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
-import com.chua.starter.service.SysLoginService;
-import com.chua.starter.service.pojo.user.RefreshToken;
-import com.chua.starter.service.result.LoginResult;
-import com.chua.starter.service.result.UserInfoVO;
+import com.chua.starter.auth.service.SysLoginService;
+import com.chua.starter.auth.pojo.RefreshToken;
+import com.chua.starter.auth.result.LoginResult;
+import com.chua.starter.auth.result.UserInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,12 +33,13 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 
 /**
- * 登录
+ * 登录控制器
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/9/12
  */
-@RestController("service:loginController")
+@RestController("auth:loginController")
 @Slf4j
 @Api(tags = "登录接口")
 @Tag(name = "登录接口")
@@ -47,16 +48,17 @@ import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_
 @RequiredArgsConstructor
 public class LoginController {
 
-    final SysLoginService sysLoginService;
+    private final SysLoginService sysLoginService;
 
     /**
-     * 登录
+     * 用户登录
      *
      * @param loginData     登录信息
      * @param request       请求
      * @param response      响应
+     * @param fingerprint   浏览器指纹
      * @param bindingResult 参数处理
-     * @return 结果
+     * @return 登录结果
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
@@ -79,6 +81,15 @@ public class LoginController {
         return sysLoginService.login(loginData, request, response, fingerprint);
     }
 
+    /**
+     * 刷新token
+     *
+     * @param refreshToken  刷新token
+     * @param request       请求
+     * @param response      响应
+     * @param bindingResult 参数处理
+     * @return 刷新结果
+     */
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
     @SysLog
@@ -94,6 +105,15 @@ public class LoginController {
         return sysLoginService.refresh(refreshToken, request, response);
     }
 
+    /**
+     * 用户登出
+     *
+     * @param uid       用户ID
+     * @param loginType 登录类型
+     * @param request   请求
+     * @param response  响应
+     * @return 登出结果
+     */
     @Operation(summary = "注销")
     @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
@@ -119,13 +139,11 @@ public class LoginController {
     /**
      * 获取当前登录用户信息
      *
-     * @return 获取当前登录用户信息
+     * @return 用户信息
      */
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
     public ReturnResult<UserInfoVO> getUserLoginInfo() {
         return ReturnResult.success(sysLoginService.getUserLoginInfo());
     }
-
-
 }

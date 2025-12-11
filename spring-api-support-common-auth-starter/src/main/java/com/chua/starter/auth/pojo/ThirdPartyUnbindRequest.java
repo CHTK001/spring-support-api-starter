@@ -1,11 +1,13 @@
-package com.chua.starter.service.pojo.user;
+package com.chua.starter.auth.pojo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 第三方解绑
+ * 第三方解绑请求
+ *
  * @author CH
+ * @version 1.0.0
  * @since 2024/9/6
  */
 @Data
