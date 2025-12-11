@@ -1,21 +1,22 @@
-package com.chua.starter.service;
+package com.chua.starter.auth.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.service.pojo.user.RefreshToken;
-import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
-import com.chua.starter.service.result.LoginResult;
-import com.chua.starter.service.result.UserInfoVO;
+import com.chua.starter.auth.pojo.RefreshToken;
+import com.chua.starter.auth.pojo.ThirdPartyUnbindRequest;
+import com.chua.starter.auth.result.LoginResult;
+import com.chua.starter.auth.result.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
 /**
- * 登录接口
+ * 登录服务接口
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/9/12
  */
 public interface SysLoginService {
@@ -26,7 +27,7 @@ public interface SysLoginService {
      * @param loginData   登录数据对象，包含用户名、密码等信息
      * @param request     HTTP请求对象，用于获取请求相关的数据
      * @param response    HTTP响应对象，用于设置响应数据
-     * @param fingerprint
+     * @param fingerprint 浏览器指纹
      * @return 结果对象，包含登录结果和可能的附加信息
      */
     ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);

@@ -1,20 +1,20 @@
-package com.chua.starter.service.impl.login;
+package com.chua.starter.auth.handler;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
-import com.chua.starter.service.impl.SysLoginServiceImpl;
-import com.chua.starter.service.result.LoginResult;
+import com.chua.starter.auth.service.impl.SysLoginServiceImpl;
+import com.chua.starter.auth.result.LoginResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * 登录处理器
+ * 登录处理器接口
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/12/2
  */
 public interface LoginHandler {
-
 
     /**
      * 执行用户登录操作
