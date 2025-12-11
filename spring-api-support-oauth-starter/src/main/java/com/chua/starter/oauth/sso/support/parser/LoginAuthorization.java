@@ -6,7 +6,7 @@ import com.chua.common.support.net.UserAgent;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.user.LoginResult;
-import com.chua.starter.oauth.sso.service.SysUserLogService;
+import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

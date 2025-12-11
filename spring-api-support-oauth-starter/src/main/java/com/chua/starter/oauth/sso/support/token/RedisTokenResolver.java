@@ -13,7 +13,7 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.service.SysUserLogService;
+import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.generation.TokenGeneration;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

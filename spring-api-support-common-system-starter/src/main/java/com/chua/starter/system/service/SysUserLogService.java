@@ -49,4 +49,11 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * @return 返回包含当前用户日志的分页数据对象
      */
     IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles);
+
+    /**
+     * 异步保存用户日志
+     *
+     * @param sysUserLog 用户日志对象
+     */
+    void asyncSaveUserLog(SysUserLog sysUserLog);
 }
