@@ -9,9 +9,9 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-common-auth-starter</artifactId>
-    <name>Spring API Support Common Auth Starter</name>
-    <description>统一认证授权模块 - 提供登录、注册、权限验证等功能</description>
+    <artifactId>spring-api-support-common-oauth-starter</artifactId>
+    <name>Spring API Support Common OAuth Starter</name>
+    <description>统一OAuth认证模块 - 提供登录、注册、Token管理等功能</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
