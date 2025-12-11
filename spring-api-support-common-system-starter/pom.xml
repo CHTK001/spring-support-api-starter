@@ -31,6 +31,12 @@
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
 
+        <!-- OAuth认证模块 - 提供登录服务 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-oauth-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
