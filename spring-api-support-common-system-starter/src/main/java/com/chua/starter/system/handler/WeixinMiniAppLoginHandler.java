@@ -98,6 +98,9 @@ public class WeixinMiniAppLoginHandler implements LoginHandler {
             AuthClientExecute clientExecute = AuthClientExecute.getInstance();
             long startTime = System.currentTimeMillis();
 
+            // 获取租户ID
+            String tenantId = loginData.getTenantId();
+
             LoginAuthResult accessToken = clientExecute.getAccessToken(
                     phoneNumber,
                     openid,
@@ -109,6 +112,7 @@ public class WeixinMiniAppLoginHandler implements LoginHandler {
                             .put("openid", openid)
                             .put("sessionKey", sessionKey)
                             .put("thirdPartyType", THIRD_PARTY_TYPE)
+                            .put("tenantId", tenantId)
                             .build()
             );
 
