@@ -74,6 +74,12 @@
             <artifactId>spring-support-socketio-starter</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Redis支持 - 必需（SimpleSysUserService需要） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
