@@ -362,7 +362,6 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         ServiceProvider<ProtocolServer> serviceProvider = ServiceProvider.of(ProtocolServer.class);
         ServerSetting.ServerSettingBuilder builder = ServerSetting.builder()
                 .serverId(String.valueOf(server.getSystemServerId()))
-                .serverName(server.getSystemServerName())
                 .host(server.getSystemServerHost())
                 .port(server.getSystemServerPort());
         if (null != server.getSystemServerMaxConnections()) {
