@@ -1,4 +1,4 @@
-package com.chua.starter.service.impl;
+package com.chua.starter.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.function.Joiner;
@@ -13,24 +13,18 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.service.SysLoginService;
-import com.chua.starter.service.SysSettingService;
-import com.chua.starter.service.impl.login.LoginHandler;
-import com.chua.starter.service.mapper.SysUserThirdPartyMapper;
-import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
+import com.chua.starter.auth.service.SysLoginService;
+import com.chua.starter.auth.handler.LoginHandler;
+import com.chua.starter.auth.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.entity.system.SysUserThirdParty;
-import com.chua.starter.service.pojo.user.RefreshToken;
-import com.chua.starter.service.pojo.user.ThirdPartyUnbindRequest;
-import com.chua.starter.service.result.LoginResult;
-import com.chua.starter.service.result.UserInfoVO;
+import com.chua.starter.auth.pojo.RefreshToken;
+import com.chua.starter.auth.pojo.ThirdPartyUnbindRequest;
+import com.chua.starter.auth.result.LoginResult;
+import com.chua.starter.auth.result.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.cache.AuthStateCache;
-import me.zhyd.oauth.request.AuthRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -48,9 +42,10 @@ import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
- * 登录接口实现
+ * 登录服务实现
  *
  * @author CH
+ * @version 1.0.0
  * @since 2024/9/12
  */
 @Slf4j
@@ -59,14 +54,12 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 public class SysLoginServiceImpl implements SysLoginService {
 
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
-    final AuthClientProperties authProperties;
-    final TransactionTemplate transactionTemplate;
-    final RestTemplate restTemplate;
-    final SysUserThirdPartyMapper sysUserThirdPartyMapper;
-    final RedisTemplate redisTemplate;
-    @Lazy
-    @Autowired
-    private SysSettingService sysSettingService;
+
+    private final AuthClientProperties authProperties;
+    private final TransactionTemplate transactionTemplate;
+    private final RestTemplate restTemplate;
+    private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
+    private final RedisTemplate redisTemplate;
 
     @Override
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
@@ -75,6 +68,13 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .login(this, loginData, request, response, fingerprint);
     }
 
+    /**
+     * 检查验证码
+     *
+     * @param loginData 登录数据
+     * @param request   请求
+     * @return 检查结果
+     */
     @SuppressWarnings("ALL")
     public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
@@ -113,6 +113,18 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    public UserInfoVO getUserLoginInfo(String token) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null || StringUtils.isBlank(token)) {
+            return new UserInfoVO();
+        }
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
+        return getUserLoginInfo();
+    }
+
+    @Override
     public ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
@@ -131,16 +143,8 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
-        if (null == authRequest) {
-            return ReturnResult.fail("第三方登录暂不支持");
-        }
-        long startTime = System.currentTimeMillis();
-        AuthRequest requestRequest = authRequest.getRequest();
-        String authorize = requestRequest.authorize(authRequest.getState());
-
-        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
-        return ReturnResult.ok(authorize);
+        log.warn("第三方登录功能需要实现 SysSettingService.getAuthRequest 方法");
+        return ReturnResult.fail("第三方登录暂不支持，请在 service-starter 中实现");
     }
 
     @Override
@@ -163,23 +167,5 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.ok();
         }
         return ReturnResult.fail("解绑失败");
-    }
-
-    /**
-     * 获取用户信息
-     *
-     * @param token token
-     * @return UserInfoVO
-     */
-    @Override
-    public UserInfoVO getUserLoginInfo(String token) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null || StringUtils.isBlank(token)) {
-            return new UserInfoVO();
-        }
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-        attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
-        return getUserLoginInfo();
     }
 }

@@ -39,7 +39,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-entity-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -53,7 +52,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-configuration-starter</artifactId>
-            <version>4.0.0</version>
         </dependency>
 
         <dependency>

@@ -18,61 +18,68 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
-        </dependency>
-
+        <!-- 验证API - 配置类需要 -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>3.1.1</version>
         </dependency>
 
+        <!-- 基础公共模块 - 必需 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-common-starter</artifactId>
+        </dependency>
+
+        <!-- 以下依赖改为 provided，由使用方决定是否引入 -->
+        
+        <!-- Socket.IO 支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-socketio-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-
+        <!-- MyBatis 支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-mybatis-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <!-- 数据源支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-datasource-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <!-- 邮件支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <!-- OAuth客户端支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-common-starter</artifactId>
-        </dependency>
-
+        <!-- 深度学习支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
+        <!-- Redis支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-redis-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
