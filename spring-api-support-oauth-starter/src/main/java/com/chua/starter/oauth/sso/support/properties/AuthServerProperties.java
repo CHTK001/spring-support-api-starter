@@ -58,6 +58,11 @@ public class AuthServerProperties {
     public static final String PRE = "plugin.oauth.server";
 
     /**
+     * 是否启用OAuth认证服务
+     */
+    private boolean enable = false;
+
+    /**
      * 签名验证
      */
     private boolean signVerify = true;
