@@ -1,4 +1,4 @@
-package com.chua.starter.auth.result;
+package com.chua.starter.system.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

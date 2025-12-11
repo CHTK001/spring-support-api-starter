@@ -1,4 +1,4 @@
-package com.chua.starter.auth.mapper;
+package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.system.SysUserThirdParty;
