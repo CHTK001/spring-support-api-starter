@@ -1229,6 +1229,231 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             return false;
         }
     }
+
+    // ==================== 索引管理 ====================
+
+    @Override
+    public List<Map<String, Object>> getTableIndexes(Integer settingId, String tableName) {
+        try {
+            log.info("获取表索引列表: settingId={}, tableName={}", settingId, tableName);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return Collections.emptyList();
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return Collections.emptyList();
+            }
+
+            List<Map<String, Object>> indexes = structureMetadata.getIndexes(tableName);
+            log.debug("获取到 {} 个索引", indexes.size());
+            return indexes;
+        } catch (Exception e) {
+            log.error("获取表索引列表失败", e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Boolean createIndex(Integer settingId, StructureMetadata.CreateIndexRequest req) {
+        try {
+            log.info("创建索引: settingId={}, request={}", settingId, req);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return false;
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return false;
+            }
+
+            boolean success = structureMetadata.createIndex(req);
+            log.info("创建索引{}: {}", success ? "成功" : "失败", req.getIndexName());
+            return success;
+        } catch (Exception e) {
+            log.error("创建索引失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean dropIndex(Integer settingId, String tableName, String indexName) {
+        try {
+            log.info("删除索引: settingId={}, tableName={}, indexName={}", settingId, tableName, indexName);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return false;
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return false;
+            }
+
+            boolean success = structureMetadata.dropIndex(tableName, indexName);
+            log.info("删除索引{}: {}", success ? "成功" : "失败", indexName);
+            return success;
+        } catch (Exception e) {
+            log.error("删除索引失败", e);
+            return false;
+        }
+    }
+
+    // ==================== 分区管理 ====================
+
+    @Override
+    public List<Map<String, Object>> getTablePartitions(Integer settingId, String tableName) {
+        try {
+            log.info("获取表分区列表: settingId={}, tableName={}", settingId, tableName);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return Collections.emptyList();
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return Collections.emptyList();
+            }
+
+            List<Map<String, Object>> partitions = structureMetadata.getPartitions(tableName);
+            log.debug("获取到 {} 个分区", partitions.size());
+            return partitions;
+        } catch (Exception e) {
+            log.error("获取表分区列表失败", e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Boolean createPartition(Integer settingId, StructureMetadata.CreatePartitionRequest req) {
+        try {
+            log.info("创建分区: settingId={}, request={}", settingId, req);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return false;
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return false;
+            }
+
+            boolean success = structureMetadata.createPartition(req);
+            log.info("创建分区{}: {}", success ? "成功" : "失败", req.getPartitionName());
+            return success;
+        } catch (Exception e) {
+            log.error("创建分区失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean dropPartition(Integer settingId, String tableName, String partitionName) {
+        try {
+            log.info("删除分区: settingId={}, tableName={}, partitionName={}", settingId, tableName, partitionName);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                return false;
+            }
+
+            DataSourceOptions options = buildOptions(setting);
+            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
+                    .getNewExtension(setting.getSystemDataSettingType(), options);
+
+            if (structureMetadata == null) {
+                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
+                return false;
+            }
+
+            boolean success = structureMetadata.dropPartition(tableName, partitionName);
+            log.info("删除分区{}: {}", success ? "成功" : "失败", partitionName);
+            return success;
+        } catch (Exception e) {
+            log.error("删除分区失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public Map<String, Boolean> getDatabaseCapabilities(Integer settingId) {
+        Map<String, Boolean> capabilities = new HashMap<>();
+        try {
+            log.info("检测数据库能力: settingId={}", settingId);
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting == null) {
+                log.warn("数据源设置不存在: settingId={}", settingId);
+                capabilities.put("supportsIndexes", false);
+                capabilities.put("supportsPartitions", false);
+                return capabilities;
+            }
+
+            String dbType = setting.getSystemDataSettingType();
+            log.debug("数据库类型: {}", dbType);
+
+            // 根据数据库类型判断能力
+            boolean supportsIndexes = true; // 大部分数据库都支持索引
+            boolean supportsPartitions = false;
+
+            if (dbType != null) {
+                String type = dbType.toLowerCase();
+                // MySQL 5.7+ 支持分区
+                if (type.contains("mysql")) {
+                    supportsPartitions = true;
+                }
+                // PostgreSQL 10+ 支持分区
+                else if (type.contains("postgresql") || type.contains("postgres")) {
+                    supportsPartitions = true;
+                }
+                // Oracle 支持分区
+                else if (type.contains("oracle")) {
+                    supportsPartitions = true;
+                }
+                // SQL Server 2016+ 支持分区
+                else if (type.contains("sqlserver") || type.contains("mssql")) {
+                    supportsPartitions = true;
+                }
+            }
+
+            capabilities.put("supportsIndexes", supportsIndexes);
+            capabilities.put("supportsPartitions", supportsPartitions);
+            log.info("数据库能力检测结果: supportsIndexes={}, supportsPartitions={}", 
+                    supportsIndexes, supportsPartitions);
+            return capabilities;
+        } catch (Exception e) {
+            log.error("检测数据库能力失败", e);
+            capabilities.put("supportsIndexes", false);
+            capabilities.put("supportsPartitions", false);
+            return capabilities;
+        }
+    }
 }
 
 
