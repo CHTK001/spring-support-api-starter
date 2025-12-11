@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @LoginType("WECHAT")
 @Tag(name = "微信小程序登录", description = "基于微信小程序OpenID的用户登录验证")
-public class WeixinMiniAppLoginService extends UserLoginService {
+public class WeixinMiniLoginService extends UserLoginService {
 
     /**
      * OpenID映射缓存过期时间（分钟）

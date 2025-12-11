@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_ERROR;
@@ -44,7 +43,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  */
 @Slf4j
 @Spi("WECHAT")
-public class WeixinMiniAppLoginHandler implements LoginHandler {
+public class WeixinMiniLoginHandler implements LoginHandler {
 
     /**
      * 第三方类型标识
