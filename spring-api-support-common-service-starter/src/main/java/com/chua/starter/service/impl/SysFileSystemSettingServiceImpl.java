@@ -8,6 +8,7 @@ import com.chua.common.support.oss.impl.FileSystemFileStorage;
 import com.chua.common.support.oss.setting.BucketSetting;
 import com.chua.common.support.protocol.ServerSetting;
 import com.chua.common.support.protocol.filter.FileStorageServletFilter;
+import com.chua.common.support.protocol.filter.ViewServletFilter;
 import com.chua.common.support.protocol.filter.storage.FileStorageFactory;
 import com.chua.common.support.protocol.server.ProtocolServer;
 import com.chua.common.support.spi.ServiceProvider;
@@ -215,8 +216,17 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             String contextPath = StringUtils.defaultString(setting.getSysFileSystemSettingHttpServerContext(), "/file");
             String storagePath = setting.getSysFileSystemSettingStorageRootPath();
 
+            // 获取开关配置
+            boolean downloadEnabled = Boolean.TRUE.equals(setting.getSysFileSystemSettingDownloadEnabled());
+            boolean previewEnabled = Boolean.TRUE.equals(setting.getSysFileSystemSettingPreviewEnabled());
+            boolean webjarEnabled = Boolean.TRUE.equals(setting.getSysFileSystemSettingWebjarEnabled());
+            boolean remoteFileEnabled = Boolean.TRUE.equals(setting.getSysFileSystemSettingRemoteFileEnabled());
+            boolean viewEnabled = Boolean.TRUE.equals(setting.getSysFileSystemSettingViewEnabled());
+
             log.debug("创建文件服务器实例: host={}, port={}, context={}, storage={}",
                     host, port, contextPath, storagePath);
+            log.debug("文件服务器开关配置: download={}, preview={}, webjar={}, remoteFile={}, view={}",
+                    downloadEnabled, previewEnabled, webjarEnabled, remoteFileEnabled, viewEnabled);
 
             // 创建服务器设置
             ServerSetting serverSetting = ServerSetting.builder()
@@ -236,10 +246,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
             // 创建FileStorageSetting配置
             FileStorageFactory.FileStorageSetting fileStorageSetting = FileStorageFactory.FileStorageSetting.builder()
-                    .openDownload(Boolean.TRUE.equals(setting.getSysFileSystemSettingDownloadEnabled()))
-                    .openPreview(Boolean.TRUE.equals(setting.getSysFileSystemSettingPreviewEnabled()))
-                    .openWebjars(false)
-                    .openRemoteFile(false)
+                    .openDownload(downloadEnabled)
+                    .openPreview(previewEnabled)
+                    .openWebjars(webjarEnabled)
+                    .openRemoteFile(remoteFileEnabled)
                     .build();
 
             // 创建FileStorageServletFilter
@@ -253,8 +263,15 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             FileStorage localStorage = new FileSystemFileStorage(bucketSetting);
             fileStorageFilter.addFileStorage(contextPath, localStorage);
 
-            // 添加过滤器到服务器
+            // 添加文件存储过滤器
             serverInstance.addFilter(fileStorageFilter);
+
+            // 如果启用视图预览，添加ViewServletFilter
+            if (viewEnabled) {
+                ViewServletFilter viewServletFilter = new ViewServletFilter(remoteFileEnabled);
+                serverInstance.addFilter(viewServletFilter);
+                log.debug("已添加视图预览过滤器(ViewServletFilter)");
+            }
 
             return serverInstance;
 
