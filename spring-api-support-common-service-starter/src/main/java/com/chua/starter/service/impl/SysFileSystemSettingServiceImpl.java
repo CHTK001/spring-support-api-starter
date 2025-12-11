@@ -221,7 +221,6 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             // 创建服务器设置
             ServerSetting serverSetting = ServerSetting.builder()
                     .serverId("file_system_server")
-                    .serverName("文件系统HTTP服务器")
                     .host(host)
                     .port(port)
                     .build();

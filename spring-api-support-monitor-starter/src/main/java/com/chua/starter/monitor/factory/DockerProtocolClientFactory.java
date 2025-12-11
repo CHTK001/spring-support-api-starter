@@ -230,11 +230,14 @@ public class DockerProtocolClientFactory {
         ClientSetting clientSetting = ClientSetting.builder()
                 .url(dockerHost)
                 .sslEnabled(tlsEnabled)
-                .sslCertPath(setting.getMonitorSysGenServerSettingDockerCertPath())
                 .username(setting.getMonitorSysGenServerSettingDockerUsername())
                 .password(setting.getMonitorSysGenServerSettingDockerPassword())
                 .connectTimeoutMillis(ObjectUtils.defaultIfNull(setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000))
                 .build();
+        // 设置 SSL 证书路径
+        if (tlsEnabled && setting.getMonitorSysGenServerSettingDockerCertPath() != null) {
+            clientSetting.getSslConfig().setSslPath(setting.getMonitorSysGenServerSettingDockerCertPath());
+        }
         log.debug("创建TCP Docker客户端 - host: {}", dockerHost);
         return DockerProtocolClient.of(clientSetting);
     }

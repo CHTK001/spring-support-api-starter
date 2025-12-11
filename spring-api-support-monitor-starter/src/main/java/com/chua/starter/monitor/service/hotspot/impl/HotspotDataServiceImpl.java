@@ -3,10 +3,13 @@ package com.chua.starter.monitor.service.hotspot.impl;
 import com.chua.common.support.json.Json;
 import com.chua.starter.monitor.pojo.HotspotReportData;
 import com.chua.starter.monitor.service.hotspot.HotspotDataService;
+import com.chua.sync.support.client.SyncClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,6 +27,17 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class HotspotDataServiceImpl implements HotspotDataService {
+
+    /**
+     * Hotspot 事件主题前缀
+     */
+    private static final String HOTSPOT_TOPIC_PREFIX = "hotspot/";
+
+    /**
+     * 同步客户端（可选注入）
+     */
+    @Autowired(required = false)
+    private SyncClient syncClient;
 
     /**
      * 链路追踪数据缓存（按应用名称分组）
@@ -157,6 +171,9 @@ public class HotspotDataServiceImpl implements HotspotDataService {
 
         list.add(traceData);
         log.debug("链路追踪数据已缓存: appName={}, linkId={}", appName, traceData.getLinkId());
+        
+        // 推送事件
+        publishEvent(appName, "trace", traceData);
         return true;
     }
 
@@ -175,6 +192,9 @@ public class HotspotDataServiceImpl implements HotspotDataService {
 
         list.add(sqlData);
         log.debug("SQL 监控数据已缓存: appName={}, database={}", appName, sqlData.getDatabase());
+        
+        // 推送事件
+        publishEvent(appName, "sql", sqlData);
         return true;
     }
 
@@ -193,6 +213,9 @@ public class HotspotDataServiceImpl implements HotspotDataService {
 
         list.add(logData);
         log.debug("日志数据已缓存: appName={}, level={}", appName, logData.getLevel());
+        
+        // 推送事件
+        publishEvent(appName, "log", logData);
         return true;
     }
 
@@ -211,6 +234,9 @@ public class HotspotDataServiceImpl implements HotspotDataService {
 
         list.add(exceptionData);
         log.warn("异常数据已缓存: appName={}, type={}", appName, exceptionData.getExceptionType());
+        
+        // 推送事件
+        publishEvent(appName, "exception", exceptionData);
         return true;
     }
 
@@ -229,6 +255,9 @@ public class HotspotDataServiceImpl implements HotspotDataService {
 
         list.add(serverData);
         log.debug("服务实例数据已缓存: appName={}, serviceName={}", appName, serverData.getName());
+        
+        // 推送事件
+        publishEvent(appName, "server", serverData);
         return true;
     }
 
@@ -303,5 +332,35 @@ public class HotspotDataServiceImpl implements HotspotDataService {
         exceptionDataCache.remove(appName);
         serverDataCache.remove(appName);
         log.info("已清除应用 {} 的缓存数据", appName);
+    }
+
+    // ==================== 事件推送 ====================
+
+    /**
+     * 推送 Hotspot 事件到 SyncClient
+     *
+     * @param appName   应用名称
+     * @param eventType 事件类型（trace/sql/log/exception/server）
+     * @param data      事件数据
+     */
+    private void publishEvent(String appName, String eventType, Object data) {
+        if (syncClient == null || !syncClient.isConnected()) {
+            log.debug("SyncClient 未连接，跳过事件推送: appName={}, eventType={}", appName, eventType);
+            return;
+        }
+
+        try {
+            String topic = HOTSPOT_TOPIC_PREFIX + eventType;
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("appName", appName);
+            eventData.put("eventType", eventType);
+            eventData.put("data", data);
+            eventData.put("timestamp", System.currentTimeMillis());
+
+            syncClient.publish(topic, eventData);
+            log.debug("Hotspot 事件已推送: topic={}, appName={}", topic, appName);
+        } catch (Exception e) {
+            log.error("推送 Hotspot 事件失败: appName={}, eventType={}", appName, eventType, e);
+        }
     }
 }
