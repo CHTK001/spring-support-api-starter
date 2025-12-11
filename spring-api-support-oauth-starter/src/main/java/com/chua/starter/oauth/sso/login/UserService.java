@@ -20,6 +20,7 @@ import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.service.mapper.SysUserMapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.chua.common.support.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
  */
 @Slf4j
 @Service
+@Spi("WEB")
 @LoginType("WEB")
 @Tag(name = "用户登录服务", description = "标准Web用户名密码登录验证")
 public class UserService implements UserInfoService, Constant {

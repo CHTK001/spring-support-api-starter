@@ -5,6 +5,7 @@ import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.mapper.SysUserMapper;
+import com.chua.common.support.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
+@Spi("THIRD_PARTY")
 @LoginType("THIRD_PARTY")
 @Tag(name = "第三方登录服务", description = "基于第三方系统用户标识的登录验证")
 public class ThirdPartyUserService extends UserService implements UserInfoService, Constant {
