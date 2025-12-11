@@ -331,6 +331,89 @@ public interface SystemDataConsoleService {
      * @return 是否成功
      */
     Boolean insertTableRow(Integer settingId, InsertRowRequest req);
+
+    // ==================== 索引管理 ====================
+
+    /**
+     * 获取表索引列表
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @return 索引列表
+     * @author CH
+     * @since 2024-12-10
+     */
+    List<Map<String, Object>> getTableIndexes(Integer settingId, String tableName);
+
+    /**
+     * 创建索引
+     *
+     * @param settingId 设置ID
+     * @param req       创建索引请求
+     * @return 是否成功
+     * @author CH
+     * @since 2024-12-10
+     */
+    Boolean createIndex(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.CreateIndexRequest req);
+
+    /**
+     * 删除索引
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @param indexName 索引名
+     * @return 是否成功
+     * @author CH
+     * @since 2024-12-10
+     */
+    Boolean dropIndex(Integer settingId, String tableName, String indexName);
+
+    // ==================== 分区管理 ====================
+
+    /**
+     * 获取表分区列表
+     *
+     * @param settingId 设置ID
+     * @param tableName 表名
+     * @return 分区列表
+     * @author CH
+     * @since 2024-12-10
+     */
+    List<Map<String, Object>> getTablePartitions(Integer settingId, String tableName);
+
+    /**
+     * 创建分区
+     *
+     * @param settingId 设置ID
+     * @param req       创建分区请求
+     * @return 是否成功
+     * @author CH
+     * @since 2024-12-10
+     */
+    Boolean createPartition(Integer settingId, com.chua.starter.monitor.spi.metadata.StructureMetadata.CreatePartitionRequest req);
+
+    /**
+     * 删除分区
+     *
+     * @param settingId     设置ID
+     * @param tableName     表名
+     * @param partitionName 分区名
+     * @return 是否成功
+     * @author CH
+     * @since 2024-12-10
+     */
+    Boolean dropPartition(Integer settingId, String tableName, String partitionName);
+
+    /**
+     * 检测数据库能力
+     * 返回数据库是否支持索引和分区功能
+     *
+     * @param settingId 设置ID
+     * @return 数据库能力信息，包含 supportsIndexes 和 supportsPartitions
+     * @author CH
+     * @since 2024-12-10
+     */
+    Map<String, Boolean> getDatabaseCapabilities(Integer settingId);
 }
 
 

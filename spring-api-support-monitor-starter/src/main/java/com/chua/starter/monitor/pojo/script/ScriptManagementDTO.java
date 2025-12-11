@@ -1,9 +1,8 @@
 package com.chua.starter.monitor.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.chua.starter.monitor.entity.MonitorSysGenScript;
+import com.chua.starter.mybatis.entity.SearchPageQuery;
+import lombok.*;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -256,11 +255,12 @@ public class ScriptManagementDTO {
     /**
      * 脚本查询条件DTO
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ScriptQueryDTO {
+    public static class ScriptQueryDTO extends SearchPageQuery<MonitorSysGenScript> {
         
         /**
          * 脚本名称(模糊查询)
@@ -301,26 +301,6 @@ public class ScriptManagementDTO {
          * 创建时间结束
          */
         private LocalDateTime createTimeEnd;
-
-        /**
-         * 页码
-         */
-        private Integer pageNum;
-
-        /**
-         * 页大小
-         */
-        private Integer pageSize;
-
-        /**
-         * 排序字段
-         */
-        private String sortBy;
-
-        /**
-         * 排序方向
-         */
-        private String sortOrder;
     }
 
     /**

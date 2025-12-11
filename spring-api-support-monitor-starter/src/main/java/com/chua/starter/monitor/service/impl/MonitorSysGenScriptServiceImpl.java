@@ -57,7 +57,7 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
     @Override
     public IPage<MonitorSysGenScript> getScriptPage(ScriptManagementDTO.ScriptQueryDTO queryDTO) {
         // 构建查询条件
-        LambdaQueryWrapper<MonitorSysGenScript> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<MonitorSysGenScript> queryWrapper = queryDTO.lambda();
 
         if (StringUtils.hasText(queryDTO.getScriptName())) {
             queryWrapper.like(MonitorSysGenScript::getMonitorSysGenScriptName, queryDTO.getScriptName());
@@ -71,23 +71,8 @@ public class MonitorSysGenScriptServiceImpl implements MonitorSysGenScriptServic
         if (queryDTO.getScriptStatus() != null) {
             queryWrapper.eq(MonitorSysGenScript::getMonitorSysGenScriptStatus, queryDTO.getScriptStatus());
         }
-        // 注释掉暂时不支持的字段查询
-        // if (StringUtils.hasText(queryDTO.getScriptTags())) {
-        // queryWrapper.like(MonitorSysGenScript::getMonitorSysGenScriptTags,
-        // queryDTO.getScriptTags());
-        // }
-        // if (StringUtils.hasText(queryDTO.getScriptAuthor())) {
-        // queryWrapper.like(MonitorSysGenScript::getMonitorSysGenScriptAuthor,
-        // queryDTO.getScriptAuthor());
-        // }
-
-        // 排序
-        queryWrapper.orderByDesc(MonitorSysGenScript::getMonitorSysGenScriptLastExecuteTime);
-        queryWrapper.orderByDesc(MonitorSysGenScript::getCreateTime);
-
         // 分页查询
-        Page<MonitorSysGenScript> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        return scriptMapper.selectPage(page, queryWrapper);
+        return scriptMapper.selectPage(queryDTO.createPage(), queryWrapper);
     }
 
     @Override
