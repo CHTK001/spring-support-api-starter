@@ -37,6 +37,13 @@
             <artifactId>spring-support-oauth-client-starter</artifactId>
         </dependency>
 
+        <!-- 动态数据源 - 用于多租户切换 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-datasource-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Redis支持 - 用于缓存和会话管理 -->
         <dependency>
             <groupId>com.chua</groupId>
