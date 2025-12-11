@@ -3,6 +3,4 @@
 # ===========================================
 plugin:
   oauth:
-    server:
-      # 启用OAuth认证服务
-      enable: true
+    enable: false

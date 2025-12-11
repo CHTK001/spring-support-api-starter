@@ -1,23 +1,13 @@
 package com.chua.starter.oauth.sso.support.parser;
 
-import com.chua.common.support.crypto.digest.HMac;
-import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.HexUtils;
-import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.oauth.client.support.entity.AppKeySecret;
-import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.service.SysAppKeyService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
-import com.chua.starter.oauth.sso.support.token.TokenResolver;
+import com.chua.starter.oauth.sso.support.parser.handler.AuthorizationHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * 鉴权信息
@@ -52,10 +42,53 @@ public final class OauthAuthorization implements Authorization {
 
     @Override
     public ReturnResult<String> authentication() {
-        if(StringUtils.isNotBlank(userCode)) {
-            return parseAuthInformationUserCode();
+        log.info("开始认证: subProtocol={}, hasToken={}, hasUserCode={}", 
+                subProtocol, StringUtils.isNotBlank(token), StringUtils.isNotBlank(userCode));
+        
+        // 使用SPI机制选择认证处理器
+        AuthorizationHandler handler = selectAuthorizationHandler();
+        if (handler == null) {
+            log.error("找不到合适的认证处理器: subProtocol={}", subProtocol);
+            return ReturnResult.error("不支持的认证方式");
         }
-        return parseAuthInformation();
+        
+        log.info("使用认证处理器: {}", handler.getClass().getSimpleName());
+        return handler.authenticate(authInformation, token, cookie, userCode);
+    }
+    
+    /**
+     * 选择认证处理器
+     * <p>
+     * 优先级：
+     * 1. 根据subProtocol精确匹配
+     * 2. 根据参数类型自动选择（userCode→AppKey, token→JWT）
+     * 3. 使用默认处理器
+     * </p>
+     *
+     * @return 认证处理器
+     */
+    private AuthorizationHandler selectAuthorizationHandler() {
+        // 1. 如果指定了subProtocol，尝试精确匹配
+        if (StringUtils.isNotBlank(subProtocol)) {
+            AuthorizationHandler handler = ServiceProvider.of(AuthorizationHandler.class)
+                    .getExtension(subProtocol);
+            if (handler != null) {
+                log.debug("根据subProtocol选择处理器: {}", subProtocol);
+                return handler;
+            }
+        }
+        
+        // 2. 根据参数类型自动选择
+        for (AuthorizationHandler handler : ServiceProvider.of(AuthorizationHandler.class).getExtensions()) {
+            if (handler.supports(subProtocol, token, userCode)) {
+                log.debug("根据参数类型选择处理器: {}", handler.getClass().getSimpleName());
+                return handler;
+            }
+        }
+        
+        // 3. 使用默认处理器
+        log.debug("使用默认认证处理器");
+        return ServiceProvider.of(AuthorizationHandler.class).getNewExtension();
     }
 
     /**
