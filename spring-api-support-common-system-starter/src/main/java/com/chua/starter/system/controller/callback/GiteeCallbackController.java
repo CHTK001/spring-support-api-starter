@@ -47,8 +47,8 @@ import java.util.Map;
  */
 @Controller
 @Slf4j
-@Api(tags = "涓夋柟登录回调(gitee)")
-@Tag(name = "涓夋柟登录回调(gitee)")
+@Api(tags = "第三方登录回调(Gitee)")
+@Tag(name = "第三方登录回调(Gitee)")
 @RequestMapping("/v2/third/login/gitee")
 @RequiredArgsConstructor
 public class GiteeCallbackController {
@@ -61,9 +61,14 @@ public class GiteeCallbackController {
     final AuthClientProperties authProperties;
 
     /**
-     * 校验鐮?
+     * Gitee账号绑定回调
+     * <p>用户授权后回调此接口，将Gitee账号与系统用户绑定</p>
      *
-     * @param request 请求
+     * @param authCallback Gitee回调参数
+     * @param attributes   重定向属性
+     * @param request      请求
+     * @param response     响应
+     * @return 重定向视图
      */
     @Ignore
     @GetMapping("binder")
@@ -73,12 +78,12 @@ public class GiteeCallbackController {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         if(null == userId) {
-            attributes.addFlashAttribute("msg", "璇烽噸璇?閲嶆柊登录重试");
+            attributes.addFlashAttribute("msg", "请重新登录重试");
             return view;
         }
         long count = sysUserThirdPartyService.count(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
         if(count > 0) {
-            attributes.addFlashAttribute("msg", "宸茬粦瀹? 鏃犻』重复绑定");
+            attributes.addFlashAttribute("msg", "已绑定，无需重复绑定");
             return view;
         }
         String info = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_info");
@@ -118,9 +123,14 @@ public class GiteeCallbackController {
         return view;
     }
     /**
-     * 校验鐮?
+     * Gitee登录回调
+     * <p>用户授权后回调此接口进行登录，需要先绑定账号</p>
      *
-     * @param request 请求
+     * @param authCallback Gitee回调参数
+     * @param attributes   重定向属性
+     * @param request      请求
+     * @param response     响应
+     * @return 重定向视图
      */
     @Ignore
     @GetMapping("callback")
