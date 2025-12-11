@@ -145,7 +145,7 @@ public class RedisTokenResolver implements TokenResolver {
      * 获取在线模式（用户配置 > 全局配置）
      */
     private AuthServerProperties.Online getOnlineMode(UserResult userResult) {
-        String userOnlineMode = userResult.getOnlineMode();
+        String userOnlineMode = userResult.getOption("onlineMode");
         if (StringUtils.isNotBlank(userOnlineMode)) {
             try {
                 return AuthServerProperties.Online.valueOf(userOnlineMode.toUpperCase());
@@ -159,8 +159,15 @@ public class RedisTokenResolver implements TokenResolver {
      * 获取最大在线数（用户配置 > 全局配置）
      */
     private int getMaxOnlineCount(UserResult userResult) {
-        if (userResult.getMaxOnlineCount() != null && userResult.getMaxOnlineCount() > 0) {
-            return userResult.getMaxOnlineCount();
+        String maxOnlineCount = userResult.getOption("maxOnlineCount");
+        if (StringUtils.isNotBlank(maxOnlineCount)) {
+            try {
+                int count = Integer.parseInt(maxOnlineCount);
+                if (count > 0) {
+                    return count;
+                }
+            } catch (Exception ignored) {
+            }
         }
         return authServerProperties.getMaxOnlineCount();
     }
@@ -215,8 +222,15 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateExpireTime(UserResult userResult) {
         // 用户级配置优先
-        if (userResult.getTokenExpire() != null && userResult.getTokenExpire() > 0) {
-            return userResult.getTokenExpire();
+        String tokenExpire = userResult.getOption("tokenExpire");
+        if (StringUtils.isNotBlank(tokenExpire)) {
+            try {
+                long expire = Long.parseLong(tokenExpire);
+                if (expire > 0) {
+                    return expire;
+                }
+            } catch (Exception ignored) {
+            }
         }
         // 兼容旧字段
         if (userResult.getExpireTime() != null && userResult.getExpireTime() > 0) {
@@ -235,8 +249,15 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateRefreshExpireTime(UserResult userResult) {
         // 用户级配置优先
-        if (userResult.getRefreshTokenExpire() != null && userResult.getRefreshTokenExpire() > 0) {
-            return userResult.getRefreshTokenExpire();
+        String refreshTokenExpire = userResult.getOption("refreshTokenExpire");
+        if (StringUtils.isNotBlank(refreshTokenExpire)) {
+            try {
+                long expire = Long.parseLong(refreshTokenExpire);
+                if (expire > 0) {
+                    return expire;
+                }
+            } catch (Exception ignored) {
+            }
         }
         // 全局配置
         return authServerProperties.getRefreshExpire();

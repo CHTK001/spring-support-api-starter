@@ -3,7 +3,7 @@ package com.chua.starter.oauth.sso.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.login.UserService;
+import com.chua.starter.system.login.UserLoginService;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.service.mapper.SysUserMapper;
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @LoginType("MINI_APP")
 @Tag(name = "微信小程序登录", description = "基于微信小程序OpenID的用户登录验证")
-public class WeixinMiniAppService extends UserService {
+public class WeixinMiniAppService extends UserLoginService {
 
     /**
      * OpenID映射缓存过期时间（分钟）
