@@ -2,21 +2,18 @@ package com.chua.starter.oauth.sso.support.parser.handler;
 
 import com.chua.common.support.annotations.Spi;
 import com.chua.common.support.crypto.digest.HMac;
-import com.chua.common.support.datasource.JdbcEngine;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.oauth.client.support.entity.AppKeySecret;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.entity.SysToken;
+import com.chua.starter.entity.system.SysAppKey;
+import com.chua.starter.oauth.sso.service.SysAppKeyService;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.sql.DataSource;
-import java.util.List;
+import org.springframework.context.ApplicationContext;
 
 /**
  * AppKey签名认证处理器
@@ -73,41 +70,30 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("时间戳已过期，请求可能被重放");
             }
 
-            // 4. 使用JdbcEngine查询AppKey
-            DataSource dataSource = SpringBeanUtils.getBean(DataSource.class);
-            JdbcEngine jdbcEngine = JdbcEngine.of(dataSource);
-
-            String sql = """
-                    SELECT sys_token_app_key, sys_token_app_secret, sys_token_user_id, 
-                           sys_token_status, sys_token_expire_time
-                    FROM sys_token
-                    WHERE sys_token_app_key = ?
-                    """;
-
-            List<SysToken> tokens = jdbcEngine.queryForList(sql, SysToken.class, appKey);
-            if (tokens.isEmpty()) {
+            // 4. 查询AppKey
+            SysAppKeyService appKeyService = applicationContext.getBean(SysAppKeyService.class);
+            SysAppKey sysAppKey = appKeyService.getByAppId(appKey);
+            if (sysAppKey == null) {
                 log.warn("AppKey不存在: appKey={}", appKey);
                 return ReturnResult.error("AppKey不存在");
             }
 
-            SysToken sysToken = tokens.get(0);
-
             // 5. 状态检查
-            if (sysToken.getSysTokenStatus() == null || sysToken.getSysTokenStatus() != 1) {
+            if (sysAppKey.getSysAppKeyStatus() == null || sysAppKey.getSysAppKeyStatus() != 0) {
                 log.warn("AppKey已禁用: appKey={}", appKey);
                 return ReturnResult.error("AppKey已禁用");
             }
 
             // 6. 过期时间检查
-            if (sysToken.getSysTokenExpireTime() != null &&
-                    sysToken.getSysTokenExpireTime().isBefore(java.time.LocalDateTime.now())) {
+            if (sysAppKey.getSysAppKeyExpireTime() != null &&
+                    sysAppKey.getSysAppKeyExpireTime() < System.currentTimeMillis() / 1000) {
                 log.warn("AppKey已过期: appKey={}", appKey);
                 return ReturnResult.error("AppKey已过期");
             }
 
             // 7. 签名验证
             String signContent = appKey + xTime + xRandom + body;
-            String expectedSign = HMac.sha256(signContent, sysToken.getSysTokenAppSecret());
+            String expectedSign = HMac.sha256(signContent, sysAppKey.getSysAppKeySecret());
 
             log.debug("签名内容: {}", signContent);
             log.debug("期望签名: {}", expectedSign);
@@ -120,8 +106,8 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
 
             // 8. 构建用户信息
             UserResume userResume = new UserResume();
-            userResume.setUserId(sysToken.getSysTokenUserId());
-            userResume.setUsername(sysToken.getSysTokenAppName());
+            userResume.setUserId(String.valueOf(sysAppKey.getSysUserId()));
+            userResume.setUsername(sysAppKey.getSysAppKeyName());
             userResume.setAppId(appKey);
 
             // 9. 生成Token
@@ -129,7 +115,14 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
                     .getNewExtension("redis");
             String newToken = tokenResolver.createToken(userResume);
 
-            log.info("AppKey认证成功: appKey={}, userId={}", appKey, sysToken.getSysTokenUserId());
+            // 10. 更新使用统计
+            try {
+                appKeyService.updateUseInfo(appKey);
+            } catch (Exception e) {
+                log.error("更新AppKey使用信息失败", e);
+            }
+
+            log.info("AppKey认证成功: appKey={}, userId={}", appKey, sysAppKey.getSysUserId());
             return ReturnResult.ok(newToken);
 
         } catch (NumberFormatException e) {
