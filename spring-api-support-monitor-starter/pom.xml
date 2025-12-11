@@ -44,6 +44,12 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-view-starter</artifactId>
         </dependency>
+
+        <!-- OnlyOffice文档转换和预览支持 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-onlyoffice-starter</artifactId>
+        </dependency>
         <!-- 通用工具类库 - 提供基础的工具类和常用功能 -->
         <dependency>
             <groupId>com.chua</groupId>

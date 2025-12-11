@@ -213,6 +213,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-onlyoffice-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-nginx-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
