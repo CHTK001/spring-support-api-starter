@@ -13,9 +13,13 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.service.SysSettingService;
+import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
+import me.zhyd.oauth.cache.AuthStateCache;
+import me.zhyd.oauth.request.AuthRequest;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
@@ -58,6 +62,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final AuthClientProperties authProperties;
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
     private final RedisTemplate redisTemplate;
+    private final SysSettingService sysSettingService;
 
     @Override
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
@@ -141,8 +146,21 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        log.warn("第三方登录功能需要实现 SysSettingService.getAuthRequest 方法");
-        return ReturnResult.fail("第三方登录暂不支持，请在 service-starter 中实现");
+        log.debug("第三方登录请求: loginType={}, thirdType={}", loginData.getLoginType(), loginData.getThirdType());
+        
+        // 获取第三方登录配置
+        SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
+        if (authRequest == null) {
+            log.warn("第三方登录配置未找到或未启用: loginType={}", loginData.getLoginType());
+            return ReturnResult.fail("第三方登录未配置或未启用，请联系管理员");
+        }
+        
+        // 获取授权 URL
+        AuthRequest request1 = authRequest.getRequest();
+        String authorizeUrl = request1.authorize(authRequest.getState());
+        log.info("第三方登录授权URL生成成功: loginType={}", loginData.getLoginType());
+        
+        return ReturnResult.ok(authorizeUrl);
     }
 
     @Override
