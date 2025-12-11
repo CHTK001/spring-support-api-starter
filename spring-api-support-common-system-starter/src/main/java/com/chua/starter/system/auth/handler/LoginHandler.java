@@ -1,9 +1,9 @@
-package com.chua.starter.auth.handler;
+package com.chua.starter.system.auth.handler;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
-import com.chua.starter.auth.result.LoginResult;
-import com.chua.starter.auth.service.impl.SysLoginServiceImpl;
+import com.chua.starter.system.pojo.LoginResult;
+import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

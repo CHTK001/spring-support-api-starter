@@ -1,4 +1,4 @@
-package com.chua.starter.auth.service.impl;
+package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.function.Joiner;
@@ -13,14 +13,14 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.auth.service.SysLoginService;
-import com.chua.starter.auth.handler.LoginHandler;
-import com.chua.starter.auth.mapper.SysUserThirdPartyMapper;
+import com.chua.starter.system.service.SysLoginService;
+import com.chua.starter.system.auth.handler.LoginHandler;
+import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.entity.system.SysUserThirdParty;
-import com.chua.starter.auth.pojo.RefreshToken;
-import com.chua.starter.auth.pojo.ThirdPartyUnbindRequest;
-import com.chua.starter.auth.result.LoginResult;
-import com.chua.starter.auth.result.UserInfoVO;
+import com.chua.starter.system.pojo.RefreshToken;
+import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
+import com.chua.starter.system.pojo.LoginResult;
+import com.chua.starter.system.pojo.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

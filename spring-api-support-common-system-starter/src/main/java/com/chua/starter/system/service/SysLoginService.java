@@ -1,12 +1,12 @@
-package com.chua.starter.auth.service;
+package com.chua.starter.system.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.auth.pojo.RefreshToken;
-import com.chua.starter.auth.pojo.ThirdPartyUnbindRequest;
-import com.chua.starter.auth.result.LoginResult;
-import com.chua.starter.auth.result.UserInfoVO;
+import com.chua.starter.system.pojo.RefreshToken;
+import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
+import com.chua.starter.system.pojo.LoginResult;
+import com.chua.starter.system.pojo.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
