@@ -8,8 +8,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.entity.AppKeySecret;
-import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.sso.service.SysAppKeyService;
+import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,7 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
 
             // 4. 查询AppKey
             SysAppKeyService appKeyService = applicationContext.getBean(SysAppKeyService.class);
-            AppKeySecret dbAppKey = appKeyService.getByAppId(appId);
+            SysAppKey dbAppKey = appKeyService.getByAppId(appId);
             if (dbAppKey == null) {
                 log.warn("AppKey不存在: appId={}", appId);
                 return ReturnResult.error("AppKey不存在");
@@ -83,7 +84,7 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
 
             // 5. 签名验证
             String signContent = appId + xTime + xRandom + body;
-            String expectedSign = HMac.sha256(signContent, dbAppKey.getAppSecret());
+            String expectedSign = HMac.hmacSha256(dbAppKey.getSysAppKeySecret()).digestHex(signContent);
             
             log.debug("签名内容: {}", signContent);
             log.debug("期望签名: {}", expectedSign);
@@ -95,17 +96,21 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
             }
 
             // 6. 构建用户信息
-            UserResume userResume = new UserResume();
-            userResume.setUserId(dbAppKey.getUserId());
-            userResume.setUsername(dbAppKey.getAppName());
-            userResume.setAppId(appId);
+            UserResult userResult = new UserResult();
+            userResult.setUserId(String.valueOf(dbAppKey.getSysUserId()));
+            userResult.setUsername(dbAppKey.getSysAppKeyName());
+            userResult.setAppId(appId);
             
             // 7. 生成Token
             TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class)
                     .getNewExtension("redis");
-            String newToken = tokenResolver.createToken(userResume);
+            var tokenResult = tokenResolver.createToken(null, userResult, "appkey");
+            if (!tokenResult.isSuccess()) {
+                return ReturnResult.error(tokenResult.getMsg());
+            }
+            String newToken = tokenResult.getData().getToken();
             
-            log.info("AppKey认证成功: appId={}, userId={}", appId, dbAppKey.getUserId());
+            log.info("AppKey认证成功: appId={}, userId={}", appId, dbAppKey.getSysUserId());
             return ReturnResult.ok(newToken);
             
         } catch (NumberFormatException e) {
