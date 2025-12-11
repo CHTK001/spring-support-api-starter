@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@LoginType("GITEE")
+@LoginType("gitee")
 public class GiteeLoginService extends UserLoginService {
 
     @Autowired
