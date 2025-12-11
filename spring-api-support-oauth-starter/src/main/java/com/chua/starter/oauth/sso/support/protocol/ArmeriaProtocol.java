@@ -3,7 +3,14 @@ package com.chua.starter.oauth.sso.support.protocol;
 import com.chua.common.support.annotations.Extension;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
+import com.chua.starter.oauth.client.support.user.LoginResult;
+import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.oauth.sso.support.token.TokenResolver;
+import com.google.common.base.Strings;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.information.ArmeriaAuthInformation;
@@ -30,6 +37,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Armeria 协议实现
@@ -237,6 +246,106 @@ public class ArmeriaProtocol implements Protocol, InitializingBean {
                 log.error("升级失败", e);
                 return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
                         Json.toJson(ReturnResult.error("升级失败: " + e.getMessage())));
+            }
+        });
+        
+        // 临时令牌端点
+        builder.service(contextPath + "/temporary-token", (ctx, req) -> {
+            long startTime = System.currentTimeMillis();
+            try {
+                String body = req.aggregate().join().contentUtf8();
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                
+                // 创建适配器请求/响应对象
+                ArmeriaAuthInformation.ArmeriaRequest tcpRequest = createTcpRequest(ctx, req);
+                ArmeriaAuthInformation.ArmeriaResponse tcpResponse = new ArmeriaAuthInformation.ArmeriaResponse();
+                String clientIp = tcpRequest.getRemoteAddr();
+                
+                // 创建认证信息
+                OauthAuthInformation authInformation = new OauthAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        tcpRequest,
+                        tcpResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                // 验证签名
+                if (!authInformation.isSuccessful()) {
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal(authInformation.errorMessage())));
+                }
+                
+                // 获取源令牌和扩展参数
+                Map<String, Object> bodyData = authInformation.getBodyData();
+                String sourceToken = MapUtils.getString(bodyData, "x-oauth-source-token");
+                Map<String, Object> ext = MapUtils.getMap(bodyData, "x-oauth-ext");
+                
+                if (Strings.isNullOrEmpty(sourceToken)) {
+                    log.warn("临时令牌创建失败: 源令牌为空, 客户端IP: {}", clientIp);
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.illegal("源令牌不能为空")));
+                }
+                
+                // 获取 TokenResolver 验证源令牌
+                TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class)
+                        .getExtension(authServerProperties.getTokenManagement());
+                if (tokenResolver == null) {
+                    log.error("临时令牌创建失败: TokenResolver 不可用");
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.error("令牌服务不可用")));
+                }
+                
+                // 验证源令牌
+                ReturnResult<UserResume> resolveResult = tokenResolver.resolve(null, sourceToken);
+                if (resolveResult.isFailure()) {
+                    log.warn("临时令牌创建失败: 源令牌无效, 客户端IP: {}, 耗时: {}ms",
+                            clientIp, System.currentTimeMillis() - startTime);
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.error("源令牌无效")));
+                }
+                
+                UserResume sourceUserResume = resolveResult.getData();
+                
+                // 解析过期时间和允许的URL
+                long expireTime = MapUtils.getLong(ext, "expireTime", 10L);
+                expireTime = Math.max(1, Math.min(expireTime, 3600));
+                String allowedUrls = MapUtils.getString(ext, "allowedUrls");
+                
+                // 基于源用户信息创建临时令牌
+                UserResult temporaryUser = new UserResult();
+                temporaryUser.setUserId(sourceUserResume.getUserId());
+                temporaryUser.setUsername(sourceUserResume.getUsername());
+                temporaryUser.setRoles(sourceUserResume.getRoles());
+                temporaryUser.setPermission(sourceUserResume.getPermission());
+                temporaryUser.setExpireTime(expireTime);
+                temporaryUser.setLoginType("TEMPORARY");
+                
+                // 设置临时令牌的扩展属性
+                Map<String, Object> options = new HashMap<>();
+                options.put("allowedUrls", Strings.isNullOrEmpty(allowedUrls) ? "*" : allowedUrls);
+                options.put("expireTime", String.valueOf(expireTime));
+                temporaryUser.setExt(options);
+                
+                // 创建临时令牌
+                ReturnResult<LoginResult> createResult = tokenResolver.createToken(clientIp, temporaryUser, "TEMPORARY");
+                if (createResult.isFailure()) {
+                    log.warn("临时令牌创建失败: {}, 客户端IP: {}, 耗时: {}ms",
+                            createResult.getMsg(), clientIp, System.currentTimeMillis() - startTime);
+                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                            Json.toJson(ReturnResult.error(createResult.getMsg())));
+                }
+                
+                LoginResult loginResult = createResult.getData();
+                log.info("临时令牌创建成功, 客户端IP: {}, 过期时间: {}秒, 耗时: {}ms", 
+                        clientIp, expireTime, System.currentTimeMillis() - startTime);
+                
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.ok(loginResult.getToken())));
+            } catch (Exception e) {
+                log.error("临时令牌创建失败", e);
+                return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, 
+                        Json.toJson(ReturnResult.error("临时令牌创建失败: " + e.getMessage())));
             }
         });
     }
