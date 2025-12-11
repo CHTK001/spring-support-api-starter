@@ -1,15 +1,18 @@
 package com.chua.starter.oauth.sso.login;
 
 
+import com.chua.common.support.annotations.Spi;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 
 /**
  * 用户信息服务接口
  * <p>提供用户认证和信息查询功能</p>
+ * <p>使用 SPI 机制，通过 @Extension 注解标注实现类</p>
  *
  * @author CH
  */
+@Spi("WEB")
 public interface UserInfoService {
     /**
      * 检验用户凭证是否合法

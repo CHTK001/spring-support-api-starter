@@ -87,14 +87,13 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
     /**
      * 登录检查服务Bean
-     * <p>核心认证服务，负责处理登录验证逻辑</p>
+     * <p>核心认证服务，负责处理登录验证逻辑，使用 SPI 机制获取 UserInfoService 实现</p>
      *
-     * @param applicationContext Spring应用上下文
      * @return 登录检查服务实例
      */
     @Bean
-    public LoginCheck loginCheck(ApplicationContext applicationContext) {
-        return new LoginCheck(authServerProperties, applicationContext);
+    public LoginCheck loginCheck() {
+        return new LoginCheck(authServerProperties);
     }
 
 

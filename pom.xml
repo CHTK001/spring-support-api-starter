@@ -26,7 +26,6 @@
         <module>spring-api-support-common-project-starter</module>
         <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-common-entity-starter</module>
-        <module>spring-api-support-common-oauth-starter</module>
     </modules>
     <version>4.0.0</version>
 
@@ -106,11 +105,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-oauth-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
 
             <dependency>
