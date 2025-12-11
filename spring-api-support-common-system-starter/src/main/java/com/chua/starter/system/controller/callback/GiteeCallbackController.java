@@ -15,7 +15,10 @@ import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.system.service.SysLoginService;
+import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.SysUserThirdPartyService;
+import com.chua.starter.entity.service.SysSetting;
+import com.chua.common.support.constant.CommonConstant;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.service.SysLoginCallbackService;
 import io.swagger.annotations.Api;
@@ -54,10 +57,14 @@ import java.util.Map;
 public class GiteeCallbackController {
 
 
+    private static final String THIRD_PARTY_TYPE = "gitee";
+    private static final String SSO_GROUP = "sso";
+
     @Autowired(required = false)
     private SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService;
     final SysLoginService sysLoginService;
+    final SysSettingService sysSettingService;
     final AuthClientProperties authProperties;
 
     /**
@@ -77,6 +84,14 @@ public class GiteeCallbackController {
         RedirectView view = new RedirectView();
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
+        
+        // 检查 Gitee 登录是否开启
+        if (!isThirdPartyEnabled()) {
+            log.warn("Gitee登录未开启，拒绝绑定请求");
+            attributes.addFlashAttribute("msg", "Gitee登录未开启，无法绑定");
+            return view;
+        }
+        
         if(null == userId) {
             attributes.addFlashAttribute("msg", "请重新登录重试");
             return view;
@@ -135,6 +150,17 @@ public class GiteeCallbackController {
     @Ignore
     @GetMapping("callback")
     public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+        String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
+        RedirectView errorView = new RedirectView();
+        errorView.setUrl(StringUtils.defaultString(systemCallback, "/"));
+        
+        // 检查 Gitee 登录是否开启
+        if (!isThirdPartyEnabled()) {
+            log.warn("Gitee登录未开启，拒绝登录请求");
+            attributes.addFlashAttribute("msg", "Gitee登录未开启");
+            return errorView;
+        }
+        
         String thirdType = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_thirdType");
         if("0".equals(thirdType)) {
             return binder(authCallback, attributes, request, response);
@@ -144,7 +170,6 @@ public class GiteeCallbackController {
         String clientId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientId");
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         String callback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_callback");
-        String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         AuthConfig authConfig = AuthConfig.builder()
                 .clientId(clientId)
                 .clientSecret(clientSecret)
@@ -160,9 +185,10 @@ public class GiteeCallbackController {
         }
 
         Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
-                .put("loginType", "gitee")
+                .put("loginType", THIRD_PARTY_TYPE)
+                .put("thirdPartyType", THIRD_PARTY_TYPE)
                 .put("address", RequestUtils.getIpAddress()).build();
-        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.WEB, ext);
+        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
@@ -176,5 +202,26 @@ public class GiteeCallbackController {
         view.addStaticAttribute("redirectParam", encrypt);
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
         return view;
+    }
+
+    /**
+     * 检查第三方登录是否开启
+     * <p>从sys_setting表中查询sso组下Gitee配置是否为true</p>
+     *
+     * @return true-开启，false-未开启
+     */
+    private boolean isThirdPartyEnabled() {
+        try {
+            SysSetting setting = sysSettingService.getOne(
+                    Wrappers.<SysSetting>lambdaQuery()
+                            .eq(SysSetting::getSysSettingGroup, SSO_GROUP)
+                            .eq(SysSetting::getSysSettingName, "Gitee")
+                            .eq(SysSetting::getSysSettingStatus, 1)
+            );
+            return setting != null && CommonConstant.TRUE.equalsIgnoreCase(setting.getSysSettingValue());
+        } catch (Exception e) {
+            log.error("Gitee登录开关检查失败: {}", e.getMessage());
+            return false;
+        }
     }
 }
