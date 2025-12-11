@@ -1,8 +1,7 @@
 # ===========================================
-# 上报客户端配置
+# 同步数据接收服务端配置
 # ===========================================
-# ===========================================
-# 同步服务配置（必须在主配置文件中，确保 @ConditionalOnProperty 能正确读取）
+# 该模块作为数据接收服务端，接收来自 Hotspot Agent 的上报数据
 # ===========================================
 
 plugin:
@@ -20,25 +19,6 @@ plugin:
         - port: 29172
           protocol: http-sync
       enable: true
-  # Hotspot Agent 上报配置
-  hotspot:
-    report:
-      # 上报协议：http（默认）或 rsocket
-      protocol: http
-      # HTTP 上报地址（当 protocol=http 时使用）
-      http:
-        url: http://localhost:29172/sync
-        timeout: 5000
-        retries: 3
-      # RSocket 上报地址（当 protocol=rsocket 时使用）
-      rsocket:
-        host: localhost
-        port: 29171
-        reconnect-interval: 5000
-        max-retries: 3
-      # WebSocket 上报地址（可选）
-      websocket:
-        url: ws://localhost:29170
   report:
     server:
       job:
