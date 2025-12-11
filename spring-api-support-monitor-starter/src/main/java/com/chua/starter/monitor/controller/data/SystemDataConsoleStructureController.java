@@ -350,5 +350,179 @@ public class SystemDataConsoleStructureController {
             return ReturnResult.error("批量修改表结构失败: " + e.getMessage());
         }
     }
+
+    // ==================== 索引管理 ====================
+
+    /**
+     * 获取表索引列表
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @return 索引列表
+     * @author CH
+     * @since 2024-12-10
+     */
+    @GetMapping("/indexes")
+    @Operation(summary = "获取表索引列表")
+    public ReturnResult<List<Map<String, Object>>> getTableIndexes(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getTableIndexes(settingId, tableName));
+        } catch (Exception e) {
+            log.error("获取表索引列表失败", e);
+            return ReturnResult.error("获取表索引列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 创建索引
+     *
+     * @param settingId 数据源设置ID
+     * @param req       创建索引请求
+     * @return 操作结果
+     * @author CH
+     * @since 2024-12-10
+     */
+    @PostMapping("/indexes")
+    @Operation(summary = "创建索引")
+    public ReturnResult<Boolean> createIndex(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.CreateIndexRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.createIndex(settingId, req));
+        } catch (Exception e) {
+            log.error("创建索引失败", e);
+            return ReturnResult.error("创建索引失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除索引
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @param indexName 索引名
+     * @return 操作结果
+     * @author CH
+     * @since 2024-12-10
+     */
+    @DeleteMapping("/indexes")
+    @Operation(summary = "删除索引")
+    public ReturnResult<Boolean> dropIndex(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName,
+            @Parameter(description = "索引名", example = "idx_name")
+            @RequestParam String indexName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.dropIndex(settingId, tableName, indexName));
+        } catch (Exception e) {
+            log.error("删除索引失败", e);
+            return ReturnResult.error("删除索引失败: " + e.getMessage());
+        }
+    }
+
+    // ==================== 分区管理 ====================
+
+    /**
+     * 获取表分区列表
+     *
+     * @param settingId 数据源设置ID
+     * @param tableName 表名
+     * @return 分区列表
+     * @author CH
+     * @since 2024-12-10
+     */
+    @GetMapping("/partitions")
+    @Operation(summary = "获取表分区列表")
+    public ReturnResult<List<Map<String, Object>>> getTablePartitions(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getTablePartitions(settingId, tableName));
+        } catch (Exception e) {
+            log.error("获取表分区列表失败", e);
+            return ReturnResult.error("获取表分区列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 创建分区
+     *
+     * @param settingId 数据源设置ID
+     * @param req       创建分区请求
+     * @return 操作结果
+     * @author CH
+     * @since 2024-12-10
+     */
+    @PostMapping("/partitions")
+    @Operation(summary = "创建分区")
+    public ReturnResult<Boolean> createPartition(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @RequestBody StructureMetadata.CreatePartitionRequest req) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.createPartition(settingId, req));
+        } catch (Exception e) {
+            log.error("创建分区失败", e);
+            return ReturnResult.error("创建分区失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除分区
+     *
+     * @param settingId     数据源设置ID
+     * @param tableName     表名
+     * @param partitionName 分区名
+     * @return 操作结果
+     * @author CH
+     * @since 2024-12-10
+     */
+    @DeleteMapping("/partitions")
+    @Operation(summary = "删除分区")
+    public ReturnResult<Boolean> dropPartition(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId,
+            @Parameter(description = "表名", example = "user")
+            @RequestParam String tableName,
+            @Parameter(description = "分区名", example = "p0")
+            @RequestParam String partitionName) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.dropPartition(settingId, tableName, partitionName));
+        } catch (Exception e) {
+            log.error("删除分区失败", e);
+            return ReturnResult.error("删除分区失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 检测数据库能力
+     * 返回数据库是否支持索引和分区功能
+     *
+     * @param settingId 数据源设置ID
+     * @return 数据库能力信息
+     * @author CH
+     * @since 2024-12-10
+     */
+    @GetMapping("/capabilities")
+    @Operation(summary = "检测数据库能力")
+    public ReturnResult<Map<String, Boolean>> getDatabaseCapabilities(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getDatabaseCapabilities(settingId));
+        } catch (Exception e) {
+            log.error("检测数据库能力失败", e);
+            return ReturnResult.error("检测数据库能力失败: " + e.getMessage());
+        }
+    }
 }
 

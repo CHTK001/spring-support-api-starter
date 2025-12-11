@@ -232,5 +232,125 @@ public interface StructureMetadata {
          */
         private java.util.List<ReorderColumnRequest> reorderColumns;
     }
+
+    // ==================== 索引管理 ====================
+
+    /**
+     * 获取表的索引列表
+     *
+     * @param tableName 表名
+     * @return 索引列表
+     */
+    default java.util.List<java.util.Map<String, Object>> getIndexes(String tableName) {
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * 创建索引
+     *
+     * @param req 创建索引请求
+     * @return 是否成功
+     */
+    default boolean createIndex(CreateIndexRequest req) {
+        return false;
+    }
+
+    /**
+     * 删除索引
+     *
+     * @param tableName 表名
+     * @param indexName 索引名
+     * @return 是否成功
+     */
+    default boolean dropIndex(String tableName, String indexName) {
+        return false;
+    }
+
+    /** 创建索引请求 */
+    @Data
+    class CreateIndexRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 索引名
+         */
+        private String indexName;
+        /**
+         * 索引字段列表
+         */
+        private java.util.List<String> columns;
+        /**
+         * 是否唯一索引
+         */
+        private Boolean unique = false;
+        /**
+         * 索引类型（NORMAL/UNIQUE/FULLTEXT/SPATIAL）
+         */
+        private String indexType = "NORMAL";
+        /**
+         * 索引注释
+         */
+        private String comment;
+    }
+
+    // ==================== 分区管理 ====================
+
+    /**
+     * 获取表的分区列表
+     *
+     * @param tableName 表名
+     * @return 分区列表
+     */
+    default java.util.List<java.util.Map<String, Object>> getPartitions(String tableName) {
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * 创建分区
+     *
+     * @param req 创建分区请求
+     * @return 是否成功
+     */
+    default boolean createPartition(CreatePartitionRequest req) {
+        return false;
+    }
+
+    /**
+     * 删除分区
+     *
+     * @param tableName     表名
+     * @param partitionName 分区名
+     * @return 是否成功
+     */
+    default boolean dropPartition(String tableName, String partitionName) {
+        return false;
+    }
+
+    /** 创建分区请求 */
+    @Data
+    class CreatePartitionRequest {
+        /**
+         * 表名
+         */
+        private String tableName;
+        /**
+         * 分区名
+         */
+        private String partitionName;
+        /**
+         * 分区方式（RANGE/LIST/HASH/KEY）
+         */
+        private String method = "RANGE";
+        /**
+         * 分区表达式
+         */
+        private String expression;
+        /**
+         * 分区描述
+         */
+        private String description;
+    }
 }
 

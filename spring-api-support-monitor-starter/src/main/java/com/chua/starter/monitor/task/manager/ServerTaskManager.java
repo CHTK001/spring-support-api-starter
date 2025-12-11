@@ -388,7 +388,7 @@ public class ServerTaskManager {
         try {
             // 启动全局任务（只启动一次）
             if (!globalTasksStarted) {
-                startGlobalDispatcher();
+               // startGlobalDispatcher();
                 globalTasksStarted = true;
                 log.info("全局任务和统一任务启动完成");
             }
