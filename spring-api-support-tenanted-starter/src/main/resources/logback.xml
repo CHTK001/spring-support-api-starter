@@ -21,9 +21,9 @@
 
     <!-- 彩色日志格式 -->
     <property name="console_log_pattern_color"
-              value="%red([%date{yyyy-MM-dd HH:mm:ss}]) %highlight([%-5level]) %blue([%traceId]) %red([%thread]) %boldMagenta([%logger:%L]) - %msg%n"/>
+              value="%red([%date{yyyy-MM-dd HH:mm:ss}]) %highlight([%-5level]) %blue([%traceId]) %cyan([%X{userId}]) %green([%X{requestIp}]) %red([%thread]) %boldMagenta([%logger:%L]) - %msg%n"/>
     <property name="console_log_pattern"
-              value="[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%traceId] [%thread] %logger:%L - %msg%n"/>
+              value="[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%traceId] [%X{userId}] [%X{requestIp}] [%thread] %logger:%L - %msg%n"/>
     <!-- Console 输出设置 -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoder class为空时, 默认也为 ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
