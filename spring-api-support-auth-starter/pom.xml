@@ -9,8 +9,8 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-oauth-starter</artifactId>
-    <description>单点登录系统</description>
+    <artifactId>spring-api-support-auth-starter</artifactId>
+    <description>认证服务端 - OAuth单点登录系统</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -23,6 +23,12 @@
     </properties>
 
     <dependencies>
+        <!-- 认证模块 - 定义认证接口规范 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-auth-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-oauth-client-starter</artifactId>
