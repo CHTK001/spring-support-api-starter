@@ -15,7 +15,7 @@
     <artifactId>spring-support-api-starter</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>spring-api-support-auth-starter</module>
+        <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>

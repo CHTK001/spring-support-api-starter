@@ -9,8 +9,8 @@
         <version>4.0.0</version>
     </parent>
 
-    <artifactId>spring-api-support-auth-starter</artifactId>
-    <description>认证服务端 - OAuth单点登录系统</description>
+    <artifactId>spring-api-support-oauth-starter</artifactId>
+    <description>OAuth单点登录系统</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
