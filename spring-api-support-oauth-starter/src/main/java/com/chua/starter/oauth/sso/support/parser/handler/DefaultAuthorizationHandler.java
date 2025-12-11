@@ -9,7 +9,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.entity.AppKeySecret;
 import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.oauth.sso.service.SysAppKeyService;
+import com.chua.starter.system.service.SysAppKeyService;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;

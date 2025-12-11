@@ -1,10 +1,10 @@
-package com.chua.starter.oauth.sso.service;
+package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.entity.system.SysAppKey;
 
 /**
- * 应用密钥Service
+ * 应用密钥 Service
  *
  * @author CH
  * @since 2025/10/23
@@ -45,4 +45,3 @@ public interface SysAppKeyService extends IService<SysAppKey> {
      */
     void updateUseInfo(String appId);
 }
-
