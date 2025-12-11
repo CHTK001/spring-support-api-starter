@@ -60,7 +60,7 @@ public class AuthServerProperties {
     /**
      * 是否启用OAuth认证服务
      */
-    private boolean enable = false;
+    private boolean enable = true;
 
     /**
      * 签名验证

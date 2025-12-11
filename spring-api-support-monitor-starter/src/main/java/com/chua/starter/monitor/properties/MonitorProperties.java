@@ -21,7 +21,7 @@ public class MonitorProperties {
     /**
      * 是否启用监控服务
      */
-    private boolean enable = false;
+    private boolean enable = true;
 
     /**
      * 是否启用后端定时检测推送任务
