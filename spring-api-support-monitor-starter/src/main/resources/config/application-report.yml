@@ -10,9 +10,35 @@ plugin:
     type: server
     server:
       instances:
+        # WebSocket 同步服务（支持双向通信）
         - port: 29170
+          protocol: websocket-sync
+        # RSocket 同步服务（支持双向通信，高性能）
         - port: 29171
+          protocol: rsocket-sync
+        # HTTP 同步服务（单向上报，无下发功能）
+        - port: 29172
+          protocol: http-sync
       enable: true
+  # Hotspot Agent 上报配置
+  hotspot:
+    report:
+      # 上报协议：http（默认）或 rsocket
+      protocol: http
+      # HTTP 上报地址（当 protocol=http 时使用）
+      http:
+        url: http://localhost:29172/sync
+        timeout: 5000
+        retries: 3
+      # RSocket 上报地址（当 protocol=rsocket 时使用）
+      rsocket:
+        host: localhost
+        port: 29171
+        reconnect-interval: 5000
+        max-retries: 3
+      # WebSocket 上报地址（可选）
+      websocket:
+        url: ws://localhost:29170
   report:
     server:
       job:
