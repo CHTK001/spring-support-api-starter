@@ -87,7 +87,7 @@ public class TenantServerSyncPublisher {
      * @param tenantId 租户ID
      * @param menuIds  菜单ID列表
      */
-    public void publishServiceUpdate(Integer tenantId, List<Integer> menuIds) {
+    public void publishServiceUpdate(String tenantId, List<Integer> menuIds) {
         if (!canPublish()) {
             return;
         }

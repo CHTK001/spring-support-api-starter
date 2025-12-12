@@ -23,5 +23,5 @@ public interface SysTenantServiceMapper extends BaseMapper<SysTenantService> {
      * @param tenantId 租户ID
      * @return 菜单ID列表
      */
-    List<Integer> getMenuByTenantId(@Param("tenantId") Integer tenantId);
+    List<Integer> getMenuByTenantId(@Param("tenantId") String tenantId);
 }
