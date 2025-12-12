@@ -195,7 +195,7 @@ public class FileSystemSetting extends SysBase implements Serializable {
         setting.setFileSystemSettingHttpAccessEnabled(false);
         setting.setFileSystemSettingMaxFileSizeMb(1024);
         setting.setFileSystemSettingFileRetentionDays(0);
-        setting.setFileSystemSettingEnabled(true);
+        setting.setFileSystemSettingEnabled(false);
         return setting;
     }
 }
