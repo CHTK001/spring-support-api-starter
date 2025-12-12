@@ -87,13 +87,12 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
 
-        // 自动生成不可变的租户编码（忽略前端传入的值）
-        String generatedCode = IdUtils.createUlid();
-        sysTenant.setSysTenantCode(generatedCode);
-        log.info("自动生成租户编码: {}", generatedCode);
+        // sysTenantId 使用 ASSIGN_ID 策略自动生成，同时兼容旧的 sysTenantCode 字段
+        // 保存后将 sysTenantId 同步到废弃的 sysTenantCode 字段以保持兼容
 
         // 检查账号是否已存在
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
@@ -115,6 +114,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
 
         save(sysTenant);
+        
+        // 将 sysTenantId 同步到废弃的 sysTenantCode 字段以保持兼容
+        sysTenant.setSysTenantCode(sysTenant.getSysTenantId());
+        updateById(sysTenant);
+        
         log.info("租户保存成功, ID: {}", sysTenant.getSysTenantId());
 
         // 发布同步消息
@@ -126,10 +130,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);
 
-        // 租户编码不可修改，强制置空以防止被更新
+        // 租户ID不可修改，sysTenantCode 废弃字段也置空
         sysTenant.setSysTenantCode(null);
 
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
