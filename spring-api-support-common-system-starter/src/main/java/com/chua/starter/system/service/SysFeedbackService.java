@@ -5,7 +5,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.entity.system.SysFeedback;
-import com.chua.starter.system.dto.feedback.FeedbackStatisticV1Response;
+import com.chua.starter.system.model.feedback.FeedbackStatisticV1Response;
 import com.chua.starter.system.pojo.feedback.FeedbackIssueV1Request;
 import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 
