@@ -427,17 +427,38 @@ public class TenantUserLoginService implements UserInfoService, Constant {
 
     /**
      * 获取用户上次登录的租户编码
+     * <p>
+     * 优先从 Redis 缓存获取上次登录的租户编码，
+     * 如果缓存不存在则根据账号查询 SysTenant 表获取最新的租户编码
+     * </p>
      *
      * @param username 用户名
      * @return 租户编码
      */
     private String getLastTenantCode(String username) {
+        // 优先从缓存获取上次登录的租户编码
         try {
-            return stringRedisTemplate.opsForValue().get(LAST_TENANT_CODE_KEY + username);
+            String cachedTenantCode = stringRedisTemplate.opsForValue().get(LAST_TENANT_CODE_KEY + username);
+            if (StringUtils.isNotEmpty(cachedTenantCode)) {
+                log.debug("从缓存获取用户上次登录租户编码: 用户={}, 租户编码={}", username, cachedTenantCode);
+                return cachedTenantCode;
+            }
         } catch (Exception e) {
-            log.warn("获取用户上次登录租户编码失败: 用户={}, 错误={}", username, e.getMessage());
-            return null;
+            log.warn("获取用户上次登录租户编码缓存失败: 用户={}, 错误={}", username, e.getMessage());
         }
+
+        // 缓存不存在时，查询数据库获取最新的租户编码
+        try {
+            String latestTenantCode = sysUserMapper.selectLatestTenantCodeByUsername(username);
+            if (StringUtils.isNotEmpty(latestTenantCode)) {
+                log.debug("从数据库获取用户最新租户编码: 用户={}, 租户编码={}", username, latestTenantCode);
+                return latestTenantCode;
+            }
+        } catch (Exception e) {
+            log.warn("查询用户最新租户编码失败: 用户={}, 错误={}", username, e.getMessage());
+        }
+
+        return null;
     }
 
     /**
