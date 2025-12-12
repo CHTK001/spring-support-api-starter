@@ -6,6 +6,7 @@ import com.chua.starter.monitor.entity.DeviceMetrics;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.service.agent.AgentDataStorageService;
 import com.chua.starter.monitor.service.job.MonitorJobLogService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerDeviceReportService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
@@ -49,6 +50,11 @@ public class SyncConfiguration {
     private static final String TOPIC_DEVICE_METRICS = "monitor/device/metrics";
     private static final String TOPIC_DEVICE_INFO = "monitor/device/info";
     private static final String TOPIC_APP_REPORT = "monitor/app/report";
+    
+    // Agent 数据上报 Topic
+    private static final String TOPIC_AGENT_TRACE = "agent/trace";
+    private static final String TOPIC_AGENT_SERVER = "agent/server";
+    private static final String TOPIC_AGENT_FD = "agent/fd";
 
     @Autowired
     private SyncServer syncServer;
@@ -68,6 +74,9 @@ public class SyncConfiguration {
     @Autowired
     private UnifiedAlertService unifiedAlertService;
 
+    @Autowired(required = false)
+    private AgentDataStorageService agentDataStorageService;
+
     @PostConstruct
     public void init() {
         log.info("[SyncConfig] 注册消息处理器");
@@ -83,6 +92,16 @@ public class SyncConfiguration {
 
         // 注册应用信息上报处理器
         syncServer.registerHandler(TOPIC_APP_REPORT, createHandler(TOPIC_APP_REPORT, this::handleAppReport));
+
+        // 注册 Agent 数据处理器（需要 AgentDataStorageService）
+        if (agentDataStorageService != null) {
+            syncServer.registerHandler(TOPIC_AGENT_TRACE, createHandler(TOPIC_AGENT_TRACE, this::handleAgentTrace));
+            syncServer.registerHandler(TOPIC_AGENT_SERVER, createHandler(TOPIC_AGENT_SERVER, this::handleAgentServer));
+            syncServer.registerHandler(TOPIC_AGENT_FD, createHandler(TOPIC_AGENT_FD, this::handleAgentFileHandle));
+            log.info("[SyncConfig] Agent 数据处理器注册完成 (Trace, Server, FileHandle)");
+        } else {
+            log.warn("[SyncConfig] AgentDataStorageService 未配置，跳过 Agent 数据处理器注册");
+        }
 
         log.info("[SyncConfig] 消息处理器注册完成 (JobResult, DeviceMetrics, DeviceInfo, AppReport)");
     }
@@ -452,5 +471,75 @@ public class SyncConfiguration {
                 return null;
             }
         };
+    }
+
+    // ==================== Agent 数据处理方法 ====================
+
+    /**
+     * 处理 Agent 链路追踪上报
+     *
+     * @param sessionId 会话ID
+     * @param data      链路追踪数据
+     */
+    private void handleAgentTrace(String sessionId, Map<String, Object> data) {
+        try {
+            log.debug("[AgentTrace] 收到链路追踪: sessionId={}, linkId={}", 
+                    sessionId, MapUtils.getString(data, "linkId"));
+
+            var result = agentDataStorageService.storeTraceForAgent(sessionId, data);
+            if (result.isOk()) {
+                log.debug("[AgentTrace] 链路追踪存储成功: sessionId={}", sessionId);
+            } else {
+                log.warn("[AgentTrace] 链路追踪存储失败: sessionId={}, error={}", sessionId, result.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("[AgentTrace] 处理链路追踪失败: sessionId={}", sessionId, e);
+        }
+    }
+
+    /**
+     * 处理 Agent 服务实例上报
+     *
+     * @param sessionId    会话ID
+     * @param data         服务实例数据
+     */
+    private void handleAgentServer(String sessionId, Map<String, Object> data) {
+        try {
+            String sourceHost = MapUtils.getString(data, "sourceHost");
+            String targetHost = MapUtils.getString(data, "targetHost");
+            log.debug("[AgentServer] 收到服务实例: sessionId={}, {} -> {}", sessionId, sourceHost, targetHost);
+
+            var result = agentDataStorageService.storeServiceInstanceForAgent(sessionId, data);
+            if (result.isOk()) {
+                log.debug("[AgentServer] 服务实例存储成功: sessionId={}", sessionId);
+            } else {
+                log.warn("[AgentServer] 服务实例存储失败: sessionId={}, error={}", sessionId, result.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("[AgentServer] 处理服务实例失败: sessionId={}", sessionId, e);
+        }
+    }
+
+    /**
+     * 处理 Agent 文件句柄上报
+     *
+     * @param sessionId  会话ID
+     * @param data       文件句柄数据
+     */
+    private void handleAgentFileHandle(String sessionId, Map<String, Object> data) {
+        try {
+            String filePath = MapUtils.getString(data, "filePath");
+            int fd = MapUtils.getIntValue(data, "fd");
+            log.debug("[AgentFD] 收到文件句柄: sessionId={}, fd={}, path={}", sessionId, fd, filePath);
+
+            var result = agentDataStorageService.storeFileHandleForAgent(sessionId, data);
+            if (result.isOk()) {
+                log.debug("[AgentFD] 文件句柄存储成功: sessionId={}", sessionId);
+            } else {
+                log.warn("[AgentFD] 文件句柄存储失败: sessionId={}, error={}", sessionId, result.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("[AgentFD] 处理文件句柄失败: sessionId={}", sessionId, e);
+        }
     }
 }
