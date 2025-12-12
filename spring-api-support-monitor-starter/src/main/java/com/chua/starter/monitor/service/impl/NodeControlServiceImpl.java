@@ -548,6 +548,58 @@ public class NodeControlServiceImpl implements NodeControlService {
         }
     }
 
+    // ==================== 链路追踪（Actuator）====================
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getHttpTracesForNode(String ipAddress, Integer port, Integer limit) {
+        try {
+            log.info("获取节点HTTP链路追踪: ipAddress={}, port={}, limit={}", ipAddress, port, limit);
+
+            // 获取节点信息
+            OnlineNodeInfo nodeInfo = nodeManagementService.getOnlineNode(ipAddress, port);
+            if (nodeInfo == null) {
+                return ReturnResult.error("节点不在线");
+            }
+
+            // 构建 actuator httptrace 接口 URL
+            String httpTraceUrl = buildActuatorUrl(nodeInfo, "httptrace");
+
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept", "application/json");
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+
+                ResponseEntity<Map> response = restTemplate.exchange(httpTraceUrl, HttpMethod.GET, entity, Map.class);
+
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    Map<String, Object> body = response.getBody();
+                    // httptrace 返回格式: { "traces": [...] }
+                    List<Map<String, Object>> traces = MapUtils.getList(body, "traces");
+                    if (traces == null) {
+                        traces = new ArrayList<>();
+                    }
+
+                    // 限制返回条数
+                    if (limit != null && limit > 0 && traces.size() > limit) {
+                        traces = traces.subList(0, limit);
+                    }
+
+                    return ReturnResult.success(traces);
+                } else {
+                    return ReturnResult.error("获取HTTP链路追踪失败: HTTP " + response.getStatusCode());
+                }
+            } catch (Exception e) {
+                log.error("调用Actuator httptrace接口失败: {}", e.getMessage());
+                return ReturnResult.error("获取HTTP链路追踪失败: " + e.getMessage() + 
+                        "（提示：客户端需要启用 httptrace 端点并配置 HttpTraceRepository Bean）");
+            }
+
+        } catch (Exception e) {
+            log.error("获取节点HTTP链路追踪失败: ipAddress={}, port={}", ipAddress, port, e);
+            return ReturnResult.error("获取节点HTTP链路追踪失败: " + e.getMessage());
+        }
+    }
+
     // ==================== 私有方法 ====================
 
     /**
