@@ -31,17 +31,11 @@
             <version>4.0.0</version>
         </dependency>
 
+        <!-- 租户模块 - 包含租户管理、服务管理、同步等功能 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-tenant-starter</artifactId>
             <version>4.0.0</version>
-        </dependency>
-
-        <!-- 租户同步模块 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-mybatis-tenant-starter</artifactId>
-            <version>4.0.0.34</version>
         </dependency>
 
         <dependency>

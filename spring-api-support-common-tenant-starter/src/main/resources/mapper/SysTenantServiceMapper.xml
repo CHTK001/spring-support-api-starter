@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.tenant.server.mapper.SysTenantServiceMapper">
+
+    <!-- 根据租户ID获取菜单ID列表 -->
+    <select id="getMenuByTenantId" resultType="java.lang.Integer">
+        SELECT DISTINCT smi.sys_menu_id
+        FROM sys_tenant_service ts
+        INNER JOIN sys_service_module_item smi ON ts.sys_service_id = smi.sys_service_id
+        WHERE ts.sys_tenant_id = #{tenantId}
+        AND (ts.sys_tenant_service_valid_time IS NULL OR ts.sys_tenant_service_valid_time > CURDATE())
+    </select>
+
+</mapper>
