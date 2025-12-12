@@ -55,7 +55,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return null;
         }
 
-        Integer tenantId = tenant.getSysTenantId();
+        String tenantId = tenant.getSysTenantId();
         String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
 
         try {
@@ -111,8 +111,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 tenant.getSysTenantId(), tenant.getSysTenantUsername());
 
         SysUser user = new SysUser();
-        user.setSysUserName(tenant.getSysTenantName());
-        user.setSysUserLoginName(tenant.getSysTenantUsername());
+        user.setSysUserNickname(tenant.getSysTenantName());
+        user.setSysUserUsername(tenant.getSysTenantUsername());
         return user;
     }
 
@@ -143,15 +143,15 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         log.info("[租户同步] 更新租户用户: tenantId={}, rows={}", tenant.getSysTenantId(), rows);
 
         SysUser user = new SysUser();
-        user.setSysUserName(tenant.getSysTenantName());
-        user.setSysUserLoginName(tenant.getSysTenantUsername());
+        user.setSysUserNickname(tenant.getSysTenantName());
+        user.setSysUserUsername(tenant.getSysTenantUsername());
         return user;
     }
 
     /**
      * 删除租户用户
      */
-    private void deleteTenantUser(Integer tenantId, String tenantIdColumn) {
+    private void deleteTenantUser(String tenantId, String tenantIdColumn) {
         String deleteSql = String.format(
                 "DELETE FROM sys_user WHERE %s = ?", tenantIdColumn);
         int rows = jdbcTemplate.update(deleteSql, tenantId);

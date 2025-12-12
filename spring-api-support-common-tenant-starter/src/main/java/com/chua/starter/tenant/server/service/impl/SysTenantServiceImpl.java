@@ -252,7 +252,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * @param records 租户列表
      */
     private void fillTenantServices(List<SysTenant> records) {
-        List<Integer> tenantIds = records.stream()
+        List<String> tenantIds = records.stream()
                 .map(SysTenant::getSysTenantId)
                 .toList();
 
@@ -260,7 +260,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 Wrappers.<SysTenantService>lambdaQuery()
                         .in(SysTenantService::getSysTenantId, tenantIds));
 
-        Map<Integer, List<SysTenantService>> serviceMap = tenantServices.stream()
+        Map<String, List<SysTenantService>> serviceMap = tenantServices.stream()
                 .collect(Collectors.groupingBy(SysTenantService::getSysTenantId));
 
         for (SysTenant record : records) {

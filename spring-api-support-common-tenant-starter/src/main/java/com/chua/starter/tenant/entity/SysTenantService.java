@@ -43,7 +43,7 @@ public class SysTenantService extends SysBase {
     @TableField(value = "sys_tenant_id")
     @ApiModelProperty(value = "租户ID")
     @Schema(description = "租户ID")
-    private Integer sysTenantId;
+    private String sysTenantId;
 
     /**
      * 服务ID
