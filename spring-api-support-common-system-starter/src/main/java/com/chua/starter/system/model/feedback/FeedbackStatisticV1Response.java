@@ -1,10 +1,9 @@
-package com.chua.starter.system.dto.feedback;
+package com.chua.starter.system.model.feedback;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 统计反馈信息响应

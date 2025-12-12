@@ -18,8 +18,8 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
-import com.chua.starter.service.mapper.SysUserMapper;
-import com.chua.starter.service.query.SysUserQuery;
+import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.*;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserLayoutMapper;
@@ -63,7 +63,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
-        Page<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), AuthConstant.hasAdmin(roles), sysUserQuery);
+        IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery, AuthConstant.hasAdmin(roles));
 
         List<SysUser> records1 = sysUserPage.getRecords();
         Page<SysUserVO> result = new Page<>();
