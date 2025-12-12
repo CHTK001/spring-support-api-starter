@@ -122,6 +122,55 @@ public class MonitorSysGenScriptExecution extends SysBase {
     private Integer monitorSysGenScriptExecutionServerId;
 
     /**
+     * 执行服务器ID列表（逗号分隔，支持多服务器）
+     */
+    @Schema(description = "执行服务器ID列表（逗号分隔）", example = "1,2,3")
+    @TableField("monitor_sys_gen_script_execution_server_ids")
+    private String monitorSysGenScriptExecutionServerIds;
+
+    /**
+     * 执行服务器名称列表（逗号分隔）
+     */
+    @Schema(description = "执行服务器名称列表（逗号分隔）", example = "服务器1,服务器2")
+    @TableField("monitor_sys_gen_script_execution_server_names")
+    private String monitorSysGenScriptExecutionServerNames;
+
+    /**
+     * 执行方式
+     */
+    @Schema(description = "执行方式", implementation = ExecuteMethod.class)
+    @TableField("monitor_sys_gen_script_execution_method")
+    private ExecuteMethod monitorSysGenScriptExecutionMethod;
+
+    /**
+     * 脚本内容快照（执行时的脚本内容）
+     */
+    @Schema(description = "脚本内容快照", example = "#!/bin/bash\necho 'Hello'")
+    @TableField("monitor_sys_gen_script_execution_content")
+    private String monitorSysGenScriptExecutionContent;
+
+    /**
+     * 脚本名称
+     */
+    @Schema(description = "脚本名称", example = "系统监控脚本")
+    @TableField("monitor_sys_gen_script_execution_script_name")
+    private String monitorSysGenScriptExecutionScriptName;
+
+    /**
+     * 脚本类型
+     */
+    @Schema(description = "脚本类型", example = "SHELL")
+    @TableField("monitor_sys_gen_script_execution_script_type")
+    private String monitorSysGenScriptExecutionScriptType;
+
+    /**
+     * 执行人
+     */
+    @Schema(description = "执行人", example = "admin")
+    @TableField("monitor_sys_gen_script_execution_user")
+    private String monitorSysGenScriptExecutionUser;
+
+    /**
      * 触发类型
      */
     @Schema(description = "触发类型", implementation = TriggerType.class)
@@ -166,6 +215,45 @@ public class MonitorSysGenScriptExecution extends SysBase {
                 }
             }
             return null;
+        }
+    }
+
+    /**
+     * 执行方式枚举
+     */
+    @Schema(description = "执行方式枚举")
+    public enum ExecuteMethod {
+        @Schema(description = "SSH执行")
+        SSH("SSH", "SSH执行"),
+        @Schema(description = "NODE代理执行")
+        NODE("NODE", "NODE代理执行");
+
+        private final String code;
+        private final String desc;
+
+        ExecuteMethod(String code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public static ExecuteMethod fromCode(String code) {
+            if (code == null) {
+                return SSH;
+            }
+            for (ExecuteMethod method : values()) {
+                if (method.code.equals(code)) {
+                    return method;
+                }
+            }
+            return SSH;
         }
     }
 
