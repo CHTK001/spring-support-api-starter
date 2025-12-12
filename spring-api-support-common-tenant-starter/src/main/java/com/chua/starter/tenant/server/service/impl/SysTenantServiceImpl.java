@@ -90,16 +90,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
 
-        // 检查编码是否已存在
-        if (StringUtils.isNotBlank(sysTenant.getSysTenantCode())) {
-            if (exists(Wrappers.<SysTenant>lambdaQuery()
-                    .eq(SysTenant::getSysTenantCode, sysTenant.getSysTenantCode()))) {
-                log.warn("租户编码已存在: {}", sysTenant.getSysTenantCode());
-                return ReturnResult.error("租户编码已存在");
-            }
-        } else {
-            sysTenant.setSysTenantCode(IdUtils.createUlid());
-        }
+        // 自动生成不可变的租户编码（忽略前端传入的值）
+        String generatedCode = IdUtils.createUlid();
+        sysTenant.setSysTenantCode(generatedCode);
+        log.info("自动生成租户编码: {}", generatedCode);
 
         // 检查账号是否已存在
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
@@ -135,14 +129,8 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);
 
-        if (StringUtils.isNotBlank(sysTenant.getSysTenantCode())) {
-            if (exists(Wrappers.<SysTenant>lambdaQuery()
-                    .eq(SysTenant::getSysTenantCode, sysTenant.getSysTenantCode())
-                    .ne(SysTenant::getSysTenantId, sysTenant.getSysTenantId()))) {
-                log.warn("租户编码已存在: {}", sysTenant.getSysTenantCode());
-                return ReturnResult.error("租户编码已存在");
-            }
-        }
+        // 租户编码不可修改，强制置空以防止被更新
+        sysTenant.setSysTenantCode(null);
 
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
             if (exists(Wrappers.<SysTenant>lambdaQuery()

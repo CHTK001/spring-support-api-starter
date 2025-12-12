@@ -7,6 +7,7 @@ import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.NumberUtils;
 import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
@@ -70,9 +71,9 @@ public class TenantUserLoginService implements UserInfoService, Constant {
     private static final long DATASOURCE_CACHE_TIMEOUT = 30;
 
     /**
-     * 用户上次登录租户缓存前缀
+     * 用户上次登录租户编码缓存前缀
      */
-    private static final String LAST_TENANT_KEY = "user:last_tenant:";
+    private static final String LAST_TENANT_CODE_KEY = "user:last_tenant_code:";
 
     /**
      * 上次登录租户缓存过期时间（天）
@@ -116,40 +117,41 @@ public class TenantUserLoginService implements UserInfoService, Constant {
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override
+    @SuppressWarnings("unchecked")
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         String newAccessKey = "tenant:" + LOGIN_ERROR + principal;
 
-        Map extMap = (Map) ext;
-        String tenantId = (String) extMap.get("tenantId");
+        Map<String, Object> extMap = (Map<String, Object>) ext;
+        // 优先使用租户编码，兼容旧的 tenantId 参数
+        String tenantCode = MapUtils.getString(extMap, "tenantCode");
+        String tenantId = MapUtils.getString(extMap, "tenantId");
 
-        // 如果未传入 tenantId，自动选择租户
-        if (StringUtils.isEmpty(tenantId)) {
-            tenantId = getLastTenant(principal);
-            if (StringUtils.isEmpty(tenantId)) {
-                tenantId = "1";
-            }
-            log.debug("自动选择租户: 用户={}, 租户={}", principal, tenantId);
+        // 如果未传入租户编码，尝试使用上次登录的租户
+        if (StringUtils.isEmpty(tenantCode) && StringUtils.isEmpty(tenantId)) {
+            tenantCode = getLastTenantCode(principal);
+            log.debug("自动选择租户: 用户={}, 租户编码={}", principal, tenantCode);
         }
 
-        log.debug("租户登录请求: 用户={}, 租户={}, IP={}", principal, tenantId, address);
+        log.debug("租户登录请求: 用户={}, 租户编码={}, 租户ID={}, IP={}", principal, tenantCode, tenantId, address);
 
         // 检查账户是否已被锁定
         Boolean hasKey = stringRedisTemplate.hasKey(newAccessKey);
         if (null != hasKey && hasKey) {
             int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
             if (errorCount == count) {
-                log.warn("租户账户已被锁定: 用户={}, 租户={}", principal, tenantId);
+                log.warn("租户账户已被锁定: 用户={}, 租户编码={}", principal, tenantCode);
                 return new UserResume("账户已被锁定");
             }
         }
 
         // 查找包含该用户的租户数据源
         long startTime = System.currentTimeMillis();
-        String dataSourceName = findDataSource(principal, tenantId);
+        String effectiveKey = StringUtils.isNotEmpty(tenantCode) ? tenantCode : tenantId;
+        String dataSourceName = findDataSource(principal, effectiveKey);
         log.debug("数据源查找耗时: {}ms, 结果={}", System.currentTimeMillis() - startTime, dataSourceName);
 
         if (dataSourceName == null) {
-            log.warn("租户登录失败: 未找到包含该用户的数据源 用户={}, 租户={}", principal, tenantId);
+            log.warn("租户登录失败: 未找到包含该用户的数据源 用户={}, 租户编码={}", principal, tenantCode);
             return check(newAccessKey, hasKey);
         }
 
@@ -157,24 +159,30 @@ public class TenantUserLoginService implements UserInfoService, Constant {
         DataSourceContextSupport.setDbType(dataSourceName);
         try {
             startTime = System.currentTimeMillis();
-            SysUser user = sysUserMapper.selectOne(principal, tenantId);
+            // 优先使用租户编码查询，兼容租户ID
+            SysUser user;
+            if (StringUtils.isNotEmpty(tenantCode)) {
+                user = sysUserMapper.selectByTenantCode(principal, tenantCode);
+            } else {
+                user = sysUserMapper.selectOne(principal, tenantId);
+            }
             log.debug("租户用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
             
             if (null == user || null == user.getSysTenantId()) {
-                log.warn("租户登录失败: 用户不存在 用户={}, 租户={}", principal, tenantId);
+                log.warn("租户登录失败: 用户不存在 用户={}, 租户编码={}", principal, tenantCode);
                 check(newAccessKey, hasKey);
                 return new UserResume("账号/密码不正确");
             }
 
             if (1 != user.getSysUserStatus()) {
-                log.warn("租户登录失败: 账户已禁用 用户={}, 租户={}", principal, tenantId);
+                log.warn("租户登录失败: 账户已禁用 用户={}, 租户编码={}", principal, tenantCode);
                 return new UserResume("账号已被禁用");
             }
 
             String salt = user.getSysUserSalt();
             String md5String = DigestUtils.md5Hex(credential + salt);
             if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
-                log.warn("租户登录失败: 密码错误 用户={}, 租户={}", principal, tenantId);
+                log.warn("租户登录失败: 密码错误 用户={}, 租户编码={}", principal, tenantCode);
                 return check(newAccessKey, hasKey);
             }
 
@@ -182,10 +190,10 @@ public class TenantUserLoginService implements UserInfoService, Constant {
             sysUserMapper.updateById(user);
             stringRedisTemplate.delete(newAccessKey);
 
-            log.info("租户登录成功: 用户={} (ID:{}), 租户={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantId, address);
+            log.info("租户登录成功: 用户={} (ID:{}), 租户编码={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantCode, address);
 
-            // 保存上次登录的租户
-            saveLastTenant(principal, String.valueOf(user.getSysTenantId()));
+            // 保存上次登录的租户编码
+            saveLastTenantCode(principal, tenantCode);
 
             return loginInfo(principal, user, address);
         } finally {
@@ -417,28 +425,40 @@ public class TenantUserLoginService implements UserInfoService, Constant {
         return new UserResume("账号/密码不正确");
     }
 
-    private String getLastTenant(String username) {
+    /**
+     * 获取用户上次登录的租户编码
+     *
+     * @param username 用户名
+     * @return 租户编码
+     */
+    private String getLastTenantCode(String username) {
         try {
-            return stringRedisTemplate.opsForValue().get(LAST_TENANT_KEY + username);
+            return stringRedisTemplate.opsForValue().get(LAST_TENANT_CODE_KEY + username);
         } catch (Exception e) {
-            log.warn("获取用户上次登录租户失败: 用户={}, 错误={}", username, e.getMessage());
+            log.warn("获取用户上次登录租户编码失败: 用户={}, 错误={}", username, e.getMessage());
             return null;
         }
     }
 
-    private void saveLastTenant(String username, String tenantId) {
+    /**
+     * 保存用户上次登录的租户编码
+     *
+     * @param username   用户名
+     * @param tenantCode 租户编码
+     */
+    private void saveLastTenantCode(String username, String tenantCode) {
         try {
-            if (StringUtils.isNotEmpty(tenantId)) {
+            if (StringUtils.isNotEmpty(tenantCode)) {
                 stringRedisTemplate.opsForValue().set(
-                        LAST_TENANT_KEY + username,
-                        tenantId,
+                        LAST_TENANT_CODE_KEY + username,
+                        tenantCode,
                         LAST_TENANT_EXPIRE_DAYS,
                         TimeUnit.DAYS
                 );
-                log.debug("保存用户上次登录租户: 用户={}, 租户={}", username, tenantId);
+                log.debug("保存用户上次登录租户编码: 用户={}, 租户编码={}", username, tenantCode);
             }
         } catch (Exception e) {
-            log.warn("保存用户上次登录租户失败: 用户={}, 租户={}, 错误={}", username, tenantId, e.getMessage());
+            log.warn("保存用户上次登录租户编码失败: 用户={}, 租户编码={}, 错误={}", username, tenantCode, e.getMessage());
         }
     }
 }
