@@ -222,4 +222,23 @@ public class NodeControlController {
             @Parameter(description = "节点端口") @RequestParam Integer port) {
         return ReturnResult.success(nodeControlService.isNodeOnlineForNode(ipAddress, port));
     }
+
+    // ==================== 链路追踪（Actuator）====================
+
+    /**
+     * 获取节点HTTP链路追踪
+     *
+     * @param ipAddress IP地址
+     * @param port      端口
+     * @param limit     返回条数限制
+     * @return HTTP追踪列表
+     */
+    @GetMapping("/httptrace")
+    @Operation(summary = "获取节点HTTP链路追踪", description = "通过Actuator获取节点最新的HTTP请求追踪信息")
+    public ReturnResult<List<Map<String, Object>>> getHttpTracesForNode(
+            @Parameter(description = "节点IP地址") @RequestParam String ipAddress,
+            @Parameter(description = "节点端口") @RequestParam Integer port,
+            @Parameter(description = "返回条数限制") @RequestParam(required = false, defaultValue = "50") Integer limit) {
+        return nodeControlService.getHttpTracesForNode(ipAddress, port, limit);
+    }
 }

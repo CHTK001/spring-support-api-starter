@@ -146,4 +146,16 @@ public interface NodeControlService {
      * @return 是否在线
      */
     boolean isNodeOnlineForNode(String ipAddress, Integer port);
+
+    // ==================== 链路追踪（Actuator）====================
+
+    /**
+     * 通过 Actuator 获取节点最新的 HTTP 链路追踪
+     *
+     * @param ipAddress IP地址
+     * @param port      端口
+     * @param limit     返回条数限制（可选）
+     * @return HTTP 追踪列表
+     */
+    ReturnResult<List<Map<String, Object>>> getHttpTracesForNode(String ipAddress, Integer port, Integer limit);
 }
