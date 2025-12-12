@@ -490,18 +490,52 @@ public class SyncConfiguration {
 
     /**
      * 处理 Agent 链路追踪上报
+     * <p>
+     * 支持新的 ReportData 结构，包含 ip、port、profile 等服务信息
+     * </p>
      *
      * @param sessionId 会话ID
-     * @param data      链路追踪数据
+     * @param data      链路追踪数据（ReportData 结构）
      */
+    @SuppressWarnings("unchecked")
     private void handleAgentTrace(String sessionId, Map<String, Object> data) {
         try {
-            log.debug("[AgentTrace] 收到链路追踪: sessionId={}, linkId={}", 
-                    sessionId, MapUtils.getString(data, "linkId"));
+            // 提取 ReportData 中的服务信息
+            String ip = MapUtils.getString(data, "ip");
+            Integer port = MapUtils.getInteger(data, "port");
+            String profile = MapUtils.getString(data, "profile");
+            String applicationName = MapUtils.getString(data, "applicationName");
+            
+            // 提取实际的链路数据
+            Object actualData = data.get("data");
+            Map<String, Object> traceData;
+            if (actualData instanceof Map) {
+                traceData = (Map<String, Object>) actualData;
+            } else {
+                // 兼容旧版格式，直接使用整个 data
+                traceData = data;
+            }
+            
+            // 将服务信息添加到链路数据中
+            if (ip != null) {
+                traceData.put("sourceIp", ip);
+            }
+            if (port != null) {
+                traceData.put("sourcePort", port);
+            }
+            if (profile != null) {
+                traceData.put("profile", profile);
+            }
+            if (applicationName != null) {
+                traceData.put("applicationName", applicationName);
+            }
+            
+            log.debug("[AgentTrace] 收到链路追踪: sessionId={}, app={}, ip={}:{}, linkId={}", 
+                    sessionId, applicationName, ip, port, MapUtils.getString(traceData, "linkId"));
 
-            var result = agentDataStorageService.storeTraceForAgent(sessionId, data);
+            var result = agentDataStorageService.storeTraceForAgent(sessionId, traceData);
             if (result.isOk()) {
-                log.debug("[AgentTrace] 链路追踪存储成功: sessionId={}", sessionId);
+                log.debug("[AgentTrace] 链路追踪存储成功: sessionId={}, app={}", sessionId, applicationName);
             } else {
                 log.warn("[AgentTrace] 链路追踪存储失败: sessionId={}, error={}", sessionId, result.getMsg());
             }
@@ -512,19 +546,50 @@ public class SyncConfiguration {
 
     /**
      * 处理 Agent 服务实例上报
+     * <p>
+     * 支持新的 ReportData 结构，包含 ip、port、profile 等服务信息
+     * </p>
      *
      * @param sessionId    会话ID
-     * @param data         服务实例数据
+     * @param data         服务实例数据（ReportData 结构）
      */
+    @SuppressWarnings("unchecked")
     private void handleAgentServer(String sessionId, Map<String, Object> data) {
         try {
-            String sourceHost = MapUtils.getString(data, "sourceHost");
-            String targetHost = MapUtils.getString(data, "targetHost");
-            log.debug("[AgentServer] 收到服务实例: sessionId={}, {} -> {}", sessionId, sourceHost, targetHost);
+            // 提取 ReportData 中的服务信息
+            String ip = MapUtils.getString(data, "ip");
+            Integer port = MapUtils.getInteger(data, "port");
+            String applicationName = MapUtils.getString(data, "applicationName");
+            
+            // 提取实际的服务实例数据
+            Object actualData = data.get("data");
+            Map<String, Object> instanceData;
+            if (actualData instanceof Map) {
+                instanceData = (Map<String, Object>) actualData;
+            } else {
+                // 兼容旧版格式
+                instanceData = data;
+            }
+            
+            // 将服务信息添加到实例数据中
+            if (ip != null && !instanceData.containsKey("sourceHost")) {
+                instanceData.put("sourceHost", ip);
+            }
+            if (port != null && !instanceData.containsKey("sourcePort")) {
+                instanceData.put("sourcePort", port);
+            }
+            if (applicationName != null && !instanceData.containsKey("sourceName")) {
+                instanceData.put("sourceName", applicationName);
+            }
+            
+            String sourceHost = MapUtils.getString(instanceData, "sourceHost");
+            String targetHost = MapUtils.getString(instanceData, "targetHost");
+            log.debug("[AgentServer] 收到服务实例: sessionId={}, app={}, {} -> {}", 
+                    sessionId, applicationName, sourceHost, targetHost);
 
-            var result = agentDataStorageService.storeServiceInstanceForAgent(sessionId, data);
+            var result = agentDataStorageService.storeServiceInstanceForAgent(sessionId, instanceData);
             if (result.isOk()) {
-                log.debug("[AgentServer] 服务实例存储成功: sessionId={}", sessionId);
+                log.debug("[AgentServer] 服务实例存储成功: sessionId={}, app={}", sessionId, applicationName);
             } else {
                 log.warn("[AgentServer] 服务实例存储失败: sessionId={}, error={}", sessionId, result.getMsg());
             }
@@ -535,19 +600,50 @@ public class SyncConfiguration {
 
     /**
      * 处理 Agent 文件句柄上报
+     * <p>
+     * 支持新的 ReportData 结构，包含 ip、port、profile 等服务信息
+     * </p>
      *
      * @param sessionId  会话ID
-     * @param data       文件句柄数据
+     * @param data       文件句柄数据（ReportData 结构）
      */
+    @SuppressWarnings("unchecked")
     private void handleAgentFileHandle(String sessionId, Map<String, Object> data) {
         try {
-            String filePath = MapUtils.getString(data, "filePath");
-            int fd = MapUtils.getIntValue(data, "fd");
-            log.debug("[AgentFD] 收到文件句柄: sessionId={}, fd={}, path={}", sessionId, fd, filePath);
+            // 提取 ReportData 中的服务信息
+            String ip = MapUtils.getString(data, "ip");
+            Integer port = MapUtils.getInteger(data, "port");
+            String applicationName = MapUtils.getString(data, "applicationName");
+            
+            // 提取实际的文件句柄数据
+            Object actualData = data.get("data");
+            Map<String, Object> handleData;
+            if (actualData instanceof Map) {
+                handleData = (Map<String, Object>) actualData;
+            } else {
+                // 兼容旧版格式
+                handleData = data;
+            }
+            
+            // 将服务信息添加到句柄数据中
+            if (ip != null) {
+                handleData.put("ipAddress", ip);
+            }
+            if (port != null) {
+                handleData.put("port", port);
+            }
+            if (applicationName != null) {
+                handleData.put("applicationName", applicationName);
+            }
+            
+            String filePath = MapUtils.getString(handleData, "filePath");
+            int fd = MapUtils.getIntValue(handleData, "fd");
+            log.debug("[AgentFD] 收到文件句柄: sessionId={}, app={}, fd={}, path={}", 
+                    sessionId, applicationName, fd, filePath);
 
-            var result = agentDataStorageService.storeFileHandleForAgent(sessionId, data);
+            var result = agentDataStorageService.storeFileHandleForAgent(sessionId, handleData);
             if (result.isOk()) {
-                log.debug("[AgentFD] 文件句柄存储成功: sessionId={}", sessionId);
+                log.debug("[AgentFD] 文件句柄存储成功: sessionId={}, app={}", sessionId, applicationName);
             } else {
                 log.warn("[AgentFD] 文件句柄存储失败: sessionId={}, error={}", sessionId, result.getMsg());
             }

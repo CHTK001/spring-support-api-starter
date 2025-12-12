@@ -99,4 +99,14 @@
         ]]>
     </delete>
 
+    <!-- 根据脚本ID清空执行记录 -->
+    <delete id="clearByScriptId">
+        DELETE FROM monitor_sys_gen_script_execution
+        <where>
+            <if test="scriptId != null">
+                monitor_sys_gen_script_id = #{scriptId}
+            </if>
+        </where>
+    </delete>
+
 </mapper>
