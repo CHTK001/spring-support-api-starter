@@ -12,6 +12,7 @@ import com.chua.starter.monitor.service.server.MonitorSysGenServerDeviceReportSe
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;
+import com.chua.starter.monitor.service.node.NodeLogService;
 import com.chua.sync.support.pojo.ClientInfo;
 import com.chua.sync.support.server.SyncServer;
 import com.chua.sync.support.spi.SyncMessageHandler;
@@ -55,6 +56,9 @@ public class SyncConfiguration {
     private static final String TOPIC_AGENT_TRACE = "agent/trace";
     private static final String TOPIC_AGENT_SERVER = "agent/server";
     private static final String TOPIC_AGENT_FD = "agent/fd";
+    
+    // 日志推送 Topic
+    private static final String TOPIC_LOG_PUSH = "monitor/log/push";
 
     @Autowired
     private SyncServer syncServer;
@@ -76,6 +80,9 @@ public class SyncConfiguration {
 
     @Autowired(required = false)
     private AgentDataStorageService agentDataStorageService;
+
+    @Autowired(required = false)
+    private NodeLogService nodeLogService;
 
     @PostConstruct
     public void init() {
@@ -101,6 +108,12 @@ public class SyncConfiguration {
             log.info("[SyncConfig] Agent 数据处理器注册完成 (Trace, Server, FileHandle)");
         } else {
             log.warn("[SyncConfig] AgentDataStorageService 未配置，跳过 Agent 数据处理器注册");
+        }
+
+        // 注册日志推送处理器
+        if (nodeLogService != null) {
+            syncServer.registerHandler(TOPIC_LOG_PUSH, createHandler(TOPIC_LOG_PUSH, this::handleLogPush));
+            log.info("[SyncConfig] 日志推送处理器注册完成");
         }
 
         log.info("[SyncConfig] 消息处理器注册完成 (JobResult, DeviceMetrics, DeviceInfo, AppReport)");
@@ -540,6 +553,30 @@ public class SyncConfiguration {
             }
         } catch (Exception e) {
             log.error("[AgentFD] 处理文件句柄失败: sessionId={}", sessionId, e);
+        }
+    }
+
+    /**
+     * 处理日志推送
+     * <p>
+     * 接收 Agent 推送的日志，转发给前端 WebSocket
+     * </p>
+     *
+     * @param sessionId 会话ID
+     * @param data      日志数据
+     */
+    private void handleLogPush(String sessionId, Map<String, Object> data) {
+        try {
+            String applicationName = MapUtils.getString(data, "applicationName");
+            String level = MapUtils.getString(data, "level");
+            log.debug("[LogPush] 收到日志: sessionId={}, app={}, level={}", sessionId, applicationName, level);
+
+            // 转发给 NodeLogService 处理
+            if (nodeLogService != null) {
+                nodeLogService.handleLogPush(data);
+            }
+        } catch (Exception e) {
+            log.error("[LogPush] 处理日志推送失败: sessionId={}", sessionId, e);
         }
     }
 }
