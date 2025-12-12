@@ -3,7 +3,7 @@ package com.chua.starter.tenant.configuration;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.chua.starter.tenant.properties.TenantProperties;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
 
 /**
  * 租户行处理器实现
@@ -24,7 +24,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     /**
      * 当前租户ID（线程本地变量）
      */
-    private static final ThreadLocal<Long> CURRENT_TENANT_ID = new ThreadLocal<>();
+    private static final ThreadLocal<String> CURRENT_TENANT_ID = new ThreadLocal<>();
 
     /**
      * 构造函数
@@ -42,7 +42,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
      *
      * @param tenantId 租户ID
      */
-    public static void setTenantId(Long tenantId) {
+    public static void setTenantId(String tenantId) {
         CURRENT_TENANT_ID.set(tenantId);
     }
 
@@ -51,7 +51,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
      *
      * @return 租户ID
      */
-    public static Long getCurrentTenantIdValue() {
+    public static String getCurrentTenantIdValue() {
         return CURRENT_TENANT_ID.get();
     }
 
@@ -64,15 +64,15 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
 
     @Override
     public Expression getTenantId() {
-        Long tenantId = CURRENT_TENANT_ID.get();
+        String tenantId = CURRENT_TENANT_ID.get();
         if (tenantId == null && clientMode) {
-            // 客户端模式从配置获取默认租户ID
+            // 客户端模式从配置获取默认租户ID（租户编码，字符串）
             String defaultTenantId = tenantProperties.getClient().getTenantId();
             if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
-                tenantId = Long.parseLong(defaultTenantId);
+                tenantId = defaultTenantId;
             }
         }
-        return new LongValue(tenantId != null ? tenantId : 0L);
+        return new StringValue(tenantId != null ? tenantId : "");
     }
 
     @Override
