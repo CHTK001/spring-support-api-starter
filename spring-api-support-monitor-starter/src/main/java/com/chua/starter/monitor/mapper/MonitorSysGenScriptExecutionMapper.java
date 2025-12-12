@@ -92,6 +92,14 @@ public interface MonitorSysGenScriptExecutionMapper extends BaseMapper<MonitorSy
         int cleanExpiredExecutions(@Param("expireTime") LocalDateTime expireTime);
 
         /**
+         * 根据脚本ID清空执行记录
+         *
+         * @param scriptId 脚本ID（可选，为null时清空所有）
+         * @return 删除的记录数
+         */
+        int clearByScriptId(@Param("scriptId") Integer scriptId);
+
+        /**
          * 执行统计信息
          */
         interface ExecutionStatistics {
