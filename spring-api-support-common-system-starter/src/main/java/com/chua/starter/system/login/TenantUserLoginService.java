@@ -11,7 +11,6 @@ import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
-import com.chua.starter.datasource.support.DataSourceContextSupport;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
@@ -28,13 +27,9 @@ import com.chua.common.support.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ConcurrentReferenceHashMap;
-
-import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,12 +39,10 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
 
 /**
  * 租户用户登录服务
- * <p>支持多租户数据源的用户登录验证与授权</p>
+ * <p>支持多租户环境下的用户登录验证与授权</p>
  *
  * <h2>功能特性</h2>
  * <ul>
- *   <li>支持动态多租户数据源切换</li>
- *   <li>自动查找包含目标用户的租户数据库</li>
  *   <li>租户用户信息与权限管理</li>
  *   <li>错误密码尝试次数限制和账号锁定机制</li>
  *   <li>自动记住上次登录的租户</li>
@@ -64,12 +57,6 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
 @LoginType("tenant")
 @Tag(name = "租户用户登录", description = "多租户环境下的用户登录验证")
 public class TenantUserLoginService implements UserInfoService, Constant {
-    
-    /**
-     * 数据源缓存过期时间(分钟)
-     */
-    private static final long DATASOURCE_CACHE_TIMEOUT = 30;
-
     /**
      * 用户上次登录租户编码缓存前缀
      */
@@ -79,11 +66,6 @@ public class TenantUserLoginService implements UserInfoService, Constant {
      * 上次登录租户缓存过期时间（天）
      */
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
-
-    /**
-     * 用户与数据源映射缓存
-     */
-    private static final Map<String, String> ENGINE_CACHE = new ConcurrentReferenceHashMap<>(1024);
 
     /**
      * 登录尝试失败最大次数
@@ -104,9 +86,6 @@ public class TenantUserLoginService implements UserInfoService, Constant {
     @Autowired
     private SysDeptMapper sysDeptMapper;
     
-    @Autowired
-    private ApplicationContext applicationContext;
-
     /**
      * 租户用户登录验证
      *
@@ -144,138 +123,43 @@ public class TenantUserLoginService implements UserInfoService, Constant {
             }
         }
 
-        // 查找包含该用户的租户数据源
+        // 查询用户（优先使用租户编码）
         long startTime = System.currentTimeMillis();
-        String effectiveKey = StringUtils.isNotEmpty(tenantCode) ? tenantCode : tenantId;
-        String dataSourceName = findDataSource(principal, effectiveKey);
-        log.debug("数据源查找耗时: {}ms, 结果={}", System.currentTimeMillis() - startTime, dataSourceName);
+        SysUser user;
+        if (StringUtils.isNotEmpty(tenantCode)) {
+            user = sysUserMapper.selectByTenantCode(principal, tenantCode);
+        } else {
+            user = sysUserMapper.selectOne(principal, tenantId);
+        }
+        log.debug("租户用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
 
-        if (dataSourceName == null) {
-            log.warn("租户登录失败: 未找到包含该用户的数据源 用户={}, 租户编码={}", principal, tenantCode);
+        if (null == user || null == user.getSysTenantId()) {
+            log.warn("租户登录失败: 用户不存在 用户={}, 租户编码={}", principal, tenantCode);
             return check(newAccessKey, hasKey);
         }
 
-        // 切换到目标数据源
-        DataSourceContextSupport.setDbType(dataSourceName);
-        try {
-            startTime = System.currentTimeMillis();
-            // 优先使用租户编码查询，兼容租户ID
-            SysUser user;
-            if (StringUtils.isNotEmpty(tenantCode)) {
-                user = sysUserMapper.selectByTenantCode(principal, tenantCode);
-            } else {
-                user = sysUserMapper.selectOne(principal, tenantId);
-            }
-            log.debug("租户用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
-            
-            if (null == user || null == user.getSysTenantId()) {
-                log.warn("租户登录失败: 用户不存在 用户={}, 租户编码={}", principal, tenantCode);
-                check(newAccessKey, hasKey);
-                return new UserResume("账号/密码不正确");
-            }
-
-            if (1 != user.getSysUserStatus()) {
-                log.warn("租户登录失败: 账户已禁用 用户={}, 租户编码={}", principal, tenantCode);
-                return new UserResume("账号已被禁用");
-            }
-
-            String salt = user.getSysUserSalt();
-            String md5String = DigestUtils.md5Hex(credential + salt);
-            if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
-                log.warn("租户登录失败: 密码错误 用户={}, 租户编码={}", principal, tenantCode);
-                return check(newAccessKey, hasKey);
-            }
-
-            user.setSysUserLastIp(address);
-            sysUserMapper.updateById(user);
-            stringRedisTemplate.delete(newAccessKey);
-
-            log.info("租户登录成功: 用户={} (ID:{}), 租户编码={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantCode, address);
-
-            // 保存上次登录的租户编码
-            saveLastTenantCode(principal, tenantCode);
-
-            return loginInfo(principal, user, address);
-        } finally {
-            DataSourceContextSupport.clearDbType();
-            DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
-        }
-    }
-
-    /**
-     * 查找包含指定用户的租户数据源
-     */
-    private String findDataSource(String principal, String tenantId) {
-        String cacheKey = principal + ":" + tenantId;
-
-        String cachedDataSource = ENGINE_CACHE.get(cacheKey);
-        if (cachedDataSource != null) {
-            return cachedDataSource;
+        if (1 != user.getSysUserStatus()) {
+            log.warn("租户登录失败: 账户已禁用 用户={}, 租户编码={}", principal, tenantCode);
+            return new UserResume("账号已被禁用");
         }
 
-        String redisKey = "tenant:datasource:" + cacheKey;
-        String redisDataSource = stringRedisTemplate.opsForValue().get(redisKey);
-        if (redisDataSource != null) {
-            ENGINE_CACHE.put(cacheKey, redisDataSource);
-            return redisDataSource;
+        String salt = user.getSysUserSalt();
+        String md5String = DigestUtils.md5Hex(credential + salt);
+        if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
+            log.warn("租户登录失败: 密码错误 用户={}, 租户编码={}", principal, tenantCode);
+            return check(newAccessKey, hasKey);
         }
 
-        return ENGINE_CACHE.computeIfAbsent(cacheKey, (key) -> {
-            try {
-                Map<String, DataSource> beansOfType = applicationContext.getBeansOfType(DataSource.class);
-                Map<String, DataSource> tenantDataSources = new HashMap<>(beansOfType.size());
-                for (Map.Entry<String, DataSource> entry : beansOfType.entrySet()) {
-                    if (entry.getKey().contains("tenant")) {
-                        tenantDataSources.put(entry.getKey(), entry.getValue());
-                    }
-                }
+        user.setSysUserLastIp(address);
+        sysUserMapper.updateById(user);
+        stringRedisTemplate.delete(newAccessKey);
 
-                if (StringUtils.isNotEmpty(tenantId)) {
-                    List<Map.Entry<String, DataSource>> prioritySources = tenantDataSources.entrySet().stream()
-                            .filter(entry -> entry.getKey().contains(tenantId))
-                            .collect(Collectors.toList());
+        log.info("租户登录成功: 用户={} (ID:{}), 租户编码={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantCode, address);
 
-                    if (!prioritySources.isEmpty()) {
-                        for (Map.Entry<String, DataSource> entry : prioritySources) {
-                            String dataSourceName = entry.getKey();
-                            DataSourceContextSupport.setDbType(dataSourceName);
-                            try {
-                                SysUser user = sysUserMapper.selectOne(principal, tenantId);
-                                if (null != user) {
-                                    stringRedisTemplate.opsForValue().set(redisKey, dataSourceName, DATASOURCE_CACHE_TIMEOUT, TimeUnit.MINUTES);
-                                    return dataSourceName;
-                                }
-                            } finally {
-                                DataSourceContextSupport.clearDbType();
-                                DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
-                            }
-                        }
-                    }
-                }
+        // 保存上次登录的租户编码
+        saveLastTenantCode(principal, tenantCode);
 
-                for (Map.Entry<String, DataSource> entry : tenantDataSources.entrySet()) {
-                    String dataSourceName = entry.getKey();
-                    DataSourceContextSupport.setDbType(dataSourceName);
-                    try {
-                        SysUser user = sysUserMapper.selectOne(principal, tenantId);
-                        if (null != user) {
-                            stringRedisTemplate.opsForValue().set(redisKey, dataSourceName, DATASOURCE_CACHE_TIMEOUT, TimeUnit.MINUTES);
-                            return dataSourceName;
-                        }
-                    } catch (Exception e) {
-                        log.warn("检查数据源时出错: {} - {}", dataSourceName, e.getMessage());
-                    } finally {
-                        DataSourceContextSupport.clearDbType();
-                        DataSourceContextSupport.setDbType(DataSourceContextSupport.DEFAULT_DATASOURCE);
-                    }
-                }
-
-                return null;
-            } catch (Exception e) {
-                log.error("数据源查找过程出错: 用户={}, 租户={}", principal, tenantId, e);
-                return null;
-            }
-        });
+        return loginInfo(principal, user, address);
     }
 
     @Override
