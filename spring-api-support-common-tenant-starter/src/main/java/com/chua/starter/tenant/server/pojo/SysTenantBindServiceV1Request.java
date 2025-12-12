@@ -25,7 +25,7 @@ public class SysTenantBindServiceV1Request {
      */
     @ApiModelProperty(value = "租户ID", required = true)
     @Schema(description = "租户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer sysTenantId;
+    private String sysTenantId;
 
     /**
      * 服务绑定项列表

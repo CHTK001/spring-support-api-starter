@@ -141,7 +141,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             }
 
             SysTenant tenant = new SysTenant();
-            tenant.setSysTenantId(tenantId);
+            tenant.setSysTenantId(String.valueOf(tenantId));
             provider.syncTenantUser(tenant, "delete");
             
             log.info("[租户客户端] 租户 {} 删除成功", tenantId);
@@ -228,7 +228,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         SysTenant tenant = new SysTenant();
-        tenant.setSysTenantId(MapUtils.getInteger(data, "sysTenantId", 0));
+        tenant.setSysTenantId(MapUtils.getString(data, "sysTenantId"));
         tenant.setSysTenantCode(MapUtils.getString(data, "sysTenantCode"));
         tenant.setSysTenantName(MapUtils.getString(data, "sysTenantName"));
         tenant.setSysTenantUsername(MapUtils.getString(data, "sysTenantUsername"));

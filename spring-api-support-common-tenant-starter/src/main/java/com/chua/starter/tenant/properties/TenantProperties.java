@@ -15,7 +15,7 @@ import java.util.Set;
  * @since 2024/12/06
  */
 @Data
-@ConfigurationProperties(prefix = PRE, ignoreInvalidFields = true)
+@ConfigurationProperties(prefix = TenantProperties.PRE, ignoreInvalidFields = true)
 public class TenantProperties {
 
     public static final String PRE = "plugin.mybatis-plus.tenant";
