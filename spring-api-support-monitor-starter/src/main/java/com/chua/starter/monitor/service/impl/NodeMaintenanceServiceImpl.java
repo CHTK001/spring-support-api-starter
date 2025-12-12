@@ -1,9 +1,8 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.monitor.service.node.NodeMaintenanceService;
-import com.chua.sync.support.SyncServer;
+import com.chua.sync.support.server.SyncServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 节点维护服务实现
@@ -37,11 +34,6 @@ public class NodeMaintenanceServiceImpl implements NodeMaintenanceService {
     private static final String TOPIC_BACKUP = "monitor/maintenance/backup";
     private static final String TOPIC_UPGRADE = "monitor/maintenance/upgrade";
     private static final String TOPIC_RESTORE = "monitor/maintenance/restore";
-
-    /**
-     * 请求超时时间（秒）
-     */
-    private static final int REQUEST_TIMEOUT = 30;
 
     // ==================== 备份功能 ====================
 
@@ -248,49 +240,41 @@ public class NodeMaintenanceServiceImpl implements NodeMaintenanceService {
 
     /**
      * 发送请求到目标节点
+     * <p>
+     * 使用 SyncServer 的 publish 方法发送消息到指定节点
+     * 注意：此方法只发送消息，无法获取节点的响应结果
+     * 实际的执行结果需要通过状态查询接口获取
+     * </p>
      *
      * @param ipAddress 节点IP
      * @param port      节点端口
      * @param topic     主题
      * @param request   请求数据
-     * @return 响应结果
+     * @return 响应结果（仅表示消息是否发送成功）
+     * @author CH
+     * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
     private ReturnResult<Map<String, Object>> sendRequest(String ipAddress, Integer port, 
                                                            String topic, Map<String, Object> request) {
         try {
-            String sessionId = buildSessionId(ipAddress, port);
+            // 使用 publish 方法发送消息到指定节点
+            boolean sent = syncServer.publish(ipAddress, port, topic, request);
 
-            // 异步发送请求并等待响应
-            CompletableFuture<Object> future = syncServer.sendRequest(sessionId, topic, request);
-            Object response = future.get(REQUEST_TIMEOUT, TimeUnit.SECONDS);
-
-            if (response instanceof Map) {
-                Map<String, Object> responseMap = (Map<String, Object>) response;
-                int code = MapUtils.getIntValue(responseMap, "code", 500);
-                String message = MapUtils.getString(responseMap, "message", "未知错误");
-
-                if (code == 200) {
-                    return ReturnResult.ok(responseMap);
-                } else {
-                    return ReturnResult.error(message);
-                }
+            if (sent) {
+                log.debug("[NodeMaintenance] 消息发送成功: {}:{}, topic={}", ipAddress, port, topic);
+                // 返回成功，包含发送状态
+                Map<String, Object> result = new LinkedHashMap<>();
+                result.put("code", 200);
+                result.put("message", "指令已发送");
+                result.put("data", Map.of("sent", true));
+                return ReturnResult.ok(result);
+            } else {
+                log.warn("[NodeMaintenance] 消息发送失败，节点可能离线: {}:{}", ipAddress, port);
+                return ReturnResult.error("节点离线或不存在");
             }
-
-            return ReturnResult.error("响应格式错误");
-        } catch (java.util.concurrent.TimeoutException e) {
-            log.error("[NodeMaintenance] 请求超时: {}:{}, topic={}", ipAddress, port, topic);
-            return ReturnResult.error("请求超时，节点可能离线或响应缓慢");
         } catch (Exception e) {
             log.error("[NodeMaintenance] 请求失败: {}:{}, topic={}", ipAddress, port, topic, e);
             return ReturnResult.error("请求失败: " + e.getMessage());
         }
-    }
-
-    /**
-     * 构建会话ID
-     */
-    private String buildSessionId(String ipAddress, Integer port) {
-        return ipAddress + ":" + port;
     }
 }
