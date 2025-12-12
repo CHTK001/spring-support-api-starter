@@ -75,13 +75,24 @@
       <if test="tenantId != null and tenantId != ''">
         AND sys_tenant_id = #{tenantId}
       </if>
-    </select>
+  </select>
+
+  <!-- 根据用户名和租户编码查询用户 -->
+  <select id="selectByTenantCode" resultType="com.chua.starter.entity.system.SysUser">
+    SELECT u.*, t.sys_tenant_id
+    FROM sys_user u
+    INNER JOIN sys_tenant t ON u.sys_tenant_id = t.sys_tenant_id
+    WHERE (u.sys_user_username = #{username} OR u.sys_user_phone = #{username})
+      <if test="tenantCode != null and tenantCode != ''">
+        AND t.sys_tenant_code = #{tenantCode}
+      </if>
+  </select>
 
   <select id="selectOneByTenant" resultType="com.chua.starter.entity.system.SysUser">
     SELECT * FROM sys_user
       WHERE (sys_user_username = #{tenant.sysTenantUsername} )
       AND sys_tenant_id = #{tenant.sysTenantId}
-    </select>
+  </select>
 
   <insert id="insertTenant">
     INSERT INTO
