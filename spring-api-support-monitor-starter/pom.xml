@@ -42,6 +42,11 @@
 
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-system-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-view-starter</artifactId>
         </dependency>
 
@@ -192,11 +197,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-project-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-video-starter</artifactId>
         </dependency>
 
         <dependency>

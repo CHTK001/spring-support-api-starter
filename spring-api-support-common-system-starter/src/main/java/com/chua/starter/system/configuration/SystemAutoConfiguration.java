@@ -16,16 +16,15 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Configuration
 @ComponentScan(basePackages = {
-        "com.chua.starter.system.auth",
-        "com.chua.starter.system.service"
+        "com.chua.starter.system"
 })
 @MapperScan(basePackages = "com.chua.starter.system.mapper")
-public class SystemAuthAutoConfiguration {
+public class SystemAutoConfiguration {
 
     /**
      * 构造方法
      */
-    public SystemAuthAutoConfiguration() {
+    public SystemAutoConfiguration() {
         log.info("系统统一认证模块已启用");
     }
 }
