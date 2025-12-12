@@ -55,8 +55,8 @@ public class NodeControlServiceImpl implements NodeControlService {
      * 同步主题常量
      */
     private static final String TOPIC_LOG_LEVEL = "monitor/control/log-level";
-    private static final String TOPIC_RESTART = "monitor/control/restart";
-    private static final String TOPIC_SHUTDOWN = "monitor/control/shutdown";
+    private static final String TOPIC_RESTART = "monitor/control/node-restart";
+    private static final String TOPIC_SHUTDOWN = "monitor/control/node-shutdown";
     private static final String TOPIC_CONTROL = "monitor/control/command";
 
     private final RestTemplate restTemplate;
