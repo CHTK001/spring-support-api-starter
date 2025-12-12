@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -86,53 +89,107 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 获取当前数据库 schema
+     * 获取当前数据库 schema/catalog
+     * <p>
+     * 使用 JDBC DatabaseMetaData API 兼容任意数据库
+     * </p>
      *
      * @return schema 名称
      */
     private String resolveSchema() {
-        try {
-            return jdbcTemplate.queryForObject("select database()", String.class);
-        } catch (Exception ignored) {
-            try {
-                return jdbcTemplate.getDataSource() != null
-                        ? jdbcTemplate.getDataSource().getConnection().getCatalog()
-                        : null;
-            } catch (Exception e) {
-                log.debug("[租户自动加字段] 获取 schema 异常: {}", e.getMessage());
-                return null;
+        DataSource dataSource = jdbcTemplate.getDataSource();
+        if (dataSource == null) {
+            log.error("[租户自动加字段] 无法获取数据源");
+            return null;
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            // 优先使用 catalog（MySQL、SQL Server 等使用 catalog）
+            String catalog = connection.getCatalog();
+            if (catalog != null && !catalog.isEmpty()) {
+                log.debug("[租户自动加字段] 使用 catalog: {}", catalog);
+                return catalog;
             }
+
+            // 其次使用 schema（PostgreSQL、Oracle 等使用 schema）
+            String schema = connection.getSchema();
+            if (schema != null && !schema.isEmpty()) {
+                log.debug("[租户自动加字段] 使用 schema: {}", schema);
+                return schema;
+            }
+
+            log.warn("[租户自动加字段] 无法获取 catalog 或 schema");
+            return null;
+        } catch (SQLException e) {
+            log.error("[租户自动加字段] 获取 schema 异常: {}", e.getMessage());
+            return null;
         }
     }
 
     /**
      * 查询当前 schema 下的所有表
+     * <p>
+     * 使用 JDBC DatabaseMetaData.getTables() 兼容任意数据库
+     * </p>
      *
      * @param schema schema
      * @return 表名列表
      */
     private List<String> queryTables(String schema) {
-        String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
-        return jdbcTemplate.queryForList(sql, String.class, schema);
+        List<String> tables = new ArrayList<>();
+        DataSource dataSource = jdbcTemplate.getDataSource();
+        if (dataSource == null) {
+            return tables;
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            // 参数说明：catalog, schemaPattern, tableNamePattern, types
+            // types = "TABLE" 只查询普通表，不包含视图等
+            try (ResultSet rs = metaData.getTables(schema, schema, "%", new String[]{"TABLE"})) {
+                while (rs.next()) {
+                    String tableName = rs.getString("TABLE_NAME");
+                    if (tableName != null) {
+                        tables.add(tableName);
+                    }
+                }
+            }
+            log.debug("[租户自动加字段] 查询到表数量: {}", tables.size());
+        } catch (SQLException e) {
+            log.error("[租户自动加字段] 查询表列表失败: {}", e.getMessage());
+        }
+        return tables;
     }
 
     /**
      * 判断指定表是否存在租户字段
+     * <p>
+     * 使用 JDBC DatabaseMetaData.getColumns() 兼容任意数据库
+     * </p>
      *
      * @param schema    schema
      * @param tableName 表名
      * @return 是否存在
      */
     private boolean existsTenantColumn(String schema, String tableName) {
-        String sql = """
-                SELECT COUNT(1)
-                FROM information_schema.columns
-                WHERE table_schema = ?
-                  AND table_name = ?
-                  AND column_name = ?
-                """;
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, schema, tableName, TenantDbConstants.TENANT_ID_COLUMN);
-        return count != null && count > 0;
+        DataSource dataSource = jdbcTemplate.getDataSource();
+        if (dataSource == null) {
+            return false;
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            // 参数说明：catalog, schemaPattern, tableNamePattern, columnNamePattern
+            try (ResultSet rs = metaData.getColumns(schema, schema, tableName, TenantDbConstants.TENANT_ID_COLUMN)) {
+                boolean exists = rs.next();
+                log.debug("[租户自动加字段] 检查租户字段: table={}, column={}, exists={}",
+                        tableName, TenantDbConstants.TENANT_ID_COLUMN, exists);
+                return exists;
+            }
+        } catch (SQLException e) {
+            log.error("[租户自动加字段] 检查租户字段失败: table={}, error={}", tableName, e.getMessage());
+            return false;
+        }
     }
 
     /**
