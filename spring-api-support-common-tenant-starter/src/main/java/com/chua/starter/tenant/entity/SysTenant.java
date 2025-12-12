@@ -29,13 +29,13 @@ import java.util.List;
 public class SysTenant extends SysBase {
 
     /**
-     * 租户ID
+     * 租户ID（同时作为租户编码使用）
      */
-    @TableId(value = "sys_tenant_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "租户ID")
-    @Schema(description = "租户ID")
-    @NotNull(message = "租户ID不能为空", groups = {UpdateGroup.class})
-    private Integer sysTenantId;
+    @TableId(value = "sys_tenant_id", type = IdType.ASSIGN_ID)
+    @ApiModelProperty(value = "租户ID/租户编码")
+    @Schema(description = "租户ID/租户编码")
+    @NotBlank(message = "租户ID不能为空", groups = {UpdateGroup.class})
+    private String sysTenantId;
 
     /**
      * 名称
@@ -128,11 +128,12 @@ public class SysTenant extends SysBase {
     private String sysTenantEmail;
 
     /**
-     * 唯一编码
+     * 唯一编码（已废弃，使用 sysTenantId 代替）
      */
+    @Deprecated
     @TableField(value = "sys_tenant_code")
-    @ApiModelProperty(value = "唯一编码")
-    @Schema(description = "唯一编码")
+    @ApiModelProperty(value = "唯一编码（已废弃）")
+    @Schema(description = "唯一编码（已废弃，使用 sysTenantId 代替）")
     private String sysTenantCode;
 
     /**
