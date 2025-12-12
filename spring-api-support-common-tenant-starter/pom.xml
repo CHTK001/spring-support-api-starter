@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-starter</artifactId>
+        <version>4.0.0</version>
+    </parent>
+
+    <artifactId>spring-api-support-common-tenant-starter</artifactId>
+    <name>Spring API Support Common Tenant Starter</name>
+    <description>租户管理模块 - 提供多租户管理功能，包括租户管理、服务管理、服务模块管理，以及租户数据同步等核心功能</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- 系统模块 - 提供 SysUser、SysMenu 等实体和服务 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-system-starter</artifactId>
+        </dependency>
+
+        <!-- MyBatis 基础模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mybatis-starter</artifactId>
+        </dependency>
+
+        <!-- Swagger API文档 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-swagger-starter</artifactId>
+        </dependency>
+
+        <!-- 同步协议模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-sync-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+</project>

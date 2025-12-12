@@ -1,0 +1,188 @@
+package com.chua.starter.tenant.properties;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.chua.starter.tenant.properties.TenantProperties.PRE;
+
+/**
+ * 租户配置属性
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2024/12/06
+ */
+@Data
+@ConfigurationProperties(prefix = PRE, ignoreInvalidFields = true)
+public class TenantProperties {
+
+    public static final String PRE = "plugin.mybatis-plus.tenant";
+
+    /**
+     * 租户ID字段名（通用配置）
+     */
+    private String tenantIdColumn = "sys_tenant_id";
+
+    /**
+     * 忽略的表（不添加租户条件，通用配置）
+     */
+    private Set<String> ignoreTable = new HashSet<>();
+
+    /**
+     * 服务端配置
+     */
+    private ServerConfig server = new ServerConfig();
+
+    /**
+     * 客户端配置
+     */
+    private ClientConfig client = new ClientConfig();
+
+    /**
+     * 判断是否为服务端模式
+     *
+     * @return 服务端启用时返回 true
+     */
+    public boolean isServerMode() {
+        return server.isEnable();
+    }
+
+    /**
+     * 判断是否为客户端模式
+     *
+     * @return 客户端启用时返回 true
+     */
+    public boolean isClientMode() {
+        return client.isEnable();
+    }
+
+    /**
+     * 获取租户ID字段名
+     * 优先使用模式特定配置，没有则使用通用配置
+     *
+     * @return 租户ID字段名
+     */
+    public String getEffectiveTenantIdColumn() {
+        if (isClientMode() && client.getTenantIdColumn() != null) {
+            return client.getTenantIdColumn();
+        }
+        if (isServerMode() && server.getTenantIdColumn() != null) {
+            return server.getTenantIdColumn();
+        }
+        return tenantIdColumn;
+    }
+
+    /**
+     * 获取忽略的表
+     * 合并通用配置和模式特定配置
+     *
+     * @return 忽略的表集合
+     */
+    public Set<String> getEffectiveIgnoreTable() {
+        Set<String> result = new HashSet<>(ignoreTable);
+        if (isClientMode()) {
+            result.addAll(client.getIgnoreTable());
+        }
+        if (isServerMode()) {
+            result.addAll(server.getIgnoreTable());
+        }
+        return result;
+    }
+
+    /**
+     * 服务端配置
+     */
+    @Data
+    public static class ServerConfig {
+
+        /**
+         * 是否启用服务端模式
+         */
+        private boolean enable = false;
+
+        /**
+         * 是否启用同步下发
+         */
+        private boolean syncEnable = false;
+
+        /**
+         * 租户ID字段名（覆盖通用配置）
+         */
+        private String tenantIdColumn;
+
+        /**
+         * 忽略的表（不添加租户条件，追加到通用配置）
+         */
+        private Set<String> ignoreTable = new HashSet<>();
+
+        /**
+         * 通信协议: rsocket, websocket
+         */
+        private String protocol = "rsocket-sync";
+
+        /**
+         * 绑定地址
+         */
+        private String host = "0.0.0.0";
+
+        /**
+         * 监听端口
+         */
+        private int port = 19380;
+    }
+
+    /**
+     * 客户端配置
+     */
+    @Data
+    public static class ClientConfig {
+
+        /**
+         * 是否启用客户端模式
+         */
+        private boolean enable = false;
+
+        /**
+         * 是否启用同步接收
+         */
+        private boolean syncEnable = false;
+
+        /**
+         * 当前租户ID
+         */
+        private String tenantId;
+
+        /**
+         * 租户ID字段名（覆盖通用配置）
+         */
+        private String tenantIdColumn;
+
+        /**
+         * 忽略的表（不添加租户条件，追加到通用配置）
+         */
+        private Set<String> ignoreTable = new HashSet<>();
+
+        /**
+         * 是否自动添加租户字段到数据库表
+         */
+        private boolean autoAddColumn = false;
+
+        /**
+         * 通信协议: rsocket, websocket
+         */
+        private String protocol = "rsocket-sync";
+
+        /**
+         * 服务端地址
+         */
+        private String serverHost = "localhost";
+
+        /**
+         * 服务端端口
+         */
+        private int serverPort = 19380;
+    }
+}
