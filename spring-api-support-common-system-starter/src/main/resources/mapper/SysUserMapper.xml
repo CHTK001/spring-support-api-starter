@@ -113,4 +113,16 @@
         #{sysUser.sysUserPhone},
         #{tenant.sysTenantId})
   </insert>
+
+  <!-- 根据用户名查询最新的租户编码 -->
+  <select id="selectLatestTenantCodeByUsername" resultType="java.lang.String">
+    SELECT t.sys_tenant_code
+    FROM sys_user u
+    INNER JOIN sys_tenant t ON u.sys_tenant_id = t.sys_tenant_id
+    WHERE (u.sys_user_username = #{username} OR u.sys_user_phone = #{username})
+      AND t.sys_tenant_status = 0
+      AND t.sys_tenant_delete = 0
+    ORDER BY t.create_time DESC
+    LIMIT 1
+  </select>
 </mapper>

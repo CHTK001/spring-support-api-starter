@@ -82,4 +82,12 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 影响行数
      */
     int insertTenant(@Param("sysUser") SysUser sysUser, @Param("tenant") Map<String, Object> tenant);
+
+    /**
+     * 根据用户名查询最新的租户编码
+     *
+     * @param username 用户名
+     * @return 租户编码
+     */
+    String selectLatestTenantCodeByUsername(@Param("username") String username);
 }

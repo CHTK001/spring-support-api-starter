@@ -1,12 +1,11 @@
 package com.chua.starter.tenant.properties;
 
+import com.chua.starter.tenant.constant.TenantDbConstants;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.chua.starter.tenant.properties.TenantProperties.PRE;
 
 /**
  * 租户配置属性
@@ -20,11 +19,6 @@ import static com.chua.starter.tenant.properties.TenantProperties.PRE;
 public class TenantProperties {
 
     public static final String PRE = "plugin.mybatis-plus.tenant";
-
-    /**
-     * 租户ID字段名（通用配置）
-     */
-    private String tenantIdColumn = "sys_tenant_id";
 
     /**
      * 忽略的表（不添加租户条件，通用配置）
@@ -61,18 +55,11 @@ public class TenantProperties {
 
     /**
      * 获取租户ID字段名
-     * 优先使用模式特定配置，没有则使用通用配置
      *
      * @return 租户ID字段名
      */
     public String getEffectiveTenantIdColumn() {
-        if (isClientMode() && client.getTenantIdColumn() != null) {
-            return client.getTenantIdColumn();
-        }
-        if (isServerMode() && server.getTenantIdColumn() != null) {
-            return server.getTenantIdColumn();
-        }
-        return tenantIdColumn;
+        return TenantDbConstants.TENANT_ID_COLUMN;
     }
 
     /**
@@ -107,11 +94,6 @@ public class TenantProperties {
          * 是否启用同步下发
          */
         private boolean syncEnable = false;
-
-        /**
-         * 租户ID字段名（覆盖通用配置）
-         */
-        private String tenantIdColumn;
 
         /**
          * 忽略的表（不添加租户条件，追加到通用配置）
@@ -154,11 +136,6 @@ public class TenantProperties {
          * 当前租户ID
          */
         private String tenantId;
-
-        /**
-         * 租户ID字段名（覆盖通用配置）
-         */
-        private String tenantIdColumn;
 
         /**
          * 忽略的表（不添加租户条件，追加到通用配置）
