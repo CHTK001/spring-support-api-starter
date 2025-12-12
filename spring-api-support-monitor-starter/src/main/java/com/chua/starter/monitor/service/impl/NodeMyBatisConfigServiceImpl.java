@@ -198,7 +198,7 @@ public class NodeMyBatisConfigServiceImpl implements NodeMyBatisConfigService {
             requestData.put("action", "refreshXml");
             requestData.put("resourcePath", resourcePath);
 
-            Map<String, Object> response = sendRequest(nodeInfo.getClientId(), requestData);
+            Map<String, Object> response = sendRequest(nodeInfo.getIpAddress(), nodeInfo.getPort(), requestData);
             if (response == null) {
                 return ReturnResult.error("请求节点超时");
             }
@@ -242,7 +242,7 @@ public class NodeMyBatisConfigServiceImpl implements NodeMyBatisConfigService {
             Map<String, Object> requestData = new HashMap<>();
             requestData.put("action", "refreshAllXml");
 
-            Map<String, Object> response = sendRequest(nodeInfo.getClientId(), requestData);
+            Map<String, Object> response = sendRequest(nodeInfo.getIpAddress(), nodeInfo.getPort(), requestData);
             if (response == null) {
                 return ReturnResult.error("请求节点超时");
             }
@@ -358,21 +358,33 @@ public class NodeMyBatisConfigServiceImpl implements NodeMyBatisConfigService {
 
     /**
      * 发送请求到节点
+     * <p>
+     * 使用 SyncServer 的 publish 方法发送消息到指定节点
+     * 注意：此方法只发送消息，无法获取节点的响应结果
+     * </p>
      *
-     * @param clientId    客户端 ID
+     * @param ipAddress   节点IP地址
+     * @param port        节点端口
      * @param requestData 请求数据
-     * @return 响应数据
+     * @return 响应数据（仅表示消息是否发送成功）
+     * @author CH
+     * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> sendRequest(String clientId, Map<String, Object> requestData) {
+    private Map<String, Object> sendRequest(String ipAddress, Integer port, Map<String, Object> requestData) {
         try {
-            Object response = syncServer.request(MYBATIS_CONFIG_TOPIC, clientId, requestData, 10000);
-            if (response instanceof Map) {
-                return (Map<String, Object>) response;
+            boolean sent = syncServer.publish(ipAddress, port, MYBATIS_CONFIG_TOPIC, requestData);
+            if (sent) {
+                // 消息发送成功，返回成功响应
+                Map<String, Object> result = new HashMap<>();
+                result.put("code", 200);
+                result.put("message", "指令已发送");
+                return result;
+            } else {
+                log.warn("发送请求到节点失败，节点可能离线: {}:{}", ipAddress, port);
+                return null;
             }
-            return null;
         } catch (Exception e) {
-            log.error("发送请求到节点失败: clientId={}", clientId, e);
+            log.error("发送请求到节点失败: {}:{}", ipAddress, port, e);
             return null;
         }
     }
