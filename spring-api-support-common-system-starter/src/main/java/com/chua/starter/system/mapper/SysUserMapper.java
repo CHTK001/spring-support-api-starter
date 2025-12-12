@@ -58,6 +58,15 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     SysUser selectOne(@Param("username") String username, @Param("tenantId") String tenantId);
 
     /**
+     * 根据用户名和租户编码查询用户
+     *
+     * @param username   用户名
+     * @param tenantCode 租户编码
+     * @return 用户信息
+     */
+    SysUser selectByTenantCode(@Param("username") String username, @Param("tenantCode") String tenantCode);
+
+    /**
      * 根据租户查询用户
      *
      * @param tenant 租户信息

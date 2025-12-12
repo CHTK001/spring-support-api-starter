@@ -46,6 +46,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                 ImmutableBuilder.<String, Object>builderOfMap()
                         .put("address", address)
                         .put("fingerprint", fingerprint)
+                        .put("tenantCode", loginData.getTenantCode())
                         .put("tenantId", loginData.getTenantId())
                         .build()
         );
