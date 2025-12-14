@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.JedisPooled;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import java.util.Map;
 @RequestMapping("/v1/agent/data")
 @RequiredArgsConstructor
 @Tag(name = "Agent 数据查询", description = "Agent 上报数据的查询接口")
-@ConditionalOnBean(AgentDataStorageService.class)
+@ConditionalOnBean(JedisPooled.class)
 public class AgentDataController {
 
     private final AgentDataStorageService agentDataStorageService;
