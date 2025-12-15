@@ -258,8 +258,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("新密码不能为空！");
         }
 
-        updateById(sysUser);
-        return ReturnResult.ok(sysUser);
+        try {
+            updateById(sysUser);
+            return ReturnResult.ok(sysUser);
+        } finally {
+            // 刷新OAuth用户会话信息
+            AuthClientExecute.getInstance().upgrade(null, UpgradeType.TIMESTAMP);
+        }
     }
 
     @Override
@@ -295,5 +300,213 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return userLayout;
     }
 
+    @Override
+    public void exportUsers(SysUserQuery query, Set<String> roles, jakarta.servlet.http.HttpServletResponse response) {
+        try {
+            response.setContentType("text/csv;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=users_" + System.currentTimeMillis() + ".csv");
+            response.setCharacterEncoding("UTF-8");
+            // BOM for Excel UTF-8
+            response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+            
+            java.io.PrintWriter writer = response.getWriter();
+            // CSV头
+            writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
+            
+            // 查询数据
+            query.setSize(10000); // 限制最大导出数量
+            IPage<SysUserVO> page = pageForUser(query, roles);
+            
+            for (SysUserVO user : page.getRecords()) {
+                StringBuilder line = new StringBuilder();
+                line.append(escapeCsv(user.getSysUserUsername())).append(",");
+                line.append(escapeCsv(user.getSysUserNickName())).append(",");
+                line.append(escapeCsv(user.getSysUserEmail())).append(",");
+                line.append(escapeCsv(user.getSysUserPhone())).append(",");
+                line.append(user.getSysUserGender() == null ? "" : (user.getSysUserGender() == 0 ? "男" : "女")).append(",");
+                line.append(escapeCsv(user.getDeptName())).append(",");
+                String roleNames = user.getUserRoles() != null ? 
+                        user.getUserRoles().stream().map(SysRole::getSysRoleName).collect(Collectors.joining(";")) : "";
+                line.append(escapeCsv(roleNames)).append(",");
+                line.append(user.getSysUserStatus() == null ? "" : (user.getSysUserStatus() == 1 ? "启用" : "禁用")).append(",");
+                line.append(escapeCsv(user.getSysUserRemark()));
+                writer.println(line.toString());
+            }
+            writer.flush();
+        } catch (Exception e) {
+            log.error("导出用户失败", e);
+            throw new RuntimeException("导出失败: " + e.getMessage());
+        }
+    }
 
+    @Override
+    public void downloadTemplate(jakarta.servlet.http.HttpServletResponse response) {
+        try {
+            response.setContentType("text/csv;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=user_import_template.csv");
+            response.setCharacterEncoding("UTF-8");
+            // BOM for Excel UTF-8
+            response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+            
+            java.io.PrintWriter writer = response.getWriter();
+            // CSV头
+            writer.println("用户名(*),昵称(*),邮箱,手机号,性别(0男/1女),部门ID,角色编码(多个用;分隔),状态(0禁用/1启用),备注");
+            // 示例数据
+            writer.println("zhangsan,张三,zhangsan@example.com,13800138000,0,1,admin;user,1,测试用户");
+            writer.flush();
+        } catch (Exception e) {
+            log.error("下载模板失败", e);
+            throw new RuntimeException("下载模板失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<String> importUsers(org.springframework.web.multipart.MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return ReturnResult.illegal("请上传文件");
+        }
+        
+        int successCount = 0;
+        int failCount = 0;
+        StringBuilder errors = new StringBuilder();
+        
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(file.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+            String line;
+            int lineNum = 0;
+            
+            while ((line = reader.readLine()) != null) {
+                lineNum++;
+                // 跳过头行
+                if (lineNum == 1) {
+                    continue;
+                }
+                
+                // 跳过空行
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                
+                try {
+                    String[] fields = parseCsvLine(line);
+                    if (fields.length < 2) {
+                        errors.append("第").append(lineNum).append("行: 数据格式错误\n");
+                        failCount++;
+                        continue;
+                    }
+                    
+                    String username = fields[0].trim();
+                    String nickname = fields[1].trim();
+                    
+                    if (username.isEmpty() || nickname.isEmpty()) {
+                        errors.append("第").append(lineNum).append("行: 用户名或昵称不能为空\n");
+                        failCount++;
+                        continue;
+                    }
+                    
+                    // 检查用户名是否已存在
+                    if (baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery()
+                            .eq(SysUser::getSysUserUsername, username)) > 0) {
+                        errors.append("第").append(lineNum).append("行: 用户名").append(username).append("已存在\n");
+                        failCount++;
+                        continue;
+                    }
+                    
+                    // 创建用户
+                    SysUser sysUser = new SysUser();
+                    sysUser.setSysUserUsername(username);
+                    sysUser.setSysUserNickName(nickname);
+                    sysUser.setSysUserEmail(fields.length > 2 ? fields[2].trim() : null);
+                    sysUser.setSysUserPhone(fields.length > 3 ? fields[3].trim() : null);
+                    sysUser.setSysUserGender(fields.length > 4 && !fields[4].trim().isEmpty() ? 
+                            Integer.parseInt(fields[4].trim()) : 0);
+                    sysUser.setSysUserDeptId(fields.length > 5 && !fields[5].trim().isEmpty() ? 
+                            Long.parseLong(fields[5].trim()) : null);
+                    sysUser.setSysUserStatus(fields.length > 7 && !fields[7].trim().isEmpty() ? 
+                            Integer.parseInt(fields[7].trim()) : 1);
+                    sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);
+                    
+                    // 设置默认密码
+                    String defaultPassword = "123456";
+                    sysUser.setSysUserSalt(RandomUtils.randomString(14));
+                    sysUser.setSysUserPassword(DigestUtils.md5Hex(defaultPassword + sysUser.getSysUserSalt()));
+                    sysUser.setSysUserInSystem(0);
+                    sysUser.setSysUserDelete(0);
+                    
+                    save(sysUser);
+                    
+                    // 处理角色
+                    if (fields.length > 6 && !fields[6].trim().isEmpty()) {
+                        String[] roleNames = fields[6].split(";");
+                        for (String roleName : roleNames) {
+                            SysRole role = sysRoleMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
+                                    .eq(SysRole::getSysRoleCode, roleName.trim()));
+                            if (role != null) {
+                                SysUserRole userRole = new SysUserRole();
+                                userRole.setSysUserId(sysUser.getSysUserId());
+                                userRole.setSysRoleId(role.getSysRoleId());
+                                sysUserRoleService.save(userRole);
+                            }
+                        }
+                    }
+                    
+                    successCount++;
+                } catch (Exception e) {
+                    errors.append("第").append(lineNum).append("行: ").append(e.getMessage()).append("\n");
+                    failCount++;
+                }
+            }
+        } catch (Exception e) {
+            log.error("导入用户失败", e);
+            return ReturnResult.error("导入失败: " + e.getMessage());
+        }
+        
+        String result = "导入完成！成功: " + successCount + " 条，失败: " + failCount + " 条";
+        if (errors.length() > 0) {
+            result += "\n错误详情:\n" + errors.toString();
+        }
+        return ReturnResult.ok(result);
+    }
+
+    /**
+     * CSV字段转义
+     */
+    private String escapeCsv(String value) {
+        if (value == null) {
+            return "";
+        }
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
+
+    /**
+     * 解析CSV行
+     */
+    private String[] parseCsvLine(String line) {
+        java.util.List<String> result = new java.util.ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"');
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == ',' && !inQuotes) {
+                result.add(current.toString());
+                current = new StringBuilder();
+            } else {
+                current.append(c);
+            }
+        }
+        result.add(current.toString());
+        
+        return result.toArray(new String[0]);
+    }
 }

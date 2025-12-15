@@ -766,4 +766,164 @@ public class RedisTokenResolver implements TokenResolver {
 
         return new OnlineStatus(onlineCount, maxOnlineCount, onlineMode.name());
     }
+
+    // ==================== 在线用户列表查询 ====================
+
+    /**
+     * 获取在线用户列表
+     * <p>扫描Redis中所有有效的Token，返回在线用户信息</p>
+     *
+     * @param query 查询参数
+     * @return 在线用户列表结果
+     */
+    @Override
+    public OnlineUserResult getOnlineUsers(OnlineUserQuery query) {
+        if (query == null) {
+            query = new OnlineUserQuery();
+        }
+
+        try {
+            // 扫描所有Token
+            Set<String> allTokenKeys = stringRedisTemplate.keys(TOKEN_PRE + "*");
+            if (allTokenKeys == null || allTokenKeys.isEmpty()) {
+                return OnlineUserResult.empty();
+            }
+
+            java.util.List<OnlineUserInfo> allUsers = new java.util.ArrayList<>();
+            
+            for (String tokenKey : allTokenKeys) {
+                try {
+                    Object value = stringRedisTemplate.opsForValue().get(tokenKey);
+                    if (value == null) {
+                        continue;
+                    }
+
+                    UserResult userResult = BeanUtils.copyProperties(value, UserResult.class);
+                    if (userResult == null || StringUtils.isBlank(userResult.getUserId())) {
+                        continue;
+                    }
+
+                    // 应用用户名过滤
+                    if (StringUtils.isNotBlank(query.getUsername())) {
+                        String username = userResult.getUsername();
+                        if (username == null || !username.toLowerCase().contains(query.getUsername().toLowerCase())) {
+                            continue;
+                        }
+                    }
+
+                    // 应用IP过滤
+                    if (StringUtils.isNotBlank(query.getIp())) {
+                        String address = userResult.getAddress();
+                        if (address == null || !address.contains(query.getIp())) {
+                            continue;
+                        }
+                    }
+
+                    // 构建在线用户信息
+                    OnlineUserInfo info = new OnlineUserInfo();
+                    info.setUserId(userResult.getUserId());
+                    info.setUsername(userResult.getUsername());
+                    info.setNickname(userResult.getNickName());
+                    info.setLoginIp(userResult.getAddress());
+                    // 登录地址需要通过IP查询服务获取，暂留空
+                    info.setLoginAddress(null);
+                    
+                    // 从ext中获取浏览器和操作系统信息
+                    Map<String, Object> ext = userResult.getExt();
+                    if (ext != null) {
+                        info.setBrowser(getStringFromMap(ext, "browser"));
+                        info.setOs(getStringFromMap(ext, "os"));
+                        Object loginTimeObj = ext.get("loginTime");
+                        if (loginTimeObj instanceof Number) {
+                            info.setLoginTime(((Number) loginTimeObj).longValue());
+                        }
+                    }
+                    
+                    // 从Token key中提取token
+                    String token = tokenKey.substring(TOKEN_PRE.length());
+                    info.setToken(token);
+                    info.setLoginType(userResult.getLoginType());
+
+                    allUsers.add(info);
+                } catch (Exception e) {
+                    // 忽略单个token解析失败
+                }
+            }
+
+            // 分页处理
+            int total = allUsers.size();
+            int page = Math.max(1, query.getPage());
+            int size = Math.max(1, Math.min(100, query.getSize()));
+            int start = (page - 1) * size;
+            int end = Math.min(start + size, total);
+
+            java.util.List<OnlineUserInfo> pagedUsers;
+            if (start >= total) {
+                pagedUsers = java.util.Collections.emptyList();
+            } else {
+                pagedUsers = allUsers.subList(start, end);
+            }
+
+            return new OnlineUserResult(pagedUsers, total, page, size);
+        } catch (Exception e) {
+            return OnlineUserResult.empty();
+        }
+    }
+
+    /**
+     * 强制踢出用户
+     *
+     * @param token 用户token
+     * @return 是否成功
+     */
+    @Override
+    public boolean kickUser(String token) {
+        if (StringUtils.isBlank(token)) {
+            return false;
+        }
+
+        try {
+            String tokenRedisKey = TOKEN_PRE + token;
+            Object value = stringRedisTemplate.opsForValue().get(tokenRedisKey);
+            if (value == null) {
+                return false;
+            }
+
+            UserResult userResult = BeanUtils.copyProperties(value, UserResult.class);
+            if (userResult != null) {
+                // 将Token加入黑名单
+                if (tokenBlacklistService != null) {
+                    long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                    tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED,
+                            expire, userResult.getUserId(), userResult.getUsername());
+                }
+
+                // 删除Token
+                stringRedisTemplate.delete(tokenRedisKey);
+
+                // 删除RefreshToken
+                String refreshToken = userResult.getRefreshToken();
+                if (StringUtils.isNotEmpty(refreshToken)) {
+                    stringRedisTemplate.delete(TOKEN_REFRESH_PRE + refreshToken);
+                }
+
+                // 记录登出日志
+                String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : "WEB";
+                recordLogoutLog(userResult, loginType, LogoutType.LOGOUT);
+
+                return true;
+            }
+        } catch (Exception e) {
+            // 踢出失败
+        }
+        return false;
+    }
+
+    private String getStringFromMap(Map<String, Object> map, String key) {
+        if (map == null) {
+            return null;
+        }
+        Object value = map.get(key);
+        return value != null ? value.toString() : null;
+    }
 }

@@ -9,8 +9,11 @@ import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
+import com.chua.starter.system.pojo.user.SysUserImportVO;
 import com.chua.starter.system.pojo.user.UserLayout;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -111,5 +114,29 @@ public interface SysUserService extends IService<SysUser> {
      * @return 布局信息对象，包含保存后的布局信息
      */
     UserLayout saveUserLayout(Long userId, UserLayout userLayout);
+
+    /**
+     * 导出用户列表到CSV
+     *
+     * @param query 查询条件
+     * @param roles 角色集合
+     * @param response HTTP响应对象
+     */
+    void exportUsers(SysUserQuery query, Set<String> roles, HttpServletResponse response);
+
+    /**
+     * 下载用户导入模板
+     *
+     * @param response HTTP响应对象
+     */
+    void downloadTemplate(HttpServletResponse response);
+
+    /**
+     * 导入用户
+     *
+     * @param file CSV文件
+     * @return 导入结果
+     */
+    ReturnResult<String> importUsers(MultipartFile file);
 
 }
