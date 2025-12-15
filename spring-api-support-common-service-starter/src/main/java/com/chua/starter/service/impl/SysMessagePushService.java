@@ -51,7 +51,11 @@ public class SysMessagePushService {
             data.put("dataId", message.getSysMessageReceiverId() != null ?
                     String.valueOf(message.getSysMessageReceiverId()) : "0");
 
-            socketSessionTemplate.send(SocketTopics.Service.Message.PUSH, Json.toJson(data));
+            // 推送主题格式: service:message:push@{receiverId}
+            // 广播消息(receiverId=0)使用 service:message:push@0
+            String topic = SocketTopics.Service.Message.PUSH + "@" + 
+                    (message.getSysMessageReceiverId() != null ? message.getSysMessageReceiverId() : 0);
+            socketSessionTemplate.send(topic, Json.toJson(data));
             log.debug("消息推送成功: messageId={}", message.getSysMessageId());
         } catch (Exception e) {
             log.error("消息推送失败: messageId={}", message.getSysMessageId(), e);
