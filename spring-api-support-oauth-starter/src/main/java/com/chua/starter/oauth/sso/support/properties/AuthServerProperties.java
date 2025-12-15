@@ -166,6 +166,7 @@ public class AuthServerProperties {
      * <ul>
      * <li><strong>armeria</strong> - Armeria协议，基于Netty的高性能异步框架，支持HTTP/2和gRPC，【推荐】</li>
      * <li><strong>http</strong> - HTTP协议，基于RESTful API，兼容性好</li>
+     * <li><strong>oauth2</strong> - OAuth 2.0标准协议，符合RFC 6749规范</li>
      * <li><strong>grpc</strong> - gRPC协议，基于HTTP/2，支持流式通信，性能优异</li>
      * <li><strong>tcp</strong> - TCP协议，二进制传输，高性能</li>
      * <li><strong>udp</strong> - UDP协议，无连接，极致性能</li>

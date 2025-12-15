@@ -16,18 +16,22 @@ import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.pojo.user.UserLayout;
+import com.chua.starter.system.pojo.user.SysUserImportVO;
 import com.chua.starter.system.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
@@ -192,5 +196,47 @@ public class SysUserController {
         }
 
         return sysUserService.saveUser(sysUserUpdate, request);
+    }
+
+    /**
+     * 导出用户列表
+     *
+     * @param sysUserQuery 查询条件
+     * @param roles        角色集合
+     * @param response     响应对象
+     */
+    @Operation(summary = "导出用户列表")
+    @GetMapping("/export")
+    @SysLog
+    @Permission(value = "sys:login:export", role = {ADMIN, AuthConstant.SUPER_ADMIN})
+    public void exportUsers(@ParameterObject SysUserQuery sysUserQuery,
+                            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                            HttpServletResponse response) {
+        sysUserService.exportUsers(sysUserQuery, roles, response);
+    }
+
+    /**
+     * 下载用户导入模板
+     *
+     * @param response 响应对象
+     */
+    @Operation(summary = "下载用户导入模板")
+    @GetMapping("/template")
+    public void downloadTemplate(HttpServletResponse response) {
+        sysUserService.downloadTemplate(response);
+    }
+
+    /**
+     * 导入用户
+     *
+     * @param file CSV文件
+     * @return 导入结果
+     */
+    @Operation(summary = "导入用户")
+    @PostMapping("/import")
+    @SysLog
+    @Permission(value = "sys:login:import", role = {ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<String> importUsers(@RequestParam("file") MultipartFile file) {
+        return sysUserService.importUsers(file);
     }
 }
