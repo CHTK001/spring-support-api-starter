@@ -314,17 +314,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
             
             // 查询数据
-            query.setSize(10000); // 限制最大导出数量
+            query.setPageSize(10000); // 限制最大导出数量
             IPage<SysUserVO> page = pageForUser(query, roles);
             
             for (SysUserVO user : page.getRecords()) {
                 StringBuilder line = new StringBuilder();
                 line.append(escapeCsv(user.getSysUserUsername())).append(",");
-                line.append(escapeCsv(user.getSysUserNickName())).append(",");
+                line.append(escapeCsv(user.getSysUserNickname())).append(",");
                 line.append(escapeCsv(user.getSysUserEmail())).append(",");
                 line.append(escapeCsv(user.getSysUserPhone())).append(",");
-                line.append(user.getSysUserGender() == null ? "" : (user.getSysUserGender() == 0 ? "男" : "女")).append(",");
-                line.append(escapeCsv(user.getDeptName())).append(",");
+                line.append(user.getSysUserSex() == null ? "" : (user.getSysUserSex() == 0 ? "女" : "男")).append(",");
+                line.append("").append(",");
                 String roleNames = user.getUserRoles() != null ? 
                         user.getUserRoles().stream().map(SysRole::getSysRoleName).collect(Collectors.joining(";")) : "";
                 line.append(escapeCsv(roleNames)).append(",");
@@ -415,13 +415,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     // 创建用户
                     SysUser sysUser = new SysUser();
                     sysUser.setSysUserUsername(username);
-                    sysUser.setSysUserNickName(nickname);
+                    sysUser.setSysUserNickname(nickname);
                     sysUser.setSysUserEmail(fields.length > 2 ? fields[2].trim() : null);
                     sysUser.setSysUserPhone(fields.length > 3 ? fields[3].trim() : null);
-                    sysUser.setSysUserGender(fields.length > 4 && !fields[4].trim().isEmpty() ? 
+                    sysUser.setSysUserSex(fields.length > 4 && !fields[4].trim().isEmpty() ? 
                             Integer.parseInt(fields[4].trim()) : 0);
-                    sysUser.setSysUserDeptId(fields.length > 5 && !fields[5].trim().isEmpty() ? 
-                            Long.parseLong(fields[5].trim()) : null);
+                    sysUser.setSysDeptId(fields.length > 5 && !fields[5].trim().isEmpty() ? 
+                            Integer.parseInt(fields[5].trim()) : null);
                     sysUser.setSysUserStatus(fields.length > 7 && !fields[7].trim().isEmpty() ? 
                             Integer.parseInt(fields[7].trim()) : 1);
                     sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);

@@ -20,6 +20,15 @@ public interface SysAppKeyService extends IService<SysAppKey> {
     SysAppKey getByAppId(String appId);
 
     /**
+     * 根据 appKey(密钥) 查询应用密钥
+     * <p>类似大模型的认证方式，直接通过密钥查询</p>
+     *
+     * @param appKey 应用密钥(API Key)
+     * @return 应用密钥
+     */
+    SysAppKey getByAppKey(String appKey);
+
+    /**
      * 验证 appId 和 secret
      *
      * @param appId  应用ID

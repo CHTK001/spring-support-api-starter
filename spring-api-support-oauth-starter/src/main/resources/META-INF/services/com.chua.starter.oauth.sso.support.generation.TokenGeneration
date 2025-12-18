@@ -1,0 +1,2 @@
+com.chua.starter.oauth.sso.support.generation.SimpleTokenGeneration
+com.chua.starter.oauth.sso.support.generation.JwtTokenGeneration
