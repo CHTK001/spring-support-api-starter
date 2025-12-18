@@ -90,6 +90,15 @@ public class JvmInfo implements Serializable {
     @Schema(description = "代码缓存信息")
     private CodeCacheInfo codeCacheInfo;
 
+    @Schema(description = "GC统计信息")
+    private GcStats gcStats;
+
+    @Schema(description = "元空间信息")
+    private MetaspaceInfo metaspaceInfo;
+
+    @Schema(description = "直接内存信息")
+    private DirectMemoryInfo directMemoryInfo;
+
     /**
      * 内存信息
      */
@@ -1234,5 +1243,110 @@ public class JvmInfo implements Serializable {
 
         @Schema(description = "是否接近满")
         private Boolean nearFull;
+    }
+
+    /**
+     * GC统计信息
+     */
+    @Data
+    @Schema(description = "GC统计信息")
+    public static class GcStats implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "总收集次数")
+        private Long totalCollectionCount;
+
+        @Schema(description = "总收集时间(毫秒)")
+        private Long totalCollectionTime;
+
+        @Schema(description = "平均收集时间(毫秒)")
+        private Double avgCollectionTime;
+
+        @Schema(description = "最近一次GC名称")
+        private String lastGcName;
+
+        @Schema(description = "每分钟GC次数")
+        private Double gcPerMinute;
+
+        @Schema(description = "GC时间占比(%)")
+        private Double gcTimePercent;
+
+        @Schema(description = "Young GC次数")
+        private Long youngGcCount;
+
+        @Schema(description = "Young GC时间(毫秒)")
+        private Long youngGcTime;
+
+        @Schema(description = "Old GC次数")
+        private Long oldGcCount;
+
+        @Schema(description = "Old GC时间(毫秒)")
+        private Long oldGcTime;
+    }
+
+    /**
+     * 元空间信息
+     */
+    @Data
+    @Schema(description = "元空间信息")
+    public static class MetaspaceInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "已使用(字节)")
+        private Long used;
+
+        @Schema(description = "已提交(字节)")
+        private Long committed;
+
+        @Schema(description = "最大容量(字节)")
+        private Long max;
+
+        @Schema(description = "使用率(%)")
+        private Double usagePercent;
+
+        @Schema(description = "压缩类空间已用(字节)")
+        private Long compressedClassSpaceUsed;
+
+        @Schema(description = "压缩类空间已提交(字节)")
+        private Long compressedClassSpaceCommitted;
+
+        @Schema(description = "压缩类空间最大(字节)")
+        private Long compressedClassSpaceMax;
+
+        @Schema(description = "压缩类空间使用率(%)")
+        private Double compressedClassSpaceUsagePercent;
+    }
+
+    /**
+     * 直接内存信息
+     */
+    @Data
+    @Schema(description = "直接内存信息")
+    public static class DirectMemoryInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "已使用(字节)")
+        private Long used;
+
+        @Schema(description = "总容量(字节)")
+        private Long totalCapacity;
+
+        @Schema(description = "缓冲区数量")
+        private Long count;
+
+        @Schema(description = "Mapped已用(字节)")
+        private Long mappedUsed;
+
+        @Schema(description = "Mapped容量(字节)")
+        private Long mappedCapacity;
+
+        @Schema(description = "Mapped缓冲区数量")
+        private Long mappedCount;
+
+        @Schema(description = "最大直接内存(字节,来自-XX:MaxDirectMemorySize)")
+        private Long maxDirectMemory;
+
+        @Schema(description = "使用率(%)")
+        private Double usagePercent;
     }
 }
