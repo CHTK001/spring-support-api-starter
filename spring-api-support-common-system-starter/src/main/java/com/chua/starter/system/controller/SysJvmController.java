@@ -259,6 +259,113 @@ public class SysJvmController {
                 break;
             }
         }
+        
+        // GC统计信息
+        JvmInfo.GcStats gcStats = new JvmInfo.GcStats();
+        long totalGcCount = 0;
+        long totalGcTime = 0;
+        long youngGcCount = 0, youngGcTime = 0;
+        long oldGcCount = 0, oldGcTime = 0;
+        String lastGcName = null;
+        for (GarbageCollectorMXBean gc : gcMXBeans) {
+            String gcName = gc.getName().toLowerCase();
+            long count = gc.getCollectionCount();
+            long time = gc.getCollectionTime();
+            totalGcCount += count;
+            totalGcTime += time;
+            lastGcName = gc.getName();
+            // 区分Young/Old GC
+            if (gcName.contains("young") || gcName.contains("minor") || gcName.contains("scavenge") 
+                || gcName.contains("parnew") || gcName.contains("copy") || gcName.contains("g1 young")) {
+                youngGcCount += count;
+                youngGcTime += time;
+            } else if (gcName.contains("old") || gcName.contains("major") || gcName.contains("marksweep") 
+                || gcName.contains("cms") || gcName.contains("g1 old") || gcName.contains("g1 mixed")) {
+                oldGcCount += count;
+                oldGcTime += time;
+            }
+        }
+        gcStats.setTotalCollectionCount(totalGcCount);
+        gcStats.setTotalCollectionTime(totalGcTime);
+        gcStats.setYoungGcCount(youngGcCount);
+        gcStats.setYoungGcTime(youngGcTime);
+        gcStats.setOldGcCount(oldGcCount);
+        gcStats.setOldGcTime(oldGcTime);
+        gcStats.setLastGcName(lastGcName);
+        if (totalGcCount > 0) {
+            gcStats.setAvgCollectionTime((double) totalGcTime / totalGcCount);
+        }
+        long uptimeMs = runtimeMXBean.getUptime();
+        if (uptimeMs > 0) {
+            gcStats.setGcPerMinute((double) totalGcCount / (uptimeMs / 60000.0));
+            gcStats.setGcTimePercent((double) totalGcTime / uptimeMs * 100);
+        }
+        jvmInfo.setGcStats(gcStats);
+        
+        // 元空间信息
+        for (MemoryPoolMXBean pool : memoryPoolMXBeans) {
+            String poolName = pool.getName().toLowerCase();
+            if (poolName.contains("metaspace")) {
+                JvmInfo.MetaspaceInfo metaspaceInfo = new JvmInfo.MetaspaceInfo();
+                MemoryUsage usage = pool.getUsage();
+                metaspaceInfo.setUsed(usage.getUsed());
+                metaspaceInfo.setCommitted(usage.getCommitted());
+                metaspaceInfo.setMax(usage.getMax());
+                if (usage.getMax() > 0) {
+                    metaspaceInfo.setUsagePercent((double) usage.getUsed() / usage.getMax() * 100);
+                } else if (usage.getCommitted() > 0) {
+                    metaspaceInfo.setUsagePercent((double) usage.getUsed() / usage.getCommitted() * 100);
+                }
+                jvmInfo.setMetaspaceInfo(metaspaceInfo);
+            } else if (poolName.contains("compressed class space")) {
+                JvmInfo.MetaspaceInfo metaspaceInfo = jvmInfo.getMetaspaceInfo();
+                if (metaspaceInfo == null) {
+                    metaspaceInfo = new JvmInfo.MetaspaceInfo();
+                    jvmInfo.setMetaspaceInfo(metaspaceInfo);
+                }
+                MemoryUsage usage = pool.getUsage();
+                metaspaceInfo.setCompressedClassSpaceUsed(usage.getUsed());
+                metaspaceInfo.setCompressedClassSpaceCommitted(usage.getCommitted());
+                metaspaceInfo.setCompressedClassSpaceMax(usage.getMax());
+                if (usage.getMax() > 0) {
+                    metaspaceInfo.setCompressedClassSpaceUsagePercent((double) usage.getUsed() / usage.getMax() * 100);
+                }
+            }
+        }
+        
+        // 直接内存信息
+        JvmInfo.DirectMemoryInfo directMemoryInfo = new JvmInfo.DirectMemoryInfo();
+        try {
+            List<java.lang.management.BufferPoolMXBean> bufferPoolMXBeans2 = 
+                ManagementFactory.getPlatformMXBeans(java.lang.management.BufferPoolMXBean.class);
+            for (java.lang.management.BufferPoolMXBean pool : bufferPoolMXBeans2) {
+                String poolName = pool.getName().toLowerCase();
+                if (poolName.contains("direct")) {
+                    directMemoryInfo.setUsed(pool.getMemoryUsed());
+                    directMemoryInfo.setTotalCapacity(pool.getTotalCapacity());
+                    directMemoryInfo.setCount(pool.getCount());
+                } else if (poolName.contains("mapped")) {
+                    directMemoryInfo.setMappedUsed(pool.getMemoryUsed());
+                    directMemoryInfo.setMappedCapacity(pool.getTotalCapacity());
+                    directMemoryInfo.setMappedCount(pool.getCount());
+                }
+            }
+            // 尝试获取MaxDirectMemorySize
+            try {
+                Class<?> vmClass = Class.forName("sun.misc.VM");
+                java.lang.reflect.Method method = vmClass.getDeclaredMethod("maxDirectMemory");
+                long maxDirect = (Long) method.invoke(null);
+                directMemoryInfo.setMaxDirectMemory(maxDirect);
+                if (maxDirect > 0 && directMemoryInfo.getUsed() != null) {
+                    directMemoryInfo.setUsagePercent((double) directMemoryInfo.getUsed() / maxDirect * 100);
+                }
+            } catch (Exception e) {
+                // 忽略
+            }
+        } catch (Exception e) {
+            log.warn("获取直接内存信息失败: {}", e.getMessage());
+        }
+        jvmInfo.setDirectMemoryInfo(directMemoryInfo);
 
         return ReturnResult.ok(jvmInfo);
     }
