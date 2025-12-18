@@ -125,8 +125,140 @@ public class SysJvmController {
             cpuInfo.setSystemCpuLoad(sunOsMXBean.getCpuLoad() * 100);
             cpuInfo.setProcessCpuTime(sunOsMXBean.getProcessCpuTime());
             jvmInfo.setCpuInfo(cpuInfo);
+            
+            // 文件描述符信息 (Unix系统)
+            try {
+                if (sunOsMXBean instanceof com.sun.management.UnixOperatingSystemMXBean) {
+                    com.sun.management.UnixOperatingSystemMXBean unixOsMXBean = 
+                        (com.sun.management.UnixOperatingSystemMXBean) sunOsMXBean;
+                    JvmInfo.FileDescriptorInfo fdInfo = new JvmInfo.FileDescriptorInfo();
+                    fdInfo.setOpenFileDescriptorCount(unixOsMXBean.getOpenFileDescriptorCount());
+                    fdInfo.setMaxFileDescriptorCount(unixOsMXBean.getMaxFileDescriptorCount());
+                    if (unixOsMXBean.getMaxFileDescriptorCount() > 0) {
+                        fdInfo.setUsagePercent((double) unixOsMXBean.getOpenFileDescriptorCount() 
+                            / unixOsMXBean.getMaxFileDescriptorCount() * 100);
+                    }
+                    jvmInfo.setFileDescriptorInfo(fdInfo);
+                }
+            } catch (Exception e) {
+                // Windows系统不支持
+            }
         }
         jvmInfo.setOsInfo(osInfo);
+        
+        // 编译器信息
+        CompilationMXBean compilationMXBean = ManagementFactory.getCompilationMXBean();
+        if (compilationMXBean != null) {
+            JvmInfo.CompilationInfo compilationInfo = new JvmInfo.CompilationInfo();
+            compilationInfo.setName(compilationMXBean.getName());
+            compilationInfo.setCompilationTimeMonitoringSupported(compilationMXBean.isCompilationTimeMonitoringSupported());
+            if (compilationMXBean.isCompilationTimeMonitoringSupported()) {
+                compilationInfo.setTotalCompilationTime(compilationMXBean.getTotalCompilationTime());
+            }
+            jvmInfo.setCompilationInfo(compilationInfo);
+        }
+        
+        // 运行时信息
+        JvmInfo.RuntimeInfo runtimeInfo = new JvmInfo.RuntimeInfo();
+        runtimeInfo.setPid(String.valueOf(ProcessHandle.current().pid()));
+        runtimeInfo.setClassPath(runtimeMXBean.getClassPath());
+        runtimeInfo.setLibraryPath(runtimeMXBean.getLibraryPath());
+        runtimeInfo.setManagementSpecVersion(runtimeMXBean.getManagementSpecVersion());
+        runtimeInfo.setSpecName(runtimeMXBean.getSpecName());
+        runtimeInfo.setSpecVendor(runtimeMXBean.getSpecVendor());
+        runtimeInfo.setSpecVersion(runtimeMXBean.getSpecVersion());
+        try {
+            runtimeInfo.setBootClassPath(runtimeMXBean.getBootClassPath());
+        } catch (UnsupportedOperationException e) {
+            // Java 9+ 可能不支持
+        }
+        jvmInfo.setRuntimeInfo(runtimeInfo);
+        
+        // 缓冲池信息
+        try {
+            List<java.lang.management.BufferPoolMXBean> bufferPoolMXBeans = 
+                ManagementFactory.getPlatformMXBeans(java.lang.management.BufferPoolMXBean.class);
+            List<JvmInfo.BufferPoolInfo> bufferPools = new ArrayList<>();
+            for (java.lang.management.BufferPoolMXBean pool : bufferPoolMXBeans) {
+                JvmInfo.BufferPoolInfo poolInfo = new JvmInfo.BufferPoolInfo();
+                poolInfo.setName(pool.getName());
+                poolInfo.setCount(pool.getCount());
+                poolInfo.setMemoryUsed(pool.getMemoryUsed());
+                poolInfo.setTotalCapacity(pool.getTotalCapacity());
+                bufferPools.add(poolInfo);
+            }
+            jvmInfo.setBufferPools(bufferPools);
+        } catch (Exception e) {
+            log.warn("获取缓冲池信息失败: {}", e.getMessage());
+        }
+        
+        // 线程状态分布
+        JvmInfo.ThreadStateDistribution threadStateDist = new JvmInfo.ThreadStateDistribution();
+        int newCount = 0, runnableCount = 0, blockedCount = 0, waitingCount = 0, timedWaitingCount = 0, terminatedCount = 0;
+        long[] allThreadIds = threadMXBean.getAllThreadIds();
+        java.lang.management.ThreadInfo[] allThreadInfos = threadMXBean.getThreadInfo(allThreadIds);
+        for (java.lang.management.ThreadInfo ti : allThreadInfos) {
+            if (ti != null) {
+                switch (ti.getThreadState()) {
+                    case NEW: newCount++; break;
+                    case RUNNABLE: runnableCount++; break;
+                    case BLOCKED: blockedCount++; break;
+                    case WAITING: waitingCount++; break;
+                    case TIMED_WAITING: timedWaitingCount++; break;
+                    case TERMINATED: terminatedCount++; break;
+                }
+            }
+        }
+        threadStateDist.setNewCount(newCount);
+        threadStateDist.setRunnableCount(runnableCount);
+        threadStateDist.setBlockedCount(blockedCount);
+        threadStateDist.setWaitingCount(waitingCount);
+        threadStateDist.setTimedWaitingCount(timedWaitingCount);
+        threadStateDist.setTerminatedCount(terminatedCount);
+        threadStateDist.setTotalCount(allThreadInfos.length);
+        jvmInfo.setThreadStateDistribution(threadStateDist);
+        
+        // JIT编译统计
+        if (compilationMXBean != null) {
+            JvmInfo.JitCompilationStats jitStats = new JvmInfo.JitCompilationStats();
+            jitStats.setCompilerName(compilationMXBean.getName());
+            jitStats.setCompilationTimeMonitoringSupported(compilationMXBean.isCompilationTimeMonitoringSupported());
+            if (compilationMXBean.isCompilationTimeMonitoringSupported()) {
+                long totalTime = compilationMXBean.getTotalCompilationTime();
+                jitStats.setTotalCompilationTime(totalTime);
+                // 估计编译方法数(根据加载的类数和编译时间估算)
+                long loadedClasses = classLoadingMXBean.getLoadedClassCount();
+                // 假设平均每个类有5个方法，约有30%被编译
+                long estimatedMethods = (long) (loadedClasses * 5 * 0.3);
+                jitStats.setCompiledMethodCount(estimatedMethods);
+                if (estimatedMethods > 0) {
+                    jitStats.setAvgCompilationTime((double) totalTime / estimatedMethods);
+                }
+            }
+            jvmInfo.setJitCompilationStats(jitStats);
+        }
+        
+        // 代码缓存信息
+        for (MemoryPoolMXBean pool : memoryPoolMXBeans) {
+            String poolName = pool.getName().toLowerCase();
+            if (poolName.contains("code") && poolName.contains("cache")) {
+                JvmInfo.CodeCacheInfo codeCacheInfo = new JvmInfo.CodeCacheInfo();
+                codeCacheInfo.setName(pool.getName());
+                MemoryUsage usage = pool.getUsage();
+                codeCacheInfo.setUsed(usage.getUsed());
+                codeCacheInfo.setCommitted(usage.getCommitted());
+                codeCacheInfo.setMax(usage.getMax());
+                if (usage.getMax() > 0) {
+                    double usagePercent = (double) usage.getUsed() / usage.getMax() * 100;
+                    codeCacheInfo.setUsagePercent(usagePercent);
+                    codeCacheInfo.setNearFull(usagePercent > 80);
+                } else {
+                    codeCacheInfo.setNearFull(false);
+                }
+                jvmInfo.setCodeCacheInfo(codeCacheInfo);
+                break;
+            }
+        }
 
         return ReturnResult.ok(jvmInfo);
     }
