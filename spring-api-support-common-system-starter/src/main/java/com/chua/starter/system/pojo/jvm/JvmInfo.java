@@ -69,6 +69,27 @@ public class JvmInfo implements Serializable {
     @Schema(description = "CPU 信息")
     private CpuInfo cpuInfo;
 
+    @Schema(description = "编译器信息")
+    private CompilationInfo compilationInfo;
+
+    @Schema(description = "运行时信息")
+    private RuntimeInfo runtimeInfo;
+
+    @Schema(description = "缓冲池信息")
+    private List<BufferPoolInfo> bufferPools;
+
+    @Schema(description = "文件描述符信息")
+    private FileDescriptorInfo fileDescriptorInfo;
+
+    @Schema(description = "线程状态分布")
+    private ThreadStateDistribution threadStateDistribution;
+
+    @Schema(description = "JIT编译统计")
+    private JitCompilationStats jitCompilationStats;
+
+    @Schema(description = "代码缓存信息")
+    private CodeCacheInfo codeCacheInfo;
+
     /**
      * 内存信息
      */
@@ -391,6 +412,96 @@ public class JvmInfo implements Serializable {
 
         @Schema(description = "进程 CPU 时间(纳秒)")
         private Long processCpuTime;
+    }
+
+    /**
+     * 编译器信息
+     */
+    @Data
+    @Schema(description = "编译器信息")
+    public static class CompilationInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "编译器名称")
+        private String name;
+
+        @Schema(description = "总编译时间(毫秒)")
+        private Long totalCompilationTime;
+
+        @Schema(description = "是否支持编译时间监控")
+        private Boolean compilationTimeMonitoringSupported;
+    }
+
+    /**
+     * 运行时信息
+     */
+    @Data
+    @Schema(description = "运行时信息")
+    public static class RuntimeInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "进程ID")
+        private String pid;
+
+        @Schema(description = "启动类路径")
+        private String bootClassPath;
+
+        @Schema(description = "类路径")
+        private String classPath;
+
+        @Schema(description = "库路径")
+        private String libraryPath;
+
+        @Schema(description = "管理规范版本")
+        private String managementSpecVersion;
+
+        @Schema(description = "规范名称")
+        private String specName;
+
+        @Schema(description = "规范供应商")
+        private String specVendor;
+
+        @Schema(description = "规范版本")
+        private String specVersion;
+    }
+
+    /**
+     * 缓冲池信息
+     */
+    @Data
+    @Schema(description = "缓冲池信息")
+    public static class BufferPoolInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "缓冲池名称")
+        private String name;
+
+        @Schema(description = "缓冲区数量")
+        private Long count;
+
+        @Schema(description = "已使用内存(字节)")
+        private Long memoryUsed;
+
+        @Schema(description = "总容量(字节)")
+        private Long totalCapacity;
+    }
+
+    /**
+     * 文件描述符信息
+     */
+    @Data
+    @Schema(description = "文件描述符信息")
+    public static class FileDescriptorInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "已打开的文件描述符数")
+        private Long openFileDescriptorCount;
+
+        @Schema(description = "最大文件描述符数")
+        private Long maxFileDescriptorCount;
+
+        @Schema(description = "使用率(%)")
+        private Double usagePercent;
     }
 
     /**
@@ -1042,5 +1153,86 @@ public class JvmInfo implements Serializable {
 
         @Schema(description = "超过阈值次数")
         private Long usageThresholdCount;
+    }
+
+    /**
+     * 线程状态分布
+     */
+    @Data
+    @Schema(description = "线程状态分布")
+    public static class ThreadStateDistribution implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "NEW状态线程数")
+        private Integer newCount;
+
+        @Schema(description = "RUNNABLE状态线程数")
+        private Integer runnableCount;
+
+        @Schema(description = "BLOCKED状态线程数")
+        private Integer blockedCount;
+
+        @Schema(description = "WAITING状态线程数")
+        private Integer waitingCount;
+
+        @Schema(description = "TIMED_WAITING状态线程数")
+        private Integer timedWaitingCount;
+
+        @Schema(description = "TERMINATED状态线程数")
+        private Integer terminatedCount;
+
+        @Schema(description = "总线程数")
+        private Integer totalCount;
+    }
+
+    /**
+     * JIT编译统计
+     */
+    @Data
+    @Schema(description = "JIT编译统计")
+    public static class JitCompilationStats implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "编译器名称")
+        private String compilerName;
+
+        @Schema(description = "总编译时间(毫秒)")
+        private Long totalCompilationTime;
+
+        @Schema(description = "是否支持编译时间监控")
+        private Boolean compilationTimeMonitoringSupported;
+
+        @Schema(description = "编译任务数(估计)")
+        private Long compiledMethodCount;
+
+        @Schema(description = "平均编译时间(毫秒)")
+        private Double avgCompilationTime;
+    }
+
+    /**
+     * 代码缓存信息
+     */
+    @Data
+    @Schema(description = "代码缓存信息")
+    public static class CodeCacheInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "代码缓存名称")
+        private String name;
+
+        @Schema(description = "已使用(字节)")
+        private Long used;
+
+        @Schema(description = "已提交(字节)")
+        private Long committed;
+
+        @Schema(description = "最大容量(字节)")
+        private Long max;
+
+        @Schema(description = "使用率(%)")
+        private Double usagePercent;
+
+        @Schema(description = "是否接近满")
+        private Boolean nearFull;
     }
 }
