@@ -366,6 +366,67 @@ public class SysJvmController {
             log.warn("获取直接内存信息失败: {}", e.getMessage());
         }
         jvmInfo.setDirectMemoryInfo(directMemoryInfo);
+        
+        // 内存分配速率
+        JvmInfo.MemoryAllocationRate memoryAllocationRate = new JvmInfo.MemoryAllocationRate();
+        for (MemoryPoolMXBean pool : memoryPoolMXBeans) {
+            String poolName = pool.getName().toLowerCase();
+            MemoryUsage usage = pool.getUsage();
+            if (poolName.contains("eden")) {
+                memoryAllocationRate.setEdenUsed(usage.getUsed());
+                memoryAllocationRate.setEdenMax(usage.getMax() > 0 ? usage.getMax() : usage.getCommitted());
+                if (memoryAllocationRate.getEdenMax() > 0) {
+                    memoryAllocationRate.setEdenUsagePercent((double) usage.getUsed() / memoryAllocationRate.getEdenMax() * 100);
+                }
+            } else if (poolName.contains("survivor")) {
+                Long currentSurvivor = memoryAllocationRate.getSurvivorUsed();
+                memoryAllocationRate.setSurvivorUsed((currentSurvivor != null ? currentSurvivor : 0) + usage.getUsed());
+                Long currentMax = memoryAllocationRate.getSurvivorMax();
+                long maxVal = usage.getMax() > 0 ? usage.getMax() : usage.getCommitted();
+                memoryAllocationRate.setSurvivorMax((currentMax != null ? currentMax : 0) + maxVal);
+            } else if (poolName.contains("old") || poolName.contains("tenured")) {
+                memoryAllocationRate.setOldUsed(usage.getUsed());
+                memoryAllocationRate.setOldMax(usage.getMax() > 0 ? usage.getMax() : usage.getCommitted());
+                if (memoryAllocationRate.getOldMax() > 0) {
+                    memoryAllocationRate.setOldUsagePercent((double) usage.getUsed() / memoryAllocationRate.getOldMax() * 100);
+                }
+            }
+        }
+        // 估算分配速率(基于运行时间和Eden使用量)
+        long uptimeSeconds = runtimeMXBean.getUptime() / 1000;
+        if (uptimeSeconds > 0 && memoryAllocationRate.getEdenUsed() != null) {
+            memoryAllocationRate.setAllocationRatePerSecond(memoryAllocationRate.getEdenUsed() / uptimeSeconds);
+        }
+        if (uptimeSeconds > 0 && memoryAllocationRate.getOldUsed() != null) {
+            memoryAllocationRate.setPromotionRatePerSecond(memoryAllocationRate.getOldUsed() / uptimeSeconds);
+        }
+        jvmInfo.setMemoryAllocationRate(memoryAllocationRate);
+        
+        // 类加载详情
+        ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
+        JvmInfo.ClassLoadingDetail classLoadingDetail = new JvmInfo.ClassLoadingDetail();
+        classLoadingDetail.setCurrentLoadedCount(classLoadingMXBean.getLoadedClassCount());
+        classLoadingDetail.setTotalLoadedCount(classLoadingMXBean.getTotalLoadedClassCount());
+        classLoadingDetail.setUnloadedCount(classLoadingMXBean.getUnloadedClassCount());
+        classLoadingDetail.setVerbose(classLoadingMXBean.isVerbose());
+        // 计算每分钟加载/卸载速率
+        double uptimeMinutes = runtimeMXBean.getUptime() / 60000.0;
+        if (uptimeMinutes > 0) {
+            classLoadingDetail.setLoadRatePerMinute(classLoadingMXBean.getTotalLoadedClassCount() / uptimeMinutes);
+            classLoadingDetail.setUnloadRatePerMinute(classLoadingMXBean.getUnloadedClassCount() / uptimeMinutes);
+        }
+        jvmInfo.setClassLoadingDetail(classLoadingDetail);
+        
+        // 安全管理器信息
+        JvmInfo.SecurityInfo securityInfo = new JvmInfo.SecurityInfo();
+        SecurityManager sm = System.getSecurityManager();
+        securityInfo.setSecurityManagerEnabled(sm != null);
+        if (sm != null) {
+            securityInfo.setSecurityManagerClass(sm.getClass().getName());
+        }
+        String policyFile = System.getProperty("java.security.policy");
+        securityInfo.setPolicyFile(policyFile);
+        jvmInfo.setSecurityInfo(securityInfo);
 
         return ReturnResult.ok(jvmInfo);
     }
