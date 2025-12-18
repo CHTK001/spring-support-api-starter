@@ -21,8 +21,8 @@ public interface AuthorizationHandler {
      * @param authInformation OAuth认证信息
      * @param token           Token（可选）
      * @param cookie          Cookie（可选）
-     * @param userCode        用户代码（AppKey认证时使用）
-     * @return 认证结果，包含生成的Token
+     * @param userCode        用户代码/AppKey（可选）
+     * @return 认证结果
      */
     ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                      String token, 

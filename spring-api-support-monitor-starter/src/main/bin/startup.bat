@@ -11,8 +11,8 @@ REM 基础配置
 set SCRIPT_DIR=%~dp0
 cd /d %SCRIPT_DIR%..
 set APP_HOME=%cd%
-set APP_NAME=spring-api-support-monitor-starter
-if "%APP_VERSION%"=="" set APP_VERSION=4.0.0
+if "%APP_NAME%"=="" set APP_NAME=@project.artifactId@
+if "%APP_VERSION%"=="" set APP_VERSION=@project.version@
 set JAR_NAME=%APP_NAME%-%APP_VERSION%.jar
 
 REM 目录配置

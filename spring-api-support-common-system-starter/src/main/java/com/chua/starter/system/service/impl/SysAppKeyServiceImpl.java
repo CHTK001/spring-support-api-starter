@@ -31,6 +31,15 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
+    @Cacheable(value = "appKey:secret", key = "#appKey", unless = "#result == null")
+    public SysAppKey getByAppKey(String appKey) {
+        if (StringUtils.isBlank(appKey)) {
+            return null;
+        }
+        return baseMapper.selectByAppKey(appKey);
+    }
+
+    @Override
     public boolean verify(String appId, String secret) {
         SysAppKey appKey = getByAppId(appId);
         if (appKey == null) {

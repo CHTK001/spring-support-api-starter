@@ -29,10 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
-import me.zhyd.oauth.request.AuthGiteeRequest;
-import me.zhyd.oauth.request.AuthGithubRequest;
-import me.zhyd.oauth.request.AuthRequest;
-import me.zhyd.oauth.request.AuthWeChatOpenRequest;
+import me.zhyd.oauth.request.*;
+import me.zhyd.oauth.enums.scope.*;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -211,10 +209,22 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.getCallback());
-        return switch (loginData.getLoginType()) {
+        return switch (loginData.getLoginType().toLowerCase()) {
             case "gitee" -> new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
             case "wechat" -> new SysSettingThirdPartyRequest<>(new AuthWeChatOpenRequest(authConfig, authStateCache), authStateCache, state);
+            case "wechat_mp" -> new SysSettingThirdPartyRequest<>(new AuthWeChatMpRequest(authConfig, authStateCache), authStateCache, state);
             case "github" -> new SysSettingThirdPartyRequest<>(new AuthGithubRequest(authConfig, authStateCache), authStateCache, state);
+            case "qq" -> new SysSettingThirdPartyRequest<>(new AuthQqRequest(authConfig, authStateCache), authStateCache, state);
+            case "alipay" -> new SysSettingThirdPartyRequest<>(new AuthAlipayRequest(authConfig, authStateCache), authStateCache, state);
+            case "dingtalk" -> new SysSettingThirdPartyRequest<>(new AuthDingTalkRequest(authConfig, authStateCache), authStateCache, state);
+            case "wechat_enterprise" -> new SysSettingThirdPartyRequest<>(new AuthWeChatEnterpriseQrcodeRequest(authConfig, authStateCache), authStateCache, state);
+            case "weibo" -> new SysSettingThirdPartyRequest<>(new AuthWeiboRequest(authConfig, authStateCache), authStateCache, state);
+            case "baidu" -> new SysSettingThirdPartyRequest<>(new AuthBaiduRequest(authConfig, authStateCache), authStateCache, state);
+            case "google" -> new SysSettingThirdPartyRequest<>(new AuthGoogleRequest(authConfig, authStateCache), authStateCache, state);
+            case "microsoft" -> new SysSettingThirdPartyRequest<>(new AuthMicrosoftRequest(authConfig, authStateCache), authStateCache, state);
+            case "taobao" -> new SysSettingThirdPartyRequest<>(new AuthTaobaoRequest(authConfig, authStateCache), authStateCache, state);
+            case "douyin" -> new SysSettingThirdPartyRequest<>(new AuthDouyinRequest(authConfig, authStateCache), authStateCache, state);
+            case "feishu" -> new SysSettingThirdPartyRequest<>(new AuthFeishuRequest(authConfig, authStateCache), authStateCache, state);
             default -> null;
         };
     }

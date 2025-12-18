@@ -9,6 +9,7 @@ import com.chua.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
+import com.chua.starter.oauth.sso.support.resolver.AkSkDecryptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +36,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     protected final String uuid;
     private final String serial;
     private final String sign;
+    private final String accessKey;
     protected final boolean isEncode;
     protected final Map<String, Object> bodyData = new LinkedHashMap<>();
     private final String encryption;
@@ -62,6 +64,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
         this.serial = getRequestHeader(request, "x-oauth-serial");
         this.protocol = getRequestHeader(request, "x-oauth-protocol");
         this.sign = getRequestHeader(request, "x-oauth-sign");
+        this.accessKey = getRequestHeader(request, "x-oauth-ak");
         this.isEncode = Converter.convertIfNecessary(
             StringUtils.defaultIfBlank(getRequestHeader(request, "x-oauth-encode"), "true"), 
             Boolean.class);
@@ -151,9 +154,22 @@ public abstract class BaseAuthInformation implements AuthInformation {
             String decryptedData = Codec.build(encryption, decodeKey).decodeHex(data);
             log.debug("解密后的数据长度: {}", decryptedData != null ? decryptedData.length() : 0);
             
+            // AK/SK 二次解密（如果开启）
+            if (authServerProperties.isOpenCheckAkSk() && StringUtils.isNotBlank(accessKey)) {
+                log.debug("开启AK/SK二次解密, ak: {}", maskKey(accessKey));
+                String akSkDecrypted = AkSkDecryptor.decrypt(accessKey, decryptedData, encryption);
+                if (akSkDecrypted != null) {
+                    decryptedData = akSkDecrypted;
+                    log.debug("AK/SK解密成功, 解密后数据长度: {}", decryptedData.length());
+                } else {
+                    log.warn("AK/SK解密失败, ak: {}", maskKey(accessKey));
+                }
+            }
+            
             if (OAuthAdminController.isDebugMode()) {
                 log.info("【DEBUG】解密密钥长度: {}", decodeKey != null ? decodeKey.length() : 0);
                 log.info("【DEBUG】解密后数据长度: {}", decryptedData != null ? decryptedData.length() : 0);
+                log.info("【DEBUG】AK/SK启用: {}, AK: {}", authServerProperties.isOpenCheckAkSk(), maskKey(accessKey));
             }
             
             JsonObject jsonObject = Json.getJsonObject(decryptedData);
@@ -215,6 +231,16 @@ public abstract class BaseAuthInformation implements AuthInformation {
             return "***";
         }
         return token.substring(0, 6) + "..." + token.substring(token.length() - 4);
+    }
+    
+    /**
+     * 脱敏密钥
+     */
+    private String maskKey(String key) {
+        if (key == null || key.length() < 8) {
+            return "***";
+        }
+        return key.substring(0, 4) + "..." + key.substring(key.length() - 4);
     }
 
     @Override

@@ -158,4 +158,15 @@ public class SysTenantController {
             @Parameter(description = "状态值: 0-启用, 1-禁用") Integer status) {
         return sysTenantService.updateStatusForSysTenant(sysTenantId, status);
     }
+
+    /**
+     * 获取租户统计数据
+     *
+     * @return 统计数据
+     */
+    @GetMapping("stats")
+    @Operation(summary = "获取租户统计数据")
+    public ReturnResult<java.util.Map<String, Object>> statsForSysTenant() {
+        return sysTenantService.statsForSysTenant();
+    }
 }
