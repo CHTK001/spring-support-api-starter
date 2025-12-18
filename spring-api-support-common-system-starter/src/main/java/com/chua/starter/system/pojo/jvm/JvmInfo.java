@@ -99,6 +99,15 @@ public class JvmInfo implements Serializable {
     @Schema(description = "直接内存信息")
     private DirectMemoryInfo directMemoryInfo;
 
+    @Schema(description = "内存分配速率")
+    private MemoryAllocationRate memoryAllocationRate;
+
+    @Schema(description = "类加载详情")
+    private ClassLoadingDetail classLoadingDetail;
+
+    @Schema(description = "安全管理器信息")
+    private SecurityInfo securityInfo;
+
     /**
      * 内存信息
      */
@@ -1348,5 +1357,89 @@ public class JvmInfo implements Serializable {
 
         @Schema(description = "使用率(%)")
         private Double usagePercent;
+    }
+
+    /**
+     * 内存分配速率
+     */
+    @Data
+    @Schema(description = "内存分配速率")
+    public static class MemoryAllocationRate implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "Eden区当前使用(字节)")
+        private Long edenUsed;
+
+        @Schema(description = "Eden区最大(字节)")
+        private Long edenMax;
+
+        @Schema(description = "Eden区使用率(%)")
+        private Double edenUsagePercent;
+
+        @Schema(description = "Survivor区当前使用(字节)")
+        private Long survivorUsed;
+
+        @Schema(description = "Survivor区最大(字节)")
+        private Long survivorMax;
+
+        @Schema(description = "Old区当前使用(字节)")
+        private Long oldUsed;
+
+        @Schema(description = "Old区最大(字节)")
+        private Long oldMax;
+
+        @Schema(description = "Old区使用率(%)")
+        private Double oldUsagePercent;
+
+        @Schema(description = "估计分配速率(字节/秒)")
+        private Long allocationRatePerSecond;
+
+        @Schema(description = "估计晒升速率(字节/秒)")
+        private Long promotionRatePerSecond;
+    }
+
+    /**
+     * 类加载详情
+     */
+    @Data
+    @Schema(description = "类加载详情")
+    public static class ClassLoadingDetail implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "当前加载类数")
+        private Integer currentLoadedCount;
+
+        @Schema(description = "总加载类数")
+        private Long totalLoadedCount;
+
+        @Schema(description = "卸载类数")
+        private Long unloadedCount;
+
+        @Schema(description = "每分钟加载类数")
+        private Double loadRatePerMinute;
+
+        @Schema(description = "每分钟卸载类数")
+        private Double unloadRatePerMinute;
+
+        @Schema(description = "是否启用详细输出")
+        private Boolean verbose;
+    }
+
+    /**
+     * 安全管理器信息
+     */
+    @Data
+    @Schema(description = "安全管理器信息")
+    public static class SecurityInfo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @Schema(description = "是否启用安全管理器")
+        private Boolean securityManagerEnabled;
+
+        @Schema(description = "安全管理器类名")
+        private String securityManagerClass;
+
+        @Schema(description = "安全策略文件")
+        private String policyFile;
     }
 }
