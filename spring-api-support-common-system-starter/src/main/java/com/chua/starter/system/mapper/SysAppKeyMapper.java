@@ -24,6 +24,14 @@ public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
     SysAppKey selectByAppId(@Param("appId") String appId);
 
     /**
+     * 根据 appKey(密钥) 查询应用密钥
+     *
+     * @param appKey 应用密钥
+     * @return 应用密钥
+     */
+    SysAppKey selectByAppKey(@Param("appKey") String appKey);
+
+    /**
      * 更新使用次数和最后使用时间
      *
      * @param appId        应用ID

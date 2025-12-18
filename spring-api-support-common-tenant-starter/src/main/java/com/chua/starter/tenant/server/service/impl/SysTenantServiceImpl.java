@@ -246,6 +246,30 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         return ReturnResult.preconditioning(result).toResult();
     }
 
+    @Override
+    public ReturnResult<java.util.Map<String, Object>> statsForSysTenant() {
+        log.debug("获取租户统计数据");
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+
+        // 总数
+        Long total = count();
+        // 启用数 (status = 0 表示启用)
+        Long enabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 0));
+        // 禁用数 (status = 1 表示禁用)
+        Long disabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1));
+        // 订阅服务数（有订阅服务的租户数）
+        Long subscribed = sysTenantServiceMapper.selectCount(
+                Wrappers.query().select("DISTINCT sys_tenant_id")
+        );
+
+        stats.put("total", total);
+        stats.put("enabled", enabled);
+        stats.put("disabled", disabled);
+        stats.put("subscribed", subscribed);
+
+        return ReturnResult.ok(stats);
+    }
+
     /**
      * 填充租户的关联服务信息
      *

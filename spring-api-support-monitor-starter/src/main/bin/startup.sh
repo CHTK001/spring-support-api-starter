@@ -9,8 +9,8 @@
 # 基础配置
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
-APP_NAME="spring-api-support-monitor-starter"
-APP_VERSION="${APP_VERSION:-4.0.0}"
+APP_NAME="${APP_NAME:-@project.artifactId@}"
+APP_VERSION="${APP_VERSION:-@project.version@}"
 JAR_NAME="${APP_NAME}-${APP_VERSION}.jar"
 
 # 目录配置
@@ -30,6 +30,13 @@ DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-${APP_VERSION}}"
 DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_NAME:-${APP_NAME}}"
 DOCKER_PORT="${DOCKER_PORT:-8080}"
 DOCKER_HOST_PORT="${DOCKER_HOST_PORT:-8080}"
+
+# Skywalking 配置
+SKYWALKING_VERSION="${SKYWALKING_VERSION:-9.0.0}"
+SKYWALKING_DIR="${APP_HOME}/skywalking"
+SKYWALKING_AGENT_JAR="${SKYWALKING_DIR}/skywalking-agent/skywalking-agent.jar"
+SW_AGENT_NAME="${SW_AGENT_NAME:-${APP_NAME}}"
+SW_AGENT_COLLECTOR_BACKEND_SERVICES="${SW_AGENT_COLLECTOR_BACKEND_SERVICES:-127.0.0.1:11800}"
 
 # JVM配置
 JAVA_OPTS="${JAVA_OPTS:--Xms512m -Xmx1024m -XX:+UseG1GC}"
@@ -69,6 +76,7 @@ show_help() {
     echo "  rollback        回滚到上一个还原点"
     echo "  rollback-status 查看还原点状态"
     echo "  debug       以调试模式启动"
+    echo "  skywalking  管理 Skywalking Agent (install/check/clean/info)"
     echo ""
     echo -e "${YELLOW}Docker 命令:${NC}"
     echo "  docker-build     构建 Docker 镜像"
@@ -88,6 +96,9 @@ show_help() {
     echo "  --docker-port <port>  指定容器内部端口 (默认: 8080)"
     echo "  --host-port <port>    指定主机映射端口 (默认: 8080)"
     echo "  --image-tag <tag>     指定镜像标签 (默认: ${APP_VERSION})"
+    echo "  --skywalking          启用 Skywalking APM (不存在则自动下载)"
+    echo "  --sw-backend <addr>   指定 Skywalking OAP 地址 (默认: 127.0.0.1:11800)"
+    echo "  --sw-name <name>      指定 Skywalking 服务名 (默认: 应用名)"
     echo "  --package <path>      升级包路径 (zip/tar.gz)"
     echo "  --no-restart          升级后不自动重启"
     echo "  --dev                 使用开发环境 (dev)"
@@ -110,6 +121,10 @@ show_help() {
     echo "  $0 restart                            # 重启应用"
     echo "  $0 status                             # 查看状态"
     echo "  $0 debug --debug-port 5006            # 调试模式启动"
+    echo "  $0 start --skywalking                 # 启用 Skywalking APM"
+    echo "  $0 start --skywalking --sw-backend 192.168.1.100:11800"
+    echo "  $0 skywalking install                 # 安装 Skywalking Agent"
+    echo "  $0 skywalking info                    # 查看 Skywalking 信息"
     echo "  $0 dump heap                          # 生成堆转储"
     echo "  $0 dump thread --output /tmp/dump     # 线程转储到指定目录"
     echo "  $0 analyze cpu                        # CPU 分析"
@@ -191,6 +206,17 @@ start_app() {
     [ -n "${CUSTOM_JVM_OPTS}" ] && java_opts="${CUSTOM_JVM_OPTS}"
     [ "${DEBUG_MODE}" = "true" ] && java_opts="${java_opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
     
+    # Skywalking 支持
+    if [ "${SKYWALKING_ENABLED}" = "true" ]; then
+        ensure_skywalking || return 1
+        echo -e "  ${GREEN}Skywalking: 已启用${NC}"
+        echo -e "  服务名: ${SW_AGENT_NAME}"
+        echo -e "  OAP地址: ${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
+        java_opts="${java_opts} -javaagent:${SKYWALKING_AGENT_JAR}"
+        java_opts="${java_opts} -Dskywalking.agent.service_name=${SW_AGENT_NAME}"
+        java_opts="${java_opts} -Dskywalking.collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
+    fi
+    
     nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${LOG_DIR}/startup.log" 2>&1 &
     
     local new_pid=$!
@@ -232,33 +258,51 @@ restart_app() { stop_app; sleep 2; start_app; }
 show_jvm_info() {
     local pid=$(get_pid)
     [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
-    bash "${SCRIPT_DIR}/script/jvm-info.sh" "$pid" "$APP_NAME"
+    bash "${SCRIPT_DIR}/script/linux/jvm-info.sh" "$pid" "$APP_NAME"
 }
 
 show_tuning() {
     local pid=$(get_pid)
     [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
-    bash "${SCRIPT_DIR}/script/jvm-tuning.sh" "$pid" "$APP_NAME"
+    bash "${SCRIPT_DIR}/script/linux/jvm-tuning.sh" "$pid" "$APP_NAME"
 }
 
 start_arthas() {
     local pid=$(get_pid)
-    bash "${SCRIPT_DIR}/script/arthas-install.sh" "$pid"
+    bash "${SCRIPT_DIR}/script/linux/arthas-install.sh" "$pid"
+}
+
+# Skywalking 相关函数
+ensure_skywalking() {
+    if [ ! -f "${SKYWALKING_AGENT_JAR}" ]; then
+        echo -e "${YELLOW}[Skywalking] Agent 未安装，开始自动下载...${NC}"
+        bash "${SCRIPT_DIR}/script/linux/skywalking.sh" install
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}[错误] Skywalking Agent 下载失败${NC}"
+            return 1
+        fi
+    fi
+    return 0
+}
+
+run_skywalking() {
+    local subcmd="${1:-}"
+    bash "${SCRIPT_DIR}/script/linux/skywalking.sh" "$subcmd"
 }
 
 run_analyze() {
     local pid=$(get_pid)
     [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
     local mode="${1:-cpu}"
-    bash "${SCRIPT_DIR}/script/cpu-analysis.sh" "$pid" "$mode" "$APP_NAME"
+    bash "${SCRIPT_DIR}/script/linux/cpu-analysis.sh" "$pid" "$mode" "$APP_NAME"
 }
 
 run_backup() {
-    bash "${SCRIPT_DIR}/script/backup-restore.sh" backup "${1:-all}" "$APP_NAME" "$JAR_NAME"
+    bash "${SCRIPT_DIR}/script/linux/backup-restore.sh" backup "${1:-all}" "$APP_NAME" "$JAR_NAME"
 }
 
 run_restore() {
-    bash "${SCRIPT_DIR}/script/backup-restore.sh" restore "${1:-all}" "$APP_NAME" "$JAR_NAME"
+    bash "${SCRIPT_DIR}/script/linux/backup-restore.sh" restore "${1:-all}" "$APP_NAME" "$JAR_NAME"
 }
 
 # ============================================================
@@ -393,15 +437,15 @@ run_upgrade() {
     [ -n "${package_path}" ] && opts="${opts} --package ${package_path}"
     [ "${no_restart}" = "true" ] && opts="${opts} --no-restart"
     
-    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" upgrade ${opts}
+    bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" upgrade ${opts}
 }
 
 run_rollback() {
-    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" rollback
+    bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" rollback
 }
 
 run_rollback_status() {
-    bash "${SCRIPT_DIR}/script/upgrade-rollback.sh" status
+    bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" status
 }
 
 # ============================================================
@@ -409,43 +453,43 @@ run_rollback_status() {
 # ============================================================
 
 docker_build() {
-    bash "${SCRIPT_DIR}/script/docker.sh" build --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" build --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
 docker_deploy() {
-    bash "${SCRIPT_DIR}/script/docker.sh" deploy --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" deploy --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
 docker_start_container() {
-    bash "${SCRIPT_DIR}/script/docker.sh" start --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" start --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
 docker_stop_container() {
-    bash "${SCRIPT_DIR}/script/docker.sh" stop --name "$APP_NAME"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" stop --name "$APP_NAME"
 }
 
 docker_restart_container() {
-    bash "${SCRIPT_DIR}/script/docker.sh" restart --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" restart --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
 }
 
 docker_status() {
-    bash "${SCRIPT_DIR}/script/docker.sh" status --name "$APP_NAME"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" status --name "$APP_NAME"
 }
 
 docker_logs() {
     local lines="${1:-100}"
-    bash "${SCRIPT_DIR}/script/docker.sh" logs --name "$APP_NAME" --lines "$lines"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" logs --name "$APP_NAME" --lines "$lines"
 }
 
 docker_clean() {
-    bash "${SCRIPT_DIR}/script/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
+    bash "${SCRIPT_DIR}/script/linux/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
 }
 
-COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""; CUSTOM_JAVA=""; TAIL_LOG="false"
+COMMAND="start"; DEBUG_PORT="${DEFAULT_DEBUG_PORT}"; DEBUG_MODE="false"; CUSTOM_JVM_OPTS=""; CUSTOM_JAVA=""; TAIL_LOG="false"; SKYWALKING_ENABLED="false"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        start|stop|restart|status|jvm|tuning|analyze|dump|arthas|backup|restore|upgrade|rollback|rollback-status|debug) COMMAND="$1"; shift ;;
+        start|stop|restart|status|jvm|tuning|analyze|dump|arthas|backup|restore|upgrade|rollback|rollback-status|debug|skywalking) COMMAND="$1"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish) COMMAND="$1"; shift ;;
         cpu|mem|all|config|jar|heap|thread) EXTRA_MODE="$1"; shift ;;
         --dev) SPRING_PROFILE="dev"; shift ;;
@@ -458,6 +502,9 @@ while [ $# -gt 0 ]; do
         --docker-port) DOCKER_PORT="$2"; shift 2 ;;
         --host-port) DOCKER_HOST_PORT="$2"; shift 2 ;;
         --image-tag) DOCKER_IMAGE_TAG="$2"; shift 2 ;;
+        --skywalking) SKYWALKING_ENABLED="true"; shift ;;
+        --sw-backend) SW_AGENT_COLLECTOR_BACKEND_SERVICES="$2"; shift 2 ;;
+        --sw-name) SW_AGENT_NAME="$2"; shift 2 ;;
         --package) UPGRADE_PACKAGE="$2"; shift 2 ;;
         --no-restart) NO_RESTART="true"; shift ;;
         --output) DUMP_OUTPUT="$2"; shift 2 ;;
@@ -484,6 +531,7 @@ case "$COMMAND" in
     upgrade) run_upgrade "${UPGRADE_PACKAGE}" "${NO_RESTART}" ;;
     rollback) run_rollback ;;
     rollback-status) run_rollback_status ;;
+    skywalking) run_skywalking "${EXTRA_MODE:-}" ;;
     docker-build) docker_build ;;
     docker-deploy|publish) docker_deploy ;;
     docker-start) docker_start_container ;;

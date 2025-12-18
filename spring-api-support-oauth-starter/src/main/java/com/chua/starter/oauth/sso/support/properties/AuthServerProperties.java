@@ -442,6 +442,108 @@ public class AuthServerProperties {
      */
     private int grpcMaxInboundMessageSize = 4 * 1024 * 1024;
 
+    /**
+     * JWT 配置
+     */
+    private JwtConfig jwt = new JwtConfig();
+
+    /**
+     * JWT 配置类
+     */
+    @Data
+    public static class JwtConfig {
+        /**
+         * 是否启用 JWT 认证
+         */
+        private boolean enabled = false;
+
+        /**
+         * JWT 签名算法
+         * <p>
+         * 支持的算法：
+         * </p>
+         * <ul>
+         * <li>HS256 - HMAC-SHA256（对称加密，默认）</li>
+         * <li>HS384 - HMAC-SHA384</li>
+         * <li>HS512 - HMAC-SHA512</li>
+         * <li>RS256 - RSA-SHA256（非对称加密）</li>
+         * <li>RS384 - RSA-SHA384</li>
+         * <li>RS512 - RSA-SHA512</li>
+         * <li>ES256 - ECDSA-SHA256</li>
+         * <li>ES384 - ECDSA-SHA384</li>
+         * <li>ES512 - ECDSA-SHA512</li>
+         * </ul>
+         */
+        private String algorithm = "HS256";
+
+        /**
+         * JWT 密钥（HS256/HS384/HS512 算法使用）
+         * <p>
+         * 【安全警告】生产环境必须配置此值！
+         * 建议至少 256 位（32 字节）
+         * </p>
+         */
+        private String secret = "your-256-bit-secret-key-here-32b";
+
+        /**
+         * RSA/ECDSA 公钥文件路径 (RS/ES 算法使用)
+         * <p>
+         * 支持 classpath: 前缀, 如: classpath:jwt/public.pem
+         * </p>
+         */
+        private String publicKeyPath;
+
+        /**
+         * RSA/ECDSA 私钥文件路径 (RS/ES 算法使用)
+         * <p>
+         * 支持 classpath: 前缀, 如: classpath:jwt/private.pem
+         * </p>
+         */
+        private String privateKeyPath;
+
+        /**
+         * JWT 签发者 (iss claim)
+         */
+        private String issuer = "oauth-server";
+
+        /**
+         * JWT 受众 (aud claim)
+         */
+        private String audience;
+
+        /**
+         * JWT 过期时间（秒）
+         * <p>
+         * 默认 3600 秒（1小时）
+         * </p>
+         */
+        private long expireSeconds = 3600L;
+
+        /**
+         * Refresh Token 过期时间（秒）
+         * <p>
+         * 默认 604800 秒（7天）
+         * </p>
+         */
+        private long refreshExpireSeconds = 604800L;
+
+        /**
+         * 是否启用 JWKS 端点
+         * <p>
+         * 启用后可通过 /.well-known/jwks.json 获取公钥
+         * </p>
+         */
+        private boolean jwksEnabled = false;
+
+        /**
+         * 是否将 JWT 存入 Redis（支持主动撤销）
+         * <p>
+         * 启用后 JWT 可以被主动撤销，但会增加 Redis 访问
+         * </p>
+         */
+        private boolean storeInRedis = false;
+    }
+
     public enum Online {
         /**
          * 只允许一个在线

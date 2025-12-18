@@ -83,4 +83,11 @@ public interface SysTenantService extends IService<SysTenant> {
      * @return 更新结果
      */
     ReturnResult<Boolean> updateStatusForSysTenant(Integer sysTenantId, Integer status);
+
+    /**
+     * 获取租户统计数据
+     *
+     * @return 统计数据（总数、启用数、禁用数、订阅服务数）
+     */
+    ReturnResult<java.util.Map<String, Object>> statsForSysTenant();
 }

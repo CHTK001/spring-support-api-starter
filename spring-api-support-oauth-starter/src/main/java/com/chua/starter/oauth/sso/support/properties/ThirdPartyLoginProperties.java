@@ -5,18 +5,96 @@ import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 三方绑定
+ * 第三方 OAuth2 登录配置
+ * <p>
+ * 支持多种第三方平台的 OAuth2 登录配置，包括：
+ * <ul>
+ *   <li>Gitee - 码云</li>
+ *   <li>Github - GitHub</li>
+ *   <li>Wechat - 微信开放平台</li>
+ *   <li>WechatMp - 微信公众号</li>
+ *   <li>QQ - QQ互联</li>
+ *   <li>Alipay - 支付宝</li>
+ *   <li>DingTalk - 钉钉</li>
+ *   <li>Weibo - 新浪微博</li>
+ *   <li>Baidu - 百度</li>
+ *   <li>Google - Google</li>
+ *   <li>Facebook - Facebook</li>
+ *   <li>Microsoft - 微软</li>
+ * </ul>
+ * </p>
  *
  * @author CH
+ * @since 1.0.0
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
-@ConfigurationProperties(prefix = ThirdPartyLoginProperties.PRE, ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = ThirdPartyLoginProperties.PRE, ignoreUnknownFields = true)
 public class ThirdPartyLoginProperties {
 
     public static final String PRE = "plugin.oauth.third.login";
 
+    /**
+     * Gitee 码云配置
+     */
     private Gitee gitee = new Gitee();
+
+    /**
+     * Github 配置
+     */
+    private Github github = new Github();
+
+    /**
+     * 微信开放平台配置
+     */
+    private Wechat wechat = new Wechat();
+
+    /**
+     * 微信公众号配置
+     */
+    private WechatMp wechatMp = new WechatMp();
+
+    /**
+     * QQ互联配置
+     */
+    private Qq qq = new Qq();
+
+    /**
+     * 支付宝配置
+     */
+    private Alipay alipay = new Alipay();
+
+    /**
+     * 钉钉配置
+     */
+    private DingTalk dingtalk = new DingTalk();
+
+    /**
+     * 企业微信配置
+     */
+    private WechatEnterprise wechatEnterprise = new WechatEnterprise();
+
+    /**
+     * 新浪微博配置
+     */
+    private Weibo weibo = new Weibo();
+
+    /**
+     * 百度配置
+     */
+    private Baidu baidu = new Baidu();
+
+    /**
+     * Google 配置
+     */
+    private Google google = new Google();
+
+    /**
+     * Microsoft 配置
+     */
+    private Microsoft microsoft = new Microsoft();
+
+    // ==================== 平台配置类 ====================
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -28,16 +106,90 @@ public class ThirdPartyLoginProperties {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Github extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Wechat extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class WechatMp extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Qq extends Base {
+        /**
+         * 是否需要获取 unionId
+         */
+        private boolean unionId = false;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Alipay extends Base {
+        /**
+         * 支付宝公钥
+         */
+        private String alipayPublicKey;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class DingTalk extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class WechatEnterprise extends Base {
+        /**
+         * 企业微信应用 agentId
+         */
+        private String agentId;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Weibo extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Baidu extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Google extends Base {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Microsoft extends Base {
+    }
+
+    // ==================== 基础配置类 ====================
+
     @Data
     public static class Base {
 
         /**
-         * 客户端id：对应各平台的appKey
+         * 是否启用
+         */
+        private boolean enabled = false;
+
+        /**
+         * 客户端ID (appKey/appId)
          */
         private String clientId;
 
         /**
-         * 客户端Secret：对应各平台的appSecret
+         * 客户端密钥 (appSecret)
          */
         private String clientSecret;
 
@@ -45,5 +197,10 @@ public class ThirdPartyLoginProperties {
          * 登录成功后的回调地址
          */
         private String redirectUri;
+
+        /**
+         * 自定义授权 scope
+         */
+        private String scope;
     }
 }

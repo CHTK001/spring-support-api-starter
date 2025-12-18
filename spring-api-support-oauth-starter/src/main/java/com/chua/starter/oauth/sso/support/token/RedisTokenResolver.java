@@ -90,6 +90,9 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setRefreshExpireTime(refreshExpire);
         userResult.setToken(token);
 
+        // 从 ext 中获取并存储浏览器指纹
+        extractAndSetFingerprint(userResult);
+
         // 清理 ext 中不可序列化的值
         sanitizeExt(userResult);
 
@@ -106,7 +109,27 @@ public class RedisTokenResolver implements TokenResolver {
 
         LoginResult loginResult = new LoginResult(token);
         loginResult.setRefreshToken(refreshToken);
+        // 设置浏览器指纹到返回结果
+        loginResult.setFingerprint(userResult.getFingerprint());
         return ReturnResult.ok(loginResult);
+    }
+
+    /**
+     * 从 ext 中提取并设置浏览器指纹
+     * <p>从用户的 ext 参数中获取 fingerprint 并存储到 UserResult</p>
+     *
+     * @param userResult 用户信息
+     */
+    private void extractAndSetFingerprint(UserResult userResult) {
+        Map<String, Object> ext = userResult.getExt();
+        if (ext == null) {
+            return;
+        }
+        
+        Object fingerprintObj = ext.get("fingerprint");
+        if (fingerprintObj != null) {
+            userResult.setFingerprint(fingerprintObj.toString());
+        }
     }
 
     /**
@@ -430,6 +453,45 @@ public class RedisTokenResolver implements TokenResolver {
         if (type == LogoutType.LOGOUT) {
             // 单个登出：uid 实际上是 token
             logout(uid);
+            return;
+        }
+        
+        if (type == LogoutType.KICK) {
+            // 踢下线：uid 实际上是 token
+            kickByToken(uid);
+        }
+    }
+    
+    /**
+     * 踢下线（与 logout 类似，但记录的是 KICK 类型）
+     *
+     * @param token 访问令牌
+     */
+    @SuppressWarnings("ALL")
+    private void kickByToken(String token) {
+        String tokenRedisKey = TOKEN_PRE + token;
+        Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
+        UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        if (null != userResult) {
+            // 记录踢下线日志
+            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : "WEB";
+            recordLogoutLog(userResult, loginType, LogoutType.KICK);
+
+            // 将 Token 加入黑名单
+            if (tokenBlacklistService != null) {
+                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED, 
+                        expire, userResult.getUserId(), userResult.getUsername());
+            }
+
+            // 删除 Token
+            stringRedisTemplate.delete(TOKEN_PRE + token);
+            
+            // 删除 RefreshToken
+            String refreshToken = userResult.getRefreshToken();
+            if (StringUtils.isNotEmpty(refreshToken)) {
+                logoutRefresh(refreshToken);
+            }
         }
     }
 
