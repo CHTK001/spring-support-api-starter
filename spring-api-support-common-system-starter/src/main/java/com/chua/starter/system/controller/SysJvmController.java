@@ -403,27 +403,24 @@ public class SysJvmController {
         jvmInfo.setMemoryAllocationRate(memoryAllocationRate);
         
         // 类加载详情
-        ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
+        ClassLoadingMXBean classLoadingMXBean1 = ManagementFactory.getClassLoadingMXBean();
         JvmInfo.ClassLoadingDetail classLoadingDetail = new JvmInfo.ClassLoadingDetail();
-        classLoadingDetail.setCurrentLoadedCount(classLoadingMXBean.getLoadedClassCount());
-        classLoadingDetail.setTotalLoadedCount(classLoadingMXBean.getTotalLoadedClassCount());
-        classLoadingDetail.setUnloadedCount(classLoadingMXBean.getUnloadedClassCount());
-        classLoadingDetail.setVerbose(classLoadingMXBean.isVerbose());
+        classLoadingDetail.setCurrentLoadedCount(classLoadingMXBean1.getLoadedClassCount());
+        classLoadingDetail.setTotalLoadedCount(classLoadingMXBean1.getTotalLoadedClassCount());
+        classLoadingDetail.setUnloadedCount(classLoadingMXBean1.getUnloadedClassCount());
+        classLoadingDetail.setVerbose(classLoadingMXBean1.isVerbose());
         // 计算每分钟加载/卸载速率
         double uptimeMinutes = runtimeMXBean.getUptime() / 60000.0;
         if (uptimeMinutes > 0) {
-            classLoadingDetail.setLoadRatePerMinute(classLoadingMXBean.getTotalLoadedClassCount() / uptimeMinutes);
-            classLoadingDetail.setUnloadRatePerMinute(classLoadingMXBean.getUnloadedClassCount() / uptimeMinutes);
+            classLoadingDetail.setLoadRatePerMinute(classLoadingMXBean1.getTotalLoadedClassCount() / uptimeMinutes);
+            classLoadingDetail.setUnloadRatePerMinute(classLoadingMXBean1.getUnloadedClassCount() / uptimeMinutes);
         }
         jvmInfo.setClassLoadingDetail(classLoadingDetail);
         
-        // 安全管理器信息
+        // 安全管理器信息 (SecurityManager在Java 17开始弃用，Java 21已移除)
         JvmInfo.SecurityInfo securityInfo = new JvmInfo.SecurityInfo();
-        SecurityManager sm = System.getSecurityManager();
-        securityInfo.setSecurityManagerEnabled(sm != null);
-        if (sm != null) {
-            securityInfo.setSecurityManagerClass(sm.getClass().getName());
-        }
+        securityInfo.setSecurityManagerEnabled(false);
+        securityInfo.setSecurityManagerClass(null);
         String policyFile = System.getProperty("java.security.policy");
         securityInfo.setPolicyFile(policyFile);
         jvmInfo.setSecurityInfo(securityInfo);
@@ -1361,11 +1358,13 @@ public class SysJvmController {
         // 更新入口点统计
         if (businessEntry != null) {
             String entryKey = businessEntry.getClassName() + "#" + businessEntry.getMethodName();
+            StackTraceElement finalBusinessEntry = businessEntry;
+            String finalBusinessEntryType = businessEntryType;
             EntryPointStats entryStats = entryPointStats.computeIfAbsent(entryKey, k -> {
                 EntryPointStats s = new EntryPointStats();
-                s.className = businessEntry.getClassName();
-                s.methodName = businessEntry.getMethodName();
-                s.entryType = businessEntryType;
+                s.className = finalBusinessEntry.getClassName();
+                s.methodName = finalBusinessEntry.getMethodName();
+                s.entryType = finalBusinessEntryType;
                 return s;
             });
             entryStats.triggerCount++;
