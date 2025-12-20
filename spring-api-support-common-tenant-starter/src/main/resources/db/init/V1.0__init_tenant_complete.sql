@@ -95,17 +95,13 @@ COMMENT = '服务表 - 定义系统提供的可订阅服务产品' ROW_FORMAT = 
 DROP TABLE IF EXISTS `sys_service_module`;
 CREATE TABLE `sys_service_module` (
     `sys_service_module_id` int NOT NULL AUTO_INCREMENT COMMENT '模块ID - 主键自增',
-    `sys_service_id` int NOT NULL COMMENT '所属服务ID - 关联sys_service表',
-    `sys_module_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块名称 - 模块的显示名称',
-    `sys_module_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块编码 - 模块唯一标识码',
-    `sys_module_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块图标 - 图标URL或图标类名',
-    `sys_module_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块描述 - 模块功能说明',
-    `sys_module_parent_id` int NULL DEFAULT 0 COMMENT '父模块ID - 支持模块层级结构，0表示顶级模块',
-    `sys_module_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块路径 - 前端路由路径',
-    `sys_module_sort` int NULL DEFAULT 0 COMMENT '排序号 - 模块在列表中的显示顺序',
-    `sys_module_status` int NULL DEFAULT 1 COMMENT '模块状态 - 0:禁用, 1:启用',
-    `sys_module_is_addon` int NULL DEFAULT 0 COMMENT '是否附加模块 - 0:基础模块(服务包含), 1:附加模块(需额外购买)',
-    `sys_module_price` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '模块价格 - 附加模块的价格(元/月)',
+    `sys_service_module_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块名称 - 模块的显示名称',
+    `sys_service_module_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块编码 - 模块唯一标识码',
+    `sys_service_module_desc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块描述 - 模块功能说明',
+    `sys_service_module_sort` int NULL DEFAULT 0 COMMENT '排序号 - 模块在列表中的显示顺序',
+    `sys_service_module_delete` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `sys_service_module_status` int NULL DEFAULT 0 COMMENT '模块状态 - 0:启用, 1:禁用',
+    `sys_service_module_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'SERVICE' COMMENT '模块类型 - API:API接口, SERVICE:服务, FUNCTION:功能',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -113,40 +109,34 @@ CREATE TABLE `sys_service_module` (
     `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     PRIMARY KEY (`sys_service_module_id`) USING BTREE,
-    UNIQUE INDEX `uk_module_code` (`sys_module_code`) USING BTREE COMMENT '模块编码唯一索引',
-    INDEX `idx_service_id` (`sys_service_id`) USING BTREE COMMENT '服务ID索引',
-    INDEX `idx_parent_id` (`sys_module_parent_id`) USING BTREE COMMENT '父模块索引',
-    INDEX `idx_module_sort` (`sys_module_sort`) USING BTREE COMMENT '排序索引'
+    UNIQUE INDEX `uk_module_code` (`sys_service_module_code`) USING BTREE COMMENT '模块编码唯一索引',
+    INDEX `idx_module_status` (`sys_service_module_status`) USING BTREE COMMENT '状态索引',
+    INDEX `idx_module_type` (`sys_service_module_type`) USING BTREE COMMENT '类型索引',
+    INDEX `idx_module_sort` (`sys_service_module_sort`) USING BTREE COMMENT '排序索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
 COMMENT = '服务模块表 - 定义服务下的功能模块' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 4. 服务模块功能项表 (sys_service_module_item)
--- 用途: 定义模块下的具体功能项/权限点
+-- 4. 服务模块关联表 (sys_service_module_item)
+-- 用途: 服务与模块的多对多关联表
 -- =====================================================
 DROP TABLE IF EXISTS `sys_service_module_item`;
 CREATE TABLE `sys_service_module_item` (
-    `sys_module_item_id` int NOT NULL AUTO_INCREMENT COMMENT '功能项ID - 主键自增',
-    `sys_service_module_id` int NOT NULL COMMENT '所属模块ID - 关联sys_service_module表',
-    `sys_item_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '功能项名称 - 功能的显示名称',
-    `sys_item_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '功能项编码 - 功能唯一标识码，用于权限控制',
-    `sys_item_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'FUNCTION' COMMENT '功能类型 - MENU:菜单, BUTTON:按钮, API:接口, FUNCTION:功能点',
-    `sys_item_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '功能描述 - 功能说明',
-    `sys_item_api_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'API路径 - 关联的后端API接口路径',
-    `sys_item_sort` int NULL DEFAULT 0 COMMENT '排序号 - 功能项在列表中的显示顺序',
-    `sys_item_status` int NULL DEFAULT 1 COMMENT '功能状态 - 0:禁用, 1:启用',
+    `sys_service_module_item_id` int NOT NULL AUTO_INCREMENT COMMENT '关联ID - 主键自增',
+    `sys_service_id` int NOT NULL COMMENT '服务ID - 关联sys_service表',
+    `sys_service_module_id` int NOT NULL COMMENT '模块ID - 关联sys_service_module表',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
     `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
     `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_module_item_id`) USING BTREE,
-    UNIQUE INDEX `uk_item_code` (`sys_item_code`) USING BTREE COMMENT '功能项编码唯一索引',
-    INDEX `idx_module_id` (`sys_service_module_id`) USING BTREE COMMENT '模块ID索引',
-    INDEX `idx_item_type` (`sys_item_type`) USING BTREE COMMENT '功能类型索引'
+    PRIMARY KEY (`sys_service_module_item_id`) USING BTREE,
+    UNIQUE INDEX `uk_service_module` (`sys_service_id`, `sys_service_module_id`) USING BTREE COMMENT '服务模块唯一索引',
+    INDEX `idx_service_id` (`sys_service_id`) USING BTREE COMMENT '服务ID索引',
+    INDEX `idx_module_id` (`sys_service_module_id`) USING BTREE COMMENT '模块ID索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '服务模块功能项表 - 定义模块下的具体功能项和权限点' ROW_FORMAT = DYNAMIC;
+COMMENT = '服务模块关联表 - 服务与模块的多对多关联' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
 -- 5. 租户服务关联表 (sys_tenant_service)
