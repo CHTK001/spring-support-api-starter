@@ -67,6 +67,12 @@
             <artifactId>spring-support-sync-starter</artifactId>
         </dependency>
 
+        <!-- Job定时任务模块 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-job-starter</artifactId>
+        </dependency>
+
         <!-- OSHI系统信息库 -->
         <dependency>
             <groupId>com.github.oshi</groupId>
