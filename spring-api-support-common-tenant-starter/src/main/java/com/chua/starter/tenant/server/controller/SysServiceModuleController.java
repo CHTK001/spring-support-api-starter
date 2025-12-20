@@ -12,6 +12,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.tenant.entity.SysServiceModule;
 import com.chua.starter.tenant.entity.SysServiceModuleItem;
+import com.chua.starter.tenant.entity.SysServiceModuleStats;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
 import io.swagger.annotations.Api;
@@ -189,31 +190,26 @@ public class SysServiceModuleController {
      */
     @GetMapping("stats")
     @Operation(summary = "获取服务模块统计数据")
-    public ReturnResult<java.util.Map<String, Object>> statsForSysServiceModule() {
-        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+    public ReturnResult<SysServiceModuleStats> statsForSysServiceModule() {
+        SysServiceModuleStats stats = new SysServiceModuleStats();
         // 总数
-        Long total = sysServiceModuleMapper.selectCount(Wrappers.emptyWrapper());
+        stats.setTotal(sysServiceModuleMapper.selectCount(Wrappers.emptyWrapper()));
         // 启用数 (status = 0 表示启用)
-        Long enabled = sysServiceModuleMapper.selectCount(
+        stats.setEnabled(sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleStatus, 0)
-        );
+        ));
         // 禁用数 (status = 1 表示禁用)
-        Long disabled = sysServiceModuleMapper.selectCount(
+        stats.setDisabled(sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleStatus, 1)
-        );
+        ));
         // API类型模块数
-        Long apiCount = sysServiceModuleMapper.selectCount(
+        stats.setApiCount(sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleType, "API")
-        );
+        ));
         // 服务类型模块数
-        Long serviceCount = sysServiceModuleMapper.selectCount(
+        stats.setServiceCount(sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().ne(SysServiceModule::getSysServiceModuleType, "API")
-        );
-        stats.put("total", total);
-        stats.put("enabled", enabled);
-        stats.put("disabled", disabled);
-        stats.put("apiCount", apiCount);
-        stats.put("serviceCount", serviceCount);
+        ));
         return ReturnResult.ok(stats);
     }
 
