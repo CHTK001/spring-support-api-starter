@@ -88,4 +88,13 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "服务模块状态")
     @Schema(description = "服务模块状态: 0-启用, 1-禁用")
     private Integer sysServiceModuleStatus;
+
+    /**
+     * 服务模块类型
+     * API: API接口模块, SERVICE: 服务模块, FUNCTION: 功能模块
+     */
+    @TableField(value = "sys_service_module_type")
+    @ApiModelProperty(value = "服务模块类型")
+    @Schema(description = "服务模块类型: API-API接口, SERVICE-服务, FUNCTION-功能")
+    private String sysServiceModuleType;
 }
