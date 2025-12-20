@@ -1380,10 +1380,11 @@ public class SysJvmController {
                 StackTraceElement topHotspot = hotspotMethods.get(0);
                 String chainKey = businessEntry.getClassName() + "#" + businessEntry.getMethodName() + 
                         " -> " + topHotspot.getClassName() + "#" + topHotspot.getMethodName();
-                
+
+                StackTraceElement finalBusinessEntry1 = businessEntry;
                 CallChainStats chainStats = callChainStats.computeIfAbsent(chainKey, k -> {
                     CallChainStats s = new CallChainStats();
-                    s.businessEntry = businessEntry.getClassName() + "." + businessEntry.getMethodName() + "()";
+                    s.businessEntry = finalBusinessEntry1.getClassName() + "." + finalBusinessEntry1.getMethodName() + "()";
                     s.hotspotMethod = topHotspot.getClassName() + "." + topHotspot.getMethodName() + "()";
                     // 构建简化的调用链
                     s.callChain = buildSimplifiedCallChain(stackTrace, businessPackage);
