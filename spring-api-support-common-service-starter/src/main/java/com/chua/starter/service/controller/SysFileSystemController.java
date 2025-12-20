@@ -78,6 +78,24 @@ public class SysFileSystemController {
 
 
     /**
+     * 秒传检查
+     * 上传前检查文件是否已存在，如果存在则直接返回文件URL
+     *
+     * @param request 秒传检查请求
+     * @return 秒传检查结果
+     */
+    @Operation(summary = "秒传检查")
+    @PostMapping("/instant-check")
+    public ReturnResult<SysFileInstantUploadResponse> checkInstantUpload(
+            @Validated @RequestBody SysFileInstantUploadRequest request,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
+        }
+        return sysFileSystemService.checkInstantUploadForFileSystem(request);
+    }
+
+    /**
      * 创建分片任务
      * @param request 请求
      * @return 结果
@@ -94,7 +112,7 @@ public class SysFileSystemController {
         return sysFileSystemService.createTaskForFileSystem(request);
     }
     /**
-     * 创建分片任务
+     * 上传分片
      * @param request 请求
      * @return 结果
      */
@@ -112,6 +130,33 @@ public class SysFileSystemController {
             return ReturnResult.illegal("文件不能为空");
         }
         return sysFileSystemService.uploadTaskForFileSystem(request, multipartFile);
+    }
+
+    /**
+     * 获取上传任务信息（断点续传）
+     *
+     * @param taskId 任务ID
+     * @return 任务信息
+     */
+    @Operation(summary = "获取上传任务信息（断点续传）")
+    @GetMapping("/task/info/{taskId}")
+    public ReturnResult<SysFileTaskInfoResponse> getTaskInfo(@PathVariable String taskId) {
+        return sysFileSystemService.getTaskInfoForFileSystem(taskId);
+    }
+
+    /**
+     * 根据MD5查找未完成的上传任务（断点续传）
+     *
+     * @param fileMd5  文件MD5
+     * @param fileSize 文件大小
+     * @return 任务信息
+     */
+    @Operation(summary = "根据MD5查找未完成的上传任务（断点续传）")
+    @GetMapping("/task/resume")
+    public ReturnResult<SysFileTaskInfoResponse> findTaskByMd5(
+            @RequestParam String fileMd5,
+            @RequestParam(required = false) Long fileSize) {
+        return sysFileSystemService.findTaskByMd5ForFileSystem(fileMd5, fileSize);
     }
 
     // ==================== 配置管理接口 ====================

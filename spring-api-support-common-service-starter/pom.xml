@@ -80,6 +80,14 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-redis-starter</artifactId>
         </dependency>
+
+        <!-- Job支持（可选依赖）
+             用于文件清理定时任务等功能 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-job-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 </project>
