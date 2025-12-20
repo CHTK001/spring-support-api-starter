@@ -73,5 +73,18 @@ public class TotpController {
         return simpleSysUserService.generateUri(sysUserId);
     }
 
+    /**
+     * 验证 TOTP 验证码
+     * @param code 验证码（6位数字）
+     * @param username 用户名
+     * @return ReturnResult
+     */
+    @Operation(summary = "验证2fa验证码")
+    @GetMapping("/verify")
+    public ReturnResult<Boolean> verify(
+            @Parameter(description = "验证码") String code,
+            @Parameter(description = "用户名") String username) {
+        return simpleSysUserService.verify(code, username);
+    }
 
 }
