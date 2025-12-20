@@ -10,6 +10,7 @@ import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantService;
+import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
@@ -247,25 +248,20 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
-    public ReturnResult<java.util.Map<String, Object>> statsForSysTenant() {
+    public ReturnResult<SysTenantStats> statsForSysTenant() {
         log.debug("获取租户统计数据");
-        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        SysTenantStats stats = new SysTenantStats();
 
         // 总数
-        Long total = count();
+        stats.setTotal(count());
         // 启用数 (status = 0 表示启用)
-        Long enabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 0));
+        stats.setEnabled(count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 0)));
         // 禁用数 (status = 1 表示禁用)
-        Long disabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1));
+        stats.setDisabled(count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1)));
         // 订阅服务数（有订阅服务的租户数）
-        Long subscribed = sysTenantServiceMapper.selectCount(
+        stats.setSubscribed(sysTenantServiceMapper.selectCount(
                 Wrappers.query().select("DISTINCT sys_tenant_id")
-        );
-
-        stats.put("total", total);
-        stats.put("enabled", enabled);
-        stats.put("disabled", disabled);
-        stats.put("subscribed", subscribed);
+        ));
 
         return ReturnResult.ok(stats);
     }

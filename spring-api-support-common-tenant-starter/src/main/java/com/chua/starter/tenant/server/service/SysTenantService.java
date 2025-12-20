@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
+import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 
 import java.util.List;
@@ -89,5 +90,5 @@ public interface SysTenantService extends IService<SysTenant> {
      *
      * @return 统计数据（总数、启用数、禁用数、订阅服务数）
      */
-    ReturnResult<java.util.Map<String, Object>> statsForSysTenant();
+    ReturnResult<SysTenantStats> statsForSysTenant();
 }
