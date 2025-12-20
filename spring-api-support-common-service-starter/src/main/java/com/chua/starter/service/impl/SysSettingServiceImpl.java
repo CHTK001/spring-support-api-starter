@@ -263,13 +263,31 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         ThreadUtils.newStaticThreadPool().execute(() -> {
-            try {
-                List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                        .eq(SysSetting::getSysSettingStatus, 1)
-                );
-                register(globalSettingFactory, list);
-            } catch (Throwable e) {
-                log.warn("配置升级失败:{}", e.getMessage());
+            // 重试机制：等待数据库表初始化完成
+            int maxRetries = 10;
+            int retryDelayMs = 3000;
+            
+            for (int i = 0; i < maxRetries; i++) {
+                try {
+                    List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
+                            .eq(SysSetting::getSysSettingStatus, 1)
+                    );
+                    register(globalSettingFactory, list);
+                    log.info("系统配置加载完成，共 {} 条配置", list.size());
+                    return; // 成功后退出
+                } catch (Throwable e) {
+                    if (i < maxRetries - 1) {
+                        log.debug("配置加载失败，{}ms 后重试 ({}/{}):{}", retryDelayMs, i + 1, maxRetries, e.getMessage());
+                        try {
+                            Thread.sleep(retryDelayMs);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                    } else {
+                        log.warn("配置加载失败（已重试{}次）:{}", maxRetries, e.getMessage());
+                    }
+                }
             }
         });
     }
