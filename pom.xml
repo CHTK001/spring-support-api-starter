@@ -521,6 +521,12 @@
                 <version>${module.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-job-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
