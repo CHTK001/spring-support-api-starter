@@ -12,8 +12,10 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.service.SysSettingHistoryService;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.entity.service.SysSetting;
+import com.chua.starter.entity.service.SysSettingHistory;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import com.chua.starter.service.pojo.setting.SysSettingVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,6 +48,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysSettingController {
 
     private final SysSettingService sysSettingService;
+    private final SysSettingHistoryService sysSettingHistoryService;
 
 
     /**
@@ -165,5 +168,104 @@ public class SysSettingController {
         }
 
         return sysSettingService.saveForEntity(sysSetting, roles);
+    }
+
+    /**
+     * 导出配置
+     *
+     * @param group 配置分组（可选）
+     * @return JSON配置字符串
+     */
+    @Operation(summary = "导出配置")
+    @GetMapping("/export")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnResult<String> exportSettings(@RequestParam(required = false) String group) {
+        return sysSettingService.exportSettings(group);
+    }
+
+    /**
+     * 导入配置
+     *
+     * @param json 配置JSON字符串
+     * @param overwrite 是否覆盖已存在的配置
+     * @return 导入结果，返回批次号
+     */
+    @Operation(summary = "导入配置")
+    @PostMapping("/import")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnResult<String> importSettings(
+            @RequestBody String json,
+            @RequestParam(defaultValue = "false") boolean overwrite,
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysSettingService.importSettings(json, overwrite, roles);
+    }
+
+    /**
+     * 查询配置变更历史
+     *
+     * @param query 分页参数
+     * @param settingId 配置ID（可选）
+     * @param group 配置分组（可选）
+     * @return 变更历史分页列表
+     */
+    @Operation(summary = "查询配置变更历史")
+    @GetMapping("/history/page")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnPageResult<SysSettingHistory> pageHistory(
+            @ParameterObject Query<SysSettingHistory> query,
+            @RequestParam(required = false) Integer settingId,
+            @RequestParam(required = false) String group) {
+        return PageResultUtils.ok(sysSettingHistoryService.pageHistory(query, settingId, group));
+    }
+
+    /**
+     * 根据批次号查询变更历史
+     *
+     * @param batchNo 批次号
+     * @return 变更历史列表
+     */
+    @Operation(summary = "根据批次号查询变更历史")
+    @GetMapping("/history/batch")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnResult<List<SysSettingHistory>> listByBatchNo(@RequestParam String batchNo) {
+        return ReturnResult.ok(sysSettingHistoryService.listByBatchNo(batchNo));
+    }
+
+    /**
+     * 回滚到指定批次
+     *
+     * @param batchNo 批次号
+     * @return 回滚结果
+     */
+    @Operation(summary = "回滚到指定批次")
+    @PostMapping("/history/rollback/batch")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnResult<Boolean> rollbackToBatch(
+            @RequestParam String batchNo,
+            @Parameter(hidden = true) @UserValue("userId") String operatorId,
+            @Parameter(hidden = true) @UserValue("username") String operatorName) {
+        return sysSettingHistoryService.rollbackToBatch(batchNo, operatorId, operatorName);
+    }
+
+    /**
+     * 回滚到指定历史记录
+     *
+     * @param historyId 历史记录ID
+     * @return 回滚结果
+     */
+    @Operation(summary = "回滚单条配置到指定历史记录")
+    @PostMapping("/history/rollback/single")
+    @ApiPlatform("system")
+    @Permission(role = {SUPER_ADMIN})
+    public ReturnResult<Boolean> rollbackToHistory(
+            @RequestParam Long historyId,
+            @Parameter(hidden = true) @UserValue("userId") String operatorId,
+            @Parameter(hidden = true) @UserValue("username") String operatorName) {
+        return sysSettingHistoryService.rollbackToHistory(historyId, operatorId, operatorName);
     }
 }

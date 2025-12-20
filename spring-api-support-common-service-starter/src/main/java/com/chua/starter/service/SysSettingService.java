@@ -87,4 +87,22 @@ public interface SysSettingService extends IService<SysSetting> {
      * @return 第三方登录请求对象
      */
     SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData);
+
+    /**
+     * 导出配置为JSON
+     *
+     * @param group 配置分组（可选，为空则导出全部）
+     * @return 配置JSON字符串
+     */
+    ReturnResult<String> exportSettings(String group);
+
+    /**
+     * 导入配置
+     *
+     * @param json 配置JSON字符串
+     * @param overwrite 是否覆盖已存在的配置
+     * @param roles 当前用户的角色集合
+     * @return 导入结果，返回批次号用于回滚
+     */
+    ReturnResult<String> importSettings(String json, boolean overwrite, Set<String> roles);
 }
