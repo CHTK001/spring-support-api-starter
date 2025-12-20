@@ -259,9 +259,14 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         // 禁用数 (status = 1 表示禁用)
         stats.setDisabled(count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1)));
         // 订阅服务数（有订阅服务的租户数）
-        stats.setSubscribed(sysTenantServiceMapper.selectCount(
-                Wrappers.query().select("DISTINCT sys_tenant_id")
-        ));
+        List<SysTenantService> allTenantServices = sysTenantServiceMapper.selectList(
+                Wrappers.<SysTenantService>lambdaQuery().select(SysTenantService::getSysTenantId)
+        );
+        long subscribedCount = allTenantServices.stream()
+                .map(SysTenantService::getSysTenantId)
+                .distinct()
+                .count();
+        stats.setSubscribed(subscribedCount);
 
         return ReturnResult.ok(stats);
     }
