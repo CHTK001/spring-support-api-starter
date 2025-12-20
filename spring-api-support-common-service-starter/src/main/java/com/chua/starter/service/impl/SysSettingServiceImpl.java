@@ -16,6 +16,7 @@ import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.service.SysSettingHistoryService;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysSettingMapper;
 import com.chua.starter.service.setting.GuestDefaultSetting;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +59,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Autowired
     @Lazy
     private SysSettingService sysSettingService;
+    
+    @Autowired
+    @Lazy
+    private SysSettingHistoryService sysSettingHistoryService;
+    
     static final String[] APP_KEY = new String[]{"appId", "clientId"};
     static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"};
     static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"};
@@ -89,6 +96,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         int b = baseMapper.deleteById(settingId);
         sysSettingService.clearCache(sysSetting);
+        // 记录删除历史
+        try {
+            String operatorId = RequestUtils.getUserId();
+            String operatorName = RequestUtils.getUsername();
+            sysSettingHistoryService.recordDelete(sysSetting, operatorId, operatorName, UUID.randomUUID().toString().replace("-", ""));
+        } catch (Exception e) {
+            log.warn("记录配置删除历史失败: {}", e.getMessage());
+        }
         return ReturnResult.of(b);
     }
 
@@ -121,6 +136,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         sysSettings.add(sysSetting);
         sysSettings.add(version);
         sysSettingService.updateBatchById(sysSettings);
+        // 记录更新历史
+        try {
+            String operatorId = RequestUtils.getUserId();
+            String operatorName = RequestUtils.getUsername();
+            sysSettingHistoryService.recordUpdate(sysSetting1, sysSetting, operatorId, operatorName, UUID.randomUUID().toString().replace("-", ""));
+        } catch (Exception e) {
+            log.warn("记录配置更新历史失败: {}", e.getMessage());
+        }
 
         if(null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 1) {
             GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
@@ -150,6 +173,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if(baseMapper.insert(sysSetting) > 0) {
             if(sysSetting.getSysSettingStatus() == 1) {
                 GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            }
+            // 记录新增历史
+            try {
+                String operatorId = RequestUtils.getUserId();
+                String operatorName = RequestUtils.getUsername();
+                sysSettingHistoryService.recordCreate(sysSetting, operatorId, operatorName, UUID.randomUUID().toString().replace("-", ""));
+            } catch (Exception e) {
+                log.warn("记录配置新增历史失败: {}", e.getMessage());
             }
             return ReturnResult.of(sysSettingService.clearCache(sysSetting));
         }
@@ -336,6 +367,148 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
         JsonObject jsonObject = Json.getJsonObject(sysSettingValue);
         globalSettingFactory.set(sysSetting.getSysSettingGroup(), jsonObject);
+    }
 
+    @Override
+    public ReturnResult<String> exportSettings(String group) {
+        List<SysSetting> settings;
+        if (StringUtils.isNotBlank(group)) {
+            settings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingGroup, group)
+                    .orderByAsc(SysSetting::getSysSettingSort)
+            );
+        } else {
+            settings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .orderByAsc(SysSetting::getSysSettingGroup)
+                    .orderByAsc(SysSetting::getSysSettingSort)
+            );
+        }
+
+        if (settings.isEmpty()) {
+            return ReturnResult.fail("没有可导出的配置");
+        }
+
+        // 转换为导出格式，去除ID等内部字段
+        List<Map<String, Object>> exportList = new ArrayList<>();
+        for (SysSetting setting : settings) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("name", setting.getSysSettingName());
+            item.put("value", setting.getSysSettingValue());
+            item.put("group", setting.getSysSettingGroup());
+            item.put("valueType", setting.getSysSettingValueType());
+            item.put("remark", setting.getSysSettingRemark());
+            item.put("sort", setting.getSysSettingSort());
+            item.put("status", setting.getSysSettingStatus());
+            item.put("collect", setting.getSysSettingCollect());
+            item.put("config", setting.getSysSettingConfig());
+            exportList.add(item);
+        }
+
+        return ReturnResult.ok(Json.toJson(exportList));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<String> importSettings(String json, boolean overwrite, Set<String> roles) {
+        if (StringUtils.isBlank(json)) {
+            return ReturnResult.fail("导入内容不能为空");
+        }
+
+        List<Map<String, Object>> importList;
+        try {
+            importList = Json.fromJson(json, List.class);
+        } catch (Exception e) {
+            return ReturnResult.fail("JSON格式错误: " + e.getMessage());
+        }
+
+        if (importList == null || importList.isEmpty()) {
+            return ReturnResult.fail("导入内容为空");
+        }
+
+        String batchNo = UUID.randomUUID().toString().replace("-", "");
+        String operatorId = RequestUtils.getUserId();
+        String operatorName = RequestUtils.getUsername();
+        List<SysSetting> newSettings = new ArrayList<>();
+        List<SysSetting> allImportedSettings = new ArrayList<>();
+
+        for (Map<String, Object> item : importList) {
+            String name = MapUtils.getString(item, "name");
+            String group = MapUtils.getString(item, "group");
+
+            if (StringUtils.isBlank(name) || StringUtils.isBlank(group)) {
+                continue;
+            }
+
+            // 检查是否已存在
+            SysSetting existing = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingName, name)
+                    .eq(SysSetting::getSysSettingGroup, group)
+            );
+
+            if (existing != null) {
+                if (!overwrite) {
+                    continue;
+                }
+                // 覆盖更新，先保存旧值
+                String oldValue = existing.getSysSettingValue();
+                SysSetting oldSetting = new SysSetting();
+                oldSetting.setSysSettingId(existing.getSysSettingId());
+                oldSetting.setSysSettingName(existing.getSysSettingName());
+                oldSetting.setSysSettingGroup(existing.getSysSettingGroup());
+                oldSetting.setSysSettingValue(oldValue);
+                
+                existing.setSysSettingValue(MapUtils.getString(item, "value"));
+                existing.setSysSettingValueType(MapUtils.getString(item, "valueType"));
+                existing.setSysSettingRemark(MapUtils.getString(item, "remark"));
+                existing.setSysSettingSort(MapUtils.getInteger(item, "sort"));
+                existing.setSysSettingStatus(MapUtils.getInteger(item, "status", 1));
+                existing.setSysSettingCollect(MapUtils.getInteger(item, "collect", 0));
+                existing.setSysSettingConfig(MapUtils.getString(item, "config"));
+                baseMapper.updateById(existing);
+                sysSettingService.clearCache(existing);
+                allImportedSettings.add(existing);
+                // 记录覆盖更新历史，包含旧值
+                try {
+                    sysSettingHistoryService.recordImportUpdate(oldSetting, existing, operatorId, operatorName, batchNo);
+                } catch (Exception e) {
+                    log.warn("记录配置导入覆盖历史失败: {}", e.getMessage());
+                }
+            } else {
+                // 新增
+                SysSetting newSetting = new SysSetting();
+                newSetting.setSysSettingName(name);
+                newSetting.setSysSettingGroup(group);
+                newSetting.setSysSettingValue(MapUtils.getString(item, "value"));
+                newSetting.setSysSettingValueType(MapUtils.getString(item, "valueType"));
+                newSetting.setSysSettingRemark(MapUtils.getString(item, "remark"));
+                newSetting.setSysSettingSort(MapUtils.getInteger(item, "sort"));
+                newSetting.setSysSettingStatus(MapUtils.getInteger(item, "status", 1));
+                newSetting.setSysSettingCollect(MapUtils.getInteger(item, "collect", 0));
+                newSetting.setSysSettingConfig(MapUtils.getString(item, "config"));
+                newSetting.setSysSettingInSystem(0);
+                newSetting.setSysSettingAppInner(0);
+                baseMapper.insert(newSetting);
+                sysSettingService.clearCache(newSetting);
+                newSettings.add(newSetting);
+                allImportedSettings.add(newSetting);
+            }
+        }
+
+        // 记录新增配置的导入历史
+        if (!newSettings.isEmpty()) {
+            try {
+                sysSettingHistoryService.recordImport(newSettings, operatorId, operatorName, batchNo);
+            } catch (Exception e) {
+                log.warn("记录配置导入历史失败: {}", e.getMessage());
+            }
+        }
+        
+        // 注册到全局配置
+        if (!allImportedSettings.isEmpty()) {
+            register(GlobalSettingFactory.getInstance(), allImportedSettings);
+        }
+
+        log.info("配置导入完成: batchNo={}, count={}", batchNo, allImportedSettings.size());
+        return ReturnResult.ok(batchNo);
     }
 }
