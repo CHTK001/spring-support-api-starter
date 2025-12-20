@@ -8,7 +8,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.command.ObjectResultItem;
-import com.chua.common.support.utils.SimpleRetry;
+import com.chua.common.support.task.retry.RetryerFlow;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.email.support.metadata.EmailServiceMetadata;
 import com.chua.email.support.metadata.MailMessage;
@@ -56,7 +56,7 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
 
             emailFetch.setFolderName("收件箱".equals(emailFetch.getFolderName()) ? "INBOX" : emailFetch.getFolderName());
             // 获取邮件
-            CommandResult commandResult = SimpleRetry.with(
+            CommandResult commandResult = RetryerFlow.with(
                             it -> {
                                 try {
                                     return it.executeCommand("%s %s %s %s %s".formatted(emailFetch.getCommand(),
@@ -80,7 +80,7 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
                             throw new RuntimeException(e);
                         }
                     })
-                    .buildAndRun();
+                    .execute();
             ObjectResultItem data = (ObjectResultItem) commandResult.getData();
             if (null == data) {
                 return ReturnResult.error("拉取邮件失败: 获取邮件失败");
