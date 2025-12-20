@@ -8,6 +8,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.tenant.entity.SysTenant;
+import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.service.SysTenantService;
 import io.swagger.annotations.Api;
@@ -166,7 +167,7 @@ public class SysTenantController {
      */
     @GetMapping("stats")
     @Operation(summary = "获取租户统计数据")
-    public ReturnResult<java.util.Map<String, Object>> statsForSysTenant() {
+    public ReturnResult<SysTenantStats> statsForSysTenant() {
         return sysTenantService.statsForSysTenant();
     }
 }
