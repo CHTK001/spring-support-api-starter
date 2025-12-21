@@ -536,7 +536,15 @@ CREATE TABLE `monitor_nginx_http_server_location`  (
   `monitor_nginx_http_server_location_root` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'root   html,',
   `monitor_nginx_http_server_location_index` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '#定义首页索引文件的名称\\n# index  index.html index.htm,',
   `monitor_nginx_http_server_location_try_files` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三.总的来说,index的优先级比try_files高,请求会先去找index配置,这里最后一个参数必须存在\\ntry_files $uri $uri/ /index.html',
-  `monitor_nginx_http_server_location_condition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'if ($request_method = \'OPTIONS\') {\\nreturn 204;
+  `monitor_nginx_http_server_location_condition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'location条件配置',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`monitor_nginx_http_server_location_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx location配置' ROW_FORMAT = DYNAMIC;
 
 DROP TABLE IF EXISTS `monitor_nginx_http_server_location_header`;
 CREATE TABLE `monitor_nginx_http_server_location_header`  (
@@ -572,7 +580,7 @@ CREATE TABLE `monitor_nginx_upstream`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_nginx_upstream_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '# 负载均衡\\nupstream api_upstream\\n{\\nserver 127.0.0.1:8080 max_fails=3 weight=1;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx负载均衡配置' ROW_FORMAT = DYNAMIC;
 
 DROP TABLE IF EXISTS `monitor_protection`;
 CREATE TABLE `monitor_protection`  (
