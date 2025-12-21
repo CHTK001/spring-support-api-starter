@@ -1,25 +1,7 @@
-﻿/*
- Navicat Premium Dump SQL
-
- Source Server         : 172.16.0.40
- Source Server Type    : MySQL
- Source Server Version : 80044 (8.0.44)
- Source Host           : 172.16.0.40:3306
- Source Schema         : report
-
- Target Server Type    : MySQL
- Target Server Version : 80044 (8.0.44)
- File Encoding         : 65001
-
- Date: 10/12/2025 17:25:24
-*/
-
+-- Monitor System Schema
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ----------------------------
--- Table structure for device_metrics
--- ----------------------------
 DROP TABLE IF EXISTS `device_metrics`;
 CREATE TABLE `device_metrics`  (
   `device_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
@@ -55,13 +37,6 @@ CREATE TABLE `device_metrics`  (
   `extra_data` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '设备数据' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of device_metrics
--- ----------------------------
-
--- ----------------------------
--- Table structure for file_storage
--- ----------------------------
 DROP TABLE IF EXISTS `file_storage`;
 CREATE TABLE `file_storage`  (
   `file_storage_id` int NOT NULL AUTO_INCREMENT,
@@ -79,17 +54,6 @@ CREATE TABLE `file_storage`  (
   PRIMARY KEY (`file_storage_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 23 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '文件存储' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_storage
--- ----------------------------
-INSERT INTO `file_storage` VALUES (3, '本地磁盘测试(F)', NULL, 'FILESYSTEM', NULL, NULL, 'ri:u-disk-line', 'F://', 'workspace', 2, 1, NULL);
-INSERT INTO `file_storage` VALUES (6, '本地FTP1', NULL, 'FTP', NULL, NULL, 'pixelarticons:align-right', 'ftp://127.0.0.1:21', 'oss', 2, 1, NULL);
-INSERT INTO `file_storage` VALUES (7, 'SFTP', NULL, 'SFTP', 'root', 'q^EgK8quQ5!zgfRb7.18', 'pixelarticons:add-row', 'sftp://112.124.44.21:22', 'home', 2, 0, NULL);
-INSERT INTO `file_storage` VALUES (22, '本地磁盘测试(Z)', NULL, 'FILESYSTEM', NULL, NULL, 'simple-icons:files', 'D://', 'test', 2, 1, NULL);
-
--- ----------------------------
--- Table structure for file_storage_log
--- ----------------------------
 DROP TABLE IF EXISTS `file_storage_log`;
 CREATE TABLE `file_storage_log`  (
   `file_storage_log_id` int NOT NULL AUTO_INCREMENT,
@@ -99,13 +63,6 @@ CREATE TABLE `file_storage_log`  (
   PRIMARY KEY (`file_storage_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '文件存储日志' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_storage_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for file_storage_protocol
--- ----------------------------
 DROP TABLE IF EXISTS `file_storage_protocol`;
 CREATE TABLE `file_storage_protocol`  (
   `file_storage_protocol_id` int NOT NULL AUTO_INCREMENT,
@@ -139,14 +96,6 @@ CREATE TABLE `file_storage_protocol`  (
   PRIMARY KEY (`file_storage_protocol_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '文件存储服务器协议' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_storage_protocol
--- ----------------------------
-INSERT INTO `file_storage_protocol` VALUES (2, 8184, '测试', 'HTTP', '192.168.110.79', 1, 'GRAY', 'FORMAT,QUALITY,INTERLACE,ROTATE,BLUR,THUMBNAIL,BRIGHT,ORIENT,GRAY,SHAPE,CAN', 1, 1, 0, 0, NULL, 'PC;OSS', 0, 0, 1, NULL, NULL, 1, '11111111', 'TILE', NULL, NULL, 100, 100, 66, 'rgba(0, 0, 0, 0.52)');
-
--- ----------------------------
--- Table structure for file_system
--- ----------------------------
 DROP TABLE IF EXISTS `file_system`;
 CREATE TABLE `file_system`  (
   `file_system_id` int NOT NULL AUTO_INCREMENT COMMENT '文件ID',
@@ -176,14 +125,6 @@ CREATE TABLE `file_system`  (
   PRIMARY KEY (`file_system_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件系统' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_system
--- ----------------------------
-INSERT INTO `file_system` VALUES (1, '0ddf905d079409d89373ea965b624717_1764559382906.jpg', '0ddf905d079409d89373ea965b624717.jpg', 'C:\\Users\\yemen\\AppData\\Local\\Temp\\\\filesystem\\default\\2025\\12\\01\\0ddf905d079409d89373ea965b624717_1764559382906.jpg', 90583, 'e97ad1783ca0b0b35760665b9cc3c0a5', 'image', 'jpg', 1, 1, 2, '0', NULL, NULL, '2025-12-01 11:23:02.922141', '2025-12-01 11:26:09.120387', NULL, 1, 'admin', 1, '2025-12-01 11:23:02.954616', '2025-12-01 11:26:10.000000', NULL, NULL);
-
--- ----------------------------
--- Table structure for file_system_group
--- ----------------------------
 DROP TABLE IF EXISTS `file_system_group`;
 CREATE TABLE `file_system_group`  (
   `file_system_group_id` int NOT NULL AUTO_INCREMENT COMMENT '分组ID',
@@ -208,14 +149,6 @@ CREATE TABLE `file_system_group`  (
   PRIMARY KEY (`file_system_group_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_system_group
--- ----------------------------
-INSERT INTO `file_system_group` VALUES (1, 'default', NULL, 'default', 'default', 1, '1', '默认分组', '1', 999, 1, 'ri:folder-line', '#909399', 'admin', 1, '2025-12-01 11:23:02.817441', '2025-12-01 11:23:02.876585', 'admin', 1);
-
--- ----------------------------
--- Table structure for file_system_part
--- ----------------------------
 DROP TABLE IF EXISTS `file_system_part`;
 CREATE TABLE `file_system_part`  (
   `file_system_part_id` int NOT NULL AUTO_INCREMENT COMMENT '分片ID',
@@ -238,13 +171,6 @@ CREATE TABLE `file_system_part`  (
   PRIMARY KEY (`file_system_part_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_system_part
--- ----------------------------
-
--- ----------------------------
--- Table structure for file_system_setting
--- ----------------------------
 DROP TABLE IF EXISTS `file_system_setting`;
 CREATE TABLE `file_system_setting`  (
   `file_system_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID',
@@ -272,13 +198,6 @@ CREATE TABLE `file_system_setting`  (
   PRIMARY KEY (`file_system_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of file_system_setting
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_acme_account
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_acme_account`;
 CREATE TABLE `monitor_acme_account`  (
   `acme_account_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -296,16 +215,6 @@ CREATE TABLE `monitor_acme_account`  (
   PRIMARY KEY (`acme_account_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_acme_account
--- ----------------------------
-INSERT INTO `monitor_acme_account` VALUES (1, '784412312@qq.com', 'https://acme-v02.api.letsencrypt.org/directory', NULL, NULL, '', 'admin', 1, '2025-12-09 22:03:58.000000', '2025-12-09 23:31:30.826479', 'admin', 1);
-INSERT INTO `monitor_acme_account` VALUES (2, '784412312@qq.com', 'https://acme.zerossl.com/v2/DV90', NULL, NULL, '', 'admin', 1, '2025-12-09 22:03:58.000000', '2025-12-09 23:29:28.000000', 'admin', 1);
-INSERT INTO `monitor_acme_account` VALUES (3, '784412312@qq.com', 'https://acme.hi.cn/directory', NULL, NULL, '', 'admin', 1, '2025-12-09 23:58:14.949304', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_acme_certificate
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_acme_certificate`;
 CREATE TABLE `monitor_acme_certificate`  (
   `acme_cert_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -329,28 +238,6 @@ CREATE TABLE `monitor_acme_certificate`  (
   PRIMARY KEY (`acme_cert_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_acme_certificate
--- ----------------------------
-INSERT INTO `monitor_acme_certificate` VALUES (1, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-09 22:57:19.095428', '2025-12-09 22:57:30.151232', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (2, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-09 22:59:00.432038', '2025-12-09 22:59:12.416402', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (3, 1, 'www.qiren.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-09 23:04:25.609432', '2025-12-09 23:04:36.331971', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (4, 1, 'www.qiren.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-09 23:07:13.367629', '2025-12-09 23:08:32.544861', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (5, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-09 23:10:52.056922', '2025-12-09 23:11:17.622365', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (6, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-09 23:24:24.056524', '2025-12-09 23:24:43.873291', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (7, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-09 23:29:34.932807', '2025-12-09 23:29:45.685162', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (8, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-09 23:31:53.176125', '2025-12-09 23:32:46.232197', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (9, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-09 23:32:32.196632', '2025-12-09 23:32:46.203671', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (10, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-09 23:32:48.691996', '2025-12-09 23:33:23.315563', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (11, 3, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '连接 ACME 服务器失败: Network error', 'admin', 1, '2025-12-10 00:02:09.653355', '2025-12-10 00:02:17.534829', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (12, 3, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, 'SSL/TLS 连接失败: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target', 'admin', 1, '2025-12-10 00:07:43.790521', '2025-12-10 00:07:44.263531', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (13, 3, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '无法连接到 ACME 服务器，请检查网络连接或防火墙设置', 'admin', 1, '2025-12-10 00:13:07.833853', '2025-12-10 00:13:16.880896', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (14, 3, 'www.qirenit.com', '', 'DNS-01', 'failed', NULL, NULL, NULL, NULL, NULL, 'SSL/TLS 连接失败: No name matching acme.hi.cn found', 'admin', 1, '2025-12-10 00:16:42.782477', '2025-12-10 00:16:43.385720', 'admin', 1);
-INSERT INTO `monitor_acme_certificate` VALUES (15, 1, 'www.qirenit.com', '', 'HTTP-01', 'failed', NULL, NULL, NULL, NULL, NULL, '网络 I/O 错误: HTTP connect timed out', 'admin', 1, '2025-12-10 00:17:01.852728', '2025-12-10 00:17:16.903229', 'admin', 1);
-
--- ----------------------------
--- Table structure for monitor_acme_order
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_acme_order`;
 CREATE TABLE `monitor_acme_order`  (
   `acme_order_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -369,13 +256,6 @@ CREATE TABLE `monitor_acme_order`  (
   PRIMARY KEY (`acme_order_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_acme_order
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_application
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_application`;
 CREATE TABLE `monitor_application`  (
   `monitor_id` int NOT NULL AUTO_INCREMENT,
@@ -391,14 +271,6 @@ CREATE TABLE `monitor_application`  (
   PRIMARY KEY (`monitor_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '应用管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_application
--- ----------------------------
-INSERT INTO `monitor_application` VALUES (2, ' 平台端', 'system', 'sa', 1, '2024-09-13 10:45:07', '2025-12-08 20:26:29', 'admin', 1, NULL);
-
--- ----------------------------
--- Table structure for monitor_arthas_session
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_arthas_session`;
 CREATE TABLE `monitor_arthas_session`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -417,14 +289,6 @@ CREATE TABLE `monitor_arthas_session`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_arthas_session
--- ----------------------------
-INSERT INTO `monitor_arthas_session` VALUES (1, '7b81a815-49ae-4c60-875f-0dae1b235ceb', '40d92acd085b4141aa7275ffb27c126a_1', 2, '142adf753597ef435919e95bd13ea388', 'http://127.0.0.1:8563/api', 'trace com.chua.starter.monitor.arthas.ArthasCommandController exec -n 10', 'trace', 'INTERRUPTED', '2025-12-04 01:34:03.176337', '2025-12-04 01:34:04.260733', '2025-12-04 02:34:03.176337', '最新状态: state=SUCCEEDED, sessionId=7b81a815-49ae-4c60-875f-0dae1b235ceb');
-
--- ----------------------------
--- Table structure for monitor_arthas_tunnel_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_arthas_tunnel_config`;
 CREATE TABLE `monitor_arthas_tunnel_config`  (
   `monitor_arthas_tunnel_config_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -436,13 +300,6 @@ CREATE TABLE `monitor_arthas_tunnel_config`  (
   PRIMARY KEY (`monitor_arthas_tunnel_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_arthas_tunnel_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_job
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_job`;
 CREATE TABLE `monitor_job`  (
   `job_id` int NOT NULL AUTO_INCREMENT,
@@ -478,14 +335,6 @@ CREATE TABLE `monitor_job`  (
   PRIMARY KEY (`job_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_job
--- ----------------------------
-INSERT INTO `monitor_job` VALUES (1, '测试', 'sa', NULL, 'CRON', '0 * * * * ?', 1, 2, 'system', 'dev', NULL, 'test', NULL, NULL, NULL, NULL, 'BEAN', NULL, 10, 'DO_NOTHING', NULL, 'FIRST', 1765290540000, 1765290600000, NULL, NULL, NULL, '2025-12-09 22:28:56', 'admin', 1);
-
--- ----------------------------
--- Table structure for monitor_job_log
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_job_log`;
 CREATE TABLE `monitor_job_log`  (
   `job_log_id` int NOT NULL AUTO_INCREMENT,
@@ -510,13 +359,6 @@ CREATE TABLE `monitor_job_log`  (
   PRIMARY KEY (`job_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1670 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '调度任务日志' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_job_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_log
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_log`;
 CREATE TABLE `monitor_log`  (
   `log_id` int NOT NULL AUTO_INCREMENT,
@@ -540,13 +382,6 @@ CREATE TABLE `monitor_log`  (
   PRIMARY KEY (`log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1653 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_mqtt_server
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_mqtt_server`;
 CREATE TABLE `monitor_mqtt_server`  (
   `monitor_mqtt_server_id` int NOT NULL AUTO_INCREMENT,
@@ -566,14 +401,6 @@ CREATE TABLE `monitor_mqtt_server`  (
   PRIMARY KEY (`monitor_mqtt_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_mqtt_server
--- ----------------------------
-INSERT INTO `monitor_mqtt_server` VALUES (1, '测试', '0.0.0.0', 12121, NULL, NULL, NULL, 1, 'sa', 1, '2025-01-10 19:55:14', '2025-01-10 20:18:26', 'sa', 1);
-
--- ----------------------------
--- Table structure for monitor_nginx_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_config`;
 CREATE TABLE `monitor_nginx_config`  (
   `monitor_nginx_config_id` int NOT NULL AUTO_INCREMENT,
@@ -597,13 +424,6 @@ CREATE TABLE `monitor_nginx_config`  (
   PRIMARY KEY (`monitor_nginx_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx配置项' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_nginx_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_event
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_event`;
 CREATE TABLE `monitor_nginx_event`  (
   `monitor_nginx_event_id` int NOT NULL AUTO_INCREMENT,
@@ -621,13 +441,6 @@ CREATE TABLE `monitor_nginx_event`  (
   PRIMARY KEY (`monitor_nginx_event_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx事件' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_nginx_event
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_http
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_http`;
 CREATE TABLE `monitor_nginx_http`  (
   `monitor_nginx_http_id` int NOT NULL AUTO_INCREMENT,
@@ -672,13 +485,6 @@ CREATE TABLE `monitor_nginx_http`  (
   PRIMARY KEY (`monitor_nginx_http_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_nginx_http
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_http_server
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_http_server`;
 CREATE TABLE `monitor_nginx_http_server`  (
   `monitor_nginx_http_server_id` int NOT NULL AUTO_INCREMENT,
@@ -712,13 +518,6 @@ CREATE TABLE `monitor_nginx_http_server`  (
   PRIMARY KEY (`monitor_nginx_http_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx http服务配置' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_nginx_http_server
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_http_server_location
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_http_server_location`;
 CREATE TABLE `monitor_nginx_http_server_location`  (
   `monitor_nginx_http_server_location_id` int NOT NULL AUTO_INCREMENT,
@@ -737,26 +536,8 @@ CREATE TABLE `monitor_nginx_http_server_location`  (
   `monitor_nginx_http_server_location_root` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'root   html,',
   `monitor_nginx_http_server_location_index` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '#定义首页索引文件的名称\\n# index  index.html index.htm,',
   `monitor_nginx_http_server_location_try_files` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三.总的来说,index的优先级比try_files高,请求会先去找index配置,这里最后一个参数必须存在\\ntry_files $uri $uri/ /index.html',
-  `monitor_nginx_http_server_location_condition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'if ($request_method = \'OPTIONS\') {\\nreturn 204;\\n }',
-  `monitor_nginx_http_server_location_limit_req` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '限流； limit_req zone=mylimit burst=5 nodelay,,',
-  `monitor_nginx_http_server_location_alias` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'alias /data/nginx/www/,',
-  `monitor_nginx_http_server_location_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'proxy: 代理\r\nlocal: 本地',
-  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`monitor_nginx_http_server_location_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 560 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '地址解析;\\nwebsocket:\\nlocation /ws {  # 匹配以/ws开头的请求\\nproxy_pass http://websocket_backend;  # 转发请求到WebSocket后端服务器  \\nproxy_http_version 1.1;  # 代理时使用的HTTP版本  \\nproxy_set_header Upgrade $http_upgrade;  # 传递Upgrade头部以支持WebSocket  \\nproxy_set_header Connection upgrade;  # 设置Connection头部为upgrade以支持WebSocket  \\nproxy_set_header Host $host;  # 传递Host头部  \\n # 其他可能的配置，如处理WebSocket特有的超时、缓冲等  \\n }' ROW_FORMAT = DYNAMIC;
+  `monitor_nginx_http_server_location_condition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'if ($request_method = \'OPTIONS\') {\\nreturn 204;
 
--- ----------------------------
--- Records of monitor_nginx_http_server_location
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_http_server_location_header
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_http_server_location_header`;
 CREATE TABLE `monitor_nginx_http_server_location_header`  (
   `monitor_nginx_http_server_location_header_id` int NOT NULL AUTO_INCREMENT,
@@ -773,13 +554,6 @@ CREATE TABLE `monitor_nginx_http_server_location_header`  (
   PRIMARY KEY (`monitor_nginx_http_server_location_header_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 517 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'nginx消息头' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_nginx_http_server_location_header
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_nginx_upstream
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_nginx_upstream`;
 CREATE TABLE `monitor_nginx_upstream`  (
   `monitor_nginx_upstream_id` int NOT NULL AUTO_INCREMENT,
@@ -798,15 +572,8 @@ CREATE TABLE `monitor_nginx_upstream`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`monitor_nginx_upstream_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '# 负载均衡\\nupstream api_upstream\\n{\\nserver 127.0.0.1:8080 max_fails=3 weight=1;\\nserver 127.0.0.1:8081 max_fails=3 weight=1;\\n}' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '# 负载均衡\\nupstream api_upstream\\n{\\nserver 127.0.0.1:8080 max_fails=3 weight=1;
 
--- ----------------------------
--- Records of monitor_nginx_upstream
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_protection
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_protection`;
 CREATE TABLE `monitor_protection`  (
   `monitor_protection_id` int NOT NULL AUTO_INCREMENT,
@@ -824,13 +591,6 @@ CREATE TABLE `monitor_protection`  (
   PRIMARY KEY (`monitor_protection_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_protection
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_proxy
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy`;
 CREATE TABLE `monitor_proxy`  (
   `proxy_id` int NOT NULL AUTO_INCREMENT,
@@ -844,16 +604,6 @@ CREATE TABLE `monitor_proxy`  (
   PRIMARY KEY (`proxy_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy
--- ----------------------------
-INSERT INTO `monitor_proxy` VALUES (5, '这是一个测试代理', NULL, '127.0.0.1', 12345, 'http-proxy', 1, NULL);
-INSERT INTO `monitor_proxy` VALUES (8, 'vnc', NULL, '127.0.0.1', 15901, 'websockify', 0, NULL);
-INSERT INTO `monitor_proxy` VALUES (9, 'tcp', NULL, '127.0.0.1', 13306, 'tcp-proxy', 0, NULL);
-
--- ----------------------------
--- Table structure for monitor_proxy_log
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_log`;
 CREATE TABLE `monitor_proxy_log`  (
   `monitor_proxy_log_id` int NOT NULL AUTO_INCREMENT,
@@ -884,13 +634,6 @@ CREATE TABLE `monitor_proxy_log`  (
   PRIMARY KEY (`monitor_proxy_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 108 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理日志' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_proxy_plugin
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin`;
 CREATE TABLE `monitor_proxy_plugin`  (
   `proxy_plugin_id` int NOT NULL AUTO_INCREMENT,
@@ -901,17 +644,6 @@ CREATE TABLE `monitor_proxy_plugin`  (
   PRIMARY KEY (`proxy_plugin_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理-插件关系表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_plugin
--- ----------------------------
-INSERT INTO `monitor_proxy_plugin` VALUES (12, 'ip-limit', 5, NULL, 'IP限流');
-INSERT INTO `monitor_proxy_plugin` VALUES (14, 'http-proxy', 5, NULL, 'Http代理');
-INSERT INTO `monitor_proxy_plugin` VALUES (15, 'tcp-proxy', 9, NULL, 'Tcp代理');
-INSERT INTO `monitor_proxy_plugin` VALUES (16, 'empty', 8, NULL, 'WebSockify代理');
-
--- ----------------------------
--- Table structure for monitor_proxy_plugin_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin_config`;
 CREATE TABLE `monitor_proxy_plugin_config`  (
   `proxy_config_id` int NOT NULL AUTO_INCREMENT,
@@ -922,21 +654,6 @@ CREATE TABLE `monitor_proxy_plugin_config`  (
   PRIMARY KEY (`proxy_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理 - 组件- 配置' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_plugin_config
--- ----------------------------
-INSERT INTO `monitor_proxy_plugin_config` VALUES (1, 'serviceDiscovery', 'NACOS', 0, 5);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (2, 'balance', 'WEIGHT', 0, 5);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (3, 'open-log', 'true', 0, 5);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (4, 'serviceDiscovery', 'STATISTIC', 0, 9);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (5, 'open-log', 'true', 0, 9);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (6, 'balance', 'POLLING', 0, 9);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (7, 'balance', 'POLLING', 0, 8);
-INSERT INTO `monitor_proxy_plugin_config` VALUES (8, 'serviceDiscovery', 'STATISTIC', 0, 8);
-
--- ----------------------------
--- Table structure for monitor_proxy_plugin_limit
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin_limit`;
 CREATE TABLE `monitor_proxy_plugin_limit`  (
   `proxy_config_limit_id` int NOT NULL AUTO_INCREMENT,
@@ -949,15 +666,6 @@ CREATE TABLE `monitor_proxy_plugin_limit`  (
   PRIMARY KEY (`proxy_config_limit_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代理 - 组件- 限流' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_plugin_limit
--- ----------------------------
-INSERT INTO `monitor_proxy_plugin_limit` VALUES (1, '/', 1, 'PATH', 1, NULL, 5);
-INSERT INTO `monitor_proxy_plugin_limit` VALUES (3, '1.1.1.1', 1, 'IP', 1, NULL, 5);
-
--- ----------------------------
--- Table structure for monitor_proxy_plugin_list
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin_list`;
 CREATE TABLE `monitor_proxy_plugin_list`  (
   `proxy_config_list_id` int NOT NULL AUTO_INCREMENT,
@@ -969,14 +677,6 @@ CREATE TABLE `monitor_proxy_plugin_list`  (
   PRIMARY KEY (`proxy_config_list_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '黑白名单' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_plugin_list
--- ----------------------------
-INSERT INTO `monitor_proxy_plugin_list` VALUES (1, '1.1.1.12', 'BLACK', 1, NULL, 5);
-
--- ----------------------------
--- Table structure for monitor_proxy_plugin_statistic_service_discovery
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_proxy_plugin_statistic_service_discovery`;
 CREATE TABLE `monitor_proxy_plugin_statistic_service_discovery`  (
   `proxy_statistic_id` int NOT NULL AUTO_INCREMENT,
@@ -990,17 +690,6 @@ CREATE TABLE `monitor_proxy_plugin_statistic_service_discovery`  (
   PRIMARY KEY (`proxy_statistic_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_bin COMMENT = '静态IP' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_proxy_plugin_statistic_service_discovery
--- ----------------------------
-INSERT INTO `monitor_proxy_plugin_statistic_service_discovery` VALUES (3, '百度', '/baidu/', 'http', 'https://www.baidu.com/', 1, 5, 1);
-INSERT INTO `monitor_proxy_plugin_statistic_service_discovery` VALUES (5, 'school', '/zxb/school', 'http', 'https://www.qirenit.com', 1, 5, 1);
-INSERT INTO `monitor_proxy_plugin_statistic_service_discovery` VALUES (7, 'mysql', '', 'tcp', '172.16.0.40:3306', 1, 9, 1);
-INSERT INTO `monitor_proxy_plugin_statistic_service_discovery` VALUES (8, 'vnc', '', 'websockify', '172.16.3.66:5900', 1, 8, 1);
-
--- ----------------------------
--- Table structure for monitor_sys_gen
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen`;
 CREATE TABLE `monitor_sys_gen`  (
   `gen_id` int NOT NULL AUTO_INCREMENT,
@@ -1028,25 +717,6 @@ CREATE TABLE `monitor_sys_gen`  (
   PRIMARY KEY (`gen_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '代码生成器管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen
--- ----------------------------
-INSERT INTO `monitor_sys_gen` VALUES (1, '本地 - MYSQL', 'JDBC', 'root', 'OHFOL3NPS3J0VXB6eGg5N1g5RVludz09', '172.16.0.40', 3306, NULL, '测试1', 'com.mysql.cj.jdbc.Driver', NULL, 'monitor', NULL, 'OtPRaynDelFeVkVl', 1, 'JDBC', 'MYSQL', NULL, NULL, NULL, 'CREATE,DELETE', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (5, '测试', 'SHELL', 'root', 'boren1818', '192.168.110.100', 22, NULL, NULL, NULL, NULL, NULL, NULL, 'UW2lRgctX27PRvJK', 0, 'URL', '', NULL, '192.168.110.100:22', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (9, 'Sqlite', 'JDBC', '', 'Nnl5WXFhZXVCVkFoVWlDYzZ1dmVmZz09', '127.0.0.1', 3306, NULL, '233', 'org.sqlite.JDBC', NULL, '', 'F:\\workspace\\spring-support-api-starter\\gen\\9\\data\\index', 'OjndF5PYVMmD1BOW', NULL, 'FILE', 'SQLITE', NULL, NULL, 720, '', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (10, 'H2', 'JDBC', '', NULL, '127.0.0.1', 3306, NULL, NULL, 'org.h2.Driver', NULL, NULL, 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\data\\1.db', NULL, NULL, 'FILE', 'H2', 'F:\\workspace\\utils-support-parent-starter\\gen\\10\\driver\\h2-2.1.214.jar', NULL, 720, '', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (11, '112.124.44.21', 'INFLUXDB', 'root', 'ZE9FZGpLeDlkOVJERTBCZE5sczdPUT09', '112.124.44.21', 8086, NULL, NULL, NULL, NULL, 'smartiot', NULL, 'CL32rLzJtPBLkNcS', NULL, NULL, '', NULL, NULL, 720, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (12, 'postgres', 'JDBC', 'postgres', 'root@', '127.0.0.1', 5432, NULL, NULL, 'org.postgresql.Driver', NULL, 'postgres', NULL, 'f5LAJ20FBAjtNVfz', 0, 'URL', 'POSTGRES', NULL, '127.0.0.1:5432', 720, 'UPDATE,DELETE,CREATE', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (15, 'zk', 'ZOOKEEPER', NULL, NULL, '172.16.2.226', 2181, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'URL', '', NULL, '172.16.2.226:2181', 720, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (16, 'redis', 'REDIS', '', '', '172.16.0.40', 16379, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'URL', '', NULL, '172.16.0.40:16379', 720, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (17, 'file', 'JDBC', NULL, NULL, NULL, NULL, NULL, '1', 'com.chua.calcite.Driver', NULL, NULL, 'F:\\workspace\\spring-support-api-starter\\gen\\17\\data\\fm_user_form_data.xlsx', NULL, 0, 'FILE', 'CALCITE', NULL, 'null:null', 720, NULL, NULL);
-INSERT INTO `monitor_sys_gen` VALUES (19, 'mongodb', 'MONGODB', 'mongodb', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, 'undefined:undefined', 720, '', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (20, 'webrtc', 'WEBRTC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, 'undefined:undefined', 720, '', NULL);
-INSERT INTO `monitor_sys_gen` VALUES (21, '测试vnc', 'VNC', 'chenhua', 'chenhua', '172.16.2.226', 15901, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'URL', '', NULL, '172.16.2.226:15901', 720, '', NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_alert_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_alert_config`;
 CREATE TABLE `monitor_sys_gen_alert_config`  (
   `monitor_sys_gen_alert_config_id` int NOT NULL AUTO_INCREMENT COMMENT '告警配置ID',
@@ -1082,13 +752,6 @@ CREATE TABLE `monitor_sys_gen_alert_config`  (
   PRIMARY KEY (`monitor_sys_gen_alert_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_alert_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_alert_push_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_alert_push_config`;
 CREATE TABLE `monitor_sys_gen_alert_push_config`  (
   `monitor_sys_gen_alert_push_config_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -1113,13 +776,6 @@ CREATE TABLE `monitor_sys_gen_alert_push_config`  (
   PRIMARY KEY (`monitor_sys_gen_alert_push_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_alert_push_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_backup
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_backup`;
 CREATE TABLE `monitor_sys_gen_backup`  (
   `monitor_sys_gen_backup_id` int NOT NULL AUTO_INCREMENT,
@@ -1140,13 +796,6 @@ CREATE TABLE `monitor_sys_gen_backup`  (
   PRIMARY KEY (`monitor_sys_gen_backup_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_backup
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_backup_log
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_backup_log`;
 CREATE TABLE `monitor_sys_gen_backup_log`  (
   `monitor_sys_gen_backup_log_id` int NOT NULL AUTO_INCREMENT,
@@ -1165,13 +814,6 @@ CREATE TABLE `monitor_sys_gen_backup_log`  (
   PRIMARY KEY (`monitor_sys_gen_backup_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_backup_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_column
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_column`;
 CREATE TABLE `monitor_sys_gen_column`  (
   `col_id` int NOT NULL AUTO_INCREMENT,
@@ -1197,41 +839,6 @@ CREATE TABLE `monitor_sys_gen_column`  (
   PRIMARY KEY (`col_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器字段' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_column
--- ----------------------------
-INSERT INTO `monitor_sys_gen_column` VALUES (24, 6, 'file_storage_protocol_id', NULL, 'INT', 10, 0, 'Integer', 'fileStorageProtocolId', NULL, '0', '0', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (25, 6, 'file_storage_protocol_port', '开启远程服务器端口', 'INT', 10, 0, 'Integer', 'fileStorageProtocolPort', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (26, 6, 'file_storage_protocol_desc', '服务器说明', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolDesc', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (27, 6, 'file_storage_protocol_name', '服务器协议; HTTP', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolName', NULL, '0', '1', '1', '1', '1', '1', 'LIKE', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (28, 6, 'file_storage_protocol_host', '开启远程服务器主机', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolHost', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (29, 6, 'file_storage_protocol_status', '远程服务器状态; 0:未开启', 'INT', 10, 0, 'Integer', 'fileStorageProtocolStatus', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'radio', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (30, 6, 'file_storage_protocol_plugins', '插件列表，多个逗号分隔', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolPlugins', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (31, 6, 'file_storage_protocol_setting', '配置列表，多个逗号分隔', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolSetting', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (32, 6, 'file_storage_protocol_plugin_open', '是否开启插件；0:不开启', 'INT', 10, 0, 'Integer', 'fileStorageProtocolPluginOpen', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (33, 6, 'file_storage_protocol_setting_open', '是否开启配置；0:不开启', 'INT', 10, 0, 'Integer', 'fileStorageProtocolSettingOpen', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (34, 6, 'file_storage_protocol_rang_open', '是否开启Range；0:不开启', 'INT', 10, 0, 'Integer', 'fileStorageProtocolRangOpen', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (35, 6, 'file_storage_protocol_ua_open', '是否开启UA；0:不开启', 'INT', 10, 0, 'Integer', 'fileStorageProtocolUaOpen', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (36, 6, 'file_storage_protocol_download_ua', 'UA', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolDownloadUa', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (37, 6, 'file_storage_protocol_ua', 'UA', 'VARCHAR', 255, 0, ' String', 'fileStorageProtocolUa', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (38, 6, 'file_storage_protocol_preview_or_download', '0: 全部支持;1:预览; 2:下载', 'INT', 10, 0, 'Integer', 'fileStorageProtocolPreviewOrDownload', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (39, 7, 'file_storage_log_id', NULL, 'INT', 10, 0, 'Integer', 'fileStorageLogId', NULL, '0', '0', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (40, 7, 'file_storage_id', NULL, 'INT', 10, 0, 'Integer', 'fileStorageId', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (41, 7, 'file_storage_log_address', '请求客户端地址', 'VARCHAR', 255, 0, ' String', 'fileStorageLogAddress', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (42, 7, 'file_storage_log_url', '请求文件地址', 'VARCHAR', 255, 0, ' String', 'fileStorageLogUrl', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (43, 8, 'limit_id', NULL, 'INT', 10, 0, 'Integer', 'limitId', NULL, '0', '0', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (44, 8, 'limit_address', '限流ip地址', 'VARCHAR', 255, 0, ' String', 'limitAddress', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (45, 8, 'limit _type', '限流类型; 0: url限流; 1: ip限流', 'INT', 10, 0, 'Integer', 'limit Type', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'select', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (46, 8, 'limit_url', '限流url地址', 'VARCHAR', 255, 0, ' String', 'limitUrl', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (47, 8, 'limit_disable', '是否开启； 0：未开启', 'INT', 10, 0, 'Integer', 'limitDisable', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (48, 8, 'limit_permits_per_second', '每秒生产令牌数', 'INT', 10, 0, 'Integer', 'limitPermitsPerSecond', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (49, 8, 'proxy_id', '代理ID', 'VARCHAR', 255, 0, ' String', 'proxyId', NULL, '0', '1', '1', '1', '1', '1', 'EQ', 'input', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (50, 8, 'create_time', '创建时间', 'DATETIME', 19, 0, 'LocalDateTime', 'createTime', NULL, '0', '1', NULL, NULL, NULL, NULL, 'EQ', 'datetime', NULL, NULL);
-INSERT INTO `monitor_sys_gen_column` VALUES (51, 8, 'update_time', '更新时间', 'DATETIME', 19, 0, 'LocalDateTime', 'updateTime', NULL, '0', '1', NULL, NULL, NULL, NULL, 'EQ', 'datetime', NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_file_system
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_file_system`;
 CREATE TABLE `monitor_sys_gen_file_system`  (
   `monitor_sys_gen_file_system_id` int NOT NULL AUTO_INCREMENT COMMENT '文件系统ID',
@@ -1262,13 +869,6 @@ CREATE TABLE `monitor_sys_gen_file_system`  (
   PRIMARY KEY (`monitor_sys_gen_file_system_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_file_system
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_file_system_part
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_file_system_part`;
 CREATE TABLE `monitor_sys_gen_file_system_part`  (
   `monitor_sys_gen_file_system_part_id` int NOT NULL AUTO_INCREMENT COMMENT '分片ID',
@@ -1292,13 +892,6 @@ CREATE TABLE `monitor_sys_gen_file_system_part`  (
   PRIMARY KEY (`monitor_sys_gen_file_system_part_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_file_system_part
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_file_system_setting
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_file_system_setting`;
 CREATE TABLE `monitor_sys_gen_file_system_setting`  (
   `monitor_sys_gen_file_system_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID',
@@ -1323,13 +916,6 @@ CREATE TABLE `monitor_sys_gen_file_system_setting`  (
   PRIMARY KEY (`monitor_sys_gen_file_system_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_file_system_setting
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_global_setting
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_global_setting`;
 CREATE TABLE `monitor_sys_gen_global_setting`  (
   `monitor_sys_gen_global_setting_id` int NOT NULL DEFAULT 1 COMMENT '全局配置ID（固定为1）',
@@ -1356,14 +942,6 @@ CREATE TABLE `monitor_sys_gen_global_setting`  (
   CONSTRAINT `chk_single_record` CHECK (`monitor_sys_gen_global_setting_id` = 1)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '全局配置设置表（单例模式，只允许一条记录）' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of monitor_sys_gen_global_setting
--- ----------------------------
-INSERT INTO `monitor_sys_gen_global_setting` VALUES (1, '默认全局配置', '系统默认全局配置，控制所有全局任务的开关', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, '2025-12-10 17:24:11', NULL, NULL, '2025-12-10 17:24:11');
-
--- ----------------------------
--- Table structure for monitor_sys_gen_message_push_template
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_message_push_template`;
 CREATE TABLE `monitor_sys_gen_message_push_template`  (
   `monitor_sys_gen_message_push_template_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -1386,13 +964,6 @@ CREATE TABLE `monitor_sys_gen_message_push_template`  (
   PRIMARY KEY (`monitor_sys_gen_message_push_template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_message_push_template
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_prometheus_config
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_prometheus_config`;
 CREATE TABLE `monitor_sys_gen_prometheus_config`  (
   `monitor_sys_gen_prometheus_config_id` int NOT NULL AUTO_INCREMENT,
@@ -1418,13 +989,6 @@ CREATE TABLE `monitor_sys_gen_prometheus_config`  (
   PRIMARY KEY (`monitor_sys_gen_prometheus_config_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_prometheus_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_remark
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_remark`;
 CREATE TABLE `monitor_sys_gen_remark`  (
   `remark_id` int NOT NULL AUTO_INCREMENT,
@@ -1442,22 +1006,6 @@ CREATE TABLE `monitor_sys_gen_remark`  (
   PRIMARY KEY (`remark_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字段备注' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_remark
--- ----------------------------
-INSERT INTO `monitor_sys_gen_remark` VALUES (1, '温度', 11, 'live_data_1772504991081914369', 'smartiot', 'A191', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (2, '姓名', 1, 'demo', NULL, 'name', 'sa', 1, '2024-09-27 14:05:26', '2024-09-28 10:32:06', 'sa', 1);
-INSERT INTO `monitor_sys_gen_remark` VALUES (3, '年龄', 1, 'demo', NULL, 'age', 'sa', 1, '2024-09-27 14:08:10', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (4, '测试', 1, 'demo', NULL, 'demo', 'sa', 1, '2024-09-27 14:08:36', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (5, 'test', 1, 'demo', NULL, 'test', 'sa', 1, '2024-09-27 14:11:46', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (6, '主键', 1, 'demo', NULL, 'id', 'sa', 1, '2024-09-27 21:48:24', '2024-09-27 21:49:22', 'sa', 1);
-INSERT INTO `monitor_sys_gen_remark` VALUES (7, '主键', 9, 'webdav', NULL, 'id', 'sa', 1, '2024-09-28 15:26:52', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (8, '11', 11, 'live_data_1583007929632772097', NULL, 'A014', 'sa', 1, '2024-09-29 17:13:11', NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_remark` VALUES (9, '风向', 11, 'live_data_1583270114191671298', NULL, 'A078', 'sa', 1, '2024-09-29 17:29:10', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_script
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_script`;
 CREATE TABLE `monitor_sys_gen_script`  (
   `monitor_sys_gen_script_id` int NOT NULL AUTO_INCREMENT COMMENT '脚本ID',
@@ -1483,14 +1031,6 @@ CREATE TABLE `monitor_sys_gen_script`  (
   PRIMARY KEY (`monitor_sys_gen_script_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_script
--- ----------------------------
-INSERT INTO `monitor_sys_gen_script` VALUES (1, '测试', 'SHELL', '', '#!/bin/bash\n\n# 脚本描述：请添加脚本描述\n# 作者：系统管理员\n# 创建时间：2025/12/10\n\necho \"开始执行脚本...\"\n\n# 在这里添加你的脚本内容\n\necho \"脚本执行完成\"', NULL, 300, 'ENABLED', NULL, NULL, '1.0.0', NULL, NULL, 0, 'admin', 1, '2025-12-10 09:05:55.186488', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_script_category
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_script_category`;
 CREATE TABLE `monitor_sys_gen_script_category`  (
   `monitor_sys_gen_script_category_id` int NOT NULL AUTO_INCREMENT COMMENT '分类ID',
@@ -1508,13 +1048,6 @@ CREATE TABLE `monitor_sys_gen_script_category`  (
   PRIMARY KEY (`monitor_sys_gen_script_category_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_script_category
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_script_execution
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_script_execution`;
 CREATE TABLE `monitor_sys_gen_script_execution`  (
   `monitor_sys_gen_script_execution_id` bigint NOT NULL AUTO_INCREMENT COMMENT '执行记录ID',
@@ -1541,13 +1074,6 @@ CREATE TABLE `monitor_sys_gen_script_execution`  (
   PRIMARY KEY (`monitor_sys_gen_script_execution_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_script_execution
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_script_upload_record
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_script_upload_record`;
 CREATE TABLE `monitor_sys_gen_script_upload_record`  (
   `monitor_sys_gen_script_upload_record_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -1572,13 +1098,6 @@ CREATE TABLE `monitor_sys_gen_script_upload_record`  (
   PRIMARY KEY (`monitor_sys_gen_script_upload_record_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_script_upload_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_serial
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_serial`;
 CREATE TABLE `monitor_sys_gen_serial`  (
   `monitor_sys_gen_serial_id` int NOT NULL AUTO_INCREMENT COMMENT '串口配置ID',
@@ -1596,13 +1115,6 @@ CREATE TABLE `monitor_sys_gen_serial`  (
   PRIMARY KEY (`monitor_sys_gen_serial_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_serial
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server`;
 CREATE TABLE `monitor_sys_gen_server`  (
   `monitor_sys_gen_server_id` int NOT NULL AUTO_INCREMENT COMMENT '服务器配置ID',
@@ -1637,15 +1149,6 @@ CREATE TABLE `monitor_sys_gen_server`  (
   PRIMARY KEY (`monitor_sys_gen_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server
--- ----------------------------
-INSERT INTO `monitor_sys_gen_server` VALUES (1, '192.168.110.179', '192.168.110.179', 3389, 'RDP', 'Administrator', '', '', 30000, '', 1, '', 1, '2025-12-10 11:16:08.055860', '连接测试失败', NULL, 1, '[\"192.168.110.79\",\"0.0.0.0\",\"172.16.2.226\",\"172.27.64.1\"]', 'Windows 11', '10.0', 'amd64', 1, 'sa', 1, '2025-07-02 14:57:49.000000', '2025-12-10 00:28:36.817691', 'admin', 1, NULL);
-INSERT INTO `monitor_sys_gen_server` VALUES (2, '192.168.110.100', '192.168.110.100', 22, 'SSH', 'root', 'qiren1818', '', 30000, '', 1, '', 1, '2025-12-10 11:16:17.166516', '连接测试失败', NULL, 0, '[]', 'CentOS', '22.04 LTS', 'x86_64', 1, 'sa', 1, '2025-07-02 14:58:25.000000', '2025-12-10 00:38:14.737494', 'admin', 1, 1);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_alert_history
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_alert_history`;
 CREATE TABLE `monitor_sys_gen_server_alert_history`  (
   `monitor_sys_gen_server_alert_history_id` bigint NOT NULL AUTO_INCREMENT COMMENT '告警历史ID',
@@ -1677,13 +1180,6 @@ CREATE TABLE `monitor_sys_gen_server_alert_history`  (
   PRIMARY KEY (`monitor_sys_gen_server_alert_history_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1307 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_alert_history
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_component
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_component`;
 CREATE TABLE `monitor_sys_gen_server_component`  (
   `monitor_sys_gen_server_component_id` bigint NOT NULL AUTO_INCREMENT COMMENT '组件配置ID',
@@ -1711,13 +1207,6 @@ CREATE TABLE `monitor_sys_gen_server_component`  (
   PRIMARY KEY (`monitor_sys_gen_server_component_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_component
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_component_layout
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_component_layout`;
 CREATE TABLE `monitor_sys_gen_server_component_layout`  (
   `monitor_sys_gen_server_component_layout_id` bigint NOT NULL AUTO_INCREMENT COMMENT '组件布局配置ID',
@@ -1741,13 +1230,6 @@ CREATE TABLE `monitor_sys_gen_server_component_layout`  (
   PRIMARY KEY (`monitor_sys_gen_server_component_layout_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_component_layout
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_connection_status
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_connection_status`;
 CREATE TABLE `monitor_sys_gen_server_connection_status`  (
   `monitor_sys_gen_server_id` int NOT NULL AUTO_INCREMENT COMMENT '服务器ID',
@@ -1765,13 +1247,6 @@ CREATE TABLE `monitor_sys_gen_server_connection_status`  (
   PRIMARY KEY (`monitor_sys_gen_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_connection_status
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_file_upload_queue
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_file_upload_queue`;
 CREATE TABLE `monitor_sys_gen_server_file_upload_queue`  (
   `monitor_sys_gen_server_file_upload_queue_id` bigint NOT NULL AUTO_INCREMENT COMMENT '队列ID',
@@ -1793,13 +1268,6 @@ CREATE TABLE `monitor_sys_gen_server_file_upload_queue`  (
   PRIMARY KEY (`monitor_sys_gen_server_file_upload_queue_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_file_upload_queue
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_file_upload_records
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_file_upload_records`;
 CREATE TABLE `monitor_sys_gen_server_file_upload_records`  (
   `monitor_sys_gen_server_file_upload_record_id` bigint NOT NULL AUTO_INCREMENT COMMENT '记录ID',
@@ -1834,13 +1302,6 @@ CREATE TABLE `monitor_sys_gen_server_file_upload_records`  (
   PRIMARY KEY (`monitor_sys_gen_server_file_upload_record_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_file_upload_records
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_file_upload_tasks
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_file_upload_tasks`;
 CREATE TABLE `monitor_sys_gen_server_file_upload_tasks`  (
   `monitor_sys_gen_server_file_upload_task_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务ID',
@@ -1880,13 +1341,6 @@ CREATE TABLE `monitor_sys_gen_server_file_upload_tasks`  (
   PRIMARY KEY (`monitor_sys_gen_server_file_upload_task_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_file_upload_tasks
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_group
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_group`;
 CREATE TABLE `monitor_sys_gen_server_group`  (
   `monitor_sys_gen_server_group_id` int NOT NULL AUTO_INCREMENT COMMENT '分组ID',
@@ -1907,14 +1361,6 @@ CREATE TABLE `monitor_sys_gen_server_group`  (
   PRIMARY KEY (`monitor_sys_gen_server_group_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_group
--- ----------------------------
-INSERT INTO `monitor_sys_gen_server_group` VALUES (1, '1', '', '#409eff', 'ri:folder-line', 1, 0, 0, '', 'admin', 1, '2025-12-10 00:38:08.057728', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_layout
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_layout`;
 CREATE TABLE `monitor_sys_gen_server_layout`  (
   `monitor_sys_gen_server_layout_id` int NOT NULL AUTO_INCREMENT COMMENT '布局配置ID',
@@ -1936,13 +1382,6 @@ CREATE TABLE `monitor_sys_gen_server_layout`  (
   PRIMARY KEY (`monitor_sys_gen_server_layout_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_layout
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_log_statistics
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_log_statistics`;
 CREATE TABLE `monitor_sys_gen_server_log_statistics`  (
   `monitor_sys_gen_server_log_stat_id` bigint NOT NULL AUTO_INCREMENT COMMENT '统计ID',
@@ -1967,13 +1406,6 @@ CREATE TABLE `monitor_sys_gen_server_log_statistics`  (
   PRIMARY KEY (`monitor_sys_gen_server_log_stat_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_log_statistics
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_logs
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_logs`;
 CREATE TABLE `monitor_sys_gen_server_logs`  (
   `monitor_sys_gen_server_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志ID',
@@ -2004,13 +1436,6 @@ CREATE TABLE `monitor_sys_gen_server_logs`  (
   PRIMARY KEY (`monitor_sys_gen_server_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 14167 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_logs
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_metrics
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_metrics`;
 CREATE TABLE `monitor_sys_gen_server_metrics`  (
   `monitor_sys_gen_server_metrics_id` bigint NOT NULL AUTO_INCREMENT COMMENT '指标数据ID',
@@ -2046,13 +1471,6 @@ CREATE TABLE `monitor_sys_gen_server_metrics`  (
   PRIMARY KEY (`monitor_sys_gen_server_metrics_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_metrics
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_script_executions
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_script_executions`;
 CREATE TABLE `monitor_sys_gen_server_script_executions`  (
   `monitor_sys_gen_server_script_execution_id` bigint NOT NULL AUTO_INCREMENT COMMENT '执行记录ID',
@@ -2093,13 +1511,6 @@ CREATE TABLE `monitor_sys_gen_server_script_executions`  (
   PRIMARY KEY (`monitor_sys_gen_server_script_execution_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_script_executions
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_scripts
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_scripts`;
 CREATE TABLE `monitor_sys_gen_server_scripts`  (
   `monitor_sys_gen_server_script_id` bigint NOT NULL AUTO_INCREMENT COMMENT '脚本ID',
@@ -2137,13 +1548,6 @@ CREATE TABLE `monitor_sys_gen_server_scripts`  (
   PRIMARY KEY (`monitor_sys_gen_server_script_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_scripts
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_setting
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_setting`;
 CREATE TABLE `monitor_sys_gen_server_setting`  (
   `monitor_sys_gen_server_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '服务器配置设置ID',
@@ -2231,15 +1635,6 @@ CREATE TABLE `monitor_sys_gen_server_setting`  (
   PRIMARY KEY (`monitor_sys_gen_server_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_setting
--- ----------------------------
-INSERT INTO `monitor_sys_gen_server_setting` VALUES (1, 1, 0, 0, 0, 'LOCAL', NULL, NULL, 30, NULL, NULL, NULL, NULL, 60, 0, 80.00, 85.00, 90.00, 100.00, 5000, 0, 'EMAIL', '', 30, 0, 30, 1, NULL, NULL, 1, 0, 0, '1.40', 'SHELL', NULL, NULL, NULL, 0, NULL, 0, 'GUACAMOLE', 'localhost', 4822, NULL, NULL, NULL, NULL, 0, NULL, 30, 60, 'sa', 1, '2025-07-02 14:57:49.000000', '2025-12-10 11:16:46.723058', 'admin', 1, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_server_setting` VALUES (2, 2, 0, 0, 0, 'API', 'localhost', 9090, 30, NULL, NULL, NULL, NULL, 60, 0, 80.00, 85.00, 90.00, 100.00, 5000, 0, 'EMAIL', '', 30, 0, 30, 1, NULL, NULL, 1, 0, 0, '1.40', 'SHELL', '192.168.110.100', 2376, NULL, 0, NULL, 0, 'GUACAMOLE', 'localhost', 4822, NULL, NULL, NULL, NULL, 0, NULL, 30, 60, 'sa', 1, '2025-07-02 14:58:25.000000', '2025-12-10 11:19:42.876569', 'admin', 1, 'http://localhost:9090', '/api/v1/query', 0, '', '', 30, '', 60, 0, 30, 0, 60, '', '', 30000, NULL, 'SSH', '', '', 0, 60, 3, 30, 10, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_setting_backup
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_setting_backup`;
 CREATE TABLE `monitor_sys_gen_server_setting_backup`  (
   `monitor_sys_gen_server_setting_backup_id` bigint NOT NULL AUTO_INCREMENT COMMENT '备份ID',
@@ -2264,13 +1659,6 @@ CREATE TABLE `monitor_sys_gen_server_setting_backup`  (
   PRIMARY KEY (`monitor_sys_gen_server_setting_backup_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_setting_backup
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_server_setting_history
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_server_setting_history`;
 CREATE TABLE `monitor_sys_gen_server_setting_history`  (
   `monitor_sys_gen_server_setting_history_id` bigint NOT NULL AUTO_INCREMENT COMMENT '历史记录ID',
@@ -2293,13 +1681,6 @@ CREATE TABLE `monitor_sys_gen_server_setting_history`  (
   PRIMARY KEY (`monitor_sys_gen_server_setting_history_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_server_setting_history
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_shell
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_shell`;
 CREATE TABLE `monitor_sys_gen_shell`  (
   `shell_id` int NOT NULL AUTO_INCREMENT,
@@ -2320,13 +1701,6 @@ CREATE TABLE `monitor_sys_gen_shell`  (
   PRIMARY KEY (`shell_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SHELL管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_shell
--- ----------------------------
-
--- ----------------------------
--- Table structure for monitor_sys_gen_table
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_table`;
 CREATE TABLE `monitor_sys_gen_table`  (
   `tab_id` int NOT NULL AUTO_INCREMENT,
@@ -2347,16 +1721,6 @@ CREATE TABLE `monitor_sys_gen_table`  (
   PRIMARY KEY (`tab_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_table
--- ----------------------------
-INSERT INTO `monitor_sys_gen_table` VALUES (6, 'file_storage_protocol', '文件存储服务器协议', '本地 - MYSQL', 1, 'FileStorageProtocol', NULL, 'com', 'storageProtocol', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_table` VALUES (7, 'file_storage_log', '文件存储日志', '本地 - MYSQL', 1, 'FileStorageLog', NULL, 'com', 'storageLog', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `monitor_sys_gen_table` VALUES (8, 'monitor_proxy_limit', '代理限流器', '本地 - MYSQL', 1, 'MonitorProxyLimit', NULL, 'com', 'proxyLimit', NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for monitor_sys_gen_template
--- ----------------------------
 DROP TABLE IF EXISTS `monitor_sys_gen_template`;
 CREATE TABLE `monitor_sys_gen_template`  (
   `template_id` int NOT NULL AUTO_INCREMENT,
@@ -2374,13 +1738,6 @@ CREATE TABLE `monitor_sys_gen_template`  (
   PRIMARY KEY (`template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生成器模板' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of monitor_sys_gen_template
--- ----------------------------
-
--- ----------------------------
--- Table structure for node_system
--- ----------------------------
 DROP TABLE IF EXISTS `node_system`;
 CREATE TABLE `node_system`  (
   `node_system_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '节点ID - MD5(IP+PORT)',
@@ -2420,21 +1777,6 @@ CREATE TABLE `node_system`  (
   `update_by` int NULL DEFAULT NULL COMMENT '更新人'
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of node_system
--- ----------------------------
-INSERT INTO `node_system` VALUES ('142adf753597ef435919e95bd13ea388', '192.168.110.82:19170', 'monitor', '192.168.110.82', 19170, 'OFFLINE', 'monitor', 'unknown', '0', '2025-12-01 02:16:14.179128', '2025-12-01 02:16:14.179128', '2025-12-08 01:16:53.000000', '2025-12-01 02:16:14.179128', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-01 02:16:14.179128', '2025-12-08 01:16:53.000000', NULL, NULL);
-INSERT INTO `node_system` VALUES ('142adf753597ef435919e95bd13ea388', '192.168.110.82:19170', 'monitor', '192.168.110.82', 19170, 'OFFLINE', 'monitor', 'unknown', '0', '2025-12-01 02:16:14.179128', '2025-12-01 02:16:14.179128', '2025-12-08 01:16:53.000000', '2025-12-01 02:16:14.179128', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-01 02:16:14.179128', '2025-12-08 01:16:53.000000', NULL, NULL);
-INSERT INTO `node_system` VALUES ('0296853f19f29e7d095a9cb7486843aa', '172.16.0.40:19180', 'oss', '172.16.0.40', 19180, 'OFFLINE', 'monitor', 'unknown', '0', '2025-12-01 02:16:14.346871', '2025-12-01 02:16:14.346871', '2025-12-08 01:16:53.000000', '2025-12-01 02:16:14.346871', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-01 02:16:14.346871', '2025-12-08 01:16:53.000000', NULL, NULL);
-INSERT INTO `node_system` VALUES ('0296853f19f29e7d095a9cb7486843aa', '172.16.0.40:19180', 'oss', '172.16.0.40', 19180, 'OFFLINE', 'monitor', 'unknown', '0', '2025-12-01 02:16:14.355945', '2025-12-01 02:16:14.355945', '2025-12-08 01:16:53.000000', '2025-12-01 02:16:14.355945', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-01 02:16:14.355945', '2025-12-08 01:16:53.000000', NULL, NULL);
-INSERT INTO `node_system` VALUES ('032b7a5e137faa56be7f903536cacf35', 'DESKTOP-SPEA8V6', 'system', '192.168.1.11', 0, 'OFFLINE', 'monitor', '21.0.9', '0', '2025-12-08 01:16:52.676109', '2025-12-08 20:36:57.001739', '2025-12-08 20:58:11.000000', '2025-12-08 20:36:57.001739', NULL, 118, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 01:16:52.676109', '2025-12-08 20:58:11.000000', 'admin', 1);
-INSERT INTO `node_system` VALUES ('e3830f999cc499cff647901aaa903d48', 'null:0', 'unknown', NULL, 0, 'OFFLINE', 'monitor', 'unknown', '0', '2025-12-08 20:58:10.103764', '2025-12-08 21:09:31.511299', '2025-12-08 21:25:00.000000', '2025-12-08 21:09:31.511299', NULL, 19, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 20:58:10.103764', '2025-12-08 21:25:00.000000', 'admin', 1);
-INSERT INTO `node_system` VALUES ('83cdc8b1c4ccc3e3af040c81f32451f8', 'DESKTOP-SPEA8V6', 'system', '192.168.1.11', 18170, 'OFFLINE', 'monitor', '21.0.9', '0', '2025-12-08 21:24:59.306318', '2025-12-08 22:00:47.693315', '2025-12-08 22:47:48.000000', '2025-12-08 22:00:47.693315', NULL, 30, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 21:24:59.306318', '2025-12-08 22:47:48.000000', 'admin', 1);
-INSERT INTO `node_system` VALUES ('ee03f94c8313872514797ee88ecc01dc', 'DESKTOP-SPEA8V6', 'system', '172.16.3.66', 18170, 'ONLINE', 'monitor', '21.0.9', '1', '2025-12-08 22:47:47.264096', '2025-12-09 23:36:24.846978', NULL, '2025-12-09 23:36:24.846978', NULL, 38, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 22:47:47.264096', '2025-12-09 23:36:24.848979', 'admin', 1);
-
--- ----------------------------
--- Table structure for process_list
--- ----------------------------
 DROP TABLE IF EXISTS `process_list`;
 CREATE TABLE `process_list`  (
   `process_list_id` int NOT NULL AUTO_INCREMENT COMMENT '进程列表ID',
@@ -2453,13 +1795,6 @@ CREATE TABLE `process_list`  (
   PRIMARY KEY (`process_list_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of process_list
--- ----------------------------
-
--- ----------------------------
--- Table structure for server_info
--- ----------------------------
 DROP TABLE IF EXISTS `server_info`;
 CREATE TABLE `server_info`  (
   `ssh_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SSH ID',
@@ -2477,13 +1812,6 @@ CREATE TABLE `server_info`  (
   `os_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作系统'
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of server_info
--- ----------------------------
-
--- ----------------------------
--- Table structure for server_info_builder
--- ----------------------------
 DROP TABLE IF EXISTS `server_info_builder`;
 CREATE TABLE `server_info_builder`  (
   `ssh_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
@@ -2501,13 +1829,6 @@ CREATE TABLE `server_info_builder`  (
   `os_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of server_info_builder
--- ----------------------------
-
--- ----------------------------
--- Table structure for soft_service
--- ----------------------------
 DROP TABLE IF EXISTS `soft_service`;
 CREATE TABLE `soft_service`  (
   `soft_service_id` int NOT NULL AUTO_INCREMENT,
@@ -2557,13 +1878,6 @@ CREATE TABLE `soft_service`  (
   PRIMARY KEY (`soft_service_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of soft_service
--- ----------------------------
-
--- ----------------------------
--- Table structure for soft_service_install
--- ----------------------------
 DROP TABLE IF EXISTS `soft_service_install`;
 CREATE TABLE `soft_service_install`  (
   `install_id` int NOT NULL AUTO_INCREMENT COMMENT '安装记录ID',
@@ -2624,13 +1938,6 @@ CREATE TABLE `soft_service_install`  (
   PRIMARY KEY (`install_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of soft_service_install
--- ----------------------------
-
--- ----------------------------
--- Table structure for soft_service_log
--- ----------------------------
 DROP TABLE IF EXISTS `soft_service_log`;
 CREATE TABLE `soft_service_log`  (
   `soft_service_log_id` int NOT NULL AUTO_INCREMENT COMMENT '日志ID',
@@ -2656,13 +1963,6 @@ CREATE TABLE `soft_service_log`  (
   PRIMARY KEY (`soft_service_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of soft_service_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for soft_service_version
--- ----------------------------
 DROP TABLE IF EXISTS `soft_service_version`;
 CREATE TABLE `soft_service_version`  (
   `soft_service_id` int NOT NULL AUTO_INCREMENT COMMENT '软件服务ID',
@@ -2676,13 +1976,6 @@ CREATE TABLE `soft_service_version`  (
   PRIMARY KEY (`soft_service_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of soft_service_version
--- ----------------------------
-
--- ----------------------------
--- Table structure for soft_service_version_builder
--- ----------------------------
 DROP TABLE IF EXISTS `soft_service_version_builder`;
 CREATE TABLE `soft_service_version_builder`  (
   `soft_service_id` int NOT NULL AUTO_INCREMENT,
@@ -2696,13 +1989,6 @@ CREATE TABLE `soft_service_version_builder`  (
   PRIMARY KEY (`soft_service_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of soft_service_version_builder
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_ai_group
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_group`;
 CREATE TABLE `sys_ai_group`  (
   `sys_ai_group_id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -2722,13 +2008,6 @@ CREATE TABLE `sys_ai_group`  (
   PRIMARY KEY (`sys_ai_group_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '分组' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_group
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_ai_group_message
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_group_message`;
 CREATE TABLE `sys_ai_group_message`  (
   `sys_ai_group_message_id` int NOT NULL AUTO_INCREMENT,
@@ -2745,13 +2024,6 @@ CREATE TABLE `sys_ai_group_message`  (
   PRIMARY KEY (`sys_ai_group_message_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '聊天内容' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_group_message
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_ai_module
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_module`;
 CREATE TABLE `sys_ai_module`  (
   `sys_ai_module_id` int NOT NULL AUTO_INCREMENT,
@@ -2776,49 +2048,6 @@ CREATE TABLE `sys_ai_module`  (
   PRIMARY KEY (`sys_ai_module_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'ai模型分类表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_module
--- ----------------------------
-INSERT INTO `sys_ai_module` VALUES (1, 'Spark Lite', 'Spark Lite', 6, NULL, 1, NULL, 10, 0, 'LLM', NULL, 'lite', 0, 'sa', 1, '2025-02-07 16:38:03', '2025-02-08 11:31:17', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (2, 'deepseek-chat', 'deepseek-chat', 7, NULL, 1, 0, 21, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-08 15:20:14', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (3, 'moonshot-v1-8k', 'moonshot-v1-8k', 8, NULL, 1, 0, 22, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-08 16:40:10', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (4, 'deepseek-r1:1.5b', 'deepseek-r1:1.5b', 9, NULL, 1, 0, 23, 1, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-10 10:17:12', '2025-02-10 11:17:10', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (5, 'gpt-4o-mini', 'gpt-4o-mini', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-17 09:35:14', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (6, 'bot-20250220142651-gh6tp', 'bot-20250220142651-gh6tp', 12, NULL, 1, 0, 26, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-02-20 14:43:43', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (7, 'wanx-v1', 'wanx-v1', 13, NULL, 1, 0, 2, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1, '2025-02-26 11:07:15', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (8, 'black-forest-labs/FLUX.1-schnell', 'black-forest-labs/FLUX.1-schnell', 14, 'FLUX.1 [schnell] 是一个 120 亿参数的 Rectified Flow Transformer 模型，能够根据文本描述生成图像。该模型采用潜在对抗扩散蒸馏技术训练，可以在1到4步内生成高质量图像。它具有最先进的输出质量和具有竞争力的提示跟随能力，匹配封闭源替代方案的性能。该模型在 Apache 2.0 许可下发布，可用于个人、科学和商业目的', 1, 0, 28, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-27 16:54:44', '2025-02-28 08:39:31', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (9, 'stabilityai/stable-diffusion-xl-base-1.0', 'stabilityai/stable-diffusion-xl-base-1.0', 14, 'Stable Diffusion XL（SDXL）是一个基于潜在扩散的文本到图像生成模型，使用了两个固定的预训练文本编码器（OpenCLIP-ViT/G 和 CLIP-ViT/L）。SDXL 由基础模型和精炼模型组成，可以单独使用基础模型或结合两者以获得更好的效果。该模型在生成艺术作品、设计和创意工具应用等方面表现出色，但仅限于研究目的使用', 1, 0, 28, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 10:10:11', '2025-02-28 10:11:41', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (10, 'stabilityai/stable-diffusion-3-5-large', 'stabilityai/stable-diffusion-3-5-large', 14, 'Stable Diffusion 3.5 Large 是 Stable Diffusion 系列中最强大的基础模型，拥有 80 亿参数。该模型具有卓越的图像质量和更好的提示遵循能力，特别适合在 1 兆像素分辨率下进行专业用途', 1, 2, 28, 0, 'VINCENT', NULL, 'v3.5', 0, 'sa', 1, '2025-02-28 10:44:14', '2025-02-28 10:45:09', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (11, 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 15, 'DeepSeek-R1-Distill-Qwen-7B 是基于 Qwen2.5-Math-7B 通过知识蒸馏得到的模型。该模型使用 DeepSeek-R1 生成的 80 万个精选样本进行微调，展现出优秀的推理能力。在多个基准测试中表现出色，其中在 MATH-500 上达到了 92.8% 的准确率，在 AIME 2024 上达到了 55.5% 的通过率，在 CodeForces 上获得了 1189 的评分，作为 7B 规模的模型展示了较强的数学和编程能力\n', 1, 1, 28, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 11:30:14', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (12, 'Qwen/Qwen2.5-Coder-7B-Instruct', 'Qwen/Qwen2.5-Coder-7B-Instruct', 15, 'Qwen2.5-Coder-7B-Instruct 是阿里云发布的代码特定大语言模型系列的最新版本。该模型在 Qwen2.5 的基础上，通过 5.5 万亿个 tokens 的训练，显著提升了代码生成、推理和修复能力。它不仅增强了编码能力，还保持了数学和通用能力的优势。模型为代码智能体等实际应用提供了更全面的基础', 1, 1, 28, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 13:43:38', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (13, 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 14, 'DeepSeek-R1-Distill-Qwen-7B 是基于 Qwen2.5-Math-7B 通过知识蒸馏得到的模型。该模型使用 DeepSeek-R1 生成的 80 万个精选样本进行微调，展现出优秀的推理能力。在多个基准测试中表现出色，其中在 MATH-500 上达到了 92.8% 的准确率，在 AIME 2024 上达到了 55.5% 的通过率，在 CodeForces 上获得了 1189 的评分，作为 7B 规模的模型展示了较强的数学和编程能力', 1, 1, 28, 0, 'LLM', 'https://api.siliconflow.cn/v1/chat/completions', 'v1.0', 0, 'sa', 1, '2025-02-28 15:21:14', '2025-02-28 15:21:58', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (14, 'cogview-3-flash', 'cogview-3-flash', 17, 'CogView-3-Flash是智谱AI推出的免费图像生成模型，能够根据用户指令生成符合要求且美学评分更高的图像。CogView-3-Flash主要应用于艺术创作、设计参考、游戏开发、虚拟现实等领域，帮助用户快速实现从文本到图像的转换需求。', 1, 1, 30, 0, 'VINCENT', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 15:31:07', '2025-02-28 15:44:18', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (15, 'glm-4-flash', 'glm-4-flash', 17, NULL, 1, 1, 30, 0, 'LLM', NULL, 'v1.0', 0, 'sa', 1, '2025-02-28 15:53:45', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (16, 'Kwai-Kolors/Kolors', 'Kwai-Kolors/Kolors', 14, 'Kolors 是由快手 Kolors 团队开发的基于潜在扩散的大规模文本到图像生成模型。该模型通过数十亿文本-图像对的训练，在视觉质量、复杂语义准确性以及中英文字符渲染方面展现出显著优势。它不仅支持中英文输入，在理解和生成中文特定内容方面也表现出色', 1, 0, 28, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1, '2025-03-01 17:47:46', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (17, 'moonshotai/moonlight-16b-a3b-instruct:free', 'moonshotai/moonlight-16b-a3b-instruct:free', 16, 'Moonlight-16B-A3B-Instruct 是由 Moonshot AI 开发的一个具有 160 亿参数的混合专家（MoE）语言模型。它针对指令跟随任务进行了优化，每次推理有 30 亿激活参数。该模型在英语、编码、数学和中文基准测试中，在每 FLOP 的性能方面推进了帕累托前沿。它在性能上优于类似的模型，如 Llama3-3B 和 Deepseek-v2-Lite，同时通过与 Hugging Face 集成以及与流行的推理引擎（如 vLLM12）兼容，保持了高效的部署能力。', 1, 1, 29, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 19:19:15', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (18, 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free', 'cognitivecomputations/dolphin3.0-r1-mistral-24b:free', 16, 'Dolphin 3.0 R1 是 Dolphin 系列指令微调模型的下一代产品。旨在成为终极通用本地模型，支持编程、数学、智能代理、函数调用和一般用例。R1 版本经过了 3 个周期的训练，使用来自 Dolphin-R1 数据集的 80 万个推理轨迹进行推理。', 1, 0, 29, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 19:25:55', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (19, 'deepseek-r1', 'deepseek-r1', 18, NULL, 1, 0, 31, 0, 'LLM', 'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:30:36', '2025-03-01 21:30:58', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (20, 'deepseek-r1-distill-qwen-32b', 'deepseek-r1-distill-qwen-32b', 18, NULL, 1, 0, 31, 0, 'LLM', 'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:35:34', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (21, 'deepseek-v3', 'deepseek-v3', 18, NULL, 1, 0, 31, 0, 'LLM', 'https://cloud.infini-ai.com/maas/v1/chat/completions', NULL, 0, 'sa', 1, '2025-03-01 21:37:42', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (22, '@cf/meta/llama-3.1-8b-instruct', '@cf/meta/llama-3.1-8b-instruct', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 22:36:47', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (23, '@cf/deepseek-ai/deepseek-math-7b-instruct', '@cf/deepseek-ai/deepseek-math-7b-instruct', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-01 22:54:41', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (24, '@cf/stabilityai/stable-diffusion-xl-base-1.0', '@cf/stabilityai/stable-diffusion-xl-base-1.0', 11, NULL, 1, 0, 32, 0, 'VINCENT', 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0', NULL, 0, 'sa', 1, '2025-03-01 23:20:09', '2025-03-02 00:37:09', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (25, '@cf/black-forest-labs/flux-1-schnell', '@cf/black-forest-labs/flux-1-schnell', 11, NULL, 1, 0, 32, 0, 'VINCENT', 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/black-forest-labs/flux-1-schnell', NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (26, '@cf/lykon/dreamshaper-8-lcm', '@cf/lykon/dreamshaper-8-lcm', 11, NULL, 1, 0, 32, 0, 'VINCENT', 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/lykon/dreamshaper-8-lcm', NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (27, '@cf/bytedance/stable-diffusion-xl-lightning', '@cf/bytedance/stable-diffusion-xl-lightning', 11, NULL, 1, 0, 32, 0, 'VINCENT', 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/bytedance/stable-diffusion-xl-lightning', NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (28, '@cf/runwayml/stable-diffusion-v1-5-img2img', '@cf/runwayml/stable-diffusion-v1-5-img2img', 11, NULL, 1, 0, 32, 0, 'VINCENT', 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/run/@cf/runwayml/stable-diffusion-v1-5-img2img', NULL, 0, 'sa', 1, '2025-03-02 02:03:48', '2025-03-02 02:41:22', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (29, '@cf/qwen/qwen1.5-14b-chat-awq', '@cf/qwen/qwen1.5-14b-chat-awq', 11, NULL, 1, 0, 25, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-02 03:03:52', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (30, 'glm-4v-flash', 'glm-4v-flash', 17, NULL, 1, 0, 30, 0, 'LLM', NULL, NULL, 1, 'sa', 1, '2025-03-02 12:35:46', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (31, 'cogvideox-flash', 'cogvideox-flash', 17, NULL, 1, 1, 30, 0, 'VIDEO', NULL, NULL, 0, 'sa', 1, '2025-03-04 14:35:25', '2025-03-04 15:16:15', 'sa', 1);
-INSERT INTO `sys_ai_module` VALUES (32, 'hunyuan-lite', 'hunyuan-lite', 19, NULL, 1, 0, 34, 0, 'LLM', NULL, NULL, 0, 'sa', 1, '2025-03-07 15:57:20', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (33, 'TextToImageLite', 'TextToImageLite', 19, NULL, 1, 1, 34, 0, 'VINCENT', NULL, NULL, 0, 'sa', 1, '2025-03-07 16:30:43', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (34, 'HunYuanImage', 'HunYuanImage', 19, NULL, 1, 1, 34, 0, 'VINCENT', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (35, '佐糖', '佐糖', 21, NULL, 1, 0, 38, 0, 'RESOLUTION', NULL, NULL, 0, 'sa', 1, '2025-03-20 13:52:27', NULL, NULL, NULL);
-INSERT INTO `sys_ai_module` VALUES (36, '佐糖', '佐糖', 21, NULL, 1, 0, 38, 0, 'COLORIZATION', NULL, 'v1.0.0', 0, 'sa', 1, '2025-03-21 10:35:11', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_ai_vincent_setting
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_vincent_setting`;
 CREATE TABLE `sys_ai_vincent_setting`  (
   `sys_ai_vincent_id` int NOT NULL AUTO_INCREMENT,
@@ -2841,28 +2070,6 @@ CREATE TABLE `sys_ai_vincent_setting`  (
   PRIMARY KEY (`sys_ai_vincent_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图模型参数' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_vincent_setting
--- ----------------------------
-INSERT INTO `sys_ai_vincent_setting` VALUES (1, 7, 1, 1, NULL, '<auto>,<photography>,<portrait>,<3d cartoon>,<anime>,<oil painting>,<watercolor>,<sketch>,<chinese painting>,<flat illustration>', 2, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, NULL, 'sa', 1, '2025-02-26 11:07:15', '2025-02-26 13:17:00', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (2, 8, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, NULL, 'sa', 1, '2025-02-28 08:41:43', '2025-02-28 08:49:03', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (3, 9, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720', NULL, NULL, NULL, 'sa', 1, '2025-02-28 10:21:17', '2025-02-28 10:27:56', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (4, 10, 0, NULL, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL, NULL, NULL, 'sa', 1, '2025-02-28 10:45:02', '2025-02-28 10:48:08', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (5, 14, 0, 0, NULL, '', 1, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL, NULL, NULL, 'sa', 1, '2025-02-28 15:31:27', '2025-03-18 14:22:12', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (6, 16, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152,1280*720,512*1024,576*1024,1024*576', NULL, NULL, NULL, 'sa', 1, '2025-03-01 17:48:04', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (7, 24, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152', NULL, NULL, NULL, 'sa', 1, '2025-03-01 23:20:20', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (8, 25, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280', NULL, NULL, NULL, 'sa', 1, '2025-03-02 02:04:06', '2025-03-02 02:08:14', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (9, 27, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280', NULL, NULL, NULL, 'sa', 1, '2025-03-02 02:51:20', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (10, 26, 0, NULL, NULL, '<auto>', NULL, '1024*1024', NULL, NULL, NULL, 'sa', 1, '2025-03-02 02:52:04', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (11, 28, 0, NULL, NULL, '<auto>', NULL, '1024*1024,720*1280,768*1152', NULL, NULL, NULL, 'sa', 1, '2025-03-02 02:58:13', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (12, 31, 1, 1, 1, '<auto>', 1, '1024*1024', NULL, '', '', 'sa', 1, '2025-03-04 15:14:35', '2025-03-04 15:15:21', 'sa', 1);
-INSERT INTO `sys_ai_vincent_setting` VALUES (13, 33, 1, 0, NULL, '<auto>', 1, '1024*1024,720*1280,768*1152', NULL, NULL, NULL, 'sa', 1, '2025-03-07 16:36:31', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (14, 34, 1, 0, NULL, NULL, 1, '1024*1024', NULL, NULL, NULL, 'sa', 1, '2025-03-07 20:21:12', NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_setting` VALUES (15, 35, NULL, NULL, NULL, NULL, NULL, '2,4', 2048, NULL, NULL, 'sa', 1, '2025-03-21 09:46:39', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_ai_vincent_style
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_vincent_style`;
 CREATE TABLE `sys_ai_vincent_style`  (
   `sys_ai_vincent_style_id` int NOT NULL AUTO_INCREMENT,
@@ -2873,67 +2080,6 @@ CREATE TABLE `sys_ai_vincent_style`  (
   PRIMARY KEY (`sys_ai_vincent_style_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 55 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图风格' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_vincent_style
--- ----------------------------
-INSERT INTO `sys_ai_vincent_style` VALUES (1, 34, '日漫动画', 'riman', 'https://qcloudimg.tencent-cloud.cn/image/document/1899ad3c41b71cbf67564e5e9a3de27d.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (2, 34, '水墨画', 'shuimo', 'https://qcloudimg.tencent-cloud.cn/image/document/567818d24ede579ebb47a90dd8749f39.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (3, 34, '莫奈', 'minai', 'https://qcloudimg.tencent-cloud.cn/image/document/60f02a8510ed6d55475608f25d6bdc83.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (4, 34, '扁平插画', 'bianping', 'https://qcloudimg.tencent-cloud.cn/image/document/57dc6b150d8695479203f4887783f1d6.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (5, 34, '像素插画', 'xiangsu', 'https://qcloudimg.tencent-cloud.cn/image/document/74be9d474c6ba9e8f37468d76f40a4ce.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (6, 34, '儿童绘本', 'ertonghuiben', 'https://qcloudimg.tencent-cloud.cn/image/document/28dc717b5f32e810bf53dc10f02948d7.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (7, 34, '3D 渲染', '3dxuanran', 'https://qcloudimg.tencent-cloud.cn/image/document/19fa3321dacd17cf7689fd47f8629005.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (8, 34, '漫画', 'manhua', 'https://qcloudimg.tencent-cloud.cn/image/document/869e471bf04942eb8e0d36da0a4556bf.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (9, 34, '黑白漫画', 'heibaimanhua', 'https://qcloudimg.tencent-cloud.cn/image/document/120f20965200a8bd2f838d1a7fe26d9a.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (10, 34, '写实', 'xieshi', 'https://qcloudimg.tencent-cloud.cn/image/document/19c066e3ee8f25069b8834a93f337df3.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (11, 34, '动漫', 'dongman', 'https://qcloudimg.tencent-cloud.cn/image/document/20271b79b5a5aa8ff49ec07bb488edc9.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (12, 34, '毕加索', 'bijiasuo', 'https://qcloudimg.tencent-cloud.cn/image/document/dc45004da5225aebb89af48fadc8731c.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (13, 34, '赛博朋克', 'saibopengke', 'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (14, 34, '油画', 'youhua', 'https://qcloudimg.tencent-cloud.cn/image/document/ee58c19eb93298d4175c1d0f88490a94.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (15, 34, '马赛克', 'masaike', 'https://qcloudimg.tencent-cloud.cn/image/document/112378e0f4ee1d78c9f306daa8fbff85.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (16, 34, '青花瓷', 'qinghuaci', 'https://qcloudimg.tencent-cloud.cn/image/document/d82963705b50cb90ee66bd060177c71b.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (17, 34, '新年剪纸画', 'xinnianjianzhi', 'https://qcloudimg.tencent-cloud.cn/image/document/324589129d651b05d23ca336be075cd7.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (18, 34, '新年花艺', 'xinnianhuayi', 'https://qcloudimg.tencent-cloud.cn/image/document/92e1acb426ef3268a6b17255d1d6d12b.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (19, 7, '默认', '<auto>', 'https://img.alicdn.com/imgextra/i4/O1CN01RzKicz1W0YWzYkWcK_!!6000000002726-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (20, 7, '水彩', '<watercolor>', 'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (21, 7, '摄影', '<photography>', 'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (22, 7, '人像写真', '<portrait>', 'https://img.alicdn.com/imgextra/i1/O1CN01M5D6fB1PVVzdwM375_!!6000000001846-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (23, 7, '油画', '<oil painting>', 'https://img.alicdn.com/imgextra/i4/O1CN01wuUOm31wLmtuwafhG_!!6000000006292-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (24, 7, '中国画', '<chinese painting>', 'https://img.alicdn.com/imgextra/i3/O1CN01tN84xj1oI6nEhfmL1_!!6000000005201-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (25, 7, '扁平插画', '<flat illustration>', 'https://img.alicdn.com/imgextra/i2/O1CN01XMadUe29wy3eouOgg_!!6000000008133-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (26, 7, '二次元', '<anime>', 'https://img.alicdn.com/imgextra/i4/O1CN01RIdXyT1Qoa62pyko6_!!6000000002023-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (27, 7, '素描', '<sketch>', 'https://img.alicdn.com/imgextra/i1/O1CN017OBYOc1YWjaZbcRpu_!!6000000003067-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (28, 7, '3D卡通', '<3d cartoon>', 'https://img.alicdn.com/imgextra/i1/O1CN01W1aZZv1vqBZYXLLrn_!!6000000006223-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (29, 33, '默认', '000', 'https://img.alicdn.com/imgextra/i4/O1CN01RzKicz1W0YWzYkWcK_!!6000000002726-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (30, 33, '水墨画', '101', 'https://img.alicdn.com/imgextra/i4/O1CN01wuUOm31wLmtuwafhG_!!6000000006292-2-tps-132-104.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (31, 33, '概念艺术', '102', 'https://n.sinaimg.cn/sinacn11/720/w1920h1200/20180821/fe95-hhzsnea0733811.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (32, 33, '油画1', '103', 'https://qcloudimg.tencent-cloud.cn/image/document/ee58c19eb93298d4175c1d0f88490a94.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (33, 33, '油画2（梵高）', '118', 'https://5b0988e595225.cdn.sohucs.com/images/20180806/db2a2d66d4bc4924b28b8b8541f5bdf3.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (34, 33, '水彩画', '104', 'https://img.lucydraw.com/data/upload/d/file/qita/shuicaihua/2015-09-11/1441930227892565.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (35, 33, '像素画', '105', 'https://img.zcool.cn/community/01958b5c9b0fa9a801214168ab22f7.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_1280,limit_1/sharpen,100');
-INSERT INTO `sys_ai_vincent_style` VALUES (36, 33, '厚涂风格', '106', 'https://tse1-mm.cn.bing.net/th/id/OIP-C.wXRGpsVC77SQlqwDAS7W0AHaMr?rs=1&pid=ImgDetMain');
-INSERT INTO `sys_ai_vincent_style` VALUES (37, 33, '插图', '107', 'https://img.zcool.cn/community/031crpgdb64vh4s9c28me0s3839.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (38, 33, '剪纸风格', '108', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.1AAnOtU3pli62YtDhrkSlQHaJ1?rs=1&pid=ImgDetMain');
-INSERT INTO `sys_ai_vincent_style` VALUES (39, 33, '印象派1（莫奈）', '109', 'https://n.sinaimg.cn/sinacn11/75/w2048h1227/20180402/18be-fyssmme6384393.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (40, 33, '印象派2', '119', 'https://tse2-mm.cn.bing.net/th/id/OIP-C.kj_tF2vSCBW074ywVVkLbQHaF6?rs=1&pid=ImgDetMain');
-INSERT INTO `sys_ai_vincent_style` VALUES (41, 33, '2.5D', '110', NULL);
-INSERT INTO `sys_ai_vincent_style` VALUES (42, 33, '古典肖像画', '111', 'https://tse1-mm.cn.bing.net/th/id/OIP-C.xIpdK_hc45tsFmKOPD5WZAHaKa?rs=1&pid=ImgDetMain');
-INSERT INTO `sys_ai_vincent_style` VALUES (43, 33, '黑白素描画', '112', 'https://c-ssl.duitang.com/uploads/item/201705/28/20170528024853_rz5te.jpeg');
-INSERT INTO `sys_ai_vincent_style` VALUES (44, 33, '赛博朋克', '113', 'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (45, 33, '科幻风格', '114', 'https://img.cgmol.com/excellentwork/20190514/164066_20190514110224xsedrgxjpo9tpq5.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (46, 33, '暗黑风格', '115', 'https://img.3dmgame.com/UploadFiles/201108/20110802091135913.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (47, 33, '3D', '116', 'https://qcloudimg.tencent-cloud.cn/image/document/19fa3321dacd17cf7689fd47f8629005.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (48, 33, '蒸汽波', '117', 'https://pic2.zhimg.com/v2-21e09b4d3f1d2fb50f3d1d63bbef6bbc_720w.jpg?source=172ae18b');
-INSERT INTO `sys_ai_vincent_style` VALUES (49, 33, '日系动漫', '201', 'https://qcloudimg.tencent-cloud.cn/image/document/1899ad3c41b71cbf67564e5e9a3de27d.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (50, 33, '怪兽风格', '202', 'https://img.redocn.com/sheji/20230908/shouhuifenggeguaiwuchatu_13096310.jpg');
-INSERT INTO `sys_ai_vincent_style` VALUES (51, 33, '唯美古风', '203', 'https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=1287230597,3924216573&fm=173&app=25&f=JPEG?w=640&h=1139&s=71B432D19110E3C610BDACD8030090B3');
-INSERT INTO `sys_ai_vincent_style` VALUES (52, 33, '复古动漫', '204', 'https://c-ssl.duitang.com/uploads/item/202002/04/20200204083412_A5dKK.jpeg');
-INSERT INTO `sys_ai_vincent_style` VALUES (53, 33, '游戏卡通手绘', '301', 'https://img.tukuppt.com/png_preview/00/24/81/BfoO7Ynm9x.jpg!/fw/780');
-INSERT INTO `sys_ai_vincent_style` VALUES (54, 33, '通用写实风格', '401', 'https://qcloudimg.tencent-cloud.cn/image/document/19c066e3ee8f25069b8834a93f337df3.jpg');
-
--- ----------------------------
--- Table structure for sys_ai_vincent_task
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_vincent_task`;
 CREATE TABLE `sys_ai_vincent_task`  (
   `sys_ai_vincent_task_id` int NOT NULL AUTO_INCREMENT,
@@ -2955,13 +2101,6 @@ CREATE TABLE `sys_ai_vincent_task`  (
   PRIMARY KEY (`sys_ai_vincent_task_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 258 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图任务' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_vincent_task
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_ai_vincent_template
--- ----------------------------
 DROP TABLE IF EXISTS `sys_ai_vincent_template`;
 CREATE TABLE `sys_ai_vincent_template`  (
   `sys_ai_vincent_template_id` int NOT NULL AUTO_INCREMENT,
@@ -2987,19 +2126,6 @@ CREATE TABLE `sys_ai_vincent_template`  (
   PRIMARY KEY (`sys_ai_vincent_template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文生图模板' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_ai_vincent_template
--- ----------------------------
-INSERT INTO `sys_ai_vincent_template` VALUES (1, 7, '四格漫画', 'sigemanhua', 'https://wanx.alicdn.com/model/sigemanhua.png', '擅长卡通风格小漫画', 1, '301-2.1-t2i-plus', 'sigemanhua', 'combining_images', 'wanx2.1-t2i-plus', '小男孩在树林里玩耍, 两只北极熊在冰川上温馨地交谈, 猫咪试图偷吃鱼，却被主人及时抓住, 机器人好奇地涂上睫毛膏，结果短路烧焦。, 小狗追逐蝴蝶，结果一头撞上大树', '1024*1024', '描述你希望展现的漫画剧情与风格', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_template` VALUES (2, 7, '情侣头像', 'qinglvtouxiang', 'https://wanx.alicdn.com/model/qinglvtouxiang.png', '擅长清新可爱的情侣头像', 2, '303-2.1-t2i-plus', 'qinglvtouxiang', 'combining_images', 'wanx2.1-t2i-plus', '针织娃娃相对而望，甜蜜的情侣头像, 一对白色毛毡小鸟站在树枝上，轻声细语, 一对情侣戴动物帽子相互微笑，黄色卡通背景, 两只毛毡小狗在绿草地上欢快地追逐嬉戏, 一对白兔子耳朵缠绕在一起，构成情侣头像', '1440*720', '描述你想要的头像内容与风格', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_template` VALUES (3, 7, '图标印花', 'tubiaoyinhua', 'https://wanx.alicdn.com/model/tubiaoyinhua.png', '擅长设计和展示印花效果', 3, '302-2.1-t2i-plus', 'tubiaoyinhua', 'combining_images', 'wanx2.1-t2i-plus', '面包店的菱形logo应用在招牌上, 健身房的logo设计应用于健身T恤, 花店的logo展示在漂亮的橱窗中, 茶馆的logo应用在精美的茶杯上, 服装店的logo别致地印在衣物标签上', '1248*832', '描述你希望设计的Logo印花样式与贴图效果', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_template` VALUES (4, 7, '电影分镜', 'dianyingfenjing', 'https://wanx.alicdn.com/model/dianyingfenjing.png', '擅长电影质感画面', 4, '300-2.1-t2i-plus', 'dianyingfenjing', 'combining_images', 'wanx2.1-t2i-plus', '两个人在雪地里一起堆雪人，欢乐无比。, 蒙古草原上的骏马飞驰，场景壮丽。, 圣诞老人点燃烟花，场面充满欢乐。, 火箭从发射升空，壮观地进入太空。, 两人在篝火旁载歌载舞，气氛热烈。', '1072*1424', '描述你希望展现的电影故事主题与画面内容', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_template` VALUES (5, 7, '新年请神', 'qingshen', 'https://wanx.alicdn.com/model/qingshen.png', '擅长人像', 5, '304-2.1-t2i-plus', 'qingshen', 'style', 'wanx2.1-t2i-plus', '一个女人，双手托着笔记本电脑, 一个女孩捧着鲜花, 一个女孩拿着一杯珍珠奶茶, 一个女孩拿着红包, 一个女孩捧着榴莲，背景里飘着榴莲', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_ai_vincent_template` VALUES (9, 7, '四格漫画2', 'sigemanhua', 'https://wanx.alicdn.com/model/sigemanhua.png', '擅长卡通风格小漫画', 1, '301-2.1-t2i-plus', 'sigemanhua', 'combining_images', 'wanx2.1-t2i-plus', '小男孩在树林里玩耍, 两只北极熊在冰川上温馨地交谈, 猫咪试图偷吃鱼，却被主人及时抓住, 机器人好奇地涂上睫毛膏，结果短路烧焦。, 小狗追逐蝴蝶，结果一头撞上大树', '1024*1024', '描述你希望展现的漫画剧情与风格', 'sa', 1, '2025-03-04 11:08:14', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_bank_bins
--- ----------------------------
 DROP TABLE IF EXISTS `sys_bank_bins`;
 CREATE TABLE `sys_bank_bins`  (
   `sys_blank_bin_id` int NOT NULL AUTO_INCREMENT,
@@ -3020,23 +2146,6 @@ CREATE TABLE `sys_bank_bins`  (
   PRIMARY KEY (`sys_blank_bin_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2379 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '银行BIN对照表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_bank_bins
--- ----------------------------
-INSERT INTO `sys_bank_bins` VALUES (1, '邮政储蓄银行', 'PSBC', '绿卡通', '绿卡通', '621096', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (2, '邮政储蓄银行', 'PSBC', '绿卡通', '绿卡通', '621098', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (3, '邮政储蓄银行', 'PSBC', '绿卡银联标准卡', '绿卡银联标准卡', '622150', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (4, '邮政储蓄银行', 'PSBC', '绿卡银联标准卡', '绿卡银联标准卡', '622151', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (5, '邮政储蓄银行', 'PSBC', '绿卡专用卡', '绿卡专用卡', '622181', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (6, '邮政储蓄银行', 'PSBC', '绿卡银联标准卡', '绿卡银联标准卡', '622188', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (7, '邮政储蓄银行', 'PSBC', '绿卡银联标准卡', '绿卡银联标准卡', '622199', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (8, '邮政储蓄银行', 'PSBC', '绿卡(银联卡)', '绿卡(银联卡)', '955100', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (9, '邮政储蓄银行', 'PSBC', '绿卡VIP卡', '绿卡VIP卡', '621095', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_bank_bins` VALUES (10, '邮政储蓄银行', 'PSBC', '银联标准卡', '银联标准卡', '620062', 19, 6, 1000000, NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_database_version
--- ----------------------------
 DROP TABLE IF EXISTS `sys_database_version`;
 CREATE TABLE `sys_database_version`  (
   `sys_database_version_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -3051,21 +2160,6 @@ CREATE TABLE `sys_database_version`  (
   UNIQUE INDEX `uk_script_name_version`(`sys_database_version_script_name` ASC, `sys_database_version_version` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of sys_database_version
--- ----------------------------
-INSERT INTO `sys_database_version` VALUES (1, '1.0.0', 'BASELINE', NULL, 'Initial baseline', 'baseline', '2025-12-04 10:12:03', 'true');
-INSERT INTO `sys_database_version` VALUES (2, '1.0', 'V1.0__init_project.sql', 'INIT', 'init project', 'eefccce12d689ad47d4f69f2421ceebf', '2025-12-04 10:13:15', 'true');
-INSERT INTO `sys_database_version` VALUES (3, '1.0', 'V1.0__init_service.sql', 'INIT', 'init service', '1fac9fc27f94b1d1a319715bd44f3477', '2025-12-04 10:13:18', 'true');
-INSERT INTO `sys_database_version` VALUES (4, '1.0', 'V1.0__init_video.sql', 'INIT', 'init video', '65b0c7a031882cb7a9f51bc8935e5506', '2025-12-04 10:13:19', 'true');
-INSERT INTO `sys_database_version` VALUES (5, '1.0', 'V1.0__add_project.sql', 'ADD', 'add project', '0b6a6dc200a546f89c24fbcb9935b126', '2025-12-04 10:13:19', 'true');
-INSERT INTO `sys_database_version` VALUES (6, '1.1', 'V1.1__add_sys_message.sql', 'ADD', 'add sys message', 'a8f4d554ae204840a6a2b283de1a762c', '2025-12-04 13:38:31', 'true');
-INSERT INTO `sys_database_version` VALUES (7, '1.2', 'V1.2__add_sys_holiday.sql', 'ADD', 'add sys holiday', '764c78365d73a27ddde4b1011f70003f', '2025-12-04 14:58:13', 'true');
-INSERT INTO `sys_database_version` VALUES (8, '1.3', 'V1.3__add_sys_file_system.sql', 'ADD', 'add sys file system', 'ce7545f38cb87ae5a59bdc04c9f84e79', '2025-12-10 15:21:34', 'true');
-
--- ----------------------------
--- Table structure for sys_device
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device`;
 CREATE TABLE `sys_device`  (
   `sys_device_id` int NOT NULL AUTO_INCREMENT,
@@ -3107,13 +2201,6 @@ CREATE TABLE `sys_device`  (
   PRIMARY KEY (`sys_device_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 421 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '摄像头设备管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_device_card_event
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device_card_event`;
 CREATE TABLE `sys_device_card_event`  (
   `sys_device_card_event_id` int NOT NULL,
@@ -3133,13 +2220,6 @@ CREATE TABLE `sys_device_card_event`  (
   PRIMARY KEY (`sys_device_card_event_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '门禁事件' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device_card_event
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_device_channel
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device_channel`;
 CREATE TABLE `sys_device_channel`  (
   `sys_device_channel_id` int NOT NULL AUTO_INCREMENT,
@@ -3158,13 +2238,6 @@ CREATE TABLE `sys_device_channel`  (
   PRIMARY KEY (`sys_device_channel_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '设备管道' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device_channel
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_device_message_event
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device_message_event`;
 CREATE TABLE `sys_device_message_event`  (
   `sys_device_message_event_id` int NOT NULL AUTO_INCREMENT,
@@ -3197,13 +2270,6 @@ CREATE TABLE `sys_device_message_event`  (
   PRIMARY KEY (`sys_device_message_event_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6906 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '事件' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device_message_event
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_device_org
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device_org`;
 CREATE TABLE `sys_device_org`  (
   `sys_device_org_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组织ID',
@@ -3220,13 +2286,6 @@ CREATE TABLE `sys_device_org`  (
   PRIMARY KEY (`sys_device_org_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '设备组织' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device_org
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_device_record
--- ----------------------------
 DROP TABLE IF EXISTS `sys_device_record`;
 CREATE TABLE `sys_device_record`  (
   `sys_camera_record_id` int NOT NULL AUTO_INCREMENT,
@@ -3239,13 +2298,6 @@ CREATE TABLE `sys_device_record`  (
   PRIMARY KEY (`sys_camera_record_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '摄像头记录' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_device_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_dict
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dict`;
 CREATE TABLE `sys_dict`  (
   `sys_dict_id` int NOT NULL AUTO_INCREMENT,
@@ -3266,20 +2318,6 @@ CREATE TABLE `sys_dict`  (
   PRIMARY KEY (`sys_dict_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_dict
--- ----------------------------
-INSERT INTO `sys_dict` VALUES (1, '厂家', 1, 0, 'CHANG_JIA', '三方厂家', '', 0, NULL, 'sa', NULL, '2024-08-31 20:29:00', '2024-08-31 20:35:57', 'sa', 1);
-INSERT INTO `sys_dict` VALUES (2, '模板类型', 1, 0, 'MU_BAN_LEI_XING', '', '', 0, NULL, 'sa', NULL, '2024-09-01 18:16:46', '2024-09-09 09:33:56', 'sa', 1);
-INSERT INTO `sys_dict` VALUES (3, '短信', 1, 0, 'DUAN_XIN', '', '', 2, NULL, 'sa', 1, '2024-09-07 09:07:09', '2024-09-09 09:23:22', 'sa', 1);
-INSERT INTO `sys_dict` VALUES (4, '微信', 1, 0, 'WEI_XIN', NULL, NULL, 2, NULL, 'sa', 1, '2024-09-09 10:07:50', NULL, NULL, NULL);
-INSERT INTO `sys_dict` VALUES (5, '组件功能', 1, 0, 'ZU_JIAN_GONG_NENG', '', '', 0, NULL, 'sa', 1, '2024-10-24 17:17:50', NULL, NULL, NULL);
-INSERT INTO `sys_dict` VALUES (6, '项目功能', 1, 0, 'XIANG_MU_GONG_NENG', '', '', 0, NULL, 'sa', 1, '2025-01-24 15:50:58', NULL, NULL, NULL);
-INSERT INTO `sys_dict` VALUES (7, '设备类型', 1, 0, 'SHE_BEI_LEI_XING', '', '', 0, NULL, 'sa', 1, '2025-02-11 16:20:16', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_dict_item
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_item`;
 CREATE TABLE `sys_dict_item`  (
   `sys_dict_item_id` int NOT NULL AUTO_INCREMENT,
@@ -3302,53 +2340,6 @@ CREATE TABLE `sys_dict_item`  (
   PRIMARY KEY (`sys_dict_item_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典项子项' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_dict_item
--- ----------------------------
-INSERT INTO `sys_dict_item` VALUES (1, 1, NULL, '海康云曜', '海康云曜', 1, 1, '', 'HAI_KANG_YUN_YAO', 0, NULL, 'sa', NULL, '2024-09-01 10:02:02', '2024-09-01 10:08:45', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (2, 1, NULL, '阿里云', '阿里云', 1, 1, NULL, 'ALIYUN', 0, NULL, 'sa', NULL, '2024-09-01 10:10:03', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (3, 1, NULL, '百度云', '百度云', 1, 1, NULL, 'BDYUN', 0, NULL, 'sa', NULL, '2024-09-01 10:10:13', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (4, 2, NULL, '短信', '', 1, 1, '', 'SMS', 0, NULL, 'sa', 1, '2024-09-03 13:35:36', '2024-09-09 10:04:58', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (5, 3, NULL, '短信通知', '', 1, 2, '', 'DUAN_XIN_TONG_ZHI', 0, NULL, 'sa', 1, '2024-09-03 13:48:51', '2024-09-05 16:13:21', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (6, 2, NULL, '站内', '', 1, 2, '', 'WEB', 0, NULL, 'sa', 1, '2024-09-03 13:54:31', '2024-09-03 13:55:18', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (7, 2, NULL, '微信', NULL, 1, 2, NULL, 'WECHAT', 0, NULL, 'sa', 1, '2024-09-03 13:55:13', '2024-09-05 15:54:08', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (8, 3, NULL, '验证码', '', 1, 1, '', 'YAN_ZHENG_MA', 0, NULL, 'sa', 1, '2024-09-09 09:24:59', '2024-09-09 09:31:22', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (9, 4, NULL, '微信通知', NULL, 1, NULL, NULL, 'WEI_XIN_TONG_ZHI', 0, NULL, 'sa', 1, '2024-09-09 10:08:38', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (10, 1, NULL, '讯飞', '', 1, 1, '', 'XUN_FEI', 0, 'sysProjectAppId,sysProjectAppSecret', 'sa', 1, '2024-10-24 15:07:24', '2025-02-17 10:38:56', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (11, 5, NULL, '天气', '', 1, 1, '', 'TIAN_QI', 0, NULL, 'sa', 1, '2024-10-24 17:18:02', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (12, 5, NULL, '时间', '', 1, 1, '', 'SHI_JIAN', 0, NULL, 'sa', 1, '2024-10-28 09:31:55', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (13, 6, 'fa-solid:sms', '短信', NULL, 1, 1, NULL, 'DUAN_XIN', 0, NULL, 'sa', 1, '2025-01-24 15:51:14', '2025-01-24 15:51:23', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (14, 6, 'ep:video-camera', '摄像头', '', 1, 1, '', 'SHE_XIANG_TOU', 1, NULL, 'sa', 1, '2025-01-24 15:51:33', '2025-01-24 15:54:21', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (15, 6, 'humbleicons:eye', '人像识别', '', 1, 1, '', 'REN_XIANG_SHI_BIE', 0, NULL, 'sa', 1, '2025-01-25 18:55:49', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (16, 6, 'humbleicons:mail', '邮件', '', 1, 1, '', 'YOU_JIAN', 0, NULL, 'sa', 1, '2025-01-27 13:47:56', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (17, 6, 'pixelarticons:device-tv-smart', '设备', '', 1, 1, '', 'SHE_BEI', 0, NULL, 'sa', 1, '2025-01-27 13:48:31', '2025-02-06 13:36:28', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (18, 1, 'bi:pc-display-horizontal', '内部系统', '', 1, 1, '', 'NEI_BU_XI_TONG', 0, NULL, 'sa', 1, '2025-01-27 13:49:49', '2025-02-17 10:32:02', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (19, 1, NULL, '海康安防', '海康安防', 1, 1, '', 'HAI_KANG_AN_FANG', 0, 'sysProjectAppId,sysProjectAppSecret,sysProjectEndpoint', 'sa', 1, '2025-02-05 14:43:32', '2025-02-05 14:43:40', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (20, 6, 'ri:robot-2-line', '大语言', '', 1, 1, '', 'DA_YU_YAN', 0, 'sysProjectAppKey,sysProjectEndpoint', 'sa', 1, '2025-02-07 14:47:07', '2025-02-17 10:34:02', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (21, 1, NULL, 'deepseek', '', 1, 1, '', 'deepseek', 0, NULL, 'sa', 1, '2025-02-08 14:28:56', '2025-02-17 10:31:59', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (22, 1, NULL, 'kimi', '', 1, 1, '', 'kimi', 0, NULL, 'sa', 1, '2025-02-08 16:33:03', '2025-02-17 10:31:57', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (23, 1, NULL, 'ollama', '', 1, 1, '', 'ollama', 0, NULL, 'sa', 1, '2025-02-10 10:16:25', '2025-02-17 10:04:54', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (24, 7, 'mingcute:computer-camera-fill', '摄像头', '', 1, 1, '', 'CAMERA', 0, NULL, 'sa', 1, '2025-02-11 16:37:27', '2025-02-11 16:46:19', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (25, 1, NULL, 'OpenAi', '', 1, 1, '', 'openai', 0, NULL, 'sa', 1, '2025-02-17 09:34:25', '2025-02-17 10:06:38', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (26, 1, NULL, '豆包', '', 1, 1, '', 'DOUBAO', 0, NULL, 'sa', 1, '2025-02-20 14:39:27', '2025-02-20 14:39:56', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (27, 6, 'ri:inbox-unarchive-line', '文生图', '', 1, 1, '', 'WEN_SHENG_TU', 0, NULL, 'sa', 1, '2025-02-26 10:36:37', '2025-02-28 11:24:54', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (28, 1, NULL, '硅基流动', '', 1, 1, '', 'SILICONFLOW', 0, NULL, 'sa', 1, '2025-02-27 16:20:06', '2025-02-27 16:20:44', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (29, 1, NULL, 'OpenRouter', '', 1, 1, '', 'OPEN_ROUTER', 0, NULL, 'sa', 1, '2025-02-28 13:57:56', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (30, 1, NULL, '智谱清言', '', 1, 1, '', 'ZHIPU', 0, NULL, 'sa', 1, '2025-02-28 15:28:05', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (31, 1, NULL, '无问芯穹', '', 1, 1, '', 'WU_WEN_XIN_QIONG', 0, NULL, 'sa', 1, '2025-03-01 21:28:23', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (32, 1, NULL, 'Cloudflare', '', 1, 1, '', 'Cloudflare', 0, NULL, 'sa', 1, '2025-03-01 22:34:45', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (33, 6, 'ep:video-camera', '文生视频', '', 1, 1, '', 'WEN_SHENG_SHI_PIN', 0, NULL, 'sa', 1, '2025-03-04 14:32:30', '2025-03-04 14:34:29', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (34, 1, NULL, '腾讯', '', 1, 1, '', 'TENCENT', 0, NULL, 'sa', 1, '2025-03-07 15:38:26', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (35, 1, 'ep:camera-filled', '海康云眸', '', 1, 1, '', 'HAI_KANG_YUN_MOU', 0, NULL, 'sa', 1, '2025-03-17 08:45:39', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (36, 7, 'ep:credit-card', '门禁', '', 1, 1, '', 'MEN_JIN', 0, NULL, 'sa', 1, '2025-03-17 10:51:36', '2025-03-17 10:51:48', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (37, 5, NULL, '日历', '', 1, 1, '', 'RI_LI', 0, NULL, 'sa', 1, '2025-03-18 15:03:56', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (38, 1, NULL, '佐糖', '', 1, 1, '', 'ZUO_TANG', 0, NULL, 'sa', 1, '2025-03-20 13:41:08', NULL, NULL, NULL);
-INSERT INTO `sys_dict_item` VALUES (39, 6, 'simple-icons:davinciresolve', '超分辨率', '', 1, 1, '', 'RESOLUTION', 0, NULL, 'sa', 1, '2025-03-20 13:44:02', '2025-03-20 13:45:14', 'sa', 1);
-INSERT INTO `sys_dict_item` VALUES (40, 6, 'mingcute:color-picker-fill', '图像上色', '', 1, 1, '', 'COLORIZATION', 0, NULL, 'sa', 1, '2025-03-21 10:29:53', '2025-03-21 10:30:05', 'sa', 1);
-
--- ----------------------------
--- Table structure for sys_dict_item_property
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_item_property`;
 CREATE TABLE `sys_dict_item_property`  (
   `sys_dict_item_property_id` int NOT NULL AUTO_INCREMENT,
@@ -3366,25 +2357,6 @@ CREATE TABLE `sys_dict_item_property`  (
   PRIMARY KEY (`sys_dict_item_property_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典配置项' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_dict_item_property
--- ----------------------------
-INSERT INTO `sys_dict_item_property` VALUES (14, 20, 'DA_YU_YAN', 'sysProjectAppKey', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (19, 20, 'DA_YU_YAN', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (21, 10, 'DA_YU_YAN', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (22, 10, 'DA_YU_YAN', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (23, 23, 'DA_YU_YAN', 'sysProjectAppKey', 'false', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (25, 19, 'DEVICE', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (26, 19, 'DEVICE', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (27, 19, 'DEVICE', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (29, 27, 'WEN_SHENG_TU', 'sysProjectAppKey', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (30, 27, 'WEN_SHENG_TU', 'sysProjectEndpoint', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (31, 34, 'DA_YU_YAN', 'sysProjectAppSecret', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_dict_item_property` VALUES (32, 34, 'DA_YU_YAN', 'sysProjectAppId', 'true', 'Boolean', NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_email_log
--- ----------------------------
 DROP TABLE IF EXISTS `sys_email_log`;
 CREATE TABLE `sys_email_log`  (
   `sys_email_log_id` int NOT NULL AUTO_INCREMENT,
@@ -3409,18 +2381,6 @@ CREATE TABLE `sys_email_log`  (
   PRIMARY KEY (`sys_email_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '邮件下发日志表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_email_log
--- ----------------------------
-INSERT INTO `sys_email_log` VALUES (6, 'yemengzhidiandi@163.com', '1', '{}', '<p><strong>测试</strong></p>', 2392.00, '00000', NULL, 'NEI_BU_XI_TONG', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_email_log` VALUES (7, 'yemengzhidiandi@163.com', '1', '{}', '<p><strong>测试</strong></p>', 1348.00, 'SUCCESS', NULL, 'NEI_BU_XI_TONG', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
-INSERT INTO `sys_email_log` VALUES (8, 'yemengzhidiandi@163.com', '1', NULL, '<p><strong>测试</strong></p>', 893.00, 'SUCCESS', NULL, 'NEI_BU_XI_TONG', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
-INSERT INTO `sys_email_log` VALUES (9, 'request.getParams()', '1', NULL, '<p><strong>测试</strong></p>', 40.00, 'FAILURE', NULL, 'NEI_BU_XI_TONG', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 2);
-INSERT INTO `sys_email_log` VALUES (10, 'yemengzhidiandi@163.com', '1', NULL, '<p><strong>测试</strong></p>', 917.00, 'SUCCESS', NULL, 'NEI_BU_XI_TONG', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 2);
-
--- ----------------------------
--- Table structure for sys_email_template
--- ----------------------------
 DROP TABLE IF EXISTS `sys_email_template`;
 CREATE TABLE `sys_email_template`  (
   `sys_email_template_id` int NOT NULL AUTO_INCREMENT,
@@ -3451,14 +2411,6 @@ CREATE TABLE `sys_email_template`  (
   PRIMARY KEY (`sys_email_template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '邮件模板' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_email_template
--- ----------------------------
-INSERT INTO `sys_email_template` VALUES (1, 2, NULL, 1, 4, '测试', '111', '<p><strong>测试</strong></p>', NULL, 1, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 'http://127.0.0.1:18170/system/api/v2/project/template/email/callback', 'sa', 1, '2025-01-27 20:00:31', '2025-01-27 20:04:46', 'sa', 1);
-
--- ----------------------------
--- Table structure for sys_file_system
--- ----------------------------
 DROP TABLE IF EXISTS `sys_file_system`;
 CREATE TABLE `sys_file_system`  (
   `sys_file_system_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -3497,13 +2449,6 @@ CREATE TABLE `sys_file_system`  (
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件系统主表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_file_system
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_file_system_group
--- ----------------------------
 DROP TABLE IF EXISTS `sys_file_system_group`;
 CREATE TABLE `sys_file_system_group`  (
   `sys_file_system_group_id` int NOT NULL AUTO_INCREMENT COMMENT '分组ID',
@@ -3530,18 +2475,6 @@ CREATE TABLE `sys_file_system_group`  (
   INDEX `idx_status`(`sys_file_system_group_status` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件系统分组表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_file_system_group
--- ----------------------------
-INSERT INTO `sys_file_system_group` VALUES (1, '默认分组', 0, 'default', '/default', 1, 'default', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_file_system_group` VALUES (2, '图片', 0, 'images', '/images', 1, 'images', NULL, 0, 2, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_file_system_group` VALUES (3, '视频', 0, 'videos', '/videos', 1, 'videos', NULL, 0, 3, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_file_system_group` VALUES (4, '文档', 0, 'documents', '/documents', 1, 'documents', NULL, 0, 4, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `sys_file_system_group` VALUES (5, '音频', 0, 'audios', '/audios', 1, 'audios', NULL, 0, 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_file_system_part
--- ----------------------------
 DROP TABLE IF EXISTS `sys_file_system_part`;
 CREATE TABLE `sys_file_system_part`  (
   `sys_file_system_part_id` int NOT NULL AUTO_INCREMENT COMMENT '分片ID',
@@ -3567,13 +2500,6 @@ CREATE TABLE `sys_file_system_part`  (
   INDEX `idx_status`(`sys_file_system_part_status` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件系统分片表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_file_system_part
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_file_system_setting
--- ----------------------------
 DROP TABLE IF EXISTS `sys_file_system_setting`;
 CREATE TABLE `sys_file_system_setting`  (
   `sys_file_system_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID',
@@ -3608,14 +2534,6 @@ CREATE TABLE `sys_file_system_setting`  (
   INDEX `idx_enabled`(`sys_file_system_setting_enabled` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件系统配置表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_file_system_setting
--- ----------------------------
-INSERT INTO `sys_file_system_setting` VALUES (1, '默认配置', 1, 100, 1, 10, 1, 0, 8888, '0.0.0.0', '/file', 1, 1, NULL, NULL, 1024, NULL, NULL, 0, 1, 'local', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_holiday
--- ----------------------------
 DROP TABLE IF EXISTS `sys_holiday`;
 CREATE TABLE `sys_holiday`  (
   `sys_holiday_id` int NOT NULL AUTO_INCREMENT COMMENT '节假日ID',
@@ -3635,46 +2553,6 @@ CREATE TABLE `sys_holiday`  (
   INDEX `idx_date`(`sys_holiday_date` ASC) USING BTREE COMMENT '日期索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '节假日表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_holiday
--- ----------------------------
-INSERT INTO `sys_holiday` VALUES (1, 2025, '2025-01-01', '元旦', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (2, 2025, '2025-01-26', '春节前补班', 0, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (3, 2025, '2025-01-28', '除夕', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (4, 2025, '2025-01-29', '初一', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (5, 2025, '2025-01-30', '初二', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (6, 2025, '2025-01-31', '初三', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (7, 2025, '2025-02-01', '初四', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (8, 2025, '2025-02-02', '初五', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (9, 2025, '2025-02-03', '初六', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (10, 2025, '2025-02-04', '初七', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (11, 2025, '2025-02-08', '春节后补班', 0, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (12, 2025, '2025-04-04', '清明节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (13, 2025, '2025-04-05', '清明节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (14, 2025, '2025-04-06', '清明节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (15, 2025, '2025-04-27', '劳动节前补班', 0, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (16, 2025, '2025-05-01', '劳动节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (17, 2025, '2025-05-02', '劳动节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (18, 2025, '2025-05-03', '劳动节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (19, 2025, '2025-05-04', '劳动节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (20, 2025, '2025-05-05', '劳动节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (21, 2025, '2025-05-31', '端午节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (22, 2025, '2025-06-01', '端午节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (23, 2025, '2025-06-02', '端午节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (24, 2025, '2025-09-28', '国庆节前补班', 0, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (25, 2025, '2025-10-01', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (26, 2025, '2025-10-02', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (27, 2025, '2025-10-03', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (28, 2025, '2025-10-04', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (29, 2025, '2025-10-05', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (30, 2025, '2025-10-06', '中秋节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (31, 2025, '2025-10-07', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (32, 2025, '2025-10-08', '国庆节', 1, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-INSERT INTO `sys_holiday` VALUES (33, 2025, '2025-10-11', '国庆节后补班', 0, 1, 'admin', '2025-12-04 14:58:56', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for sys_limit_configuration
--- ----------------------------
 DROP TABLE IF EXISTS `sys_limit_configuration`;
 CREATE TABLE `sys_limit_configuration`  (
   `sys_limit_configuration_id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -3699,13 +2577,6 @@ CREATE TABLE `sys_limit_configuration`  (
   PRIMARY KEY (`sys_limit_configuration_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流配置表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_limit_configuration
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_limit_record
--- ----------------------------
 DROP TABLE IF EXISTS `sys_limit_record`;
 CREATE TABLE `sys_limit_record`  (
   `sys_limit_record_id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -3734,13 +2605,6 @@ CREATE TABLE `sys_limit_record`  (
   INDEX `idx_client_ip`(`client_ip` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '限流记录表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_limit_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_log
--- ----------------------------
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log`  (
   `sys_log_id` int NOT NULL AUTO_INCREMENT,
@@ -3760,13 +2624,6 @@ CREATE TABLE `sys_log`  (
   PRIMARY KEY (`sys_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统日志表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_message
--- ----------------------------
 DROP TABLE IF EXISTS `sys_message`;
 CREATE TABLE `sys_message`  (
   `sys_message_id` int NOT NULL AUTO_INCREMENT COMMENT '消息ID',
@@ -3804,13 +2661,6 @@ CREATE TABLE `sys_message`  (
   INDEX `idx_biz`(`sys_message_biz_type` ASC, `sys_message_biz_id` ASC) USING BTREE COMMENT '业务关联索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统消息表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_message
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_message_history
--- ----------------------------
 DROP TABLE IF EXISTS `sys_message_history`;
 CREATE TABLE `sys_message_history`  (
   `sys_message_history_id` int NOT NULL AUTO_INCREMENT COMMENT '历史记录ID',
@@ -3841,13 +2691,6 @@ CREATE TABLE `sys_message_history`  (
   INDEX `idx_message_id`(`sys_message_history_message_id` ASC) USING BTREE COMMENT '原消息ID索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统消息历史记录表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_message_history
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_project
--- ----------------------------
 DROP TABLE IF EXISTS `sys_project`;
 CREATE TABLE `sys_project`  (
   `sys_project_id` int NOT NULL AUTO_INCREMENT,
@@ -3885,52 +2728,14 @@ CREATE TABLE `sys_project`  (
   PRIMARY KEY (`sys_project_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_project
--- ----------------------------
-INSERT INTO `sys_project` VALUES (1, '阿里', 'https://img1.baidu.com/it/u=2383102008,2259360939&fm=253&fmt=auto?w=800&h=800', '阿里系', 'ALI', 'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '', '犀鸟校园', 0, 1, NULL, 2, NULL, NULL, NULL, NULL, 2, NULL, '13,15', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
-INSERT INTO `sys_project` VALUES (2, '内部系统', NULL, NULL, '01jjk500nsgh4tgmrm9e0t7bmh', NULL, NULL, NULL, NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL, 18, NULL, '16', 'smtp.163.com', 25, 'CVIRRMZQPYLQIQMW', 'yemengzhidiandi@163.com', NULL, NULL, 'sa', 1, '2025-01-27 13:50:49', '2025-01-27 13:56:48', 'sa', 1);
-INSERT INTO `sys_project` VALUES (4, '海康安防', 'https://open.hikvision.com/fileserver/opsimgs/综合安防.png', NULL, '01jk9zrhcnzsxrm71ybxh85abj', '23031179', 'yKeMbw5czqVuwRnxYHlJ', NULL, '', 0, 1, NULL, 3, NULL, '112.124.44.21:443', NULL, NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-05 10:41:53', '2025-02-05 10:44:07', 'sa', 1);
-INSERT INTO `sys_project` VALUES (5, '海康云曜', 'https://static.hikyun.com/portal/vportalimages/brand-logo.png', NULL, '01jkczk8ns06derb1m0t6aptb5', '16643603898674415', 'VQYaHTWVmatXVdCbrKZJ', NULL, '651515588253424', 0, 1, '1664360485020781', 3, NULL, NULL, NULL, NULL, 1, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-06 14:36:44', '2025-02-06 14:37:46', 'sa', 1);
-INSERT INTO `sys_project` VALUES (6, '讯飞', 'https://www.xfyun.cn/static/img/layout/header/logo.svg', NULL, '01jkfjbnn8tvqj03938qkvb2ga', '7d9dec86', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', '4f810aad8b96224fc2aae62d8d440123', '', 0, 1, NULL, 3, NULL, 'http://spark-api.xf-yun.com/v1.1/chat', NULL, NULL, 10, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-07 14:43:07', '2025-02-07 14:47:17', 'sa', 1);
-INSERT INTO `sys_project` VALUES (7, 'deepseek', 'https://gimg3.baidu.com/search/src=http%3A%2F%2Fgips0.baidu.com%2Fit%2Fu%3D501085362%2C3268784142%26fm%3D3030%26app%3D3030%26f%3DJPEG%3Fw%3D338%26h%3D225%26s%3D46F088725076FF8208BF9FDD020080AC&refer=http%3A%2F%2Fwww.baidu.com&app=2021&size=f242,150&n=0&g=0n&q=100&fmt=auto?sec=1739120400&t=07d69eb6c8aa160d9c89849bb067310c', NULL, '01jkj3yxzmzppaj8c3afphentc', NULL, NULL, 'EWSNmypiPVPCzRVlcIdKsyNLGJNuw8CTSR+8IcKrheTl1rqvC2QFB8YUaJ8MaP7v', NULL, 0, 1, NULL, 3, NULL, 'https://api.deepseek.com/chat/completions', NULL, NULL, 21, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-08 14:29:12', '2025-02-08 15:02:56', 'sa', 1);
-INSERT INTO `sys_project` VALUES (8, 'kimi', 'https://platform.moonshot.cn/logo.png', NULL, '01jkjb2jc4grwqtv0vn9tjjayw', NULL, NULL, 'sk-2KiwJ1D0DLOpdb6cozbY5R0H8ydum7YYcDIONGetw4bu6jsy', NULL, 0, 1, NULL, 3, NULL, 'https://api.moonshot.cn/v1/chat/completions', NULL, NULL, 22, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-08 16:33:32', '2025-02-08 16:33:43', 'sa', 1);
-INSERT INTO `sys_project` VALUES (9, 'ollama', 'https://ollama.com/public/ollama.png', NULL, '01jkpta36f0yds272z1g81qs5r', NULL, NULL, NULL, NULL, 0, 1, NULL, 3, NULL, 'http://127.0.0.1:11434/v1/chat/completions', NULL, NULL, 23, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-10 10:16:45', '2025-02-10 10:40:30', 'sa', 1);
-INSERT INTO `sys_project` VALUES (10, '测试', NULL, NULL, '01jkszw2aj1ht2pyr971fv2bz0', '28282971', 'q4S7VR7AXTcSpLuKsMlF', '', NULL, 0, 1, NULL, 3, NULL, '39.170.78.27:1443', NULL, NULL, 19, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-11 15:51:40', '2025-02-11 15:52:37', 'sa', 1);
-INSERT INTO `sys_project` VALUES (11, 'Cloudflare', 'https://developers.cloudflare.com/_astro/logo.p_ySeMR1.svg', NULL, '01jm8rp81pxz21ys3a7jtjw17w', NULL, NULL, 'ac4ctLVeplrjya5eT5ax024mgnT8hz1U-G-JF5ZR', NULL, 0, 1, NULL, 3, NULL, 'https://api.cloudflare.com/client/v4/accounts/f0a671943ec8c499a69ae2b1857f66ae/ai/v1', NULL, NULL, 32, NULL, '20,27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-17 09:34:45', '2025-02-17 09:36:25', 'sa', 1);
-INSERT INTO `sys_project` VALUES (12, '豆包', 'https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/samantha/logo-icon-white-bg.png', NULL, '01jmh1ctzzqxk5pgxc5mv50h81', NULL, NULL, 'd3eec490-7aaf-468c-9e08-71021807460e1', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL, 26, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-20 14:40:50', '2025-02-20 14:41:05', 'sa', 1);
-INSERT INTO `sys_project` VALUES (13, '阿里百炼', 'https://gw.alicdn.com/imgextra/i1/O1CN01gAwVtW296IdlNcfkW_!!6000000008018-2-tps-264-104.png', NULL, '01jn01sjfvgm9a9v2qjbm5ywtn', NULL, NULL, 'sk-8e1cd4c8176b494b97c361b5a1d78ea3', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL, 2, NULL, '27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-26 10:36:23', '2025-02-26 10:39:46', 'sa', 1);
-INSERT INTO `sys_project` VALUES (14, '硅基流动', 'https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg', NULL, '01jn3803z7e41x7fjzvj539j20', NULL, NULL, 'sk-fqfxjiyhpadgvdlkousbnztmuttiegwmgaymubnaxofwoxhx', NULL, 0, 1, NULL, 3, NULL, 'https://api.siliconflow.cn/v1/images/generations', NULL, NULL, 28, NULL, '27,20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-27 16:22:33', '2025-02-27 16:23:53', 'sa', 1);
-INSERT INTO `sys_project` VALUES (16, 'openrouter', ' https://openrouter.ai/favicon.ico', NULL, '01jn5j39e1h4yqnw4qs801jzqn', NULL, NULL, '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', NULL, 0, 1, NULL, 3, NULL, 'https://openrouter.ai/api/v1/chat/completions', NULL, NULL, 29, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 13:57:31', '2025-03-25 14:11:37', 'sa', 1);
-INSERT INTO `sys_project` VALUES (17, '智谱清言', 'https://bigmodel.cn/img/icons/android-chrome-192x192.png', NULL, '01jn5qbe49btdqzc2fe17rjysf', NULL, NULL, '29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL, 30, NULL, '27,20,33', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-02-28 15:29:21', '2025-02-28 15:29:36', 'sa', 1);
-INSERT INTO `sys_project` VALUES (18, '无问芯穹', 'https://content.cloud.infini-ai.com/platform-web-prod/assets/svg/logo_new.ceae5ff6.svg', NULL, '01jn8yb4ak2amap9qsc3amj4js', NULL, NULL, 'sk-daulbrd77wpadaw6', NULL, 0, 1, NULL, 3, NULL, NULL, NULL, NULL, 31, NULL, '20', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-01 21:29:14', NULL, NULL, NULL);
-INSERT INTO `sys_project` VALUES (19, '腾讯', 'https://pic.rmb.bdstatic.com/bjh/news/87715fa6e1758590fc4b076538d704ad.png', NULL, '01jnqrnw0z28t5bhkf6a2qkc2d', 'AKIDOgokSxEI8pIYaP1RedPxKTSEn8GAtPp1', '1rUt9E7mETWMyQhlbEetwpV0KXXKtEMJ', 'sk-RBopn00LV7WB5KMQHdDAaV256zyjjQGuVA9DftZrUWTFsM0w', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, 34, NULL, '20,27', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-07 15:38:51', '2025-03-07 15:42:17', 'sa', 1);
-INSERT INTO `sys_project` VALUES (20, '海康云眸', ' https://pic.hik-cloud.com/favicon.ico', NULL, '01jpgs1jm6tbvdp6tq9zfw59ss', 'e431e02c369b4adbad8f72c1eafbe8f7', '492c2864b59d459ebdb64795119e062b', NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, 35, NULL, '17', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-17 08:46:16', '2025-03-17 08:51:09', 'sa', 1);
-INSERT INTO `sys_project` VALUES (21, '佐糖', 'https://qncdn.aoscdn.com/astro/picwish/_astro/logo-zh.Bv2rokLa.svg', NULL, '01jps1ab36ykbgd6mkygprmcmd', NULL, NULL, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, 38, NULL, '39,40', NULL, NULL, NULL, NULL, NULL, NULL, 'sa', 1, '2025-03-20 13:44:47', '2025-03-21 10:30:34', 'sa', 1);
-
--- ----------------------------
--- Table structure for sys_project_default
--- ----------------------------
 DROP TABLE IF EXISTS `sys_project_default`;
 CREATE TABLE `sys_project_default`  (
   `sys_project_default_id` int NOT NULL AUTO_INCREMENT,
   `sys_project_default_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型； 字典表6,',
   `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID',
   PRIMARY KEY (`sys_project_default_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能 <---->对象的项目;
 
--- ----------------------------
--- Records of sys_project_default
--- ----------------------------
-INSERT INTO `sys_project_default` VALUES (30, '6', 3);
-INSERT INTO `sys_project_default` VALUES (33, '16', 2);
-INSERT INTO `sys_project_default` VALUES (37, '14', 4);
-INSERT INTO `sys_project_default` VALUES (46, '13', 1);
-INSERT INTO `sys_project_default` VALUES (47, '20', 16);
-
--- ----------------------------
--- Table structure for sys_secret
--- ----------------------------
 DROP TABLE IF EXISTS `sys_secret`;
 CREATE TABLE `sys_secret`  (
   `sys_secret_id` int NOT NULL AUTO_INCREMENT,
@@ -3956,14 +2761,6 @@ CREATE TABLE `sys_secret`  (
   PRIMARY KEY (`sys_secret_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '密钥' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_secret
--- ----------------------------
-INSERT INTO `sys_secret` VALUES (1, '阿里系', 'ALI', 'LTAI5tKQQnvCS3yEjGxjHmCd', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAh', '犀鸟校园', 0, 1, NULL, NULL, NULL, 2, NULL, 'SMS', 'sa', 1, '2024-09-06 13:32:21', '2024-09-06 13:36:12', 'sa', 1);
-
--- ----------------------------
--- Table structure for sys_setting
--- ----------------------------
 DROP TABLE IF EXISTS `sys_setting`;
 CREATE TABLE `sys_setting`  (
   `sys_setting_id` int NOT NULL AUTO_INCREMENT,
@@ -3989,55 +2786,6 @@ CREATE TABLE `sys_setting`  (
   PRIMARY KEY (`sys_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统全局配置' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_setting
--- ----------------------------
-INSERT INTO `sys_setting` VALUES (1, 4, 'CheckCodeOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '验证码开关', NULL, NULL, 15, NULL, NULL, NULL, '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (2, 0, 'SystemName', '后台管理系统', 1, 'String', 'default', 0, 1, 0, '系统标题', NULL, NULL, 15, NULL, NULL, NULL, '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (3, 5, 'SlidingBlockOpen', 'false', 1, 'Boolean', 'default', 0, 1, 0, '滑动验证码', NULL, NULL, 15, NULL, NULL, NULL, '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (4, 9, 'CrashPageOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '调试模式崩溃当前页', NULL, NULL, 26, 'sa', NULL, '2024-08-18 11:22:26', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (5, 10, 'CodecResponseOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '返回加密', NULL, NULL, 26, 'sa', NULL, '2024-08-18 11:31:57', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (6, 5, 'WatermarkOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '水印', NULL, NULL, 26, 'sa', NULL, '2024-08-19 19:53:55', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (7, 11, 'LoopDebuggerOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '循环debugger', NULL, NULL, 26, 'sa', NULL, '2024-08-18 10:52:15', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (8, 4, 'Version', '1', 1, 'Number', 'config', 0, 1, 0, '系统版本', 'fe7db08a-1001-4e7b-95ab-776a569a85c0', NULL, 123, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (9, 2, 'SocketUrl', 'http://172.16.2.226:29181', 1, 'Array', 'config', 0, 1, 0, 'socket.io服务器地址', NULL, 1, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (10, 12, 'SocketOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, 'socket.io是否开启', NULL, 1, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (11, 13, 'SocketPath', '/socket.io', 1, 'String', 'config', 0, 1, 0, 'socket.io路径', NULL, NULL, NULL, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (12, 6, 'WatermarkColor', '#409EFF', 1, 'Color', 'config', 0, 1, 0, '水印颜色', NULL, NULL, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (13, 8, 'WatermarkAlpha', '0.35', 1, 'Number', 'config', 0, 1, 0, '水印透明度', NULL, NULL, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (14, 7, 'WatermarkRotate', '-30', 1, 'Number', 'config', 0, 1, 0, '水印角度', NULL, NULL, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (15, 14, 'CodecRequestOpen', 'false', 1, 'Boolean', 'config', 0, 1, 0, '请求加密', NULL, NULL, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (16, 3, 'CodecRequestKey', '0123456789abcdef', 1, 'String', 'config', 0, 1, 1, '请求加密密钥', NULL, NULL, 26, NULL, NULL, NULL, '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (17, 2, 'Host', 'smtp.163.com', 1, 'String', 'smtp', 1, 1, 0, '服务器配置', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (18, 3, 'Port', '25', 1, 'Number', 'smtp', 1, 1, 0, '服务器端口', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (19, 4, 'Password', 'CVIRRMZQPYLQIQMW_C', 1, 'Password', 'smtp', 1, 1, 0, '授权码', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (20, 1, 'From', 'yemengzhidiandi@163.com', 1, 'Mail', 'smtp', 1, 1, 0, '发送账号', NULL, NULL, NULL, NULL, NULL, NULL, '2024-11-27 13:12:49', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (21, 1, 'AppId', 'wx8cd1bb691119e3f7', 1, 'String', 'weixin', 1, 1, 0, '微信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:32:37', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (22, 2, 'AppSecret', 'abff9e5a7541a5db21a819b087ecbf10', 1, 'String', 'weixin', 1, 1, 0, '微信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:32:37', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (23, 1, 'AppId', 'f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (24, 2, 'AppSecret', '158ced91fe30cfa06798c638d2b477d54e57b623a7e869c42d34d3125e88f1b7', 1, 'String', 'gitee', 1, 1, 0, 'GiteeAppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-05 16:49:41', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (25, 3, 'Gitee', 'true', 1, 'Boolean', 'sso', 1, 1, 0, 'Gitee登录', NULL, NULL, NULL, NULL, NULL, NULL, '2025-02-18 16:11:53', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (26, 1, 'AppId', 'LTAI5tKQQnvCS3yEjGxjHmCd', 1, 'String', 'sms', 1, 1, 0, '短信AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (27, 2, 'AppSecret', 'Pm45AutVaPLqWCOUNeZ7gEQBTYJQAhh', 1, 'String', 'sms', 1, 1, 0, '短信AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (28, 3, 'AppSign', '犀鸟校园', 1, 'String', 'sms', 1, 1, 0, '短信签名', NULL, NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (29, 4, 'AppType', 'ALIYUN', 1, 'Dict', 'sms', 1, 1, 0, '短信厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-09-10 10:25:22', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (30, 1, 'AppKey', 'YfuzeuBcnvSluLjHkviR:WFjoVbqyzcqfttbxnsZu', 1, 'AppKey', 'llm', 1, 1, 0, '密钥', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (31, 2, 'AppType', 'XUN_FEI', 1, 'Dict', 'llm', 1, 1, 0, '语言模型厂商', '1', NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (32, 3, 'AppId', '7d9dec86', 1, 'String', 'llm', 1, 1, 0, '模型AppId', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (33, 4, 'AppSecret', 'NTZiODE3MjI3ZGZhMmRjM2FjYTk5ZWJk', 1, 'AppSecret', 'llm', 1, 1, 0, '模型AppSecret', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-24 15:07:36', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (34, 6, 'CheckTotpCodeOpen', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '开启totp', NULL, NULL, NULL, 'sa', 1, '2024-12-08 11:56:39', '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (35, 1, 'WebrtcOpen', 'true', 1, 'Boolean', 'webrtc', NULL, NULL, NULL, '是否开启', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (36, 2, 'WebrtcUrl', 'http://172.16.2.226:29182', 1, 'String', 'webrtc', NULL, NULL, NULL, 'webrtc服务器地址', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (37, 3, 'WebrtcContext', '/webrtc', 1, 'String', 'webrtc', NULL, NULL, NULL, '路径', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 10:26:15', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (38, 1, 'OssAddress', 'http://127.0.0.01:19180', 1, 'String', 'config', NULL, 0, NULL, '资源地址', NULL, NULL, NULL, 'sa', 1, '2025-02-10 16:10:37', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (39, 0, 'ApiAddress', NULL, 1, 'String', 'config', NULL, 0, NULL, '接口地址', NULL, NULL, NULL, 'sa', 1, '2025-02-17 08:48:56', '2025-02-19 11:10:48', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (40, 2, 'OpenTenantLogin', 'true', 1, 'Boolean', 'default', NULL, 0, NULL, '租户登录', NULL, NULL, NULL, 'sa', 1, '2025-02-19 11:14:15', '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (41, 3, 'OpenTenantLoginRequire', 'false', 1, 'Boolean', 'default', NULL, 0, NULL, '填写租户', NULL, NULL, NULL, 'sa', 1, '2025-02-19 14:18:26', '2025-02-19 14:19:05', 'sa', 1);
-INSERT INTO `sys_setting` VALUES (42, 1, 'OpenBaseLogin', 'true', 1, 'Boolean', 'default', NULL, 0, NULL, '基础登录', NULL, NULL, NULL, 'sa', 1, '2025-02-19 14:18:52', '2025-02-19 14:19:05', 'sa', 1);
-
--- ----------------------------
--- Table structure for sys_setting_group
--- ----------------------------
 DROP TABLE IF EXISTS `sys_setting_group`;
 CREATE TABLE `sys_setting_group`  (
   `sys_setting_group_id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -4057,20 +2805,6 @@ CREATE TABLE `sys_setting_group`  (
   PRIMARY KEY (`sys_setting_group_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置组' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_setting_group
--- ----------------------------
-INSERT INTO `sys_setting_group` VALUES (1, '系统设置', 'config', 'ri:export-line', 1, '系统设置, 用于设置系统水印，加解密等', 1, NULL, 'admin', 1, '2025-09-10 17:23:50', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (2, '微信设置', 'weixin', 'simple-icons:wechat', 1, '', 2, NULL, 'admin', 1, '2025-09-10 17:26:29', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (3, 'Gitee设置', 'gitee', 'simple-icons:gitee', 1, '', 6, NULL, 'admin', 1, '2025-09-10 17:27:01', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (4, '邮件设置', 'email', 'bi:mailbox2', 1, '', 3, NULL, 'admin', 1, '2025-09-10 17:27:32', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (5, '短信设置', 'sms', 'ri:phone-find-line', 1, '', 4, NULL, 'admin', 1, '2025-09-10 17:29:10', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (6, '大语言模型设置', 'llm', 'ri:login-box-fill', 1, '', 5, NULL, 'admin', 1, '2025-09-10 17:29:57', '2025-09-10 19:46:25', 'admin', 1);
-INSERT INTO `sys_setting_group` VALUES (7, 'SSO设置', 'sso', 'ri:login-box-fill', 1, '', 7, NULL, 'admin', 1, '2025-09-10 17:30:49', '2025-09-10 19:46:25', 'admin', 1);
-
--- ----------------------------
--- Table structure for sys_sms_log
--- ----------------------------
 DROP TABLE IF EXISTS `sys_sms_log`;
 CREATE TABLE `sys_sms_log`  (
   `sys_sms_log_id` int NOT NULL AUTO_INCREMENT,
@@ -4094,13 +2828,6 @@ CREATE TABLE `sys_sms_log`  (
   PRIMARY KEY (`sys_sms_log_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '短信下发日志表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_sms_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_sms_template
--- ----------------------------
 DROP TABLE IF EXISTS `sys_sms_template`;
 CREATE TABLE `sys_sms_template`  (
   `sys_sms_template_id` int NOT NULL AUTO_INCREMENT,
@@ -4130,13 +2857,6 @@ CREATE TABLE `sys_sms_template`  (
   PRIMARY KEY (`sys_sms_template_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模板管理' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of sys_sms_template
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_data_backup_record
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_backup_record`;
 CREATE TABLE `system_data_backup_record`  (
   `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '记录ID',
@@ -4149,13 +2869,6 @@ CREATE TABLE `system_data_backup_record`  (
   `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述/消息'
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_backup_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_data_email_history
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_email_history`;
 CREATE TABLE `system_data_email_history`  (
   `system_data_email_history_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4197,13 +2910,6 @@ CREATE TABLE `system_data_email_history`  (
   PRIMARY KEY (`system_data_email_history_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_email_history
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_data_field_comment
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_field_comment`;
 CREATE TABLE `system_data_field_comment`  (
   `system_data_field_comment_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4222,13 +2928,6 @@ CREATE TABLE `system_data_field_comment`  (
   PRIMARY KEY (`system_data_field_comment_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_field_comment
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_data_log_record
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_log_record`;
 CREATE TABLE `system_data_log_record`  (
   `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '记录ID',
@@ -4239,13 +2938,6 @@ CREATE TABLE `system_data_log_record`  (
   `from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源'
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_log_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_data_setting
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_setting`;
 CREATE TABLE `system_data_setting`  (
   `system_data_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4281,16 +2973,6 @@ CREATE TABLE `system_data_setting`  (
   PRIMARY KEY (`system_data_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_setting
--- ----------------------------
-INSERT INTO `system_data_setting` VALUES (1, '172.16.0.40', 'JDBC', 'jdbc:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8', '172.16.0.40', 3306, 'root', '0IG6HL98tdPqAF0TXH82vw==', 'report', NULL, NULL, '', NULL, '', 600000, 'REMOTE', '1', '{\"useUnicode\":\"true\",\"characterEncoding\":\"UTF-8\"}', 'Mysql', 'com.mysql.cj.jdbc.Driver', '', '', NULL, NULL, 'admin', 1, '2025-11-30 22:14:08.000000', '2025-11-30 23:19:11.304181', 'admin', 1);
-INSERT INTO `system_data_setting` VALUES (2, 'redis_172.16.0.40', 'REDIS', 'redis://172.16.0.40:16379', '172.16.0.40', 16379, '', '', '', NULL, NULL, NULL, NULL, NULL, 600000, 'REMOTE', '1', '', 'Redis', '', '', NULL, NULL, NULL, 'admin', 1, '2025-12-01 01:51:17.753893', NULL, NULL, NULL);
-INSERT INTO `system_data_setting` VALUES (3, 'zookeeper', 'ZOOKEEPER', '112.124.44.21:2181', '112.124.44.21', 2181, '', '', '', NULL, NULL, NULL, NULL, NULL, 600000, 'REMOTE', '1', '', 'Zookeeper', '', '', NULL, NULL, NULL, 'admin', 1, '2025-12-03 22:51:44.667547', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for system_data_setting_item
--- ----------------------------
 DROP TABLE IF EXISTS `system_data_setting_item`;
 CREATE TABLE `system_data_setting_item`  (
   `system_data_setting_item_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4307,13 +2989,6 @@ CREATE TABLE `system_data_setting_item`  (
   PRIMARY KEY (`system_data_setting_item_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_data_setting_item
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_server
--- ----------------------------
 DROP TABLE IF EXISTS `system_server`;
 CREATE TABLE `system_server`  (
   `system_server_id` int NOT NULL AUTO_INCREMENT COMMENT '系统服务器ID',
@@ -4337,15 +3012,6 @@ CREATE TABLE `system_server`  (
   PRIMARY KEY (`system_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server
--- ----------------------------
-INSERT INTO `system_server` VALUES (1, '文件存储', '0.0.0.0', 8081, 'HTTP', '', 'STOPPED', '', NULL, '0', NULL, NULL, 'admin', 1, '2025-12-04 01:44:50.112539', '2025-12-09 19:43:01.770813', 'admin', 1);
-INSERT INTO `system_server` VALUES (2, '测试代理', '0.0.0.0', 38080, 'HTTP-PROXY', '', 'STOPPED', '', NULL, '0', NULL, NULL, 'admin', 1, '2025-12-08 02:15:00.084891', '2025-12-09 22:02:17.878694', 'admin', 1);
-
--- ----------------------------
--- Table structure for system_server_log
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_log`;
 CREATE TABLE `system_server_log`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4366,13 +3032,6 @@ CREATE TABLE `system_server_log`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 190 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_log
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_server_setting
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting`;
 CREATE TABLE `system_server_setting`  (
   `system_server_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '系统服务器配置ID',
@@ -4402,16 +3061,6 @@ CREATE TABLE `system_server_setting`  (
   PRIMARY KEY (`system_server_setting_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting
--- ----------------------------
-INSERT INTO `system_server_setting` VALUES (1, '映射Servlet过滤器', 'MAPPING', 1, 1, '映射Servlet过滤器', '1', NULL, NULL, NULL, 'b7a05b57-653e-4bce-8239-6e4ad1aecf93', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-04 01:51:28.553666', '2025-12-08 23:59:09.424935', 'admin', 1);
-INSERT INTO `system_server_setting` VALUES (3, '文件存储', 'FILESTORAGE', 1, 2, '文件存储', '1', NULL, NULL, NULL, '3ce36bef-72b0-4048-b162-8f999af48837', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 02:01:27.583550', '2025-12-08 23:59:09.429939', 'admin', 1);
-INSERT INTO `system_server_setting` VALUES (6, '服务发现过滤器', 'SERVICEDISCOVERY', 2, 1, '服务发现过滤器', '1', NULL, NULL, NULL, 'dd837c82-4806-4551-aa49-4f600c38ecb0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin', 1, '2025-12-08 02:15:33.280744', '2025-12-09 22:00:35.349715', 'admin', 1);
-
--- ----------------------------
--- Table structure for system_server_setting_address_rate_limit
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_address_rate_limit`;
 CREATE TABLE `system_server_setting_address_rate_limit`  (
   `system_server_setting_address_rate_limit_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4430,13 +3079,6 @@ CREATE TABLE `system_server_setting_address_rate_limit`  (
   PRIMARY KEY (`system_server_setting_address_rate_limit_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_address_rate_limit
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_server_setting_file_storage
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_file_storage`;
 CREATE TABLE `system_server_setting_file_storage`  (
   `system_server_setting_file_storage_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4459,14 +3101,6 @@ CREATE TABLE `system_server_setting_file_storage`  (
   PRIMARY KEY (`system_server_setting_file_storage_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_file_storage
--- ----------------------------
-INSERT INTO `system_server_setting_file_storage` VALUES (1, 1, 'FILESYSTEM', 'file', 'H:\\', '', '', '', '', '1', NULL, 'admin', 1, '2025-12-04 01:52:32.000000', '2025-12-08 15:39:59.992776', 'admin', 1);
-
--- ----------------------------
--- Table structure for system_server_setting_ip_rate_limit
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_ip_rate_limit`;
 CREATE TABLE `system_server_setting_ip_rate_limit`  (
   `system_server_setting_ip_rate_limit_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4485,13 +3119,6 @@ CREATE TABLE `system_server_setting_ip_rate_limit`  (
   PRIMARY KEY (`system_server_setting_ip_rate_limit_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_ip_rate_limit
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_server_setting_item
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_item`;
 CREATE TABLE `system_server_setting_item`  (
   `system_server_setting_item_id` int NOT NULL AUTO_INCREMENT COMMENT '系统服务器配置项ID',
@@ -4513,24 +3140,6 @@ CREATE TABLE `system_server_setting_item`  (
   PRIMARY KEY (`system_server_setting_item_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_item
--- ----------------------------
-INSERT INTO `system_server_setting_item` VALUES (104, 3, 'openDownload', 'true', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:58.856016', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (105, 3, 'openPreview', 'true', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:58.922104', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (106, 3, 'openPlugin', 'true', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:58.974496', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (107, 3, 'openSetting', 'true', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.036820', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (108, 3, 'openRange', 'false', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.097594', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (109, 3, 'openWatermark', 'false', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.156532', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (110, 3, 'openWebjars', 'true', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.227593', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (111, 3, 'openRemoteFile', 'false', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.293633', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (112, 3, 'plugins', '[MINECRAFT]', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.381837', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (113, 3, 'settings', '[]', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.438624', NULL, NULL, NULL);
-INSERT INTO `system_server_setting_item` VALUES (114, 3, 'formatCacheTimeMinutes', '1440', NULL, NULL, NULL, NULL, NULL, 1, 'admin', 1, '2025-12-08 15:39:59.498266', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for system_server_setting_service_discovery
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_service_discovery`;
 CREATE TABLE `system_server_setting_service_discovery`  (
   `system_server_setting_service_discovery_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4550,14 +3159,6 @@ CREATE TABLE `system_server_setting_service_discovery`  (
   PRIMARY KEY (`system_server_setting_service_discovery_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_service_discovery
--- ----------------------------
-INSERT INTO `system_server_setting_service_discovery` VALUES (1, 2, 'MONITOR', 'weight', 'NACOS', '1', NULL, NULL, 'admin', 1, '2025-12-08 23:29:40.000000', '2025-12-09 21:52:34.791479', 'admin', 1);
-
--- ----------------------------
--- Table structure for system_server_setting_service_discovery_mapping
--- ----------------------------
 DROP TABLE IF EXISTS `system_server_setting_service_discovery_mapping`;
 CREATE TABLE `system_server_setting_service_discovery_mapping`  (
   `system_server_setting_service_discovery_mapping_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4575,14 +3176,6 @@ CREATE TABLE `system_server_setting_service_discovery_mapping`  (
   PRIMARY KEY (`system_server_setting_service_discovery_mapping_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_server_setting_service_discovery_mapping
--- ----------------------------
-INSERT INTO `system_server_setting_service_discovery_mapping` VALUES (1, 2, '/bd/', 'https://www.baidu.com/', 1, '1', 'admin', 1, '2025-12-08 23:29:40.000000', NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for system_soft
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft`;
 CREATE TABLE `system_soft`  (
   `system_soft_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件ID',
@@ -4613,13 +3206,6 @@ CREATE TABLE `system_soft`  (
   PRIMARY KEY (`system_soft_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_soft_container
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_container`;
 CREATE TABLE `system_soft_container`  (
   `system_soft_container_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件容器ID',
@@ -4660,13 +3246,6 @@ CREATE TABLE `system_soft_container`  (
   PRIMARY KEY (`system_soft_container_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_container
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_soft_container_stats
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_container_stats`;
 CREATE TABLE `system_soft_container_stats`  (
   `system_soft_container_stats_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -4700,13 +3279,6 @@ CREATE TABLE `system_soft_container_stats`  (
   PRIMARY KEY (`system_soft_container_stats_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_container_stats
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_soft_image
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_image`;
 CREATE TABLE `system_soft_image`  (
   `system_soft_image_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件镜像ID',
@@ -4744,13 +3316,6 @@ CREATE TABLE `system_soft_image`  (
   PRIMARY KEY (`system_soft_image_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_image
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_soft_record
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_record`;
 CREATE TABLE `system_soft_record`  (
   `system_soft_record_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件记录ID',
@@ -4784,13 +3349,6 @@ CREATE TABLE `system_soft_record`  (
   PRIMARY KEY (`system_soft_record_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_record
--- ----------------------------
-
--- ----------------------------
--- Table structure for system_soft_registry
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_registry`;
 CREATE TABLE `system_soft_registry`  (
   `system_soft_registry_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件镜像仓库ID',
@@ -4821,15 +3379,6 @@ CREATE TABLE `system_soft_registry`  (
   PRIMARY KEY (`system_soft_registry_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'docker软件库' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_registry
--- ----------------------------
-INSERT INTO `system_soft_registry` VALUES (2, '默认', 'docker_hub', 'https://registry.cn-hangzhou.aliyuncs.com', '', '', '', NULL, NULL, 1, NULL, '', NULL, '2025-12-01 11:27:58', 1, NULL, NULL, 0, 'admin', 1, '2025-11-30 22:08:13.000000', '2025-12-04 22:00:06.253524', 'admin', 1, 1);
-INSERT INTO `system_soft_registry` VALUES (3, 'github', 'github', 'https://api.github.com', '', '', '', NULL, NULL, 1, NULL, '', NULL, '2025-12-04 16:34:13', 1, NULL, NULL, 1, 'admin', 1, '2025-12-01 19:52:10.854316', '2025-12-04 16:34:13.000000', NULL, NULL, 1);
-
--- ----------------------------
--- Table structure for system_soft_version
--- ----------------------------
 DROP TABLE IF EXISTS `system_soft_version`;
 CREATE TABLE `system_soft_version`  (
   `system_soft_version_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件版本ID',
@@ -4861,13 +3410,6 @@ CREATE TABLE `system_soft_version`  (
   PRIMARY KEY (`system_soft_version_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'docker软件版本' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of system_soft_version
--- ----------------------------
-
--- ----------------------------
--- Table structure for video_download
--- ----------------------------
 DROP TABLE IF EXISTS `video_download`;
 CREATE TABLE `video_download`  (
   `video_download_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '下载ID',
@@ -4895,13 +3437,6 @@ CREATE TABLE `video_download`  (
   CONSTRAINT `video_download_ibfk_1` FOREIGN KEY (`video_id`) REFERENCES `video_info` (`video_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '视频下载链接表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of video_download
--- ----------------------------
-
--- ----------------------------
--- Table structure for video_info
--- ----------------------------
 DROP TABLE IF EXISTS `video_info`;
 CREATE TABLE `video_info`  (
   `video_id` int NOT NULL AUTO_INCREMENT COMMENT '视频唯一标识ID',
@@ -4947,13 +3482,6 @@ CREATE TABLE `video_info`  (
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '视频信息表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of video_info
--- ----------------------------
-
--- ----------------------------
--- Table structure for video_keyword
--- ----------------------------
 DROP TABLE IF EXISTS `video_keyword`;
 CREATE TABLE `video_keyword`  (
   `video_keyword_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '关键词ID',
@@ -4974,18 +3502,6 @@ CREATE TABLE `video_keyword`  (
   INDEX `idx_keyword_status`(`video_keyword_status` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '视频热门搜索关键词表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of video_keyword
--- ----------------------------
-INSERT INTO `video_keyword` VALUES ('1', '热门电影', 100, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `video_keyword` VALUES ('2', '最新电视剧', 95, 2, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `video_keyword` VALUES ('3', '经典动漫', 90, 3, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `video_keyword` VALUES ('4', '纪录片', 85, 4, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `video_keyword` VALUES ('5', '综艺节目', 80, 5, 1, NULL, NULL, NULL, NULL, NULL, NULL);
-
--- ----------------------------
--- Table structure for video_mark
--- ----------------------------
 DROP TABLE IF EXISTS `video_mark`;
 CREATE TABLE `video_mark`  (
   `video_mark_id` int NOT NULL AUTO_INCREMENT COMMENT '评分ID',
@@ -5006,13 +3522,6 @@ CREATE TABLE `video_mark`  (
   CONSTRAINT `video_mark_ibfk_1` FOREIGN KEY (`video_id`) REFERENCES `video_info` (`video_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '视频评分表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of video_mark
--- ----------------------------
-
--- ----------------------------
--- Table structure for video_sync_config
--- ----------------------------
 DROP TABLE IF EXISTS `video_sync_config`;
 CREATE TABLE `video_sync_config`  (
   `video_sync_config_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置ID',
@@ -5037,8 +3546,231 @@ CREATE TABLE `video_sync_config`  (
   INDEX `idx_config_source`(`video_sync_config_source` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '视频同步配置表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Records of video_sync_config
--- ----------------------------
+DROP TABLE IF EXISTS `maintenance_group`;
+CREATE TABLE `maintenance_group`
+(
+    `maintenance_group_id`     int(11)                                                       NOT NULL AUTO_INCREMENT COMMENT '维护组ID',
+    `maintenance_group_name`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '维护组名称',
+    `maintenance_group_desc`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '维护组描述',
+    `maintenance_group_status` int(11)                                                       NULL DEFAULT 1 COMMENT '状态,0:停用,1:启用',
+    `create_time`              datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`              datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`                varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '创建者',
+    `update_by`                varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '更新者',
+    PRIMARY KEY (`maintenance_group_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '维护组表'
+  ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `maintenance_host`;
+CREATE TABLE `maintenance_host`
+(
+    `maintenance_host_id`       int(11)                                                       NOT NULL AUTO_INCREMENT COMMENT '维护主机ID',
+    `maintenance_group_id`      int(11)                                                       NULL DEFAULT NULL COMMENT '维护组ID',
+    `maintenance_host_address`  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '主机地址',
+    `maintenance_host_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
+    `maintenance_host_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
+    `maintenance_host_port`     int(11)                                                       NULL DEFAULT 22 COMMENT '端口',
+    `maintenance_host_status`   int(11)                                                       NULL DEFAULT 1 COMMENT '状态,0:停用,1:启用',
+    `create_time`               datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`               datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`                 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '创建者',
+    `update_by`                 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '更新者',
+    PRIMARY KEY (`maintenance_host_id`) USING BTREE,
+    INDEX `idx_group_id` (`maintenance_group_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '维护主机表'
+  ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `maintenance_script`;
+CREATE TABLE `maintenance_script`
+(
+    `maintenance_script_id`      int(11)                                                       NOT NULL AUTO_INCREMENT COMMENT '脚本ID',
+    `maintenance_group_id`       int(11)                                                       NULL DEFAULT NULL COMMENT '维护组ID',
+    `maintenance_script_name`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本名称',
+    `maintenance_script_path`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本路径',
+    `maintenance_script_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci         NULL COMMENT '脚本内容',
+    `maintenance_script_desc`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '脚本描述',
+    `maintenance_script_status`  int(11)                                                       NULL DEFAULT 1 COMMENT '状态,0:停用,1:启用',
+    `create_time`                datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`                datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`                  varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '创建者',
+    `update_by`                  varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '更新者',
+    PRIMARY KEY (`maintenance_script_id`) USING BTREE,
+    INDEX `idx_group_id` (`maintenance_group_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '维护脚本表'
+  ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `maintenance_file`;
+CREATE TABLE `maintenance_file`
+(
+    `maintenance_file_id`          int(11)                                                       NOT NULL AUTO_INCREMENT COMMENT '文件ID',
+    `maintenance_group_id`         int(11)                                                       NULL DEFAULT NULL COMMENT '维护组ID',
+    `maintenance_file_name`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件名称',
+    `maintenance_file_path`        varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件路径',
+    `maintenance_file_type`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '文件类型',
+    `maintenance_file_size`        bigint(20)                                                    NULL DEFAULT NULL COMMENT '文件大小',
+    `maintenance_file_is_extract`  int(11)                                                       NULL DEFAULT 0 COMMENT '是否解压,0:否,1:是',
+    `maintenance_file_is_override` int(11)                                                       NULL DEFAULT 0 COMMENT '是否覆盖,0:否,1:是',
+    `maintenance_file_status`      int(11)                                                       NULL DEFAULT 1 COMMENT '状态,0:停用,1:启用',
+    `create_time`                  datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`                  datetime                                                      NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`                    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '创建者',
+    `update_by`                    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL DEFAULT NULL COMMENT '更新者',
+    PRIMARY KEY (`maintenance_file_id`) USING BTREE,
+    INDEX `idx_group_id` (`maintenance_group_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '维护文件表'
+  ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `maintenance_task`;
+CREATE TABLE `maintenance_task`
+(
+    `maintenance_task_id`     int(11)                                                      NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+    `maintenance_group_id`    int(11)                                                      NULL DEFAULT NULL COMMENT '维护组ID',
+    `maintenance_host_id`     int(11)                                                      NULL DEFAULT NULL COMMENT '维护主机ID',
+    `maintenance_script_id`   int(11)                                                      NULL DEFAULT NULL COMMENT '脚本ID',
+    `maintenance_file_id`     int(11)                                                      NULL DEFAULT NULL COMMENT '文件ID',
+    `maintenance_task_type`   varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务类型,SCRIPT:脚本,FILE:文件',
+    `maintenance_task_status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务状态,PENDING:待执行,RUNNING:执行中,SUCCESS:成功,FAILED:失败',
+    `maintenance_task_result` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci        NULL COMMENT '任务结果',
+    `maintenance_task_error`  text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci        NULL COMMENT '错误信息',
+    `create_time`             datetime                                                     NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`             datetime                                                     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`               varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
+    `update_by`               varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
+    PRIMARY KEY (`maintenance_task_id`) USING BTREE,
+    INDEX `idx_group_id` (`maintenance_group_id`) USING BTREE,
+    INDEX `idx_host_id` (`maintenance_host_id`) USING BTREE,
+    INDEX `idx_script_id` (`maintenance_script_id`) USING BTREE,
+    INDEX `idx_file_id` (`maintenance_file_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '维护任务表'
+  ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `monitor_sync_task`;
+CREATE TABLE `monitor_sync_task` (
+  `sync_task_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `sync_task_name` VARCHAR(200) NOT NULL COMMENT '任务名称',
+  `sync_task_desc` VARCHAR(500) DEFAULT NULL COMMENT '任务描述',
+  `sync_task_status` VARCHAR(20) DEFAULT 'STOPPED' COMMENT '任务状态: STOPPED/RUNNING/ERROR',
+  `sync_task_batch_size` INT DEFAULT 1000 COMMENT '批处理大小',
+  `sync_task_consume_timeout` INT DEFAULT 30000 COMMENT '消费超时时间(ms)',
+  `sync_task_retry_count` INT DEFAULT 3 COMMENT '重试次数',
+  `sync_task_retry_interval` INT DEFAULT 1000 COMMENT '重试间隔(ms)',
+  `sync_task_sync_interval` INT DEFAULT 0 COMMENT '同步间隔(ms)，0表示实时',
+  `sync_task_ack_enabled` TINYINT DEFAULT 0 COMMENT '是否启用ACK: 0-否 1-是',
+  `sync_task_transaction_enabled` TINYINT DEFAULT 0 COMMENT '是否启用事务: 0-否 1-是',
+  `sync_task_cron` VARCHAR(100) DEFAULT NULL COMMENT 'Cron表达式',
+  `sync_task_layout` TEXT COMMENT '设计器布局信息(JSON)',
+  `sync_task_last_run_time` DATETIME DEFAULT NULL COMMENT '最后运行时间',
+  `sync_task_last_run_status` VARCHAR(20) DEFAULT NULL COMMENT '最后运行状态',
+  `sync_task_run_count` BIGINT DEFAULT 0 COMMENT '总运行次数',
+  `sync_task_success_count` BIGINT DEFAULT 0 COMMENT '成功次数',
+  `sync_task_fail_count` BIGINT DEFAULT 0 COMMENT '失败次数',
+  `sync_task_create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `sync_task_update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` VARCHAR(64) DEFAULT NULL COMMENT '创建人',
+  `update_by` VARCHAR(64) DEFAULT NULL COMMENT '更新人',
+  `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除: 0-未删除 1-已删除',
+  PRIMARY KEY (`sync_task_id`),
+  KEY `idx_task_name` (`sync_task_name`),
+  KEY `idx_task_status` (`sync_task_status`),
+  KEY `idx_create_time` (`sync_task_create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步任务表';
+
+DROP TABLE IF EXISTS `monitor_sync_node`;
+CREATE TABLE `monitor_sync_node` (
+  `sync_node_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '节点ID',
+  `sync_task_id` BIGINT NOT NULL COMMENT '关联任务ID',
+  `sync_node_type` VARCHAR(20) NOT NULL COMMENT '节点类型: INPUT/OUTPUT/FILTER/DATA_CENTER',
+  `sync_node_spi_name` VARCHAR(100) NOT NULL COMMENT 'SPI名称',
+  `sync_node_name` VARCHAR(200) DEFAULT NULL COMMENT '节点显示名称',
+  `sync_node_key` VARCHAR(100) NOT NULL COMMENT '节点唯一标识(前端生成)',
+  `sync_node_config` TEXT COMMENT '节点配置(JSON)',
+  `sync_node_position` VARCHAR(100) DEFAULT NULL COMMENT '节点位置(JSON: {x,y})',
+  `sync_node_order` INT DEFAULT 0 COMMENT '节点顺序',
+  `sync_node_enabled` TINYINT DEFAULT 1 COMMENT '是否启用: 0-否 1-是',
+  `sync_node_desc` VARCHAR(500) DEFAULT NULL COMMENT '节点描述',
+  `sync_node_create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `sync_node_update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`sync_node_id`),
+  KEY `idx_task_id` (`sync_task_id`),
+  KEY `idx_node_key` (`sync_node_key`),
+  KEY `idx_node_type` (`sync_node_type`),
+  CONSTRAINT `fk_node_task` FOREIGN KEY (`sync_task_id`) REFERENCES `monitor_sync_task` (`sync_task_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步节点表';
+
+DROP TABLE IF EXISTS `monitor_sync_connection`;
+CREATE TABLE `monitor_sync_connection` (
+  `sync_connection_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '连线ID',
+  `sync_task_id` BIGINT NOT NULL COMMENT '关联任务ID',
+  `source_node_id` BIGINT DEFAULT NULL COMMENT '源节点ID',
+  `source_node_key` VARCHAR(100) NOT NULL COMMENT '源节点Key',
+  `source_handle` VARCHAR(50) DEFAULT 'output' COMMENT '源节点端口',
+  `target_node_id` BIGINT DEFAULT NULL COMMENT '目标节点ID',
+  `target_node_key` VARCHAR(100) NOT NULL COMMENT '目标节点Key',
+  `target_handle` VARCHAR(50) DEFAULT 'input' COMMENT '目标节点端口',
+  `connection_type` VARCHAR(20) DEFAULT 'DATA' COMMENT '连线类型: DATA/CONTROL',
+  `connection_label` VARCHAR(100) DEFAULT NULL COMMENT '连线标签',
+  `sync_connection_create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`sync_connection_id`),
+  KEY `idx_task_id` (`sync_task_id`),
+  KEY `idx_source_key` (`source_node_key`),
+  KEY `idx_target_key` (`target_node_key`),
+  CONSTRAINT `fk_conn_task` FOREIGN KEY (`sync_task_id`) REFERENCES `monitor_sync_task` (`sync_task_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步连线表';
+
+DROP TABLE IF EXISTS `monitor_sync_task_log`;
+CREATE TABLE `monitor_sync_task_log` (
+  `sync_log_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+  `sync_task_id` BIGINT NOT NULL COMMENT '关联任务ID',
+  `sync_log_status` VARCHAR(20) DEFAULT 'RUNNING' COMMENT '执行状态: RUNNING/SUCCESS/FAIL/TIMEOUT',
+  `sync_log_trigger_type` VARCHAR(20) DEFAULT 'MANUAL' COMMENT '触发类型: MANUAL/SCHEDULE/API',
+  `sync_log_read_count` BIGINT DEFAULT 0 COMMENT '读取数量',
+  `sync_log_write_count` BIGINT DEFAULT 0 COMMENT '写入数量',
+  `sync_log_success_count` BIGINT DEFAULT 0 COMMENT '成功数量',
+  `sync_log_fail_count` BIGINT DEFAULT 0 COMMENT '失败数量',
+  `sync_log_retry_count` BIGINT DEFAULT 0 COMMENT '重试数量',
+  `sync_log_dead_letter_count` BIGINT DEFAULT 0 COMMENT '死信数量',
+  `sync_log_filter_count` BIGINT DEFAULT 0 COMMENT '过滤数量',
+  `sync_log_start_time` DATETIME DEFAULT NULL COMMENT '开始时间',
+  `sync_log_end_time` DATETIME DEFAULT NULL COMMENT '结束时间',
+  `sync_log_cost` BIGINT DEFAULT 0 COMMENT '耗时(毫秒)',
+  `sync_log_avg_process_time` DOUBLE DEFAULT 0 COMMENT '平均处理时间(毫秒)',
+  `sync_log_throughput` DOUBLE DEFAULT 0 COMMENT '吞吐量(条/秒)',
+  `sync_log_message` TEXT COMMENT '执行消息/错误信息',
+  `sync_log_stack_trace` TEXT COMMENT '详细堆栈(错误时)',
+  `sync_log_create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`sync_log_id`),
+  KEY `idx_task_id` (`sync_task_id`),
+  KEY `idx_log_status` (`sync_log_status`),
+  KEY `idx_start_time` (`sync_log_start_time`),
+  KEY `idx_create_time` (`sync_log_create_time`),
+  CONSTRAINT `fk_log_task` FOREIGN KEY (`sync_task_id`) REFERENCES `monitor_sync_task` (`sync_task_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步任务执行日志表';
+
+DROP TABLE IF EXISTS `monitor_sync_task_log_detail`;
+CREATE TABLE `monitor_sync_task_log_detail` (
+  `log_detail_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '详细日志ID',
+  `sync_log_id` BIGINT NOT NULL COMMENT '关联执行日志ID',
+  `sync_task_id` BIGINT NOT NULL COMMENT '关联任务ID',
+  `log_time` DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) COMMENT '日志时间(精确到毫秒)',
+  `log_level` VARCHAR(10) DEFAULT 'INFO' COMMENT '日志级别: DEBUG/INFO/WARN/ERROR',
+  `log_node_key` VARCHAR(100) DEFAULT NULL COMMENT '相关节点Key',
+  `log_message` TEXT COMMENT '日志消息',
+  `log_data` TEXT COMMENT '日志数据(JSON)',
+  PRIMARY KEY (`log_detail_id`),
+  KEY `idx_sync_log_id` (`sync_log_id`),
+  KEY `idx_task_id` (`sync_task_id`),
+  KEY `idx_log_time` (`log_time`),
+  KEY `idx_log_level` (`log_level`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步任务实时日志详情表';
 
 SET FOREIGN_KEY_CHECKS = 1;
