@@ -20,9 +20,9 @@ import java.util.function.BiConsumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -41,7 +41,7 @@ import java.util.Map;
  * @since 2024/12/05
  */
 @Slf4j
-@Configuration
+@AutoConfiguration(after = com.chua.sync.support.configuration.SyncAutoConfiguration.class)
 @ConditionalOnClass(SyncServer.class)
 @ConditionalOnBean(SyncServer.class)
 public class SyncConfiguration {
@@ -402,7 +402,7 @@ public class SyncConfiguration {
      */
     private void handleAppReport(String sessionId, Map<String, Object> data) {
         try {
-            ClientInfo clientInfo = syncServer.getAllClients().get(sessionId);
+            ClientInfo clientInfo = syncServer.getAllClientsRaw().get(sessionId);
             if (clientInfo == null) {
                 log.warn("[AppReport] 未找到客户端会话: sessionId={}", sessionId);
                 return;
