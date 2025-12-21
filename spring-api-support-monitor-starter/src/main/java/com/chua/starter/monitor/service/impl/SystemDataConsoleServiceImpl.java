@@ -53,6 +53,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,7 +66,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, InitializingBean {
+public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, CommandLineRunner {
 
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
@@ -609,29 +610,6 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
         return options;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        Thread.startVirtualThread(() -> {
-            for (SystemDataSetting systemDataSetting : systemDataSettingMapper.selectList(
-                    Wrappers.lambdaQuery()
-            )) {
-
-                Integer systemDataSettingId = systemDataSetting.getSystemDataSettingId();
-                try {
-                    if (systemDataSetting.getSystemDataSettingBackupStatus() == 1) {
-                        startBackup(systemDataSettingId);
-                        continue;
-                    }
-                } catch (Exception ignored) {
-                }
-
-                Boolean systemDataSettingIdle = systemDataSetting.getSystemDataSettingIdle();
-                if (null != systemDataSettingIdle && systemDataSettingIdle) {
-                    getRoot(systemDataSettingId, new MetadataQuery());
-                }
-            }
-        });
-    }
 
     @Override
     public List<String> listTables(Integer settingId) {
@@ -1453,6 +1431,30 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, I
             capabilities.put("supportsPartitions", false);
             return capabilities;
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        Thread.startVirtualThread(() -> {
+            for (SystemDataSetting systemDataSetting : systemDataSettingMapper.selectList(
+                    Wrappers.lambdaQuery()
+            )) {
+
+                Integer systemDataSettingId = systemDataSetting.getSystemDataSettingId();
+                try {
+                    if (systemDataSetting.getSystemDataSettingBackupStatus() == 1) {
+                        startBackup(systemDataSettingId);
+                        continue;
+                    }
+                } catch (Exception ignored) {
+                }
+
+                Boolean systemDataSettingIdle = systemDataSetting.getSystemDataSettingIdle();
+                if (null != systemDataSettingIdle && systemDataSettingIdle) {
+                    getRoot(systemDataSettingId, new MetadataQuery());
+                }
+            }
+        });
     }
 }
 

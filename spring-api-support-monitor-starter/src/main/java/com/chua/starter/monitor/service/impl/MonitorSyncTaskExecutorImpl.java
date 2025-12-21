@@ -27,6 +27,7 @@ import com.chua.starter.monitor.service.sync.SyncTaskWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ import java.util.concurrent.ScheduledFuture;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
+public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, CommandLineRunner {
 
     private final MonitorSyncTaskMapper taskMapper;
     private final MonitorSyncNodeMapper nodeMapper;
@@ -85,8 +86,6 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
         taskScheduler.initialize();
         log.info("同步任务执行器初始化完成");
 
-        // 应用启动时自动恢复运行中的任务
-        recoverRunningTasks();
     }
 
     /**
@@ -556,5 +555,11 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
                 log.warn("记录错误详细日志失败: {}", ex.getMessage());
             }
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        // 应用启动时自动恢复运行中的任务
+        recoverRunningTasks();
     }
 }
