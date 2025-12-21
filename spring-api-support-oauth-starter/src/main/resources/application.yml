@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: servlet
   profiles:
     active: dev
     include: plugin,mybatis,socket,report,ip,actuator
