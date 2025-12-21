@@ -3774,3 +3774,126 @@ CREATE TABLE `monitor_sync_task_log_detail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='同步任务实时日志详情表';
 
 SET FOREIGN_KEY_CHECKS = 1;
+-- ==================== 缺失表补充 ====================
+
+DROP TABLE IF EXISTS `monitor_skywalking_config`;
+CREATE TABLE `monitor_skywalking_config`  (
+  `skywalking_config_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `skywalking_config_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置名称',
+  `skywalking_config_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务地址',
+  `skywalking_config_port` int NULL DEFAULT NULL COMMENT '端口',
+  `skywalking_config_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名',
+  `skywalking_config_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
+  `skywalking_config_status` int NULL DEFAULT NULL COMMENT '状态 0:禁用 1:启用',
+  `skywalking_config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
+  `skywalking_config_use_https` int NULL DEFAULT NULL COMMENT '是否使用HTTPS 0:否 1:是',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`skywalking_config_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'SkyWalking配置信息' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `monitor_sys_file_share`;
+CREATE TABLE `monitor_sys_file_share`  (
+  `share_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '分享ID(UUID)',
+  `server_id` bigint NULL DEFAULT NULL COMMENT '服务器ID',
+  `bucket` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '存储桶',
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件路径',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文件名',
+  `share_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分享类型：SHARE-普通分享，FLASH-闪图',
+  `expire_time` datetime NULL DEFAULT NULL COMMENT '过期时间',
+  `view_count` int NULL DEFAULT 0 COMMENT '查看次数',
+  `max_view_count` int NULL DEFAULT -1 COMMENT '最大查看次数，-1表示无限制',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `is_deleted` int NULL DEFAULT 0 COMMENT '是否已删除：0-否，1-是',
+  PRIMARY KEY (`share_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件分享记录' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `monitor_sys_gen_config`;
+CREATE TABLE `monitor_sys_gen_config`  (
+  `monitor_sys_gen_config_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID',
+  `monitor_sys_gen_config_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置键',
+  `monitor_sys_gen_config_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '配置值',
+  `monitor_sys_gen_config_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置描述',
+  `monitor_sys_gen_config_env` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '环境',
+  `monitor_sys_gen_config_status` int NULL DEFAULT NULL COMMENT '配置状态 0-禁用 1-启用',
+  `monitor_sys_gen_config_app` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属应用',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`monitor_sys_gen_config_id`) USING BTREE,
+  UNIQUE INDEX `uk_config_key_env`(`monitor_sys_gen_config_key`, `monitor_sys_gen_config_env`, `monitor_sys_gen_config_app`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置管理' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `monitor_sys_gen_config_push_history`;
+CREATE TABLE `monitor_sys_gen_config_push_history`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '历史ID',
+  `monitor_sys_gen_config_id` int NULL DEFAULT NULL COMMENT '配置ID',
+  `monitor_sys_gen_config_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置键',
+  `monitor_sys_gen_config_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '配置值',
+  `monitor_sys_gen_server_id` int NULL DEFAULT NULL COMMENT '服务器ID',
+  `monitor_sys_gen_server_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务器名称',
+  `push_success` int NULL DEFAULT NULL COMMENT '是否成功 0-失败 1-成功',
+  `error_message` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误信息',
+  `push_time` datetime(6) NULL DEFAULT NULL COMMENT '推送时间',
+  `operator` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作人',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_config_id`(`monitor_sys_gen_config_id`) USING BTREE,
+  INDEX `idx_server_id`(`monitor_sys_gen_server_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '配置推送历史' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `monitor_sys_gen_server_log_config`;
+CREATE TABLE `monitor_sys_gen_server_log_config`  (
+  `monitor_sys_gen_server_log_config_id` bigint NOT NULL AUTO_INCREMENT COMMENT '配置ID',
+  `monitor_sys_gen_server_id` int NOT NULL COMMENT '关联服务器ID',
+  `monitor_sys_gen_server_log_retention_days` int NULL DEFAULT 30 COMMENT '日志保留天数',
+  `monitor_sys_gen_server_log_enabled` int NULL DEFAULT 1 COMMENT '是否启用日志收集(0:否 1:是)',
+  `monitor_sys_gen_server_log_level_filter` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志级别过滤器',
+  `monitor_sys_gen_server_log_source_filter` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志来源过滤器',
+  `monitor_sys_gen_server_log_max_size_mb` int NULL DEFAULT 100 COMMENT '单个日志文件最大大小(MB)',
+  `monitor_sys_gen_server_log_max_files` int NULL DEFAULT 10 COMMENT '最大日志文件数量',
+  `monitor_sys_gen_server_log_collection_interval` int NULL DEFAULT 60 COMMENT '日志收集间隔(秒)',
+  `monitor_sys_gen_server_log_batch_size` int NULL DEFAULT 1000 COMMENT '批量处理大小',
+  `monitor_sys_gen_server_log_compression_enabled` int NULL DEFAULT 1 COMMENT '是否启用压缩(0:否 1:是)',
+  `monitor_sys_gen_server_log_real_time_enabled` int NULL DEFAULT 0 COMMENT '是否启用实时日志(0:否 1:是)',
+  `monitor_sys_gen_server_log_file_patterns` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '日志文件匹配模式(JSON格式)',
+  `monitor_sys_gen_server_log_exclude_patterns` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '排除模式(JSON格式)',
+  `monitor_sys_gen_server_log_custom_parsers` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '自定义解析器配置(JSON格式)',
+  `monitor_sys_gen_server_log_alert_rules` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '告警规则配置(JSON格式)',
+  `monitor_sys_gen_server_log_create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `monitor_sys_gen_server_log_update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `monitor_sys_gen_server_log_config_status` int NULL DEFAULT 1 COMMENT '配置状态(0:禁用 1:启用)',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`monitor_sys_gen_server_log_config_id`) USING BTREE,
+  INDEX `idx_server_id`(`monitor_sys_gen_server_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '服务器日志配置' ROW_FORMAT = DYNAMIC;
+
+DROP TABLE IF EXISTS `system_server_setting_preview_extension`;
+CREATE TABLE `system_server_setting_preview_extension`  (
+  `system_server_setting_preview_extension_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `preview_extension_server_id` int NOT NULL COMMENT '所属服务器ID',
+  `preview_extension_disabled` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '禁用预览的扩展名列表（逗号分隔）',
+  `preview_extension_allowed` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许预览的扩展名列表（逗号分隔）',
+  `preview_extension_whitelist_mode` tinyint(1) NULL DEFAULT 0 COMMENT '是否启用白名单模式',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`system_server_setting_preview_extension_id`) USING BTREE,
+  INDEX `idx_server_id`(`preview_extension_server_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '预览扩展名配置' ROW_FORMAT = DYNAMIC;
+
+SET FOREIGN_KEY_CHECKS = 1;
