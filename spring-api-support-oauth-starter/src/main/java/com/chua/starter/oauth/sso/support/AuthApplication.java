@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.info.License;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
@@ -20,7 +19,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
 @EnableConfigurationProperties({AuthServerProperties.class})
 @MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service.mapper"})
-@ConditionalOnProperty(prefix = "plugin.oauth.server", name = "enable", havingValue = "true", matchIfMissing = false)
 @OpenAPIDefinition(
         info = @Info(
                 title = "统一认证中心API",
