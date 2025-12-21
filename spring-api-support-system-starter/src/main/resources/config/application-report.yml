@@ -5,8 +5,8 @@ plugin:
   report:
     client:
       enable: true
-      port: 29170
-      host: 172.16.2.226
+      port: 29171
+      host: 172.16.3.66
       info:
         host: 172.16.3.66
       metrics:
