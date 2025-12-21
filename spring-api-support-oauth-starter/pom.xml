@@ -114,7 +114,11 @@
         </dependency>
 
         <!-- Armeria 依赖 -->
-
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-armeria-starter</artifactId>
+            <version>4.0.0.33</version>
+        </dependency>
     </dependencies>
 
     <build>
