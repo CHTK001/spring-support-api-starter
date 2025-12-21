@@ -39,8 +39,8 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
         // 服务端模式
         if (serverEnabled && serverSyncEnabled) {
-            if (environment.getProperty(SYNC_PREFIX + "enable") == null) {
-                syncProperties.put(SYNC_PREFIX + "enable", "true");
+            if (environment.getProperty(SYNC_PREFIX + "server.enable") == null) {
+                syncProperties.put(SYNC_PREFIX + "server.enable", "true");
             }
             if (environment.getProperty(SYNC_PREFIX + "type") == null) {
                 syncProperties.put(SYNC_PREFIX + "type", "server");
@@ -50,8 +50,8 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
         // 客户端模式
         if (clientEnabled && clientSyncEnabled) {
-            if (environment.getProperty(SYNC_PREFIX + "enable") == null) {
-                syncProperties.put(SYNC_PREFIX + "enable", "true");
+            if (environment.getProperty(SYNC_PREFIX + "client.enable") == null) {
+                syncProperties.put(SYNC_PREFIX + "client.enable", "true");
             }
             if (environment.getProperty(SYNC_PREFIX + "type") == null) {
                 syncProperties.put(SYNC_PREFIX + "type", "client");
