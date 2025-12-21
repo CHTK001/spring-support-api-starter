@@ -143,8 +143,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonObject detail, JsonArray jsonArray, List<VideoPlayAddress> playAddressesList) {
-        int lineSourceNameLine = detail.getIntValue("lineSourceName");
-        int selectsLine = detail.getIntValue("selects");
+        int lineSourceNameLine = detail.getIntValue("lineSourceName", 0);
+        int selectsLine = detail.getIntValue("selects", 0);
         String lineSourceName = Converter.convertIfNecessary(jsonArray.get(lineSourceNameLine), String.class);
         VideoPlayAddress videoPlayAddress = new VideoPlayAddress();
         videoPlayAddress.setVideoPlayAddressUnique(String.valueOf(selectsLine));
