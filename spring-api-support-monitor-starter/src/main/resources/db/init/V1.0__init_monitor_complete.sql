@@ -3668,6 +3668,7 @@ CREATE TABLE `monitor_sync_task` (
   `sync_task_name` VARCHAR(200) NOT NULL COMMENT '任务名称',
   `sync_task_desc` VARCHAR(500) DEFAULT NULL COMMENT '任务描述',
   `sync_task_status` VARCHAR(20) DEFAULT 'STOPPED' COMMENT '任务状态: STOPPED/RUNNING/ERROR',
+  `sync_task_enabled` TINYINT DEFAULT 1 COMMENT '是否启用: 0-否 1-是',
   `sync_task_batch_size` INT DEFAULT 1000 COMMENT '批处理大小',
   `sync_task_consume_timeout` INT DEFAULT 30000 COMMENT '消费超时时间(ms)',
   `sync_task_retry_count` INT DEFAULT 3 COMMENT '重试次数',
