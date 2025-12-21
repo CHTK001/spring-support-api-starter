@@ -2734,7 +2734,7 @@ CREATE TABLE `sys_project_default`  (
   `sys_project_default_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型； 字典表6,',
   `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID',
   PRIMARY KEY (`sys_project_default_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能 <---->对象的项目;
+) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '默认功能' ROW_FORMAT = DYNAMIC;
 
 DROP TABLE IF EXISTS `sys_secret`;
 CREATE TABLE `sys_secret`  (
