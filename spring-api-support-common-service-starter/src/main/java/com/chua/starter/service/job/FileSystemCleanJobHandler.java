@@ -12,6 +12,7 @@ import com.chua.starter.service.SysFileSystemService;
 import com.chua.starter.service.SysFileSystemSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.List;
 @Slf4j
 @Component("fileSystemCleanJobHandler")
 @RequiredArgsConstructor
+@ConditionalOnClass(name = "com.chua.starter.job.support.handler.JobHandler")
 public class FileSystemCleanJobHandler implements JobHandler {
 
     private final SysFileSystemService sysFileSystemService;

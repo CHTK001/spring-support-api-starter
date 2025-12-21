@@ -2768,6 +2768,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
      * @since 1.0.0
      */
     @Override
+    @Cacheable(value = "server:ip", key = "#ipAddress", unless = "#result == null")
     public MonitorSysGenServer findByIpAddress(String ipAddress) {
         if (StringUtils.isBlank(ipAddress)) {
             return null;
