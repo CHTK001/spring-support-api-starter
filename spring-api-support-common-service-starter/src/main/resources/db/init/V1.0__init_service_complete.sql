@@ -3,12 +3,14 @@
  * 
  * 包含表:
  *   - sys_bank_bins: 银行BIN对照表
+ *   - sys_city: 行政区划表
  *   - sys_dict: 字典表
  *   - sys_dict_item: 字典子项表
  *   - sys_dict_item_property: 字典配置项表
  *   - sys_log: 系统操作日志表
  *   - sys_setting_group: 系统配置分组表
  *   - sys_setting: 系统全局配置表
+ *   - sys_setting_history: 系统配置变更历史表
  *   - sys_limit_configuration: 限流配置表
  *   - sys_limit_record: 限流记录表
  *   - sys_message: 系统消息表
@@ -57,7 +59,7 @@ CREATE TABLE `sys_bank_bins` (
 COMMENT = '银行BIN对照表 - 根据银行卡前缀识别发卡银行' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 2. 字典表 (sys_dict)
+-- 3. 字典表 (sys_dict)
 -- 用途: 系统数据字典，管理各类枚举值和下拉选项
 -- =====================================================
 DROP TABLE IF EXISTS `sys_dict`;
@@ -85,7 +87,7 @@ CREATE TABLE `sys_dict` (
 COMMENT = '字典表 - 系统数据字典，管理各类枚举值' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 3. 字典子项表 (sys_dict_item)
+-- 4. 字典子项表 (sys_dict_item)
 -- 用途: 字典的具体选项值
 -- =====================================================
 DROP TABLE IF EXISTS `sys_dict_item`;
@@ -115,7 +117,7 @@ CREATE TABLE `sys_dict_item` (
 COMMENT = '字典子项表 - 字典的具体选项值' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 4. 字典配置项表 (sys_dict_item_property)
+-- 5. 字典配置项表 (sys_dict_item_property)
 -- 用途: 字典项的扩展属性配置
 -- =====================================================
 DROP TABLE IF EXISTS `sys_dict_item_property`;
@@ -139,7 +141,7 @@ CREATE TABLE `sys_dict_item_property` (
 COMMENT = '字典配置项表 - 字典项的扩展属性配置' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 5. 系统操作日志表 (sys_log)
+-- 6. 系统操作日志表 (sys_log)
 -- 用途: 记录系统操作日志，用于审计和问题追踪
 -- =====================================================
 DROP TABLE IF EXISTS `sys_log`;
@@ -167,7 +169,7 @@ CREATE TABLE `sys_log` (
 COMMENT = '系统操作日志表 - 记录API请求日志用于审计' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 6. 系统配置分组表 (sys_setting_group)
+-- 7. 系统配置分组表 (sys_setting_group)
 -- 用途: 对系统配置项进行分组管理
 -- =====================================================
 DROP TABLE IF EXISTS `sys_setting_group`;
@@ -192,7 +194,7 @@ CREATE TABLE `sys_setting_group` (
 COMMENT = '系统配置分组表 - 对系统配置项进行分组管理' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 7. 系统全局配置表 (sys_setting)
+-- 8. 系统全局配置表 (sys_setting)
 -- 用途: 存储系统全局配置参数
 -- =====================================================
 DROP TABLE IF EXISTS `sys_setting`;
@@ -225,7 +227,7 @@ CREATE TABLE `sys_setting` (
 COMMENT = '系统全局配置表 - 存储系统全局配置参数' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 8. 限流配置表 (sys_limit_configuration)
+-- 10. 限流配置表 (sys_limit_configuration)
 -- 用途: 配置API接口的限流规则
 -- =====================================================
 DROP TABLE IF EXISTS `sys_limit_configuration`;
@@ -257,7 +259,7 @@ CREATE TABLE `sys_limit_configuration` (
 COMMENT = '限流配置表 - 配置API接口的限流规则' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 9. 限流记录表 (sys_limit_record)
+-- 11. 限流记录表 (sys_limit_record)
 -- 用途: 记录限流触发的详细信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_limit_record`;
@@ -290,7 +292,7 @@ CREATE TABLE `sys_limit_record` (
 COMMENT = '限流记录表 - 记录限流触发的详细信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 10. 系统消息表 (sys_message)
+-- 12. 系统消息表 (sys_message)
 -- 用途: 存储系统消息、通知、公告等
 -- =====================================================
 DROP TABLE IF EXISTS `sys_message`;
@@ -332,7 +334,7 @@ CREATE TABLE `sys_message` (
 COMMENT = '系统消息表 - 存储系统消息、通知、公告' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 11. 系统消息历史表 (sys_message_history)
+-- 13. 系统消息历史表 (sys_message_history)
 -- 用途: 归档已读的历史消息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_message_history`;
@@ -367,7 +369,7 @@ CREATE TABLE `sys_message_history` (
 COMMENT = '系统消息历史表 - 归档已读的历史消息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 12. 节假日表 (sys_holiday)
+-- 14. 节假日表 (sys_holiday)
 -- 用途: 存储法定节假日和调休工作日信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_holiday`;
@@ -390,7 +392,7 @@ CREATE TABLE `sys_holiday` (
 COMMENT = '节假日表 - 存储法定节假日和调休工作日' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 13. 文件系统分组表 (sys_file_system_group)
+-- 15. 文件系统分组表 (sys_file_system_group)
 -- 用途: 对上传的文件进行分组管理
 -- =====================================================
 DROP TABLE IF EXISTS `sys_file_system_group`;
@@ -421,7 +423,7 @@ CREATE TABLE `sys_file_system_group` (
 COMMENT = '文件系统分组表 - 对上传的文件进行分组管理' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 14. 文件系统配置表 (sys_file_system_setting)
+-- 16. 文件系统配置表 (sys_file_system_setting)
 -- 用途: 配置文件上传和存储的参数
 -- =====================================================
 DROP TABLE IF EXISTS `sys_file_system_setting`;
@@ -460,7 +462,7 @@ CREATE TABLE `sys_file_system_setting` (
 COMMENT = '文件系统配置表 - 配置文件上传和存储的参数' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 15. 文件系统主表 (sys_file_system)
+-- 17. 文件系统主表 (sys_file_system)
 -- 用途: 存储上传文件的元数据信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_file_system`;
@@ -504,7 +506,7 @@ CREATE TABLE `sys_file_system` (
 COMMENT = '文件系统主表 - 存储上传文件的元数据信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 16. 文件系统分片表 (sys_file_system_part)
+-- 18. 文件系统分片表 (sys_file_system_part)
 -- 用途: 存储分片上传的每个分片信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_file_system_part`;
