@@ -2,7 +2,10 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.*;
+import com.chua.common.support.task.sync.center.DataBus;
+import com.chua.common.support.task.sync.filter.DataFilter;
+import com.chua.common.support.task.sync.input.Input;
+import com.chua.common.support.task.sync.output.Output;
 import com.chua.starter.monitor.annotation.SpiMeta;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
 import com.chua.starter.monitor.pojo.sync.SpiParameter;
@@ -61,10 +64,10 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
     @Override
     public ReturnResult<List<SpiInfo>> getDataCenterList() {
         try {
-            List<SpiInfo> list = getSpiList(DataCenter.class, TYPE_DATA_CENTER);
+            List<SpiInfo> list = getSpiList(DataBus.class, TYPE_DATA_CENTER);
             return ReturnResult.ok(list);
         } catch (Exception e) {
-            log.error("获取 DataCenter SPI 列表失败", e);
+            log.error("获取 DataBus SPI 列表失败", e);
             return ReturnResult.error("获取失败: " + e.getMessage());
         }
     }
@@ -139,7 +142,7 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
             Map<String, List<SpiInfo>> result = new LinkedHashMap<>();
             result.put(TYPE_INPUT, getSpiList(Input.class, TYPE_INPUT));
             result.put(TYPE_OUTPUT, getSpiList(Output.class, TYPE_OUTPUT));
-            result.put(TYPE_DATA_CENTER, getSpiList(DataCenter.class, TYPE_DATA_CENTER));
+            result.put(TYPE_DATA_CENTER, getSpiList(DataBus.class, TYPE_DATA_CENTER));
             result.put(TYPE_FILTER, getSpiList(DataFilter.class, TYPE_FILTER));
             return ReturnResult.ok(result);
         } catch (Exception e) {
@@ -253,7 +256,7 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
             case TYPE_OUTPUT:
                 return Output.class;
             case TYPE_DATA_CENTER:
-                return DataCenter.class;
+                return DataBus.class;
             case TYPE_FILTER:
                 return DataFilter.class;
             default:
@@ -517,16 +520,16 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
     }
 
     /**
-     * 测试 DataCenter 连接
+     * 测试 DataBus 连接
      */
     private ReturnResult<String> testDataCenterConnection(String spiName, Map<String, Object> config) {
         try {
-            ServiceProvider<DataCenter> provider = ServiceProvider.of(DataCenter.class);
-            DataCenter dataCenter = provider.getNewExtension(spiName, config);
-            if (dataCenter != null) {
+            ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
+            DataBus dataBus = provider.getNewExtension(spiName, config);
+            if (dataBus != null) {
                 return ReturnResult.ok("连接测试成功");
             }
-            return ReturnResult.error("无法创建 DataCenter 实例");
+            return ReturnResult.error("无法创建 DataBus 实例");
         } catch (Exception e) {
             return ReturnResult.error("连接测试失败: " + e.getMessage());
         }

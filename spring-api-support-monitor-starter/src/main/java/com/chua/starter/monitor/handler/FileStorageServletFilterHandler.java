@@ -8,7 +8,7 @@ import com.chua.common.support.oss.FileStorage;
 import com.chua.common.support.oss.setting.BucketSetting;
 import com.chua.common.support.protocol.filter.FileStorageServletFilter;
 import com.chua.common.support.protocol.filter.ServletFilter;
-import com.chua.common.support.protocol.filter.storage.FileStorageFactory;
+import com.chua.common.support.protocol.storage.FileStorageFactory;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.ObjectUtils;

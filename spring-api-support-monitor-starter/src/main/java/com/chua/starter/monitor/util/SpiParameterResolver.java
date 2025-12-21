@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.util;
 
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.starter.monitor.annotation.SpiMeta;
 import com.chua.starter.monitor.annotation.SpiParam;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
@@ -51,7 +52,8 @@ public class SpiParameterResolver {
         try {
             // 获取 SPI 实现类
             ServiceProvider<T> provider = ServiceProvider.of(spiClass);
-            Class<?> implClass = provider.getExtensionClass(spiName);
+            ServiceDefinition definition = provider.getDefinition(spiName);
+            Class<?> implClass = definition != null ? definition.getImplClass() : null;
 
             if (implClass != null) {
                 // 从实现类中解析参数
@@ -326,7 +328,8 @@ public class SpiParameterResolver {
         try {
             // 获取 SPI 实现类
             ServiceProvider<T> provider = ServiceProvider.of(spiClass);
-            Class<?> implClass = provider.getExtensionClass(spiName);
+            ServiceDefinition definition = provider.getDefinition(spiName);
+            Class<?> implClass = definition != null ? definition.getImplClass() : null;
 
             if (implClass != null) {
                 info.setClassName(implClass.getName());

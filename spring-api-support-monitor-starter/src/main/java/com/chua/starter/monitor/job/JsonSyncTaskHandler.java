@@ -2,7 +2,13 @@ package com.chua.starter.monitor.job;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.*;
+import com.chua.common.support.task.sync.SyncFlow;
+import com.chua.common.support.task.sync.SyncFlowBuilder;
+import com.chua.common.support.task.sync.metrics.SyncMetrics;
+import com.chua.common.support.task.sync.center.DataBus;
+import com.chua.common.support.task.sync.filter.DataFilter;
+import com.chua.common.support.task.sync.input.Input;
+import com.chua.common.support.task.sync.output.Output;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.job.support.handler.JobHandler;
 import com.chua.starter.job.support.log.DefaultJobLog;
@@ -83,8 +89,8 @@ public class JsonSyncTaskHandler implements JobHandler {
             if (metrics != null) {
                 DefaultJobLog.log(String.format(
                         "同步完成, 读取: %d, 写入: %d, 成功: %d, 失败: %d, 耗时: %dms",
-                        metrics.getInputCount().get(),
-                        metrics.getOutputCount().get(),
+                        metrics.getReadCount().get(),
+                        metrics.getWriteCount().get(),
                         metrics.getSuccessCount().get(),
                         metrics.getFailCount().get(),
                         cost
@@ -104,14 +110,14 @@ public class JsonSyncTaskHandler implements JobHandler {
      */
     @SuppressWarnings("unchecked")
     private SyncFlow buildSyncFlow(Map<String, Object> config) {
-        SyncFlow.SyncFlowBuilder builder = SyncFlow.builder();
+        SyncFlowBuilder builder = SyncFlowBuilder.create("json-sync-task");
 
         // 创建 Input
         String inputType = (String) config.get("inputType");
         if (inputType != null) {
             Map<String, Object> inputConfig = (Map<String, Object>) config.getOrDefault("inputConfig", new HashMap<>());
             Input input = createInput(inputType, inputConfig);
-            builder.input(input);
+            builder.addInput(input);
             DefaultJobLog.log("配置输入: " + inputType);
         } else {
             throw new IllegalArgumentException("必须配置 inputType");
@@ -122,18 +128,18 @@ public class JsonSyncTaskHandler implements JobHandler {
         if (outputType != null) {
             Map<String, Object> outputConfig = (Map<String, Object>) config.getOrDefault("outputConfig", new HashMap<>());
             Output output = createOutput(outputType, outputConfig);
-            builder.output(output);
+            builder.addOutput(output);
             DefaultJobLog.log("配置输出: " + outputType);
         } else {
             throw new IllegalArgumentException("必须配置 outputType");
         }
 
-        // 创建 DataCenter（可选）
+        // 创建 DataBus（可选）
         String dataCenterType = (String) config.get("dataCenterType");
         if (dataCenterType != null) {
             Map<String, Object> dataCenterConfig = (Map<String, Object>) config.getOrDefault("dataCenterConfig", new HashMap<>());
-            DataCenter dataCenter = createDataCenter(dataCenterType, dataCenterConfig);
-            builder.dataCenter(dataCenter);
+            DataBus dataBus = createDataBus(dataCenterType, dataCenterConfig);
+            builder.withDataBus(dataBus);
             DefaultJobLog.log("配置数据中心: " + dataCenterType);
         }
 
@@ -146,7 +152,7 @@ public class JsonSyncTaskHandler implements JobHandler {
                         ? (Map<String, Object>) entry.getValue() 
                         : new HashMap<>();
                 DataFilter filter = createFilter(filterType, filterConfig);
-                builder.filter(filter);
+                builder.addFilter(filter);
                 DefaultJobLog.log("配置过滤器: " + filterType);
             }
         }
@@ -158,14 +164,11 @@ public class JsonSyncTaskHandler implements JobHandler {
         if (config.containsKey("consumeTimeout")) {
             builder.consumeTimeout(((Number) config.get("consumeTimeout")).longValue());
         }
-        if (config.containsKey("retryCount")) {
-            builder.retryCount(((Number) config.get("retryCount")).intValue());
-        }
-        if (config.containsKey("retryInterval")) {
-            builder.retryInterval(((Number) config.get("retryInterval")).longValue());
-        }
-        if (config.containsKey("ackEnabled")) {
-            builder.ackEnabled((Boolean) config.get("ackEnabled"));
+        int retryCount = config.containsKey("retryCount") ? ((Number) config.get("retryCount")).intValue() : 3;
+        long retryInterval = config.containsKey("retryInterval") ? ((Number) config.get("retryInterval")).longValue() : 1000;
+        builder.withRetry(retryCount, retryInterval);
+        if (config.containsKey("ackEnabled") && (Boolean) config.get("ackEnabled")) {
+            builder.withAck();
         }
 
         return builder.build();
@@ -181,8 +184,8 @@ public class JsonSyncTaskHandler implements JobHandler {
         return provider.getNewExtension(type, config);
     }
 
-    private DataCenter createDataCenter(String type, Map<String, Object> config) {
-        ServiceProvider<DataCenter> provider = ServiceProvider.of(DataCenter.class);
+    private DataBus createDataBus(String type, Map<String, Object> config) {
+        ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
         return provider.getNewExtension(type, config);
     }
 

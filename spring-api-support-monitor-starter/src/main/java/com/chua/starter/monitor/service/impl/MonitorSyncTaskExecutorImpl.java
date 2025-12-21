@@ -2,7 +2,13 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.*;
+import com.chua.common.support.task.sync.SyncFlow;
+import com.chua.common.support.task.sync.SyncFlowBuilder;
+import com.chua.common.support.task.sync.metrics.SyncMetrics;
+import com.chua.common.support.task.sync.center.DataBus;
+import com.chua.common.support.task.sync.filter.DataFilter;
+import com.chua.common.support.task.sync.input.Input;
+import com.chua.common.support.task.sync.output.Output;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.job.support.JobProperties;
 import com.chua.starter.job.support.log.JobLogDetailService;
@@ -281,8 +287,8 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
             // 获取指标数据（如果 SyncFlow 支持的话）
             SyncMetrics metrics = syncFlow.getMetrics();
             if (metrics != null) {
-                taskLog.setSyncLogReadCount(metrics.getInputCount().get());
-                taskLog.setSyncLogWriteCount(metrics.getOutputCount().get());
+                taskLog.setSyncLogReadCount(metrics.getReadCount().get());
+                taskLog.setSyncLogWriteCount(metrics.getWriteCount().get());
                 taskLog.setSyncLogSuccessCount(metrics.getSuccessCount().get());
                 taskLog.setSyncLogFailCount(metrics.getFailCount().get());
 
@@ -394,31 +400,31 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
         }
 
         // 创建 SyncFlow
-        SyncFlow.SyncFlowBuilder builder = SyncFlow.builder();
+        SyncFlowBuilder builder = SyncFlowBuilder.create("sync-task-" + task.getSyncTaskId());
 
         // 设置输入
         for (MonitorSyncNode inputNode : inputNodes) {
             Input input = createInput(inputNode);
-            builder.input(input);
+            builder.addInput(input);
         }
 
         // 设置输出
         for (MonitorSyncNode outputNode : outputNodes) {
             Output output = createOutput(outputNode);
-            builder.output(output);
+            builder.addOutput(output);
         }
 
         // 设置数据中心（如果有）
         if (!dataCenterNodes.isEmpty()) {
             MonitorSyncNode dataCenterNode = dataCenterNodes.get(0);
-            DataCenter dataCenter = createDataCenter(dataCenterNode);
-            builder.dataCenter(dataCenter);
+            DataBus dataBus = createDataBus(dataCenterNode);
+            builder.withDataBus(dataBus);
         }
 
         // 设置过滤器
         for (MonitorSyncNode filterNode : filterNodes) {
             DataFilter filter = createFilter(filterNode);
-            builder.filter(filter);
+            builder.addFilter(filter);
         }
 
         // 设置任务参数
@@ -428,14 +434,11 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
         if (task.getSyncTaskConsumeTimeout() != null) {
             builder.consumeTimeout(task.getSyncTaskConsumeTimeout());
         }
-        if (task.getSyncTaskRetryCount() != null) {
-            builder.retryCount(task.getSyncTaskRetryCount());
-        }
-        if (task.getSyncTaskRetryInterval() != null) {
-            builder.retryInterval(task.getSyncTaskRetryInterval());
-        }
+        int retryCount = task.getSyncTaskRetryCount() != null ? task.getSyncTaskRetryCount() : 3;
+        long retryInterval = task.getSyncTaskRetryInterval() != null ? task.getSyncTaskRetryInterval() : 1000;
+        builder.withRetry(retryCount, retryInterval);
         if (task.getSyncTaskAckEnabled() != null && task.getSyncTaskAckEnabled() == 1) {
-            builder.ackEnabled(true);
+            builder.withAck();
         }
 
         return builder.build();
@@ -466,14 +469,14 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor {
     }
 
     /**
-     * 创建 DataCenter
+     * 创建 DataBus
      */
     @SuppressWarnings("unchecked")
-    private DataCenter createDataCenter(MonitorSyncNode node) {
+    private DataBus createDataBus(MonitorSyncNode node) {
         String spiName = node.getSyncNodeSpiName();
         Map<String, Object> config = parseConfig(node.getSyncNodeConfig());
 
-        ServiceProvider<DataCenter> provider = ServiceProvider.of(DataCenter.class);
+        ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
         return provider.getNewExtension(spiName, config);
     }
 

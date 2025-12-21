@@ -2,7 +2,13 @@ package com.chua.starter.monitor.job;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.*;
+import com.chua.common.support.task.sync.SyncFlow;
+import com.chua.common.support.task.sync.SyncFlowBuilder;
+import com.chua.common.support.task.sync.metrics.SyncMetrics;
+import com.chua.common.support.task.sync.center.DataBus;
+import com.chua.common.support.task.sync.filter.DataFilter;
+import com.chua.common.support.task.sync.input.Input;
+import com.chua.common.support.task.sync.output.Output;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.job.support.handler.JobHandler;
 import com.chua.starter.job.support.log.DefaultJobLog;
@@ -96,8 +102,8 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
             if (metrics != null) {
                 DefaultJobLog.log(String.format(
                         "同步完成, 读取: %d, 写入: %d, 成功: %d, 失败: %d, 耗时: %dms",
-                        metrics.getInputCount().get(),
-                        metrics.getOutputCount().get(),
+                        metrics.getReadCount().get(),
+                        metrics.getWriteCount().get(),
                         metrics.getSuccessCount().get(),
                         metrics.getFailCount().get(),
                         cost
@@ -116,31 +122,31 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
      * 构建 SyncFlow
      */
     private SyncFlow buildSyncFlow(SyncFlowConfig config) {
-        SyncFlow.SyncFlowBuilder builder = SyncFlow.builder();
+        SyncFlowBuilder builder = SyncFlowBuilder.create("dynamic-sync-task");
 
         // 创建 Input
         if (config.getInputType() != null) {
             Input input = createInput(config.getInputType(), config.getInputConfig());
-            builder.input(input);
+            builder.addInput(input);
         }
 
         // 创建 Output
         if (config.getOutputType() != null) {
             Output output = createOutput(config.getOutputType(), config.getOutputConfig());
-            builder.output(output);
+            builder.addOutput(output);
         }
 
-        // 创建 DataCenter（可选）
+        // 创建 DataBus（可选）
         if (config.getDataCenterType() != null) {
-            DataCenter dataCenter = createDataCenter(config.getDataCenterType(), config.getDataCenterConfig());
-            builder.dataCenter(dataCenter);
+            DataBus dataBus = createDataBus(config.getDataCenterType(), config.getDataCenterConfig());
+            builder.withDataBus(dataBus);
         }
 
         // 创建过滤器（可选）
         if (config.getFilters() != null) {
             for (Map.Entry<String, Map<String, Object>> entry : config.getFilters().entrySet()) {
                 DataFilter filter = createFilter(entry.getKey(), entry.getValue());
-                builder.filter(filter);
+                builder.addFilter(filter);
             }
         }
 
@@ -152,7 +158,7 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
             builder.consumeTimeout(config.getConsumeTimeout());
         }
         if (config.getRetryCount() != null) {
-            builder.retryCount(config.getRetryCount());
+            builder.withRetry(config.getRetryCount(), config.getRetryInterval() != null ? config.getRetryInterval() : 1000);
         }
 
         return builder.build();
@@ -168,8 +174,8 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
         return provider.getNewExtension(type, config != null ? config : new HashMap<>());
     }
 
-    private DataCenter createDataCenter(String type, Map<String, Object> config) {
-        ServiceProvider<DataCenter> provider = ServiceProvider.of(DataCenter.class);
+    private DataBus createDataBus(String type, Map<String, Object> config) {
+        ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
         return provider.getNewExtension(type, config != null ? config : new HashMap<>());
     }
 
