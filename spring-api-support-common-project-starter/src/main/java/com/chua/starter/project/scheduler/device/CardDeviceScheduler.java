@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringBootConfiguration;
 
 import java.util.LinkedList;
@@ -30,16 +31,11 @@ import static com.chua.starter.project.service.impl.SysDeviceServiceImpl.reload;
 @Slf4j
 @RequiredArgsConstructor
 @SpringBootConfiguration
-public class CardDeviceScheduler implements InitializingBean,
-        DisposableBean {
+public class CardDeviceScheduler implements
+        DisposableBean, CommandLineRunner {
 
     final SysProjectMapper sysProjectMapper;
     List<ExecutorService> executors = new LinkedList<>();
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        listenYunMou();
-    }
 
     private void listenYunMou() {
         Thread.ofVirtual()
@@ -83,5 +79,10 @@ public class CardDeviceScheduler implements InitializingBean,
         for (ExecutorService executor : executors) {
             ThreadUtils.shutdownNow(executor);
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        listenYunMou();
     }
 }
