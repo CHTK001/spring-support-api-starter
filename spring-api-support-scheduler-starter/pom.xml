@@ -18,6 +18,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <!-- DevOps 统一配置 (包含 log4j2-spring.xml) -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-devops-starter</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-system-starter</artifactId>

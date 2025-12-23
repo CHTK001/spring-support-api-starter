@@ -63,11 +63,36 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
+
+        <!-- 排除 Spring Boot 默认的 Logback -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- 使用 Log4j2 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
     </dependencies>
 
 
     <dependencyManagement>
         <dependencies>
+            <!-- DevOps 统一配置模块 (包含 log4j2-spring.xml) -->
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-devops-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-configuration-starter</artifactId>
