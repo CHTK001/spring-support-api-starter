@@ -1,0 +1,9 @@
+# Jackson 通用配置
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+plugin:
+  jackson:
+    long-to-string: true

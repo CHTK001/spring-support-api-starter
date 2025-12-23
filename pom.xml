@@ -27,6 +27,7 @@
         <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
+        <module>spring-api-support-devops-starter</module>
     </modules>
     <version>4.0.0</version>
 
@@ -530,5 +531,43 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- YAML 配置合并插件 -->
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <executions>
+                        <execution>
+                            <id>merge-yaml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <configuration>
+                                <scripts>
+                                    <script>file:///${project.basedir}/../spring-api-support-devops-starter/src/main/scripts/merge-yaml.groovy</script>
+                                </scripts>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.groovy</groupId>
+                            <artifactId>groovy</artifactId>
+                            <version>4.0.15</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.yaml</groupId>
+                            <artifactId>snakeyaml</artifactId>
+                            <version>2.2</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

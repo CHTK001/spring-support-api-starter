@@ -311,6 +311,12 @@
                 </configuration>
             </plugin>
 
+            <!-- YAML 配置合并插件 -->
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
+
             <!-- JAR打包插件 - 配置MANIFEST和排除配置文件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
