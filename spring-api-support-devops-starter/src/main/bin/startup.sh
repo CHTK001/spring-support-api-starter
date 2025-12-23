@@ -1,13 +1,13 @@
 #!/bin/bash
 # ============================================================
-# 缂備胶鍠嶇粩瀛樻償閺冨倹鏆忕紒鐙呯磿閹﹪鎳樺顓熸嫳
-# 闁衡偓椤栨稑鐦柛鏂诲妽閳ь兛绀侀幃鏇犵矓閻楀牊绂岄柟?(Maven 閻犙冨缁喗娼婚崶銊﹀Б)
-# 濞达絾绮忛埀? DevOps
-# 闁绘鐗婂﹢? 2.0.0
+# 统一应用管理脚本
+# 支持动态名称替换 (Maven 资源过滤)
+# 作者: DevOps
+# 版本: 2.0.0
 # ============================================================
 
 # ===========================================
-# 闁糕晞娅ｉ、鍛存煀瀹ュ洨鏋?(Maven 閻犙冨缁喗娼婚崶銊﹀Б闁哄洦瀵у畷?
+# 基础配置 (Maven 资源过滤替换)
 # ===========================================
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -15,39 +15,48 @@ APP_NAME="${APP_NAME:-@project.artifactId@}"
 APP_VERSION="${APP_VERSION:-@project.version@}"
 JAR_NAME="${APP_NAME}-${APP_VERSION}.jar"
 
-# 闁烩晩鍠栫紞宥夋煀瀹ュ洨鏋?CONFIG_DIR="${APP_HOME}/config"
+# 目录配置
+CONFIG_DIR="${APP_HOME}/config"
 LIB_DIR="${APP_HOME}/lib"
 LOG_DIR="${APP_HOME}/logs"
 PID_FILE="${APP_HOME}/${APP_NAME}.pid"
 BACKUP_DIR="${APP_HOME}/backup"
 
-# 闁哄啨鍎辩换鏃堝棘閸ワ附顐介梺鏉跨Ф閻?STARTUP_LOG="${LOG_DIR}/startup.log"
+# 日志文件配置
+STARTUP_LOG="${LOG_DIR}/startup.log"
 APP_LOG="${LOG_DIR}/${APP_NAME}.log"
 
-# 閻犲鍟抽惁顖滅博椤栨艾缍撻梺鏉跨Ф閻?DEFAULT_DEBUG_PORT=5005
+# 调试端口配置
+DEFAULT_DEBUG_PORT=5005
 
-# Docker 闂佹澘绉堕悿?DOCKER_REGISTRY="${DOCKER_REGISTRY:-}"
+# Docker 配置
+DOCKER_REGISTRY="${DOCKER_REGISTRY:-}"
 DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-${APP_NAME}}"
 DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-${APP_VERSION}}"
 DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_NAME:-${APP_NAME}}"
 DOCKER_PORT="${DOCKER_PORT:-8080}"
 DOCKER_HOST_PORT="${DOCKER_HOST_PORT:-8080}"
 
-# Skywalking 闂佹澘绉堕悿?SKYWALKING_VERSION="${SKYWALKING_VERSION:-9.0.0}"
+# Skywalking 配置
+SKYWALKING_VERSION="${SKYWALKING_VERSION:-9.0.0}"
 SKYWALKING_DIR="${APP_HOME}/skywalking"
 SKYWALKING_AGENT_JAR="${SKYWALKING_DIR}/skywalking-agent/skywalking-agent.jar"
 SW_AGENT_NAME="${SW_AGENT_NAME:-${APP_NAME}}"
 SW_AGENT_COLLECTOR_BACKEND_SERVICES="${SW_AGENT_COLLECTOR_BACKEND_SERVICES:-127.0.0.1:11800}"
 
-# JVM闂佹澘绉堕悿?JAVA_OPTS="${JAVA_OPTS:--Xms512m -Xmx1024m -XX:+UseG1GC}"
+# JVM配置
+JAVA_OPTS="${JAVA_OPTS:--Xms512m -Xmx1024m -XX:+UseG1GC}"
 JAVA_OPTS="${JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOG_DIR}"
 JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.path=${LOG_DIR}"
 
-# Spring闂佹澘绉堕悿?SPRING_PROFILE="${SPRING_PROFILE:-prod}"
+# Spring配置
+SPRING_PROFILE="${SPRING_PROFILE:-prod}"
 
-# 闁哄牆绉存慨鐔虹博椤栨艾缍撻梺鏉跨Ф閻?SERVER_PORT="${SERVER_PORT:-8080}"
+# 服务端口配置
+SERVER_PORT="${SERVER_PORT:-8080}"
 
-# 濡増绮忔竟濠勨偓瑙勭煯缁?RED='\033[0;31m'
+# 颜色定义
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
@@ -57,194 +66,196 @@ WHITE='\033[1;37m'
 NC='\033[0m'
 
 # ===========================================
-# 閻㈩垼鍠栨慨顏呯┍閳╁啩绱?# ===========================================
+# 帮助信息
+# ===========================================
 show_help() {
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}              ${APP_NAME} 缂佺媴绱曢幃濠囨嚇濮橆厽鎷?                   ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁?{NC}${CYAN}              闁绘鐗婂﹢? ${APP_VERSION}                              ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}              ${APP_NAME} 管理脚本                    ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}${CYAN}              版本: ${APP_VERSION}                              ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${YELLOW}闁活潿鍔嶇涵?${NC} $0 [闁告稒鍨濋幎顦?[闂侇偄顦甸妴宄?
+    echo -e "${YELLOW}用法:${NC} $0 [命令] [选项]"
     echo ""
-    echo -e "${YELLOW}闁糕晞娅ｉ、鍛村川閹存帗濮?${NC}"
-    echo "  start              闁告凹鍨版慨鈺傛償閺冨倹鏆?(濮掓稒顭堥?"
-    echo "  stop               闁稿绮嶉娑欐償閺冨倹鏆?
-    echo "  restart            闂佹彃绉撮幆搴㈡償閺冨倹鏆?
-    echo "  status             闁哄被鍎冲﹢鍛償閺冨倹鏆忛柣妯垮煐閳?
-    echo "  info               闁哄嫬澧介妵姘辨嫚閿斿墽鐭庨弶鈺傚姌椤㈡垶绌遍埄鍐х礀"
+    echo -e "${YELLOW}基础命令:${NC}"
+    echo "  start              启动应用 (默认)"
+    echo "  stop               停止应用"
+    echo "  restart            重启应用"
+    echo "  status             查看应用状态"
+    echo "  info               显示详细运行信息"
     echo ""
-    echo -e "${YELLOW}闁哄啨鍎辩换鏃堝川閹存帗濮?${NC}"
-    echo "  logs [N]           闁哄被鍎冲﹢鍛村嫉閳ь剚娼?N 闁哄鍓濆Λ鈺勭疀?(濮掓稒顭堥? 100)"
-    echo "  tail               閻庡湱鍋炲鍌滄崉閻斿鍤嬮柡鍐﹀劚缁绘梹娼忛幘鍐叉瘔"
+    echo -e "${YELLOW}日志命令:${NC}"
+    echo "  logs [N]           查看最近 N 条日志 (默认: 100)"
+    echo "  tail               实时跟踪日志输出"
     echo ""
-    echo -e "${YELLOW}閻犲洤锕ラ弻鍥川閹存帗濮?${NC}"
-    echo "  jvm                闁哄被鍎冲﹢鍖M濞ｅ洠鍓濇导?
-    echo "  gc                 閻熸瑱绠戣ぐ?GC (young/full)"
-    echo "  tuning             JVM閻犲鍟╃槐顓烆嚈妤︽鍞?
-    echo "  analyze            CPU/闁告劕鎳庨悺銊╁礆閸℃鈧?
-    echo "  top-cpu            闁告帒妫欓悗鑺ヮ殗濡ゎ櫀U缂佹崘娉曢埢濂稿矗婵犱礁鏁╅柣顔荤閻栥垽寮?(Top N)"
-    echo "  top-mem            闁告帒妫欓悗鑺ヮ殗濡搫鏁堕悗娑櫭顔炬寬?(Top N)"
-    echo "  dump               闁汇垻鍠愰崹姘姜椤掆偓閸嬪秹寮崶锔筋偨 (heap/thread/all)"
-    echo "  arthas             闁告凹鍨版慨銆thas閻犲洤锕ラ弻?
+    echo -e "${YELLOW}诊断命令:${NC}"
+    echo "  jvm                查看JVM信息"
+    echo "  gc                 触发 GC (young/full)"
+    echo "  tuning             JVM调优建议"
+    echo "  analyze            CPU/内存分析"
+    echo "  top-cpu            分析高CPU线程及代码堆栈 (Top N)"
+    echo "  top-mem            分析高内存对象 (Top N)"
+    echo "  dump               生成转储文件 (heap/thread/all)"
+    echo "  arthas             启动Arthas诊断"
     echo ""
-    echo -e "${YELLOW}闁哄牆绉存慨鐔虹不閿涘嫭鍊為柛娑欏灊閹?${NC}"
-    echo "  install-service    閻庣懓顦抽ˉ濠冪▔?systemd 闁哄牆绉存慨?
-    echo "  uninstall-service  闁告鐡曞ù?systemd 闁哄牆绉存慨?
-    echo "  enable-service     闁告凹鍨抽弫銈咁嚕閳ь剟寮垫ウ鍨闁?
-    echo "  disable-service    缂佸倷鑳堕弫銈咁嚕閳ь剟寮垫ウ鍨闁?
-    echo "  service-status     闁哄被鍎冲﹢鍛村嫉瀹ュ懎顫ら柣妯垮煐閳?
+    echo -e "${YELLOW}服务管理命令:${NC}"
+    echo "  install-service    安装为 systemd 服务"
+    echo "  uninstall-service  卸载 systemd 服务"
+    echo "  enable-service     启用开机自启"
+    echo "  disable-service    禁用开机自启"
+    echo "  service-status     查看服务状态"
     echo ""
-    echo -e "${YELLOW}閺夆晜鍔楀ǎ顕€宕ㄩ幋鎺撳Б:${NC}"
-    echo "  backup             Create backup (config/JAR)"
-    echo "  backup list        List all backups with index"
-    echo "  restore            Restore from latest backup"
-    echo "  restore list       List all backups with index"
-    echo "  restore <N>        Restore to backup N"
-    echo "  upgrade            濞寸姴楠哥敮鍥╃磽閳轰礁鐦堕柛妤€娲ㄦ?(闁衡偓椤栨稑鐦?zip/tar.gz)"
-    echo "  rollback           闁搞儳鍋炵划鎾礆妫颁胶鐟愬☉鎾亾濞戞搩浜ｇ换鏇㈠储閻斿搫浠?
-    echo "  rollback-status    闁哄被鍎冲﹢鍛交濡搫鏂ч柣鎰贡婵悂骞€?
-    echo "  debug              濞寸姰鍎撮惃鐔烘嫚閺囩唽浣割嚕韫囨挻鍎欓柛?
+    echo -e "${YELLOW}运维命令:${NC}"
+    echo "  backup             备份配置/JAR"
+    echo "  backup list        列出所有备份"
+    echo "  restore            从最新备份还原"
+    echo "  restore list       列出所有备份"
+    echo "  restore <N>        还原到序号N的备份"
+    echo "  upgrade            从压缩包升级 (支持 zip/tar.gz)"
+    echo "  rollback           回滚到上一个还原点"
+    echo "  rollback-status    查看还原点状态"
+    echo "  debug              以调试模式启动"
     echo ""
-    echo -e "${YELLOW}闁绘粠鍨伴。銊х不閿涘嫭鍊為柛娑欏灊閹?${NC}"
-    echo "  java               缂佺媴绱曢幃?Java 闁绘粠鍨伴。?(install/list/check/remove)"
-    echo "  skywalking         缂佺媴绱曢幃?Skywalking Agent (install/check/clean/info)"
+    echo -e "${YELLOW}环境管理命令:${NC}"
+    echo "  java               管理 Java 环境 (install/list/check/remove)"
+    echo "  skywalking         管理 Skywalking Agent (install/check/clean/info)"
     echo ""
-    echo -e "${YELLOW}Docker 闁告稒鍨濋幎?${NC}"
-    echo "  docker-build       闁哄瀚紓?Docker 闂傗偓濠婂啫鍓?
-    echo "  docker-deploy      闁哄瀚紓鎾荤嵁閸洖鍔ョ紓鍐╁絻閸╁矂寮甸浣圭皻 (濞戞挴鍋撻梺娆惧枛瑜板倻鏁?"
-    echo "  publish            docker-deploy 闁汇劌瀚悾婵嬪礃?
-    echo "  docker-start       闁告凹鍨版慨?Docker 閻庡湱鎳撳▍?
-    echo "  docker-stop        闁稿绮嶉?Docker 閻庡湱鎳撳▍?
-    echo "  docker-restart     闂佹彃绉撮幆?Docker 閻庡湱鎳撳▍?
-    echo "  docker-status      闁哄被鍎冲﹢鍛偓鍦嚀濞呮帡鎮╅懜纰樺亾?
-    echo "  docker-logs        闁哄被鍎冲﹢鍛偓鍦嚀濞呮帡寮妷銉х"
-    echo "  docker-clean       婵炴挸鎳愰幃濠囧籍瑜旈弳鍛村磽?
+    echo -e "${YELLOW}Docker 命令:${NC}"
+    echo "  docker-build       构建 Docker 镜像"
+    echo "  docker-deploy      构建并部署到本机 (一键发布)"
+    echo "  publish            docker-deploy 的简写"
+    echo "  docker-start       启动 Docker 容器"
+    echo "  docker-stop        停止 Docker 容器"
+    echo "  docker-restart     重启 Docker 容器"
+    echo "  docker-status      查看容器状态"
+    echo "  docker-logs        查看容器日志"
+    echo "  docker-clean       清理旧镜像"
     echo ""
-    echo -e "${YELLOW}闂侇偄顦甸妴?${NC}"
-    echo "  --java [path]         闁圭娲ら悾?Java 閻犱警鍨扮欢?(闁哄啰濮村顒勫极閻楀牊顦ч柡鍕⒔閵囨俺銇愰幘鍐差枀 Java)"
-    echo "  --jvm-opts <opts>     闁煎浜滈悾鐐▕婵夊M闁告瑥鍊归弳?
-    echo "  --debug-port <port>   闁圭娲ら悾鍓ф嫬閸愵厾妲哥紒鏃戝灠瑜?(濮掓稒顭堥? ${DEFAULT_DEBUG_PORT})"
-    echo "  --docker-port <port>  闁圭娲ら悾鍓р偓鍦嚀濞呮帡宕橀崨鏉戝姤缂佹棏鍨拌ぐ?(濮掓稒顭堥? 8080)"
-    echo "  --host-port <port>    闁圭娲ら悾鐐▔缂佹ɑ绨氶柡鍕Т閻ㄧ姷绮╅姘稉 (濮掓稒顭堥? 8080)"
-    echo "  --image-tag <tag>     闁圭娲ら悾楣冩⒐濠婂啫鍓奸柡宥呮川椤?(濮掓稒顭堥? ${APP_VERSION})"
-    echo "  --skywalking          闁告凹鍨抽弫?Skywalking APM"
-    echo "  --sw-backend <addr>   闁圭娲ら悾?Skywalking OAP 闁革附婢樺?
-    echo "  --sw-name <name>      闁圭娲ら悾?Skywalking 闁哄牆绉存慨鐔煎触?
-    echo "  --package <path>      闁告娲ㄦ鍥礌閸涙壆鐔呯€?zip/tar.gz)"
-    echo "  --no-restart          闁告娲ㄦ鍥触鎼存繄鐟濋柤濂変簻婵晠鏌屽鍛剻"
-    echo "  --dev                 濞达綀娉曢弫銈咁嚕閳ь剟宕ｉ幋鐘茬畾濠?dev)"
-    echo "  --prod                濞达綀娉曢弫銈夋偨閻斿爼鐛撻柣婊庡灠椤?(prod, 濮掓稒顭堥?"
-    echo "  --test                濞达綀娉曢弫銈吤圭€ｎ厾妲搁柣婊庡灠椤?(test)"
-    echo "  --profile <name>      闁圭娲ら悾楣冩嚊椤忓嫮鏆板☉鏂款槺楠炲棙鏅?
-    echo "  --output <path>       dump 閺夊牊鎸搁崵顓㈡儎椤旇偐绉?
-    echo "  --dump-path <path>    dump 閺夊牊鎸搁崵顓㈡儎椤旇偐绉?(--output 闁告帩鍋勯幃?"
-    echo "  --logs <N>            闁告凹鍨版慨鈺呭触鎼淬垺鈻旂紒鈧悜妯讳粯閺?N 闁哄鍓濆Λ鈺勭疀?
-    echo "  --tail                闁告凹鍨版慨鈺呭触鎼达紕鏉介柡鍐╁劶缁愶繝鐓鍛級闊?
-    echo "  --help, -h            闁哄嫬澧介妵姘辨暜椤旂厧袠濞ｅ洠鍓濇导?
+    echo -e "${YELLOW}选项:${NC}"
+    echo "  --java [path]         指定 Java 路径 (无参数时显示当前 Java)"
+    echo "  --jvm-opts <opts>     自定义JVM参数"
+    echo "  --debug-port <port>   指定调试端口 (默认: ${DEFAULT_DEBUG_PORT})"
+    echo "  --docker-port <port>  指定容器内部端口 (默认: 8080)"
+    echo "  --host-port <port>    指定主机映射端口 (默认: 8080)"
+    echo "  --image-tag <tag>     指定镜像标签 (默认: ${APP_VERSION})"
+    echo "  --skywalking          启用 Skywalking APM"
+    echo "  --sw-backend <addr>   指定 Skywalking OAP 地址"
+    echo "  --sw-name <name>      指定 Skywalking 服务名"
+    echo "  --package <path>      升级包路径(zip/tar.gz)"
+    echo "  --no-restart          升级后不自动重启"
+    echo "  --dev                 使用开发环境(dev)"
+    echo "  --prod                使用生产环境 (prod, 默认)"
+    echo "  --test                使用测试环境 (test)"
+    echo "  --profile <name>      指定自定义环境"
+    echo "  --output <path>       dump 输出目录"
+    echo "  --dump-path <path>    dump 输出目录 (--output 别名)"
+    echo "  --logs <N>            启动后显示最近 N 条日志"
+    echo "  --tail                启动后实时跟踪日志"
+    echo "  --help, -h            显示帮助信息"
     echo ""
-    echo -e "${YELLOW}缂佲偓鏉炴壆浼?${NC}"
+    echo -e "${YELLOW}示例:${NC}"
     echo ""
-    echo -e "  ${CYAN}闁糕晞娅ｉ、鍛村川閹存帗濮?${NC}"
-    echo "    $0 start                             闁告凹鍨版慨鈺傛償閺冨倹鏆?
-    echo "    $0 start --dev                       鐎殿喒鍋撻柛娆愬灩楠炲棙鏅堕崘銊﹀剻闁?
-    echo "    $0 start --prod                      闁汇垻鍠嶆鍥偝椤栨凹鏆旈柛姘煎灠婵?
-    echo "    $0 start --test                      婵炴潙顑堥惁顖炴偝椤栨凹鏆旈柛姘煎灠婵?
-    echo "    $0 start --profile staging           闁煎浜滈悾鐐▕婢跺苯绠氬褍鍟幆搴ㄥ礉?
-    echo "    $0 start --tail                      闁告凹鍨版慨鈺呯嵁鐠鸿櫣鏉介柡鍐╁劶缁愶繝鐓鍛級闊?
-    echo "    $0 start --logs 200                  闁告凹鍨版慨鈺呭触鎼淬垺鈻旂紒鈧悜妯讳粯閺?200 闁哄鍓濆Λ鈺勭疀?
-    echo "    $0 start --java /opt/jdk17/bin/java  闁圭娲ら悾?Java 閻犱警鍨扮欢鐐哄触椤栨艾袟 (妤犵偞婀圭换姘扁偓?"
-    echo "    $0 --java                            闁哄嫬澧介妵姘炽亹閹惧啿顤呭ù锝堟硶閺併倝鎯?Java 闁绘鐗婂﹢?
-    echo "    $0 stop                              闁稿绮嶉娑欐償閺冨倹鏆?
-    echo "    $0 restart                           闂佹彃绉撮幆搴㈡償閺冨倹鏆?
-    echo "    $0 status                            闁哄被鍎冲﹢鍛存偐閼哥鍋?
-    echo "    $0 info                              闁哄被鍎冲﹢鍛嫚閿斿墽鐭庡ǎ鍥ｅ墲娴?
+    echo -e "  ${CYAN}基础命令:${NC}"
+    echo "    $0 start                             启动应用"
+    echo "    $0 start --dev                       开发环境启动"
+    echo "    $0 start --prod                      生产环境启动"
+    echo "    $0 start --test                      测试环境启动"
+    echo "    $0 start --profile staging           自定义环境启动"
+    echo "    $0 start --tail                      启动并实时跟踪日志"
+    echo "    $0 start --logs 200                  启动后显示最近 200 条日志"
+    echo "    $0 start --java /opt/jdk17/bin/java  指定 Java 路径启动 (并保存)"
+    echo "    $0 --java                            显示当前使用的 Java 版本"
+    echo "    $0 stop                              停止应用"
+    echo "    $0 restart                           重启应用"
+    echo "    $0 status                            查看状态"
+    echo "    $0 info                              查看详细信息"
     echo ""
-    echo -e "  ${CYAN}闁哄啨鍎辩换鏃堝川閹存帗濮?${NC}"
-    echo "    $0 logs                              闁哄被鍎冲﹢鍛村嫉閳ь剚娼?100 闁哄鍓濆Λ鈺勭疀?
-    echo "    $0 logs 50                           闁哄被鍎冲﹢鍛村嫉閳ь剚娼?50 闁哄鍓濆Λ鈺勭疀?
-    echo "    $0 tail                              閻庡湱鍋炲鍌滄崉閻斿鍤嬮柡鍐﹀劚缁?
+    echo -e "  ${CYAN}日志命令:${NC}"
+    echo "    $0 logs                              查看最近 100 条日志"
+    echo "    $0 logs 50                           查看最近 50 条日志"
+    echo "    $0 tail                              实时跟踪日志"
     echo ""
-    echo -e "  ${CYAN}閻犲鍟抽惁顖炲川閹存帗濮?${NC}"
-    echo "    $0 debug                             閻犲鍟抽惁顖毼熼垾宕囩闁告凹鍨版慨?(缂佹棏鍨拌ぐ?5005)"
-    echo "    $0 debug --debug-port 5006           閻犲鍟抽惁顖毼熼垾宕囩闁告凹鍨版慨?(闁圭娲ら悾鍓х博椤栨艾缍?"
+    echo -e "  ${CYAN}调试命令:${NC}"
+    echo "    $0 debug                             调试模式启动 (端口 5005)"
+    echo "    $0 debug --debug-port 5006           调试模式启动 (指定端口)"
     echo ""
-    echo -e "  ${CYAN}JVM 閻犲洤锕ラ弻?${NC}"
-    echo "    $0 jvm                               闁哄被鍎冲﹢?JVM 濞ｅ洠鍓濇导?
-    echo "    $0 gc                                閻熸瑱绠戣ぐ?Full GC"
-    echo "    $0 gc young                          閻熸瑱绠戣ぐ?Young GC"
-    echo "    $0 top-cpu                           濡?CPU 缂佹崘娉曢埢濂稿礆閸℃鈧?(Top 10)"
-    echo "    $0 top-cpu 20                        濡?CPU 缂佹崘娉曢埢濂稿礆閸℃鈧?(Top 20)"
-    echo "    $0 top-mem                           濡ゅ倹锚閸炲鈧稒锚椤曨喚鎸掗垾鍐茬€婚柡?(Top 10)"
-    echo "    $0 top-mem 20                        濡ゅ倹锚閸炲鈧稒锚椤曨喚鎸掗垾鍐茬€婚柡?(Top 20)"
-    echo "    $0 tuning                            JVM 閻犲鍟╃槐顓烆嚈妤︽鍞?
-    echo "    $0 arthas                            闁告凹鍨版慨?Arthas 閻犲洤锕ラ弻?
+    echo -e "  ${CYAN}JVM 诊断:${NC}"
+    echo "    $0 jvm                               查看 JVM 信息"
+    echo "    $0 gc                                触发 Full GC"
+    echo "    $0 gc young                          触发 Young GC"
+    echo "    $0 top-cpu                           高 CPU 线程分析 (Top 10)"
+    echo "    $0 top-cpu 20                        高 CPU 线程分析 (Top 20)"
+    echo "    $0 top-mem                           高内存对象分析 (Top 10)"
+    echo "    $0 top-mem 20                        高内存对象分析 (Top 20)"
+    echo "    $0 tuning                            JVM 调优建议"
+    echo "    $0 arthas                            启动 Arthas 诊断"
     echo ""
-    echo -e "  ${CYAN}Dump 閺夌儐鍓欓崑?${NC}"
-    echo "    $0 dump                              闁汇垻鍠愰崹姘跺醇?缂佹崘娉曢埢鍏兼姜椤掆偓閸?
-    echo "    $0 dump heap                         濞寸姴鎳庨悥銏℃姜椤掆偓閸?
-    echo "    $0 dump thread                       濞寸姴鎳愰崵搴ｇ矙鐎ｎ厽绁柛?
-    echo "    $0 dump --output /tmp/dump           闁圭娲ら悾鐐綇閹惧啿姣夐柣鈺婂枛缂?
+    echo -e "  ${CYAN}Dump 转储:${NC}"
+    echo "    $0 dump                              生成堆+线程转储"
+    echo "    $0 dump heap                         仅堆转储"
+    echo "    $0 dump thread                       仅线程转储"
+    echo "    $0 dump --output /tmp/dump           指定输出目录"
     echo ""
-    echo -e "  ${CYAN}闁哄牆绉存慨鐔虹不閿涘嫭鍊?(闂傚洠鍋?root 闁哄鍟村?:${NC}"
-    echo "    $0 install-service                   閻庣懓顦抽ˉ濠冪▔?systemd 闁哄牆绉存慨?
-    echo "    $0 uninstall-service                 闁告鐡曞ù鍥嫉瀹ュ懎顫?
-    echo "    $0 enable-service                    闁告凹鍨抽弫銈咁嚕閳ь剟寮垫ウ鍨闁?
-    echo "    $0 disable-service                   缂佸倷鑳堕弫銈咁嚕閳ь剟寮垫ウ鍨闁?
-    echo "    $0 service-status                    闁哄被鍎冲﹢鍛村嫉瀹ュ懎顫ら柣妯垮煐閳?
+    echo -e "  ${CYAN}服务管理 (需 root 权限):${NC}"
+    echo "    $0 install-service                   安装为 systemd 服务"
+    echo "    $0 uninstall-service                 卸载服务"
+    echo "    $0 enable-service                    启用开机自启"
+    echo "    $0 disable-service                   禁用开机自启"
+    echo "    $0 service-status                    查看服务状态"
     echo ""
-    echo -e "  ${CYAN}闁告娲ㄦ鍥炊閻愬娉?${NC}"
-    echo "    $0 upgrade --package /tmp/app.zip    濞寸姴楠哥敮鍥╃磽閳轰礁鐦堕柛妤€娲ㄦ?
-    echo "    $0 upgrade --package /tmp/app.tar.gz --no-restart  闁告娲ㄦ鍥ㄦ媴閸℃洜鐟濋梺鎻掔Т閹?
-    echo "    $0 rollback                          闁搞儳鍋炵划鎾礆妫颁胶鐟愬☉鎾亾濞戞搩浜炴晶妤呭嫉?
-    echo "    $0 rollback-status                   闁哄被鍎冲﹢鍛交濡搫鏂ч柣鎰贡婵悂骞€?
-    echo "    $0 backup                            Create new backup"
-    echo "    $0 backup list                       List all backups"
-    echo "    $0 restore                           Restore from latest"
-    echo "    $0 restore list                      List all backups"
-    echo "    $0 restore 1                         Restore to backup #1"
+    echo -e "  ${CYAN}升级回滚:${NC}"
+    echo "    $0 upgrade --package /tmp/app.zip    从压缩包升级"
+    echo "    $0 upgrade --package /tmp/app.tar.gz --no-restart  升级但不重启"
+    echo "    $0 rollback                          回滚到上一个版本"
+    echo "    $0 rollback-status                   查看还原点状态"
+    echo "    $0 backup                            创建新备份"
+    echo "    $0 backup list                       列出所有备份"
+    echo "    $0 restore                           从最新备份还原"
+    echo "    $0 restore list                      列出所有备份"
+    echo "    $0 restore 1                         还原到备份 #1"
     echo ""
-    echo -e "  ${CYAN}Docker 闂侇喓鍔庣拋?${NC}"
-    echo "    $0 docker-build                      闁哄瀚紓?Docker 闂傗偓濠婂啫鍓?
-    echo "    $0 docker-deploy                     闁哄瀚紓鎾荤嵁閸洖鍔ョ紓?(濞戞挴鍋撻梺娆惧枛瑜板倻鏁?"
-    echo "    $0 publish                           docker-deploy 闁汇劌瀚悾婵嬪礃?
-    echo "    $0 docker-start                      闁告凹鍨版慨鈺冣偓鍦嚀濞?
-    echo "    $0 docker-stop                       闁稿绮嶉娑氣偓鍦嚀濞?
-    echo "    $0 docker-restart                    闂佹彃绉撮幆搴ｂ偓鍦嚀濞?
-    echo "    $0 docker-status                     闁哄被鍎冲﹢鍛偓鍦嚀濞呮帡鎮╅懜纰樺亾?
-    echo "    $0 docker-logs                       闁哄被鍎冲﹢鍛偓鍦嚀濞呮帡寮妷銉х"
-    echo "    $0 docker-clean                      婵炴挸鎳愰幃濠囧籍瑜旈弳鍛村磽?
+    echo -e "  ${CYAN}Docker 部署:${NC}"
+    echo "    $0 docker-build                      构建 Docker 镜像"
+    echo "    $0 docker-deploy                     构建并部署 (一键发布)"
+    echo "    $0 publish                           docker-deploy 的简写"
+    echo "    $0 docker-start                      启动容器"
+    echo "    $0 docker-stop                       停止容器"
+    echo "    $0 docker-restart                    重启容器"
+    echo "    $0 docker-status                     查看容器状态"
+    echo "    $0 docker-logs                       查看容器日志"
+    echo "    $0 docker-clean                      清理旧镜像"
     echo ""
-    echo -e "  ${CYAN}Java 闁绘粠鍨伴。銊х不閿涘嫭鍊?${NC}"
-    echo "    $0 java install                      閻庣懓顦抽ˉ?Java (濮掓稒顭堥?21)"
-    echo "    $0 java install --version 17         閻庣懓顦抽ˉ濠囧箰閸パ呮毎闁绘鐗婂﹢?Java"
-    echo "    $0 java install --dir /opt/java      閻庣懓顦抽ˉ濠囧礆閻楀牆鐦归悗瑙勬皑濞叉媽銇?
-    echo "    $0 java list                         闁告帗顨呴崵顓㈠矗椤栨粍鏆?Java 闁绘鐗婂﹢?
-    echo "    $0 java check                        婵☆偀鍋撻柡灞诲劚缂嶅宕?Java 闁绘粠鍨伴。?
-    echo "    $0 java remove                       闁告帞濞€濞呭骸顔忛幓鎺旀殧閻熶礁鎳愬▓?Java"
+    echo -e "  ${CYAN}Java 环境管理:${NC}"
+    echo "    $0 java install                      安装 Java (默认 21)"
+    echo "    $0 java install --version 17         安装指定版本 Java"
+    echo "    $0 java list                         列出可用 Java 版本"
+    echo "    $0 java check                        检查当前 Java 环境"
     echo ""
     echo -e "  ${CYAN}Skywalking APM:${NC}"
-    echo "    $0 start --skywalking                闁告凹鍨抽弫?Skywalking 闁告凹鍨版慨?
-    echo "    $0 start --skywalking --sw-backend 192.168.1.100:11800  闁圭娲ら悾?OAP 闁革附婢樺?
-    echo "    $0 skywalking install                閻庣懓顦抽ˉ?Skywalking Agent"
-    echo "    $0 skywalking check                  婵☆偀鍋撻柡?Agent 闁绘鍩栭埀?
+    echo "    $0 start --skywalking                启用 Skywalking 启动"
+    echo "    $0 start --skywalking --sw-backend 192.168.1.100:11800  指定 OAP 地址"
+    echo "    $0 skywalking install                安装 Skywalking Agent"
+    echo "    $0 skywalking check                  检查 Agent 状态"
     echo ""
 }
 
 # ===========================================
-# Java 婵☆偀鍋撴繛?# ===========================================
+# Java 检测
+# ===========================================
 
-# Java 闂佹澘绉堕悿鍡涘棘閸ワ附顐介悹渚灠缁?(闁活潿鍔嬬花顒佺┍濠靛棛鎽犻柣顫妽閸╂盯骞愰崶褏鏆伴柣?Java 閻犱警鍨扮欢?
+# Java 配置文件路径
 JAVA_CONFIG_FILE="${APP_HOME}/.java_path"
 
-# 濞ｅ洦绻傞悺?Java 閻犱警鍨扮欢鐐哄礆娴兼潙甯崇紓鍐惧枟閺嬪啯绂?save_java_path() {
+# 保存 Java 路径
+save_java_path() {
     local java_path="$1"
     if [ -n "$java_path" ]; then
         echo "$java_path" > "${JAVA_CONFIG_FILE}"
-        echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?Java 閻犱警鍨扮欢鐐差啅闊厾绠介悗? ${java_path}${NC}"
+        echo -e "${GREEN}[成功] Java 路径已保存: ${java_path}${NC}"
     fi
 }
 
-# 濞寸姴閰ｉ崢銈囩磾椤旇姤鐎ù鐘烘硾婵偞娼?Java 閻犱警鍨扮欢?load_java_path() {
+# 加载 Java 路径
+load_java_path() {
     if [ -f "${JAVA_CONFIG_FILE}" ]; then
         local saved_path=$(cat "${JAVA_CONFIG_FILE}" 2>/dev/null)
         if [ -n "$saved_path" ] && [ -x "$saved_path" ]; then
@@ -253,14 +264,14 @@ JAVA_CONFIG_FILE="${APP_HOME}/.java_path"
     fi
 }
 
-# 婵☆偀鍋撻柡?Java 闁绘粠鍨伴。?check_java() {
-    # 闁稿繐鐗嗛惃鍓ф嫚閺囩偛顫ｉ弶鐐村灊缁绘氨鈧稒顭囧▓?Java 閻犱警鍨扮欢?    [ -z "$CUSTOM_JAVA" ] && load_java_path
+check_java() {
+    [ -z "$CUSTOM_JAVA" ] && load_java_path
     
     if [ -n "$CUSTOM_JAVA" ]; then
         if [ -x "$CUSTOM_JAVA" ]; then
             JAVA_CMD="$CUSTOM_JAVA"
         else
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?闁圭娲ら悾楣冩儍?Java 閻犱警鍨扮欢鐐寸▔瀹ュ懐鎽犻柛锔哄妽閸ㄣ劍绋夊鍛闁圭瑳鍡╂斀: ${CUSTOM_JAVA}${NC}"
+            echo -e "${RED}[错误] 指定的 Java 路径不存在或不可执行: ${CUSTOM_JAVA}${NC}"
             exit 1
         fi
     elif [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
@@ -272,57 +283,57 @@ JAVA_CONFIG_FILE="${APP_HOME}/.java_path"
     elif [ -x "/usr/local/bin/java" ]; then
         JAVA_CMD="/usr/local/bin/java"
     else
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜濇竟姗€宕氶惂鎱硋a闁绘粠鍨伴。?{NC}"
-        echo "閻犲洨鏌夐鏇犵磾?JAVA_HOME 闁瑰瓨鐗旀繛鍥偨?--java 闁圭娲ら悾?Java 閻犱警鍨扮欢?
+        echo -e "${RED}[错误] 未找到Java环境${NC}"
+        echo "请设置 JAVA_HOME 或使用 --java 指定 Java 路径"
         exit 1
     fi
 }
 
-# 闁兼儳鍢茶ぐ?Java 闁绘鐗婂﹢鐗堢┍閳╁啩绱?get_java_version() {
+get_java_version() {
     "$JAVA_CMD" -version 2>&1 | head -n 1 | awk -F '"' '{print $2}'
 }
 
-# 闁哄嫬澧介妵姘炽亹閹惧啿顤?Java 濞ｅ洠鍓濇导?show_java_info() {
+show_java_info() {
     check_java
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}              鐟滅増鎸告晶?Java 闁绘粠鍨伴。銊︾┍閳╁啩绱?{NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}              当前 Java 环境信息${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    # 闁哄嫬澧介妵?Java 閻犱警鍨扮欢鐐哄级閵夛妇鐖?    local source="缂侇垵宕电划?PATH"
+    local source="系统 PATH"
     if [ -n "$CUSTOM_JAVA" ]; then
         if [ -f "${JAVA_CONFIG_FILE}" ]; then
-            source="闂佹澘绉堕悿鍡涘棘閸ワ附顐?(.java_path)"
+            source="配置文件 (.java_path)"
         else
-            source="闁告稒鍨濋幎銈囨偘?--java 闁告瑥鍊归弳?
+            source="命令行 --java 参数"
         fi
     elif [ -n "$JAVA_HOME" ]; then
-        source="JAVA_HOME 闁绘粠鍨伴。銊╁矗濮椻偓閸?
+        source="JAVA_HOME 环境变量"
     fi
     
-    echo -e "  ${CYAN}Java 閻犱警鍨扮欢?${NC}    ${WHITE}${JAVA_CMD}${NC}"
-    echo -e "  ${CYAN}閻犱警鍨扮欢鐐哄级閵夛妇鐖?${NC}    ${WHITE}${source}${NC}"
+    echo -e "  ${CYAN}Java 路径:${NC}    ${WHITE}${JAVA_CMD}${NC}"
+    echo -e "  ${CYAN}路径来源:${NC}    ${WHITE}${source}${NC}"
     echo ""
-    
-    # 闁哄嫬澧介妵姘扁偓鐟版湰閺嗭綁鎯?Java 闁绘鐗婂﹢鐗堢┍閳╁啩绱?    echo -e "  ${CYAN}Java 闁绘鐗婂﹢?${NC}"
+    echo -e "  ${CYAN}Java 版本:${NC}"
     "$JAVA_CMD" -version 2>&1 | while read -r line; do
         echo -e "    ${WHITE}${line}${NC}"
     done
     echo ""
     
-    # 闁哄嫬澧介妵姘舵煀瀹ュ洨鏋傞柡鍌氭矗濞嗐垽鎮╅懜纰樺亾?    if [ -f "${JAVA_CONFIG_FILE}" ]; then
+    if [ -f "${JAVA_CONFIG_FILE}" ]; then
         local saved_path=$(cat "${JAVA_CONFIG_FILE}" 2>/dev/null)
-        echo -e "  ${CYAN}鐎规瓕寮撶换姘扁偓娑欘焽濞?Java:${NC} ${WHITE}${saved_path}${NC}"
+        echo -e "  ${CYAN}已保存的 Java:${NC} ${WHITE}${saved_path}${NC}"
     else
-        echo -e "  ${YELLOW}闁圭粯鍔楅妵? 濞达綀娉曢弫?--java <path> 闁圭娲ら悾?Java 閻犱警鍨扮欢鐐虹嵁閺堢數绠介悗?{NC}"
+        echo -e "  ${YELLOW}提示: 使用 --java <path> 指定并保存 Java 路径${NC}"
     fi
     echo ""
 }
 
-# 闁兼儳鍢茶ぐ鍥嫉椤掍焦绨?IP 闁革附婢樺?get_local_ip() {
+# 获取本机 IP 地址
+get_local_ip() {
     local ip=""
-    # 閻忓繑绻嗛惁顖涘緞濮橀硸娼氶柡鍌滄嚀缁憋繝鎳㈠畡鏉跨悼 IP
+    # 尝试多种方式获取 IP
     if command -v ip &> /dev/null; then
         ip=$(ip route get 1 2>/dev/null | awk '{print $7;exit}')
     fi
@@ -335,23 +346,26 @@ JAVA_CONFIG_FILE="${APP_HOME}/.java_path"
     echo "${ip:-127.0.0.1}"
 }
 
-# 濞寸姴閰ｉ崢銈囩磾椤旇姤鐎ù鐘冲劶椤曚即宕ｉ弽顐紓闁?get_server_port() {
+# 从配置文件读取端口
+get_server_port() {
     local port="${SERVER_PORT}"
-    # 閻忓繑绻嗛惁顖涚?application.yml 閻犲洩顕цぐ?    if [ -f "${CONFIG_DIR}/application.yml" ]; then
+    # 尝试从 application.yml 读取
+    if [ -f "${CONFIG_DIR}/application.yml" ]; then
         local yml_port=$(grep -E '^\s*port:' "${CONFIG_DIR}/application.yml" 2>/dev/null | head -1 | awk '{print $2}')
         [ -n "$yml_port" ] && port="$yml_port"
     fi
-    # 閻忓繑绻嗛惁顖涚?application-${profile}.yml 閻犲洩顕цぐ?    if [ -f "${CONFIG_DIR}/application-${SPRING_PROFILE}.yml" ]; then
+    # 尝试从 application-${profile}.yml 读取
+    if [ -f "${CONFIG_DIR}/application-${SPRING_PROFILE}.yml" ]; then
         local profile_port=$(grep -E '^\s*port:' "${CONFIG_DIR}/application-${SPRING_PROFILE}.yml" 2>/dev/null | head -1 | awk '{print $2}')
         [ -n "$profile_port" ] && port="$profile_port"
     fi
     echo "${port:-8080}"
 }
 
-# 闁兼儳鍢茶ぐ?context-path
+# 获取 context-path
 get_context_path() {
     local ctx_path=""
-    # 濞寸姴閰ｉ崢銈囩磾椤旇姤鐎ù鐘冲劶椤曚即宕?context-path
+    # 从配置文件读取 context-path
     if [ -f "${CONFIG_DIR}/application.yml" ]; then
         ctx_path=$(grep -E 'context-path:' "${CONFIG_DIR}/application.yml" 2>/dev/null | head -1 | awk '{print $2}')
     fi
@@ -362,15 +376,16 @@ get_context_path() {
     echo "${ctx_path}"
 }
 
-# 婵☆偀鍋撴繛鏉戭儐濡叉悂宕ラ敃鈧幆搴ㄦ偨?Swagger
+# 检测是否启用 Swagger
 check_swagger_enabled() {
     local swagger_enabled="false"
-    # 婵☆偀鍋撻柡灞诲劦閸樸倗绱旈鑺ョ€ù鐘虫构閼垫垿寮伴姘剨闁?swagger/springdoc/knife4j 闂佹澘绉堕悿?    if [ -d "${CONFIG_DIR}" ]; then
+    # 检查配置文件中是否有 swagger/springdoc/knife4j 配置
+    if [ -d "${CONFIG_DIR}" ]; then
         if grep -rq -E '(springdoc|swagger|knife4j)' "${CONFIG_DIR}/" 2>/dev/null; then
             swagger_enabled="true"
         fi
     fi
-    # 婵☆偀鍋撻柡?JAR 濞戞搩鍘藉Σ鎼佸触閿曗偓鐎垫﹢宕?swagger 闁烩晝顭堥崣褎绗熷┑濠勵洬
+    # 检查 JAR 中是否包含 swagger 相关依赖
     if [ -f "${APP_HOME}/${JAR_NAME}" ]; then
         if unzip -l "${APP_HOME}/${JAR_NAME}" 2>/dev/null | grep -qE '(springdoc|swagger|knife4j)'; then
             swagger_enabled="true"
@@ -379,14 +394,15 @@ check_swagger_enabled() {
     echo "$swagger_enabled"
 }
 
-# 闁哄瀚紓?loader path
+# 构建 loader path
 build_loader_path() {
     LOADER_PATH="${CONFIG_DIR}"
     [ -d "${LIB_DIR}" ] && LOADER_PATH="${LOADER_PATH},${LIB_DIR}"
 }
 
 # ===========================================
-# 閺夆晜绋撻埢鑲╃不閿涘嫭鍊?# ===========================================
+# 进程管理
+# ===========================================
 get_pid() {
     if [ -f "${PID_FILE}" ]; then
         local pid=$(cat "${PID_FILE}")
@@ -396,85 +412,93 @@ get_pid() {
 }
 
 # ===========================================
-# 闁绘鍩栭埀顑跨劍椤ュ懘寮?# ===========================================
+# 状态检查
+# ===========================================
 check_status() {
     local pid=$(get_pid)
     if [ -n "$pid" ]; then
-        echo -e "${GREEN}[閺夆晜鍔橀、鎴炵▔閻?{NC} ${APP_NAME} (PID: ${pid})"
+        echo -e "${GREEN}[运行中]${NC} ${APP_NAME} (PID: ${pid})"
         return 0
     else
-        echo -e "${YELLOW}[鐎瑰憡褰冩禒鐘差潰椤?{NC} ${APP_NAME}"
+        echo -e "${YELLOW}[已停止]${NC} ${APP_NAME}"
         return 1
     fi
 }
 
 # ===========================================
-# 閻犲浄濡囩划蹇旂┍閳╁啩绱栭柡鍕⒔閵?# ===========================================
+# 详细信息显示
+# ===========================================
 show_info() {
     local pid=$(get_pid)
     
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}                    閹煎瓨姊婚弫銈嗘交閹邦垼鏀藉ǎ鍥ｅ墲娴?                             ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}                    应用运行信息                              ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     
-    echo -e "${CYAN}闁靛棙鍔曢悢鈧痪顓涘亾濞ｅ洠鍓濇导鍛村Υ?{NC}"
-    echo -e "  閹煎瓨姊婚弫銈夊触瀹ュ泦?     ${WHITE}${APP_NAME}${NC}"
-    echo -e "  閹煎瓨姊婚弫銈夋偋閸喐鎷?     ${WHITE}${APP_VERSION}${NC}"
-    echo -e "  JAR 闁哄倸娲ｅ▎?     ${WHITE}${JAR_NAME}${NC}"
-    echo -e "  閹煎瓨姊婚弫銈夋儎椤旇偐绉?     ${WHITE}${APP_HOME}${NC}"
-    echo -e "  闂佹澘绉堕悿鍡涙儎椤旇偐绉?     ${WHITE}${CONFIG_DIR}${NC}"
-    echo -e "  闁哄啨鍎辩换鏃堟儎椤旇偐绉?     ${WHITE}${LOG_DIR}${NC}"
+    echo -e "${CYAN}【基础信息】${NC}"
+    echo -e "  应用名称:     ${WHITE}${APP_NAME}${NC}"
+    echo -e "  应用版本:     ${WHITE}${APP_VERSION}${NC}"
+    echo -e "  JAR 文件:     ${WHITE}${JAR_NAME}${NC}"
+    echo -e "  应用目录:     ${WHITE}${APP_HOME}${NC}"
+    echo -e "  配置目录:     ${WHITE}${CONFIG_DIR}${NC}"
+    echo -e "  日志目录:     ${WHITE}${LOG_DIR}${NC}"
     echo ""
     
     if [ -n "$pid" ]; then
-        echo -e "${CYAN}闁靛棙鍔樼换宥囨偘瀹€鈧慨鎼佸箑娴ｇ鍋?{NC}"
-        echo -e "  闁绘鍩栭埀?         ${GREEN}閺夆晜鍔橀、鎴炵▔?{NC}"
-        echo -e "  閺夆晜绋撻埢?ID:      ${WHITE}${pid}${NC}"
+        echo -e "${CYAN}【运行状态】${NC}"
+        echo -e "  状态:         ${GREEN}运行中${NC}"
+        echo -e "  进程 ID:      ${WHITE}${pid}${NC}"
         
-        # 闁兼儳鍢茶ぐ鍥触椤栨艾袟闁哄啫鐖煎Λ?        local start_time=$(ps -o lstart= -p "$pid" 2>/dev/null | xargs)
-        [ -n "$start_time" ] && echo -e "  闁告凹鍨版慨鈺呭籍閸洘锛?     ${WHITE}${start_time}${NC}"
+        # 获取启动时间
+        local start_time=$(ps -o lstart= -p "$pid" 2>/dev/null | xargs)
+        [ -n "$start_time" ] && echo -e "  启动时间:     ${WHITE}${start_time}${NC}"
         
-        # 闁兼儳鍢茶ぐ鍥ㄦ交閹邦垼鏀介柡鍐ㄧ埣閺?        local etime=$(ps -o etime= -p "$pid" 2>/dev/null | xargs)
-        [ -n "$etime" ] && echo -e "  閺夆晜鍔橀、鎴﹀籍閸洘姣?     ${WHITE}${etime}${NC}"
+        # 获取运行时长
+        local etime=$(ps -o etime= -p "$pid" 2>/dev/null | xargs)
+        [ -n "$etime" ] && echo -e "  运行时长:     ${WHITE}${etime}${NC}"
         
-        # 闁兼儳鍢茶ぐ鍥礃閸涱厾鎽犲ù锝堟硶閺?        local mem=$(ps -o rss= -p "$pid" 2>/dev/null | xargs)
+        # 获取内存使用
+        local mem=$(ps -o rss= -p "$pid" 2>/dev/null | xargs)
         if [ -n "$mem" ]; then
             local mem_mb=$((mem / 1024))
-            echo -e "  闁告劕鎳庨悺銊︽媴鐠恒劍鏆?     ${WHITE}${mem_mb} MB${NC}"
+            echo -e "  内存使用:     ${WHITE}${mem_mb} MB${NC}"
         fi
         
-        # 闁兼儳鍢茶ぐ?CPU 濞达綀娉曢弫銈夋偝?        local cpu=$(ps -o %cpu= -p "$pid" 2>/dev/null | xargs)
-        [ -n "$cpu" ] && echo -e "  CPU 濞达綀娉曢弫?     ${WHITE}${cpu}%${NC}"
+        # 获取 CPU 使用率
+        local cpu=$(ps -o %cpu= -p "$pid" 2>/dev/null | xargs)
+        [ -n "$cpu" ] && echo -e "  CPU 使用:     ${WHITE}${cpu}%${NC}"
         
         echo ""
-        echo -e "${CYAN}闁靛棙鈧烤M 濞ｅ洠鍓濇导鍛村Υ?{NC}"
+        echo -e "${CYAN}【JVM 信息】${NC}"
         check_java
-        echo -e "  Java 閻犱警鍨扮欢?    ${WHITE}${JAVA_CMD}${NC}"
-        echo -e "  Java 闁绘鐗婂﹢?    ${WHITE}$(get_java_version)${NC}"
+        echo -e "  Java 路径:    ${WHITE}${JAVA_CMD}${NC}"
+        echo -e "  Java 版本:    ${WHITE}$(get_java_version)${NC}"
         
-        # 閻忓繑绻嗛惁顖炴嚔瀹勬澘绲?JVM 闁告瑥鍊归弳?        local jvm_opts=$(ps -o args= -p "$pid" 2>/dev/null | grep -oE '\-X[^ ]+' | head -5 | tr '\n' ' ')
-        [ -n "$jvm_opts" ] && echo -e "  JVM 闁告瑥鍊归弳?     ${WHITE}${jvm_opts}${NC}"
+        # 尝试获取 JVM 参数
+        local jvm_opts=$(ps -o args= -p "$pid" 2>/dev/null | grep -oE '\-X[^ ]+' | head -5 | tr '\n' ' ')
+        [ -n "$jvm_opts" ] && echo -e "  JVM 参数:     ${WHITE}${jvm_opts}${NC}"
     else
-        echo -e "${CYAN}闁靛棙鍔樼换宥囨偘瀹€鈧慨鎼佸箑娴ｇ鍋?{NC}"
-        echo -e "  闁绘鍩栭埀?         ${YELLOW}鐎瑰憡褰冩禒鐘差潰?{NC}"
+        echo -e "${CYAN}【运行状态】${NC}"
+        echo -e "  状态:         ${YELLOW}已停止${NC}"
     fi
     
     echo ""
-    echo -e "${CYAN}闁靛棙鍔栧Λ鈺勭疀濡や焦鐎ù鐘虹堪閳?{NC}"
+    echo -e "${CYAN}【日志文件】${NC}"
     if [ -f "${STARTUP_LOG}" ]; then
         local log_size=$(du -h "${STARTUP_LOG}" 2>/dev/null | cut -f1)
-        echo -e "  闁告凹鍨版慨鈺呭籍閵夈儳绠?     ${WHITE}${STARTUP_LOG} (${log_size})${NC}"
+        echo -e "  启动日志:     ${WHITE}${STARTUP_LOG} (${log_size})${NC}"
     fi
     if [ -f "${APP_LOG}" ]; then
         local log_size=$(du -h "${APP_LOG}" 2>/dev/null | cut -f1)
-        echo -e "  閹煎瓨姊婚弫銈夊籍閵夈儳绠?     ${WHITE}${APP_LOG} (${log_size})${NC}"
+        echo -e "  应用日志:     ${WHITE}${APP_LOG} (${log_size})${NC}"
     fi
     echo ""
 }
 
 # ===========================================
-# 闁告凹鍨版慨鈺傜┍閳╁啩绱栭柡鍕⒔閵?# ===========================================
+# 启动信息显示
+# ===========================================
 show_startup_banner() {
     local java_version=$(get_java_version)
     local local_ip=$(get_local_ip)
@@ -485,58 +509,63 @@ show_startup_banner() {
     local local_url="http://localhost:${server_port}${context_path}"
     
     echo ""
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}                     閹煎瓨姊婚弫銈夊触椤栨艾袟濞?..                            ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}                     应用启动中...                            ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${CYAN}闁崇懓澶囬弨銏ゅ煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘?{NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}閹煎瓨姊婚弫銈夊触瀹ュ泦?{NC}    闁?${GREEN}${APP_NAME}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}閹煎瓨姊婚弫銈夋偋閸喐鎷?{NC}    闁?${GREEN}${APP_VERSION}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}閺夆晜鍔橀、鎴︽偝椤栨凹鏆?{NC}    闁?${YELLOW}${SPRING_PROFILE}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}闁哄牆绉存慨鐔煎捶閺夋寧绲?{NC}    闁?${GREEN}${base_url}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}闁哄牜鍓欏﹢鎾捶閺夋寧绲?{NC}    闁?${GREEN}${local_url}${NC}"
-    [ "${swagger_enabled}" = "true" ] && echo -e "${CYAN}闁?{NC} ${WHITE}Swagger${NC}     闁?${GREEN}${local_url}/doc.html${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}Java 闁绘鐗婂﹢?{NC}   闁?${MAGENTA}${java_version}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}Java 閻犱警鍨扮欢?{NC}   闁?${MAGENTA}${JAVA_CMD}${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}JVM 闁告瑥鍊归弳?{NC}    闁?${MAGENTA}${JAVA_OPTS}${NC}"
-    [ "${DEBUG_MODE}" = "true" ] && echo -e "${CYAN}闁?{NC} ${WHITE}閻犲鍟抽惁顖滅博椤栨艾缍?{NC}    闁?${RED}${DEBUG_PORT}${NC}"
-    [ "${SKYWALKING_ENABLED}" = "true" ] && echo -e "${CYAN}闁?{NC} ${WHITE}Skywalking${NC}  闁?${GREEN}鐎瑰憡褰冮幆搴ㄦ偨?(${SW_AGENT_NAME})${NC}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}闂佹澘绉堕悿鍡涙儎椤旇偐绉?{NC}    闁?${CONFIG_DIR}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}闁哄啨鍎辩换鏃堟儎椤旇偐绉?{NC}    闁?${LOG_DIR}"
-    echo -e "${CYAN}闁?{NC} ${WHITE}闁告凹鍨版慨鈺呭籍閸洘锛?{NC}    闁?$(date '+%Y-%m-%d %H:%M:%S')"
-    echo -e "${CYAN}闁宠鏌￠弨銏ゅ煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘閳ь剟鍩為埀顒勫煘?{NC}"
+    echo -e "${CYAN}┌─────────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}应用名称${NC}    │ ${GREEN}${APP_NAME}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}应用版本${NC}    │ ${GREEN}${APP_VERSION}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}运行环境${NC}    │ ${YELLOW}${SPRING_PROFILE}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}服务地址${NC}    │ ${GREEN}${base_url}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}本地地址${NC}    │ ${GREEN}${local_url}${NC}"
+    [ "${swagger_enabled}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}Swagger${NC}     │ ${GREEN}${local_url}/doc.html${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}Java 版本${NC}   │ ${MAGENTA}${java_version}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}Java 路径${NC}   │ ${MAGENTA}${JAVA_CMD}${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}JVM 参数${NC}    │ ${MAGENTA}${JAVA_OPTS}${NC}"
+    [ "${DEBUG_MODE}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}调试端口${NC}    │ ${RED}${DEBUG_PORT}${NC}"
+    [ "${SKYWALKING_ENABLED}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}Skywalking${NC}  │ ${GREEN}已启用 (${SW_AGENT_NAME})${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}配置目录${NC}    │ ${CONFIG_DIR}"
+    echo -e "${CYAN}│${NC} ${WHITE}日志目录${NC}    │ ${LOG_DIR}"
+    echo -e "${CYAN}│${NC} ${WHITE}启动时间${NC}    │ $(date '+%Y-%m-%d %H:%M:%S')"
+    echo -e "${CYAN}└─────────────────────────────────────────────────────────────┘${NC}"
     echo ""
 }
 
 # ===========================================
-# 闁哄啨鍎辩换鏃傜不閿涘嫭鍊?# ===========================================
+# 日志管理
+# ===========================================
 
-# 闁哄被鍎冲﹢鍛村嫉閳ь剚娼?N 闁哄鍓濆Λ鈺勭疀?show_logs() {
+# 查看最近 N 条日志
+show_logs() {
     local lines="${1:-100}"
     local log_file="${STARTUP_LOG}"
     
-    # 濞村吋锚閸樻稒鎷呯捄銊︽殢閹煎瓨姊婚弫銈夊籍閵夈儳绠堕柨娑樿嫰椤┭囧几濠婂啰鎽犻柛锔哄妿濞堟垹鎷?    [ -f "${APP_LOG}" ] && log_file="${APP_LOG}"
+    # 优先使用应用日志，如果存在的话
+    [ -f "${APP_LOG}" ] && log_file="${APP_LOG}"
     
     if [ ! -f "${log_file}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄啨鍎辩换鏃堝棘閸ワ附顐藉☉鎾崇Т閻°劑宕? ${log_file}${NC}"
+        echo -e "${YELLOW}[警告] 日志文件不存在: ${log_file}${NC}"
         return 1
     fi
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}  闁哄牃鍋撻弶?${lines} 闁哄鍓濆Λ鈺勭疀?- ${log_file}${NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}  最近 ${lines} 条日志 - ${log_file}${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     tail -n "${lines}" "${log_file}"
 }
 
-# 閻庡湱鍋炲鍌滄崉閻斿鍤嬮柡鍐﹀劚缁?tail_logs() {
+# 实时跟踪日志
+tail_logs() {
     local log_file="${STARTUP_LOG}"
     
-    # 濞村吋锚閸樻稒鎷呯捄銊︽殢閹煎瓨姊婚弫銈夊籍閵夈儳绠?    [ -f "${APP_LOG}" ] && log_file="${APP_LOG}"
+    # 优先使用应用日志
+    [ -f "${APP_LOG}" ] && log_file="${APP_LOG}"
     
     if [ ! -f "${log_file}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄啨鍎辩换鏃堝棘閸ワ附顐藉☉鎾崇Т閻°劑宕? ${log_file}${NC}"
-        echo -e "${YELLOW}缂佹稑顦欢鐔煎籍閵夈儳绠堕柡鍌氭矗濞嗐垽鎮介悢绋跨亣...${NC}"
-        # 缂佹稑顦欢鐔煎籍閵夈儳绠堕柡鍌氭矗濞嗐垽鎮介悢绋跨亣
+        echo -e "${YELLOW}[警告] 日志文件不存在: ${log_file}${NC}"
+        echo -e "${YELLOW}等待日志文件生成...${NC}"
+        # 等待日志文件生成
         local count=0
         while [ ! -f "${log_file}" ] && [ $count -lt 30 ]; do
             sleep 1
@@ -544,26 +573,27 @@ show_startup_banner() {
             [ -f "${APP_LOG}" ] && log_file="${APP_LOG}"
         done
         if [ ! -f "${log_file}" ]; then
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?缂佹稑顦欢鐔烘惥閸涱喗顦ч柨娑樻湰濡晞绠涘Δ浣圭€ù鐘虫构缁稒绋夊鍛憼闁?{NC}"
+            echo -e "${RED}[错误] 等待超时，日志文件仍不存在${NC}"
             return 1
         fi
     fi
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}  閻庡湱鍋炲鍌炲籍閵夈儳绠堕悹铏瑰枙闁?- ${log_file}${NC}"
-    echo -e "${YELLOW}  闁?Ctrl+C 闂侇偀鍋撻柛?{NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}  实时日志跟踪 - ${log_file}${NC}"
+    echo -e "${YELLOW}  按 Ctrl+C 退出${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     tail -f "${log_file}"
 }
 
 # ===========================================
-# Skywalking 闁衡偓椤栨稑鐦?# ===========================================
+# Skywalking 支持
+# ===========================================
 ensure_skywalking() {
     if [ ! -f "${SKYWALKING_AGENT_JAR}" ]; then
-        echo -e "${YELLOW}[Skywalking] Agent 闁哄牜浜滈悾銊ф啑閸滃啰绀夌€殿喒鍋撳┑顔碱儓閸ゆ粓宕濋妸銈囩憮閺?..${NC}"
+        echo -e "${YELLOW}[Skywalking] Agent 未安装，开始自动下载...${NC}"
         bash "${SCRIPT_DIR}/script/linux/skywalking.sh" install
         if [ $? -ne 0 ]; then
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?Skywalking Agent 濞戞挸顑堝ù鍥ㄥ緞鏉堫偉袝${NC}"
+            echo -e "${RED}[错误] Skywalking Agent 下载失败${NC}"
             return 1
         fi
     fi
@@ -575,143 +605,153 @@ run_skywalking() {
 }
 
 # ===========================================
-# Java 闁绘粠鍨伴。銊х不閿涘嫭鍊?# ===========================================
+# Java 环境管理
+# ===========================================
 run_java_install() {
     local script_path="${SCRIPT_DIR}/script/linux/java-install.sh"
     if [ -f "$script_path" ]; then
         bash "$script_path" "$@"
     else
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?Java 閻庣懓顦抽ˉ濠囨嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕? ${script_path}${NC}"
+        echo -e "${RED}[错误] Java 安装脚本不存在: ${script_path}${NC}"
         return 1
     fi
 }
 
 # ===========================================
-# 閹煎瓨姊婚弫銈夊触椤栨艾袟
+# 应用启动
 # ===========================================
 start_app() {
     local pid=$(get_pid)
-    [ -n "$pid" ] && echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 ${APP_NAME} 鐎瑰憡褰冨﹢顏呮交閹邦垼鏀?(PID: ${pid})${NC}" && return 1
+    [ -n "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 已在运行 (PID: ${pid})${NC}" && return 1
     
     mkdir -p "${LOG_DIR}"
     check_java
     build_loader_path
     
-    # 闁哄瀚紓?Spring 闁告凹鍨版慨鈺呭矗閸屾稒娈?    local start_opts="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"
+    # 构建 Spring 启动参数
+    local start_opts="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"
     start_opts="${start_opts} --spring.profiles.active=${SPRING_PROFILE}"
     
-    # 闁哄嫬澧介妵姘跺触椤栨艾袟濞ｅ洠鍓濇导?    show_startup_banner
+    # 显示启动信息
+    show_startup_banner
     
     local java_opts="${JAVA_OPTS}"
     [ -n "${CUSTOM_JVM_OPTS}" ] && java_opts="${CUSTOM_JVM_OPTS}"
     [ "${DEBUG_MODE}" = "true" ] && java_opts="${java_opts} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
     
-    # Skywalking 闁衡偓椤栨稑鐦?    if [ "${SKYWALKING_ENABLED}" = "true" ]; then
+    # Skywalking 支持
+    if [ "${SKYWALKING_ENABLED}" = "true" ]; then
         ensure_skywalking || return 1
         java_opts="${java_opts} -javaagent:${SKYWALKING_AGENT_JAR}"
         java_opts="${java_opts} -Dskywalking.agent.service_name=${SW_AGENT_NAME}"
         java_opts="${java_opts} -Dskywalking.collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
     fi
     
-    # 闁告凹鍨版慨鈺傛償閺冨倹鏆?    nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
+    # 启动应用
+    nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
     
     local new_pid=$!
     echo "$new_pid" > "${PID_FILE}"
     sleep 2
     
     if ps -p "$new_pid" > /dev/null 2>&1; then
-        echo -e "${GREEN}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-        echo -e "${GREEN}闁?                   闁?闁告凹鍨版慨鈺呭箣閹邦剙顫?                               闁?{NC}"
-        echo -e "${GREEN}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+        echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${GREEN}║                    ✓ 启动成功                                ║${NC}"
+        echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
         echo ""
-        echo -e "  ${WHITE}閺夆晜绋撻埢?ID:${NC}    ${new_pid}"
-        echo -e "  ${WHITE}闁哄啨鍎辩换鏃堝棘閸ワ附顐?${NC}   ${STARTUP_LOG}"
+        echo -e "  ${WHITE}进程 ID:${NC}    ${new_pid}"
+        echo -e "  ${WHITE}日志文件:${NC}   ${STARTUP_LOG}"
         echo ""
         
-        # 闁哄秷顫夊畵渚€宕ｉ崒娑欐闁哄嫬澧介妵姘跺籍閵夈儳绠?        if [ "${TAIL_LOG}" = "true" ]; then
-            echo -e "${CYAN}鐎殿喒鍋撳┑顔碱儏閻ゅ嫰寮幆鎵€€闂婎亶浜濆Λ鈺勭疀?..${NC}"
+        # 根据参数显示日志
+        if [ "${TAIL_LOG}" = "true" ]; then
+            echo -e "${CYAN}开始实时跟踪日志...${NC}"
             tail_logs
         elif [ -n "${SHOW_LOGS}" ] && [ "${SHOW_LOGS}" -gt 0 ]; then
-            echo -e "${CYAN}闁哄嫬澧介妵姘跺嫉閳ь剚娼?${SHOW_LOGS} 闁哄鍓濆Λ鈺勭疀?..${NC}"
-            sleep 3  # 缂佹稑顦欢鐔哥▔閳ь剚绂嶅☉娆愶級闊洦顨夌欢顓㈠礄?            show_logs "${SHOW_LOGS}"
+            echo -e "${CYAN}显示最近 ${SHOW_LOGS} 条日志...${NC}"
+            sleep 3  # 等待一些日志输出
+            show_logs "${SHOW_LOGS}"
         fi
     else
-        echo -e "${RED}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-        echo -e "${RED}闁?                   闁?闁告凹鍨版慨鈺傚緞鏉堫偉袝                                闁?{NC}"
-        echo -e "${RED}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+        echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${RED}║                    ✗ 启动失败                                ║${NC}"
+        echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
         echo ""
-        echo -e "${YELLOW}闂佹寧鐟ㄩ銈夊籍閵夈儳绠?${NC}"
+        echo -e "${YELLOW}错误日志:${NC}"
         [ -f "${STARTUP_LOG}" ] && tail -30 "${STARTUP_LOG}"
     fi
 }
 
 # ===========================================
-# 閹煎瓨姊婚弫銈夊磻濠婂嫷鍓?# ===========================================
+# 应用停止
+# ===========================================
 stop_app() {
     local pid=$(get_pid)
-    [ -z "$pid" ] && echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 ${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}" && return 0
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 0
     
-    echo -e "${BLUE}婵繐绲藉﹢顏堝磻濠婂嫷鍓?${APP_NAME} (PID: ${pid})...${NC}"
+    echo -e "${BLUE}正在停止 ${APP_NAME} (PID: ${pid})...${NC}"
     kill "$pid" 2>/dev/null
     
     local count=0
     while [ $count -lt 30 ] && ps -p "$pid" > /dev/null 2>&1; do
         sleep 1
         count=$((count + 1))
-        echo -ne "\r${YELLOW}缂佹稑顦欢鐔告交濞戞埃鏌ら梺顐熷亾闁?.. ${count}s${NC}"
+        echo -ne "\r${YELLOW}等待进程退出... ${count}s${NC}"
     done
     echo ""
     
     ps -p "$pid" > /dev/null 2>&1 && kill -9 "$pid" 2>/dev/null
     rm -f "${PID_FILE}"
-    echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?${APP_NAME} 鐎瑰憡褰冩禒鐘差潰?{NC}"
+    echo -e "${GREEN}[成功] ${APP_NAME} 已停止${NC}"
 }
 
-# 闂佹彃绉撮幆?restart_app() { 
+# 重启
+restart_app() { 
     stop_app
     sleep 2
     start_app
 }
 
 # ===========================================
-# JVM 閻犲洤锕ラ弻?# ===========================================
+# JVM 诊断
+# ===========================================
 show_jvm_info() {
     local pid=$(get_pid)
-    [ -z "$pid" ] && echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 ${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}" && return 1
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
     
     if [ -f "${SCRIPT_DIR}/script/linux/jvm-info.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/jvm-info.sh" "$pid" "$APP_NAME"
     else
-        # 闁告劕鎳愰悿鍡欑不閳ь剟宕￠弴鐘崇暠 JVM 濞ｅ洠鍓濇导鍛村及閸撗佷粵
-        echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-        echo -e "${BLUE}闁?{NC}${GREEN}                    JVM 閺夆晜鍔橀、鎴炵┍閳╁啩绱?                             ${NC}${BLUE}闁?{NC}"
-        echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+        # 内置简单的 JVM 信息显示
+        echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${BLUE}║${NC}${GREEN}                    JVM 运行信息                              ${NC}${BLUE}║${NC}"
+        echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
         echo ""
-        echo -e "${CYAN}閺夆晜绋撻埢鍏肩┍閳╁啩绱?${NC}"
+        echo -e "${CYAN}进程信息:${NC}"
         echo -e "  PID: ${pid}"
         
         if command -v jps &> /dev/null; then
             echo ""
-            echo -e "${CYAN}JVM 閺夆晜绋撻埢?${NC}"
-            jps -lvm | grep "$pid" || echo "  闁哄啰濮电涵鍫曟嚔瀹勬澘绲块悹鍥峰缁繑绌遍埄鍐х礀"
+            echo -e "${CYAN}JVM 进程:${NC}"
+            jps -lvm | grep "$pid" || echo "  无法获取详细信息"
         fi
         
         if command -v jstat &> /dev/null; then
             echo ""
-            echo -e "${CYAN}GC 缂備胶鍠曢?${NC}"
-            jstat -gcutil "$pid" 2>/dev/null || echo "  闁哄啰濮电涵鍫曟嚔瀹勬澘绲?GC 濞ｅ洠鍓濇导?
+            echo -e "${CYAN}GC 统计:${NC}"
+            jstat -gcutil "$pid" 2>/dev/null || echo "  无法获取 GC 信息"
         fi
     fi
 }
 
 show_tuning() {
     local pid=$(get_pid)
-    [ -z "$pid" ] && echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 ${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}" && return 1
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
     
     if [ -f "${SCRIPT_DIR}/script/linux/jvm-tuning.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/jvm-tuning.sh" "$pid" "$APP_NAME"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?JVM 閻犲鍟╃槐顓㈡嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕?{NC}"
+        echo -e "${YELLOW}[提示] JVM 调优脚本不存在${NC}"
     fi
 }
 
@@ -720,49 +760,50 @@ start_arthas() {
     if [ -f "${SCRIPT_DIR}/script/linux/arthas-install.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/arthas-install.sh" "$pid"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Arthas 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛锔荤厜缁辨繄浜稿┑濠勬Ц闁烩晛鐡ㄧ敮鎾触椤栨艾袟...${NC}"
+        echo -e "${YELLOW}[提示] Arthas 脚本不存在，尝试直接启动...${NC}"
         if [ -f "${APP_HOME}/arthas/as.sh" ]; then
             bash "${APP_HOME}/arthas/as.sh" "$pid"
         else
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?Arthas 闁哄牜浜滈悾銊ф啑?{NC}"
+            echo -e "${RED}[错误] Arthas 未安装${NC}"
         fi
     fi
 }
 
 run_analyze() {
     local pid=$(get_pid)
-    [ -z "$pid" ] && echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 ${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}" && return 1
+    [ -z "$pid" ] && echo -e "${YELLOW}[警告] ${APP_NAME} 未在运行${NC}" && return 1
     local mode="${1:-cpu}"
     
     if [ -f "${SCRIPT_DIR}/script/linux/cpu-analysis.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/cpu-analysis.sh" "$pid" "$mode" "$APP_NAME"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?闁告帒妫欓悗浠嬫嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕?{NC}"
+        echo -e "${YELLOW}[提示] 分析脚本不存在${NC}"
     fi
 }
 
 # ===========================================
-# Dump 閺夌儐鍓欓崑宥夊礉閻旇鍘?# ===========================================
+# Dump 转储功能
+# ===========================================
 run_dump() {
     local mode="${1:-all}"
     local output_dir="${2:-${LOG_DIR}/dump}"
     local pid=$(get_pid)
     
     if [ -z "$pid" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}"
+        echo -e "${RED}[错误] ${APP_NAME} 未在运行${NC}"
         exit 1
     fi
     
     mkdir -p "${output_dir}"
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}                    闁汇垻鍠愰崹?Dump 閺夌儐鍓欓崑?                           ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}                    生成 Dump 转储                            ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "  PID:        ${pid}"
-    echo -e "  婵☆垪鈧磭纭€:       ${mode}"
-    echo -e "  閺夊牊鎸搁崵顓㈡儎椤旇偐绉?   ${output_dir}"
+    echo -e "  模式:       ${mode}"
+    echo -e "  输出目录:   ${output_dir}"
     echo ""
     
     local jmap_cmd="jmap"
@@ -784,13 +825,13 @@ run_dump() {
             dump_thread "${pid}" "${output_dir}" "${timestamp}" "${jstack_cmd}"
             ;;
         *)
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜為悡锟犳儍?dump 婵☆垪鈧磭纭€: ${mode}${NC}"
-            echo "闁衡偓椤栨稑鐦柣銊ュ鑶╃€? heap, thread, all"
+            echo -e "${RED}[错误] 未知的 dump 模式: ${mode}${NC}"
+            echo "支持的模式: heap, thread, all"
             exit 1
             ;;
     esac
     
-    echo -e "\n${GREEN}[閻庣懓鏈崹姝?Dump 闁哄倸娲ｅ▎銏狀啅闊厾绠介悗娑櫭崺? ${output_dir}${NC}"
+    echo -e "\n${GREEN}[完成] Dump 文件已保存到: ${output_dir}${NC}"
 }
 
 dump_heap() {
@@ -800,10 +841,10 @@ dump_heap() {
     local jmap_cmd="$4"
     local heap_file="${output_dir}/heapdump_${timestamp}.hprof"
     
-    echo -e "${BLUE}[闁割偄妫滃ù鍡涘磼閳?闁汇垻鍠愰崹姘▔?..${NC}"
+    echo -e "${BLUE}[堆转储] 生成中...${NC}"
     
     if ! command -v "${jmap_cmd}" &> /dev/null; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜濇竟姗€宕?jmap 闁告稒鍨濋幎?{NC}"
+        echo -e "${RED}[错误] 未找到 jmap 命令${NC}"
         return 1
     fi
     
@@ -811,9 +852,9 @@ dump_heap() {
     
     if [ $? -eq 0 ] && [ -f "${heap_file}" ]; then
         local size=$(du -h "${heap_file}" | cut -f1)
-        echo -e "${GREEN}  闁?闁割偄妫滃ù鍡涘磼? ${heap_file} (${size})${NC}"
+        echo -e "${GREEN}  ✓ 堆转储: ${heap_file} (${size})${NC}"
     else
-        echo -e "${RED}  闁?闁割偄妫滃ù鍡涘磼閵娿儯浜奸悹?{NC}"
+        echo -e "${RED}  ✗ 堆转储失败${NC}"
     fi
 }
 
@@ -824,10 +865,10 @@ dump_thread() {
     local jstack_cmd="$4"
     local thread_file="${output_dir}/threaddump_${timestamp}.txt"
     
-    echo -e "${BLUE}[缂佹崘娉曢埢鍏兼姜椤掆偓閸嬪硶 闁汇垻鍠愰崹姘▔?..${NC}"
+    echo -e "${BLUE}[线程转储] 生成中...${NC}"
     
     if ! command -v "${jstack_cmd}" &> /dev/null; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜濇竟姗€宕?jstack 闁告稒鍨濋幎?{NC}"
+        echo -e "${RED}[错误] 未找到 jstack 命令${NC}"
         return 1
     fi
     
@@ -835,46 +876,46 @@ dump_thread() {
     
     if [ $? -eq 0 ] && [ -f "${thread_file}" ]; then
         local lines=$(wc -l < "${thread_file}")
-        echo -e "${GREEN}  闁?缂佹崘娉曢埢鍏兼姜椤掆偓閸? ${thread_file} (${lines} 閻?${NC}"
+        echo -e "${GREEN}  ✓ 线程转储: ${thread_file} (${lines} 行)${NC}"
         
-        echo -e "\n${CYAN}[缂佹崘娉曢埢濂告偐閼哥鍋撴担铏瑰煚閻犱緡鎽?{NC}"
+        echo -e "\n${CYAN}[线程状态统计]${NC}"
         echo -e "  RUNNABLE:      $(grep -c 'java.lang.Thread.State: RUNNABLE' "${thread_file}" 2>/dev/null || echo 0)"
         echo -e "  WAITING:       $(grep -c 'java.lang.Thread.State: WAITING' "${thread_file}" 2>/dev/null || echo 0)"
         echo -e "  TIMED_WAITING: $(grep -c 'java.lang.Thread.State: TIMED_WAITING' "${thread_file}" 2>/dev/null || echo 0)"
         echo -e "  BLOCKED:       $(grep -c 'java.lang.Thread.State: BLOCKED' "${thread_file}" 2>/dev/null || echo 0)"
         
         if grep -q "Found.*deadlock" "${thread_file}" 2>/dev/null; then
-            echo -e "\n${RED}[閻犫偓閿曗偓閹差摚 婵☆偀鍋撴繛鏉戭儏閸╁苯顫㈡繝姘暁!${NC}"
+            echo -e "\n${RED}[警告] 检测到死锁!${NC}"
         fi
     else
-        echo -e "${RED}  闁?缂佹崘娉曢埢鍏兼姜椤掆偓閸嬪秵寰勬潏顐バ?{NC}"
+        echo -e "${RED}  ✗ 线程转储失败${NC}"
     fi
 }
 
 # ===========================================
-# Backup / Restore
+# 备份还原
 # ===========================================
 
-# List all backups with index numbers
+# 列出所有备份
 list_backups() {
     if [ ! -d "${BACKUP_DIR}" ]; then
-        echo -e "${YELLOW}[Warning] Backup directory does not exist: ${BACKUP_DIR}${NC}"
+        echo -e "${YELLOW}[警告] 备份目录不存在: ${BACKUP_DIR}${NC}"
         return 1
     fi
     
     local backups=($(ls -dt "${BACKUP_DIR}"/*/ 2>/dev/null | grep -v "^$"))
     
     if [ ${#backups[@]} -eq 0 ]; then
-        echo -e "${YELLOW}[Info] No backups found${NC}"
+        echo -e "${YELLOW}[提示] 没有找到备份${NC}"
         return 1
     fi
     
-    echo -e "${BLUE}================================================================${NC}"
-    echo -e "${GREEN}                    Backup List${NC}"
-    echo -e "${BLUE}================================================================${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}                    备份列表${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
-    printf "  ${WHITE}%-6s %-24s %-10s %s${NC}\n" "Index" "Time" "Size" "Path"
-    echo -e "${BLUE}----------------------------------------------------------------${NC}"
+    printf "  ${WHITE}%-6s %-24s %-10s %s${NC}\n" "序号" "时间" "大小" "路径"
+    echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
     
     local index=1
     for backup in "${backups[@]}"; do
@@ -882,19 +923,17 @@ list_backups() {
         local backup_size=$(du -sh "$backup" 2>/dev/null | cut -f1)
         local backup_time=""
         
-        # Parse timestamp from directory name (format: YYYYMMDD_HHMMSS)
         if [[ "$backup_name" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})_([0-9]{2})([0-9]{2})([0-9]{2})$ ]]; then
             backup_time="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]} ${BASH_REMATCH[4]}:${BASH_REMATCH[5]}:${BASH_REMATCH[6]}"
         else
             backup_time="$backup_name"
         fi
         
-        # Check if this is the latest backup
         local latest_marker=""
         if [ -f "${BACKUP_DIR}/latest" ]; then
             local latest_path=$(cat "${BACKUP_DIR}/latest" 2>/dev/null)
             if [ "$backup" = "$latest_path" ] || [ "$backup" = "${latest_path}/" ]; then
-                latest_marker=" ${GREEN}(latest)${NC}"
+                latest_marker=" ${GREEN}(最新)${NC}"
             fi
         fi
         
@@ -903,14 +942,13 @@ list_backups() {
     done
     
     echo ""
-    echo -e "${CYAN}Usage:${NC}"
-    echo "  $0 backup           Create new backup"
-    echo "  $0 backup list      List all backups"
-    echo "  $0 backup <N>       Restore to backup N"
+    echo -e "${CYAN}用法:${NC}"
+    echo "  $0 backup           创建新备份"
+    echo "  $0 restore <N>      还原到序号N的备份"
     echo ""
 }
 
-# Get backup path by index
+# 根据序号获取备份路径
 get_backup_by_index() {
     local index="$1"
     local backups=($(ls -dt "${BACKUP_DIR}"/*/ 2>/dev/null | grep -v "^$"))
@@ -923,121 +961,111 @@ get_backup_by_index() {
         return 1
     fi
     
-    # Array is 0-indexed, but user index is 1-indexed
     echo "${backups[$((index - 1))]}"
 }
 
-# Restore from backup path
+# 从备份路径还原
 restore_from_path() {
     local restore_path="$1"
     
     if [ -z "${restore_path}" ] || [ ! -d "${restore_path}" ]; then
-        echo -e "${RED}[Error] Invalid backup path: ${restore_path}${NC}"
+        echo -e "${RED}[错误] 无效的备份路径: ${restore_path}${NC}"
         return 1
     fi
     
-    echo -e "${BLUE}================================================================${NC}"
-    echo -e "${GREEN}                    Restore Operation${NC}"
-    echo -e "${BLUE}================================================================${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}                    还原操作${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "  Restore from: ${WHITE}${restore_path}${NC}"
+    echo -e "  还原来源: ${WHITE}${restore_path}${NC}"
     echo ""
     
-    # Restore config
     if [ -d "${restore_path}/config" ]; then
         mkdir -p "${CONFIG_DIR}"
         cp -r "${restore_path}/config/"* "${CONFIG_DIR}/" 2>/dev/null
-        echo -e "${GREEN}  [OK] Config files restored${NC}"
+        echo -e "${GREEN}  ✓ 配置文件已还原${NC}"
     else
-        echo -e "${YELLOW}  [Skip] No config in backup${NC}"
+        echo -e "${YELLOW}  - 备份中无配置文件${NC}"
     fi
     
-    # Restore JAR
     local backup_jar="${restore_path}/${JAR_NAME}"
     if [ -f "${backup_jar}" ]; then
         cp "${backup_jar}" "${APP_HOME}/"
-        echo -e "${GREEN}  [OK] JAR file restored${NC}"
+        echo -e "${GREEN}  ✓ JAR 文件已还原${NC}"
     else
-        echo -e "${YELLOW}  [Skip] No JAR in backup${NC}"
+        echo -e "${YELLOW}  - 备份中无 JAR 文件${NC}"
     fi
     
     echo ""
-    echo -e "${GREEN}[Done] Restore completed${NC}"
+    echo -e "${GREEN}[完成] 还原完成${NC}"
 }
 
 run_backup() {
     local subcmd="${1:-}"
     
-    # If subcmd is 'list', show all backups
     if [ "$subcmd" = "list" ]; then
         list_backups
         return $?
     fi
     
-    # Default: create new backup
+    # 创建新备份
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     local backup_path="${BACKUP_DIR}/${timestamp}"
     
     mkdir -p "${backup_path}"
     
-    echo -e "${BLUE}================================================================${NC}"
-    echo -e "${GREEN}                    Backup Operation${NC}"
-    echo -e "${BLUE}================================================================${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}                    备份操作${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "  Backup to:   ${WHITE}${backup_path}${NC}"
+    echo -e "  备份目录: ${WHITE}${backup_path}${NC}"
     echo ""
     
-    # Backup config
     if [ -d "${CONFIG_DIR}" ]; then
         cp -r "${CONFIG_DIR}" "${backup_path}/"
-        echo -e "${GREEN}  [OK] Config files backed up${NC}"
+        echo -e "${GREEN}  ✓ 配置文件已备份${NC}"
     else
-        echo -e "${YELLOW}  [Skip] Config directory not found${NC}"
+        echo -e "${YELLOW}  - 配置目录不存在${NC}"
     fi
     
-    # Backup JAR
     local jar_file="${APP_HOME}/${JAR_NAME}"
     if [ -f "${jar_file}" ]; then
         cp "${jar_file}" "${backup_path}/"
-        echo -e "${GREEN}  [OK] JAR file backed up${NC}"
+        echo -e "${GREEN}  ✓ JAR 文件已备份${NC}"
     else
-        echo -e "${YELLOW}  [Skip] JAR file not found: ${jar_file}${NC}"
+        echo -e "${YELLOW}  - JAR 文件不存在: ${jar_file}${NC}"
     fi
     
-    # Save latest pointer
     echo "${backup_path}" > "${BACKUP_DIR}/latest"
     
     echo ""
-    echo -e "${GREEN}[Done] Backup completed: ${backup_path}${NC}"
+    echo -e "${GREEN}[完成] 备份完成: ${backup_path}${NC}"
 }
 
 run_restore() {
     local index="${1:-}"
     local restore_path=""
     
-    # If 'list', show all backups
     if [ "$index" = "list" ]; then
         list_backups
         return $?
     fi
     
-    # If index is a number, restore to that backup
     if [[ "$index" =~ ^[0-9]+$ ]]; then
         restore_path=$(get_backup_by_index "$index")
         if [ -z "$restore_path" ]; then
-            echo -e "${RED}[Error] Backup #${index} not found${NC}"
-            echo -e "${CYAN}Use '$0 backup list' to see available backups${NC}"
+            echo -e "${RED}[错误] 备份 #${index} 不存在${NC}"
+            echo -e "${CYAN}使用 '$0 backup list' 查看可用备份${NC}"
             return 1
         fi
     else
-        # Default: restore from latest
         if [ -f "${BACKUP_DIR}/latest" ]; then
             restore_path=$(cat "${BACKUP_DIR}/latest" 2>/dev/null)
         fi
         
         if [ -z "${restore_path}" ] || [ ! -d "${restore_path}" ]; then
-            echo -e "${RED}[Error] No backup found to restore${NC}"
-            echo -e "${CYAN}Use '$0 backup list' to see available backups${NC}"
+            echo -e "${RED}[错误] 未找到可还原的备份${NC}"
+            echo -e "${CYAN}使用 '$0 backup list' 查看可用备份${NC}"
             return 1
         fi
     fi
@@ -1046,7 +1074,8 @@ run_restore() {
 }
 
 # ===========================================
-# 闁告娲ㄦ鍥炊閻愬娉?# ===========================================
+# 升级回滚
+# ===========================================
 run_upgrade() {
     local package_path="$1"
     local no_restart="$2"
@@ -1058,7 +1087,7 @@ run_upgrade() {
     if [ -f "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" upgrade ${opts}
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?闁告娲ㄦ鍥嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕?{NC}"
+        echo -e "${YELLOW}[提示] 升级脚本不存在${NC}"
     fi
 }
 
@@ -1066,7 +1095,7 @@ run_rollback() {
     if [ -f "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" rollback
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?闁搞儳鍋炵划鎾嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕?{NC}"
+        echo -e "${YELLOW}[提示] 回滚脚本不存在${NC}"
     fi
 }
 
@@ -1074,18 +1103,18 @@ run_rollback_status() {
     if [ -f "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/upgrade-rollback.sh" status
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?闁搞儳鍋炵划鎾嚇濮橆厽鎷卞☉鎾崇Т閻°劑宕?{NC}"
+        echo -e "${YELLOW}[提示] 回滚脚本不存在${NC}"
     fi
 }
 
 # ===========================================
-# Docker 闁烩晝顭堥崣褔宕欓懞銉︽
+# Docker 相关函数
 # ===========================================
 docker_build() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" build --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1093,7 +1122,7 @@ docker_deploy() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" deploy --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1101,7 +1130,7 @@ docker_start_container() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" start --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1109,7 +1138,7 @@ docker_stop_container() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" stop --name "$APP_NAME"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1117,7 +1146,7 @@ docker_restart_container() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" restart --name "$APP_NAME" --version "$APP_VERSION" --host-port "$DOCKER_HOST_PORT" --port "$DOCKER_PORT" --tag "$DOCKER_IMAGE_TAG"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1125,7 +1154,7 @@ docker_status() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" status --name "$APP_NAME"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1134,7 +1163,7 @@ docker_logs() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" logs --name "$APP_NAME" --lines "$lines"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
@@ -1142,18 +1171,19 @@ docker_clean() {
     if [ -f "${SCRIPT_DIR}/script/linux/docker.sh" ]; then
         bash "${SCRIPT_DIR}/script/linux/docker.sh" clean --name "$APP_NAME" --tag "$DOCKER_IMAGE_TAG"
     else
-        echo -e "${YELLOW}[闁圭粯鍔楅妵姝?Docker 闁煎瓨纰嶅﹢鐗堢▔瀹ュ懐鎽犻柛?{NC}"
+        echo -e "${YELLOW}[提示] Docker 脚本不存在${NC}"
     fi
 }
 
 # ===========================================
-# GC 閻熸瑱绠戣ぐ?# ===========================================
+# GC 触发
+# ===========================================
 run_gc() {
     local gc_type="${1:-full}"
     local pid=$(get_pid)
     
     if [ -z "$pid" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}"
+        echo -e "${RED}[错误] ${APP_NAME} 未在运行${NC}"
         return 1
     fi
     
@@ -1162,19 +1192,20 @@ run_gc() {
     [ -n "$JAVA_HOME" ] && jcmd_cmd="$JAVA_HOME/bin/jcmd"
     
     if ! command -v "${jcmd_cmd}" &> /dev/null; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜濇竟姗€宕?jcmd 闁告稒鍨濋幎?{NC}"
+        echo -e "${RED}[错误] 未找到 jcmd 命令${NC}"
         return 1
     fi
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}                    閻熸瑱绠戣ぐ?GC${NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}                    触发 GC${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
     echo -e "  PID:      ${pid}"
-    echo -e "  GC 缂侇偉顕ч悗? ${gc_type}"
+    echo -e "  GC 类型: ${gc_type}"
     echo ""
     
-    # GC 闁告挸绉舵慨鎼佸箑?    echo -e "${CYAN}[GC 闁告挸绉舵慨鎼佸箑娑?{NC}"
+    # GC 前状态
+    echo -e "${CYAN}[GC 前状态]${NC}"
     local jstat_cmd="jstat"
     [ -n "$JAVA_HOME" ] && jstat_cmd="$JAVA_HOME/bin/jstat"
     if command -v "${jstat_cmd}" &> /dev/null; then
@@ -1184,40 +1215,42 @@ run_gc() {
     
     case "${gc_type}" in
         young|minor)
-            echo -e "${YELLOW}閻熸瑱绠戣ぐ?Young GC...${NC}"
+            echo -e "${YELLOW}触发 Young GC...${NC}"
             "${jcmd_cmd}" "$pid" GC.run 2>/dev/null
             ;;
         full|major)
-            echo -e "${YELLOW}閻熸瑱绠戣ぐ?Full GC...${NC}"
+            echo -e "${YELLOW}触发 Full GC...${NC}"
             "${jcmd_cmd}" "$pid" GC.run 2>/dev/null
             ;;
         *)
-            echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜為悡锟犳儍?GC 缂侇偉顕ч悗? ${gc_type}${NC}"
-            echo "闁衡偓椤栨稑鐦柣銊ュ鐞氼偊宕? young, full"
+            echo -e "${RED}[错误] 未知的 GC 类型: ${gc_type}${NC}"
+            echo "支持的类型: young, full"
             return 1
             ;;
     esac
     
     sleep 2
     
-    # GC 闁告艾娴锋慨鎼佸箑?    echo ""
-    echo -e "${CYAN}[GC 闁告艾娴锋慨鎼佸箑娑?{NC}"
+    # GC 后状态
+    echo ""
+    echo -e "${CYAN}[GC 后状态]${NC}"
     if command -v "${jstat_cmd}" &> /dev/null; then
         "${jstat_cmd}" -gcutil "$pid" 2>/dev/null | head -2
     fi
     
     echo ""
-    echo -e "${GREEN}[閻庣懓鏈崹姝?GC 鐎规瓕灏闁?{NC}"
+    echo -e "${GREEN}[完成] GC 已触发${NC}"
 }
 
 # ===========================================
-# 濡?CPU 缂佹崘娉曢埢濂稿礆閸℃鈧?# ===========================================
+# 高 CPU 线程分析
+# ===========================================
 run_top_cpu() {
     local top_n="${1:-10}"
     local pid=$(get_pid)
     
     if [ -z "$pid" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}"
+        echo -e "${RED}[错误] ${APP_NAME} 未在运行${NC}"
         return 1
     fi
     
@@ -1226,49 +1259,53 @@ run_top_cpu() {
     [ -n "$JAVA_HOME" ] && jstack_cmd="$JAVA_HOME/bin/jstack"
     
     if ! command -v "${jstack_cmd}" &> /dev/null; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜濇竟姗€宕?jstack 闁告稒鍨濋幎?{NC}"
+        echo -e "${RED}[错误] 未找到 jstack 命令${NC}"
         return 1
     fi
     
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}                濡?CPU 缂佹崘娉曢埢濂稿礆閸℃鈧?(Top ${top_n})                  ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}                高 CPU 线程分析 (Top ${top_n})                  ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "  閺夆晜绋撻埢?PID: ${pid}"
-    echo -e "  閹煎瓨姊婚弫銈夊触瀹ュ泦? ${APP_NAME}"
+    echo -e "  进程 PID: ${pid}"
+    echo -e "  应用名称: ${APP_NAME}"
     echo ""
     
-    # 闁兼儳鍢茶ぐ鍥殗?CPU 缂佹崘娉曢埢?    echo -e "${CYAN}[婵縿鍎甸?1] 闁兼儳鍢茶ぐ鍥殗?CPU 缂佹崘娉曢埢?..${NC}"
+    # 获取高 CPU 线程
+    echo -e "${CYAN}[步骤 1] 获取高 CPU 线程...${NC}"
     local tmp_threads=$(mktemp)
     local tmp_jstack=$(mktemp)
     
-    # 闁兼儳鍢茶ぐ鍥╃棯鐠恒劉鏌?CPU 濞达綀娉曢弫銈夋偝?    top -b -n 1 -H -p "$pid" 2>/dev/null | grep -E "^\s*[0-9]+" | head -n "$top_n" > "$tmp_threads"
+    # 获取线程 CPU 使用率
+    top -b -n 1 -H -p "$pid" 2>/dev/null | grep -E "^\s*[0-9]+" | head -n "$top_n" > "$tmp_threads"
     
     if [ ! -s "$tmp_threads" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄啰濮电涵鍫曟焻濮樺磭绠?top 闁兼儳鍢茶ぐ鍥╃棯鐠恒劉鏌ゅǎ鍥ｅ墲娴煎懘鏁嶇仦鐣屾閻?ps...${NC}"
+        echo -e "${YELLOW}[警告] 无法通过 top 获取线程信息，尝试 ps...${NC}"
         ps -eLo pid,lwp,%cpu,comm --sort=-%cpu | grep "$pid" | head -n "$top_n" > "$tmp_threads"
     fi
     
-    # 闁兼儳鍢茶ぐ鍥╃棯鐠恒劉鏌ら柛顐㈡閻?    echo -e "${CYAN}[婵縿鍎甸?2] 闁兼儳鍢茶ぐ鍥╃棯鐠恒劉鏌ら柛顐㈡閻?..${NC}"
+    # 获取线程堆栈
+    echo -e "${CYAN}[步骤 2] 获取线程堆栈...${NC}"
     "${jstack_cmd}" -l "$pid" > "$tmp_jstack" 2>/dev/null
     
     if [ ! -s "$tmp_jstack" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄啰濮电涵鍫曟嚔瀹勬澘绲跨紒鎹愭硶閳诲ジ宕奸崱妯煎灲${NC}"
+        echo -e "${RED}[错误] 无法获取线程堆栈${NC}"
         rm -f "$tmp_threads" "$tmp_jstack"
         return 1
     fi
     
-    # 闁告帒妫欓悗浠嬬嵁閼稿灚鈻旂紒鈧?    echo ""
-    echo -e "${CYAN}[婵縿鍎甸?3] 闁告帒妫欓悗鑺ヮ殗?CPU 缂佹崘娉曢埢濂稿醇閸℃鍨?..${NC}"
-    echo -e "${BLUE}闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾${NC}"
+    # 分析并显示
+    echo ""
+    echo -e "${CYAN}[步骤 3] 分析高 CPU 线程堆栈...${NC}"
+    echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
     
     local count=0
     while read -r line; do
-        # 閻熸瑱绲鹃悗鐣岀棯鐠恒劉鏌?ID 闁?CPU
+        # 解析线程 ID 和 CPU
         local lwp=$(echo "$line" | awk '{print $1}')
         local cpu=$(echo "$line" | awk '{print $9}')
         
-        # 濠碘€冲€归悘澶愬及?ps 閺夊牊鎸搁崵顓㈠冀閻撳海纭€
+        # 如果是 ps 输出格式
         if [[ "$line" =~ ^[[:space:]]*[0-9]+[[:space:]]+[0-9]+ ]]; then
             lwp=$(echo "$line" | awk '{print $2}')
             cpu=$(echo "$line" | awk '{print $3}')
@@ -1276,14 +1313,16 @@ run_top_cpu() {
         
         [ -z "$lwp" ] && continue
         
-        # 閺夌儐鍓氬畷鍙夌▔?16 閺夆晜绋戦崺?        local nid=$(printf "%x" "$lwp" 2>/dev/null)
+        # 转换为 16 进制
+        local nid=$(printf "%x" "$lwp" 2>/dev/null)
         [ -z "$nid" ] && continue
         
         count=$((count + 1))
         echo ""
-        echo -e "${YELLOW}#${count} 缂佹崘娉曢埢?ID: ${lwp} (0x${nid})  CPU: ${cpu}%${NC}"
+        echo -e "${YELLOW}#${count} 线程 ID: ${lwp} (0x${nid})  CPU: ${cpu}%${NC}"
         
-        # 闁?jstack 濞戞搩鍘介悡锟犲箥閹屽殸閹煎瓨姊诲▓鎴犵棯鐠恒劉鏌ら柛顐㈡閻?        local found=false
+        # 在 jstack 中查找对应的线程堆栈
+        local found=false
         local in_thread=false
         local stack_lines=0
         
@@ -1296,9 +1335,9 @@ run_top_cpu() {
                 if [[ "$stack_line" =~ ^[[:space:]]*$ ]] || [[ "$stack_line" =~ ^\".*\".*nid= ]]; then
                     break
                 fi
-                # 闁哄嫬澧介妵姘跺醇閸℃鍨?(闁哄牃鍋撳?15 閻?
+                # 显示堆栈 (最多 15 行)
                 if [ $stack_lines -lt 15 ]; then
-                    # 濡ゅ倹眉鐎垫帡寮伴崜褋浠涘☉鎾磋壘婵喐绂掗敐鍥╁灣
+                    # 高亮显示业务代码
                     if [[ "$stack_line" =~ at\ com\. ]] || [[ "$stack_line" =~ at\ cn\. ]] || [[ "$stack_line" =~ at\ org\..*\.service ]] || [[ "$stack_line" =~ at\ org\..*\.controller ]]; then
                         echo -e "${GREEN}$stack_line${NC}"
                     else
@@ -1310,10 +1349,10 @@ run_top_cpu() {
         done < "$tmp_jstack"
         
         if [ "$found" = false ]; then
-            echo -e "${YELLOW}  闁哄啰濮电涵鍫曞箥閹冪厒缂佹崘娉曢埢濂稿醇閸℃鍨?(nid=0x${nid})${NC}"
+            echo -e "${YELLOW}  无法找到线程堆栈 (nid=0x${nid})${NC}"
         fi
         
-        echo -e "${BLUE}闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾${NC}"
+        echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
         
         [ $count -ge $top_n ] && break
     done < "$tmp_threads"
@@ -1321,18 +1360,19 @@ run_top_cpu() {
     rm -f "$tmp_threads" "$tmp_jstack"
     
     echo ""
-    echo -e "${GREEN}[閻庣懓鏈崹姝?闁告帒妫欓悗鐣岀磼閹惧瓨灏?{NC}"
-    echo -e "${CYAN}闁圭粯鍔楅妵? 缂備浇鍎绘竟濠冾殗濡懓鐦ㄩ柣銊ュ濡插憡绋夊顒€顫ゅù鐙呯悼閻栨粓鏁嶅畝鍕ㄥ亾濮橆剛鍩楅梻鍥ｅ亾閻熸洑绶氶崳鎼佹倷閻熸澘褰犳繛?{NC}"
+    echo -e "${GREEN}[完成] 分析结束${NC}"
+    echo -e "${CYAN}提示: 绿色高亮的是业务代码，通常需要重点关注${NC}"
 }
 
 # ===========================================
-# 濡ゅ倹锚閸炲鈧稒锚椤曨喚鎸掗垾鍐茬€婚柡?# ===========================================
+# 高内存对象分析
+# ===========================================
 run_top_mem() {
     local top_n="${1:-10}"
     local pid=$(get_pid)
     
     if [ -z "$pid" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?${APP_NAME} 闁哄牜浜滃﹢顏呮交閹邦垼鏀?{NC}"
+        echo -e "${RED}[错误] ${APP_NAME} 未在运行${NC}"
         return 1
     fi
     
@@ -1341,40 +1381,41 @@ run_top_mem() {
     local jcmd_cmd="jcmd"
     [ -n "$JAVA_HOME" ] && jmap_cmd="$JAVA_HOME/bin/jmap" && jcmd_cmd="$JAVA_HOME/bin/jcmd"
     
-    echo -e "${BLUE}闁崇儤鏌￠弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽${NC}"
-    echo -e "${BLUE}闁?{NC}${GREEN}               濡ゅ倹锚閸炲鈧稒锚椤曨喚鎸掗垾鍐茬€婚柡?(Top ${top_n})                   ${NC}${BLUE}闁?{NC}"
-    echo -e "${BLUE}闁崇儤鍩冮弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽畷${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}               高内存对象分析 (Top ${top_n})                   ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "  閺夆晜绋撻埢?PID: ${pid}"
-    echo -e "  閹煎瓨姊婚弫銈夊触瀹ュ泦? ${APP_NAME}"
+    echo -e "  进程 PID: ${pid}"
+    echo -e "  应用名称: ${APP_NAME}"
     echo ""
     
-    # 閻忓繑绻嗛惁顖涙媴鐠恒劍鏆?jcmd (闁哄洦娼欓悾銊╁礂?
+    # 尝试使用 jcmd (更安全)
     local histo_output=""
     if command -v "${jcmd_cmd}" &> /dev/null; then
-        echo -e "${CYAN}[婵縿鍎甸?1] 濞达綀娉曢弫?jcmd 闁兼儳鍢茶ぐ鍥┾偓鐢殿攰閽栧嫰鎯勭€涙ɑ鐓欓柛?..${NC}"
+        echo -e "${CYAN}[步骤 1] 使用 jcmd 获取对象直方图...${NC}"
         histo_output=$("${jcmd_cmd}" "$pid" GC.class_histogram 2>/dev/null)
     fi
     
-    # 濠碘€冲€归悘?jcmd 濠㈡儼绮剧憴锕傛晬鐏炵晫姣﹂悹?jmap
+    # 如果 jcmd 失败，尝试 jmap
     if [ -z "$histo_output" ] && command -v "${jmap_cmd}" &> /dev/null; then
-        echo -e "${CYAN}[婵縿鍎甸?1] 濞达綀娉曢弫?jmap 闁兼儳鍢茶ぐ鍥┾偓鐢殿攰閽栧嫰鎯勭€涙ɑ鐓欓柛?..${NC}"
+        echo -e "${CYAN}[步骤 1] 使用 jmap 获取对象直方图...${NC}"
         histo_output=$("${jmap_cmd}" -histo:live "$pid" 2>/dev/null)
     fi
     
     if [ -z "$histo_output" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄啰濮电涵鍫曟嚔瀹勬澘绲块悗鐢殿攰閽栧嫰鎯勭€涙ɑ鐓欓柛?{NC}"
+        echo -e "${RED}[错误] 无法获取对象直方图${NC}"
         return 1
     fi
     
     echo ""
-    echo -e "${CYAN}[婵縿鍎甸?2] 闁告帒妫欓悗鑺ヮ殗濡搫鏁堕悗娑櫭顔炬寬?..${NC}"
+    echo -e "${CYAN}[步骤 2] 分析高内存对象...${NC}"
     echo ""
     
-    # 闁哄嫬澧介妵姘跺冀閸ヮ剦鏆?    echo -e "${WHITE}  闁圭儤甯掗幃?  閻庡湱鍋樼欢銉╁极?         闁告濮烽弫銈団偓娑欘殙婵?           缂侇偉顕ч幃?{NC}"
-    echo -e "${BLUE}闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾${NC}"
+    # 显示标题
+    echo -e "${WHITE}  排名   实例数          占用字节            类名${NC}"
+    echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
     
-    # 閻熸瑱绲鹃悗浠嬬嵁閼稿灚鈻旂紒鈧?Top N
+    # 解析并显示 Top N
     local count=0
     echo "$histo_output" | grep -E "^\s*[0-9]+:" | head -n "$top_n" | while read -r line; do
         count=$((count + 1))
@@ -1383,7 +1424,8 @@ run_top_mem() {
         local bytes=$(echo "$line" | awk '{print $3}')
         local class_name=$(echo "$line" | awk '{print $4}')
         
-        # 閺夌儐鍓氬畷鑼偓娑欘殙婵☆厽绋夐崫鍕閻犲洨绮悧绋款嚕?        local size_human=""
+        # 转换字节为可读格式
+        local size_human=""
         if [ "$bytes" -ge 1073741824 ]; then
             size_human=$(awk "BEGIN {printf \"%.2f GB\", $bytes/1073741824}")
         elif [ "$bytes" -ge 1048576 ]; then
@@ -1394,17 +1436,19 @@ run_top_mem() {
             size_human="${bytes} B"
         fi
         
-        # 濡ゅ倹眉鐎垫帗绋夊顒€顫ょ紒?        if [[ "$class_name" =~ ^(com\.|cn\.|org\..*\.model|org\..*\.entity|org\..*\.dto) ]]; then
+        # 高亮业务类
+        if [[ "$class_name" =~ ^(com\.|cn\.|org\..*\.model|org\..*\.entity|org\..*\.dto) ]]; then
             printf "${GREEN}  %4s   %12s   %12s   %s${NC}\n" "$num" "$instances" "$size_human" "$class_name"
         else
             printf "  %4s   %12s   %12s   %s\n" "$num" "$instances" "$size_human" "$class_name"
         fi
     done
     
-    echo -e "${BLUE}闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾闁冲厜鍋撻柍鍏夊亾${NC}"
+    echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
     
-    # 闁哄嫬澧介妵姘跺礃閸涱厾鎽犳慨鎺戝€介～?    echo ""
-    echo -e "${CYAN}[闁告劕鎳庨悺銊ヮ潡閸屾繍娼擼${NC}"
+    # 显示内存概览
+    echo ""
+    echo -e "${CYAN}[内存概览]${NC}"
     local total_instances=$(echo "$histo_output" | grep -E "^Total" | awk '{print $2}')
     local total_bytes=$(echo "$histo_output" | grep -E "^Total" | awk '{print $3}')
     if [ -n "$total_instances" ]; then
@@ -1416,32 +1460,32 @@ run_top_mem() {
         else
             total_human=$(awk "BEGIN {printf \"%.2f KB\", $total_bytes/1024}")
         fi
-        echo -e "  闁诡剝顕ч悿鍕瑹鐎ｎ偅娈? ${WHITE}${total_instances}${NC}"
-        echo -e "  闁诡剝顕у畷浼存偨?   ${WHITE}${total_human}${NC}"
+        echo -e "  总实例数: ${WHITE}${total_instances}${NC}"
+        echo -e "  总占用:   ${WHITE}${total_human}${NC}"
     fi
     
     echo ""
-    echo -e "${GREEN}[閻庣懓鏈崹姝?闁告帒妫欓悗鐣岀磼閹惧瓨灏?{NC}"
-    echo -e "${CYAN}闁圭粯鍔楅妵? 缂備浇鍎绘竟濠冾殗濡懓鐦ㄩ柣銊ュ濡插憡绋夊顒€顫ょ紒顐＄串缁辨繈鏌呭顒傚煑闂傚洠鍋撻悷鏇氱窔閸ｆ悂鎮欓悷鏉垮綘婵?{NC}"
-    echo -e "${CYAN}      濠碘€冲€垮〒鍫曞即绾惧鍤婄紓浣告閸ㄥ酣寮搁幇鍓佺閻犲洩娓规繛鍥偨? $0 dump heap${NC}"
+    echo -e "${GREEN}[完成] 分析结束${NC}"
+    echo -e "${CYAN}提示: 绿色高亮的是业务类，通常需要重点关注${NC}"
+    echo -e "${CYAN}      如需更详细分析，请使用: $0 dump heap${NC}"
 }
 
 # ===========================================
-# 闁哄牆绉存慨鐔虹不閿涘嫭鍊?(systemd)
+# 服务管理 (systemd)
 # ===========================================
 SERVICE_NAME="${APP_NAME}.service"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}"
 
 install_service() {
     if [ "$(id -u)" -ne 0 ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闂傚洠鍋撻悷?root 闁哄鍟村娲箥瑜戦、鎴濐潰閵堝懏鍤掑ù?{NC}"
-        echo "閻犲洩娓规繛鍥偨? sudo $0 install-service"
+        echo -e "${RED}[错误] 需要 root 权限执行此命令${NC}"
+        echo "请使用: sudo $0 install-service"
         return 1
     fi
     
     if [ -f "${SERVICE_FILE}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄牆绉存慨鐔奉啅閹绘帞鎽犻柛? ${SERVICE_NAME}${NC}"
-        read -p "闁哄嫷鍨伴幆浣烘啺閸℃瑦纾? (y/N): " confirm
+        echo -e "${YELLOW}[警告] 服务已存在: ${SERVICE_NAME}${NC}"
+        read -p "是否覆盖? (y/N): " confirm
         [ "$confirm" != "y" ] && [ "$confirm" != "Y" ] && return 0
     fi
     
@@ -1449,17 +1493,18 @@ install_service() {
     local java_path=$(which "$JAVA_CMD" 2>/dev/null || echo "$JAVA_CMD")
     local run_user=$(stat -c '%U' "${APP_HOME}" 2>/dev/null || echo "root")
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}              閻庣懓顦抽ˉ?Systemd 闁哄牆绉存慨?{NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}              安装 Systemd 服务${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "  闁哄牆绉存慨鐔煎触瀹ュ泦? ${SERVICE_NAME}"
-    echo -e "  閺夆晜鍔橀、鎴︽偨閵婏箑鐓? ${run_user}"
-    echo -e "  Java 閻犱警鍨扮欢? ${java_path}"
-    echo -e "  閹煎瓨姊婚弫銈夋儎椤旇偐绉? ${APP_HOME}"
+    echo -e "  服务名称: ${SERVICE_NAME}"
+    echo -e "  运行用户: ${run_user}"
+    echo -e "  Java 路径: ${java_path}"
+    echo -e "  应用目录: ${APP_HOME}"
     echo ""
     
-    # 闁汇垻鍠愰崹?systemd 闁哄牆绉存慨鐔煎棘閸ワ附顐?    cat > "${SERVICE_FILE}" << EOF
+    # 生成 systemd 服务文件
+    cat > "${SERVICE_FILE}" << EOF
 [Unit]
 Description=${APP_NAME} Spring Boot Application
 After=network.target
@@ -1484,89 +1529,92 @@ KillMode=process
 WantedBy=multi-user.target
 EOF
     
-    # 闂佹彃绉甸弻濠囧礉閻樼儤绁?systemd
+    # 重新加载 systemd
     systemctl daemon-reload
     
-    echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?闁哄牆绉存慨鐔奉啅閹绘帞鏆旈悷? ${SERVICE_NAME}${NC}"
+    echo -e "${GREEN}[成功] 服务已安装: ${SERVICE_NAME}${NC}"
     echo ""
-    echo -e "${CYAN}闁告瑯鍨抽弫銈夊川閹存帗濮?${NC}"
-    echo "  systemctl start ${SERVICE_NAME}     # 闁告凹鍨版慨鈺呭嫉瀹ュ懎顫?
-    echo "  systemctl stop ${SERVICE_NAME}      # 闁稿绮嶉娑㈠嫉瀹ュ懎顫?
-    echo "  systemctl restart ${SERVICE_NAME}   # 闂佹彃绉撮幆搴ㄥ嫉瀹ュ懎顫?
-    echo "  systemctl status ${SERVICE_NAME}    # 闁哄被鍎冲﹢鍛存偐閼哥鍋?
-    echo "  systemctl enable ${SERVICE_NAME}    # 鐎殿喒鍋撻柡鍫ョ細閸ゆ粓宕?
-    echo "  journalctl -u ${SERVICE_NAME} -f    # 闁哄被鍎冲﹢鍛村籍閵夈儳绠?
+    echo -e "${CYAN}可用命令:${NC}"
+    echo "  systemctl start ${SERVICE_NAME}     # 启动服务"
+    echo "  systemctl stop ${SERVICE_NAME}      # 停止服务"
+    echo "  systemctl restart ${SERVICE_NAME}   # 重启服务"
+    echo "  systemctl status ${SERVICE_NAME}    # 查看状态"
+    echo "  systemctl enable ${SERVICE_NAME}    # 开机自启"
+    echo "  journalctl -u ${SERVICE_NAME} -f    # 查看日志"
 }
 
 uninstall_service() {
     if [ "$(id -u)" -ne 0 ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闂傚洠鍋撻悷?root 闁哄鍟村娲箥瑜戦、鎴濐潰閵堝懏鍤掑ù?{NC}"
-        echo "閻犲洩娓规繛鍥偨? sudo $0 uninstall-service"
+        echo -e "${RED}[错误] 需要 root 权限执行此命令${NC}"
+        echo "请使用: sudo $0 uninstall-service"
         return 1
     fi
     
     if [ ! -f "${SERVICE_FILE}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄牆绉存慨鐔哥▔瀹ュ懐鎽犻柛? ${SERVICE_NAME}${NC}"
+        echo -e "${YELLOW}[警告] 服务不存在: ${SERVICE_NAME}${NC}"
         return 0
     fi
     
-    echo -e "${BLUE}闁告鐡曞ù鍥嫉瀹ュ懎顫? ${SERVICE_NAME}...${NC}"
+    echo -e "${BLUE}卸载服务: ${SERVICE_NAME}...${NC}"
     
-    # 闁稿绮嶉娑㈠嫉瀹ュ懎顫?    systemctl stop "${SERVICE_NAME}" 2>/dev/null
+    # 停止服务
+    systemctl stop "${SERVICE_NAME}" 2>/dev/null
     systemctl disable "${SERVICE_NAME}" 2>/dev/null
     
-    # 闁告帞濞€濞呭酣寮靛鍛潳闁哄倸娲ｅ▎?    rm -f "${SERVICE_FILE}"
+    # 删除服务文件
+    rm -f "${SERVICE_FILE}"
     systemctl daemon-reload
     
-    echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?闁哄牆绉存慨鐔奉啅閹绘帒绁婚弶?{NC}"
+    echo -e "${GREEN}[成功] 服务已卸载${NC}"
 }
 
 enable_service() {
     if [ "$(id -u)" -ne 0 ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闂傚洠鍋撻悷?root 闁哄鍟村娲箥瑜戦、鎴濐潰閵堝懏鍤掑ù?{NC}"
+        echo -e "${RED}[错误] 需要 root 权限执行此命令${NC}"
         return 1
     fi
     
     if [ ! -f "${SERVICE_FILE}" ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牆绉存慨鐔煎嫉椤忓嫮鏆旈悷浣告嫅缁辨繄鎷犲畡鏉垮弗闁圭瑳鍡╂斀: $0 install-service${NC}"
+        echo -e "${RED}[错误] 服务未安装，请先执行: $0 install-service${NC}"
         return 1
     fi
     
     systemctl enable "${SERVICE_NAME}"
-    echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?鐎瑰憡褰冮幆搴ㄦ偨閵娿儳纾婚柡鍫ョ細閸ゆ粓宕?{NC}"
+    echo -e "${GREEN}[成功] 已启用开机自启${NC}"
 }
 
 disable_service() {
     if [ "$(id -u)" -ne 0 ]; then
-        echo -e "${RED}[闂佹寧鐟ㄩ顦?闂傚洠鍋撻悷?root 闁哄鍟村娲箥瑜戦、鎴濐潰閵堝懏鍤掑ù?{NC}"
+        echo -e "${RED}[错误] 需要 root 权限执行此命令${NC}"
         return 1
     fi
     
     if [ ! -f "${SERVICE_FILE}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄牆绉存慨鐔煎嫉椤忓嫮鏆旈悷?{NC}"
+        echo -e "${YELLOW}[警告] 服务未安装${NC}"
         return 0
     fi
     
     systemctl disable "${SERVICE_NAME}"
-    echo -e "${GREEN}[闁瑰瓨鍔曟慨娌?鐎规瓕灏欓々锕傛偨閵娿儳纾婚柡鍫ョ細閸ゆ粓宕?{NC}"
+    echo -e "${GREEN}[成功] 已禁用开机自启${NC}"
 }
 
 show_service_status() {
     if [ ! -f "${SERVICE_FILE}" ]; then
-        echo -e "${YELLOW}[閻犫偓閿曗偓閹差摚 闁哄牆绉存慨鐔煎嫉椤忓嫮鏆旈悷? ${SERVICE_NAME}${NC}"
-        echo "濞达綀娉曢弫?'$0 install-service' 閻庣懓顦抽ˉ濠囧嫉瀹ュ懎顫?
+        echo -e "${YELLOW}[警告] 服务未安装: ${SERVICE_NAME}${NC}"
+        echo "使用 '$0 install-service' 安装服务"
         return 0
     fi
     
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
-    echo -e "${GREEN}              Systemd 闁哄牆绉存慨鐔兼偐閼哥鍋?{NC}"
-    echo -e "${BLUE}闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳闁崇儤鍔忛弲鏌ュ煛閹般劍娅滈柍鐑樺姀閺呮煡鍩￠幇銊︽珳${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}              Systemd 服务状态${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
     systemctl status "${SERVICE_NAME}" --no-pager
 }
 
 # ===========================================
-# 闁告瑥鍊归弳鐔烘喆閿濆棛鈧?# ===========================================
+# 参数解析
+# ===========================================
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
 DEBUG_MODE="false"
@@ -1592,6 +1640,12 @@ while [ $# -gt 0 ]; do
             SKYWALKING_SUBCMD_ARGS=("$@")
             break
             ;;
+        java)
+            COMMAND="java"
+            shift
+            JAVA_CMD_ARGS=("$@")
+            break
+            ;;
         backup)
             COMMAND="backup"
             shift
@@ -1607,7 +1661,8 @@ while [ $# -gt 0 ]; do
         gc)
             COMMAND="gc"
             shift
-            # 婵☆偀鍋撻柡灞诲劙缁楀懏绋夐埀顒佺▔椤忓嫬妫橀柡浣哄濡叉悂宕ラ敂鑺バ?GC 缂侇偉顕ч悗?            if [[ "$1" =~ ^(young|full|minor|major)$ ]]; then
+            # 检查下一个参数是否是 GC 类型
+            if [[ "$1" =~ ^(young|full|minor|major)$ ]]; then
                 GC_TYPE="$1"
                 shift
             else
@@ -1635,7 +1690,8 @@ while [ $# -gt 0 ]; do
         logs)
             COMMAND="logs"
             shift
-            # 婵☆偀鍋撻柡灞诲劙缁楀懏绋夐埀顒佺▔椤忓嫬妫橀柡浣哄濡叉悂宕ラ敂鑺バ﹂柡浣规緲閻?            if [[ "$1" =~ ^[0-9]+$ ]]; then
+            # 检查下一个参数是否是数字
+            if [[ "$1" =~ ^[0-9]+$ ]]; then
                 SHOW_LOGS="$1"
                 shift
             else
@@ -1646,12 +1702,6 @@ while [ $# -gt 0 ]; do
             COMMAND="tail"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish)
             COMMAND="$1"; shift ;;
-        java)
-            COMMAND="java"
-            shift
-            # 濞ｅ洦绻傞悺?java 闁告稒鍨濋幎銈夋儍閸曨剙顣查柡鍫濐槸閹绱掗鐐叉闁?            JAVA_CMD_ARGS=("$@")
-            break
-            ;;
         young|full|minor|major)
             GC_TYPE="$1"; shift ;;
         cpu|mem|all|config|jar|heap|thread)
@@ -1662,15 +1712,14 @@ while [ $# -gt 0 ]; do
         --profile) SPRING_PROFILE="$2"; shift 2 ;;
         --java)
             shift
-            # 婵☆偀鍋撻柡灞诲劙缁楀懏绋夐埀顒佺▔椤忓嫬妫橀柡浣哄濡叉悂宕ラ敂鑺バ﹂悹渚灠缁?(濞戞挸绉虫禍?- 鐎殿喒鍋撳?
             if [ -n "$1" ] && [[ ! "$1" =~ ^- ]]; then
                 CUSTOM_JAVA="$1"
-                # 濞ｅ洦绻傞悺?Java 閻犱警鍨扮欢?                if [ -x "$CUSTOM_JAVA" ]; then
+                if [ -x "$CUSTOM_JAVA" ]; then
                     save_java_path "$CUSTOM_JAVA"
                 fi
                 shift
             else
-                # 闁哄啰濮村顒勫极鐢喚绀夐柡鍕⒔閵囨俺銇愰幘鍐差枀 Java 濞ｅ洠鍓濇导?                show_java_info
+                show_java_info
                 exit 0
             fi
             ;;
@@ -1697,16 +1746,16 @@ while [ $# -gt 0 ]; do
         --tail) TAIL_LOG="true"; shift ;;
         --help|-h) show_help; exit 0 ;;
         *)
-            # 婵☆偀鍋撻柡灞诲劜濡叉悂宕ラ敂鑺バ﹂柡浣规緲閻?(闁活潿鍔嬬花?logs/top-cpu/top-mem 闁告稒鍨濋幎?
+            # 检查是否是数字 (用于 logs/top-cpu/top-mem 命令)
             if [[ "$1" =~ ^[0-9]+$ ]]; then
                 case "$COMMAND" in
                     logs) SHOW_LOGS="$1" ;;
                     top-cpu|top-mem) TOP_N="$1" ;;
-                    *) echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜為悡锟犲矗閸屾稒娈? $1${NC}"; show_help; exit 1 ;;
+                    *) echo -e "${RED}[错误] 未知参数: $1${NC}"; show_help; exit 1 ;;
                 esac
                 shift
             else
-                echo -e "${RED}[闂佹寧鐟ㄩ顦?闁哄牜浜為悡锟犲矗閸屾稒娈? $1${NC}"
+                echo -e "${RED}[错误] 未知参数: $1${NC}"
                 show_help
                 exit 1
             fi
@@ -1717,7 +1766,8 @@ done
 [ "$COMMAND" = "debug" ] && DEBUG_MODE="true" && COMMAND="start"
 
 # ===========================================
-# 闁告稒鍨濋幎銈夊箥瑜戦、?# ===========================================
+# 命令执行
+# ===========================================
 case "$COMMAND" in
     start) start_app ;;
     stop) stop_app ;;
