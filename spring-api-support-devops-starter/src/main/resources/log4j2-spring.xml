@@ -10,7 +10,7 @@
         <Property name="DEFAULT_VALUE">N/A</Property>
         
         <!-- 控制台彩色日志格式 (包含 MDC) -->
-        <Property name="CONSOLE_PATTERN">%red([%d{yyyy-MM-dd HH:mm:ss}]) %highlight([%-5level]) %yellow([%X{traceId:-}]) %green([%X{userId:-}]) %magenta([%X{requestIp:-}]) %blue([%t]) %cyan([%logger:%L]) - %m%n%xEx</Property>
+        <Property name="CONSOLE_PATTERN">%style{[%d{yyyy-MM-dd HH:mm:ss}]}{red} %highlight{[%-5level]} %style{[%X{traceId:-}]}{yellow} %style{[%X{userId:-}]}{green} %style{[%X{requestIp:-}]}{magenta} %style{[%t]}{blue} %style{[%logger:%L]}{cyan} - %m%n%xEx</Property>
         <!-- 文件日志格式 (包含 MDC) -->
         <Property name="FILE_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId:-}] [%X{userId:-}] [%X{requestIp:-}] [%t] [%logger:%L] - %m%n</Property>
     </Properties>
@@ -18,7 +18,7 @@
     <Appenders>
         <!-- 控制台输出 -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${CONSOLE_PATTERN}" charset="UTF-8"/>
+            <PatternLayout pattern="${CONSOLE_PATTERN}" charset="UTF-8" disableAnsi="false"/>
         </Console>
 
         <!-- 滚动文件输出 -->

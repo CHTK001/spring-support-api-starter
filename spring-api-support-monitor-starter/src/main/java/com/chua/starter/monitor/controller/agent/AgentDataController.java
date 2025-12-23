@@ -32,7 +32,6 @@ import java.util.Map;
 @RequestMapping("/v1/agent/data")
 @RequiredArgsConstructor
 @Tag(name = "Agent 数据查询", description = "Agent 上报数据的查询接口")
-@ConditionalOnBean(JedisPooled.class)
 public class AgentDataController {
 
     private final AgentDataStorageService agentDataStorageService;
