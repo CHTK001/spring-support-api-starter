@@ -20,10 +20,24 @@
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
             </resource>
+            <!-- Shell 脚本不过滤，保持原始 LF 换行符 -->
             <resource>
                 <directory>src/main/bin</directory>
                 <targetPath>bin</targetPath>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.sh</include>
+                </includes>
+            </resource>
+            <!-- Windows 脚本不过滤 -->
+            <resource>
+                <directory>src/main/bin</directory>
+                <targetPath>bin</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.bat</include>
+                    <include>**/*.cmd</include>
+                </includes>
             </resource>
         </resources>
     </build>
