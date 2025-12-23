@@ -41,7 +41,7 @@
             </includes>
         </fileSet>
         
-        <!-- 复制启动脚本 -->
+        <!-- 复制启动脚本 (启用过滤替换Maven变量) -->
         <fileSet>
             <directory>${project.basedir}/src/main/bin</directory>
             <outputDirectory>/bin</outputDirectory>
@@ -51,16 +51,32 @@
                 <include>*.cmd</include>
             </includes>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
         </fileSet>
         
-        <!-- 复制脚本目录 -->
+        <!-- 复制Linux脚本目录 (启用过滤替换Maven变量) -->
         <fileSet>
-            <directory>${project.basedir}/src/main/bin/script</directory>
-            <outputDirectory>/bin/script</outputDirectory>
+            <directory>${project.basedir}/src/main/bin/script/linux</directory>
+            <outputDirectory>/bin/script/linux</outputDirectory>
             <includes>
                 <include>**/*.sh</include>
             </includes>
             <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
+        </fileSet>
+        
+        <!-- 复制Windows脚本目录 (启用过滤替换Maven变量) -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/bin/script/windows</directory>
+            <outputDirectory>/bin/script/windows</outputDirectory>
+            <includes>
+                <include>**/*.bat</include>
+                <include>**/*.cmd</include>
+            </includes>
+            <lineEnding>crlf</lineEnding>
+            <filtered>true</filtered>
         </fileSet>
         
         <!-- 复制文档 -->
