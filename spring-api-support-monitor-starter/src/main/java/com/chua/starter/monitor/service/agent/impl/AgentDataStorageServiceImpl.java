@@ -4,6 +4,7 @@ import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.redis.support.client.RedisClient;
 import com.chua.redis.support.client.RedisSearch;
 import com.chua.redis.support.search.SearchIndex;
 import com.chua.redis.support.search.SearchQuery;
@@ -15,9 +16,11 @@ import com.chua.starter.monitor.pojo.agent.AgentTraceDTO;
 import com.chua.starter.monitor.service.agent.AgentDataStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -36,7 +39,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnBean(JedisPooled.class)
 public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     private static final String TRACE_INDEX_NAME = "idx:agent:trace";
@@ -48,12 +50,13 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
     private static final long TRACE_EXPIRE_SECONDS = 7 * 24 * 60 * 60;
     private static final long FILE_HANDLE_EXPIRE_SECONDS = 24 * 60 * 60;
 
-    private final JedisPooled jedisPooled;
+    @Autowired
+    private RedisClient redisClient;
     private RedisSearch redisSearch;
 
     @PostConstruct
     public void init() {
-        this.redisSearch = new RedisSearch(jedisPooled);
+        this.redisSearch = redisClient.getRedisSearch();
         initTraceIndex();
         log.info("[AgentDataStorage] Agent 数据存储服务初始化完成");
     }
@@ -267,11 +270,13 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
             serviceData.put("lastCallTime", String.valueOf(System.currentTimeMillis()));
 
             // 增加调用次数
-            jedisPooled.hincrBy(SERVICE_KEY + ":" + relationKey, "callCount", 1);
-            jedisPooled.hset(SERVICE_KEY + ":" + relationKey, serviceData);
-
-            // 添加到关系集合
-            jedisPooled.sadd(SERVICE_KEY + ":relations", relationKey);
+            JedisPool jedisPool = redisClient.getJedisPool();
+            try (Jedis jedis = jedisPool.getResource()) {
+                jedis.hincrBy(SERVICE_KEY + ":" + relationKey, "callCount", 1);
+                jedis.hset(SERVICE_KEY + ":" + relationKey, serviceData);
+                // 添加到关系集合
+                jedis.sadd(SERVICE_KEY + ":relations", relationKey);
+            }
 
             log.debug("[AgentDataStorage] 服务实例存储成功: {}", relationKey);
             return ReturnResult.success(true);
@@ -283,15 +288,16 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Map<String, Object>> getServiceTopologyForAgent() {
-        try {
-            Set<String> relations = jedisPooled.smembers(SERVICE_KEY + ":relations");
+        JedisPool jedisPool = redisClient.getJedisPool();
+        try (Jedis jedis = jedisPool.getResource()) {
+            Set<String> relations = jedis.smembers(SERVICE_KEY + ":relations");
 
             // 构建节点和边
             Set<Map<String, Object>> nodes = new HashSet<>();
             List<Map<String, Object>> edges = new ArrayList<>();
 
             for (String relation : relations) {
-                Map<String, String> data = jedisPooled.hgetAll(SERVICE_KEY + ":" + relation);
+                Map<String, String> data = jedis.hgetAll(SERVICE_KEY + ":" + relation);
                 if (data.isEmpty()) {
                     continue;
                 }
@@ -340,8 +346,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<List<AgentServiceInstanceDTO>> getServiceRelationsForAgent(String serviceName) {
-        try {
-            Set<String> relations = jedisPooled.smembers(SERVICE_KEY + ":relations");
+        JedisPool jedisPool = redisClient.getJedisPool();
+        try (Jedis jedis = jedisPool.getResource()) {
+            Set<String> relations = jedis.smembers(SERVICE_KEY + ":relations");
             List<AgentServiceInstanceDTO> result = new ArrayList<>();
 
             for (String relation : relations) {
@@ -349,7 +356,7 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
                     continue;
                 }
 
-                Map<String, String> data = jedisPooled.hgetAll(SERVICE_KEY + ":" + relation);
+                Map<String, String> data = jedis.hgetAll(SERVICE_KEY + ":" + relation);
                 if (data.isEmpty()) {
                     continue;
                 }
@@ -399,8 +406,11 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
             fdData.put("readBytes", String.valueOf(MapUtils.getLong(handleData, "readBytes", 0L)));
             fdData.put("writeBytes", String.valueOf(MapUtils.getLong(handleData, "writeBytes", 0L)));
 
-            jedisPooled.hset(key, field, Json.toJson(fdData));
-            jedisPooled.expire(key, FILE_HANDLE_EXPIRE_SECONDS);
+            JedisPool jedisPool = redisClient.getJedisPool();
+            try (Jedis jedis = jedisPool.getResource()) {
+                jedis.hset(key, field, Json.toJson(fdData));
+                jedis.expire(key, FILE_HANDLE_EXPIRE_SECONDS);
+            }
 
             log.debug("[AgentDataStorage] 文件句柄存储成功: {}:{}, fd={}", ipAddress, port, fd);
             return ReturnResult.success(true);
@@ -412,9 +422,10 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<List<AgentFileHandleDTO>> getFileHandlesForAgent(String ipAddress, Integer port) {
-        try {
+        JedisPool jedisPool = redisClient.getJedisPool();
+        try (Jedis jedis = jedisPool.getResource()) {
             String key = FILE_HANDLE_PREFIX + ipAddress + ":" + port;
-            Map<String, String> allHandles = jedisPooled.hgetAll(key);
+            Map<String, String> allHandles = jedis.hgetAll(key);
 
             List<AgentFileHandleDTO> result = allHandles.values().stream()
                     .map(json -> {
@@ -445,14 +456,15 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Map<String, Object>> getFileHandleStatsForAgent() {
-        try {
-            Set<String> keys = jedisPooled.keys(FILE_HANDLE_PREFIX + "*");
+        JedisPool jedisPool = redisClient.getJedisPool();
+        try (Jedis jedis = jedisPool.getResource()) {
+            Set<String> keys = jedis.keys(FILE_HANDLE_PREFIX + "*");
             Map<String, Object> stats = new HashMap<>();
             List<Map<String, Object>> nodeStats = new ArrayList<>();
 
             int totalHandles = 0;
             for (String key : keys) {
-                Map<String, String> handles = jedisPooled.hgetAll(key);
+                Map<String, String> handles = jedis.hgetAll(key);
                 String nodeKey = key.replace(FILE_HANDLE_PREFIX, "");
 
                 Map<String, Object> nodeStat = new HashMap<>();
