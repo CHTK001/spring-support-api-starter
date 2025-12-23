@@ -60,4 +60,16 @@ public class MonitorAcmeAccount extends SysBase {
     @ApiModelProperty("备注")
     @Schema(description = "备注")
     private String acmeAccountRemark;
+
+    /** EAB Key ID (ZeroSSL 等需要 External Account Binding 的 CA) */
+    @TableField("acme_account_eab_kid")
+    @ApiModelProperty("EAB Key ID")
+    @Schema(description = "EAB Key ID (ZeroSSL 等需要)")
+    private String acmeAccountEabKid;
+
+    /** EAB HMAC Key (Base64 编码) */
+    @TableField("acme_account_eab_hmac_key")
+    @ApiModelProperty("EAB HMAC Key")
+    @Schema(description = "EAB HMAC Key (Base64 编码)")
+    private String acmeAccountEabHmacKey;
 }

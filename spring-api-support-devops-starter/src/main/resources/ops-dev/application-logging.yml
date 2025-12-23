@@ -1,0 +1,6 @@
+# Logging dev 环境
+logging:
+  level:
+    com.chua: DEBUG
+    org.springframework.web: DEBUG
+    org.mybatis: DEBUG

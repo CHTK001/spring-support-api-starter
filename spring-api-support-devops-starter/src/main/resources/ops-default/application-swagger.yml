@@ -1,0 +1,11 @@
+# Swagger 通用配置
+springdoc:
+  group-configs:
+    - group: default
+      paths-to-match: /**
+      packages-to-scan: com.chua
+
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN

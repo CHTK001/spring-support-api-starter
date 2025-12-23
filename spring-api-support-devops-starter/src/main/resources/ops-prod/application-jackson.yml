@@ -1,0 +1,8 @@
+# Jackson prod 环境
+spring:
+  jackson:
+    default-property-inclusion: non_null
+
+plugin:
+  jackson:
+    include-null: false

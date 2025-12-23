@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-starter</artifactId>
+        <version>4.0.0</version>
+    </parent>
+
+    <artifactId>spring-api-support-devops-starter</artifactId>
+    <packaging>jar</packaging>
+    <name>DevOps Unified Management Module</name>
+    <description>统一配置模板和管理脚本，通过 Spring Boot profile 动态合并配置</description>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/bin</directory>
+                <targetPath>bin</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>
