@@ -121,6 +121,17 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasource-starter</artifactId>
+            <exclusions>
+                <!-- 排除 screw-core 带来的 logback -->
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -186,6 +197,12 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-common-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>utils-support-log-starter</artifactId>
+                    <groupId>com.chua</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -253,7 +270,7 @@
             <artifactId>zookeeper</artifactId>
             <version>3.9.2</version>
             <exclusions>
-                <!-- 排除 reload4j/log4j，使用 log4j2 -->
+                <!-- 排除所有日志实现，统一使用 log4j2 -->
                 <exclusion>
                     <groupId>ch.qos.reload4j</groupId>
                     <artifactId>reload4j</artifactId>
@@ -269,6 +286,14 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -292,6 +317,29 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-baidu-starter</artifactId>
+            <exclusions>
+                <!-- 排除 bce-java-sdk/hbase-client 带来的日志冲突 -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.reload4j</groupId>
+                    <artifactId>reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
