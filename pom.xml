@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <module.version>4.0.0.34</module.version>
+        <module.version>4.0.0.35</module.version>
         <utils.version>4.0.0.33</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（对子模块为同级目录） -->
@@ -494,7 +494,7 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-webrtc-starter</artifactId>
-                <version>4.0.0.34</version>
+                <version>4.0.0.35</version>
             </dependency>
 
             <dependency>
