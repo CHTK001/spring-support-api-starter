@@ -396,8 +396,17 @@ check_swagger_enabled() {
 
 # 构建 loader path
 build_loader_path() {
-    LOADER_PATH="${CONFIG_DIR}"
-    [ -d "${LIB_DIR}" ] && LOADER_PATH="${LOADER_PATH},${LIB_DIR}"
+    LOADER_PATH=""
+    if [ -d "${CONFIG_DIR}" ]; then
+        LOADER_PATH="${CONFIG_DIR}"
+    fi
+    if [ -d "${LIB_DIR}" ]; then
+        if [ -n "${LOADER_PATH}" ]; then
+            LOADER_PATH="${LOADER_PATH},${LIB_DIR}"
+        else
+            LOADER_PATH="${LIB_DIR}"
+        fi
+    fi
 }
 
 # ===========================================
@@ -647,8 +656,12 @@ start_app() {
         java_opts="${java_opts} -Dskywalking.collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
     fi
     
+    # 构建 loader.path 参数
+    local loader_opts=""
+    [ -n "${LOADER_PATH}" ] && loader_opts="-Dloader.path=${LOADER_PATH}"
+    
     # 启动应用
-    nohup "$JAVA_CMD" ${java_opts} -Dloader.path="${LOADER_PATH}" -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
+    nohup "$JAVA_CMD" ${java_opts} ${loader_opts} -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
     
     local new_pid=$!
     echo "$new_pid" > "${PID_FILE}"
