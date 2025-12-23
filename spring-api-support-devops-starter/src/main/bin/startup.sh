@@ -112,7 +112,8 @@ show_help() {
     echo "  rollback-status    查看还原点状态"
     echo "  debug              以调试模式启动"
     echo ""
-    echo -e "${YELLOW}Skywalking 命令:${NC}"
+    echo -e "${YELLOW}环境管理命令:${NC}"
+    echo "  java               管理 Java 环境 (install/list/check/remove)"
     echo "  skywalking         管理 Skywalking Agent (install/check/clean/info)"
     echo ""
     echo -e "${YELLOW}Docker 命令:${NC}"
@@ -215,6 +216,14 @@ show_help() {
     echo "    $0 docker-status                     查看容器状态"
     echo "    $0 docker-logs                       查看容器日志"
     echo "    $0 docker-clean                      清理旧镜像"
+    echo ""
+    echo -e "  ${CYAN}Java 环境管理:${NC}"
+    echo "    $0 java install                      安装 Java (默认 21)"
+    echo "    $0 java install --version 17         安装指定版本 Java"
+    echo "    $0 java install --dir /opt/java      安装到指定目录"
+    echo "    $0 java list                         列出可用 Java 版本"
+    echo "    $0 java check                        检查当前 Java 环境"
+    echo "    $0 java remove                       删除已安装的 Java"
     echo ""
     echo -e "  ${CYAN}Skywalking APM:${NC}"
     echo "    $0 start --skywalking                启用 Skywalking 启动"
@@ -528,6 +537,19 @@ ensure_skywalking() {
 run_skywalking() {
     local subcmd="${1:-}"
     bash "${SCRIPT_DIR}/script/linux/skywalking.sh" "$subcmd"
+}
+
+# ===========================================
+# Java 环境管理
+# ===========================================
+run_java_install() {
+    local script_path="${SCRIPT_DIR}/script/linux/java-install.sh"
+    if [ -f "$script_path" ]; then
+        bash "$script_path" "$@"
+    else
+        echo -e "${RED}[错误] Java 安装脚本不存在: ${script_path}${NC}"
+        return 1
+    fi
 }
 
 # ===========================================
@@ -1374,6 +1396,7 @@ CUSTOM_JAVA=""
 TAIL_LOG="false"
 SKYWALKING_ENABLED="false"
 SHOW_LOGS=""
+JAVA_CMD_ARGS=()
 
 TOP_N="10"
 
@@ -1425,6 +1448,13 @@ while [ $# -gt 0 ]; do
             COMMAND="tail"; shift ;;
         docker-build|docker-deploy|docker-start|docker-stop|docker-restart|docker-status|docker-logs|docker-clean|publish)
             COMMAND="$1"; shift ;;
+        java)
+            COMMAND="java"
+            shift
+            # 保存 java 命令的所有后续参数
+            JAVA_CMD_ARGS=("$@")
+            break
+            ;;
         young|full|minor|major)
             GC_TYPE="$1"; shift ;;
         cpu|mem|all|config|jar|heap|thread)
@@ -1501,6 +1531,7 @@ case "$COMMAND" in
     rollback) run_rollback ;;
     rollback-status) run_rollback_status ;;
     skywalking) run_skywalking "${EXTRA_MODE:-}" ;;
+    java) run_java_install "${JAVA_CMD_ARGS[@]}" ;;
     install-service) install_service ;;
     uninstall-service) uninstall_service ;;
     enable-service) enable_service ;;
