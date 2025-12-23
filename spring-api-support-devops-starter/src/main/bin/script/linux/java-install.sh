@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================================
-# Java 涓嬭浇瀹夎鑴氭湰
-# 鏀寔浠?Adoptium (Eclipse Temurin) 涓嬭浇鎸囧畾鐗堟湰鐨?JDK
-# 浣滆€? DevOps
-# 鐗堟湰: 1.0.0
+# Java 下载安装脚本
+# 支持从 Adoptium (Eclipse Temurin) 下载指定版本的 JDK
+# 作者: DevOps
+# 版本: 1.0.0
 # ============================================================
 
-# 棰滆壊瀹氫箟
+# 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -14,43 +14,59 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# 榛樿閰嶇疆
+# 默认配置
 DEFAULT_JAVA_VERSION="21"
 DEFAULT_INSTALL_DIR="/opt/java"
 ADOPTIUM_API="https://api.adoptium.net/v3"
 
-# 甯姪淇℃伅
+# 帮助信息
 show_help() {
-    echo -e "${BLUE}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
-    echo -e "${BLUE}鈺?{NC}${GREEN}              Java 涓嬭浇瀹夎鑴氭湰                              ${NC}${BLUE}鈺?{NC}"
-    echo -e "${BLUE}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}              Java 下载安装脚本                              ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${YELLOW}鐢ㄦ硶:${NC} $0 [鍛戒护] [閫夐」]"
+    echo -e "${YELLOW}用法:${NC} $0 [命令] [选项]"
     echo ""
-    echo -e "${YELLOW}鍛戒护:${NC}"
-    echo "  install              瀹夎鎸囧畾鐗堟湰鐨?Java"
-    echo "  list                 鍒楀嚭鍙敤鐨?Java 鐗堟湰"
-    echo "  check                妫€鏌ュ綋鍓?Java 鐜"
-    echo "  remove               绉婚櫎宸插畨瑁呯殑 Java"
+    echo -e "${YELLOW}命令:${NC}"
+    echo "  install          下载并安装 Java (默认命令)"
+    echo "  list             列出可用的 Java 版本"
+    echo "  check            检查当前系统的 Java 环境"
+    echo "  remove           移除已安装的 Java 版本"
     echo ""
-    echo -e "${YELLOW}閫夐」:${NC}"
-    echo "  --version <ver>      鎸囧畾 Java 鐗堟湰 (榛樿: ${DEFAULT_JAVA_VERSION})"
-    echo "  --dir <path>         鎸囧畾瀹夎鐩綍 (榛樿: ${DEFAULT_INSTALL_DIR})"
-    echo "  --arch <arch>        鎸囧畾鏋舵瀯 (x64/aarch64, 榛樿: 鑷姩妫€娴?"
-    echo "  --set-default        璁剧疆涓洪粯璁?Java (鍒涘缓绗﹀彿閾炬帴)"
-    echo "  --help, -h           鏄剧ず甯姪淇℃伅"
+    echo -e "${YELLOW}选项:${NC}"
+    echo "  -v, --version    Java 版本号 (默认: ${DEFAULT_JAVA_VERSION})"
+    echo "  -d, --dir        安装目录 (默认: ${DEFAULT_INSTALL_DIR})"
+    echo "  -a, --arch       架构 (x64/aarch64, 默认: 自动检测)"
+    echo "  -s, --set-default 设置为系统默认 Java"
+    echo "  -h, --help       显示此帮助信息"
     echo ""
-    echo -e "${YELLOW}绀轰緥:${NC}"
-    echo "  $0 install                           瀹夎榛樿鐗堟湰 (Java ${DEFAULT_JAVA_VERSION})"
-    echo "  $0 install --version 17              瀹夎 Java 17"
-    echo "  $0 install --version 21 --set-default 瀹夎骞惰涓洪粯璁?
-    echo "  $0 install --dir /home/user/java     瀹夎鍒版寚瀹氱洰褰?
-    echo "  $0 list                              鍒楀嚭鍙敤鐗堟湰"
-    echo "  $0 check                             妫€鏌ュ綋鍓?Java"
-    echo ""
+    echo -e "${YELLOW}示例:${NC}"
+    echo "  $0 install                      # 安装默认版本 (Java ${DEFAULT_JAVA_VERSION})"
+    echo "  $0 install -v 17                # 安装 Java 17"
+    echo "  $0 install -v 21 -s             # 安装 Java 21 并设为默认"
+    echo "  $0 list                         # 列出可用版本"
+    echo "  $0 check                        # 检查当前 Java 环境"
+    echo "  $0 remove -v 17                 # 移除 Java 17"
 }
 
-# 妫€娴嬬郴缁熸灦鏋?
+# 日志函数
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+log_step() {
+    echo -e "${CYAN}[STEP]${NC} $1"
+}
+
+# 检测系统架构
 detect_arch() {
     local arch=$(uname -m)
     case "$arch" in
@@ -61,13 +77,13 @@ detect_arch() {
             echo "aarch64"
             ;;
         *)
-            echo -e "${RED}[閿欒] 涓嶆敮鎸佺殑鏋舵瀯: $arch${NC}" >&2
+            log_error "不支持的架构: $arch"
             exit 1
             ;;
     esac
 }
 
-# 妫€娴嬫搷浣滅郴缁?
+# 检测操作系统
 detect_os() {
     local os=$(uname -s | tr '[:upper:]' '[:lower:]')
     case "$os" in
@@ -78,317 +94,320 @@ detect_os() {
             echo "mac"
             ;;
         *)
-            echo -e "${RED}[閿欒] 涓嶆敮鎸佺殑鎿嶄綔绯荤粺: $os${NC}" >&2
+            log_error "不支持的操作系统: $os"
             exit 1
             ;;
     esac
 }
 
-# 鍒楀嚭鍙敤鐗堟湰
-list_versions() {
-    echo -e "${BLUE}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
-    echo -e "${BLUE}鈺?{NC}${GREEN}              鍙敤鐨?Java LTS 鐗堟湰                            ${NC}${BLUE}鈺?{NC}"
-    echo -e "${BLUE}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
-    echo ""
-    echo -e "${CYAN}LTS 鐗堟湰:${NC}"
-    echo "  8   - Java 8  (LTS, 闀挎湡鏀寔)"
-    echo "  11  - Java 11 (LTS, 闀挎湡鏀寔)"
-    echo "  17  - Java 17 (LTS, 闀挎湡鏀寔)"
-    echo "  21  - Java 21 (LTS, 闀挎湡鏀寔, 鎺ㄨ崘)"
-    echo ""
-    echo -e "${CYAN}鏈€鏂扮増鏈?${NC}"
-    echo "  22  - Java 22"
-    echo "  23  - Java 23"
-    echo ""
-    echo -e "${YELLOW}鎻愮ず: 鎺ㄨ崘浣跨敤 LTS 鐗堟湰浠ヨ幏寰楅暱鏈熸敮鎸?{NC}"
+# 检查依赖
+check_dependencies() {
+    local missing=()
+    
+    if ! command -v curl &> /dev/null; then
+        missing+=("curl")
+    fi
+    
+    if ! command -v tar &> /dev/null; then
+        missing+=("tar")
+    fi
+    
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_error "缺少必要的依赖: ${missing[*]}"
+        log_info "请先安装: sudo apt-get install ${missing[*]} 或 sudo yum install ${missing[*]}"
+        exit 1
+    fi
 }
 
-# 妫€鏌ュ綋鍓?Java 鐜
-check_java() {
-    echo -e "${BLUE}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
-    echo -e "${BLUE}鈺?{NC}${GREEN}              Java 鐜妫€鏌?                                 ${NC}${BLUE}鈺?{NC}"
-    echo -e "${BLUE}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
+# 获取可用版本列表
+list_available_versions() {
+    log_step "正在获取可用的 Java LTS 版本..."
+    
+    local versions=$(curl -s "${ADOPTIUM_API}/info/available_releases" 2>/dev/null)
+    
+    if [ -z "$versions" ]; then
+        log_error "无法获取版本信息，请检查网络连接"
+        exit 1
+    fi
+    
+    echo ""
+    echo -e "${BLUE}可用的 LTS 版本:${NC}"
+    echo "$versions" | grep -oP '"available_lts_releases":\s*\[\K[^\]]+' | tr ',' '\n' | tr -d ' ' | while read ver; do
+        if [ -n "$ver" ]; then
+            echo "  - Java $ver"
+        fi
+    done
+    
+    echo ""
+    echo -e "${BLUE}可用的所有版本:${NC}"
+    echo "$versions" | grep -oP '"available_releases":\s*\[\K[^\]]+' | tr ',' '\n' | tr -d ' ' | while read ver; do
+        if [ -n "$ver" ]; then
+            echo "  - Java $ver"
+        fi
+    done
+}
+
+# 检查当前 Java 环境
+check_java_env() {
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}              当前 Java 环境信息                            ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
     
-    # 妫€鏌?JAVA_HOME
+    # 检查 JAVA_HOME
     if [ -n "$JAVA_HOME" ]; then
-        echo -e "${CYAN}JAVA_HOME:${NC} $JAVA_HOME"
+        echo -e "${GREEN}JAVA_HOME:${NC} $JAVA_HOME"
     else
-        echo -e "${YELLOW}JAVA_HOME:${NC} 鏈缃?
+        echo -e "${YELLOW}JAVA_HOME:${NC} 未设置"
     fi
     
-    # 妫€鏌?java 鍛戒护
+    # 检查 java 命令
     if command -v java &> /dev/null; then
         echo ""
-        echo -e "${CYAN}Java 璺緞:${NC} $(which java)"
-        echo -e "${CYAN}Java 鐗堟湰:${NC}"
+        echo -e "${GREEN}Java 版本:${NC}"
         java -version 2>&1 | head -3
+        echo ""
+        echo -e "${GREEN}Java 路径:${NC} $(which java)"
     else
         echo ""
-        echo -e "${YELLOW}[璀﹀憡] 鏈壘鍒?java 鍛戒护${NC}"
+        echo -e "${YELLOW}未找到 java 命令${NC}"
     fi
     
-    # 妫€鏌ュ凡瀹夎鐨勭増鏈?
-    if [ -d "${DEFAULT_INSTALL_DIR}" ]; then
+    # 列出已安装的版本
+    if [ -d "$DEFAULT_INSTALL_DIR" ]; then
         echo ""
-        echo -e "${CYAN}宸插畨瑁呯殑鐗堟湰 (${DEFAULT_INSTALL_DIR}):${NC}"
-        ls -1 "${DEFAULT_INSTALL_DIR}" 2>/dev/null | grep -E "^jdk-|^temurin-" | while read dir; do
-            echo "  - $dir"
+        echo -e "${GREEN}已安装的版本 (${DEFAULT_INSTALL_DIR}):${NC}"
+        ls -1 "$DEFAULT_INSTALL_DIR" 2>/dev/null | while read dir; do
+            if [ -d "${DEFAULT_INSTALL_DIR}/${dir}" ]; then
+                local java_bin="${DEFAULT_INSTALL_DIR}/${dir}/bin/java"
+                if [ -x "$java_bin" ]; then
+                    local ver=$("$java_bin" -version 2>&1 | head -1 | grep -oP '"\K[^"]+')
+                    echo "  - ${dir}: ${ver}"
+                fi
+            fi
         done
     fi
 }
 
-# 涓嬭浇骞跺畨瑁?Java
+# 下载并安装 Java
 install_java() {
-    local version="${1:-$DEFAULT_JAVA_VERSION}"
-    local install_dir="${2:-$DEFAULT_INSTALL_DIR}"
-    local arch="${3:-$(detect_arch)}"
-    local set_default="${4:-false}"
+    local version="$1"
+    local install_dir="$2"
+    local arch="$3"
+    local set_default="$4"
     local os=$(detect_os)
     
-    echo -e "${BLUE}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
-    echo -e "${BLUE}鈺?{NC}${GREEN}              瀹夎 Java ${version}                                  ${NC}${BLUE}鈺?{NC}"
-    echo -e "${BLUE}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
-    echo ""
-    echo -e "  鐗堟湰:     ${WHITE}${version}${NC}"
-    echo -e "  鏋舵瀯:     ${WHITE}${arch}${NC}"
-    echo -e "  绯荤粺:     ${WHITE}${os}${NC}"
-    echo -e "  瀹夎鐩綍: ${WHITE}${install_dir}${NC}"
-    echo ""
+    log_step "准备安装 Java ${version}"
+    log_info "操作系统: ${os}, 架构: ${arch}"
+    log_info "安装目录: ${install_dir}"
     
-    # 妫€鏌ユ槸鍚︽湁 curl 鎴?wget
-    local downloader=""
-    if command -v curl &> /dev/null; then
-        downloader="curl"
-    elif command -v wget &> /dev/null; then
-        downloader="wget"
-    else
-        echo -e "${RED}[閿欒] 闇€瑕?curl 鎴?wget 鏉ヤ笅杞芥枃浠?{NC}"
-        exit 1
-    fi
-    
-    # 鍒涘缓瀹夎鐩綍
+    # 创建安装目录
     if [ ! -d "$install_dir" ]; then
-        echo -e "${CYAN}[姝ラ 1] 鍒涘缓瀹夎鐩綍...${NC}"
-        sudo mkdir -p "$install_dir" || mkdir -p "$install_dir"
-        if [ $? -ne 0 ]; then
-            echo -e "${RED}[閿欒] 鏃犳硶鍒涘缓鐩綍: $install_dir${NC}"
+        log_step "创建安装目录..."
+        sudo mkdir -p "$install_dir" || {
+            log_error "无法创建安装目录: $install_dir"
             exit 1
-        fi
+        }
     fi
     
-    # 鑾峰彇涓嬭浇閾炬帴
-    echo -e "${CYAN}[姝ラ 2] 鑾峰彇涓嬭浇閾炬帴...${NC}"
-    local api_url="${ADOPTIUM_API}/assets/latest/${version}/hotspot?architecture=${arch}&image_type=jdk&os=${os}&vendor=eclipse"
+    # 构建下载 URL
+    local download_url="${ADOPTIUM_API}/binary/latest/${version}/ga/${os}/${arch}/jdk/hotspot/normal/eclipse"
     
-    local download_url=""
-    local file_name=""
+    log_step "正在从 Adoptium 下载 Java ${version}..."
+    log_info "URL: ${download_url}"
     
-    if [ "$downloader" = "curl" ]; then
-        local response=$(curl -s "$api_url")
-        download_url=$(echo "$response" | grep -o '"link":"[^"]*"' | head -1 | cut -d'"' -f4)
-        file_name=$(echo "$response" | grep -o '"name":"[^"]*\.tar\.gz"' | head -1 | cut -d'"' -f4)
-    else
-        local response=$(wget -qO- "$api_url")
-        download_url=$(echo "$response" | grep -o '"link":"[^"]*"' | head -1 | cut -d'"' -f4)
-        file_name=$(echo "$response" | grep -o '"name":"[^"]*\.tar\.gz"' | head -1 | cut -d'"' -f4)
-    fi
-    
-    if [ -z "$download_url" ]; then
-        echo -e "${RED}[閿欒] 鏃犳硶鑾峰彇 Java ${version} 鐨勪笅杞介摼鎺?{NC}"
-        echo -e "${YELLOW}鎻愮ず: 璇锋鏌ョ増鏈彿鏄惁姝ｇ‘锛屾垨灏濊瘯浣跨敤 LTS 鐗堟湰 (8, 11, 17, 21)${NC}"
-        exit 1
-    fi
-    
-    echo -e "  涓嬭浇閾炬帴: ${download_url}"
-    echo -e "  鏂囦欢鍚?   ${file_name}"
-    echo ""
-    
-    # 涓嬭浇鏂囦欢
+    # 创建临时目录
     local tmp_dir=$(mktemp -d)
-    local tmp_file="${tmp_dir}/${file_name}"
+    local tmp_file="${tmp_dir}/jdk.tar.gz"
     
-    echo -e "${CYAN}[姝ラ 3] 涓嬭浇 JDK...${NC}"
-    if [ "$downloader" = "curl" ]; then
-        curl -L --progress-bar -o "$tmp_file" "$download_url"
-    else
-        wget --show-progress -O "$tmp_file" "$download_url"
-    fi
+    # 下载
+    curl -L -o "$tmp_file" "$download_url" --progress-bar 2>&1
     
-    if [ $? -ne 0 ] || [ ! -f "$tmp_file" ]; then
-        echo -e "${RED}[閿欒] 涓嬭浇澶辫触${NC}"
+    if [ ! -f "$tmp_file" ] || [ ! -s "$tmp_file" ]; then
+        log_error "下载失败"
         rm -rf "$tmp_dir"
         exit 1
     fi
     
-    local file_size=$(du -h "$tmp_file" | cut -f1)
-    echo -e "${GREEN}  涓嬭浇瀹屾垚: ${file_size}${NC}"
-    echo ""
+    log_info "下载完成，文件大小: $(du -h "$tmp_file" | cut -f1)"
     
-    # 瑙ｅ帇鏂囦欢
-    echo -e "${CYAN}[姝ラ 4] 瑙ｅ帇 JDK...${NC}"
-    local extract_dir=$(tar -tzf "$tmp_file" | head -1 | cut -d'/' -f1)
+    # 解压
+    log_step "正在解压..."
+    local extract_dir="${tmp_dir}/extract"
+    mkdir -p "$extract_dir"
+    tar -xzf "$tmp_file" -C "$extract_dir"
     
-    # 妫€鏌ユ槸鍚﹀凡瀛樺湪
-    if [ -d "${install_dir}/${extract_dir}" ]; then
-        echo -e "${YELLOW}[璀﹀憡] 鐩綍宸插瓨鍦? ${install_dir}/${extract_dir}${NC}"
-        read -p "鏄惁瑕嗙洊? (y/N): " confirm
-        if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
-            sudo rm -rf "${install_dir}/${extract_dir}" 2>/dev/null || rm -rf "${install_dir}/${extract_dir}"
-        else
-            echo -e "${YELLOW}[鍙栨秷] 瀹夎宸插彇娑?{NC}"
+    # 查找解压后的目录名
+    local jdk_dir=$(ls "$extract_dir" | head -1)
+    if [ -z "$jdk_dir" ]; then
+        log_error "解压失败，未找到 JDK 目录"
+        rm -rf "$tmp_dir"
+        exit 1
+    fi
+    
+    # 目标目录
+    local target_dir="${install_dir}/jdk-${version}"
+    
+    # 如果已存在，询问是否覆盖
+    if [ -d "$target_dir" ]; then
+        log_warn "目标目录已存在: ${target_dir}"
+        read -p "是否覆盖? (y/N): " confirm
+        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+            log_info "取消安装"
             rm -rf "$tmp_dir"
             exit 0
         fi
+        sudo rm -rf "$target_dir"
     fi
     
-    # 瑙ｅ帇鍒板畨瑁呯洰褰?
-    sudo tar -xzf "$tmp_file" -C "$install_dir" 2>/dev/null || tar -xzf "$tmp_file" -C "$install_dir"
+    # 移动到安装目录
+    log_step "正在安装到 ${target_dir}..."
+    sudo mv "${extract_dir}/${jdk_dir}" "$target_dir"
     
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}[閿欒] 瑙ｅ帇澶辫触${NC}"
-        rm -rf "$tmp_dir"
-        exit 1
-    fi
-    
-    echo -e "${GREEN}  瑙ｅ帇瀹屾垚: ${install_dir}/${extract_dir}${NC}"
-    
-    # 娓呯悊涓存椂鏂囦欢
+    # 清理临时文件
     rm -rf "$tmp_dir"
     
-    local java_home="${install_dir}/${extract_dir}"
+    log_info "Java ${version} 安装成功!"
+    log_info "安装路径: ${target_dir}"
     
-    # 璁剧疆涓洪粯璁?
+    # 设置为默认
     if [ "$set_default" = "true" ]; then
-        echo ""
-        echo -e "${CYAN}[姝ラ 5] 璁剧疆涓洪粯璁?Java...${NC}"
-        
-        # 鍒涘缓绗﹀彿閾炬帴
-        local default_link="${install_dir}/default"
-        sudo rm -f "$default_link" 2>/dev/null || rm -f "$default_link"
-        sudo ln -s "$java_home" "$default_link" 2>/dev/null || ln -s "$java_home" "$default_link"
-        
-        echo -e "${GREEN}  绗﹀彿閾炬帴: ${default_link} -> ${java_home}${NC}"
-        
-        # 杈撳嚭鐜鍙橀噺閰嶇疆寤鸿
-        echo ""
-        echo -e "${CYAN}[鎻愮ず] 璇峰皢浠ヤ笅鍐呭娣诲姞鍒?~/.bashrc 鎴?~/.profile:${NC}"
-        echo ""
-        echo "export JAVA_HOME=${default_link}"
-        echo 'export PATH=$JAVA_HOME/bin:$PATH'
-        echo ""
+        set_default_java "$target_dir"
     fi
     
-    # 楠岃瘉瀹夎
+    # 显示使用提示
     echo ""
-    echo -e "${CYAN}[楠岃瘉] 妫€鏌ュ畨瑁?..${NC}"
-    "${java_home}/bin/java" -version 2>&1 | head -3
-    
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}使用方法:${NC}"
     echo ""
-    echo -e "${GREEN}鈺斺晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晽${NC}"
-    echo -e "${GREEN}鈺?                   鉁?瀹夎鎴愬姛                                鈺?{NC}"
-    echo -e "${GREEN}鈺氣晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨暆${NC}"
+    echo "1. 临时使用 (当前会话):"
+    echo "   export JAVA_HOME=${target_dir}"
+    echo "   export PATH=\$JAVA_HOME/bin:\$PATH"
     echo ""
-    echo -e "  JAVA_HOME: ${java_home}"
-    echo -e "  Java 璺緞: ${java_home}/bin/java"
+    echo "2. 永久生效 (添加到 ~/.bashrc 或 ~/.zshrc):"
+    echo "   echo 'export JAVA_HOME=${target_dir}' >> ~/.bashrc"
+    echo "   echo 'export PATH=\$JAVA_HOME/bin:\$PATH' >> ~/.bashrc"
+    echo "   source ~/.bashrc"
     echo ""
-    echo -e "${YELLOW}浣跨敤鏂规硶:${NC}"
-    echo "  1. 涓存椂浣跨敤: export JAVA_HOME=${java_home}"
-    echo "  2. 鍚姩鑴氭湰: ./startup.sh start --java ${java_home}/bin/java"
-    echo ""
+    echo "3. 在 startup.sh 中使用:"
+    echo "   ./startup.sh --java ${target_dir}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 }
 
-# 绉婚櫎宸插畨瑁呯殑 Java
+# 设置默认 Java
+set_default_java() {
+    local java_home="$1"
+    
+    log_step "设置为系统默认 Java..."
+    
+    # 创建符号链接
+    local default_link="${DEFAULT_INSTALL_DIR}/default"
+    sudo rm -f "$default_link"
+    sudo ln -s "$java_home" "$default_link"
+    
+    log_info "已创建符号链接: ${default_link} -> ${java_home}"
+    
+    # 提示用户设置环境变量
+    echo ""
+    log_info "请将以下内容添加到 /etc/profile 或 ~/.bashrc:"
+    echo "export JAVA_HOME=${default_link}"
+    echo 'export PATH=$JAVA_HOME/bin:$PATH'
+}
+
+# 移除 Java
 remove_java() {
-    local version="${1}"
-    local install_dir="${2:-$DEFAULT_INSTALL_DIR}"
+    local version="$1"
+    local install_dir="$2"
     
-    if [ -z "$version" ]; then
-        echo -e "${RED}[閿欒] 璇锋寚瀹氳绉婚櫎鐨勭増鏈?{NC}"
-        echo ""
-        echo -e "${CYAN}宸插畨瑁呯殑鐗堟湰:${NC}"
-        ls -1 "${install_dir}" 2>/dev/null | grep -E "^jdk-|^temurin-" | while read dir; do
-            echo "  - $dir"
-        done
-        echo ""
-        echo "鐢ㄦ硶: $0 remove --version <dir_name>"
-        exit 1
-    fi
-    
-    local target_dir="${install_dir}/${version}"
+    local target_dir="${install_dir}/jdk-${version}"
     
     if [ ! -d "$target_dir" ]; then
-        echo -e "${RED}[閿欒] 鐩綍涓嶅瓨鍦? $target_dir${NC}"
+        log_error "未找到 Java ${version}: ${target_dir}"
         exit 1
     fi
     
-    echo -e "${YELLOW}鍗冲皢绉婚櫎: $target_dir${NC}"
-    read -p "纭绉婚櫎? (y/N): " confirm
+    log_warn "即将删除: ${target_dir}"
+    read -p "确认删除? (y/N): " confirm
     
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
-        sudo rm -rf "$target_dir" 2>/dev/null || rm -rf "$target_dir"
-        echo -e "${GREEN}[鎴愬姛] 宸茬Щ闄? $target_dir${NC}"
+        sudo rm -rf "$target_dir"
+        log_info "Java ${version} 已删除"
     else
-        echo -e "${YELLOW}[鍙栨秷] 鎿嶄綔宸插彇娑?{NC}"
+        log_info "取消删除"
     fi
 }
 
-# 鍙傛暟瑙ｆ瀽
-COMMAND=""
-JAVA_VERSION="$DEFAULT_JAVA_VERSION"
-INSTALL_DIR="$DEFAULT_INSTALL_DIR"
-ARCH=""
-SET_DEFAULT="false"
-
-while [ $# -gt 0 ]; do
-    case "$1" in
-        install|list|check|remove)
-            COMMAND="$1"
-            shift
+# 主程序
+main() {
+    local command="install"
+    local version="$DEFAULT_JAVA_VERSION"
+    local install_dir="$DEFAULT_INSTALL_DIR"
+    local arch=""
+    local set_default="false"
+    
+    # 解析参数
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            install|list|check|remove)
+                command="$1"
+                shift
+                ;;
+            -v|--version)
+                version="$2"
+                shift 2
+                ;;
+            -d|--dir)
+                install_dir="$2"
+                shift 2
+                ;;
+            -a|--arch)
+                arch="$2"
+                shift 2
+                ;;
+            -s|--set-default)
+                set_default="true"
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                log_error "未知参数: $1"
+                show_help
+                exit 1
+                ;;
+        esac
+    done
+    
+    # 自动检测架构
+    if [ -z "$arch" ]; then
+        arch=$(detect_arch)
+    fi
+    
+    # 执行命令
+    case "$command" in
+        install)
+            check_dependencies
+            install_java "$version" "$install_dir" "$arch" "$set_default"
             ;;
-        --version)
-            JAVA_VERSION="$2"
-            shift 2
+        list)
+            check_dependencies
+            list_available_versions
             ;;
-        --dir)
-            INSTALL_DIR="$2"
-            shift 2
+        check)
+            check_java_env
             ;;
-        --arch)
-            ARCH="$2"
-            shift 2
-            ;;
-        --set-default)
-            SET_DEFAULT="true"
-            shift
-            ;;
-        --help|-h)
-            show_help
-            exit 0
+        remove)
+            remove_java "$version" "$install_dir"
             ;;
         *)
-            echo -e "${RED}[閿欒] 鏈煡鍙傛暟: $1${NC}"
+            log_error "未知命令: $command"
             show_help
             exit 1
             ;;
     esac
-done
+}
 
-# 鎵ц鍛戒护
-case "$COMMAND" in
-    install)
-        install_java "$JAVA_VERSION" "$INSTALL_DIR" "$ARCH" "$SET_DEFAULT"
-        ;;
-    list)
-        list_versions
-        ;;
-    check)
-        check_java
-        ;;
-    remove)
-        remove_java "$JAVA_VERSION" "$INSTALL_DIR"
-        ;;
-    *)
-        show_help
-        ;;
-esac
+# 运行主程序
+main "$@"
