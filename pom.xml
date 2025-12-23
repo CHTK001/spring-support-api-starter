@@ -39,6 +39,9 @@
         <module.version>4.0.0.34</module.version>
         <utils.version>4.0.0.33</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
+        <!-- devops 模块路径（对子模块为同级目录） -->
+        <devops.dir>${project.basedir}/../spring-api-support-devops-starter</devops.dir>
+        <assembly.plugin.version>3.6.0</assembly.plugin.version>
     </properties>
 
     <dependencies>
@@ -569,5 +572,39 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>dist</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>${assembly.plugin.version}</version>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-dist</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
