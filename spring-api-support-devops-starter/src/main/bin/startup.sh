@@ -15,6 +15,32 @@ APP_NAME="${APP_NAME:-@project.artifactId@}"
 APP_VERSION="${APP_VERSION:-@project.version@}"
 JAR_NAME="${APP_NAME}-${APP_VERSION}.jar"
 
+# 解决仅替换脚本未经 Maven 过滤时的占位符问题
+# 在运行时自动解析实际的 JAR 文件与应用元数据
+resolve_app_metadata() {
+    local needs_resolve="false"
+    if echo "${APP_NAME}${APP_VERSION}${JAR_NAME}" | grep -q "@project."; then
+        needs_resolve="true"
+    fi
+    if [ ! -f "${APP_HOME}/${JAR_NAME}" ]; then
+        needs_resolve="true"
+    fi
+
+    if [ "${needs_resolve}" = "true" ]; then
+        # 优先按时间倒序选择应用目录下的可执行 jar（排除 sources/javadoc）
+        local found_jar=$(ls -1t "${APP_HOME}"/*.jar 2>/dev/null | grep -v -E '(sources|javadoc)\.jar$' | head -n 1)
+        if [ -n "${found_jar}" ]; then
+            JAR_NAME="$(basename "${found_jar}")"
+            local base="${JAR_NAME%.jar}"
+            # 尝试从文件名解析版本与名称: <artifactId>-<version>.jar
+            if echo "${base}" | grep -qE '-[0-9]'; then
+                APP_VERSION="${base##*-}"
+                APP_NAME="${base%-${APP_VERSION}}"
+            fi
+        fi
+    fi
+}
+
 # 目录配置
 CONFIG_DIR="${APP_HOME}/config"
 LIB_DIR="${APP_HOME}/lib"
@@ -1628,6 +1654,9 @@ show_service_status() {
 # ===========================================
 # 参数解析
 # ===========================================
+# 在参数解析前先解析一次元数据，便于 show_help 等命令展示正确信息
+resolve_app_metadata
+
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
 DEBUG_MODE="false"
