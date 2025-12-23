@@ -1,38 +1,25 @@
 #!/bin/bash
 # ============================================================
 # Docker 构建和部署脚本
-# 版本: 2.0.0
 # ============================================================
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-APP_HOME="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+source "${SCRIPT_DIR}/../../common.sh"
 
-APP_NAME="${APP_NAME:-$(basename "$APP_HOME")}"
-APP_VERSION="${APP_VERSION:-4.0.0}"
-JAR_NAME="${JAR_NAME:-${APP_NAME}-${APP_VERSION}.jar}"
-
-CONFIG_DIR="${APP_HOME}/config"
-LIB_DIR="${APP_HOME}/lib"
-LOG_DIR="${APP_HOME}/logs"
-
+# Docker 配置
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-}"
 DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-${APP_NAME}}"
 DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-${APP_VERSION}}"
 DOCKER_CONTAINER_NAME="${DOCKER_CONTAINER_NAME:-${APP_NAME}}"
 DOCKER_PORT="${DOCKER_PORT:-8080}"
 DOCKER_HOST_PORT="${DOCKER_HOST_PORT:-8080}"
-DOCKERFILE_PATH="${APP_HOME}/Dockerfile"
+DOCKERFILE_PATH="${BASE_DIR}/Dockerfile"
 
+# ===========================================
+# 帮助信息
+# ===========================================
 show_help() {
-    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║${NC}${GREEN}              Docker 构建和部署脚本                            ${NC}${BLUE}║${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${BLUE}Docker 构建和部署${NC}"
     echo ""
     echo -e "${YELLOW}用法:${NC} $0 <命令> [选项]"
     echo ""
@@ -120,7 +107,7 @@ do_build() {
     
     echo -e "${BLUE}构建镜像: ${image_name}${NC}"
     
-    cd "${APP_HOME}"
+    cd "${BASE_DIR}"
     docker build -t "${image_name}" -t "${DOCKER_IMAGE_NAME}:latest" .
     
     if [ $? -eq 0 ]; then

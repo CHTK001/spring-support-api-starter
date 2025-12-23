@@ -7,47 +7,71 @@ REM Windows 服务管理脚本
 REM 使用 sc.exe 或 nssm 管理服务
 REM ============================================================
 
-set "ACTION=%~1"
-set "APP_NAME=%~2"
-set "APP_HOME=%~3"
-set "JAVA_CMD=%~4"
-set "JAR_NAME=%~5"
-set "JAVA_OPTS=%~6"
-
-if "%ACTION%"=="" (
-    echo [错误] 请提供操作: install, uninstall, status
-    exit /b 1
-)
+set "SCRIPT_DIR=%~dp0"
+for %%i in ("%SCRIPT_DIR%\..\..") do set "BIN_DIR=%%~fi"
+call "%BIN_DIR%\common.bat"
 
 set "SERVICE_NAME=%APP_NAME%"
 
-REM 检查是否以管理员身份运行
-net session >nul 2>&1
-if errorlevel 1 (
-    if /i not "%ACTION%"=="status" (
-        echo [错误] 需要以管理员身份运行此命令
-        echo 请右键点击命令提示符，选择"以管理员身份运行"
-        exit /b 1
-    )
-)
+if "%~1"=="-h" goto :show_help
+if "%~1"=="--help" goto :show_help
+if "%~1"=="" goto :show_status
+if "%~1"=="-i" goto :install_service
+if "%~1"=="-u" goto :uninstall_service
+if "%~1"=="-s" goto :show_status
+if "%~1"=="-r" goto :restart_service
+if "%~1"=="--start" goto :start_service
+if "%~1"=="--stop" goto :stop_service
+goto :show_help
 
-if /i "%ACTION%"=="install" goto :install_service
-if /i "%ACTION%"=="uninstall" goto :uninstall_service
-if /i "%ACTION%"=="status" goto :show_status
-echo [错误] 未知操作: %ACTION%
-exit /b 1
+:show_help
+echo.
+echo Windows 服务管理
+echo.
+echo 用法: %~nx0 [命令]
+echo.
+echo 命令:
+echo   (无参数)          显示服务状态
+echo   -i               安装为 Windows 服务
+echo   -u               卸载服务
+echo   -s               显示服务状态
+echo   -r               重启服务
+echo   --start          启动服务
+echo   --stop           停止服务
+echo.
+echo 选项:
+echo   -h, --help       显示帮助信息
+echo.
+echo 说明:
+echo   推荐安装 NSSM (https://nssm.cc) 获得更好的服务管理体验
+echo.
+echo 示例:
+echo   %~nx0                      查看服务状态
+echo   %~nx0 -i                   安装服务
+echo   %~nx0 -u                   卸载服务
+echo   %~nx0 --start              启动服务
+echo.
+goto :eof
 
 REM ============================================================
 REM 安装服务
 REM ============================================================
 :install_service
+REM 检查管理员权限
+net session >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 需要以管理员身份运行
+    echo 请右键点击命令提示符，选择"以管理员身份运行"
+    goto :eof
+)
+
 echo.
-echo ════════════════════════════════════════════════════════════════
-echo               安装 Windows 服务
-echo ════════════════════════════════════════════════════════════════
+echo ╔══════════════════════════════════════════════════════════════╗
+echo ║                  安装 Windows 服务                            ║
+echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 echo   服务名称: %SERVICE_NAME%
-echo   应用目录: %APP_HOME%
+echo   应用目录: %BASE_DIR%
 echo   JAR 文件: %JAR_NAME%
 echo.
 
@@ -78,13 +102,16 @@ goto :eof
 
 :install_with_nssm
 REM 使用 NSSM 安装服务 (推荐)
-nssm install "%SERVICE_NAME%" "%JAVA_CMD%" %JAVA_OPTS% -jar "%APP_HOME%\%JAR_NAME%" --spring.profiles.active=prod
-nssm set "%SERVICE_NAME%" AppDirectory "%APP_HOME%"
+call :check_java
+if errorlevel 1 goto :eof
+
+nssm install "%SERVICE_NAME%" "%JAVA_CMD%" -jar "%JAR_PATH%" --spring.profiles.active=prod
+nssm set "%SERVICE_NAME%" AppDirectory "%BASE_DIR%"
 nssm set "%SERVICE_NAME%" DisplayName "%APP_NAME% Service"
 nssm set "%SERVICE_NAME%" Description "Spring Boot Application - %APP_NAME%"
 nssm set "%SERVICE_NAME%" Start SERVICE_AUTO_START
-nssm set "%SERVICE_NAME%" AppStdout "%APP_HOME%\logs\service-stdout.log"
-nssm set "%SERVICE_NAME%" AppStderr "%APP_HOME%\logs\service-stderr.log"
+nssm set "%SERVICE_NAME%" AppStdout "%LOG_DIR%\service-stdout.log"
+nssm set "%SERVICE_NAME%" AppStderr "%LOG_DIR%\service-stderr.log"
 nssm set "%SERVICE_NAME%" AppRotateFiles 1
 nssm set "%SERVICE_NAME%" AppRotateBytes 10485760
 
@@ -107,12 +134,14 @@ goto :eof
 :install_with_sc
 REM 使用 sc.exe 安装服务 (基础方式)
 REM 注意: sc.exe 不能直接运行 JAR，需要包装器
+call :check_java
+if errorlevel 1 goto :eof
 
 REM 创建启动脚本
-set "START_SCRIPT=%APP_HOME%\bin\service-start.bat"
+set "START_SCRIPT=%BIN_DIR%\service-start.bat"
 echo @echo off > "%START_SCRIPT%"
-echo cd /d "%APP_HOME%" >> "%START_SCRIPT%"
-echo "%JAVA_CMD%" %JAVA_OPTS% -jar "%APP_HOME%\%JAR_NAME%" --spring.profiles.active=prod >> "%START_SCRIPT%"
+echo cd /d "%BASE_DIR%" >> "%START_SCRIPT%"
+echo "%JAVA_CMD%" -jar "%JAR_PATH%" --spring.profiles.active=prod >> "%START_SCRIPT%"
 
 REM 使用 sc.exe 创建服务
 sc create "%SERVICE_NAME%" binPath= "cmd.exe /c \"%START_SCRIPT%\"" start= auto DisplayName= "%APP_NAME% Service"
@@ -140,6 +169,13 @@ REM ============================================================
 REM 卸载服务
 REM ============================================================
 :uninstall_service
+REM 检查管理员权限
+net session >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 需要以管理员身份运行
+    goto :eof
+)
+
 echo.
 echo 卸载服务: %SERVICE_NAME%...
 
@@ -167,16 +203,16 @@ REM 查看服务状态
 REM ============================================================
 :show_status
 echo.
-echo ════════════════════════════════════════════════════════════════
-echo               Windows 服务状态
-echo ════════════════════════════════════════════════════════════════
+echo ╔══════════════════════════════════════════════════════════════╗
+echo ║                  Windows 服务状态                            ║
+echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 
 sc query "%SERVICE_NAME%" >nul 2>&1
 if errorlevel 1 (
     echo [警告] 服务未安装: %SERVICE_NAME%
-    echo 使用 'startup.bat install-service' 安装服务
-    exit /b 0
+    echo 使用 '%~nx0 -i' 安装服务
+    goto :eof
 )
 
 sc query "%SERVICE_NAME%"
@@ -188,6 +224,72 @@ if not errorlevel 1 (
     echo 【NSSM 状态】
     nssm status "%SERVICE_NAME%" 2>nul
 )
+echo.
+goto :eof
+
+REM ============================================================
+REM 启动服务
+REM ============================================================
+:start_service
+echo.
+sc query "%SERVICE_NAME%" >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 服务未安装: %SERVICE_NAME%
+    goto :eof
+)
+
+echo 启动服务: %SERVICE_NAME%...
+where nssm >nul 2>&1
+if not errorlevel 1 (
+    nssm start "%SERVICE_NAME%"
+) else (
+    sc start "%SERVICE_NAME%"
+)
+echo.
+goto :eof
+
+REM ============================================================
+REM 停止服务
+REM ============================================================
+:stop_service
+echo.
+sc query "%SERVICE_NAME%" >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 服务未安装: %SERVICE_NAME%
+    goto :eof
+)
+
+echo 停止服务: %SERVICE_NAME%...
+where nssm >nul 2>&1
+if not errorlevel 1 (
+    nssm stop "%SERVICE_NAME%"
+) else (
+    sc stop "%SERVICE_NAME%"
+)
+echo.
+goto :eof
+
+REM ============================================================
+REM 重启服务
+REM ============================================================
+:restart_service
+echo.
+sc query "%SERVICE_NAME%" >nul 2>&1
+if errorlevel 1 (
+    echo [错误] 服务未安装: %SERVICE_NAME%
+    goto :eof
+)
+
+echo 重启服务: %SERVICE_NAME%...
+where nssm >nul 2>&1
+if not errorlevel 1 (
+    nssm restart "%SERVICE_NAME%"
+) else (
+    sc stop "%SERVICE_NAME%"
+    timeout /t 3 /nobreak >nul
+    sc start "%SERVICE_NAME%"
+)
+echo.
 goto :eof
 
 endlocal
