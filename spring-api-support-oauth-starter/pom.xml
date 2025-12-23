@@ -23,6 +23,12 @@
     </properties>
 
     <dependencies>
+        <!-- DevOps 统一配置 (包含 log4j2-spring.xml) -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-devops-starter</artifactId>
+        </dependency>
+
         <!-- Spring Boot Web (使用 undertow 替代 tomcat) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -232,7 +238,7 @@
                 <version>3.6.0</version>
                 <configuration>
                     <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
+                        <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>

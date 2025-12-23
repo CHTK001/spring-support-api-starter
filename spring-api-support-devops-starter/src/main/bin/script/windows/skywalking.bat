@@ -4,18 +4,15 @@ setlocal enabledelayedexpansion
 
 REM ============================================================
 REM Skywalking Agent 管理脚本 (Windows)
-REM 支持安装、检查、清理、配置 Skywalking Agent
 REM ============================================================
 
-set "ACTION=%~1"
-set "APP_HOME=%~2"
-set "APP_NAME=%~3"
-
-if "%ACTION%"=="" set "ACTION=info"
+set "SCRIPT_DIR=%~dp0"
+for %%i in ("%SCRIPT_DIR%\..\..") do set "BIN_DIR=%%~fi"
+call "%BIN_DIR%\common.bat"
 
 REM Skywalking 配置
 set "SKYWALKING_VERSION=9.0.0"
-set "SKYWALKING_DIR=%APP_HOME%\skywalking"
+set "SKYWALKING_DIR=%BASE_DIR%\skywalking"
 set "SKYWALKING_AGENT_DIR=%SKYWALKING_DIR%\skywalking-agent"
 set "SKYWALKING_AGENT_JAR=%SKYWALKING_AGENT_DIR%\skywalking-agent.jar"
 set "SKYWALKING_CONFIG=%SKYWALKING_AGENT_DIR%\config\agent.config"
@@ -25,15 +22,40 @@ set "DOWNLOAD_BASE=https://archive.apache.org/dist/skywalking/java-agent"
 set "DOWNLOAD_URL=%DOWNLOAD_BASE%/%SKYWALKING_VERSION%/apache-skywalking-java-agent-%SKYWALKING_VERSION%.tgz"
 set "MIRROR_URL=https://mirrors.aliyun.com/apache/skywalking/java-agent/%SKYWALKING_VERSION%/apache-skywalking-java-agent-%SKYWALKING_VERSION%.tgz"
 
-if /i "%ACTION%"=="install" goto :install_agent
-if /i "%ACTION%"=="check" goto :check_agent
-if /i "%ACTION%"=="clean" goto :clean_agent
-if /i "%ACTION%"=="info" goto :show_info
-if /i "%ACTION%"=="config" goto :show_config
-if /i "%ACTION%"=="set" goto :set_config
-echo [错误] 未知操作: %ACTION%
-echo 支持的操作: install, check, clean, info, config, set
-exit /b 1
+if "%~1"=="-h" goto :show_help
+if "%~1"=="--help" goto :show_help
+if "%~1"=="" goto :show_info
+if "%~1"=="-i" goto :install_agent
+if "%~1"=="-c" goto :check_agent
+if "%~1"=="-u" goto :clean_agent
+if "%~1"=="-s" goto :show_config
+if "%~1"=="--set" goto :set_config
+goto :show_help
+
+:show_help
+echo.
+echo Skywalking Agent 管理
+echo.
+echo 用法: %~nx0 [命令]
+echo.
+echo 命令:
+echo   (无参数)          显示 Agent 信息
+echo   -i               安装 Skywalking Agent
+echo   -c               检查安装状态
+echo   -u               卸载 Agent
+echo   -s               显示配置
+echo   --set ^<k^> ^<v^>    设置配置项
+echo.
+echo 选项:
+echo   -h, --help       显示帮助信息
+echo.
+echo 示例:
+echo   %~nx0                      查看信息
+echo   %~nx0 -i                   安装 Agent
+echo   %~nx0 -c                   检查状态
+echo   %~nx0 --set agent.service_name my-app
+echo.
+goto :eof
 
 REM ============================================================
 REM 安装 Agent

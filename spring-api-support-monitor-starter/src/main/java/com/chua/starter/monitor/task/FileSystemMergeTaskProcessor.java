@@ -80,7 +80,6 @@ public class FileSystemMergeTaskProcessor {
             }
             // 当开启“手动合并”时，关闭自动合并处理
             if (Boolean.TRUE.equals(setting.getFileSystemSettingManualMergeEnabled())) {
-                log.debug("自动合并已关闭（手动合并开启），跳过合并处理");
                 return;
             }
 
