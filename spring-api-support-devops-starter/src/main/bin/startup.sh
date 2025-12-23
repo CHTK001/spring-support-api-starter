@@ -71,31 +71,12 @@ save_app_env_if_absent() {
     fi
 }
 
-# 构建 loader path：优先使用固定的 CONFIG_DIR / LIB_DIR；两者存在哪个就拼哪个
-# 仅当目录真实存在时才启用 -Dloader.path
-# 如需追加自定义目录，可在 app.env 中设置 LOADER_PATH（可选）
+# 构建 loader path：仅根据固定的 CONFIG_DIR / LIB_DIR；两者存在哪个就拼哪个
+# 仅当目录真实存在时才启用 -Dloader.path（忽略 app.env 的 LOADER_PATH）
 build_loader_path() {
     local acc=()
     [ -d "${CONFIG_DIR}" ] && acc+=("${CONFIG_DIR}")
     [ -d "${LIB_DIR}" ] && acc+=("${LIB_DIR}")
-
-    # 可选：从 app.env 的 LOADER_PATH 追加其它目录
-    if [ -n "${LOADER_PATH_RAW}" ]; then
-        local parts=()
-        IFS=',' read -r -a parts <<< "${LOADER_PATH_RAW}"
-        for p in "${parts[@]}"; do
-            p="${p//\n/}"; p="${p//\r/}"; p="${p// /}"
-            [ -z "$p" ] && continue
-            local abs="$p"
-            case "$p" in
-                /*) abs="$p" ;;
-                *) abs="${APP_HOME}/$p" ;;
-            esac
-            if [ -d "$abs" ]; then
-                acc+=("$abs")
-            fi
-        done
-    fi
 
     if [ ${#acc[@]} -gt 0 ]; then
         LOADER_PATH=$(IFS=, ; echo "${acc[*]}")
