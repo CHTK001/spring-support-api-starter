@@ -15,6 +15,9 @@ APP_NAME="${APP_NAME:-@project.artifactId@}"
 APP_VERSION="${APP_VERSION:-@project.version@}"
 JAR_NAME="${APP_NAME}-${APP_VERSION}.jar"
 
+# app.env 默认路径
+APP_ENV_FILE="${APP_HOME}/app.env"
+
 # 解决仅替换脚本未经 Maven 过滤时的占位符问题
 # 在运行时自动解析实际的 JAR 文件与应用元数据
 resolve_app_metadata() {
@@ -38,6 +41,60 @@ resolve_app_metadata() {
                 APP_NAME="${base%-${APP_VERSION}}"
             fi
         fi
+    fi
+}
+
+# 读取 app.env（若存在）
+load_app_env() {
+    local env_file="${APP_ENV_FILE}"
+    [ ! -f "${env_file}" ] && env_file="${APP_HOME}/bin/app.env"
+    if [ -f "${env_file}" ]; then
+        while IFS='=' read -r k v; do
+            case "$k" in
+                \#*|'' ) continue ;;
+                APP_NAME) APP_NAME="$v" ;;
+                APP_VERSION) APP_VERSION="$v" ;;
+                JAR_NAME) JAR_NAME="$v" ;;
+                LOADER_PATH) LOADER_PATH_RAW="$v" ;;
+            esac
+        done < <(sed -e 's/\r$//' "$env_file")
+    fi
+}
+
+# 保存 app.env（若不存在时生成一次，便于仅替换脚本的场景）
+save_app_env_if_absent() {
+    if [ ! -f "${APP_ENV_FILE}" ]; then
+        echo "APP_NAME=${APP_NAME}" > "${APP_ENV_FILE}"
+        echo "APP_VERSION=${APP_VERSION}" >> "${APP_ENV_FILE}"
+        echo "JAR_NAME=${JAR_NAME}" >> "${APP_ENV_FILE}"
+        echo "LOADER_PATH=${LOADER_PATH_RAW:-config,lib}" >> "${APP_ENV_FILE}"
+    fi
+}
+
+# 构建 loader path（根据 app.env 或默认 config,lib，并且仅拼接存在的目录）
+build_loader_path() {
+    local raw="${LOADER_PATH_RAW:-config,lib}"
+    local parts=()
+    IFS=',' read -r -a parts <<< "$raw"
+    local acc=()
+    for p in "${parts[@]}"; do
+        p="${p//\n/}"
+        p="${p//\r/}"
+        p="${p// /}"
+        [ -z "$p" ] && continue
+        local abs="$p"
+        case "$p" in
+            /*) abs="$p" ;;
+            *) abs="${APP_HOME}/$p" ;;
+        esac
+        if [ -d "$abs" ]; then
+            acc+=("$abs")
+        fi
+    done
+    if [ ${#acc[@]} -gt 0 ]; then
+        LOADER_PATH=$(IFS=, ; echo "${acc[*]}")
+    else
+        LOADER_PATH=""
     fi
 }
 
@@ -420,10 +477,8 @@ check_swagger_enabled() {
     echo "$swagger_enabled"
 }
 
-# 构建 loader path（始终包含 config 与 lib，使用绝对路径，允许不存在）
-build_loader_path() {
-    LOADER_PATH="${CONFIG_DIR},${LIB_DIR}"
-}
+# 构建 loader path（根据 app.env 或默认 config,lib，并且仅拼接存在的目录）
+# 注意：实际逻辑已在上方的 build_loader_path() 中实现，这里保留占位注释。
 
 # ===========================================
 # 进程管理
@@ -672,8 +727,9 @@ start_app() {
         java_opts="${java_opts} -Dskywalking.collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
     fi
     
-    # 构建 loader.path 参数（始终传递，激活 PropertiesLauncher 并加载外部 lib/config）
-    local loader_opts="-Dloader.path=${LOADER_PATH}"
+# 构建 loader.path 参数（仅在存在有效目录时传递）
+local loader_opts=""
+[ -n "${LOADER_PATH}" ] && loader_opts="-Dloader.path=${LOADER_PATH}"
     
     # 启动应用
     nohup "$JAVA_CMD" ${java_opts} ${loader_opts} -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
@@ -1643,8 +1699,10 @@ show_service_status() {
 # ===========================================
 # 参数解析
 # ===========================================
-# 在参数解析前先解析一次元数据，便于 show_help 等命令展示正确信息
+# 在参数解析前解析一次元数据与 app.env，并准备 LOADER_PATH 默认值
 resolve_app_metadata
+load_app_env
+# 初始不构建 LOADER_PATH，等 start_app 再根据实际目录计算
 
 COMMAND="start"
 DEBUG_PORT="${DEFAULT_DEBUG_PORT}"
