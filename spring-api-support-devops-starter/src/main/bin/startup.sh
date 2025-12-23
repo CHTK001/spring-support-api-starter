@@ -597,14 +597,13 @@ show_startup_banner() {
     echo -e "${CYAN}│${NC} ${WHITE}应用名称${NC}    │ ${GREEN}${APP_NAME}${NC}"
     echo -e "${CYAN}│${NC} ${WHITE}应用版本${NC}    │ ${GREEN}${APP_VERSION}${NC}"
     echo -e "${CYAN}│${NC} ${WHITE}运行环境${NC}    │ ${YELLOW}${SPRING_PROFILE}${NC}"
-    echo -e "${CYAN}│${NC} ${WHITE}服务地址${NC}    │ ${GREEN}${base_url}${NC}"
-    echo -e "${CYAN}│${NC} ${WHITE}本地地址${NC}    │ ${GREEN}${local_url}${NC}"
-    [ "${swagger_enabled}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}Swagger${NC}     │ ${GREEN}${local_url}/doc.html${NC}"
+    # 不再输出推断的网址，避免端口误判导致的脏输出
     echo -e "${CYAN}│${NC} ${WHITE}Java 版本${NC}   │ ${MAGENTA}${java_version}${NC}"
     echo -e "${CYAN}│${NC} ${WHITE}Java 路径${NC}   │ ${MAGENTA}${JAVA_CMD}${NC}"
     echo -e "${CYAN}│${NC} ${WHITE}JVM 参数${NC}    │ ${MAGENTA}${JAVA_OPTS}${NC}"
     [ "${DEBUG_MODE}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}调试端口${NC}    │ ${RED}${DEBUG_PORT}${NC}"
     [ "${SKYWALKING_ENABLED}" = "true" ] && echo -e "${CYAN}│${NC} ${WHITE}Skywalking${NC}  │ ${GREEN}已启用 (${SW_AGENT_NAME})${NC}"
+    echo -e "${CYAN}│${NC} ${WHITE}Loader 路径${NC} │ ${MAGENTA}${LOADER_PATH:-<空>}${NC}"
     echo -e "${CYAN}│${NC} ${WHITE}配置目录${NC}    │ ${CONFIG_DIR}"
     echo -e "${CYAN}│${NC} ${WHITE}日志目录${NC}    │ ${LOG_DIR}"
     echo -e "${CYAN}│${NC} ${WHITE}启动时间${NC}    │ $(date '+%Y-%m-%d %H:%M:%S')"
@@ -707,6 +706,7 @@ start_app() {
     mkdir -p "${LOG_DIR}"
     check_java
     build_loader_path
+    save_app_env_if_absent
     
     # 构建 Spring 启动参数
     local start_opts="--spring.config.location=classpath:/,file:${CONFIG_DIR}/"

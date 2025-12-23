@@ -49,6 +49,7 @@
                 <include>*.sh</include>
                 <include>*.bat</include>
                 <include>*.cmd</include>
+                <include>app.env</include>
             </includes>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
