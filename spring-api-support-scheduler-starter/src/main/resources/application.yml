@@ -4,12 +4,43 @@ spring:
   profiles:
     active: dev
     include: mybatis,swagger,socket,control,codec,ip,discovery,tenant
-plugin:
-  cors:
-    enable: true
+
 server:
   port: -1
   servlet:
     context-path: /scheduler/api
   http2:
     enabled: true
+
+# ===========================================
+# 插件启用配置
+# ===========================================
+plugin:
+  cors:
+    enable: true
+  log:
+    enable: true
+  captcha:
+    enable: true
+  optional:
+    enable: true
+  mybatis:
+    enable: true
+  redis:
+    server:
+      enable: true
+  oauth:
+    client:
+      enable: true
+    temp:
+      open: true
+  api:
+    uniform: true
+    version:
+      enable: true
+    spi:
+      enable: true
+    deprecated:
+      enable: true
+  job:
+    enable: true

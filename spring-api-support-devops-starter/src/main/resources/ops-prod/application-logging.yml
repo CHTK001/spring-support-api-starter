@@ -1,0 +1,5 @@
+# Logging prod 环境
+logging:
+  level:
+    root: WARN
+    com.chua: INFO

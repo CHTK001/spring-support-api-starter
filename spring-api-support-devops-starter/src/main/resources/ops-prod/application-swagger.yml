@@ -1,0 +1,10 @@
+# Swagger prod 环境
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+knife4j:
+  enable: false
+  production: true

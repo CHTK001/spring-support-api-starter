@@ -1,0 +1,5 @@
+# MyBatis prod 环境
+plugin:
+  mybatis:
+    open-xml-reload: false
+    reload-type: NONE

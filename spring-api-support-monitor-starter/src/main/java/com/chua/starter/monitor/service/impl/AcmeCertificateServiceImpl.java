@@ -126,11 +126,13 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("ACME 服务提供者不可用，请检查 SPI 配置");
         }
 
-        // 连接 ACME 服务器
+        // 连接 ACME 服务器（支持 EAB，ZeroSSL 等 CA 需要）
         AcmeConnectionResult connResult = provider.connect(
                 account.getAcmeAccountServer(),
                 account.getAcmeAccountEmail(),
-                account.getAcmeAccountPrivateKeyPem()
+                account.getAcmeAccountPrivateKeyPem(),
+                account.getAcmeAccountEabKid(),
+                account.getAcmeAccountEabHmacKey()
         );
         if (!connResult.isSuccess()) {
             cert.setAcmeCertStatus("failed");
@@ -227,11 +229,13 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
 
-        // 连接 ACME 服务器
+        // 连接 ACME 服务器（支持 EAB，ZeroSSL 等 CA 需要）
         AcmeConnectionResult connResult = provider.connect(
                 account.getAcmeAccountServer(),
                 account.getAcmeAccountEmail(),
-                account.getAcmeAccountPrivateKeyPem()
+                account.getAcmeAccountPrivateKeyPem(),
+                account.getAcmeAccountEabKid(),
+                account.getAcmeAccountEabHmacKey()
         );
         if (!connResult.isSuccess()) {
             provider.close();
