@@ -11,3 +11,27 @@ server:
   port: 19180
   servlet:
     context-path: /oauth
+
+# ===========================================
+# 插件启用配置
+# ===========================================
+plugin:
+  log:
+    enable: true
+  captcha:
+    enable: true
+  optional:
+    enable: true
+  mybatis:
+    enable: true
+  redis:
+    server:
+      enable: true
+  api:
+    uniform: true
+    version:
+      enable: true
+    spi:
+      enable: true
+    deprecated:
+      enable: true
