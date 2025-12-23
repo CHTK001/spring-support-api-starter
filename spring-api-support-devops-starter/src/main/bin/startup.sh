@@ -420,19 +420,9 @@ check_swagger_enabled() {
     echo "$swagger_enabled"
 }
 
-# 构建 loader path
+# 构建 loader path（始终包含 config 与 lib，使用绝对路径，允许不存在）
 build_loader_path() {
-    LOADER_PATH=""
-    if [ -d "${CONFIG_DIR}" ]; then
-        LOADER_PATH="${CONFIG_DIR}"
-    fi
-    if [ -d "${LIB_DIR}" ]; then
-        if [ -n "${LOADER_PATH}" ]; then
-            LOADER_PATH="${LOADER_PATH},${LIB_DIR}"
-        else
-            LOADER_PATH="${LIB_DIR}"
-        fi
-    fi
+    LOADER_PATH="${CONFIG_DIR},${LIB_DIR}"
 }
 
 # ===========================================
@@ -682,9 +672,8 @@ start_app() {
         java_opts="${java_opts} -Dskywalking.collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES}"
     fi
     
-    # 构建 loader.path 参数
-    local loader_opts=""
-    [ -n "${LOADER_PATH}" ] && loader_opts="-Dloader.path=${LOADER_PATH}"
+    # 构建 loader.path 参数（始终传递，激活 PropertiesLauncher 并加载外部 lib/config）
+    local loader_opts="-Dloader.path=${LOADER_PATH}"
     
     # 启动应用
     nohup "$JAVA_CMD" ${java_opts} ${loader_opts} -jar "${APP_HOME}/${JAR_NAME}" ${start_opts} > "${STARTUP_LOG}" 2>&1 &
