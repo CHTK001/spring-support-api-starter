@@ -1,9 +1,10 @@
 package com.chua.starter.monitor.configuration;
 
 import com.chua.starter.monitor.websocket.GuacamoleWebSocketInterceptor;
-import com.chua.starter.monitor.websocket.RdpWebSocketHandler;
 import com.chua.starter.monitor.websocket.TestWebSocketHandler;
-import com.chua.starter.monitor.websocket.VncWebSocketHandler;
+import com.chua.starter.monitor.websocket.connection.RdpWebSocketHandler;
+import com.chua.starter.monitor.websocket.connection.SshWebSocketHandler;
+import com.chua.starter.monitor.websocket.connection.VncWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
 
         private final RdpWebSocketHandler rdpWebSocketHandler;
         private final VncWebSocketHandler vncWebSocketHandler;
+        private final SshWebSocketHandler sshWebSocketHandler;
         private final TestWebSocketHandler testWebSocketHandler;
         private final GuacamoleWebSocketInterceptor webSocketInterceptor;
 
@@ -51,6 +53,12 @@ public class GuacamoleWebSocketConfig implements WebSocketConfigurer {
                 // 测试 WebSocket端点（同上）
                 registry.addHandler(testWebSocketHandler,
                                 "/websocket/test")
+                        .addInterceptors(webSocketInterceptor)
+                        .setAllowedOriginPatterns("*");
+
+                // SSH WebSocket端点
+                registry.addHandler(sshWebSocketHandler,
+                                "/websocket/ssh")
                         .addInterceptors(webSocketInterceptor)
                         .setAllowedOriginPatterns("*");
 

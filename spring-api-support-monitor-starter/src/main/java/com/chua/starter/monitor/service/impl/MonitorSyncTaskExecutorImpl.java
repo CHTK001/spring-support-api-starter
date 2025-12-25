@@ -22,7 +22,9 @@ import com.chua.starter.monitor.mapper.MonitorSyncConnectionMapper;
 import com.chua.starter.monitor.mapper.MonitorSyncNodeMapper;
 import com.chua.starter.monitor.mapper.MonitorSyncTaskLogMapper;
 import com.chua.starter.monitor.mapper.MonitorSyncTaskMapper;
+import com.chua.starter.monitor.pojo.sync.ColumnDefinition;
 import com.chua.starter.monitor.service.sync.MonitorSyncTaskExecutor;
+import com.chua.starter.monitor.service.sync.OutputTableService;
 import com.chua.starter.monitor.service.sync.SyncTaskWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,7 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
     private final MonitorSyncConnectionMapper connectionMapper;
     private final MonitorSyncTaskLogMapper logMapper;
     private final SyncTaskWebSocketService webSocketService;
+    private final OutputTableService outputTableService;
 
     /**
      * Job日志详情服务（可选，集成spring-job时使用）
@@ -463,8 +466,93 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
         String spiName = node.getSyncNodeSpiName();
         Map<String, Object> config = parseConfig(node.getSyncNodeConfig());
 
+        // 检查是否需要自动建表（仅数据库输出类型）
+        handleAutoCreateTable(node, config);
+
         ServiceProvider<Output> provider = ServiceProvider.of(Output.class);
         return provider.getNewExtension(spiName, config);
+    }
+
+    /**
+     * 处理自动建表逻辑
+     */
+    @SuppressWarnings("unchecked")
+    private void handleAutoCreateTable(MonitorSyncNode node, Map<String, Object> config) {
+        // 检查是否启用自动建表
+        Boolean autoCreateTable = (Boolean) config.get("autoCreateTable");
+        if (!Boolean.TRUE.equals(autoCreateTable)) {
+            return;
+        }
+
+        String tableName = (String) config.get("table");
+        if (StringUtils.isEmpty(tableName)) {
+            tableName = (String) config.get("tableName");
+        }
+        if (StringUtils.isEmpty(tableName)) {
+            log.warn("自动建表已启用但未配置表名, nodeKey: {}", node.getSyncNodeKey());
+            return;
+        }
+
+        // 获取列定义
+        List<Map<String, Object>> columnsConfig = (List<Map<String, Object>>) config.get("columns");
+        if (columnsConfig == null || columnsConfig.isEmpty()) {
+            log.warn("自动建表已启用但未配置列定义, nodeKey: {}", node.getSyncNodeKey());
+            return;
+        }
+
+        try {
+            String nodeConfig = node.getSyncNodeConfig();
+
+            // 检查表是否存在
+            var existsResult = outputTableService.checkTableExists(nodeConfig, tableName);
+            if (existsResult.isSuccess() && Boolean.TRUE.equals(existsResult.getData())) {
+                log.info("目标表已存在, 跳过自动建表: {}", tableName);
+                
+                // 同步表结构（添加缺失列）
+                Boolean syncStructure = (Boolean) config.get("syncTableStructure");
+                if (Boolean.TRUE.equals(syncStructure)) {
+                    List<ColumnDefinition> columns = parseColumnDefinitions(columnsConfig);
+                    outputTableService.syncTableStructure(nodeConfig, tableName, columns);
+                    log.info("表结构同步完成: {}", tableName);
+                }
+                return;
+            }
+
+            // 创建表
+            List<ColumnDefinition> columns = parseColumnDefinitions(columnsConfig);
+            var createResult = outputTableService.createTable(nodeConfig, tableName, columns);
+            if (createResult.isSuccess()) {
+                log.info("自动建表成功: {}", tableName);
+            } else {
+                log.error("自动建表失败: {}, 原因: {}", tableName, createResult.getMsg());
+            }
+        } catch (Exception e) {
+            log.error("自动建表异常: {}", tableName, e);
+        }
+    }
+
+    /**
+     * 解析列定义
+     */
+    private List<ColumnDefinition> parseColumnDefinitions(List<Map<String, Object>> columnsConfig) {
+        List<ColumnDefinition> columns = new ArrayList<>();
+        for (Map<String, Object> colConfig : columnsConfig) {
+            ColumnDefinition col = ColumnDefinition.builder()
+                    .name((String) colConfig.get("name"))
+                    .type((String) colConfig.get("type"))
+                    .length(colConfig.get("length") != null ? ((Number) colConfig.get("length")).intValue() : null)
+                    .scale(colConfig.get("scale") != null ? ((Number) colConfig.get("scale")).intValue() : null)
+                    .nullable((Boolean) colConfig.get("nullable"))
+                    .defaultValue((String) colConfig.get("defaultValue"))
+                    .primaryKey((Boolean) colConfig.get("primaryKey"))
+                    .autoIncrement((Boolean) colConfig.get("autoIncrement"))
+                    .comment((String) colConfig.get("comment"))
+                    .order(colConfig.get("order") != null ? ((Number) colConfig.get("order")).intValue() : null)
+                    .sourceField((String) colConfig.get("sourceField"))
+                    .build();
+            columns.add(col);
+        }
+        return columns;
     }
 
     /**
