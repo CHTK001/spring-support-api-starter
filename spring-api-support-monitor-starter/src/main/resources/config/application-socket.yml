@@ -13,16 +13,7 @@ plugin:
     room:
       # 默认房间
       - client-id: default
-        context-path: /
-        port: -1
-        enable: true
-      # WebRTC房间
-      - client-id: webrtc
-        context-path: /webrtc
-        port: -2
-        enable: true
+        port: 29181
       # Shell终端房间
       - client-id: shell
-        context-path: /
-        port: -3
-        enable: true
+        port: 29182
