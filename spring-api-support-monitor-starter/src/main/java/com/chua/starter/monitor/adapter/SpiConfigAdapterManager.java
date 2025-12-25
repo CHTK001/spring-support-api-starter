@@ -35,7 +35,9 @@ public class SpiConfigAdapterManager {
             for (SpiConfigAdapter<?> adapter : adapters) {
                 String key = buildKey(adapter.getSpiType(), adapter.getSpiName());
                 adapterMap.put(key, adapter);
-                log.info("注册 SPI 配置适配器: {} -> {}", key, adapter.getClass().getSimpleName());
+                if(log.isDebugEnabled()) {
+                    log.debug("注册 SPI 配置适配器: {} -> {}", key, adapter.getClass().getSimpleName());
+                }
             }
         }
         log.info("SPI 配置适配器管理器初始化完成，共注册 {} 个适配器", adapterMap.size());

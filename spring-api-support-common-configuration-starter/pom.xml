@@ -36,7 +36,7 @@
         <!-- Socket.IO 支持 - 可选 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-socketio-starter</artifactId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
