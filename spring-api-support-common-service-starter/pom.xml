@@ -71,7 +71,7 @@
              用于消息实时推送功能，如果不需要WebSocket推送可不引入 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-socketio-starter</artifactId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
             <optional>true</optional>
         </dependency>
 

@@ -49,7 +49,7 @@
         <!-- SocketIO支持 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-socketio-starter</artifactId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
         </dependency>
 
     </dependencies>
