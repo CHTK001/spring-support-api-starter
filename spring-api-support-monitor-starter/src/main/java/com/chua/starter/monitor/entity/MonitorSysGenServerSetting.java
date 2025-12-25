@@ -588,6 +588,16 @@ public class MonitorSysGenServerSetting extends SysBase {
     @Size(max = 255, message = "代理密码最大长度要小于 255")
     private String monitorSysGenServerSettingProxyPassword;
 
+    // ==================== 远程桌面配置 ====================
+
+    /**
+     * 远程桌面 Agent 端口（默认 8899，用于 utils-support-remote-starter）
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_remote_port")
+    @ApiModelProperty(value = "远程桌面Agent端口")
+    @Schema(description = "远程桌面Agent端口（默认 8899）")
+    private Integer monitorSysGenServerSettingRemotePort;
+
     // ==================== 高级监控配置 ====================
 
     /**

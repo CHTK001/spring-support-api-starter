@@ -3,6 +3,7 @@ package com.chua.starter.monitor.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
 import com.chua.starter.monitor.pojo.sync.SpiParameter;
+import com.chua.starter.monitor.pojo.sync.SpiTypeList;
 import com.chua.starter.monitor.service.sync.MonitorSyncSpiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,7 +33,7 @@ public class MonitorSyncSpiController {
      */
     @GetMapping("/all")
     @Operation(summary = "获取所有SPI类型列表")
-    public ReturnResult<Map<String, List<SpiInfo>>> getAllSpiTypes() {
+    public ReturnResult<SpiTypeList> getAllSpiTypes() {
         return spiService.getAllSpiTypes();
     }
 

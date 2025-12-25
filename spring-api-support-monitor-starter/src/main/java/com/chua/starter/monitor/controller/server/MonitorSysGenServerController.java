@@ -497,6 +497,22 @@ public class MonitorSysGenServerController {
     }
 
     /**
+     * 检测服务器远程桌面是否可用
+     *
+     * 检测目标服务器上的远程桌面 Agent 是否可连接。
+     * 用于在前端连接前决定使用远程桌面还是 SSH 模式。
+     *
+     * @param id 服务器ID
+     * @return 检测结果，包含 available 和 recommendedProtocol 字段
+     */
+    @Operation(summary = "检测服务器远程桌面是否可用", description = "检测远程桌面 Agent 是否可连接，用于决定连接模式")
+    @GetMapping("remote-desktop/check")
+    public ReturnResult<Map<String, Object>> checkRemoteDesktopAvailability(@Parameter(name = "服务器ID") String id) {
+        log.info("检测服务器远程桌面可用性: serverId={}", id);
+        return monitorSysGenServerService.checkRemoteDesktopAvailability(id);
+    }
+
+    /**
      * 获取Guacamole代理连接URL
      *
      * @param id 服务器ID
