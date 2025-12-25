@@ -191,13 +191,13 @@ check_java_env() {
 
 # 下载并安装 Java
 install_java() {
-    local version="$1"
+    local java_ver="$1"
     local install_dir="$2"
     local arch="$3"
     local set_default="$4"
     local os=$(detect_os)
     
-    log_step "准备安装 Java ${version}"
+    log_step "准备安装 Java ${java_ver}"
     log_info "操作系统: ${os}, 架构: ${arch}"
     log_info "安装目录: ${install_dir}"
     
@@ -211,9 +211,9 @@ install_java() {
     fi
     
     # 构建下载 URL
-    local download_url="${ADOPTIUM_API}/binary/latest/${version}/ga/${os}/${arch}/jdk/hotspot/normal/eclipse"
+    local download_url="${ADOPTIUM_API}/binary/latest/${java_ver}/ga/${os}/${arch}/jdk/hotspot/normal/eclipse"
     
-    log_step "正在从 Adoptium 下载 Java ${version}..."
+    log_step "正在从 Adoptium 下载 Java ${java_ver}..."
     log_info "URL: ${download_url}"
     
     # 创建临时目录
@@ -246,7 +246,7 @@ install_java() {
     fi
     
     # 目标目录
-    local target_dir="${install_dir}/jdk-${version}"
+    local target_dir="${install_dir}/jdk-${java_ver}"
     
     # 如果已存在，询问是否覆盖
     if [ -d "$target_dir" ]; then
@@ -267,7 +267,7 @@ install_java() {
     # 清理临时文件
     rm -rf "$tmp_dir"
     
-    log_info "Java ${version} 安装成功!"
+    log_info "Java ${java_ver} 安装成功!"
     log_info "安装路径: ${target_dir}"
     
     # 设置为默认
@@ -316,13 +316,13 @@ set_default_java() {
 
 # 移除 Java
 remove_java() {
-    local version="$1"
+    local java_ver="$1"
     local install_dir="$2"
     
-    local target_dir="${install_dir}/jdk-${version}"
+    local target_dir="${install_dir}/jdk-${java_ver}"
     
     if [ ! -d "$target_dir" ]; then
-        log_error "未找到 Java ${version}: ${target_dir}"
+        log_error "未找到 Java ${java_ver}: ${target_dir}"
         exit 1
     fi
     
@@ -331,7 +331,7 @@ remove_java() {
     
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         sudo rm -rf "$target_dir"
-        log_info "Java ${version} 已删除"
+        log_info "Java ${java_ver} 已删除"
     else
         log_info "取消删除"
     fi

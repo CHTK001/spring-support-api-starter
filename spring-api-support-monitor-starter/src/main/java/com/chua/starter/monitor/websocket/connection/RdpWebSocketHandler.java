@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.websocket;
+package com.chua.starter.monitor.websocket.connection;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;

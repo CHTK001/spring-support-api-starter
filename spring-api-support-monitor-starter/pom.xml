@@ -482,7 +482,7 @@
                 <version>3.6.0</version>
                 <configuration>
                     <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
+                        <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>

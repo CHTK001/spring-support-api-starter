@@ -3,6 +3,7 @@ package com.chua.starter.monitor.service.sync;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
 import com.chua.starter.monitor.pojo.sync.SpiParameter;
+import com.chua.starter.monitor.pojo.sync.SpiTypeList;
 
 import java.util.List;
 import java.util.Map;
@@ -78,7 +79,7 @@ public interface MonitorSyncSpiService {
     /**
      * 获取所有 SPI 类型信息(用于前端显示)
      *
-     * @return 各类型 SPI 映射
+     * @return SPI类型列表对象
      */
-    ReturnResult<Map<String, List<SpiInfo>>> getAllSpiTypes();
+    ReturnResult<SpiTypeList> getAllSpiTypes();
 }

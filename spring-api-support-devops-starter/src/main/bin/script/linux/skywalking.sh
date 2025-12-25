@@ -109,7 +109,7 @@ show_info() {
 # 安装
 # ===========================================
 do_install() {
-    local version="${1:-$SKYWALKING_VERSION}"
+    local sw_ver="${1:-$SKYWALKING_VERSION}"
     local force="${2:-false}"
     
     print_title "安装 Skywalking Agent"
@@ -136,20 +136,20 @@ do_install() {
     # 创建目录
     mkdir -p "${SKYWALKING_DIR}"
     
-    local download_url="https://archive.apache.org/dist/skywalking/java-agent/${version}/apache-skywalking-java-agent-${version}.tgz"
+    local download_url="https://archive.apache.org/dist/skywalking/java-agent/${sw_ver}/apache-skywalking-java-agent-${sw_ver}.tgz"
     local tmp_file="${SKYWALKING_DIR}/skywalking-agent.tgz"
     
-    log_step "下载 Skywalking Agent v${version}..."
+    log_step "下载 Skywalking Agent v${sw_ver}..."
     
     local download_success=false
     
     # 尝试主下载地址
     if command -v curl &> /dev/null; then
-        if curl -L --progress-bar -o "${tmp_file}" "${download_url}" 2>/dev/null; then
+        if curl -fL# -o "${tmp_file}" "${download_url}"; then
             download_success=true
         fi
     elif command -v wget &> /dev/null; then
-        if wget -O "${tmp_file}" "${download_url}" 2>/dev/null; then
+        if wget -q --show-progress -O "${tmp_file}" "${download_url}"; then
             download_success=true
         fi
     else
@@ -160,16 +160,25 @@ do_install() {
     # 尝试镜像地址
     if [ "$download_success" = false ]; then
         log_warning "主下载地址失败，尝试镜像..."
-        local mirror_url="https://mirrors.tuna.tsinghua.edu.cn/apache/skywalking/java-agent/${version}/apache-skywalking-java-agent-${version}.tgz"
+        local mirror_url="https://mirrors.tuna.tsinghua.edu.cn/apache/skywalking/java-agent/${sw_ver}/apache-skywalking-java-agent-${sw_ver}.tgz"
         if command -v curl &> /dev/null; then
-            curl -L --progress-bar -o "${tmp_file}" "${mirror_url}" 2>/dev/null && download_success=true
+            curl -fL# -o "${tmp_file}" "${mirror_url}" && download_success=true
         elif command -v wget &> /dev/null; then
-            wget -O "${tmp_file}" "${mirror_url}" 2>/dev/null && download_success=true
+            wget -q --show-progress -O "${tmp_file}" "${mirror_url}" && download_success=true
         fi
     fi
     
     if [ "$download_success" = false ] || [ ! -f "${tmp_file}" ] || [ ! -s "${tmp_file}" ]; then
-        log_error "下载失败"
+        log_error "下载失败，请检查版本号是否正确: ${sw_ver}"
+        log_error "下载地址: ${download_url}"
+        rm -f "${tmp_file}"
+        return 1
+    fi
+    
+    # 验证文件是否为有效的 gzip 文件
+    if ! file "${tmp_file}" | grep -qE '(gzip|tar)'; then
+        log_error "下载的文件不是有效的 tar.gz 格式，可能版本不存在"
+        log_error "请访问 https://archive.apache.org/dist/skywalking/java-agent/ 查看可用版本"
         rm -f "${tmp_file}"
         return 1
     fi
@@ -192,9 +201,9 @@ do_install() {
         fi
         
         # 保存版本信息
-        echo "$version" > "${SKYWALKING_DIR}/skywalking-agent/VERSION"
+        echo "$sw_ver" > "${SKYWALKING_DIR}/skywalking-agent/VERSION"
         
-        log_info "Skywalking Agent v${version} 安装成功"
+        log_info "Skywalking Agent v${sw_ver} 安装成功"
         echo ""
         echo -e "  Agent: ${WHITE}${SKYWALKING_AGENT_JAR}${NC}"
         echo -e "  配置:  ${WHITE}${SKYWALKING_CONFIG}${NC}"
@@ -209,23 +218,23 @@ do_install() {
 # 升级
 # ===========================================
 do_upgrade() {
-    local version="${1:-$SKYWALKING_VERSION}"
+    local sw_ver="${1:-$SKYWALKING_VERSION}"
     
     print_title "升级 Skywalking Agent"
     echo ""
     
     if ! is_installed; then
         log_warning "Skywalking Agent 未安装，将执行全新安装"
-        do_install "$version" "true"
+        do_install "$sw_ver" "true"
         return $?
     fi
     
     local current_ver=$(get_current_version)
     echo -e "  当前版本: ${WHITE}${current_ver}${NC}"
-    echo -e "  目标版本: ${WHITE}${version}${NC}"
+    echo -e "  目标版本: ${WHITE}${sw_ver}${NC}"
     echo ""
     
-    if [ "$current_ver" = "$version" ]; then
+    if [ "$current_ver" = "$sw_ver" ]; then
         log_info "已是最新版本"
         return 0
     fi
@@ -238,7 +247,7 @@ do_upgrade() {
         return 0
     fi
     
-    do_install "$version" "true"
+    do_install "$sw_ver" "true"
 }
 
 # ===========================================
@@ -328,37 +337,44 @@ do_config() {
 # ===========================================
 # 参数解析
 # ===========================================
-VERSION="$SKYWALKING_VERSION"
+# 使用独立变量名，避免与 APP_VERSION 等变量冲突
+SW_TARGET_VERSION="9.3.0"
+ACTION="info"
 
+# 先解析所有参数
 while [ $# -gt 0 ]; do
     case "$1" in
         --version)
-            VERSION="$2"
-            shift 2
+            if [ -n "$2" ] && [[ ! "$2" =~ ^- ]]; then
+                SW_TARGET_VERSION="$2"
+                shift 2
+            else
+                log_error "--version 需要指定版本号"
+                exit 1
+            fi
             ;;
         -i|--install)
-            do_install "$VERSION"
-            exit $?
+            ACTION="install"
+            shift
             ;;
         upgrade)
-            do_upgrade "$VERSION"
-            exit $?
+            ACTION="upgrade"
+            shift
             ;;
         -u|--uninstall)
-            do_uninstall
-            exit $?
+            ACTION="uninstall"
+            shift
             ;;
         config)
-            do_config
-            exit $?
+            ACTION="config"
+            shift
             ;;
         -h|--help)
             show_help
             exit 0
             ;;
         "")
-            show_info
-            exit 0
+            shift
             ;;
         *)
             log_error "未知命令: $1"
@@ -369,5 +385,11 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-# 默认显示信息
-show_info
+# 执行对应操作
+case "$ACTION" in
+    install)   do_install "$SW_TARGET_VERSION" ;;
+    upgrade)   do_upgrade "$SW_TARGET_VERSION" ;;
+    uninstall) do_uninstall ;;
+    config)    do_config ;;
+    info)      show_info ;;
+esac

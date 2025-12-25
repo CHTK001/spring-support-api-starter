@@ -6,10 +6,14 @@ import com.chua.starter.monitor.entity.MonitorSyncConnection;
 import com.chua.starter.monitor.entity.MonitorSyncNode;
 import com.chua.starter.monitor.entity.MonitorSyncTask;
 import com.chua.starter.monitor.entity.MonitorSyncTaskLog;
+import com.chua.starter.monitor.pojo.sync.ColumnDefinition;
+import com.chua.starter.monitor.pojo.sync.SyncTableStatus;
 import com.chua.starter.monitor.pojo.sync.SyncTaskDesign;
 import com.chua.starter.monitor.pojo.sync.SyncTaskQuery;
 import com.chua.starter.monitor.pojo.sync.SyncTaskStatistics;
 import com.chua.starter.monitor.service.sync.MonitorSyncTaskService;
+import com.chua.starter.monitor.service.sync.OutputTableService;
+import com.chua.starter.monitor.service.sync.SyncTableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +37,8 @@ import java.util.List;
 public class MonitorSyncTaskController {
 
     private final MonitorSyncTaskService taskService;
+    private final SyncTableService tableService;
+    private final OutputTableService outputTableService;
 
     /**
      * 分页查询任务列表
@@ -207,5 +213,92 @@ public class MonitorSyncTaskController {
             @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
             @Parameter(description = "统计粒度: hour/day") @RequestParam(required = false, defaultValue = "day") String granularity) {
         return taskService.getTaskStatistics(taskId, startTime, endTime, granularity);
+    }
+
+    // ==================== 表管理接口 ====================
+
+    /**
+     * 检查同步表状态
+     */
+    @GetMapping("/table/status")
+    @Operation(summary = "检查同步表状态")
+    public ReturnResult<SyncTableStatus> checkTableStatus() {
+        return tableService.checkTableStatus();
+    }
+
+    /**
+     * 初始化同步表
+     * <p>
+     * 业务功能：当表不存在时可通过此接口创建同步相关表
+     * </p>
+     */
+    @PostMapping("/table/initialize")
+    @Operation(summary = "初始化同步表")
+    public ReturnResult<SyncTableStatus> initializeTables(
+            @Parameter(description = "是否强制重建（会删除现有表和数据）") @RequestParam(defaultValue = "false") boolean force) {
+        return tableService.initializeTables(force);
+    }
+
+    // ==================== 输出节点表管理接口 ====================
+
+    /**
+     * 检查输出目标表是否存在
+     */
+    @PostMapping("/output/table/exists")
+    @Operation(summary = "检查输出目标表是否存在")
+    public ReturnResult<Boolean> checkOutputTableExists(
+            @Parameter(description = "节点配置JSON") @RequestBody String nodeConfig,
+            @Parameter(description = "表名") @RequestParam String tableName) {
+        return outputTableService.checkTableExists(nodeConfig, tableName);
+    }
+
+    /**
+     * 创建输出目标表
+     */
+    @PostMapping("/output/table/create")
+    @Operation(summary = "创建输出目标表")
+    public ReturnResult<Boolean> createOutputTable(
+            @Parameter(description = "节点配置JSON") @RequestParam String nodeConfig,
+            @Parameter(description = "表名") @RequestParam String tableName,
+            @RequestBody List<ColumnDefinition> columns) {
+        return outputTableService.createTable(nodeConfig, tableName, columns);
+    }
+
+    /**
+     * 获取输出目标表结构
+     */
+    @PostMapping("/output/table/structure")
+    @Operation(summary = "获取输出目标表结构")
+    public ReturnResult<List<ColumnDefinition>> getOutputTableStructure(
+            @Parameter(description = "节点配置JSON") @RequestBody String nodeConfig,
+            @Parameter(description = "表名") @RequestParam String tableName) {
+        return outputTableService.getTableStructure(nodeConfig, tableName);
+    }
+
+    /**
+     * 预览建表SQL
+     */
+    @PostMapping("/output/table/preview-sql")
+    @Operation(summary = "预览建表SQL")
+    public ReturnResult<String> previewCreateTableSql(
+            @Parameter(description = "表名") @RequestParam String tableName,
+            @Parameter(description = "数据库类型") @RequestParam(defaultValue = "mysql") String dbType,
+            @RequestBody List<ColumnDefinition> columns) {
+        return outputTableService.previewCreateTableSql(tableName, columns, dbType);
+    }
+
+    /**
+     * 同步输出目标表结构
+     * <p>
+     * 根据列定义添加缺失的列
+     * </p>
+     */
+    @PostMapping("/output/table/sync-structure")
+    @Operation(summary = "同步输出目标表结构")
+    public ReturnResult<Boolean> syncOutputTableStructure(
+            @Parameter(description = "节点配置JSON") @RequestParam String nodeConfig,
+            @Parameter(description = "表名") @RequestParam String tableName,
+            @RequestBody List<ColumnDefinition> columns) {
+        return outputTableService.syncTableStructure(nodeConfig, tableName, columns);
     }
 }

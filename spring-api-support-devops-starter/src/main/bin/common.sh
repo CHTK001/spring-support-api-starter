@@ -27,6 +27,10 @@ log_warn() {
     echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
+log_warning() {
+    log_warn "$1"
+}
+
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
@@ -48,10 +52,16 @@ init_paths() {
     fi
     
     # 根据调用位置确定 APP_HOME
-    if [[ "$SCRIPT_DIR" == */script/linux ]]; then
+    if [[ "$SCRIPT_DIR" == */bin/script/* ]]; then
+        # 从 script/linux 或 script/cluster 等子目录调用
         APP_HOME="$(cd "$SCRIPT_DIR/../../.." && pwd)"
         BIN_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    elif [[ "$SCRIPT_DIR" == */bin ]]; then
+        # 从 bin 目录调用
+        APP_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+        BIN_DIR="$SCRIPT_DIR"
     else
+        # 默认情况
         APP_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
         BIN_DIR="$SCRIPT_DIR"
     fi
@@ -227,7 +237,7 @@ DEFAULT_DEBUG_PORT=5005
 DEFAULT_SPRING_PROFILE="prod"
 
 # Skywalking 配置
-SKYWALKING_VERSION="${SKYWALKING_VERSION:-9.0.0}"
+SKYWALKING_VERSION="${SKYWALKING_VERSION:-9.3.0}"
 
 # Docker 配置
 DOCKER_PORT="${DOCKER_PORT:-8080}"
@@ -272,3 +282,6 @@ init_paths
 resolve_app_metadata
 load_app_env
 init_app_vars
+
+# BASE_DIR 用于外部组件安装目录 (必须在 init_paths 之后设置)
+BASE_DIR="${BASE_DIR:-${APP_HOME}}"

@@ -78,6 +78,18 @@
       <filtered>true</filtered>
     </fileSet>
 
+    <!-- Cluster 集群管理脚本 -->
+    <fileSet>
+      <directory>${devops.dir}/src/main/bin/script/cluster</directory>
+      <outputDirectory>/bin/script/cluster</outputDirectory>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <filtered>true</filtered>
+    </fileSet>
+
     <!-- 文档（可选） -->
     <fileSet>
       <directory>${project.basedir}</directory>

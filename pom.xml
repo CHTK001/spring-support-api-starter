@@ -261,6 +261,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-remote-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-common-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
@@ -415,6 +421,12 @@
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-excel-starter</artifactId>
                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-dbf-starter</artifactId>
+                <version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -602,7 +614,7 @@
         <profile>
             <id>dist</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -624,6 +636,41 @@
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 复制解压脚本到压缩包同级目录（处理换行符） -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-extract-scripts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- 复制并转换Linux脚本为LF -->
+                                        <copy todir="${project.build.directory}" overwrite="true">
+                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh"/>
+                                            <filterchain>
+                                                <expandproperties/>
+                                            </filterchain>
+                                        </copy>
+                                        <fixcrlf srcdir="${project.build.directory}" includes="*.sh" eol="lf"/>
+                                        <!-- 复制并转换Windows脚本为CRLF -->
+                                        <copy todir="${project.build.directory}" overwrite="true">
+                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.bat"/>
+                                            <filterchain>
+                                                <expandproperties/>
+                                            </filterchain>
+                                        </copy>
+                                        <fixcrlf srcdir="${project.build.directory}" includes="*.bat" eol="crlf"/>
+                                    </target>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

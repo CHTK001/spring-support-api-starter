@@ -10,6 +10,7 @@ import com.chua.starter.monitor.adapter.SpiConfigAdapterManager;
 import com.chua.starter.monitor.annotation.SpiMeta;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
 import com.chua.starter.monitor.pojo.sync.SpiParameter;
+import com.chua.starter.monitor.pojo.sync.SpiTypeList;
 import com.chua.starter.monitor.service.sync.MonitorSyncSpiService;
 import com.chua.starter.monitor.util.SpiParameterResolver;
 import com.chua.starter.monitor.util.SyncDataSourceFactory;
@@ -143,13 +144,13 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
     }
 
     @Override
-    public ReturnResult<Map<String, List<SpiInfo>>> getAllSpiTypes() {
+    public ReturnResult<SpiTypeList> getAllSpiTypes() {
         try {
-            Map<String, List<SpiInfo>> result = new LinkedHashMap<>();
-            result.put(TYPE_INPUT, getSpiList(Input.class, TYPE_INPUT));
-            result.put(TYPE_OUTPUT, getSpiList(Output.class, TYPE_OUTPUT));
-            result.put(TYPE_DATA_CENTER, getSpiList(DataBus.class, TYPE_DATA_CENTER));
-            result.put(TYPE_FILTER, getSpiList(DataFilter.class, TYPE_FILTER));
+            SpiTypeList result = new SpiTypeList();
+            result.setInput(getSpiList(Input.class, TYPE_INPUT));
+            result.setOutput(getSpiList(Output.class, TYPE_OUTPUT));
+            result.setDataCenter(getSpiList(DataBus.class, TYPE_DATA_CENTER));
+            result.setFilter(getSpiList(DataFilter.class, TYPE_FILTER));
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("获取所有 SPI 类型失败", e);
