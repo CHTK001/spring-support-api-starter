@@ -1296,6 +1296,71 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     }
 
     @Override
+    public ReturnResult<Map<String, Object>> checkRemoteDesktopAvailability(String id) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("available", false);
+        result.put("recommendedProtocol", "SSH");
+        
+        try {
+            MonitorSysGenServer server = getById(id);
+            if (server == null) {
+                result.put("error", "服务器不存在");
+                return ReturnResult.ok(result);
+            }
+            
+            // 获取服务器设置
+            int remotePort = 8899; // 默认端口
+            try {
+                ReturnResult<MonitorSysGenServerSetting> settingResult = monitorSysGenServerSettingService
+                        .getOrCreateSetting(server.getMonitorSysGenServerId());
+                if (settingResult.isOk() && settingResult.getData() != null) {
+                    MonitorSysGenServerSetting setting = settingResult.getData();
+                    if (setting.getMonitorSysGenServerSettingRemotePort() != null) {
+                        remotePort = setting.getMonitorSysGenServerSettingRemotePort();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("获取服务器设置失败，使用默认端口: {}", e.getMessage());
+            }
+            
+            // 尝试连接远程桌面 Agent
+            String host = server.getMonitorSysGenServerHost();
+            boolean isAvailable = checkRemoteDesktopAgentConnection(host, remotePort);
+            
+            result.put("available", isAvailable);
+            result.put("recommendedProtocol", isAvailable ? "REMOTE" : "SSH");
+            result.put("host", host);
+            result.put("remotePort", remotePort);
+            
+            if (!isAvailable) {
+                result.put("reason", "远程桌面 Agent 不可连接，可能是未安装或服务器无桌面环境");
+            }
+            
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("检测远程桌面可用性失败: serverId={}", id, e);
+            result.put("error", e.getMessage());
+            return ReturnResult.ok(result);
+        }
+    }
+    
+    /**
+     * 检测远程桌面 Agent 连接
+     */
+    private boolean checkRemoteDesktopAgentConnection(String host, int port) {
+        try {
+            // 尝试建立 TCP 连接，超时 3 秒
+            java.net.Socket socket = new java.net.Socket();
+            socket.connect(new java.net.InetSocketAddress(host, port), 3000);
+            socket.close();
+            return true;
+        } catch (Exception e) {
+            log.debug("远程桌面 Agent 连接失败: host={}, port={}, error={}", host, port, e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public ReturnResult<String> getGuacamoleProxyUrl(String id) {
         try {
             MonitorSysGenServer server = getById(id);

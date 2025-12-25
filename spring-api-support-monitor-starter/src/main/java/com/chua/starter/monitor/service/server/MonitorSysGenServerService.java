@@ -266,6 +266,14 @@ public interface MonitorSysGenServerService extends IService<MonitorSysGenServer
     void scheduleConnectionCheck();
 
     /**
+     * 检测服务器远程桌面是否可用
+     *
+     * @param id 服务器ID
+     * @return 检测结果，包含 available 和 recommendedProtocol 字段
+     */
+    ReturnResult<Map<String, Object>> checkRemoteDesktopAvailability(String id);
+
+    /**
      * 获取Guacamole代理连接URL
      *
      * @param id 服务器ID

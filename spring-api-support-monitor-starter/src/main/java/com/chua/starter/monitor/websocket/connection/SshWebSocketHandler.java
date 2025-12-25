@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.websocket;
+package com.chua.starter.monitor.websocket.connection;
 
 import com.chua.common.support.json.Json;
 import com.chua.socketio.support.constant.SocketTopics;
@@ -19,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SSH WebSocket处理器
+ * <p>
+ * 处理 SSH 终端连接，支持实时命令输入和输出。
+ * </p>
  *
  * @author CH
  * @since 2024/12/23
@@ -217,8 +220,6 @@ public class SshWebSocketHandler implements WebSocketHandler {
      * 设置数据监听
      */
     private void setupDataListener(Integer serverId, WebSocketSession session) {
-        // 这里应该设置SSH服务的数据回调
-        // 当SSH服务接收到数据时，通过WebSocket发送给前端
         ServerConnectionService sshService = getSshConnectionService();
         if (sshService != null) {
             sshService.setDataCallback(serverId, (data) -> {

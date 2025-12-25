@@ -8,7 +8,7 @@ source "${SCRIPT_DIR}/../../common.sh"
 
 # 默认配置
 DEFAULT_JAVA_VERSION="21"
-DEFAULT_INSTALL_DIR="/opt/java"
+DEFAULT_INSTALL_DIR="${BASE_DIR}/java"
 ADOPTIUM_API="https://api.adoptium.net/v3"
 
 # ===========================================
@@ -140,18 +140,18 @@ detect_arch() {
 # 下载安装 Java
 # ===========================================
 install_java() {
-    local version="${1:-$DEFAULT_JAVA_VERSION}"
+    local java_ver="${1:-$DEFAULT_JAVA_VERSION}"
     local install_dir="${2:-$DEFAULT_INSTALL_DIR}"
     local arch=$(detect_arch)
     local os="linux"
     
-    log_step "准备安装 Java ${version}"
+    log_step "准备安装 Java ${java_ver}"
     echo ""
     
     # 检查是否已安装
-    local target_dir="${install_dir}/jdk-${version}"
+    local target_dir="${install_dir}/jdk-${java_ver}"
     if [ -d "$target_dir" ] && [ -x "${target_dir}/bin/java" ]; then
-        log_warn "Java ${version} 已安装在 ${target_dir}"
+        log_warn "Java ${java_ver} 已安装在 ${target_dir}"
         echo -e "是否设置为当前 Java? [y/N] "
         read -r answer
         if [[ "$answer" =~ ^[Yy]$ ]]; then
@@ -165,7 +165,7 @@ install_java() {
     
     # 获取下载 URL
     log_step "获取下载信息..."
-    local api_url="${ADOPTIUM_API}/assets/latest/${version}/hotspot?architecture=${arch}&image_type=jdk&os=${os}&vendor=eclipse"
+    local api_url="${ADOPTIUM_API}/assets/latest/${java_ver}/hotspot?architecture=${arch}&image_type=jdk&os=${os}&vendor=eclipse"
     local download_info=$(curl -s "$api_url" 2>/dev/null)
     
     if [ -z "$download_info" ]; then
@@ -187,8 +187,8 @@ install_java() {
     echo ""
     
     # 下载
-    local tmp_file="${install_dir}/jdk-${version}.tar.gz"
-    log_step "下载 Java ${version}..."
+    local tmp_file="${install_dir}/jdk-${java_ver}.tar.gz"
+    log_step "下载 Java ${java_ver}..."
     
     if command -v curl &> /dev/null; then
         curl -L --progress-bar -o "$tmp_file" "$download_url"
@@ -219,7 +219,7 @@ install_java() {
     
     local java_bin="${extracted_dir}/bin/java"
     if [ -x "$java_bin" ]; then
-        log_info "Java ${version} 安装成功: ${extracted_dir}"
+        log_info "Java ${java_ver} 安装成功: ${extracted_dir}"
         echo ""
         
         # 保存为当前 Java
