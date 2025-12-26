@@ -176,9 +176,22 @@ if not defined APP_PID (
 )
 
 echo 正在停止 %APP_NAME% (PID: %APP_PID%)...
-taskkill /PID %APP_PID% /F >nul 2>&1
 
+REM 尝试停止进程
+taskkill /PID %APP_PID% /F >nul 2>&1
+set "KILL_RESULT=%ERRORLEVEL%"
+
+REM 等待进程退出
 timeout /t 2 /nobreak >nul
+
+REM 验证进程是否真的停止了
+call :get_pid
+if defined APP_PID (
+    echo [失败] %APP_NAME% 停止失败: 进程仍在运行 (PID: %APP_PID%)
+    echo   提示: 请以管理员身份运行此脚本
+    goto :eof
+)
+
 if exist "%PID_FILE%" del "%PID_FILE%"
 echo [成功] %APP_NAME% 已停止
 goto :eof

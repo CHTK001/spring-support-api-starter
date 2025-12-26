@@ -356,6 +356,20 @@ HEALTH_CHECK_PROTOCOL="${HEALTH_CHECK_PROTOCOL:-http}"
 
 # 日志
 AGGREGATE_LOG_LINES="${AGGREGATE_LOG_LINES:-50}"
+
+# 启动参数 (升级时复用)
+START_JAVA_PATH="${CUSTOM_JAVA}"
+START_MEMORY_SIZE="${MEMORY_SIZE}"
+START_GC_TYPE="${GC_TYPE}"
+START_JVM_OPTS="${CUSTOM_JVM_OPTS}"
+START_SPRING_PROFILE="${SPRING_PROFILE}"
+START_DEBUG_MODE="${DEBUG_MODE}"
+START_DEBUG_PORT="${DEBUG_PORT}"
+START_SKYWALKING_ENABLED="${SKYWALKING_ENABLED}"
+START_SKYWALKING_PATH="${SKYWALKING_PATH}"
+START_ARTHAS_PORT="${ARTHAS_PORT}"
+START_PROMETHEUS_PORT="${PROMETHEUS_PORT}"
+START_LOG_LEVEL="${LOG_LEVEL}"
 EOF
     
     log_info "配置已保存: ${conf_file}"
@@ -619,22 +633,6 @@ if [ "$TARGET" = "all" ] || [ "$TARGET" = "local" ]; then
                     
                     if start_with_retry "$port"; then
                         success_count=$((success_count + 1))
-                        
-                        # 健康检查
-                        echo -e "    ${CYAN}→${NC} 等待健康检查..."
-                        local health_count=0
-                        while [ $health_count -lt $START_TIMEOUT ]; do
-                            if curl -sf "http://localhost:${port}/actuator/health" > /dev/null 2>&1; then
-                                echo -e "    ${GREEN}✓${NC} 健康检查通过"
-                                break
-                            fi
-                            sleep 1
-                            health_count=$((health_count + 1))
-                        done
-                        
-                        if [ $health_count -ge $START_TIMEOUT ]; then
-                            echo -e "    ${YELLOW}⚠${NC} 健康检查超时，继续下一个..."
-                        fi
                         
                         # 滚动间隔
                         if [ $current -lt $total ]; then

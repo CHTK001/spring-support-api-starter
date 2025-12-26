@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务器连接状态管理控制器
@@ -194,6 +195,155 @@ public class MonitorSysGenServerConnectionController {
     @ApiOperation("获取服务器连接健康度报告")
     public ReturnResult<MonitorSysGenServerConnectionHealthReport> getServerConnectionHealthReport() {
         return connectionStatusService.getServerConnectionHealthReport();
+    }
+
+    /**
+     * 重置服务器连接状态
+     *
+     * @param id 服务器ID
+     * @return 重置结果
+     */
+    @PostMapping("/reset/{id}")
+    @Operation(summary = "重置服务器连接状态")
+    @ApiOperation("重置服务器连接状态")
+    public ReturnResult<Boolean> resetServerConnectionStatus(
+            @PathVariable("id") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer id) {
+        log.info("重置服务器连接状态: serverId={}", id);
+        return connectionStatusService.resetServerConnectionStatus(id);
+    }
+
+    /**
+     * 批量重置服务器连接状态
+     *
+     * @param serverIds 服务器ID列表
+     * @return 重置结果
+     */
+    @PostMapping("/batch-reset")
+    @Operation(summary = "批量重置服务器连接状态")
+    @ApiOperation("批量重置服务器连接状态")
+    public ReturnResult<Boolean> batchResetServerConnectionStatus(
+            @RequestBody @Parameter(description = "服务器ID列表") @ApiParam("服务器ID列表") List<Integer> serverIds) {
+        log.info("批量重置服务器连接状态: serverIds={}", serverIds);
+        return connectionStatusService.batchResetServerConnectionStatus(serverIds);
+    }
+
+    /**
+     * 获取服务器连接趋势数据
+     *
+     * @param id    服务器ID
+     * @param hours 小时数，默认24小时
+     * @return 趋势数据
+     */
+    @GetMapping("/trend/{id}")
+    @Operation(summary = "获取服务器连接趋势数据")
+    @ApiOperation("获取服务器连接趋势数据")
+    public ReturnResult<List<Map<String, Object>>> getServerConnectionTrend(
+            @PathVariable("id") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer id,
+            @RequestParam(value = "hours", defaultValue = "24") @Parameter(description = "小时数") @ApiParam("小时数") Integer hours) {
+        return connectionStatusService.getServerConnectionTrend(id, hours);
+    }
+
+    /**
+     * 获取实时连接状态数据
+     *
+     * @return 实时状态数据
+     */
+    @GetMapping("/realtime")
+    @Operation(summary = "获取实时连接状态数据")
+    @ApiOperation("获取实时连接状态数据")
+    public ReturnResult<Map<String, Object>> getRealTimeConnectionStatus() {
+        return connectionStatusService.getRealTimeConnectionStatus();
+    }
+
+    /**
+     * 设置连接监控配置
+     *
+     * @param id     服务器ID
+     * @param config 监控配置
+     * @return 设置结果
+     */
+    @PostMapping("/monitor-config/{id}")
+    @Operation(summary = "设置连接监控配置")
+    @ApiOperation("设置连接监控配置")
+    public ReturnResult<Boolean> setConnectionMonitorConfig(
+            @PathVariable("id") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer id,
+            @RequestBody @Parameter(description = "监控配置") @ApiParam("监控配置") Map<String, Object> config) {
+        log.info("设置连接监控配置: serverId={}", id);
+        return connectionStatusService.setConnectionMonitorConfig(id, config);
+    }
+
+    /**
+     * 获取连接监控配置
+     *
+     * @param id 服务器ID
+     * @return 监控配置
+     */
+    @GetMapping("/monitor-config/{id}")
+    @Operation(summary = "获取连接监控配置")
+    @ApiOperation("获取连接监控配置")
+    public ReturnResult<Map<String, Object>> getConnectionMonitorConfig(
+            @PathVariable("id") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer id) {
+        return connectionStatusService.getConnectionMonitorConfig(id);
+    }
+
+    /**
+     * 启用/禁用连接监控
+     *
+     * @param id      服务器ID
+     * @param enabled 是否启用
+     * @return 操作结果
+     */
+    @PostMapping("/toggle-monitor/{id}")
+    @Operation(summary = "启用/禁用连接监控")
+    @ApiOperation("启用/禁用连接监控")
+    public ReturnResult<Boolean> toggleConnectionMonitor(
+            @PathVariable("id") @Parameter(description = "服务器ID") @ApiParam("服务器ID") Integer id,
+            @RequestParam("enabled") @Parameter(description = "是否启用") @ApiParam("是否启用") Boolean enabled) {
+        log.info("切换连接监控状态: serverId={}, enabled={}", id, enabled);
+        return connectionStatusService.toggleConnectionMonitor(id, enabled);
+    }
+
+    /**
+     * 获取连接失败原因统计
+     *
+     * @param days 天数，默认7天
+     * @return 失败原因统计
+     */
+    @GetMapping("/failure-reasons")
+    @Operation(summary = "获取连接失败原因统计")
+    @ApiOperation("获取连接失败原因统计")
+    public ReturnResult<List<Map<String, Object>>> getConnectionFailureReasons(
+            @RequestParam(value = "days", defaultValue = "7") @Parameter(description = "天数") @ApiParam("天数") Integer days) {
+        return connectionStatusService.getConnectionFailureReasons(days);
+    }
+
+    /**
+     * 导出连接状态报告
+     *
+     * @param params 导出参数
+     * @return 导出文件路径
+     */
+    @PostMapping("/export-report")
+    @Operation(summary = "导出连接状态报告")
+    @ApiOperation("导出连接状态报告")
+    public ReturnResult<String> exportConnectionStatusReport(
+            @RequestBody @Parameter(description = "导出参数") @ApiParam("导出参数") Map<String, Object> params) {
+        log.info("导出连接状态报告");
+        return connectionStatusService.exportConnectionStatusReport(params);
+    }
+
+    /**
+     * 获取连接状态历史记录
+     *
+     * @param params 查询参数
+     * @return 历史记录列表
+     */
+    @GetMapping("/history")
+    @Operation(summary = "获取连接状态历史记录")
+    @ApiOperation("获取连接状态历史记录")
+    public ReturnResult<Map<String, Object>> getServerConnectionStatusHistory(
+            @RequestParam Map<String, Object> params) {
+        return connectionStatusService.getServerConnectionStatusHistory(params);
     }
 
     /**

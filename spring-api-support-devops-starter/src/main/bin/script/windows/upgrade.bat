@@ -223,6 +223,14 @@ if defined APP_PID (
     echo [步骤] 停止应用...
     taskkill /PID %APP_PID% /F >nul 2>&1
     timeout /t 3 /nobreak >nul
+    
+    REM 验证进程是否真的停止了
+    call :get_pid
+    if defined APP_PID (
+        echo [失败] 应用停止失败: 进程仍在运行 (PID: %APP_PID%)
+        echo   提示: 请以管理员身份运行此脚本
+        goto :eof
+    )
 )
 
 REM 备份当前文件
@@ -294,6 +302,14 @@ if defined APP_PID (
     echo [步骤] 停止应用...
     taskkill /PID %APP_PID% /F >nul 2>&1
     timeout /t 3 /nobreak >nul
+    
+    REM 验证进程是否真的停止了
+    call :get_pid
+    if defined APP_PID (
+        echo [失败] 应用停止失败: 进程仍在运行 (PID: %APP_PID%)
+        echo   提示: 请以管理员身份运行此脚本
+        goto :eof
+    )
 )
 
 REM 执行回滚
