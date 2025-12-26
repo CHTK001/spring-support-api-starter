@@ -510,8 +510,14 @@ public class SpiderExecutorService {
                     String host = (String) proxyConfig.get("host");
                     Integer port = proxyConfig.get("port") instanceof Number ? ((Number) proxyConfig.get("port")).intValue() : null;
                     if (host != null && !host.isEmpty() && port != null) {
-                        site.setHttpProxy(new org.apache.http.HttpHost(host, port));
-                        addLog(task.getSpiderTaskId(), "INFO", "已应用代理配置: " + host + ":" + port, null);
+                        // 使用反射设置代理，避免 API 兼容性问题
+                        try {
+                            java.lang.reflect.Method setProxyMethod = site.getClass().getMethod("setHttpProxy", org.apache.http.HttpHost.class);
+                            setProxyMethod.invoke(site, new org.apache.http.HttpHost(host, port));
+                            addLog(task.getSpiderTaskId(), "INFO", "已应用代理配置: " + host + ":" + port, null);
+                        } catch (NoSuchMethodException e) {
+                            addLog(task.getSpiderTaskId(), "WARN", "当前版本不支持代理配置", null);
+                        }
                     }
                 } catch (Exception e) {
                     addLog(task.getSpiderTaskId(), "WARN", "解析代理配置失败: " + e.getMessage(), null);
