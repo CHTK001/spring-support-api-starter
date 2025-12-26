@@ -26,10 +26,12 @@
             <artifactId>spring-api-support-common-entity-starter</artifactId>
         </dependency>
 
+        <!-- 邮件模块不存在，暂时注释
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
@@ -59,7 +61,8 @@
 
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-sse-starter</artifactId>
+            <artifactId>spring-support-socket-sse-starter</artifactId>
+            <version>${module.version}</version>
         </dependency>
 
         <dependency>
