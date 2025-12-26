@@ -7,6 +7,7 @@ import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionHealthReport;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionStatistics;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务器连接状态管理服务接口
@@ -102,4 +103,86 @@ public interface MonitorSysGenServerConnectionStatusService {
      * @return 健康度报告
      */
     ReturnResult<MonitorSysGenServerConnectionHealthReport> getServerConnectionHealthReport();
+
+    /**
+     * 重置服务器连接状态
+     *
+     * @param serverId 服务器ID
+     * @return 重置结果
+     */
+    ReturnResult<Boolean> resetServerConnectionStatus(Integer serverId);
+
+    /**
+     * 批量重置服务器连接状态
+     *
+     * @param serverIds 服务器ID列表
+     * @return 重置结果
+     */
+    ReturnResult<Boolean> batchResetServerConnectionStatus(List<Integer> serverIds);
+
+    /**
+     * 获取服务器连接趋势数据
+     *
+     * @param serverId 服务器ID
+     * @param hours 小时数
+     * @return 趋势数据
+     */
+    ReturnResult<List<Map<String, Object>>> getServerConnectionTrend(Integer serverId, Integer hours);
+
+    /**
+     * 获取实时连接状态数据
+     *
+     * @return 实时状态数据
+     */
+    ReturnResult<Map<String, Object>> getRealTimeConnectionStatus();
+
+    /**
+     * 设置连接监控配置
+     *
+     * @param serverId 服务器ID
+     * @param config 监控配置
+     * @return 设置结果
+     */
+    ReturnResult<Boolean> setConnectionMonitorConfig(Integer serverId, Map<String, Object> config);
+
+    /**
+     * 获取连接监控配置
+     *
+     * @param serverId 服务器ID
+     * @return 监控配置
+     */
+    ReturnResult<Map<String, Object>> getConnectionMonitorConfig(Integer serverId);
+
+    /**
+     * 启用/禁用连接监控
+     *
+     * @param serverId 服务器ID
+     * @param enabled 是否启用
+     * @return 操作结果
+     */
+    ReturnResult<Boolean> toggleConnectionMonitor(Integer serverId, Boolean enabled);
+
+    /**
+     * 获取连接失败原因统计
+     *
+     * @param days 天数
+     * @return 失败原因统计
+     */
+    ReturnResult<List<Map<String, Object>>> getConnectionFailureReasons(Integer days);
+
+    /**
+     * 导出连接状态报告
+     *
+     * @param params 导出参数
+     * @return 导出文件路径
+     */
+    ReturnResult<String> exportConnectionStatusReport(Map<String, Object> params);
+
+    /**
+     * 获取连接状态历史记录
+     *
+     * @param params 查询参数
+     * @return 历史记录列表
+     */
+    ReturnResult<Map<String, Object>> getServerConnectionStatusHistory(Map<String, Object> params);
 }

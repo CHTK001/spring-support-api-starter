@@ -78,36 +78,6 @@ parse_remote_node() {
     esac
 }
 
-# ===========================================
-# 健康检查
-# ===========================================
-wait_for_health() {
-    local host="$1"
-    local port="$2"
-    local retries="${HEALTH_CHECK_RETRIES:-30}"
-    local interval="${HEALTH_CHECK_INTERVAL:-2}"
-    local path="${HEALTH_CHECK_PATH:-/actuator/health}"
-    local protocol="${HEALTH_CHECK_PROTOCOL:-http}"
-    
-    local url="${protocol}://${host}:${port}${path}"
-    
-    echo -e "  ${CYAN}→${NC} 健康检查: ${url}"
-    
-    local count=0
-    while [ $count -lt $retries ]; do
-        if curl -sf --connect-timeout 2 "$url" > /dev/null 2>&1; then
-            echo -e "  ${GREEN}✓${NC} 健康检查通过"
-            return 0
-        fi
-        sleep $interval
-        count=$((count + 1))
-        echo -ne "\r  ${YELLOW}等待健康检查... ${count}/${retries}${NC}"
-    done
-    
-    echo ""
-    echo -e "  ${RED}✗${NC} 健康检查超时"
-    return 1
-}
 
 # ===========================================
 # 升级本地实例
@@ -125,6 +95,16 @@ upgrade_local_instance() {
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${WHITE}升级本地实例: ${instance_name}${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
+    
+    # 记录原始 PID
+    local old_pid=""
+    if [ -f "$pid_file" ]; then
+        old_pid=$(cat "$pid_file" 2>/dev/null)
+    fi
+    if [ -z "$old_pid" ]; then
+        old_pid=$(pgrep -f "${APP_NAME}.*${port}" 2>/dev/null | head -1)
+    fi
+    echo -e "  ${WHITE}原始 PID:${NC} ${old_pid:-<未运行>}"
     
     # 备份
     if [ "$do_backup" = "true" ]; then
@@ -180,17 +160,75 @@ upgrade_local_instance() {
         cp "$pkg_file" "${APP_HOME}/"
     fi
     
-    # 启动
+    # 启动 (复用原始启动参数)
     echo -e "  ${CYAN}→${NC} 启动实例..."
-    bash "${SCRIPT_DIR}/start.sh" --node "$port" > /dev/null
+    local start_opts="--node $port"
+    [ -n "${START_JAVA_PATH}" ] && start_opts="$start_opts -j ${START_JAVA_PATH}"
+    [ -n "${START_MEMORY_SIZE}" ] && start_opts="$start_opts --memory ${START_MEMORY_SIZE}"
+    [ -n "${START_GC_TYPE}" ] && start_opts="$start_opts --gc ${START_GC_TYPE}"
+    [ -n "${START_JVM_OPTS}" ] && start_opts="$start_opts --jvm '${START_JVM_OPTS}'"
+    [ -n "${START_SPRING_PROFILE}" ] && start_opts="$start_opts --profile ${START_SPRING_PROFILE}"
+    [ "${START_DEBUG_MODE}" = "true" ] && start_opts="$start_opts --debug --debug-port ${START_DEBUG_PORT:-5005}"
+    [ "${START_SKYWALKING_ENABLED}" = "true" ] && start_opts="$start_opts --skywalking"
+    [ -n "${START_SKYWALKING_PATH}" ] && start_opts="$start_opts --skywalking-path ${START_SKYWALKING_PATH}"
+    [ -n "${START_ARTHAS_PORT}" ] && start_opts="$start_opts --arthas-port ${START_ARTHAS_PORT}"
+    [ -n "${START_PROMETHEUS_PORT}" ] && start_opts="$start_opts --prometheus-port ${START_PROMETHEUS_PORT}"
+    [ -n "${START_LOG_LEVEL}" ] && start_opts="$start_opts --log-level ${START_LOG_LEVEL}"
+    eval bash "${SCRIPT_DIR}/start.sh" $start_opts > /dev/null
     sleep 3
     
-    # 健康检查
-    if [ "$do_health_check" = "true" ]; then
-        if ! wait_for_health "localhost" "$port"; then
-            log_error "实例 ${instance_name} 健康检查失败"
-            return 1
+    # 获取新 PID
+    local new_pid=""
+    if [ -f "$pid_file" ]; then
+        new_pid=$(cat "$pid_file" 2>/dev/null)
+    fi
+    if [ -z "$new_pid" ]; then
+        new_pid=$(pgrep -f "${APP_NAME}.*${port}" 2>/dev/null | head -1)
+    fi
+    echo -e "  ${WHITE}新 PID:${NC} ${new_pid:-<启动失败>}"
+    
+    # PID 对比与升级结果判断
+    local upgrade_success=true
+    if [ -n "$old_pid" ] && [ -n "$new_pid" ]; then
+        if [ "$old_pid" != "$new_pid" ]; then
+            echo -e "  ${GREEN}✓${NC} PID 已变更: ${old_pid} → ${new_pid}"
+        else
+            echo -e "  ${YELLOW}⚠${NC} PID 未变更，可能升级失败"
         fi
+    elif [ -z "$new_pid" ]; then
+        echo -e "  ${RED}✗${NC} 启动失败，未获取到新 PID"
+        upgrade_success=false
+    fi
+    
+    # 升级失败时自动回滚
+    if [ "$upgrade_success" = "false" ] && [ "$do_backup" = "true" ]; then
+        echo -e "  ${YELLOW}→${NC} 升级失败，开始回滚..."
+        
+        # 还原最新备份
+        bash "${SCRIPT_DIR}/../linux/restore.sh" --latest 2>/dev/null
+        
+        # 重新启动
+        echo -e "  ${CYAN}→${NC} 重新启动实例..."
+        bash "${SCRIPT_DIR}/start.sh" --node "$port" > /dev/null
+        sleep 3
+        
+        # 检查回滚后的 PID
+        local rollback_pid=""
+        if [ -f "$pid_file" ]; then
+            rollback_pid=$(cat "$pid_file" 2>/dev/null)
+        fi
+        if [ -z "$rollback_pid" ]; then
+            rollback_pid=$(pgrep -f "${APP_NAME}.*${port}" 2>/dev/null | head -1)
+        fi
+        
+        if [ -n "$rollback_pid" ]; then
+            echo -e "  ${GREEN}✓${NC} 回滚成功，PID: ${rollback_pid}"
+        else
+            echo -e "  ${RED}✗${NC} 回滚失败"
+        fi
+        
+        echo ""
+        return 1
     fi
     
     echo -e "  ${GREEN}✓${NC} ${instance_name} 升级完成"
@@ -280,14 +318,6 @@ upgrade_remote_node() {
     echo -e "  ${CYAN}→${NC} 启动服务..."
     ssh $ssh_opts "${user}@${host}" "${remote_script} start"
     sleep 3
-    
-    # 健康检查
-    if [ "$do_health_check" = "true" ]; then
-        if ! wait_for_health "$host" "$port"; then
-            log_error "节点 ${alias} 健康检查失败"
-            return 1
-        fi
-    fi
     
     echo -e "  ${GREEN}✓${NC} ${alias} 升级完成"
     echo ""
@@ -471,7 +501,7 @@ if [ "$TARGET" = "all" ] || [ "$TARGET" = "remote" ]; then
         for node in "${REMOTE_NODES[@]}"; do
             [ -z "$node" ] && continue
             
-            local node_alias=$(parse_remote_node "$node" "alias")
+            node_alias=$(parse_remote_node "$node" "alias")
             if is_excluded "$node_alias"; then
                 echo -e "  ${YELLOW}⊚${NC} ${node_alias} 已排除"
                 continue

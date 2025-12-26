@@ -401,4 +401,194 @@ public class MonitorSysGenServerConnectionStatusServiceImpl implements MonitorSy
             log.error("发送连接状态消息失败: serverId={}", serverId, e);
         }
     }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> resetServerConnectionStatus(Integer serverId) {
+        try {
+            // 重置连接状态为离线
+            int updated = connectionStatusMapper.resetServerConnectionStatus(serverId, LocalDateTime.now());
+            if (updated > 0) {
+                sendConnectionStatusMessage(serverId, MonitorSysGenServerConnectionStatus.ConnectionStatus.OFFLINE.getCode(), "连接状态已重置");
+            }
+            return ReturnResult.success(updated > 0);
+        } catch (Exception e) {
+            log.error("重置服务器连接状态失败: serverId={}", serverId, e);
+            return ReturnResult.error("重置连接状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> batchResetServerConnectionStatus(List<Integer> serverIds) {
+        try {
+            int updated = connectionStatusMapper.batchResetServerConnectionStatus(serverIds, LocalDateTime.now());
+            for (Integer serverId : serverIds) {
+                sendConnectionStatusMessage(serverId, MonitorSysGenServerConnectionStatus.ConnectionStatus.OFFLINE.getCode(), "连接状态已重置");
+            }
+            return ReturnResult.success(updated > 0);
+        } catch (Exception e) {
+            log.error("批量重置服务器连接状态失败: serverIds={}", serverIds, e);
+            return ReturnResult.error("批量重置连接状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getServerConnectionTrend(Integer serverId, Integer hours) {
+        try {
+            List<Map<String, Object>> trendData = connectionStatusMapper.getServerConnectionTrend(serverId, hours);
+            return ReturnResult.success(trendData);
+        } catch (Exception e) {
+            log.error("获取服务器连接趋势数据失败: serverId={}, hours={}", serverId, hours, e);
+            return ReturnResult.error("获取趋势数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getRealTimeConnectionStatus() {
+        try {
+            // 获取所有服务器的实时连接状态
+            List<MonitorSysGenServerConnectionStatus> statusList = connectionStatusMapper.getAllServerConnectionStatus();
+            
+            // 获取统计信息
+            ReturnResult<MonitorSysGenServerConnectionStatistics> statisticsResult = getConnectionStatusStatistics();
+            
+            Map<String, Object> result = new java.util.HashMap<>();
+            result.put("servers", statusList);
+            result.put("statistics", statisticsResult.isOk() ? statisticsResult.getData() : null);
+            result.put("timestamp", System.currentTimeMillis());
+            
+            return ReturnResult.success(result);
+        } catch (Exception e) {
+            log.error("获取实时连接状态数据失败", e);
+            return ReturnResult.error("获取实时状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> setConnectionMonitorConfig(Integer serverId, Map<String, Object> config) {
+        try {
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server == null) {
+                return ReturnResult.illegal("服务器不存在");
+            }
+            
+            // 将配置存储到服务器设置中
+            server.setMonitorSysGenServerConnectionMonitorConfig(Json.toJson(config));
+            serverService.updateById(server);
+            
+            return ReturnResult.success(true);
+        } catch (Exception e) {
+            log.error("设置连接监控配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("设置监控配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getConnectionMonitorConfig(Integer serverId) {
+        try {
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server == null) {
+                return ReturnResult.illegal("服务器不存在");
+            }
+            
+            String configJson = server.getMonitorSysGenServerConnectionMonitorConfig();
+            Map<String, Object> config = new java.util.HashMap<>();
+            if (configJson != null && !configJson.isEmpty()) {
+                config = Json.fromJson(configJson, Map.class);
+            }
+            
+            // 添加默认配置
+            config.putIfAbsent("checkInterval", 60); // 检查间隔（秒）
+            config.putIfAbsent("timeout", 30); // 超时时间（秒）
+            config.putIfAbsent("retryCount", 3); // 重试次数
+            config.putIfAbsent("enabled", server.getMonitorSysGenServerConnectionMonitorEnabled());
+            
+            return ReturnResult.success(config);
+        } catch (Exception e) {
+            log.error("获取连接监控配置失败: serverId={}", serverId, e);
+            return ReturnResult.error("获取监控配置失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ReturnResult<Boolean> toggleConnectionMonitor(Integer serverId, Boolean enabled) {
+        try {
+            MonitorSysGenServer server = serverService.getById(serverId);
+            if (server == null) {
+                return ReturnResult.illegal("服务器不存在");
+            }
+            
+            server.setMonitorSysGenServerConnectionMonitorEnabled(enabled ? 1 : 0);
+            serverService.updateById(server);
+            
+            return ReturnResult.success(true);
+        } catch (Exception e) {
+            log.error("切换连接监控状态失败: serverId={}, enabled={}", serverId, enabled, e);
+            return ReturnResult.error("切换监控状态失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getConnectionFailureReasons(Integer days) {
+        try {
+            List<Map<String, Object>> reasons = connectionStatusMapper.getConnectionFailureReasons(days);
+            return ReturnResult.success(reasons);
+        } catch (Exception e) {
+            log.error("获取连接失败原因统计失败: days={}", days, e);
+            return ReturnResult.error("获取失败原因统计失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<String> exportConnectionStatusReport(Map<String, Object> params) {
+        try {
+            // TODO: 实现导出功能
+            // 获取所有服务器连接状态
+            List<MonitorSysGenServerConnectionStatus> statusList = connectionStatusMapper.getAllServerConnectionStatus();
+            
+            // 生成报告文件
+            String fileName = "connection_status_report_" + System.currentTimeMillis() + ".json";
+            String filePath = "/tmp/" + fileName;
+            
+            // 写入文件
+            java.nio.file.Files.writeString(java.nio.file.Path.of(filePath), Json.toJson(statusList));
+            
+            return ReturnResult.success(filePath);
+        } catch (Exception e) {
+            log.error("导出连接状态报告失败", e);
+            return ReturnResult.error("导出报告失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getServerConnectionStatusHistory(Map<String, Object> params) {
+        try {
+            Integer serverId = (Integer) params.get("serverId");
+            Integer page = (Integer) params.getOrDefault("page", 1);
+            Integer pageSize = (Integer) params.getOrDefault("pageSize", 20);
+            String startTime = (String) params.get("startTime");
+            String endTime = (String) params.get("endTime");
+            
+            // 计算偏移量
+            int offset = (page - 1) * pageSize;
+            
+            List<Map<String, Object>> records = connectionStatusMapper.getServerConnectionStatusHistory(
+                    serverId, startTime, endTime, offset, pageSize);
+            Long total = connectionStatusMapper.getServerConnectionStatusHistoryCount(serverId, startTime, endTime);
+            
+            Map<String, Object> result = new java.util.HashMap<>();
+            result.put("records", records);
+            result.put("total", total);
+            result.put("page", page);
+            result.put("pageSize", pageSize);
+            
+            return ReturnResult.success(result);
+        } catch (Exception e) {
+            log.error("获取连接状态历史记录失败", e);
+            return ReturnResult.error("获取历史记录失败: " + e.getMessage());
+        }
+    }
 }

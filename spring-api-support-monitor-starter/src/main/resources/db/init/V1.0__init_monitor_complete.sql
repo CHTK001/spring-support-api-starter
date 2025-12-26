@@ -2903,4 +2903,68 @@ CREATE TABLE `system_server_setting_preview_extension`  (
   INDEX `idx_server_id`(`preview_extension_server_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '预览扩展名配置' ROW_FORMAT = DYNAMIC;
 
+-- ==================== 爬虫任务表 ====================
+DROP TABLE IF EXISTS `monitor_spider_task`;
+CREATE TABLE `monitor_spider_task` (
+  `spider_task_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `spider_task_name` varchar(200) NOT NULL COMMENT '任务名称',
+  `spider_task_url` varchar(500) NOT NULL COMMENT '目标URL',
+  `spider_task_desc` varchar(500) DEFAULT NULL COMMENT '任务描述',
+  `spider_task_url_pattern` varchar(500) DEFAULT NULL COMMENT 'URL模式',
+  `spider_task_extract_rules` text COMMENT '提取规则JSON',
+  `spider_task_selector_type` varchar(20) DEFAULT 'XPATH' COMMENT '选择器类型',
+  `spider_task_thread_num` int DEFAULT '1' COMMENT '线程数',
+  `spider_task_sleep_time` int DEFAULT '1000' COMMENT '爬取间隔(毫秒)',
+  `spider_task_timeout` int DEFAULT '30' COMMENT '超时时间(秒)',
+  `spider_task_retry_times` int DEFAULT '3' COMMENT '重试次数',
+  `spider_task_headers` text COMMENT '请求头配置(JSON)',
+  `spider_task_cookies` text COMMENT 'Cookie配置',
+  `spider_task_user_agent` varchar(500) DEFAULT NULL COMMENT 'User-Agent配置',
+  `spider_task_proxy` varchar(255) DEFAULT NULL COMMENT '代理配置',
+  `spider_task_schedule_type` varchar(20) DEFAULT 'NONE' COMMENT '调度类型: NONE-一次性, CRON-定时',
+  `spider_task_cron` varchar(50) DEFAULT NULL COMMENT 'CRON表达式',
+  `spider_task_pipeline_type` varchar(20) DEFAULT 'JSON' COMMENT '存储类型: JSON/DATABASE/FILE',
+  `spider_task_pipeline_config` text COMMENT '存储配置(JSON)',
+  `spider_task_status` tinyint DEFAULT '1' COMMENT '任务状态: 0-停用, 1-启用',
+  `spider_task_run_status` varchar(20) DEFAULT 'IDLE' COMMENT '运行状态: IDLE/RUNNING/STOPPED/ERROR',
+  `spider_task_last_run_time` datetime DEFAULT NULL COMMENT '最后运行时间',
+  `spider_task_next_run_time` datetime DEFAULT NULL COMMENT '下次运行时间',
+  `spider_task_total_success` bigint DEFAULT '0' COMMENT '总成功数',
+  `spider_task_total_fail` bigint DEFAULT '0' COMMENT '总失败数',
+  `spider_task_job_id` int DEFAULT NULL COMMENT '关联的Job ID',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`spider_task_id`),
+  KEY `idx_status` (`spider_task_status`),
+  KEY `idx_run_status` (`spider_task_run_status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬虫任务表';
+
+DROP TABLE IF EXISTS `monitor_spider_data`;
+CREATE TABLE `monitor_spider_data` (
+  `spider_data_id` bigint NOT NULL AUTO_INCREMENT COMMENT '数据ID',
+  `spider_task_id` bigint NOT NULL COMMENT '任务ID',
+  `spider_data_content` json COMMENT '爬取的数据内容',
+  `spider_data_url` varchar(500) DEFAULT NULL COMMENT '数据来源URL',
+  `spider_data_hash` varchar(64) DEFAULT NULL COMMENT '数据哈希(用于去重)',
+  `crawl_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '爬取时间',
+  PRIMARY KEY (`spider_data_id`),
+  KEY `idx_task_id` (`spider_task_id`),
+  KEY `idx_crawl_time` (`crawl_time`),
+  UNIQUE KEY `uk_hash` (`spider_data_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬虫数据表';
+
+DROP TABLE IF EXISTS `monitor_spider_log`;
+CREATE TABLE `monitor_spider_log` (
+  `spider_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+  `spider_task_id` bigint NOT NULL COMMENT '任务ID',
+  `spider_log_level` varchar(20) DEFAULT 'INFO' COMMENT '日志级别: INFO/WARN/ERROR',
+  `spider_log_message` text COMMENT '日志内容',
+  `spider_log_url` varchar(500) DEFAULT NULL COMMENT '相关URL',
+  `spider_log_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '日志时间',
+  PRIMARY KEY (`spider_log_id`),
+  KEY `idx_task_id` (`spider_task_id`),
+  KEY `idx_log_time` (`spider_log_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬虫日志表';
+
 SET FOREIGN_KEY_CHECKS = 1;

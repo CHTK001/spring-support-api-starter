@@ -294,8 +294,22 @@ do_stop() {
         return 0
     fi
     
+    # 检查是否有权限停止该进程
+    local proc_user=$(ps -o user= -p "$pid" 2>/dev/null | tr -d ' ')
+    local current_user=$(whoami)
+    
+    if [ "$proc_user" != "$current_user" ] && [ "$current_user" != "root" ]; then
+        log_error "${APP_NAME} 无法停止: 进程属于用户 '${proc_user}'，当前用户 '${current_user}' 无权限"
+        echo -e "  ${YELLOW}提示:${NC} 请使用 sudo 或以 root 用户执行"
+        return 1
+    fi
+    
     echo -e "${BLUE}正在停止 ${APP_NAME} (PID: ${pid})...${NC}"
-    kill "$pid" 2>/dev/null
+    
+    if ! kill "$pid" 2>&1; then
+        log_error "发送停止信号失败"
+        return 1
+    fi
     
     local timeout="${GRACEFUL_TIMEOUT:-30}"
     local count=0
@@ -306,7 +320,21 @@ do_stop() {
     done
     echo ""
     
-    ps -p "$pid" > /dev/null 2>&1 && kill -9 "$pid" 2>/dev/null
+    # 如果还在运行，强制停止
+    if ps -p "$pid" > /dev/null 2>&1; then
+        if ! kill -9 "$pid" 2>&1; then
+            log_error "强制停止失败"
+            return 1
+        fi
+    fi
+    
+    # 最终验证进程是否真的停止
+    sleep 0.5
+    if ps -p "$pid" > /dev/null 2>&1; then
+        log_error "${APP_NAME} 停止失败: 进程仍在运行"
+        return 1
+    fi
+    
     rm -f "${PID_FILE}"
     log_info "${APP_NAME} 已停止"
 }

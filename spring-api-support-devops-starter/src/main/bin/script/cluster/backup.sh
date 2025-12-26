@@ -25,7 +25,10 @@ show_help() {
     echo -e "${YELLOW}备份位置:${NC}"
     echo "  \${APP_HOME}/backup/YYYYmmdd_HHMMSS/"
     echo ""
-    echo -e "${YELLOW}选项:${NC}"
+echo -e "${YELLOW}选项:${NC}"
+    echo "  -l                 查看备份列表"
+    echo "  -d <index>         删除指定序号的备份"
+    echo "  --clean            清除所有备份"
     echo "  --local            仅备份本地实例"
     echo "  --remote           仅备份远程节点"
     echo "  --node <name>      备份指定节点"
@@ -33,6 +36,9 @@ show_help() {
     echo ""
     echo -e "${YELLOW}示例:${NC}"
     echo "  cluster.sh backup                备份所有节点"
+    echo "  cluster.sh backup -l             查看备份列表"
+    echo "  cluster.sh backup -d 1           删除第1个备份"
+    echo "  cluster.sh backup --clean        清除所有备份"
     echo "  cluster.sh backup --local        仅备份本地"
     echo "  cluster.sh backup --node node1   备份指定节点"
     echo ""
@@ -118,13 +124,160 @@ backup_remote_node() {
 }
 
 # ===========================================
+# 列出备份
+# ===========================================
+list_backups() {
+    local backup_dir="${BACKUP_DIR:-${APP_HOME}/backup}"
+    
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}${GREEN}                     备份列表                                 ${NC}${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    
+    if [ ! -d "${backup_dir}" ]; then
+        echo -e "  ${YELLOW}无备份${NC}"
+        echo ""
+        return 0
+    fi
+    
+    local backups=($(ls -dt "${backup_dir}"/*/ 2>/dev/null))
+    
+    if [ ${#backups[@]} -eq 0 ]; then
+        echo -e "  ${YELLOW}无备份${NC}"
+        echo ""
+        return 0
+    fi
+    
+    # 获取最新备份标记
+    local latest=""
+    [ -f "${backup_dir}/latest" ] && latest=$(cat "${backup_dir}/latest" 2>/dev/null)
+    
+    echo -e "  ${WHITE}备份目录: ${backup_dir}${NC}"
+    echo ""
+    printf "  ${CYAN}%-6s %-20s %-10s %s${NC}\n" "序号" "时间" "大小" "状态"
+    echo "  ─────────────────────────────────────────────────────────────"
+    
+    local index=1
+    for backup in "${backups[@]}"; do
+        local backup_name=$(basename "$backup")
+        local backup_time=$(echo "$backup_name" | sed 's/_/ /' | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+        local backup_size=$(du -sh "$backup" 2>/dev/null | cut -f1)
+        
+        local latest_marker=""
+        if [ "$backup" = "${latest}/" ] || [ "$backup" = "${latest}" ]; then
+            latest_marker="${GREEN}[最新]${NC}"
+        fi
+        
+        printf "  %-6s %-20s %-10s %b\n" "$index" "$backup_time" "$backup_size" "$latest_marker"
+        index=$((index + 1))
+    done
+    
+    echo ""
+}
+
+# ===========================================
+# 删除指定备份
+# ===========================================
+remove_backup() {
+    local index="$1"
+    local backup_dir="${BACKUP_DIR:-${APP_HOME}/backup}"
+    
+    local backups=($(ls -dt "${backup_dir}"/*/ 2>/dev/null))
+    
+    if [ ${#backups[@]} -eq 0 ]; then
+        log_warn "无可删除的备份"
+        return 0
+    fi
+    
+    if [ "$index" -lt 1 ] || [ "$index" -gt ${#backups[@]} ]; then
+        log_error "无效的序号: ${index} (有效范围: 1-${#backups[@]})"
+        return 1
+    fi
+    
+    local target="${backups[$((index - 1))]}"
+    
+    echo ""
+    echo -e "${CYAN}删除备份${NC}"
+    echo -e "  目标: ${WHITE}${target}${NC}"
+    
+    rm -rf "$target"
+    log_info "备份已删除"
+    
+    # 如果删除的是最新备份，更新标记
+    local latest=""
+    [ -f "${backup_dir}/latest" ] && latest=$(cat "${backup_dir}/latest" 2>/dev/null)
+    if [ "${target%/}" = "${latest}" ]; then
+        local new_latest=$(ls -dt "${backup_dir}"/*/ 2>/dev/null | head -1)
+        if [ -n "$new_latest" ]; then
+            echo "${new_latest%/}" > "${backup_dir}/latest"
+        else
+            rm -f "${backup_dir}/latest"
+        fi
+    fi
+    echo ""
+}
+
+# ===========================================
+# 清除所有备份
+# ===========================================
+clean_backups() {
+    local backup_dir="${BACKUP_DIR:-${APP_HOME}/backup}"
+    
+    local backups=($(ls -dt "${backup_dir}"/*/ 2>/dev/null))
+    
+    if [ ${#backups[@]} -eq 0 ]; then
+        log_warn "无可清除的备份"
+        return 0
+    fi
+    
+    echo ""
+    echo -e "${CYAN}清除所有备份${NC}"
+    echo -e "  备份目录: ${WHITE}${backup_dir}${NC}"
+    echo -e "  备份数量: ${WHITE}${#backups[@]}${NC}"
+    
+    local total_size=$(du -sh "${backup_dir}" 2>/dev/null | cut -f1)
+    echo -e "  总大小:   ${WHITE}${total_size}${NC}"
+    echo ""
+    
+    read -p "确认清除所有备份? [y/N] " confirm
+    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+        log_info "已取消"
+        return 0
+    fi
+    
+    for backup in "${backups[@]}"; do
+        rm -rf "$backup"
+    done
+    rm -f "${backup_dir}/latest"
+    
+    log_info "已清除 ${#backups[@]} 个备份"
+    echo ""
+}
+
+# ===========================================
 # 参数解析
 # ===========================================
+ACTION="backup"
 TARGET="all"
 TARGET_NODE=""
+DELETE_INDEX=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
+        -l)
+            ACTION="list"
+            shift
+            ;;
+        -d)
+            ACTION="delete"
+            DELETE_INDEX="$2"
+            shift 2
+            ;;
+        --clean)
+            ACTION="clean"
+            shift
+            ;;
         --local)
             TARGET="local"
             shift
@@ -149,6 +302,24 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+# ===========================================
+# 执行列表/删除/清除操作
+# ===========================================
+if [ "$ACTION" = "list" ]; then
+    list_backups
+    exit 0
+fi
+
+if [ "$ACTION" = "delete" ]; then
+    remove_backup "$DELETE_INDEX"
+    exit $?
+fi
+
+if [ "$ACTION" = "clean" ]; then
+    clean_backups
+    exit 0
+fi
 
 # ===========================================
 # 执行备份
