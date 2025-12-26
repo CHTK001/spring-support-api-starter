@@ -291,6 +291,22 @@ public class MonitorSysGenServer extends SysBase {
     private Integer monitorSysGenServerGroupId;
 
     /**
+     * 是否启用连接监控 0:否 1:是
+     */
+    @TableField(value = "monitor_sys_gen_server_connection_monitor_enabled")
+    @ApiModelProperty(value = "是否启用连接监控")
+    @Schema(description = "是否启用连接监控")
+    private Integer monitorSysGenServerConnectionMonitorEnabled;
+
+    /**
+     * 连接监控配置(JSON)
+     */
+    @TableField(value = "monitor_sys_gen_server_connection_monitor_config")
+    @ApiModelProperty(value = "连接监控配置")
+    @Schema(description = "连接监控配置")
+    private String monitorSysGenServerConnectionMonitorConfig;
+
+    /**
      * 判断延迟是否正常 延迟小于100ms认为正常
      */
     public boolean isLatencyNormal() {

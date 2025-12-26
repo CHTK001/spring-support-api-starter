@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.guacamole;
 
+import com.chua.socket.support.session.SocketSession;
 import com.chua.starter.monitor.guacamole.GuacamoleTunnel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +37,7 @@ public class GuacamoleConnectionManager {
     /**
      * 创建连接
      */
-    public com.chua.starter.monitor.guacamole.GuacamoleTunnel createConnection(Integer serverId, WebSocketSession session, Object guacamoleClient) {
+    public com.chua.starter.monitor.guacamole.GuacamoleTunnel createConnection(Integer serverId, SocketSession session, Object guacamoleClient) {
         try {
             String sessionId = session.getId();
             

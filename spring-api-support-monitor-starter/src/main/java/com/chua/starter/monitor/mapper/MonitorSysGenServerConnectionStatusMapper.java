@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务器连接状态Mapper接口
@@ -81,4 +82,67 @@ public interface MonitorSysGenServerConnectionStatusMapper extends BaseMapper<Mo
      * @return 服务器连接状态列表
      */
     List<MonitorSysGenServerConnectionStatus> getLongTimeNoConnectServers(@Param("minutes") Integer minutes);
+
+    /**
+     * 重置服务器连接状态
+     *
+     * @param serverId 服务器ID
+     * @param resetTime 重置时间
+     * @return 更新行数
+     */
+    int resetServerConnectionStatus(@Param("serverId") Integer serverId, @Param("resetTime") LocalDateTime resetTime);
+
+    /**
+     * 批量重置服务器连接状态
+     *
+     * @param serverIds 服务器ID列表
+     * @param resetTime 重置时间
+     * @return 更新行数
+     */
+    int batchResetServerConnectionStatus(@Param("serverIds") List<Integer> serverIds, @Param("resetTime") LocalDateTime resetTime);
+
+    /**
+     * 获取服务器连接趋势数据
+     *
+     * @param serverId 服务器ID
+     * @param hours 小时数
+     * @return 趋势数据列表
+     */
+    List<Map<String, Object>> getServerConnectionTrend(@Param("serverId") Integer serverId, @Param("hours") Integer hours);
+
+    /**
+     * 获取连接失败原因统计
+     *
+     * @param days 天数
+     * @return 失败原因统计列表
+     */
+    List<Map<String, Object>> getConnectionFailureReasons(@Param("days") Integer days);
+
+    /**
+     * 获取连接状态历史记录
+     *
+     * @param serverId 服务器ID
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param offset 偏移量
+     * @param limit 限制数
+     * @return 历史记录列表
+     */
+    List<Map<String, Object>> getServerConnectionStatusHistory(@Param("serverId") Integer serverId,
+                                                               @Param("startTime") String startTime,
+                                                               @Param("endTime") String endTime,
+                                                               @Param("offset") Integer offset,
+                                                               @Param("limit") Integer limit);
+
+    /**
+     * 获取连接状态历史记录总数
+     *
+     * @param serverId 服务器ID
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @return 总数
+     */
+    Long getServerConnectionStatusHistoryCount(@Param("serverId") Integer serverId,
+                                               @Param("startTime") String startTime,
+                                               @Param("endTime") String endTime);
 }
