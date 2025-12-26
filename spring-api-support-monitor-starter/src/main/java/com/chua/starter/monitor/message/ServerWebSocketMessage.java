@@ -366,6 +366,96 @@ public class ServerWebSocketMessage implements Serializable {
     }
 
     /**
+     * 创建RDP连接消息
+     */
+    public static ServerWebSocketMessage createRdpConnectMessage(Integer serverId, String serverName,
+                                                                 String serverHost, Integer serverPort) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_CONNECT).serverId(serverId)
+                .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol("RDP").connectTime(LocalDateTime.now())
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建RDP错误消息
+     */
+    public static ServerWebSocketMessage createRdpErrorMessage(Integer serverId, String serverName,
+                                                               String errorMessage) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.RDP_ERROR).serverId(serverId)
+                .serverName(serverName).errorMessage(errorMessage)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建VNC连接消息
+     */
+    public static ServerWebSocketMessage createVncConnectMessage(Integer serverId, String serverName,
+                                                                 String serverHost, Integer serverPort) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_CONNECT).serverId(serverId)
+                .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol("VNC").connectTime(LocalDateTime.now())
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建VNC错误消息
+     */
+    public static ServerWebSocketMessage createVncErrorMessage(Integer serverId, String serverName,
+                                                               String errorMessage) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.VNC_ERROR).serverId(serverId)
+                .serverName(serverName).errorMessage(errorMessage)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建自定义连接消息
+     */
+    public static ServerWebSocketMessage createCustomConnectMessage(Integer serverId, String serverName,
+                                                                    String serverHost, Integer serverPort, String protocol) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.CUSTOM_CONNECT).serverId(serverId)
+                .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol(protocol).connectTime(LocalDateTime.now())
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建自定义断开连接消息
+     */
+    public static ServerWebSocketMessage createCustomDisconnectMessage(Integer serverId, String serverName,
+                                                                       String reason) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.CUSTOM_DISCONNECT).serverId(serverId)
+                .serverName(serverName).errorMessage(reason)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建自定义数据消息
+     */
+    public static ServerWebSocketMessage createCustomDataMessage(Integer serverId, String serverName, Object data) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.CUSTOM_DATA).serverId(serverId)
+                .serverName(serverName).data(data)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建自定义错误消息
+     */
+    public static ServerWebSocketMessage createCustomErrorMessage(Integer serverId, String serverName,
+                                                                  String errorMessage) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.CUSTOM_ERROR).serverId(serverId)
+                .serverName(serverName).errorMessage(errorMessage)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
      * 消息类型常量
      */
     public static class MessageType {
@@ -398,7 +488,19 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String RDP_INPUT = "rdp_input";
         public static final String RDP_CONNECT = "rdp_connect";
         public static final String RDP_DISCONNECT = "rdp_disconnect";
+        public static final String RDP_RESIZE = "rdp_resize";
         public static final String RDP_ERROR = "rdp_error";
+
+        public static final String VNC_RESIZE = "vnc_resize";
+
+        // 自定义连接相关消息类型
+        public static final String CUSTOM_DATA = "custom_data";
+        public static final String CUSTOM_INPUT = "custom_input";
+        public static final String CUSTOM_CONNECT = "custom_connect";
+        public static final String CUSTOM_DISCONNECT = "custom_disconnect";
+        public static final String CUSTOM_COMMAND = "custom_command";
+        public static final String CUSTOM_RESIZE = "custom_resize";
+        public static final String CUSTOM_ERROR = "custom_error";
 
         // 节点管理相关消息类型
         public static final String NODE_STATUS_UPDATE = "node_status_update";

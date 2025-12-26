@@ -68,10 +68,26 @@ stop_local_instance() {
     
     echo -e "  ${CYAN}→${NC} 停止 ${instance_name} (PID: ${pid})..."
     
+    # 检查是否有权限停止该进程
+    local proc_user=$(ps -o user= -p "$pid" 2>/dev/null | tr -d ' ')
+    local current_user=$(whoami)
+    
+    if [ "$proc_user" != "$current_user" ] && [ "$current_user" != "root" ]; then
+        echo -e "  ${RED}✗${NC} ${instance_name} 无法停止: 进程属于用户 '${proc_user}'，当前用户 '${current_user}' 无权限"
+        echo -e "  ${YELLOW}提示:${NC} 请使用 sudo 或以 root 用户执行"
+        return 1
+    fi
+    
     if [ "$force" = "true" ]; then
-        kill -9 "$pid" 2>/dev/null
+        if ! kill -9 "$pid" 2>&1; then
+            echo -e "  ${RED}✗${NC} ${instance_name} 强制停止失败"
+            return 1
+        fi
     else
-        kill "$pid" 2>/dev/null
+        if ! kill "$pid" 2>&1; then
+            echo -e "  ${RED}✗${NC} ${instance_name} 发送停止信号失败"
+            return 1
+        fi
         
         # 等待进程退出
         local count=0
@@ -82,8 +98,18 @@ stop_local_instance() {
         
         # 如果还在运行，强制停止
         if ps -p "$pid" > /dev/null 2>&1; then
-            kill -9 "$pid" 2>/dev/null
+            if ! kill -9 "$pid" 2>&1; then
+                echo -e "  ${RED}✗${NC} ${instance_name} 强制停止失败"
+                return 1
+            fi
         fi
+    fi
+    
+    # 最终验证进程是否真的停止
+    sleep 0.5
+    if ps -p "$pid" > /dev/null 2>&1; then
+        echo -e "  ${RED}✗${NC} ${instance_name} 停止失败: 进程仍在运行"
+        return 1
     fi
     
     rm -f "$pid_file"
