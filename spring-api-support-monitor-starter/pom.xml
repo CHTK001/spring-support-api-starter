@@ -270,10 +270,12 @@
         </dependency>
 
 
+        <!-- 邮件模块不存在，暂时注释
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-email-starter</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.chua</groupId>

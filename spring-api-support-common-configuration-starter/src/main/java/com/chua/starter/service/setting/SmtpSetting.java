@@ -4,8 +4,10 @@ import com.chua.advanced.support.lang.mail.MailConfiguration;
 import com.chua.advanced.support.lang.mail.MailSender;
 import com.chua.common.support.function.Upgrade;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
-import com.chua.starter.email.support.SpringHtmlMailSender;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Constructor;
 
 /**
  * smtp设置
@@ -13,6 +15,7 @@ import lombok.Data;
  * @since 2024/9/4
  */
 @Data
+@Slf4j
 public class SmtpSetting implements Upgrade<SmtpSetting> {
     /**
      * 发送人
@@ -42,6 +45,7 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
      */
     private volatile boolean isLoaded;
 
+    private static final String SPRING_HTML_MAIL_SENDER_CLASS = "com.chua.starter.email.support.SpringHtmlMailSender";
 
     @Override
     public void upgrade(SmtpSetting smtpSetting) {
@@ -55,10 +59,16 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
         mailConfiguration.setSmtpPort(smtpSetting.getPort());
         mailConfiguration.setUsername(smtpSetting.getFrom());
         try {
-            SpringHtmlMailSender springHtmlMailSender = new SpringHtmlMailSender(mailConfiguration);
-            SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(springHtmlMailSender);
-            setMailSender(springHtmlMailSender);
-        } catch (Exception ignored) {
+            // 使用反射加载，避免硬编码依赖
+            Class<?> mailSenderClass = Class.forName(SPRING_HTML_MAIL_SENDER_CLASS);
+            Constructor<?> constructor = mailSenderClass.getConstructor(MailConfiguration.class);
+            MailSender sender = (MailSender) constructor.newInstance(mailConfiguration);
+            SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(sender);
+            setMailSender(sender);
+        } catch (ClassNotFoundException e) {
+            log.debug("Email module not available: {}", SPRING_HTML_MAIL_SENDER_CLASS);
+        } catch (Exception e) {
+            log.warn("Failed to initialize mail sender: {}", e.getMessage());
         }
     }
 }
