@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.DockerResultCallback;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.entity.SystemSoftImage;
@@ -205,7 +205,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             log.debug("Docker拉取进度: {} - {} ({}%)", pullItem.getStatus(), pullItem.getProgress(), percentage);
 
             // 发送WebSocket消息到 progress-event 事件
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
         } catch (Exception e) {
             log.error("发送Docker进度WebSocket消息失败", e);
@@ -314,7 +314,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             log.info("Docker拉取操作开始 - 镜像: {}", imageName);
 
             // 发送WebSocket消息到 progress-event 事件
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
             // 更新数据库中的镜像状态为拉取中
             updateImageStatus(SystemSoftImageStatus.PULLING, null);
@@ -357,7 +357,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             log.error("Docker拉取操作失败 - 镜像: {}, 错误: {}", imageName, throwable.getMessage(), throwable);
 
             // 发送WebSocket消息到 progress-event 事件
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
             // 更新数据库中的镜像状态为拉取失败，并记录错误信息
             updateImageStatus(SystemSoftImageStatus.PULL_FAILED, throwable.getMessage());
@@ -415,7 +415,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             }
 
             // 发送WebSocket消息到 progress-event 事件
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
             // 如果没有错误，更新数据库中的镜像状态为可用，并补充镜像详细信息
             if (!hasError) {

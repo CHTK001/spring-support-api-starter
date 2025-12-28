@@ -71,14 +71,53 @@ CREATE TABLE `sys_token_blacklist` (
 COMMENT = 'Token黑名单表 - 存储已失效的Token，防止失效Token继续使用' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
+-- 3. OAuth追踪日志表 (sys_oauth_trace_log)
+-- 用途: 记录OAuth认证请求的完整链路追踪信息
+-- =====================================================
+DROP TABLE IF EXISTS `sys_oauth_trace_log`;
+CREATE TABLE `sys_oauth_trace_log` (
+    `sys_trace_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志ID - 主键自增',
+    `sys_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '追踪ID - 贯穿客户端和服务端的唯一标识',
+    `sys_operation_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作类型 - AUTH:认证, LOGIN:登录, LOGOUT:登出, REFRESH:刷新令牌, UPGRADE:升级令牌',
+    `sys_client_app_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端应用名 - 发起请求的应用名称',
+    `sys_client_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端IP - 发起请求的客户端IP地址',
+    `sys_user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户ID - 认证成功后的用户ID',
+    `sys_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名 - 认证成功后的用户名',
+    `sys_request_params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '请求参数 - JSON格式，敏感字段已脱敏',
+    `sys_response_code` int NULL DEFAULT NULL COMMENT '响应码 - HTTP响应状态码或业务码',
+    `sys_success` tinyint(1) NULL DEFAULT 0 COMMENT '是否成功 - 0:失败, 1:成功',
+    `sys_total_cost_ms` bigint NULL DEFAULT NULL COMMENT '总耗时 - 从客户端发起到服务端响应的总耗时(毫秒)',
+    `sys_spans_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'Span详情 - JSON数组，记录各节点的名称和耗时',
+    `sys_error_message` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '错误信息 - 失败时的错误描述',
+    `sys_request_uri` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求URI - 请求的接口路径',
+    `sys_access_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AccessKey - 使用的应用密钥(已脱敏)',
+    `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间 - 日志记录时间',
+    PRIMARY KEY (`sys_trace_log_id`) USING BTREE,
+    INDEX `idx_trace_id` (`sys_trace_id`) USING BTREE COMMENT '追踪ID索引 - 用于关联查询完整链路',
+    INDEX `idx_client_app` (`sys_client_app_name`) USING BTREE COMMENT '客户端应用索引 - 用于按应用统计',
+    INDEX `idx_user_id` (`sys_user_id`) USING BTREE COMMENT '用户ID索引 - 用于查询用户认证历史',
+    INDEX `idx_create_time` (`create_time`) USING BTREE COMMENT '创建时间索引 - 用于时间范围查询和清理',
+    INDEX `idx_success` (`sys_success`) USING BTREE COMMENT '成功状态索引 - 用于统计成功/失败率',
+    INDEX `idx_operation_type` (`sys_operation_type`) USING BTREE COMMENT '操作类型索引 - 用于按类型统计'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+COMMENT = 'OAuth追踪日志表 - 记录认证请求的完整链路追踪信息，用于问题排查和性能分析' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
 -- 定期清理任务说明
 -- =====================================================
 -- 建议配置定时任务定期清理已过期的黑名单记录：
 -- DELETE FROM sys_token_blacklist WHERE sys_expire_time < NOW() - INTERVAL 7 DAY;
 -- 
+-- 建议配置定时任务定期清理追踪日志（保留30天）：
+-- DELETE FROM sys_oauth_trace_log WHERE create_time < NOW() - INTERVAL 30 DAY;
+-- 
 -- 或者使用事件调度器(Event Scheduler)：
 -- CREATE EVENT IF NOT EXISTS cleanup_expired_blacklist
 -- ON SCHEDULE EVERY 1 DAY
 -- DO DELETE FROM sys_token_blacklist WHERE sys_expire_time < NOW() - INTERVAL 7 DAY;
+--
+-- CREATE EVENT IF NOT EXISTS cleanup_trace_logs
+-- ON SCHEDULE EVERY 1 DAY
+-- DO DELETE FROM sys_oauth_trace_log WHERE create_time < NOW() - INTERVAL 30 DAY;
 
 SET FOREIGN_KEY_CHECKS = 1;

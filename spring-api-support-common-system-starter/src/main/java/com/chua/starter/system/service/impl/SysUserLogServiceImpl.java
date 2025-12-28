@@ -26,6 +26,9 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 /**
+ * 用户操作日志服务实现类
+ * <p>提供用户操作日志的记录、查询和删除功能</p>
+ *
  * @author CH
  * @since 2024/8/8
  */
@@ -66,15 +69,17 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         sysUserLog.setSysLogLoginType(userLoggerInfo.getLoginType());
         sysUserLog.setSysLogUa(userLoggerInfo.getUa());
         sysUserLog.setSysLogFingerprint(userLoggerInfo.getFingerprint());
-        sysUserLog.setSysDeptId(1);
+        sysUserLog.setSysDeptId(null);
         try {
             sysUserLog.setCreateBy(Integer.valueOf(userLoggerInfo.getCreateBy()));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            log.debug("创建者ID转换失败: {}", userLoggerInfo.getCreateBy());
         }
         ReturnResult<GeoCity> geoCityReturnResult = null;
         try {
             geoCityReturnResult = iptablesService.transferAddress(sysUserLog.getSysLogIp());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("IP地址转换失败: {}", sysUserLog.getSysLogIp());
         }
         if (null != geoCityReturnResult && geoCityReturnResult.isOk()) {
             sysUserLog.setSysLogAddress(geoCityReturnResult.getData().toString());

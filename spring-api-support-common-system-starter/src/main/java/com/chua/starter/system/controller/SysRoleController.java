@@ -26,7 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +65,7 @@ public class SysRoleController {
     public ReturnResult<List<SysRole>> list() {
         return ReturnResult.ok(sysRoleService.list(
                 Wrappers.<SysRole>lambdaQuery().ne(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN)
-                .eq(SysRole::getSysRoleStatus, 1)
+                .eq(SysRole::getSysRoleStatus, SystemConstant.ROLE_STATUS_ENABLED)
                 .orderByAsc(SysRole::getSysRoleSort)
         ));
     }
@@ -77,7 +77,7 @@ public class SysRoleController {
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long roleId) {
         if (null == roleId) {

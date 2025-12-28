@@ -23,6 +23,7 @@ import com.chua.starter.system.pojo.SmsCodeRequest;
 import com.chua.starter.system.pojo.SmsLoginRequest;
 import com.chua.starter.system.service.SmsCodeService;
 import com.chua.starter.system.service.SysLoginService;
+import static com.chua.starter.system.constant.SystemConstant.USER_STATUS_ENABLED;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             SysUser user = sysUserMapper.selectOne(
                     Wrappers.<SysUser>lambdaQuery()
                             .eq(SysUser::getSysUserPhone, phone)
-                            .eq(SysUser::getSysUserStatus, 1)
+                            .eq(SysUser::getSysUserStatus, USER_STATUS_ENABLED)
             );
             if (user == null) {
                 log.warn("手机号未注册: phone={}", phone);
@@ -184,7 +185,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         SysUser user = sysUserMapper.selectOne(
                 Wrappers.<SysUser>lambdaQuery()
                         .eq(SysUser::getSysUserPhone, phone)
-                        .eq(SysUser::getSysUserStatus, 1)
+                        .eq(SysUser::getSysUserStatus, USER_STATUS_ENABLED)
         );
 
         if (user == null) {

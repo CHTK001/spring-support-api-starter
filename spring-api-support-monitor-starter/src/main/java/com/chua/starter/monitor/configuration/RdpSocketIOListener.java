@@ -8,6 +8,7 @@ import com.chua.socket.support.SocketListener;
 import com.chua.socket.support.annotations.OnEvent;
 import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
@@ -58,26 +59,27 @@ public class RdpSocketIOListener implements SocketListener {
     }
 
     /**
-     * RDP连接事件
+     * RDP连接事件 (remote:rdp:connect)
      */
-    @OnEvent("rdp/connect")
-    public void onConnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Rdp.CONNECT)
+    public void onRemoteRdpConnect(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
-                session.send("rdp/error", ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("服务器ID不能为空"));
                 return;
             }
 
             ServerConnectionService rdpService = getRdpConnectionService();
             if (rdpService == null) {
-                session.send("rdp/error", ReturnResult.illegal("RDP服务不可用"));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP服务不可用"));
                 return;
             }
 
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             if (server == null) {
-                session.send("rdp/error", ReturnResult.illegal("服务器配置不存在"));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("服务器配置不存在"));
                 return;
             }
 
@@ -85,23 +87,56 @@ public class RdpSocketIOListener implements SocketListener {
             if (connected) {
                 sessionServerMap.put(session.getId(), serverId);
                 serverSessionMap.put(serverId, session);
-                session.send("rdp/connected", ReturnResult.success("RDP连接成功"));
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createRdpConnectMessage(
+                        serverId,
+                        server.getMonitorSysGenServerName(),
+                        server.getMonitorSysGenServerHost(),
+                        server.getMonitorSysGenServerPort()
+                );
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Rdp.CONNECT, Json.toJson(response));
+                log.info("RDP连接成功: serverId={}", serverId);
             } else {
-                session.send("rdp/error", ReturnResult.illegal("RDP连接失败"));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP连接失败"));
             }
-
         } catch (Exception e) {
             log.error("RDP连接失败: {}", e.getMessage(), e);
-            session.send("rdp/error", ReturnResult.illegal("RDP连接失败: " + e.getMessage()));
+            session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP连接失败: " + e.getMessage()));
         }
     }
 
     /**
-     * RDP断开连接事件
+     * RDP输入事件 (remote:rdp:input)
      */
-    @OnEvent("rdp/disconnect")
-    public void onDisconnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Rdp.INPUT)
+    public void onRemoteRdpInput(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
+            Integer serverId = data.getInteger("serverId");
+            String inputData = data.getString("data");
+
+            if (serverId == null) {
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("服务器ID不能为空"));
+                return;
+            }
+
+            ServerConnectionService rdpService = getRdpConnectionService();
+            if (rdpService != null) {
+                rdpService.sendData(serverId, inputData);
+            }
+        } catch (Exception e) {
+            log.error("RDP输入失败: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP输入失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * RDP断开事件 (remote:rdp:disconnect)
+     */
+    @OnEvent(MonitorSocketTopics.Remote.Rdp.DISCONNECT)
+    public void onRemoteRdpDisconnect(SocketSession session, String rawData) {
+        try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
                 serverId = sessionServerMap.get(session.getId());
@@ -114,53 +149,30 @@ public class RdpSocketIOListener implements SocketListener {
                 }
                 sessionServerMap.remove(session.getId());
                 serverSessionMap.remove(serverId);
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createRdpDisconnectMessage(
+                        serverId, null, "用户主动断开连接");
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Rdp.DISCONNECT, Json.toJson(response));
+                log.info("RDP连接已断开: serverId={}", serverId);
             }
-
-            session.send("rdp/disconnected", ReturnResult.success("RDP连接已断开"));
-
         } catch (Exception e) {
             log.error("RDP断开连接失败: {}", e.getMessage(), e);
-            session.send("rdp/error", ReturnResult.illegal("RDP断开连接失败: " + e.getMessage()));
         }
     }
 
     /**
-     * RDP数据发送事件
+     * RDP终端大小调整事件 (remote:rdp:resize)
      */
-    @OnEvent("rdp/data")
-    public void onData(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Rdp.RESIZE)
+    public void onRemoteRdpResize(SocketSession session, String rawData) {
         try {
-            Integer serverId = data.getInteger("serverId");
-            String inputData = data.getString("data");
-
-            if (serverId == null) {
-                session.send("rdp/error", ReturnResult.illegal("服务器ID不能为空"));
-                return;
-            }
-
-            ServerConnectionService rdpService = getRdpConnectionService();
-            if (rdpService != null) {
-                rdpService.sendData(serverId, inputData);
-            }
-
-        } catch (Exception e) {
-            log.error("RDP数据发送失败: {}", e.getMessage(), e);
-            session.send("rdp/error", ReturnResult.illegal("RDP数据发送失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * RDP屏幕大小调整事件
-     */
-    @OnEvent("rdp/resize")
-    public void onResize(SocketSession session, JsonObject data) {
-        try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             Integer width = data.getInteger("width");
             Integer height = data.getInteger("height");
 
             if (serverId == null || width == null || height == null) {
-                session.send("rdp/error", ReturnResult.illegal("参数不完整"));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
@@ -168,10 +180,9 @@ public class RdpSocketIOListener implements SocketListener {
             if (rdpService != null) {
                 rdpService.resizeTerminal(serverId, width, height);
             }
-
         } catch (Exception e) {
-            log.error("RDP屏幕大小调整失败: {}", e.getMessage(), e);
-            session.send("rdp/error", ReturnResult.illegal("RDP屏幕大小调整失败: " + e.getMessage()));
+            log.error("RDP终端大小调整失败: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP终端大小调整失败: " + e.getMessage()));
         }
     }
 

@@ -90,8 +90,24 @@ public class SysUserThirdParty extends SysBase implements Serializable {
          */
         GITEE,
         /**
+         * Github
+         */
+        GITHUB,
+        /**
          * 微信小程序
          */
-        WX_MINI_APP
+        WX_MINI_APP,
+        /**
+         * 微信开放平台
+         */
+        WECHAT_OPEN,
+        /**
+         * 钉钉
+         */
+        DINGTALK,
+        /**
+         * 企业微信
+         */
+        WECHAT_ENTERPRISE
     }
 }

@@ -7,6 +7,7 @@ import com.chua.socket.support.SocketListener;
 import com.chua.socket.support.annotations.OnEvent;
 import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
@@ -57,26 +58,27 @@ public class VncSocketIOListener implements SocketListener {
     }
 
     /**
-     * VNC连接事件
+     * VNC连接事件 (remote:vnc:connect)
      */
-    @OnEvent("vnc/connect")
-    public void onConnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Vnc.CONNECT)
+    public void onRemoteVncConnect(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
-                session.send("vnc/error", ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("服务器ID不能为空"));
                 return;
             }
 
             ServerConnectionService vncService = getVncConnectionService();
             if (vncService == null) {
-                session.send("vnc/error", ReturnResult.illegal("VNC服务不可用"));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC服务不可用"));
                 return;
             }
 
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             if (server == null) {
-                session.send("vnc/error", ReturnResult.illegal("服务器配置不存在"));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("服务器配置不存在"));
                 return;
             }
 
@@ -84,23 +86,56 @@ public class VncSocketIOListener implements SocketListener {
             if (connected) {
                 sessionServerMap.put(session.getId(), serverId);
                 serverSessionMap.put(serverId, session);
-                session.send("vnc/connected", ReturnResult.success("VNC连接成功"));
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createVncConnectMessage(
+                        serverId,
+                        server.getMonitorSysGenServerName(),
+                        server.getMonitorSysGenServerHost(),
+                        server.getMonitorSysGenServerPort()
+                );
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Vnc.CONNECT, Json.toJson(response));
+                log.info("VNC连接成功: serverId={}", serverId);
             } else {
-                session.send("vnc/error", ReturnResult.illegal("VNC连接失败"));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC连接失败"));
             }
-
         } catch (Exception e) {
             log.error("VNC连接失败: {}", e.getMessage(), e);
-            session.send("vnc/error", ReturnResult.illegal("VNC连接失败: " + e.getMessage()));
+            session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC连接失败: " + e.getMessage()));
         }
     }
 
     /**
-     * VNC断开连接事件
+     * VNC输入事件 (remote:vnc:input)
      */
-    @OnEvent("vnc/disconnect")
-    public void onDisconnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Vnc.INPUT)
+    public void onRemoteVncInput(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
+            Integer serverId = data.getInteger("serverId");
+            String inputData = data.getString("data");
+
+            if (serverId == null) {
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("服务器ID不能为空"));
+                return;
+            }
+
+            ServerConnectionService vncService = getVncConnectionService();
+            if (vncService != null) {
+                vncService.sendData(serverId, inputData);
+            }
+        } catch (Exception e) {
+            log.error("VNC输入失败: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC输入失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * VNC断开事件 (remote:vnc:disconnect)
+     */
+    @OnEvent(MonitorSocketTopics.Remote.Vnc.DISCONNECT)
+    public void onRemoteVncDisconnect(SocketSession session, String rawData) {
+        try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
                 serverId = sessionServerMap.get(session.getId());
@@ -113,53 +148,30 @@ public class VncSocketIOListener implements SocketListener {
                 }
                 sessionServerMap.remove(session.getId());
                 serverSessionMap.remove(serverId);
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createVncDisconnectMessage(
+                        serverId, null, "用户主动断开连接");
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Vnc.DISCONNECT, Json.toJson(response));
+                log.info("VNC连接已断开: serverId={}", serverId);
             }
-
-            session.send("vnc/disconnected", ReturnResult.success("VNC连接已断开"));
-
         } catch (Exception e) {
             log.error("VNC断开连接失败: {}", e.getMessage(), e);
-            session.send("vnc/error", ReturnResult.illegal("VNC断开连接失败: " + e.getMessage()));
         }
     }
 
     /**
-     * VNC数据发送事件
+     * VNC终端大小调整事件 (remote:vnc:resize)
      */
-    @OnEvent("vnc/data")
-    public void onData(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Vnc.RESIZE)
+    public void onRemoteVncResize(SocketSession session, String rawData) {
         try {
-            Integer serverId = data.getInteger("serverId");
-            String inputData = data.getString("data");
-
-            if (serverId == null) {
-                session.send("vnc/error", ReturnResult.illegal("服务器ID不能为空"));
-                return;
-            }
-
-            ServerConnectionService vncService = getVncConnectionService();
-            if (vncService != null) {
-                vncService.sendData(serverId, inputData);
-            }
-
-        } catch (Exception e) {
-            log.error("VNC数据发送失败: {}", e.getMessage(), e);
-            session.send("vnc/error", ReturnResult.illegal("VNC数据发送失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * VNC屏幕大小调整事件
-     */
-    @OnEvent("vnc/resize")
-    public void onResize(SocketSession session, JsonObject data) {
-        try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             Integer width = data.getInteger("width");
             Integer height = data.getInteger("height");
 
             if (serverId == null || width == null || height == null) {
-                session.send("vnc/error", ReturnResult.illegal("参数不完整"));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
@@ -167,10 +179,9 @@ public class VncSocketIOListener implements SocketListener {
             if (vncService != null) {
                 vncService.resizeTerminal(serverId, width, height);
             }
-
         } catch (Exception e) {
-            log.error("VNC屏幕大小调整失败: {}", e.getMessage(), e);
-            session.send("vnc/error", ReturnResult.illegal("VNC屏幕大小调整失败: " + e.getMessage()));
+            log.error("VNC终端大小调整失败: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC终端大小调整失败: " + e.getMessage()));
         }
     }
 

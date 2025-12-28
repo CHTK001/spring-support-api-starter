@@ -6,6 +6,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.handler.AuthorizationHandler;
+import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
@@ -51,15 +52,29 @@ public final class OauthAuthorization implements Authorization {
         log.info("开始认证: subProtocol={}, hasToken={}, hasUserCode={}", 
                 subProtocol, StringUtils.isNotBlank(token), StringUtils.isNotBlank(userCode));
         
-        // 使用SPI机制选择认证处理器
-        AuthorizationHandler handler = selectAuthorizationHandler();
-        if (handler == null) {
-            log.error("找不到合适的认证处理器: subProtocol={}", subProtocol);
-            return ReturnResult.error("不支持的认证方式");
+        // 获取追踪上下文
+        ServerTraceContext traceContext = ServerTraceContext.current();
+        
+        // Span: 验证Token
+        if (traceContext != null) {
+            traceContext.startSpan("server_validate_token");
         }
         
-        log.info("使用认证处理器: {}", handler.getClass().getSimpleName());
-        return handler.authenticate(authInformation, token, cookie, userCode);
+        try {
+            // 使用SPI机制选择认证处理器
+            AuthorizationHandler handler = selectAuthorizationHandler();
+            if (handler == null) {
+                log.error("找不到合适的认证处理器: subProtocol={}", subProtocol);
+                return ReturnResult.error("不支持的认证方式");
+            }
+            
+            log.info("使用认证处理器: {}", handler.getClass().getSimpleName());
+            return handler.authenticate(authInformation, token, cookie, userCode);
+        } finally {
+            if (traceContext != null) {
+                traceContext.endSpan();
+            }
+        }
     }
     
     /**

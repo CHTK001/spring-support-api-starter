@@ -31,6 +31,8 @@ import com.chua.starter.system.pojo.user.UserLayout;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
+import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.system.properties.SystemSecurityProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +61,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysMenuService sysMenuService;
     final IptablesService iptablesService;
     final SysUserLayoutMapper sysUserLayoutMapper;
+    final SystemSecurityProperties securityProperties;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
@@ -91,7 +94,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        if (1 == sysUser1.getSysUserInSystem()) {
+        if (SystemConstant.IN_SYSTEM_YES == sysUser1.getSysUserInSystem()) {
             return ReturnResult.illegal("系统账号不能删除");
         }
 
@@ -106,9 +109,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         String newPassword = RandomUtils.randomString(8);
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword));
-        sysUser1.setSysUserSalt(RandomUtils.randomString(16));
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser1.getSysUserPassword() + sysUser1.getSysUserSalt()));
+        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
         return ReturnResult.ok();
@@ -122,9 +124,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         String password = RandomUtils.randomString(8);
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(password));
-        sysUser1.setSysUserSalt(RandomUtils.randomString(14));
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser1.getSysUserPassword() + sysUser1.getSysUserSalt()));
+        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
         return ReturnResult.ok(password);
@@ -148,7 +149,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
-            sysUser1.setSysUserSalt(RandomUtils.randomString(14));
+            sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
             sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
@@ -185,11 +186,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         ) > 0L) {
             return ReturnResult.illegal("账号已存在");
         }
-        sysUserUpdate.setSysUserSalt(RandomUtils.randomString(14));
+        sysUserUpdate.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
-        sysUserUpdate.setSysUserInSystem(0);
-        sysUserUpdate.setSysUserDelete(0);
-        sysUserUpdate.setSysUserStatus(1);
+        sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
+        sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
+        sysUserUpdate.setSysUserStatus(SystemConstant.USER_STATUS_ENABLED);
         sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
         sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress());
         if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserLastIp())) {
@@ -238,7 +239,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("当前账号信息异常，请重新登录或者刷新后重试！");
         }
 
-        if(null != sysUser.getSysUserStatus() && sysUser.getSysUserStatus() == 0) {
+        if(null != sysUser.getSysUserStatus() && sysUser.getSysUserStatus() == SystemConstant.USER_STATUS_DISABLED) {
             return ReturnResult.illegal("当前账号已禁用，请联系管理员！");
         }
 
@@ -252,7 +253,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
-            sysUser.setSysUserSalt(RandomUtils.randomString(14));
+            sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空！");
@@ -314,7 +315,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
             
             // 查询数据
-            query.setPageSize(10000); // 限制最大导出数量
+            query.setPageSize(securityProperties.getMaxExportCount()); // 限制最大导出数量
             IPage<SysUserVO> page = pageForUser(query, roles);
             
             for (SysUserVO user : page.getRecords()) {
@@ -328,7 +329,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 String roleNames = user.getUserRoles() != null ? 
                         user.getUserRoles().stream().map(SysRole::getSysRoleName).collect(Collectors.joining(";")) : "";
                 line.append(escapeCsv(roleNames)).append(",");
-                line.append(user.getSysUserStatus() == null ? "" : (user.getSysUserStatus() == 1 ? "启用" : "禁用")).append(",");
+                line.append(user.getSysUserStatus() == null ? "" : (user.getSysUserStatus() == SystemConstant.USER_STATUS_ENABLED ? "启用" : "禁用")).append(",");
                 line.append(escapeCsv(user.getSysUserRemark()));
                 writer.println(line.toString());
             }
@@ -423,15 +424,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     sysUser.setSysDeptId(fields.length > 5 && !fields[5].trim().isEmpty() ? 
                             Integer.parseInt(fields[5].trim()) : null);
                     sysUser.setSysUserStatus(fields.length > 7 && !fields[7].trim().isEmpty() ? 
-                            Integer.parseInt(fields[7].trim()) : 1);
+                            Integer.parseInt(fields[7].trim()) : SystemConstant.USER_STATUS_ENABLED);
                     sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);
                     
                     // 设置默认密码
-                    String defaultPassword = "123456";
-                    sysUser.setSysUserSalt(RandomUtils.randomString(14));
-                    sysUser.setSysUserPassword(DigestUtils.md5Hex(defaultPassword + sysUser.getSysUserSalt()));
-                    sysUser.setSysUserInSystem(0);
-                    sysUser.setSysUserDelete(0);
+                    sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+                    sysUser.setSysUserPassword(DigestUtils.md5Hex(securityProperties.getDefaultImportPassword() + sysUser.getSysUserSalt()));
+                    sysUser.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
+                    sysUser.setSysUserDelete(SystemConstant.NOT_DELETED);
                     
                     save(sysUser);
                     
