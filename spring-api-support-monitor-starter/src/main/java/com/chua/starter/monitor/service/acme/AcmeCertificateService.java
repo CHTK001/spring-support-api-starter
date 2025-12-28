@@ -69,4 +69,12 @@ public interface AcmeCertificateService {
      * 检查并续签即将到期的证书（定时任务调用）
      */
     void checkAndRenewSoonExpired();
+
+    /**
+     * 重新验证证书 ForCert（用户手动部署完成后调用）
+     *
+     * @param certId 证书ID
+     * @return 是否提交成功
+     */
+    ReturnResult<Boolean> retryValidationForCert(Integer certId);
 }

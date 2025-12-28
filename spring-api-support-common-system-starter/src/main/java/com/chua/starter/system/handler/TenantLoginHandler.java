@@ -9,6 +9,7 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.service.impl.SysLoginServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,7 +57,7 @@ public class TenantLoginHandler extends DefaultLoginHandler {
             return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
         }
 
-        if (accessToken.getCode() != 200) {
+        if (accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
             return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
         }
 

@@ -57,4 +57,11 @@ public class MonitorSpiderData implements Serializable {
      */
     @ApiModelProperty("爬取时间")
     private LocalDateTime crawlTime;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("创建时间")
+    private LocalDateTime createTime;
 }

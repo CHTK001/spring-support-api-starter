@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.docker;
 
 import com.chua.common.support.json.Json;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -79,7 +79,7 @@ public class SystemSoftContainerWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_STATUS, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_STATUS, Json.toJson(message));
             log.debug("推送容器状态变更: containerId={}, status={}", containerId, status);
 
         } catch (Exception e) {
@@ -119,7 +119,7 @@ public class SystemSoftContainerWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_LOG, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG, Json.toJson(message));
             log.debug("推送容器日志: containerId={}, logType={}, contentLength={}",
                     containerId, logType, logContent.length());
 
@@ -163,7 +163,7 @@ public class SystemSoftContainerWebSocketService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Docker.CONTAINER_EVENTS, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_EVENTS, Json.toJson(message));
             log.debug("推送容器事件: containerId={}, eventType={}, success={}",
                     containerId, eventType, success);
 
@@ -180,10 +180,10 @@ public class SystemSoftContainerWebSocketService {
      */
     public Map<String, String> getTopics() {
         Map<String, String> topics = new HashMap<>();
-        topics.put("containerStatus", SocketTopics.Monitor.Docker.CONTAINER_STATUS);
-        topics.put("containerLogs", SocketTopics.Monitor.Docker.CONTAINER_LOG);
-        topics.put("containerStatistics", SocketTopics.Monitor.Docker.CONTAINER_STATISTICS);
-        topics.put("containerEvents", SocketTopics.Monitor.Docker.CONTAINER_EVENTS);
+        topics.put("containerStatus", MonitorSocketTopics.Monitor.Docker.CONTAINER_STATUS);
+        topics.put("containerLogs", MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG);
+        topics.put("containerStatistics", MonitorSocketTopics.Monitor.Docker.CONTAINER_STATISTICS);
+        topics.put("containerEvents", MonitorSocketTopics.Monitor.Docker.CONTAINER_EVENTS);
         return topics;
     }
 

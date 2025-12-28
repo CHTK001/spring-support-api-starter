@@ -57,4 +57,28 @@ public class AcmeCertificateDetailVo {
     @ApiModelProperty("是否即将到期")
     @Schema(description = "是否即将到期")
     private Boolean soonExpiring;
+
+    /**
+     * curl 自检命令列表（用于验证HTTP-01挑战是否可访问）
+     */
+    @ApiModelProperty("curl 自检命令列表")
+    @Schema(description = "curl 自检命令列表，用于验证HTTP-01挑战是否可从外网访问")
+    private java.util.List<String> curlCommands;
+
+    /**
+     * 当前步骤（用于前端展示申请流程）
+     * 1 - 提交申请（pending）
+     * 2 - 等待验证（validating）
+     * 3 - 签发完成（valid）或失败/吐销（failed/revoked/expired）
+     */
+    @ApiModelProperty("当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")
+    @Schema(description = "当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")
+    private Integer currentStep;
+
+    /**
+     * 步骤描述（当前步骤的中文描述）
+     */
+    @ApiModelProperty("步骤描述")
+    @Schema(description = "当前步骤的中文描述")
+    private String stepDescription;
 }

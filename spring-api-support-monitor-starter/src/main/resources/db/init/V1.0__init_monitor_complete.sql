@@ -231,6 +231,8 @@ CREATE TABLE `monitor_acme_certificate`  (
   `acme_cert_chain_pem` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '证书PEM（含链）',
   `acme_cert_key_pem` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '私钥PEM',
   `acme_cert_last_error` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '最近错误',
+  `acme_cert_deploy_mode` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'manual' COMMENT '部署模式：local(本机自动)/manual(手动)',
+  `acme_cert_webroot_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '本机模式webroot路径',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
@@ -2966,5 +2968,51 @@ CREATE TABLE `monitor_spider_log` (
   KEY `idx_task_id` (`spider_task_id`),
   KEY `idx_log_time` (`spider_log_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬虫日志表';
+
+-- ==================== 系统软件操作日志表 ====================
+DROP TABLE IF EXISTS `system_soft_operation_log`;
+CREATE TABLE `system_soft_operation_log` (
+  `log_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+  `operation_id` VARCHAR(64) DEFAULT NULL COMMENT '操作ID（UUID，用于关联同一操作的多条日志）',
+  `operation_type` VARCHAR(50) DEFAULT NULL COMMENT '操作类型（PULL_IMAGE/CREATE_CONTAINER/START_CONTAINER/STOP_CONTAINER/REMOVE_CONTAINER等）',
+  `operation_target` VARCHAR(255) DEFAULT NULL COMMENT '操作目标（镜像名/容器名）',
+  `container_id` INT DEFAULT NULL COMMENT '关联的容器ID',
+  `image_id` INT DEFAULT NULL COMMENT '关联的镜像ID',
+  `soft_id` INT DEFAULT NULL COMMENT '关联的软件ID',
+  `server_id` INT DEFAULT NULL COMMENT '关联的服务器ID',
+  `record_id` INT DEFAULT NULL COMMENT '关联的操作记录ID',
+  `log_level` VARCHAR(20) DEFAULT 'INFO' COMMENT '日志级别（INFO/WARN/ERROR/DEBUG）',
+  `log_message` VARCHAR(5000) DEFAULT NULL COMMENT '日志消息',
+  `log_detail` TEXT DEFAULT NULL COMMENT '日志详情（JSON格式，存储进度、状态等详细信息）',
+  `progress` INT DEFAULT 0 COMMENT '操作进度（0-100）',
+  `status` VARCHAR(20) DEFAULT NULL COMMENT '操作状态（PENDING/RUNNING/SUCCESS/FAILED/CANCELLED）',
+  `docker_status` VARCHAR(100) DEFAULT NULL COMMENT 'Docker响应状态',
+  `docker_progress` VARCHAR(500) DEFAULT NULL COMMENT 'Docker响应进度信息',
+  `error_message` VARCHAR(2000) DEFAULT NULL COMMENT '错误信息',
+  `error_stack` TEXT DEFAULT NULL COMMENT '错误堆栈',
+  `log_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '日志时间',
+  `start_time` DATETIME DEFAULT NULL COMMENT '操作开始时间',
+  `end_time` DATETIME DEFAULT NULL COMMENT '操作结束时间',
+  `duration` BIGINT DEFAULT NULL COMMENT '操作耗时（毫秒）',
+  `operator` VARCHAR(100) DEFAULT NULL COMMENT '操作用户',
+  `client_ip` VARCHAR(50) DEFAULT NULL COMMENT '客户端IP',
+  `ext_data` TEXT DEFAULT NULL COMMENT '扩展字段（JSON格式）',
+  `create_name` VARCHAR(255) DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` INT DEFAULT NULL COMMENT '创建人',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_name` VARCHAR(255) DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` INT DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`log_id`),
+  INDEX `idx_operation_id` (`operation_id`),
+  INDEX `idx_operation_type` (`operation_type`),
+  INDEX `idx_container_id` (`container_id`),
+  INDEX `idx_image_id` (`image_id`),
+  INDEX `idx_server_id` (`server_id`),
+  INDEX `idx_record_id` (`record_id`),
+  INDEX `idx_status` (`status`),
+  INDEX `idx_log_time` (`log_time`),
+  INDEX `idx_log_level` (`log_level`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统软件操作日志表';
 
 SET FOREIGN_KEY_CHECKS = 1;

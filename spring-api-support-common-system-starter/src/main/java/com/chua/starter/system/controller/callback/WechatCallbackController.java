@@ -16,6 +16,7 @@ import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.service.SysLoginCallbackService;
@@ -67,6 +68,7 @@ public class WechatCallbackController {
     final SysLoginService sysLoginService;
     final SysSettingService sysSettingService;
     final AuthClientProperties authProperties;
+    final SystemSecurityProperties securityProperties;
 
     /**
      * 微信账号绑定回调
@@ -227,7 +229,7 @@ public class WechatCallbackController {
 
         RedirectView view = new RedirectView();
         String nanoTime = StringUtils.padAfter(System.nanoTime() + "", 16, "0");
-        String encrypt = DigestUtils.aesEncrypt(Json.toJson(loginResult), "1234567890Oil#@1");
+        String encrypt = DigestUtils.aesEncrypt(Json.toJson(loginResult), securityProperties.getThirdPartyCallbackKey());
         response.setHeader("x-response-time", nanoTime);
         view.addStaticAttribute("redirectParam", encrypt);
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));

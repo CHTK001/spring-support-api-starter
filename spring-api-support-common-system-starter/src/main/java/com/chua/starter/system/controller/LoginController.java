@@ -4,7 +4,7 @@ import com.chua.common.support.constant.Action;
 import com.chua.common.support.task.debounce.Debounce;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
-import com.chua.starter.common.support.annotations.UserLogger;
+import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
@@ -68,7 +68,7 @@ public class LoginController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     @SysLog
-    @UserLogger(module = "LOGIN",
+    @UserLog(module = "LOGIN",
             name = "用户登录",
             action = Action.LOGIN,
             loginType = "WEB",
@@ -102,7 +102,7 @@ public class LoginController {
     }
 
     @Operation(summary = "注销")
-    @UserLogger(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
     public ReturnResult<String> logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {

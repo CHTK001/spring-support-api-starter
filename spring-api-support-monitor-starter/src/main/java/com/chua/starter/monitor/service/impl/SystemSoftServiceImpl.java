@@ -14,7 +14,7 @@ import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.docker.support.online.*;
 import com.chua.socket.support.session.SocketSessionTemplate;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.callback.StatusUpdatingWebSocketDockerPullCallback;
 import com.chua.starter.monitor.entity.*;
 import com.chua.starter.monitor.enums.OperationType;
@@ -1414,7 +1414,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             data.put("message", message);
             data.put("timestamp", System.currentTimeMillis());
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Software.SYNC_PROGRESS, data);
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Software.SYNC_PROGRESS, data);
         } catch (Exception e) {
             log.error("推送同步进度失败", e);
         }
@@ -1436,7 +1436,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             data.put("errorCount", errorCount);
             data.put("timestamp", System.currentTimeMillis());
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Operation.COMPLETE, data);
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Operation.COMPLETE, data);
         } catch (Exception e) {
             log.error("推送同步完成失败", e);
         }

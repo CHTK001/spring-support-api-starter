@@ -1,7 +1,6 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
@@ -10,8 +9,12 @@ import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
+import com.chua.starter.oauth.sso.support.core.OAuth2CoreService;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
+import com.chua.starter.system.service.SysAppKeyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +26,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -55,38 +60,149 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
     private final AuthServerProperties authServerProperties;
     private final LoginCheck loginCheck;
     private final ApplicationContext applicationContext;
+    private final SysAppKeyService sysAppKeyService;
+    private final OAuth2CoreService oAuth2CoreService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("OAuth 2.0 协议服务已启动");
     }
 
+    // ==================== 授权端点 (Authorization Endpoint) ====================
+
+    /**
+     * OAuth 2.0 授权端点
+     * <p>
+     * 支持 authorization_code 授权流程，包括 PKCE 扩展。
+     * 用户需要先登录，然后调用此端点获取授权码。
+     * </p>
+     */
+    @GetMapping("/authorize")
+    @Operation(summary = "授权端点", description = "获取授权码，支持 PKCE")
+    public void authorize(
+            @Parameter(description = "响应类型") @RequestParam("response_type") String responseType,
+            @Parameter(description = "客户端ID") @RequestParam("client_id") String clientId,
+            @Parameter(description = "回调地址") @RequestParam("redirect_uri") String redirectUri,
+            @Parameter(description = "权限范围") @RequestParam(value = "scope", required = false) String scope,
+            @Parameter(description = "状态码") @RequestParam(value = "state", required = false) String state,
+            @Parameter(description = "PKCE code_challenge") @RequestParam(value = "code_challenge", required = false) String codeChallenge,
+            @Parameter(description = "PKCE 方法") @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
+            @RequestHeader(value = "x-oauth-token", required = false) String token,
+            HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+
+        log.info("OAuth2 授权请求: clientId={}, responseType={}, scope={}", clientId, responseType, scope);
+
+        // 验证 response_type
+        if (!"code".equals(responseType)) {
+            sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
+            return;
+        }
+
+        // 验证客户端存在
+        var appKey = sysAppKeyService.getByAppId(clientId);
+        if (appKey == null) {
+            sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
+            return;
+        }
+
+        // 验证 redirect_uri
+        if (!oAuth2CoreService.isRedirectUriValid(clientId, redirectUri)) {
+            sendAuthorizeError(response, redirectUri, state, "invalid_request", "无效的回调地址");
+            return;
+        }
+
+        // 验证 grant_type
+        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
+            sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
+            return;
+        }
+
+        // 验证 scope
+        OAuth2CoreService.ScopeValidationResult scopeResult = oAuth2CoreService.validateScope(clientId, scope);
+        if (!scopeResult.valid()) {
+            sendAuthorizeError(response, redirectUri, state, "invalid_scope", scopeResult.errorMessage());
+            return;
+        }
+
+        // 验证用户已登录
+        TokenResolver tokenResolver = getTokenResolver();
+        if (tokenResolver == null || StringUtils.isBlank(token)) {
+            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录");
+            return;
+        }
+
+        ReturnResult<UserResume> userResult = tokenResolver.resolve(null, token);
+        if (!userResult.isOk() || userResult.getData() == null) {
+            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录或令牌已过期");
+            return;
+        }
+
+        UserResume user = userResult.getData();
+
+        // 生成授权码
+        String code = oAuth2CoreService.generateAuthorizationCode(
+                clientId, redirectUri, scope, state,
+                codeChallenge, codeChallengeMethod,
+                user.getUserId(), user.getUsername());
+
+        // 重定向到回调地址
+        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                .queryParam("code", code)
+                .queryParamIfPresent("state", Optional.ofNullable(state))
+                .build().toUriString();
+
+        log.info("OAuth2 授权成功: clientId={}, userId={}", clientId, user.getUserId());
+        response.sendRedirect(redirectUrl);
+    }
+
+    /**
+     * 发送授权错误重定向
+     */
+    private void sendAuthorizeError(HttpServletResponse response, String redirectUri,
+                                    String state, String error, String description) throws Exception {
+        if (StringUtils.isBlank(redirectUri)) {
+            response.setStatus(400);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.getWriter().write("{\"error\":\"" + error + "\",\"error_description\":\"" + description + "\"}");
+            return;
+        }
+
+        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                .queryParam("error", error)
+                .queryParam("error_description", URLEncoder.encode(description, StandardCharsets.UTF_8))
+                .queryParamIfPresent("state", Optional.ofNullable(state))
+                .build().toUriString();
+
+        response.sendRedirect(redirectUrl);
+    }
+
+    // ==================== 令牌端点 (Token Endpoint) ====================
+
     /**
      * OAuth 2.0 Token端点
-     * <p>
-     * 支持的授权类型（grant_type）：
-     * - client_credentials: 客户端凭据模式
-     * - password: 资源所有者密码凭据模式
-     * - refresh_token: 刷新令牌模式
-     * </p>
      */
     @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    @Operation(summary = "令牌端点", description = "获取访问令牌")
     public Map<String, Object> token(
-            @RequestParam("grant_type") String grantType,
-            @RequestParam(value = "client_id", required = false) String clientId,
-            @RequestParam(value = "client_secret", required = false) String clientSecret,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "refresh_token", required = false) String refreshToken,
-            @RequestParam(value = "scope", required = false) String scope,
+            @Parameter(description = "授权类型") @RequestParam("grant_type") String grantType,
+            @Parameter(description = "客户端ID") @RequestParam(value = "client_id", required = false) String clientId,
+            @Parameter(description = "客户端密钥") @RequestParam(value = "client_secret", required = false) String clientSecret,
+            @Parameter(description = "用户名") @RequestParam(value = "username", required = false) String username,
+            @Parameter(description = "密码") @RequestParam(value = "password", required = false) String password,
+            @Parameter(description = "刷新令牌") @RequestParam(value = "refresh_token", required = false) String refreshToken,
+            @Parameter(description = "权限范围") @RequestParam(value = "scope", required = false) String scope,
+            @Parameter(description = "授权码") @RequestParam(value = "code", required = false) String code,
+            @Parameter(description = "回调地址") @RequestParam(value = "redirect_uri", required = false) String redirectUri,
+            @Parameter(description = "PKCE code_verifier") @RequestParam(value = "code_verifier", required = false) String codeVerifier,
             HttpServletRequest request,
             HttpServletResponse response) {
 
         log.info("OAuth2 Token请求 - grant_type: {}, client_id: {}", grantType, clientId);
 
-        // 从Authorization头解析Basic认证
+        // 从 Authorization头解析Basic认证
         if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
             String[] credentials = extractBasicCredentials(request);
             if (credentials != null) {
@@ -95,14 +211,33 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
             }
         }
 
-        // 验证客户端凭据
-        if (!validateClientCredentials(clientId, clientSecret)) {
-            response.setStatus(401);
-            return buildErrorResponse("invalid_client", "客户端认证失败");
+        // 验证授权类型是否允许
+        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, grantType)) {
+            response.setStatus(400);
+            return buildErrorResponse("unauthorized_client", "客户端未授权使用此授权类型: " + grantType);
         }
 
-        // 根据grant_type处理不同的授权模式
+        // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
+        if (!"authorization_code".equalsIgnoreCase(grantType)) {
+            // 验证客户端凭据
+            if (!validateClientCredentials(clientId, clientSecret)) {
+                response.setStatus(401);
+                return buildErrorResponse("invalid_client", "客户端认证失败");
+            }
+        }
+
+        // 验证 scope
+        if (StringUtils.isNotBlank(scope)) {
+            OAuth2CoreService.ScopeValidationResult scopeResult = oAuth2CoreService.validateScope(clientId, scope);
+            if (!scopeResult.valid()) {
+                response.setStatus(400);
+                return buildErrorResponse("invalid_scope", scopeResult.errorMessage());
+            }
+        }
+
+        // 根据 grant_type处理不同的授权模式
         return switch (grantType.toLowerCase()) {
+            case "authorization_code" -> handleAuthorizationCode(code, redirectUri, codeVerifier, clientId, clientSecret, scope, response);
             case "client_credentials" -> handleClientCredentials(clientId, scope, response);
             case "password" -> handlePasswordGrant(username, password, scope, request, response);
             case "refresh_token" -> handleRefreshToken(refreshToken, scope, response);
@@ -111,6 +246,67 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
                 yield buildErrorResponse("unsupported_grant_type", "不支持的授权类型: " + grantType);
             }
         };
+    }
+
+    /**
+     * 处理授权码模式
+     */
+    private Map<String, Object> handleAuthorizationCode(String code, String redirectUri, String codeVerifier,
+                                                        String clientId, String clientSecret, String scope,
+                                                        HttpServletResponse response) {
+        log.debug("处理authorization_code授权 - clientId: {}", clientId);
+
+        if (StringUtils.isBlank(code)) {
+            response.setStatus(400);
+            return buildErrorResponse("invalid_request", "缺少授权码");
+        }
+
+        if (StringUtils.isBlank(redirectUri)) {
+            response.setStatus(400);
+            return buildErrorResponse("invalid_request", "缺少回调地址");
+        }
+
+        // 验证并消费授权码
+        OAuth2CoreService.AuthorizationCodeData codeData = oAuth2CoreService.validateAndConsumeCode(
+                code, clientId, redirectUri, codeVerifier);
+
+        if (codeData == null) {
+            response.setStatus(400);
+            return buildErrorResponse("invalid_grant", "授权码无效或已过期");
+        }
+
+        // 如果没有使用 PKCE，需要验证 client_secret
+        if (StringUtils.isBlank(codeVerifier) && !validateClientCredentials(clientId, clientSecret)) {
+            response.setStatus(401);
+            return buildErrorResponse("invalid_client", "客户端认证失败");
+        }
+
+        // 为用户创建 Token
+        TokenResolver tokenResolver = getTokenResolver();
+        if (tokenResolver == null) {
+            response.setStatus(500);
+            return buildErrorResponse("server_error", "Token管理器不可用");
+        }
+
+        UserResult userResult = new UserResult();
+        userResult.setUserId(codeData.userId());
+        userResult.setUsername(codeData.username());
+        userResult.setUid(codeData.userId());
+        userResult.setLoginType("AUTHORIZATION_CODE");
+
+        Map<String, Object> ext = new HashMap<>();
+        ext.put("scope", codeData.scope());
+        ext.put("clientId", clientId);
+        ext.put("loginTime", System.currentTimeMillis());
+        userResult.setExt(ext);
+
+        ReturnResult<LoginResult> result = tokenResolver.createToken(null, userResult, "AUTHORIZATION_CODE");
+        if (!result.isOk()) {
+            response.setStatus(500);
+            return buildErrorResponse("server_error", result.getMsg());
+        }
+
+        return buildTokenResponse(result.getData(), codeData.scope());
     }
 
     /**
@@ -358,10 +554,14 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
         metadata.put("userinfo_endpoint", baseUrl + "/oauth2/userinfo");
 
         metadata.put("grant_types_supported", Arrays.asList(
+                "authorization_code",
                 "client_credentials",
                 "password",
                 "refresh_token"
         ));
+
+        metadata.put("authorization_endpoint", baseUrl + "/oauth2/authorize");
+        metadata.put("code_challenge_methods_supported", Arrays.asList("S256", "plain"));
 
         metadata.put("token_endpoint_auth_methods_supported", Arrays.asList(
                 "client_secret_basic",
@@ -381,8 +581,36 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
                 .getExtension(authServerProperties.getTokenManagement());
     }
 
+    /**
+     * 验证客户端凭据
+     * <p>
+     * 通过 SysAppKeyService 查询数据库验证 client_id 和 client_secret
+     * </p>
+     *
+     * @param clientId     客户端ID (appId)
+     * @param clientSecret 客户端密钥 (appSecret)
+     * @return 是否验证通过
+     */
     private boolean validateClientCredentials(String clientId, String clientSecret) {
-        return StringUtils.isNotBlank(clientId) && StringUtils.isNotBlank(clientSecret);
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+            return false;
+        }
+        
+        try {
+            // 使用 SysAppKeyService 验证客户端凭据
+            boolean verified = sysAppKeyService.verify(clientId, clientSecret);
+            if (verified) {
+                // 验证通过后更新使用信息
+                sysAppKeyService.updateUseInfo(clientId);
+                log.debug("OAuth2客户端验证通过: clientId={}", clientId);
+            } else {
+                log.warn("OAuth2客户端验证失败: clientId={}", clientId);
+            }
+            return verified;
+        } catch (Exception e) {
+            log.error("OAuth2客户端验证异常: clientId={}, error={}", clientId, e.getMessage());
+            return false;
+        }
     }
 
     private String[] extractBasicCredentials(HttpServletRequest request) {

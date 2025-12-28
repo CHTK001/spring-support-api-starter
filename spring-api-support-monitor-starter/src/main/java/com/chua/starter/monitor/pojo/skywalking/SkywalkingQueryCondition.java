@@ -84,6 +84,10 @@ public class SkywalkingQueryCondition {
     @Schema(description = "关键词")
     private String keyword;
 
+    @ApiModelProperty("限制数量")
+    @Schema(description = "限制数量")
+    private Integer limit;
+
     /**
      * 获取分页偏移量
      */
@@ -92,12 +96,5 @@ public class SkywalkingQueryCondition {
             return 0;
         }
         return (pageNum - 1) * pageSize;
-    }
-
-    /**
-     * 获取每页大小，默认20
-     */
-    public Integer getLimit() {
-        return pageSize != null ? pageSize : 20;
     }
 }

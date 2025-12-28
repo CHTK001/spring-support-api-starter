@@ -216,6 +216,12 @@
             <artifactId>utils-support-ssh-starter</artifactId>
         </dependency>
 
+        <!-- 远程桌面支持模块 (自定义实现) -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-remote-starter</artifactId>
+        </dependency>
+
         <!-- Apache Guacamole Common -->
         <dependency>
             <groupId>org.apache.guacamole</groupId>

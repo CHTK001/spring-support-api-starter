@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ACME 证书服务实现
@@ -101,12 +102,15 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         String challenge = StringUtils.defaultString(request.getChallengeType(), "HTTP-01");
 
         // 新建证书记录（pending）
+        String deployMode = StringUtils.defaultString(request.getDeployMode(), "manual");
         MonitorAcmeCertificate cert = new MonitorAcmeCertificate();
         cert.setAcmeAccountId(request.getAcmeAccountId());
         cert.setAcmeCertPrimaryDomain(request.getPrimaryDomain());
         cert.setAcmeCertSan(sanStr);
         cert.setAcmeCertChallengeType(challenge);
         cert.setAcmeCertStatus("pending");
+        cert.setAcmeCertDeployMode(deployMode);
+        cert.setAcmeCertWebrootPath(request.getWebrootPath());
         certificateMapper.insert(cert);
         int certId = cert.getAcmeCertId();
 
@@ -268,9 +272,38 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
 
         // 查询关联订单
-        vo.setOrders(orderMapper.selectList(new LambdaQueryWrapper<MonitorAcmeOrder>()
+        List<MonitorAcmeOrder> orders = orderMapper.selectList(new LambdaQueryWrapper<MonitorAcmeOrder>()
                 .eq(MonitorAcmeOrder::getAcmeCertId, certId)
-                .orderByDesc(MonitorAcmeOrder::getUpdateTime)));
+                .orderByDesc(MonitorAcmeOrder::getUpdateTime));
+        vo.setOrders(orders);
+
+        // 生成curl自检命令（仅对待验证状态且HTTP-01挑战类型）
+        if ("validating".equals(cert.getAcmeCertStatus()) && "HTTP-01".equals(cert.getAcmeCertChallengeType())) {
+            List<String> curlCommands = new ArrayList<>();
+            if (!orders.isEmpty()) {
+                MonitorAcmeOrder latestOrder = orders.get(0);
+                String authzUrlsJson = latestOrder.getAcmeAuthzUrls();
+                if (StringUtils.isNotEmpty(authzUrlsJson)) {
+                    try {
+                        List<Map<String, Object>> validations = Json.fromJson(authzUrlsJson, List.class);
+                        if (validations != null) {
+                            for (Map<String, Object> v : validations) {
+                                String domain = (String) v.get("domain");
+                                String httpPath = (String) v.get("httpPath");
+                                if (StringUtils.isNotEmpty(domain) && StringUtils.isNotEmpty(httpPath)) {
+                                    // 生成curl命令，使用-I检查响应头，使用-s静默模式
+                                    String curlCmd = String.format("curl -s -o /dev/null -w '%%{http_code}' http://%s%s", domain, httpPath);
+                                    curlCommands.add(curlCmd);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("[ACME] 解析验证信息JSON失败: certId={}, error={}", certId, e.getMessage());
+                    }
+                }
+            }
+            vo.setCurlCommands(curlCommands);
+        }
 
         // 计算到期天数
         if (StringUtils.isNotEmpty(cert.getAcmeCertNotAfter())) {
@@ -282,6 +315,28 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             } catch (Exception e) {
                 log.warn("[ACME] 解析证书到期时间失败: certId={}, notAfter={}", certId, cert.getAcmeCertNotAfter());
             }
+        }
+
+        // 设置当前步骤信息（用于前端展示申请流程）
+        String status = cert.getAcmeCertStatus();
+        if ("pending".equals(status)) {
+            vo.setCurrentStep(1);
+            vo.setStepDescription("第1步: 提交申请 - 正在连接 ACME 服务器...");
+        } else if ("validating".equals(status)) {
+            vo.setCurrentStep(2);
+            vo.setStepDescription("第2步: 等待验证 - 请部署验证文件后点击重新验证");
+        } else if ("valid".equals(status)) {
+            vo.setCurrentStep(3);
+            vo.setStepDescription("第3步: 签发完成 - 证书已成功签发");
+        } else if ("failed".equals(status)) {
+            vo.setCurrentStep(3);
+            vo.setStepDescription("第3步: 签发失败 - " + StringUtils.defaultString(cert.getAcmeCertLastError(), "未知错误"));
+        } else if ("revoked".equals(status)) {
+            vo.setCurrentStep(3);
+            vo.setStepDescription("第3步: 证书已吐销");
+        } else if ("expired".equals(status)) {
+            vo.setCurrentStep(3);
+            vo.setStepDescription("第3步: 证书已过期");
         }
 
         return ReturnResult.ok(vo);
@@ -348,6 +403,38 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                 log.error("[ACME] 自动续签失败, id={}", it.getAcmeCertId(), e);
             }
         }
+    }
+
+    /**
+     * 重新验证证书 ForCert（用户手动部署完成后调用）
+     *
+     * @param certId 证书ID
+     * @return 是否提交成功
+     */
+    @Override
+    public ReturnResult<Boolean> retryValidationForCert(Integer certId) {
+        MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
+        if (cert == null) {
+            return ReturnResult.illegal("证书不存在: " + certId);
+        }
+        if (!"validating".equals(cert.getAcmeCertStatus())) {
+            return ReturnResult.illegal("证书状态不是待验证，无法重新验证");
+        }
+
+        // 获取当前用户ID用于消息推送
+        Integer userId = null;
+        try {
+            CurrentUser currentUser = authService.getCurrentUser();
+            if (currentUser != null && currentUser.getUserId() != null) {
+                userId = Integer.parseInt(currentUser.getUserId());
+            }
+        } catch (Exception e) {
+            log.warn("[ACME] 获取当前用户失败: {}", e.getMessage());
+        }
+
+        log.info("[ACME] 提交重新验证: certId={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
+        asyncService.retryValidationAsync(certId, userId);
+        return ReturnResult.ok(true, "重新验证已提交，请在消息中心查看进度");
     }
 
     // ======================== 内部工具方法 ========================
