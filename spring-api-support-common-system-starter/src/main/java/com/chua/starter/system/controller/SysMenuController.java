@@ -21,7 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -85,7 +85,7 @@ public class SysMenuController {
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")
     @ApiPlatform("system")
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> delete(Long sysMenuId) {
         if (null == sysMenuId) {

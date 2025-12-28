@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.DS;
+import com.chua.starter.datasource.annotation.DS;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.*;
 import com.chua.starter.video.pojo.VideoInfoResponse;

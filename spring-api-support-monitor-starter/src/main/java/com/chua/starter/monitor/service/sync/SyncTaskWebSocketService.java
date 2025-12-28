@@ -2,6 +2,7 @@ package com.chua.starter.monitor.service.sync;
 
 import com.chua.common.support.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSyncTask;
 import com.chua.starter.monitor.entity.MonitorSyncTaskLog;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -31,10 +32,10 @@ public class SyncTaskWebSocketService {
     /**
      * WebSocket Topic 常量
      */
-    public static final String TOPIC_SYNC_TASK_STATUS = "/monitor/sync/task/status";
-    public static final String TOPIC_SYNC_TASK_LOG = "/monitor/sync/task/log";
-    public static final String TOPIC_SYNC_TASK_PROGRESS = "/monitor/sync/task/progress";
-    public static final String TOPIC_SYNC_TASK_METRICS = "/monitor/sync/task/metrics";
+    public static final String TOPIC_SYNC_TASK_STATUS = MonitorSocketTopics.Monitor.Sync.STATUS;
+    public static final String TOPIC_SYNC_TASK_LOG = MonitorSocketTopics.Monitor.Sync.LOG;
+    public static final String TOPIC_SYNC_TASK_PROGRESS = MonitorSocketTopics.Monitor.Sync.PROGRESS;
+    public static final String TOPIC_SYNC_TASK_METRICS = MonitorSocketTopics.Monitor.Sync.METRICS;
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 

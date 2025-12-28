@@ -322,4 +322,257 @@ public class MonitorSkywalkingDataController {
             return ReturnResult.illegal(e.getMessage());
         }
     }
+
+    // ==================== 自定义查询 API ====================
+
+    /**
+     * 执行自定义 GraphQL 查询
+     */
+    @PostMapping("/custom/query")
+    @Operation(summary = "执行自定义 GraphQL 查询")
+    @ApiOperation("执行自定义 GraphQL 查询")
+    public ReturnResult<Object> executeCustomQuery(@RequestBody SkywalkingCustomQuery request) {
+        try {
+            if (request.getConfigId() == null) {
+                return ReturnResult.illegal("配置ID不能为空");
+            }
+            if (request.getQuery() == null || request.getQuery().trim().isEmpty()) {
+                return ReturnResult.illegal("查询语句不能为空");
+            }
+            
+            MonitorSkywalkingConfig config = getConfig(request.getConfigId());
+            
+            // 记录查询日志
+            if (request.getQueryName() != null) {
+                log.info("执行自定义 SkyWalking 查询: {}", request.getQueryName());
+            }
+            
+            Object result = skywalkingGraphQLService.executeCustomQuery(
+                    config, 
+                    request.getQuery(), 
+                    request.getVariables()
+            );
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("执行自定义查询失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取 GraphQL Schema
+     */
+    @GetMapping("/custom/schema")
+    @Operation(summary = "获取 SkyWalking GraphQL Schema")
+    @ApiOperation("获取 SkyWalking GraphQL Schema")
+    public ReturnResult<Object> getGraphQLSchema(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            Object schema = skywalkingGraphQLService.getGraphQLSchema(config);
+            return ReturnResult.ok(schema);
+        } catch (Exception e) {
+            log.error("获取 GraphQL Schema 失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取可用的查询列表
+     */
+    @GetMapping("/custom/queries")
+    @Operation(summary = "获取可用的查询列表")
+    @ApiOperation("获取可用的查询列表")
+    public ReturnResult<Object> getAvailableQueries(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            Object queries = skywalkingGraphQLService.getAvailableQueries(config);
+            return ReturnResult.ok(queries);
+        } catch (Exception e) {
+            log.error("获取可用查询列表失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取可用的指标名称列表
+     */
+    @GetMapping("/custom/metrics")
+    @Operation(summary = "获取可用的指标名称列表")
+    @ApiOperation("获取可用的指标名称列表")
+    public ReturnResult<List<String>> getAvailableMetrics(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam(value = "regex", required = false, defaultValue = ".*") @Parameter(description = "正则表达式过滤") @ApiParam("正则表达式过滤") String regex) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            List<String> metrics = skywalkingGraphQLService.getAvailableMetrics(config, regex);
+            return ReturnResult.ok(metrics);
+        } catch (Exception e) {
+            log.error("获取可用指标列表失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    // ==================== 指标查询 API ====================
+
+    /**
+     * 获取服务指标概览
+     */
+    @GetMapping("/metrics/service/{serviceId}/overview")
+    @Operation(summary = "获取服务指标概览")
+    @ApiOperation("获取服务指标概览")
+    public ReturnResult<SkywalkingMetrics.ServiceOverview> getServiceMetricsOverview(
+            @PathVariable("serviceId") @Parameter(description = "服务ID") @ApiParam("服务ID") String serviceId,
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setServiceId(serviceId);
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            SkywalkingMetrics.ServiceOverview overview = skywalkingGraphQLService.getServiceMetricsOverview(config, condition);
+            return ReturnResult.ok(overview);
+        } catch (Exception e) {
+            log.error("获取服务指标概览失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取服务指标趋势
+     */
+    @GetMapping("/metrics/service/{serviceId}/trend")
+    @Operation(summary = "获取服务指标趋势")
+    @ApiOperation("获取服务指标趋势")
+    public ReturnResult<SkywalkingMetrics.ServiceTrend> getServiceMetricsTrend(
+            @PathVariable("serviceId") @Parameter(description = "服务ID") @ApiParam("服务ID") String serviceId,
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setServiceId(serviceId);
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            SkywalkingMetrics.ServiceTrend trend = skywalkingGraphQLService.getServiceMetricsTrend(config, condition);
+            return ReturnResult.ok(trend);
+        } catch (Exception e) {
+            log.error("获取服务指标趋势失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取全局指标概览
+     */
+    @GetMapping("/metrics/global/overview")
+    @Operation(summary = "获取全局指标概览")
+    @ApiOperation("获取全局指标概览")
+    public ReturnResult<SkywalkingMetrics.GlobalOverview> getGlobalMetricsOverview(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            SkywalkingMetrics.GlobalOverview overview = skywalkingGraphQLService.getGlobalMetricsOverview(config, condition);
+            return ReturnResult.ok(overview);
+        } catch (Exception e) {
+            log.error("获取全局指标概览失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取全局指标趋势
+     */
+    @GetMapping("/metrics/global/trend")
+    @Operation(summary = "获取全局指标趋势")
+    @ApiOperation("获取全局指标趋势")
+    public ReturnResult<SkywalkingMetrics.ServiceTrend> getGlobalMetricsTrend(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            SkywalkingMetrics.ServiceTrend trend = skywalkingGraphQLService.getGlobalMetricsTrend(config, condition);
+            return ReturnResult.ok(trend);
+        } catch (Exception e) {
+            log.error("获取全局指标趋势失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取慢端点排行
+     */
+    @GetMapping("/metrics/slow-endpoints")
+    @Operation(summary = "获取慢端点排行")
+    @ApiOperation("获取慢端点排行")
+    public ReturnResult<List<SkywalkingMetrics.RankItem>> getSlowEndpoints(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam(value = "serviceId", required = false) @Parameter(description = "服务ID") @ApiParam("服务ID") String serviceId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step,
+            @RequestParam(value = "limit", defaultValue = "10") @Parameter(description = "限制数量") @ApiParam("限制数量") Integer limit) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setServiceId(serviceId);
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            condition.setLimit(limit);
+            List<SkywalkingMetrics.RankItem> items = skywalkingGraphQLService.getSlowEndpoints(config, condition);
+            return ReturnResult.ok(items);
+        } catch (Exception e) {
+            log.error("获取慢端点排行失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取错误率高的服务排行
+     */
+    @GetMapping("/metrics/error-rate-services")
+    @Operation(summary = "获取错误率高的服务排行")
+    @ApiOperation("获取错误率高的服务排行")
+    public ReturnResult<List<SkywalkingMetrics.RankItem>> getErrorRateServices(
+            @RequestParam("configId") @Parameter(description = "配置ID") @ApiParam("配置ID") Integer configId,
+            @RequestParam("startTime") @Parameter(description = "开始时间") @ApiParam("开始时间") String startTime,
+            @RequestParam("endTime") @Parameter(description = "结束时间") @ApiParam("结束时间") String endTime,
+            @RequestParam(value = "step", defaultValue = "MINUTE") @Parameter(description = "步长") @ApiParam("步长") String step,
+            @RequestParam(value = "limit", defaultValue = "10") @Parameter(description = "限制数量") @ApiParam("限制数量") Integer limit) {
+        try {
+            MonitorSkywalkingConfig config = getConfig(configId);
+            SkywalkingQueryCondition condition = new SkywalkingQueryCondition();
+            condition.setStartTime(startTime);
+            condition.setEndTime(endTime);
+            condition.setStep(step);
+            condition.setLimit(limit);
+            List<SkywalkingMetrics.RankItem> items = skywalkingGraphQLService.getErrorRateServices(config, condition);
+            return ReturnResult.ok(items);
+        } catch (Exception e) {
+            log.error("获取错误率高的服务排行失败: {}", e.getMessage(), e);
+            return ReturnResult.illegal(e.getMessage());
+        }
+    }
 }

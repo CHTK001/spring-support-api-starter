@@ -10,12 +10,17 @@ import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.resolver.AkSkDecryptor;
+import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -25,6 +30,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 public abstract class BaseAuthInformation implements AuthInformation {
+
+    /**
+     * 解密结果缓存
+     * key: sign + uuid (签名包含请求内容hash)
+     * value: 解密后的bodyData
+     * 过期时间: 30秒 (短期缓存，防止相同请求重复解密)
+     */
+    private static final Cache<String, Map<String, Object>> DECRYPT_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .recordStats()
+            .build();
 
     protected final AuthServerProperties authServerProperties;
     private final String data;
@@ -109,6 +126,12 @@ public abstract class BaseAuthInformation implements AuthInformation {
         long startTime = System.currentTimeMillis();
         String clientIp = getRemoteAddress(request);
         
+        // 获取追踪上下文
+        ServerTraceContext traceContext = ServerTraceContext.current();
+        if (traceContext != null) {
+            traceContext.startSpan("server_decrypt");
+        }
+        
         // Debug 模式下输出详细信息
         if (OAuthAdminController.isDebugMode()) {
             log.info("【DEBUG】========== 认证数据解析开始 ==========");
@@ -124,6 +147,18 @@ public abstract class BaseAuthInformation implements AuthInformation {
         log.debug("开始解析认证数据, uuid: {}, isEncode: {}, encryption: {}", uuid, isEncode, encryption);
         
         try {
+            // 尝试从缓存获取解密结果
+            String cacheKey = buildDecryptCacheKey();
+            if (cacheKey != null) {
+                Map<String, Object> cached = DECRYPT_CACHE.getIfPresent(cacheKey);
+                if (cached != null) {
+                    this.bodyData.putAll(cached);
+                    success.set(true);
+                    log.debug("使用解密缓存, cacheKey: {}, 字段数: {}", cacheKey.substring(0, 16) + "...", cached.size());
+                    return;
+                }
+            }
+            
             if (!isEncode) {
                 log.debug("未加密模式，直接解析JSON数据");
                 JsonObject jsonObject = Json.getJsonObject(data);
@@ -176,6 +211,12 @@ public abstract class BaseAuthInformation implements AuthInformation {
             if (jsonObject != null) {
                 this.bodyData.putAll(jsonObject);
                 success.set(true);
+                
+                // 缓存解密结果
+                if (cacheKey != null) {
+                    DECRYPT_CACHE.put(cacheKey, new LinkedHashMap<>(bodyData));
+                }
+                
                 log.debug("加密数据解析成功, 字段数: {}, 耗时: {}ms", bodyData.size(), System.currentTimeMillis() - startTime);
                 
                 if (OAuthAdminController.isDebugMode()) {
@@ -192,9 +233,39 @@ public abstract class BaseAuthInformation implements AuthInformation {
             if (OAuthAdminController.isDebugMode()) {
                 log.info("【DEBUG】解析异常: {}", e.getMessage());
             }
+        } finally {
+            // 结束解密 Span
+            if (traceContext != null) {
+                traceContext.endSpan();
+            }
         }
         
         logRequestCompletion(startTime, clientIp);
+    }
+
+    /**
+     * 构建解密缓存key
+     * 基于签名和uuid，因为签名是根据请求内容计算的
+     */
+    private String buildDecryptCacheKey() {
+        if (StringUtils.isBlank(sign) || StringUtils.isBlank(uuid)) {
+            return null;
+        }
+        return sign + ":" + uuid;
+    }
+    
+    /**
+     * 获取解密缓存统计信息
+     */
+    public static String getDecryptCacheStats() {
+        return DECRYPT_CACHE.stats().toString();
+    }
+    
+    /**
+     * 清除解密缓存
+     */
+    public static void clearDecryptCache() {
+        DECRYPT_CACHE.invalidateAll();
     }
 
     /**

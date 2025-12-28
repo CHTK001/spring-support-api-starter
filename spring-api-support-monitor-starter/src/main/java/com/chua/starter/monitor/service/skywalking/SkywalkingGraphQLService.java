@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -484,6 +485,622 @@ public class SkywalkingGraphQLService {
             }
         }
         return alarm;
+    }
+
+    // ==================== 自定义查询方法 ====================
+
+    /**
+     * 执行自定义 GraphQL 查询
+     *
+     * @param config    SkyWalking 配置
+     * @param query     GraphQL 查询语句
+     * @param variables 查询变量（可为 null）
+     * @return 查询结果 JSON
+     */
+    public Object executeCustomQuery(MonitorSkywalkingConfig config, String query, java.util.Map<String, Object> variables) {
+        try {
+            String fullQuery = query;
+            
+            // 如果有变量，需要构建带变量的查询
+            if (variables != null && !variables.isEmpty()) {
+                return executeQueryWithVariables(config, query, variables);
+            }
+            
+            JSONObject result = executeQuery(config, fullQuery);
+            if (result != null) {
+                if (result.containsKey("errors")) {
+                    JSONArray errors = result.getJSONArray("errors");
+                    if (errors != null && !errors.isEmpty()) {
+                        StringBuilder errorMsg = new StringBuilder("查询失败: ");
+                        for (int i = 0; i < errors.size(); i++) {
+                            JSONObject error = errors.getJSONObject(i);
+                            errorMsg.append(error.getStr("message"));
+                            if (i < errors.size() - 1) {
+                                errorMsg.append("; ");
+                            }
+                        }
+                        throw new RuntimeException(errorMsg.toString());
+                    }
+                }
+                return result.get("data");
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("执行自定义 GraphQL 查询失败: {}", e.getMessage(), e);
+            throw new RuntimeException("执行自定义查询失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 执行带变量的 GraphQL 查询
+     */
+    private Object executeQueryWithVariables(MonitorSkywalkingConfig config, String query, java.util.Map<String, Object> variables) {
+        try {
+            String url = config.getGraphqlUrl();
+            JSONObject body = new JSONObject();
+            body.set("query", query);
+            body.set("variables", variables);
+
+            HttpRequest request = HttpRequest.post(url)
+                    .header("Content-Type", "application/json")
+                    .timeout(TIMEOUT)
+                    .body(body.toString());
+
+            // 添加认证信息
+            if (StrUtil.isNotBlank(config.getSkywalkingConfigUsername())
+                    && StrUtil.isNotBlank(config.getSkywalkingConfigPassword())) {
+                request.basicAuth(config.getSkywalkingConfigUsername(), config.getSkywalkingConfigPassword());
+            }
+
+            HttpResponse response = request.execute();
+            if (response.isOk()) {
+                JSONObject result = JSONUtil.parseObj(response.body());
+                if (result.containsKey("errors")) {
+                    JSONArray errors = result.getJSONArray("errors");
+                    if (errors != null && !errors.isEmpty()) {
+                        StringBuilder errorMsg = new StringBuilder("查询失败: ");
+                        for (int i = 0; i < errors.size(); i++) {
+                            JSONObject error = errors.getJSONObject(i);
+                            errorMsg.append(error.getStr("message"));
+                            if (i < errors.size() - 1) {
+                                errorMsg.append("; ");
+                            }
+                        }
+                        throw new RuntimeException(errorMsg.toString());
+                    }
+                }
+                return result.get("data");
+            } else {
+                log.error("SkyWalking GraphQL 请求失败: status={}, body={}", response.getStatus(), response.body());
+                throw new RuntimeException("GraphQL 请求失败: HTTP " + response.getStatus());
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("执行 SkyWalking GraphQL 查询失败: {}", e.getMessage(), e);
+            throw new RuntimeException("查询失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取 SkyWalking GraphQL Schema
+     * 用于帮助用户了解可用的查询和类型
+     */
+    public Object getGraphQLSchema(MonitorSkywalkingConfig config) {
+        String introspectionQuery = """
+            query IntrospectionQuery {
+                __schema {
+                    queryType { name }
+                    mutationType { name }
+                    types {
+                        kind
+                        name
+                        description
+                        fields(includeDeprecated: true) {
+                            name
+                            description
+                            args {
+                                name
+                                description
+                                type {
+                                    kind
+                                    name
+                                    ofType { kind name }
+                                }
+                                defaultValue
+                            }
+                            type {
+                                kind
+                                name
+                                ofType { kind name ofType { kind name } }
+                            }
+                        }
+                        inputFields {
+                            name
+                            description
+                            type {
+                                kind
+                                name
+                                ofType { kind name }
+                            }
+                        }
+                        enumValues(includeDeprecated: true) {
+                            name
+                            description
+                        }
+                    }
+                }
+            }
+            """;
+        return executeCustomQuery(config, introspectionQuery, null);
+    }
+
+    /**
+     * 获取可用的查询列表
+     */
+    public Object getAvailableQueries(MonitorSkywalkingConfig config) {
+        String query = """
+            query {
+                __schema {
+                    queryType {
+                        fields {
+                            name
+                            description
+                            args {
+                                name
+                                description
+                                type {
+                                    kind
+                                    name
+                                    ofType { kind name }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            """;
+        return executeCustomQuery(config, query, null);
+    }
+
+    /**
+     * 获取可用的指标名称列表
+     */
+    public List<String> getAvailableMetrics(MonitorSkywalkingConfig config, String regex) {
+        String queryRegex = StrUtil.isNotBlank(regex) ? regex : ".*";
+        String query = String.format("""
+            query {
+                typeOfMetrics(regex: "%s")
+            }
+            """, queryRegex);
+        
+        JSONObject result = executeQuery(config, query);
+        List<String> metrics = new ArrayList<>();
+        if (result != null && result.containsKey("data")) {
+            JSONArray metricsArray = result.getJSONObject("data").getJSONArray("typeOfMetrics");
+            if (metricsArray != null) {
+                for (int i = 0; i < metricsArray.size(); i++) {
+                    metrics.add(metricsArray.getStr(i));
+                }
+            }
+        }
+        return metrics;
+    }
+
+    // ==================== 指标查询方法 ====================
+
+    /**
+     * 获取服务指标概览
+     */
+    public SkywalkingMetrics.ServiceOverview getServiceMetricsOverview(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        String serviceId = condition.getServiceId();
+        String startTime = condition.getStartTime();
+        String endTime = condition.getEndTime();
+        String step = condition.getStep() != null ? condition.getStep() : "MINUTE";
+
+        // 查询多个指标
+        String query = String.format("""
+            query {
+                cpm: readMetricsValue(condition: {name: "service_cpm", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s})
+                sla: readMetricsValue(condition: {name: "service_sla", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s})
+                respTime: readMetricsValue(condition: {name: "service_resp_time", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s})
+                apdex: readMetricsValue(condition: {name: "service_apdex", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s})
+            }
+            """,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step
+        );
+
+        JSONObject result = executeQuery(config, query);
+        SkywalkingMetrics.ServiceOverview overview = new SkywalkingMetrics.ServiceOverview();
+        if (result != null && result.containsKey("data")) {
+            JSONObject data = result.getJSONObject("data");
+            overview.setCpm(data.getLong("cpm"));
+            overview.setSla(data.getLong("sla"));
+            overview.setRespTime(data.getLong("respTime"));
+            overview.setApdex(data.getLong("apdex"));
+        }
+        return overview;
+    }
+
+    /**
+     * 获取服务指标趋势
+     */
+    public SkywalkingMetrics.ServiceTrend getServiceMetricsTrend(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        String serviceId = condition.getServiceId();
+        String startTime = condition.getStartTime();
+        String endTime = condition.getEndTime();
+        String step = condition.getStep() != null ? condition.getStep() : "MINUTE";
+
+        String query = String.format("""
+            query {
+                cpm: readMetricsValues(condition: {name: "service_cpm", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s}) {
+                    label
+                    values { values { id value } }
+                }
+                respTime: readMetricsValues(condition: {name: "service_resp_time", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s}) {
+                    label
+                    values { values { id value } }
+                }
+                sla: readMetricsValues(condition: {name: "service_sla", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s}) {
+                    label
+                    values { values { id value } }
+                }
+                apdex: readMetricsValues(condition: {name: "service_apdex", entity: {scope: Service, serviceName: "%s", normal: true}}, duration: {start: "%s", end: "%s", step: %s}) {
+                    label
+                    values { values { id value } }
+                }
+            }
+            """,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step,
+            serviceId, startTime, endTime, step
+        );
+
+        JSONObject result = executeQuery(config, query);
+        SkywalkingMetrics.ServiceTrend trend = new SkywalkingMetrics.ServiceTrend();
+        if (result != null && result.containsKey("data")) {
+            JSONObject data = result.getJSONObject("data");
+            trend.setCpm(extractMetricValues(data, "cpm"));
+            trend.setRespTime(extractMetricValues(data, "respTime"));
+            trend.setSla(extractMetricValues(data, "sla"));
+            trend.setApdex(extractMetricValues(data, "apdex"));
+            trend.setTimestamps(extractMetricTimestamps(data, "cpm"));
+        }
+        return trend;
+    }
+
+    /**
+     * 获取全局指标概览
+     */
+    public SkywalkingMetrics.GlobalOverview getGlobalMetricsOverview(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        // 先获取服务列表计算统计
+        List<SkywalkingServiceInfo> services = listServices(config, condition);
+        
+        SkywalkingMetrics.GlobalOverview overview = new SkywalkingMetrics.GlobalOverview();
+        overview.setTotalServices(services.size());
+        overview.setTotalEndpoints(0);
+        overview.setTotalCpm(0L);
+        overview.setAvgRespTime(0L);
+        overview.setAvgSla(10000L);
+
+        if (!services.isEmpty()) {
+            long totalCpm = 0;
+            long totalRespTime = 0;
+            long totalSla = 0;
+            int count = 0;
+
+            for (SkywalkingServiceInfo service : services) {
+                try {
+                    SkywalkingQueryCondition serviceCondition = new SkywalkingQueryCondition();
+                    serviceCondition.setServiceId(service.getId());
+                    serviceCondition.setStartTime(condition.getStartTime());
+                    serviceCondition.setEndTime(condition.getEndTime());
+                    serviceCondition.setStep(condition.getStep());
+
+                    SkywalkingMetrics.ServiceOverview serviceOverview = getServiceMetricsOverview(config, serviceCondition);
+                    if (serviceOverview.getCpm() != null) {
+                        totalCpm += serviceOverview.getCpm();
+                    }
+                    if (serviceOverview.getRespTime() != null) {
+                        totalRespTime += serviceOverview.getRespTime();
+                        count++;
+                    }
+                    if (serviceOverview.getSla() != null) {
+                        totalSla += serviceOverview.getSla();
+                    }
+                } catch (Exception e) {
+                    log.debug("获取服务 {} 指标失败", service.getName(), e);
+                }
+            }
+
+            overview.setTotalCpm(totalCpm);
+            if (count > 0) {
+                overview.setAvgRespTime(totalRespTime / count);
+                overview.setAvgSla(totalSla / count);
+            }
+        }
+
+        return overview;
+    }
+
+    /**
+     * 获取全局指标趋势（通过聚合所有服务的趋势）
+     */
+    public SkywalkingMetrics.ServiceTrend getGlobalMetricsTrend(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        // 获取所有服务列表
+        List<SkywalkingServiceInfo> services = listServices(config, condition);
+        SkywalkingMetrics.ServiceTrend globalTrend = new SkywalkingMetrics.ServiceTrend();
+        
+        if (services.isEmpty()) {
+            globalTrend.setCpm(Collections.emptyList());
+            globalTrend.setRespTime(Collections.emptyList());
+            globalTrend.setSla(Collections.emptyList());
+            globalTrend.setTimestamps(Collections.emptyList());
+            return globalTrend;
+        }
+
+        // 获取第一个服务的趋势数据作为基准（获取时间戳）
+        List<List<Long>> allCpm = new ArrayList<>();
+        List<List<Long>> allRespTime = new ArrayList<>();
+        List<List<Long>> allSla = new ArrayList<>();
+        List<String> timestamps = null;
+        int maxSize = 0;
+
+        for (SkywalkingServiceInfo service : services) {
+            try {
+                SkywalkingQueryCondition serviceCondition = new SkywalkingQueryCondition();
+                serviceCondition.setServiceId(service.getId());
+                serviceCondition.setStartTime(condition.getStartTime());
+                serviceCondition.setEndTime(condition.getEndTime());
+                serviceCondition.setStep(condition.getStep());
+
+                SkywalkingMetrics.ServiceTrend serviceTrend = getServiceMetricsTrend(config, serviceCondition);
+                if (serviceTrend.getCpm() != null && !serviceTrend.getCpm().isEmpty()) {
+                    allCpm.add(serviceTrend.getCpm());
+                    maxSize = Math.max(maxSize, serviceTrend.getCpm().size());
+                }
+                if (serviceTrend.getRespTime() != null && !serviceTrend.getRespTime().isEmpty()) {
+                    allRespTime.add(serviceTrend.getRespTime());
+                }
+                if (serviceTrend.getSla() != null && !serviceTrend.getSla().isEmpty()) {
+                    allSla.add(serviceTrend.getSla());
+                }
+                if (timestamps == null && serviceTrend.getTimestamps() != null && !serviceTrend.getTimestamps().isEmpty()) {
+                    timestamps = serviceTrend.getTimestamps();
+                }
+            } catch (Exception e) {
+                log.debug("获取服务 {} 趋势失败", service.getName(), e);
+            }
+        }
+
+        // 聚合数据
+        List<Long> aggregatedCpm = new ArrayList<>();
+        List<Long> aggregatedRespTime = new ArrayList<>();
+        List<Long> aggregatedSla = new ArrayList<>();
+
+        for (int i = 0; i < maxSize; i++) {
+            // CPM 累加
+            long cpmSum = 0;
+            for (List<Long> cpmList : allCpm) {
+                if (i < cpmList.size()) {
+                    cpmSum += cpmList.get(i) != null ? cpmList.get(i) : 0;
+                }
+            }
+            aggregatedCpm.add(cpmSum);
+
+            // 响应时间平均
+            long respTimeSum = 0;
+            int respTimeCount = 0;
+            for (List<Long> respTimeList : allRespTime) {
+                if (i < respTimeList.size() && respTimeList.get(i) != null) {
+                    respTimeSum += respTimeList.get(i);
+                    respTimeCount++;
+                }
+            }
+            aggregatedRespTime.add(respTimeCount > 0 ? respTimeSum / respTimeCount : 0);
+
+            // SLA 平均
+            long slaSum = 0;
+            int slaCount = 0;
+            for (List<Long> slaList : allSla) {
+                if (i < slaList.size() && slaList.get(i) != null) {
+                    slaSum += slaList.get(i);
+                    slaCount++;
+                }
+            }
+            aggregatedSla.add(slaCount > 0 ? slaSum / slaCount : 10000);
+        }
+
+        globalTrend.setCpm(aggregatedCpm);
+        globalTrend.setRespTime(aggregatedRespTime);
+        globalTrend.setSla(aggregatedSla);
+        globalTrend.setTimestamps(timestamps != null ? timestamps : Collections.emptyList());
+
+        return globalTrend;
+    }
+
+    /**
+     * 获取慢端点排行
+     */
+    public List<SkywalkingMetrics.RankItem> getSlowEndpoints(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        String startTime = condition.getStartTime();
+        String endTime = condition.getEndTime();
+        String step = condition.getStep() != null ? condition.getStep() : "MINUTE";
+        int limit = condition.getLimit() != null ? condition.getLimit() : 10;
+
+        // 如果指定了 serviceId，查询该服务下的慢端点
+        String serviceFilter = StrUtil.isNotBlank(condition.getServiceId()) 
+            ? String.format(", parentService: \"%s\"", condition.getServiceId()) 
+            : "";
+
+        String query = String.format("""
+            query {
+                sortMetrics(condition: {
+                    name: "endpoint_avg",
+                    topN: %d,
+                    order: DES%s
+                }, duration: {start: "%s", end: "%s", step: %s}) {
+                    id
+                    name
+                    value
+                }
+            }
+            """,
+            limit, serviceFilter, startTime, endTime, step
+        );
+
+        JSONObject result = executeQuery(config, query);
+        List<SkywalkingMetrics.RankItem> items = new ArrayList<>();
+        if (result != null && result.containsKey("data")) {
+            JSONArray sortArray = result.getJSONObject("data").getJSONArray("sortMetrics");
+            if (sortArray != null) {
+                for (int i = 0; i < sortArray.size(); i++) {
+                    JSONObject item = sortArray.getJSONObject(i);
+                    SkywalkingMetrics.RankItem rankItem = new SkywalkingMetrics.RankItem();
+                    rankItem.setId(item.getStr("id"));
+                    rankItem.setName(item.getStr("name"));
+                    rankItem.setValue(item.getLong("value"));
+                    items.add(rankItem);
+                }
+            }
+        }
+        return items;
+    }
+
+    /**
+     * 获取错误率高的服务排行
+     */
+    public List<SkywalkingMetrics.RankItem> getErrorRateServices(
+            MonitorSkywalkingConfig config, SkywalkingQueryCondition condition) {
+        String startTime = condition.getStartTime();
+        String endTime = condition.getEndTime();
+        String step = condition.getStep() != null ? condition.getStep() : "MINUTE";
+        int limit = condition.getLimit() != null ? condition.getLimit() : 10;
+
+        // 查询服务成功率从低到高排序
+        String query = String.format("""
+            query {
+                sortMetrics(condition: {
+                    name: "service_sla",
+                    topN: %d,
+                    order: ASC
+                }, duration: {start: "%s", end: "%s", step: %s}) {
+                    id
+                    name
+                    value
+                }
+            }
+            """,
+            limit, startTime, endTime, step
+        );
+
+        JSONObject result = executeQuery(config, query);
+        List<SkywalkingMetrics.RankItem> items = new ArrayList<>();
+        if (result != null && result.containsKey("data")) {
+            JSONArray sortArray = result.getJSONObject("data").getJSONArray("sortMetrics");
+            if (sortArray != null) {
+                for (int i = 0; i < sortArray.size(); i++) {
+                    JSONObject item = sortArray.getJSONObject(i);
+                    SkywalkingMetrics.RankItem rankItem = new SkywalkingMetrics.RankItem();
+                    rankItem.setId(item.getStr("id"));
+                    rankItem.setName(item.getStr("name"));
+                    // SLA 转为错误率 (10000 - SLA)
+                    Long sla = item.getLong("value");
+                    rankItem.setValue(sla != null ? 10000 - sla : 0);
+                    items.add(rankItem);
+                }
+            }
+        }
+        return items;
+    }
+
+    /**
+     * 提取指标值列表
+     */
+    private List<Long> extractMetricValues(JSONObject data, String metricName) {
+        List<Long> values = new ArrayList<>();
+        try {
+            JSONObject metric = data.getJSONObject(metricName);
+            if (metric != null) {
+                JSONObject valuesObj = metric.getJSONObject("values");
+                if (valuesObj != null) {
+                    JSONArray valuesArray = valuesObj.getJSONArray("values");
+                    if (valuesArray != null) {
+                        for (int i = 0; i < valuesArray.size(); i++) {
+                            JSONObject v = valuesArray.getJSONObject(i);
+                            values.add(v.getLong("value"));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("提取指标值失败: {}", metricName, e);
+        }
+        return values;
+    }
+
+    /**
+     * 提取指标时间戳列表
+     */
+    private List<String> extractMetricTimestamps(JSONObject data, String metricName) {
+        List<String> timestamps = new ArrayList<>();
+        try {
+            JSONObject metric = data.getJSONObject(metricName);
+            if (metric != null) {
+                JSONObject valuesObj = metric.getJSONObject("values");
+                if (valuesObj != null) {
+                    JSONArray valuesArray = valuesObj.getJSONArray("values");
+                    if (valuesArray != null) {
+                        for (int i = 0; i < valuesArray.size(); i++) {
+                            JSONObject v = valuesArray.getJSONObject(i);
+                            String rawId = v.getStr("id");
+                            timestamps.add(formatTimestampId(rawId));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("提取时间戳失败: {}", metricName, e);
+        }
+        return timestamps;
+    }
+
+    /**
+     * 格式化 SkyWalking 时间戳 ID 为可读时间
+     * SkyWalking 时间戳格式：
+     * - MINUTE: yyyyMMddHHmm (202412281009)
+     * - HOUR: yyyyMMddHH (2024122810)
+     * - DAY: yyyyMMdd (20241228)
+     */
+    private String formatTimestampId(String id) {
+        if (StrUtil.isBlank(id)) {
+            return id;
+        }
+        try {
+            int len = id.length();
+            if (len == 12) {
+                // MINUTE: yyyyMMddHHmm -> HH:mm
+                return id.substring(8, 10) + ":" + id.substring(10, 12);
+            } else if (len == 10) {
+                // HOUR: yyyyMMddHH -> MM-dd HH:00
+                return id.substring(4, 6) + "-" + id.substring(6, 8) + " " + id.substring(8, 10) + ":00";
+            } else if (len == 8) {
+                // DAY: yyyyMMdd -> MM-dd
+                return id.substring(4, 6) + "-" + id.substring(6, 8);
+            }
+        } catch (Exception e) {
+            log.debug("格式化时间戳失败: {}", id, e);
+        }
+        return id;
     }
 
     /**

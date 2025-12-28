@@ -8,26 +8,39 @@ import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
+import com.chua.starter.oauth.sso.support.security.LoginAttemptService;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.oauth.client.support.user.UserInfoService;
 import com.google.common.base.Strings;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.chua.common.support.lang.code.ReturnCode.OK;
 import static com.chua.starter.oauth.client.support.execute.AuthClientExecute.createUid;
 
 /**
  * 登录检测
+ * <p>
+ * 支持登录失败锁定机制，防止暴力破解攻击。
+ * </p>
  *
  * @author CH
  */
-@RequiredArgsConstructor
 @Slf4j
 public class LoginCheck {
 
-    final AuthServerProperties authServerProperties;
+    private final AuthServerProperties authServerProperties;
+
+    /**
+     * 登录尝试服务（可选注入）
+     */
+    @Autowired(required = false)
+    private LoginAttemptService loginAttemptService;
+
+    public LoginCheck(AuthServerProperties authServerProperties) {
+        this.authServerProperties = authServerProperties;
+    }
 
     /**
      * 登录验证
@@ -47,7 +60,15 @@ public class LoginCheck {
         long startTime = System.currentTimeMillis();
         log.debug("========== 登录检测开始 ==========");
         log.debug("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
-        
+
+        // 检查账户是否被锁定
+        if (loginAttemptService != null && loginAttemptService.isAccountLocked(principal)) {
+            long remainingSeconds = loginAttemptService.getLockRemainingSeconds(principal);
+            String message = "账户已被锁定，请" + formatRemainingTime(remainingSeconds) + "后重试";
+            log.warn("登录被拒绝: 账户已锁定, username={}, remainingSeconds={}", principal, remainingSeconds);
+            return ReturnResult.noAuth(message);
+        }
+
         // 使用 SPI 机制获取 UserInfoService 实现
         UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(authType);
         if (userInfoService == null) {
@@ -83,15 +104,19 @@ public class LoginCheck {
         }
 
         if (null == userResume) {
+            // 记录登录失败
+            recordLoginFailure(principal);
             log.warn("登录失败: 未找到匹配的认证服务或用户不存在, 用户: {}, 类型: {}, 耗时: {}ms", 
                     principal, authType, System.currentTimeMillis() - startTime);
-            return ReturnResult.noAuth();
+            return buildLoginFailureResult(principal);
         }
 
         if (!Strings.isNullOrEmpty(userResume.getMessage())) {
+            // 记录登录失败
+            recordLoginFailure(principal);
             log.warn("登录失败: {}, 用户: {}, 类型: {}, 耗时: {}ms", 
                     userResume.getMessage(), principal, authType, System.currentTimeMillis() - startTime);
-            return ReturnResult.noAuth(userResume.getMessage());
+            return buildLoginFailureResult(principal, userResume.getMessage());
         }
 
         log.debug("开始创建Token, tokenManagement: {}", authServerProperties.getTokenManagement());
@@ -108,11 +133,70 @@ public class LoginCheck {
         if (OK.getCode().equals(code)) {
             LoginResult loginResult = token.getData();
             loginResult.setUserResume(userResume);
+            // 登录成功，清除失败记录
+            clearLoginFailure(principal);
             log.info("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);
         }
         
         log.debug("========== 登录检测结束 ==========");
         return token;
+    }
+
+    /**
+     * 记录登录失败
+     */
+    private void recordLoginFailure(String username) {
+        if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
+            loginAttemptService.recordFailedAttempt(username);
+        }
+    }
+
+    /**
+     * 清除登录失败记录
+     */
+    private void clearLoginFailure(String username) {
+        if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
+            loginAttemptService.clearFailedAttempts(username);
+        }
+    }
+
+    /**
+     * 构建登录失败结果
+     */
+    private ReturnResult<LoginResult> buildLoginFailureResult(String username) {
+        return buildLoginFailureResult(username, "用户名或密码错误");
+    }
+
+    /**
+     * 构建登录失败结果（带剩余尝试次数提示）
+     */
+    private ReturnResult<LoginResult> buildLoginFailureResult(String username, String message) {
+        if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
+            LoginAttemptService.LockInfo lockInfo = loginAttemptService.getLockInfo(username);
+            if (lockInfo.locked()) {
+                return ReturnResult.noAuth("账户已被锁定，请" + lockInfo.formattedRemainingTime() + "后重试");
+            }
+            int remaining = lockInfo.remainingAttempts();
+            if (remaining > 0 && remaining < lockInfo.maxAttempts()) {
+                return ReturnResult.noAuth(message + "，还剩" + remaining + "次尝试机会");
+            }
+        }
+        return ReturnResult.noAuth(message);
+    }
+
+    /**
+     * 格式化剩余时间
+     */
+    private String formatRemainingTime(long seconds) {
+        if (seconds <= 0) {
+            return "稍后";
+        }
+        long minutes = seconds / 60;
+        long secs = seconds % 60;
+        if (minutes > 0) {
+            return minutes + "分" + secs + "秒";
+        }
+        return secs + "秒";
     }
 
     /**

@@ -12,6 +12,7 @@ import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
@@ -32,9 +33,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 菜单服务实现类
+ * <p>提供菜单的增删改查及树形结构转换功能</p>
  *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
 @Service
 @RequiredArgsConstructor
@@ -64,7 +67,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             filterMenus = sysMenus.stream()
                     .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
-                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
+                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
                 return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
@@ -112,7 +115,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else if(AuthConstant.isAdmin(roles)) {
             filterMenus = sysMenus.stream().filter(it -> {
                 Integer sysMenuType = it.getSysMenuType();
-                if(null == sysMenuType || sysMenuType == 1) {
+                if(null == sysMenuType || sysMenuType == SystemConstant.PERMISSION_ENABLED) {
                     return true;
                 }
                 String sysMenuRole = it.getSysMenuRole();
@@ -121,7 +124,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             filterMenus = sysMenus.stream()
                     .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
-                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == 0)
+                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
                 return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
@@ -145,7 +148,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             transition.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
             transition.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
 
-            meta.setHome(null == sysMenu1.getSysMenuHome() || sysMenu1.getSysMenuHome() == 1);
+            meta.setHome(null == sysMenu1.getSysMenuHome() || sysMenu1.getSysMenuHome() == SystemConstant.PERMISSION_ENABLED);
             meta.setIcon(sysMenu1.getSysMenuIcon());
             meta.setExtraIcon(sysMenu1.getSysMenuExtraIcon());
             meta.setTitle(sysMenu1.getSysMenuTitle());
@@ -202,9 +205,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             return ReturnResult.error("菜单不存在");
         }
         String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
-            sysMenu.setSysMenuPid(0);
-            menuTreeId = Joiner.on(",").join( 0, sysMenu.getSysMenuId());
+        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == SystemConstant.ROOT_NODE_ID) {
+            sysMenu.setSysMenuPid(SystemConstant.ROOT_NODE_ID);
+            menuTreeId = Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, sysMenu.getSysMenuId());
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {
@@ -225,9 +228,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == 0) {
-            sysMenu.setSysMenuPid(0);
-            menuTreeId = Joiner.on(",").join( 0, sysMenu.getSysMenuId());
+        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == SystemConstant.ROOT_NODE_ID) {
+            sysMenu.setSysMenuPid(SystemConstant.ROOT_NODE_ID);
+            menuTreeId = Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, sysMenu.getSysMenuId());
         } else {
             SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
             if(null == parentSysMenu) {

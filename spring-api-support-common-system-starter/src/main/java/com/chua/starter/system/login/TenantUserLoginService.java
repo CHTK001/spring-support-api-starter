@@ -1,52 +1,26 @@
 package com.chua.starter.system.login;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.bean.BeanUtils;
-import com.chua.common.support.collection.ImmutableBuilder;
-import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.NumberUtils;
-import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.constant.Constant;
-import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
-import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.client.support.user.UserInfoService;
-import com.chua.starter.system.mapper.SysDeptMapper;
-import com.chua.starter.system.mapper.SysUserMapper;
-import com.chua.starter.entity.system.SysDept;
-import com.chua.starter.entity.system.SysRole;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysUser;
-import com.chua.starter.entity.system.SysUserRole;
-import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.chua.common.support.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_ERROR;
 
 /**
  * 租户用户登录服务
  * <p>支持多租户环境下的用户登录验证与授权</p>
- *
- * <h2>功能特性</h2>
- * <ul>
- *   <li>租户用户信息与权限管理</li>
- *   <li>错误密码尝试次数限制和账号锁定机制</li>
- *   <li>自动记住上次登录的租户</li>
- * </ul>
  *
  * @author CH
  * @since 1.0.0
@@ -56,7 +30,13 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_
 @Spi("tenant")
 @LoginType("tenant")
 @Tag(name = "租户用户登录", description = "多租户环境下的用户登录验证")
-public class TenantUserLoginService implements UserInfoService, Constant {
+public class TenantUserLoginService extends AbstractUserLoginService {
+
+    /**
+     * 登录类型前缀
+     */
+    private static final String LOGIN_TYPE_PREFIX = "tenant";
+
     /**
      * 用户上次登录租户编码缓存前缀
      */
@@ -67,41 +47,34 @@ public class TenantUserLoginService implements UserInfoService, Constant {
      */
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
 
-    /**
-     * 登录尝试失败最大次数
-     */
-    private final int count = 6;
-    
-    /**
-     * 账户锁定时间(分钟)
-     */
-    private final int timeout = 5;
-    
-    @Autowired
-    protected StringRedisTemplate stringRedisTemplate;
-    
-    @Autowired
-    private SysUserMapper sysUserMapper;
+    @Override
+    protected String getLoginTypePrefix() {
+        return LOGIN_TYPE_PREFIX;
+    }
 
-    @Autowired
-    private SysDeptMapper sysDeptMapper;
-    
-    /**
-     * 租户用户登录验证
-     *
-     * @param principal  用户标识（通常是用户名）
-     * @param credential 用户凭证（通常是密码）
-     * @param address    客户端地址
-     * @param ext        扩展参数，必须包含tenantId字段
-     * @return 用户信息，若验证失败则message字段包含错误信息
-     */
+    @Override
+    protected String[] generateUserIds(SysUser user) {
+        String baseId = user.getSysUserId() + String.valueOf(user.getSysClientId());
+        return new String[]{
+                DigestUtils.md5Hex(baseId) + "SYSTEM",
+                DigestUtils.md5Hex(baseId)
+        };
+    }
+
+    @Override
+    protected void customizeUserResult(UserResume result, SysUser user) {
+        // 设置租户ID
+        if (user.getSysTenantId() != null) {
+            result.setTenantId(String.valueOf(user.getSysTenantId()));
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
-        String newAccessKey = "tenant:" + LOGIN_ERROR + principal;
+        String redisKey = LOGIN_TYPE_PREFIX + ":" + LOGIN_ERROR + principal;
 
         Map<String, Object> extMap = (Map<String, Object>) ext;
-        // 优先使用租户编码，兼容旧的 tenantId 参数
         String tenantCode = MapUtils.getString(extMap, "tenantCode");
         String tenantId = MapUtils.getString(extMap, "tenantId");
 
@@ -114,13 +87,10 @@ public class TenantUserLoginService implements UserInfoService, Constant {
         log.debug("租户登录请求: 用户={}, 租户编码={}, 租户ID={}, IP={}", principal, tenantCode, tenantId, address);
 
         // 检查账户是否已被锁定
-        Boolean hasKey = stringRedisTemplate.hasKey(newAccessKey);
-        if (null != hasKey && hasKey) {
-            int errorCount = Integer.parseInt(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(newAccessKey)));
-            if (errorCount == count) {
-                log.warn("租户账户已被锁定: 用户={}, 租户编码={}", principal, tenantCode);
-                return new UserResume("账户已被锁定");
-            }
+        UserResume lockedResult = checkAccountLocked(redisKey);
+        if (lockedResult != null) {
+            log.warn("租户账户已被锁定: 用户={}, 租户编码={}", principal, tenantCode);
+            return lockedResult;
         }
 
         // 查询用户（优先使用租户编码）
@@ -135,10 +105,10 @@ public class TenantUserLoginService implements UserInfoService, Constant {
 
         if (null == user || null == user.getSysTenantId()) {
             log.warn("租户登录失败: 用户不存在 用户={}, 租户编码={}", principal, tenantCode);
-            return check(newAccessKey, hasKey);
+            return handleLoginFailure(redisKey, false);
         }
 
-        if (1 != user.getSysUserStatus()) {
+        if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
             log.warn("租户登录失败: 账户已禁用 用户={}, 租户编码={}", principal, tenantCode);
             return new UserResume("账号已被禁用");
         }
@@ -147,14 +117,14 @@ public class TenantUserLoginService implements UserInfoService, Constant {
         String md5String = DigestUtils.md5Hex(credential + salt);
         if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
             log.warn("租户登录失败: 密码错误 用户={}, 租户编码={}", principal, tenantCode);
-            return check(newAccessKey, hasKey);
+            return handleLoginFailure(redisKey, true);
         }
 
-        user.setSysUserLastIp(address);
-        sysUserMapper.updateById(user);
-        stringRedisTemplate.delete(newAccessKey);
+        // 登录成功，清除错误计数
+        clearLoginErrorCount(redisKey);
 
-        log.info("租户登录成功: 用户={} (ID:{}), 租户编码={}, IP={}", user.getSysUserUsername(), user.getSysUserId(), tenantCode, address);
+        log.info("租户登录成功: 用户={} (ID:{}), 租户编码={}, IP={}",
+                user.getSysUserUsername(), user.getSysUserId(), tenantCode, address);
 
         // 保存上次登录的租户编码
         saveLastTenantCode(principal, tenantCode);
@@ -169,158 +139,22 @@ public class TenantUserLoginService implements UserInfoService, Constant {
             return new UserResume("账号/密码不正确");
         }
 
-        if (1 != user.getSysUserStatus()) {
+        if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
             return new UserResume("账号已被禁用");
         }
-        UserResume userResult1 = loginInfo(userResult.getUsername(), user, null);
-        userResult1.setLoginType(userResult.getLoginType());
-        return userResult1;
-    }
 
-    /**
-     * 构建用户登录信息
-     */
-    protected UserResume loginInfo(String accessKey, SysUser user, String address) {
-        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
-        String countKey = "system:login:count:" + user.getSysUserId();
-        ops.increment(countKey);
-
-        if (null != address) {
-            user.setSysUserLastIp(address);
-            user.setSysUserLongCount(Converter.convertIfNecessary(ops.get(countKey), Integer.class));
-            sysUserMapper.updateById(user);
-        }
-
-        List<SysRole> roles = getRole(user);
-
-        LinkedHashSet<String> roleCodes = roles.stream()
-                .map(SysRole::getSysRoleCode)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        LinkedHashSet<RoleInfo> roleInfos = roles.stream()
-                .map(it -> {
-                    RoleInfo item = new RoleInfo();
-                    item.setRoleCode(it.getSysRoleCode());
-                    item.setRoleName(it.getSysRoleName());
-                    item.setReadable(it.getSysRoleReadable() == null || it.getSysRoleReadable() == 1);
-                    item.setWriteable(it.getSysRoleWriteable() == null || it.getSysRoleWriteable() == 1);
-                    item.setExecutable(it.getSysRoleExecutable() == null || it.getSysRoleExecutable() == 1);
-                    return item;
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        Integer sysDeptId = user.getSysDeptId();
-        String userDashboardGrid = "";
-        DataFilterTypeEnum dataPermission = ALL;
-        String dataPermissionRule = "";
-        String userDashboard = "";
-
-        if (null != sysDeptId) {
-            SysDept sysDept = sysDeptMapper.selectOne(
-                    Wrappers.<SysDept>lambdaQuery()
-                            .eq(SysDept::getSysDeptId, sysDeptId)
-                            .select(SysDept::getSysDeptDataPermission, SysDept::getSysDeptDataPermissionDeptId),
-                    false);
-            
-            if (null != sysDept) {
-                dataPermission = ObjectUtils.defaultIfNull(DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()), ALL);
-                dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
-            }
-        }
-
-        Set<String> permissions = getPermission(user);
-
-        return new UserResume()
-                .setUserId(user.getSysUserId() + "")
-                .setOpenId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()) + "SYSTEM")
-                .setUnionId(DigestUtils.md5Hex(user.getSysUserId() + user.getSysClientId()))
-                .setRoles(roleCodes)
-                .setTenantId(String.valueOf(user.getSysTenantId()))
-                .setRolesByRole(roleInfos)
-                .setDeptId(user.getSysDeptId() + "")
-                .setDataPermission(dataPermission)
-                .setDataPermissionRule(dataPermissionRule)
-                .setPermission(permissions)
-                .setPhone(user.getSysUserPhone())
-                .setUsername(accessKey)
-                .setNickName(user.getSysUserNickname())
-                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
-                        .put(user)
-                        .put("userDashboardGrid", userDashboardGrid)
-                        .put("userDashboard", userDashboard)
-                        .remove("password", "salt", "userEnable", "address", "lastArea", "lastLatitude", "lastIp", "lastLongitude")
-                        .build());
-    }
-
-    private List<SysRole> getRole(SysUser user) {
-        try {
-            List<Map<String, Object>> maps = sysUserMapper.selectMaps(new MPJLambdaWrapper<SysUser>()
-                    .distinct()
-                    .selectAll(SysRole.class)
-                    .leftJoin(SysUserRole.class, SysUserRole::getSysUserId, SysUser::getSysUserId)
-                    .leftJoin(SysRole.class, SysRole::getSysRoleId, SysUserRole::getSysRoleId)
-                    .eq(SysUser::getSysUserId, user.getSysUserId())
-                    .eq(SysRole::getSysRoleStatus, 1)
-            );
-            return maps.stream().map(it -> {
-                SysRole sysRole = new SysRole();
-                BeanUtils.copyProperties(it, sysRole);
-                return sysRole;
-            }).collect(Collectors.toList());
-        } catch (Exception e) {
-            log.warn("获取用户角色失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    private Set<String> getPermission(SysUser user) {
-        try {
-            return sysUserMapper.selectPermission(user.getSysUserId());
-        } catch (Exception e) {
-            log.warn("获取用户权限失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
-            return Collections.emptySet();
-        }
-    }
-
-    private UserResume check(String newAccessKey, Boolean boos) {
-        if (null == boos) {
-            boos = false;
-        }
-        if (boos) {
-            Integer inte = NumberUtils.toInt(stringRedisTemplate.opsForValue().get(newAccessKey));
-            inte++;
-            stringRedisTemplate.opsForValue().set(newAccessKey, inte + "", timeout, TimeUnit.MINUTES);
-            return checkLimit(inte);
-        }
-        stringRedisTemplate.opsForValue().set(newAccessKey, 1 + "", timeout, TimeUnit.MINUTES);
-        return checkLimit(1);
-    }
-
-    private UserResume checkLimit(Integer errorCount) {
-        if (errorCount == count) {
-            return new UserResume("账号已被锁定");
-        }
-
-        if (errorCount > (count - 3)) {
-            return new UserResume("密码错误, 剩余尝试次数" + (count - errorCount) + "次,账号将被锁定" + timeout + "分钟");
-        }
-
-        return new UserResume("账号/密码不正确");
+        UserResume result = loginInfo(userResult.getUsername(), user, null);
+        result.setLoginType(userResult.getLoginType());
+        return result;
     }
 
     /**
      * 获取用户上次登录的租户编码
-     * <p>
-     * 优先从 Redis 缓存获取上次登录的租户编码，
-     * 如果缓存不存在则根据账号查询 SysTenant 表获取最新的租户编码
-     * </p>
      *
      * @param username 用户名
      * @return 租户编码
      */
     private String getLastTenantCode(String username) {
-        // 优先从缓存获取上次登录的租户编码
         try {
             String cachedTenantCode = stringRedisTemplate.opsForValue().get(LAST_TENANT_CODE_KEY + username);
             if (StringUtils.isNotEmpty(cachedTenantCode)) {
@@ -331,7 +165,6 @@ public class TenantUserLoginService implements UserInfoService, Constant {
             log.warn("获取用户上次登录租户编码缓存失败: 用户={}, 错误={}", username, e.getMessage());
         }
 
-        // 缓存不存在时，查询数据库获取最新的租户编码
         try {
             String latestTenantCode = sysUserMapper.selectLatestTenantCodeByUsername(username);
             if (StringUtils.isNotEmpty(latestTenantCode)) {

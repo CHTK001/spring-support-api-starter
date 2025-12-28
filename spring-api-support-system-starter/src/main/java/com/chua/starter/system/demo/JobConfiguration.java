@@ -1,7 +1,7 @@
 package com.chua.starter.system.demo;
 
 
-import com.chua.starter.common.support.annotations.Job;
+import com.chua.starter.job.support.annotation.Job;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 

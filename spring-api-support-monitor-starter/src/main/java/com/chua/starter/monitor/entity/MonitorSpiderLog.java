@@ -57,4 +57,11 @@ public class MonitorSpiderLog implements Serializable {
      */
     @ApiModelProperty("日志时间")
     private LocalDateTime spiderLogTime;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("创建时间")
+    private LocalDateTime createTime;
 }

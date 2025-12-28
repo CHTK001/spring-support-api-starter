@@ -34,6 +34,8 @@ public class AuthServerConfigValidator {
      */
     private static final List<String> DANGEROUS_KEYS = List.of(
             "D518E462DF7B36828FA68CCD69FC6140",
+            "1234567890oOlIi0",  // AuthServerProperties默认值
+            "your-256-bit-secret-key-here-32b",  // JWT默认密钥
             "123456",
             "password",
             "secret",

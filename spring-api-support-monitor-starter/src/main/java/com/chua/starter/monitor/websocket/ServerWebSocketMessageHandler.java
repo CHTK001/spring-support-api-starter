@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.websocket;
 
 import com.chua.common.support.json.Json;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -202,7 +202,7 @@ public class ServerWebSocketMessageHandler {
      */
     private void broadcastMessage(ServerWebSocketMessage message) {
         try {
-            socketSessionTemplate.send(SocketTopics.Monitor.Server.STATUS, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Server.STATUS, Json.toJson(message));
         } catch (Exception e) {
             log.error("广播消息失败: {}", e.getMessage(), e);
         }

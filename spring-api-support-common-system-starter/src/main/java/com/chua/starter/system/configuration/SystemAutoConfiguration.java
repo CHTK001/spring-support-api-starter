@@ -1,7 +1,9 @@
 package com.chua.starter.system.configuration;
 
+import com.chua.starter.system.properties.SystemSecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
         "com.chua.starter.system"
 })
 @MapperScan(basePackages = "com.chua.starter.system.mapper")
+@EnableConfigurationProperties(SystemSecurityProperties.class)
 public class SystemAutoConfiguration {
 
     /**

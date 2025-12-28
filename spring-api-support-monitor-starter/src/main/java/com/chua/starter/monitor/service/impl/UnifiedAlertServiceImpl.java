@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
@@ -317,7 +317,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Server.ALERT, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Server.ALERT, Json.toJson(message));
             log.debug("推送服务器 {} 告警信息成功，告警数量: {}",
                     server.getMonitorSysGenServerName(), alerts.size());
 
@@ -346,7 +346,7 @@ public class UnifiedAlertServiceImpl implements UnifiedAlertService {
                     .timestamp(System.currentTimeMillis())
                     .build();
 
-            socketSessionTemplate.send(SocketTopics.Monitor.Server.ALERT, Json.toJson(message));
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Server.ALERT, Json.toJson(message));
             log.debug("推送服务器 {} 单个告警信息成功: {}",
                     server.getMonitorSysGenServerName(), alert.getMonitorSysGenServerAlertHistoryType());
 

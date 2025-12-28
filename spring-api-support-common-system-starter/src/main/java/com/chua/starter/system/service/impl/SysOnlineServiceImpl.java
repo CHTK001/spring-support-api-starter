@@ -5,6 +5,7 @@ import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.protocol.Protocol;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.pojo.online.OnlineUserVO;
 import com.chua.starter.system.service.SysOnlineService;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +77,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
         try {
             // 通过OAuth客户端强制下线用户
             LoginAuthResult result = AuthClientExecute.getInstance().logout(userId, null, LogoutType.KICK);
-            if (result != null && result.getCode() == 200) {
+            if (result != null && result.getCode() == SystemConstant.HTTP_STATUS_OK) {
                 log.info("用户 {} 已被强制下线", userId);
                 return ReturnResult.ok(true);
             }

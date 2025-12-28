@@ -96,4 +96,34 @@ public class MonitorAcmeCertificate extends SysBase {
     @ApiModelProperty("最近错误")
     @Schema(description = "最近错误")
     private String acmeCertLastError;
+
+    /** 部署模式：local(本机自动)/manual(手动) */
+    @TableField("acme_cert_deploy_mode")
+    @ApiModelProperty("部署模式: local(本机自动)/manual(手动)")
+    @Schema(description = "部署模式: local(本机自动)/manual(手动)")
+    private String acmeCertDeployMode;
+
+    /** 本机模式 webroot 路径 */
+    @TableField("acme_cert_webroot_path")
+    @ApiModelProperty("本机模式webroot路径")
+    @Schema(description = "本机模式webroot路径")
+    private String acmeCertWebrootPath;
+
+    /**
+     * 状态样式类型（前端 Tag 组件使用）
+     */
+    @ApiModelProperty("状态样式类型")
+    @Schema(description = "状态样式类型: success/warning/danger/info")
+    public String getStatusType() {
+        if (acmeCertStatus == null) {
+            return "";
+        }
+        return switch (acmeCertStatus) {
+            case "pending", "validating" -> "warning";  // 待检验/检验中 - 黄色
+            case "valid" -> "success";                  // 有效 - 绿色
+            case "expired", "failed" -> "danger";       // 过期/失败 - 红色
+            case "revoked" -> "info";                   // 吐销 - 灰色
+            default -> "";
+        };
+    }
 }
