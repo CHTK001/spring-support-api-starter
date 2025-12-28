@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.callback;
 
 import com.chua.docker.support.callback.DockerResultCallback;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
 import lombok.Getter;
@@ -152,7 +152,7 @@ public class WebSocketDockerPullCallback implements com.chua.docker.support.call
 
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.PROGRESS, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.PROGRESS, message);
 
         } catch (Exception e) {
             log.error("发送Docker进度WebSocket消息失败", e);
@@ -180,7 +180,7 @@ public class WebSocketDockerPullCallback implements com.chua.docker.support.call
             log.info("Docker拉取操作开始 - 镜像: {}", imageName);
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.START, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.START, message);
 
         } catch (Exception e) {
             log.error("发送Docker开始WebSocket消息失败", e);
@@ -214,7 +214,7 @@ public class WebSocketDockerPullCallback implements com.chua.docker.support.call
             log.error("Docker操作发生错误 - 镜像: {}, 错误: {}", imageName, errorMessage, throwable);
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.ERROR, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.ERROR, message);
 
         } catch (Exception e) {
             log.error("发送Docker错误WebSocket消息失败", e);
@@ -245,7 +245,7 @@ public class WebSocketDockerPullCallback implements com.chua.docker.support.call
                     java.time.Duration.between(startTime, LocalDateTime.now()).getSeconds());
 
             // 发送WebSocket消息
-            socketSessionTemplate.sendObject(SocketTopics.Monitor.Docker.COMPLETE, message);
+            socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.COMPLETE, message);
 
         } catch (Exception e) {
             log.error("发送Docker完成WebSocket消息失败", e);

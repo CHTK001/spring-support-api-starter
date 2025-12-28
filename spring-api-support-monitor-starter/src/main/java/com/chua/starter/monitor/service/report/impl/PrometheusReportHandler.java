@@ -6,7 +6,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.report.ReportHandler;
-import com.chua.socketio.support.constant.SocketTopics;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.common.support.json.Json;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -277,7 +277,7 @@ public class PrometheusReportHandler implements ReportHandler {
             ServerWebSocketMessage message = ServerWebSocketMessage.createServerMetricsMessage(
                     serverId, "Server-" + serverId, prometheusData);
             String messageJson = Json.toJson(message);
-            socketSessionTemplate.send(SocketTopics.Monitor.Server.METRICS, messageJson);
+            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Server.METRICS, messageJson);
             log.debug("Prometheus数据已广播: serverId={}", serverId);
         } catch (Exception e) {
             log.error("广播Prometheus数据失败: serverId={}", serverId, e);

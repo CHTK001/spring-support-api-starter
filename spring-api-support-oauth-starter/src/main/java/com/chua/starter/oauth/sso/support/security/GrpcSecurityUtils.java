@@ -37,7 +37,7 @@ public class GrpcSecurityUtils {
     /**
      * 生成请求签名
      * <p>
-     * 基于请求参数生成MD5签名，确保请求完整性。
+     * 基于请求参数生成SHA-256签名，确保请求完整性。
      * </p>
      *
      * @param requestData 请求数据
@@ -74,8 +74,8 @@ public class GrpcSecurityUtils {
             // 添加秘密密钥
             signBuilder.append("&secret=").append(secretKey);
             
-            // 生成MD5签名
-            return md5(signBuilder.toString());
+            // 生成SHA-256签名（更安全）
+            return sha256(signBuilder.toString());
             
         } catch (Exception e) {
             log.error("生成gRPC请求签名失败", e);
@@ -243,36 +243,6 @@ public class GrpcSecurityUtils {
      */
     public static String generateUUID() {
         return java.util.UUID.randomUUID().toString().replace("-", "");
-    }
-
-    /**
-     * MD5哈希
-     * <p>
-     * 计算字符串的MD5哈希值。
-     * </p>
-     *
-     * @param input 输入字符串
-     * @return MD5哈希值（小写十六进制）
-     */
-    private static String md5(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-            
-        } catch (NoSuchAlgorithmException e) {
-            log.error("MD5哈希计算失败", e);
-            return "";
-        }
     }
 
     /**

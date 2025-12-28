@@ -8,6 +8,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
 import com.chua.starter.system.mapper.SysRoleMapper;
@@ -24,9 +25,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 角色服务实现类
+ * <p>提供角色的增删改查及角色菜单管理功能</p>
  *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
 @Service
 @RequiredArgsConstructor
@@ -58,7 +61,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         Integer sysRoleInSystem = sysRole.getSysRoleInSystem();
 
-        if(null != sysRoleInSystem && sysRoleInSystem == 1) {
+        if(null != sysRoleInSystem && sysRoleInSystem == SystemConstant.IN_SYSTEM_YES) {
             return ReturnResult.fail("系统角色不允许删除");
         }
 
@@ -69,7 +72,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public ReturnResult<Boolean> updateRole(Set<String> roles, SysRole sysRole) {
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
-        if(null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isSuperAdmin(roles)) {
+        if(null != sysRoleInSystem && sysRoleInSystem == SystemConstant.IN_SYSTEM_YES && !AuthConstant.isSuperAdmin(roles)) {
             return ReturnResult.fail("系统角色不允许修改");
         }
 
@@ -89,7 +92,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Override
     public ReturnResult<SysRole> saveRole(SysRole sysRole) {
-        sysRole.setSysRoleInSystem(0);
+        sysRole.setSysRoleInSystem(SystemConstant.IN_SYSTEM_NO);
         String sysRoleCode = sysRole.getSysRoleCode();
         if(AuthConstant.ADMIN.equalsIgnoreCase(sysRoleCode) ||
                 AuthConstant.SUPER_ADMIN.equalsIgnoreCase(sysRoleCode) ||

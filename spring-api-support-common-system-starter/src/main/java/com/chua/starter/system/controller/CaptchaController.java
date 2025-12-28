@@ -39,14 +39,13 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "校验码")
 @Ignore
 @RequestMapping("/v2/captcha")
-@SuppressWarnings("ALL")
-public class CaptchaContoller {
+public class CaptchaController {
 
     @Autowired
     private CaptchaProperties captchaProperties;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     public Captcha producer() {
         return createCaptcha(captchaProperties.getType(), captchaProperties.getLength());
@@ -92,11 +91,6 @@ public class CaptchaContoller {
             default:
                 throw new RuntimeException("验证码配置信息错误！正确配置查看 CaptchaTypeEnum");
         }
-        try {
-            //captcha.setFont(Captcha.FONT_1, captchaProperties.getFontSize());
-        } catch (Exception ignored) {
-        }
-
         return captcha;
     }
 
@@ -128,22 +122,17 @@ public class CaptchaContoller {
     public CaptchaResult captchaBase64(HttpServletRequest request, HttpServletResponse response) {
         Captcha captcha = createCaptcha();
         String captchaText = captcha.text();
-        log.info("当前校验码: {}", captchaText);
+        log.debug("验证码已生成");
         String captchaBase64 = captcha.toBase64();
-        try {
-            HttpSession session = request.getSession();
-            session.setAttribute(Constants.CAPTCHA_SESSION_KEY, captchaText);
-            String ulid = IdUtils.createUlid();
-            ValueOperations valueOperations = redisTemplate.opsForValue();
-            valueOperations.set(ulid, captchaText, 30, TimeUnit.SECONDS);
-            return CaptchaResult.builder()
-                    .verifyCodeBase64(captchaBase64)
-                    .verifyCodeUlid(ulid)
-                    .verifyCodeKey(captchaText)
-                    .build();
-        } catch (Exception e) {
-            throw e;
-        }
+        HttpSession session = request.getSession();
+        session.setAttribute(Constants.CAPTCHA_SESSION_KEY, captchaText);
+        String ulid = IdUtils.createUlid();
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        valueOperations.set(ulid, captchaText, 30, TimeUnit.SECONDS);
+        return CaptchaResult.builder()
+                .verifyCodeBase64(captchaBase64)
+                .verifyCodeUlid(ulid)
+                .build();
     }
 
 
@@ -157,10 +146,14 @@ public class CaptchaContoller {
     @Data
     public static class CaptchaResult {
 
-        private String verifyCodeKey;
-
+        /**
+         * 验证码图片Base64编码
+         */
         private String verifyCodeBase64;
 
+        /**
+         * 验证码唯一标识，用于后端校验
+         */
         private String verifyCodeUlid;
 
     }

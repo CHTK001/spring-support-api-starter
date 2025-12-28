@@ -132,4 +132,31 @@ public class SysAppKey implements Serializable {
      */
     @Schema(description = "更新人ID")
     private Integer updateBy;
+
+    /**
+     * 允许的权限范围
+     * <p>
+     * 多个 scope 用逗号分隔，如：read,write,admin
+     * </p>
+     */
+    @Schema(description = "允许的权限范围，多个用逗号分隔")
+    private String sysAppKeyScope;
+
+    /**
+     * 允许的授权类型
+     * <p>
+     * 多个用逗号分隔，如：client_credentials,password,authorization_code,refresh_token
+     * </p>
+     */
+    @Schema(description = "允许的授权类型，多个用逗号分隔")
+    private String sysAppKeyGrantTypes;
+
+    /**
+     * 允许的回调地址
+     * <p>
+     * 多个用逗号分隔，用于 authorization_code 模式的 redirect_uri 校验
+     * </p>
+     */
+    @Schema(description = "允许的回调地址，多个用逗号分隔")
+    private String sysAppKeyRedirectUris;
 }

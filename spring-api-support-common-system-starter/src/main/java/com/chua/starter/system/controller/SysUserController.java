@@ -6,7 +6,7 @@ import com.chua.common.support.validator.group.AddGroup;
 import com.chua.common.support.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.SysLog;
-import com.chua.starter.common.support.annotations.UserLogger;
+import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -30,7 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -94,8 +94,8 @@ public class SysUserController {
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
     @SysLog
-    @UserLogger
-    @Transactional(rollbackOn = Exception.class)
+    @UserLog
+    @Transactional(rollbackFor = Exception.class)
     @Permission("sys:login:delete")
     public ReturnResult<Boolean> delete(Long sysUserId) {
         if (null == sysUserId) {
@@ -114,7 +114,7 @@ public class SysUserController {
     @Operation(summary = "重置当前账号密码")
     @GetMapping("/resetOwner")
     @SysLog
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysUser> resetOwner(@Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         if (null == userId) {
             return ReturnResult.illegal("请重新登录或者联系管理员");
@@ -133,8 +133,8 @@ public class SysUserController {
     @GetMapping("/reset")
     @SysLog
     @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
-    @Transactional(rollbackOn = Exception.class)
-    public ReturnResult<String> reset(Long userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<String> reset(@RequestParam Long userId) {
         if (null == userId) {
             return ReturnResult.illegal("用户信息不存在");
         }

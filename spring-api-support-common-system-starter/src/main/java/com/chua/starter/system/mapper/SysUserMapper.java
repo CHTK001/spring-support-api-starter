@@ -3,12 +3,12 @@ package com.chua.starter.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.starter.mybatis.annotations.DataScope;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.model.user.SysUserQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,54 +24,66 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 
     /**
      * 查询用户权限
+     * <p>不需要数据权限过滤</p>
      *
      * @param userId 用户ID
      * @return 权限列表
      */
+    @DataScope(enabled = false)
     Set<String> selectPermission(@Param("userId") Integer userId);
 
     /**
      * 自定义查询用户（包含关联信息）
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param accessKey 用户名
      * @return 用户信息
      */
+    @DataScope(enabled = false)
     SysUser selectCustomOne(@Param("accessKey") String accessKey);
 
     /**
      * 分页查询用户
+     * <p>根据当前用户的数据权限过滤</p>
      *
      * @param page    分页对象
      * @param query   查询条件
      * @param isAdmin 是否管理员
      * @return 用户分页列表
      */
+    @DataScope
     IPage<SysUser> selectPageUser(Page<SysUser> page, @Param("query") SysUserQuery query, @Param("isAdmin") boolean isAdmin);
 
     /**
      * 根据用户名查询用户
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param username 用户名
      * @param tenantId 租户ID
      * @return 用户信息
      */
+    @DataScope(enabled = false)
     SysUser selectOne(@Param("username") String username, @Param("tenantId") String tenantId);
 
     /**
      * 根据用户名和租户编码查询用户
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param username   用户名
      * @param tenantCode 租户编码
      * @return 用户信息
      */
+    @DataScope(enabled = false)
     SysUser selectByTenantCode(@Param("username") String username, @Param("tenantCode") String tenantCode);
 
     /**
      * 根据租户查询用户
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param tenant 租户信息
      * @return 用户信息
      */
+    @DataScope(enabled = false)
     SysUser selectOneByTenant(@Param("tenant") Map<String, Object> tenant);
 
     /**
@@ -85,9 +97,11 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 
     /**
      * 根据用户名查询最新的租户编码
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param username 用户名
      * @return 租户编码
      */
+    @DataScope(enabled = false)
     String selectLatestTenantCodeByUsername(@Param("username") String username);
 }

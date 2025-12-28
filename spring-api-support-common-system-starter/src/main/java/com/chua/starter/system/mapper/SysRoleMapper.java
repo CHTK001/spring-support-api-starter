@@ -2,6 +2,7 @@ package com.chua.starter.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.system.SysRole;
+import com.chua.starter.mybatis.annotations.DataScope;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,17 +10,21 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 角色 Mapper接口
+ *
  * @author CH
  * @since 2024/8/7
  */
 @Mapper
 public interface SysRoleMapper extends BaseMapper<SysRole> {
     /**
-     * 鏍规嵁用户id查询角色
+     * 根据用户ID查询角色
+     * <p>登录时使用，不需要数据权限过滤</p>
      *
-     * @param userIds 用户id
-     * @return 角色
+     * @param userIds 用户ID集合
+     * @return 角色列表
      */
+    @DataScope(enabled = false)
     List<SysRole> listByUserId(@Param("userIds") Set<Integer> userIds);
 
     /**

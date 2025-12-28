@@ -11,6 +11,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.TreeUtils;
 import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.system.mapper.SysDeptMapper;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.pojo.dept.SysDeptVO;
 import com.chua.starter.system.service.SysDeptService;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 部门服务实现类
+ * <p>提供部门的增删改查及树形结构转换功能</p>
  *
+ * @author CH
  * @since 2024/8/7
- * @author CH    
  */
 @Service
 public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService{
@@ -58,7 +61,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
-        if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != 0) {
+        if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != SystemConstant.ROOT_NODE_ID) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
                 return ReturnResult.illegal("上级部门不存在");
@@ -77,9 +80,9 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
         String menuTreeId = "";
         String parentTreeId = "";
-        if (null == sysDept.getSysDeptPid() || sysDept.getSysDeptPid() == 0) {
-            sysDept.setSysDeptPid(0);
-            parentTreeId = "0";
+        if (null == sysDept.getSysDeptPid() || sysDept.getSysDeptPid() == SystemConstant.ROOT_NODE_ID) {
+            sysDept.setSysDeptPid(SystemConstant.ROOT_NODE_ID);
+            parentTreeId = String.valueOf(SystemConstant.ROOT_NODE_ID);
         } else {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {

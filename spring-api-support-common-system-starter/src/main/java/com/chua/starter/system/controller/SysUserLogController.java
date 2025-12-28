@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLogger;
+import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 /**
@@ -72,8 +72,8 @@ public class SysUserLogController {
     @Operation(summary = "删除操作日志")
     @DeleteMapping("/delete")
     @SysLog
-    @UserLogger
-    @Transactional(rollbackOn = Exception.class)
+    @UserLog
+    @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long userLogId) {
         if (null == userLogId) {

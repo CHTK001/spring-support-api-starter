@@ -8,6 +8,7 @@ import com.chua.socket.support.SocketListener;
 import com.chua.socket.support.annotations.OnEvent;
 import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
@@ -65,172 +66,120 @@ public class SshSocketIOListener implements SocketListener {
     }
 
     /**
-     * SSH连接事件
+     * SSH连接事件 (remote:ssh:connect)
      */
-    @OnEvent("ssh/connect")
-    public void onConnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Ssh.CONNECT)
+    public void onRemoteSshConnect(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
-                session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器ID不能为空"));
                 return;
             }
 
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService == null) {
-                session.send("ssh/error", ReturnResult.illegal("SSH服务不可用"));
+            MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
+            if (server == null) {
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器配置不存在"));
                 return;
             }
 
-            // 这里需要根据serverId获取服务器信息
-            // MonitorSysGenServer server = getServerById(serverId);
-            // boolean connected = sshService.connect(server);
-
-            // 临时返回成功
-            session.send("ssh/connected", ReturnResult.success("SSH连接成功"));
-
+            boolean connected = sshCommandService.connectSSH(server);
+            if (connected) {
+                sessionServerMap.put(session.getId(), serverId);
+                serverSessionMap.put(serverId, session);
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createSSHConnectMessage(
+                        serverId,
+                        server.getMonitorSysGenServerName(),
+                        server.getMonitorSysGenServerHost(),
+                        server.getMonitorSysGenServerPort()
+                );
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Ssh.CONNECT, Json.toJson(response));
+                log.info("SSH连接成功: serverId={}", serverId);
+            } else {
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH连接失败"));
+            }
         } catch (Exception e) {
             log.error("SSH连接失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH连接失败: " + e.getMessage()));
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH连接失败: " + e.getMessage()));
         }
     }
 
     /**
-     * SSH断开连接事件
+     * SSH输入事件 (remote:ssh:input)
      */
-    @OnEvent("ssh/disconnect")
-    public void onDisconnect(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Ssh.INPUT)
+    public void onRemoteSshInput(SocketSession session, String rawData) {
         try {
-            Integer serverId = data.getInteger("serverId");
-            if (serverId == null) {
-                session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
-                return;
-            }
-
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService != null) {
-                sshService.disconnect(serverId);
-            }
-
-            session.send("ssh/disconnected", ReturnResult.success("SSH连接已断开"));
-
-        } catch (Exception e) {
-            log.error("SSH断开连接失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH断开连接失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * SSH命令执行事件
-     */
-    @OnEvent("ssh/command")
-    public void onCommand(SocketSession session, JsonObject data) {
-        try {
-            Integer serverId = data.getInteger("serverId");
-            String command = data.getString("command");
-
-            if (serverId == null) {
-                session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
-                return;
-            }
-
-            if (StringUtils.isEmpty(command)) {
-                session.send("ssh/error", ReturnResult.illegal("命令不能为空"));
-                return;
-            }
-
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService == null) {
-                session.send("ssh/error", ReturnResult.illegal("SSH服务不可用"));
-                return;
-            }
-
-            String result = sshService.executeCommand(serverId, command);
-            session.send("ssh/command-result", ReturnResult.success(result));
-
-        } catch (Exception e) {
-            log.error("SSH命令执行失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH命令执行失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * SSH数据发送事件
-     */
-    @OnEvent("ssh/data")
-    public void onData(SocketSession session, JsonObject data) {
-        try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             String inputData = data.getString("data");
 
             if (serverId == null) {
-                session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器ID不能为空"));
                 return;
             }
 
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService != null) {
-                sshService.sendData(serverId, inputData);
+            if (!sshCommandService.isSSHConnected(serverId)) {
+                session.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, ReturnResult.illegal("SSH未连接"));
+                return;
             }
 
+            sshCommandService.sendSSHInput(serverId, inputData != null ? inputData : "");
         } catch (Exception e) {
-            log.error("SSH数据发送失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH数据发送失败: " + e.getMessage()));
+            log.error("SSH输入失败: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH输入失败: " + e.getMessage()));
         }
     }
 
     /**
-     * SSH终端大小调整事件
+     * SSH断开事件 (remote:ssh:disconnect)
      */
-    @OnEvent("ssh/resize")
-    public void onResize(SocketSession session, JsonObject data) {
+    @OnEvent(MonitorSocketTopics.Remote.Ssh.DISCONNECT)
+    public void onRemoteSshDisconnect(SocketSession session, String rawData) {
         try {
+            JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
-            Integer width = data.getInteger("width");
-            Integer height = data.getInteger("height");
+            if (serverId == null) {
+                serverId = sessionServerMap.get(session.getId());
+            }
 
-            if (serverId == null || width == null || height == null) {
-                session.send("ssh/error", ReturnResult.illegal("参数不完整"));
+            if (serverId != null) {
+                sshCommandService.disconnectSSH(serverId);
+                sessionServerMap.remove(session.getId());
+                serverSessionMap.remove(serverId);
+                
+                ServerWebSocketMessage response = ServerWebSocketMessage.createSSHDisconnectMessage(
+                        serverId, null, "用户主动断开连接");
+                socketSessionTemplate.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, Json.toJson(response));
+                log.info("SSH连接已断开: serverId={}", serverId);
+            }
+        } catch (Exception e) {
+            log.error("SSH断开连接失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * SSH终端大小调整事件 (remote:ssh:resize)
+     */
+    @OnEvent(MonitorSocketTopics.Remote.Ssh.RESIZE)
+    public void onRemoteSshResize(SocketSession session, String rawData) {
+        try {
+            JsonObject data = Json.getJsonObject(rawData);
+            Integer serverId = data.getInteger("serverId");
+            Integer cols = data.getInteger("cols");
+            Integer rows = data.getInteger("rows");
+
+            if (serverId == null || cols == null || rows == null) {
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService != null) {
-                sshService.resizeTerminal(serverId, width, height);
-            }
-
+            sshCommandService.resizeSSHTerminal(serverId, cols, rows);
         } catch (Exception e) {
             log.error("SSH终端大小调整失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH终端大小调整失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * SSH文件列表事件
-     */
-    @OnEvent("ssh/list-files")
-    public void onListFiles(SocketSession session, JsonObject data) {
-        try {
-            Integer serverId = data.getInteger("serverId");
-            String path = data.getString("path");
-
-            if (serverId == null) {
-                session.send("ssh/error", ReturnResult.illegal("服务器ID不能为空"));
-                return;
-            }
-
-            ServerConnectionService sshService = getSshConnectionService();
-            if (sshService == null) {
-                session.send("ssh/error", ReturnResult.illegal("SSH服务不可用"));
-                return;
-            }
-
-            var result = sshService.listFiles(serverId, path);
-            session.send("ssh/file-list", ReturnResult.success(result));
-
-        } catch (Exception e) {
-            log.error("SSH文件列表获取失败: {}", e.getMessage(), e);
-            session.send("ssh/error", ReturnResult.illegal("SSH文件列表获取失败: " + e.getMessage()));
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH终端大小调整失败: " + e.getMessage()));
         }
     }
 

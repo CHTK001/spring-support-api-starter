@@ -20,10 +20,15 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.entity.system.SysUserLog;
 import jakarta.servlet.http.Cookie;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.Duration;
+import java.util.HashSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +45,25 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
  *
  * @author CH
  */
+@Slf4j
 @Extension("redis")
 @SuppressWarnings("ALL")
 public class RedisTokenResolver implements TokenResolver {
+
+    /**
+     * 默认Token过期时间（秒），1天
+     */
+    private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
+
+    /**
+     * Redis SCAN 每次扫描返回的数量
+     */
+    private static final int SCAN_COUNT = 1000;
+
+    /**
+     * 默认登录类型
+     */
+    private static final String DEFAULT_LOGIN_TYPE = "WEB";
 
     @AutoInject
     private RedisTemplate<String, Object> stringRedisTemplate;
@@ -208,8 +229,8 @@ public class RedisTokenResolver implements TokenResolver {
         }
         try {
             String pattern = TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId);
-            Set<String> keys = stringRedisTemplate.keys(pattern);
-            return keys != null ? keys.size() : 0;
+            Set<String> keys = scanKeys(pattern);
+            return keys.size();
         } catch (Exception e) {
             return 0;
         }
@@ -225,13 +246,13 @@ public class RedisTokenResolver implements TokenResolver {
             return;
         }
         // 删除所有 AccessToken
-        Set<String> tokenKeys = stringRedisTemplate.keys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId));
-        if (tokenKeys != null && !tokenKeys.isEmpty()) {
+        Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId));
+        if (!tokenKeys.isEmpty()) {
             stringRedisTemplate.delete(tokenKeys);
         }
         // 删除所有 RefreshToken
-        Set<String> refreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPattern(userId));
-        if (refreshKeys != null && !refreshKeys.isEmpty()) {
+        Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPattern(userId));
+        if (!refreshKeys.isEmpty()) {
             stringRedisTemplate.delete(refreshKeys);
         }
     }
@@ -373,8 +394,8 @@ public class RedisTokenResolver implements TokenResolver {
     @SuppressWarnings("ALL")
     private void unRegisterUid(String uid) {
         // 删除所有 Token（格式：oauth:token:AT{uid}*）
-        Set<String> tokenKeys = stringRedisTemplate.keys(TOKEN_PRE + "AT" + uid + "*");
-        if (tokenKeys != null && !tokenKeys.isEmpty()) {
+        Set<String> tokenKeys = scanKeys(TOKEN_PRE + "AT" + uid + "*");
+        if (!tokenKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(tokenKeys);
             } catch (Throwable ignored) {
@@ -382,8 +403,8 @@ public class RedisTokenResolver implements TokenResolver {
         }
         
         // 删除所有 RefreshToken（格式：oauth:refresh:RT{uid}*）
-        Set<String> refreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + "RT" + uid + "*");
-        if (refreshKeys != null && !refreshKeys.isEmpty()) {
+        Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + "RT" + uid + "*");
+        if (!refreshKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(refreshKeys);
             } catch (Throwable ignored) {
@@ -391,15 +412,15 @@ public class RedisTokenResolver implements TokenResolver {
         }
         
         // 兼容旧格式（无AT/RT前缀）
-        Set<String> oldTokenKeys = stringRedisTemplate.keys(TOKEN_PRE + uid + "*");
-        if (oldTokenKeys != null && !oldTokenKeys.isEmpty()) {
+        Set<String> oldTokenKeys = scanKeys(TOKEN_PRE + uid + "*");
+        if (!oldTokenKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(oldTokenKeys);
             } catch (Throwable ignored) {
             }
         }
-        Set<String> oldRefreshKeys = stringRedisTemplate.keys(TOKEN_REFRESH_PRE + uid + "*");
-        if (oldRefreshKeys != null && !oldRefreshKeys.isEmpty()) {
+        Set<String> oldRefreshKeys = scanKeys(TOKEN_REFRESH_PRE + uid + "*");
+        if (!oldRefreshKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(oldRefreshKeys);
             } catch (Throwable ignored) {
@@ -419,12 +440,12 @@ public class RedisTokenResolver implements TokenResolver {
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
         if (null != userResult) {
             // 记录登出日志（登录类型从 UserResult 获取）
-            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : "WEB";
+            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
             recordLogoutLog(userResult, loginType, LogoutType.LOGOUT);
 
             // 将 Token 加入黑名单
             if (tokenBlacklistService != null) {
-                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
                 tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.LOGOUT, 
                         expire, userResult.getUserId(), userResult.getUsername());
             }
@@ -445,7 +466,7 @@ public class RedisTokenResolver implements TokenResolver {
     public void logout(String uid, LogoutType type) {
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
             // 全部登出：删除该用户的所有 Token 和 RefreshToken
-            recordLogoutLogByUid(uid, "WEB", type);
+            recordLogoutLogByUid(uid, DEFAULT_LOGIN_TYPE, type);
             unRegisterUid(uid);
             return;
         }
@@ -474,12 +495,12 @@ public class RedisTokenResolver implements TokenResolver {
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
         if (null != userResult) {
             // 记录踢下线日志
-            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : "WEB";
+            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
             recordLogoutLog(userResult, loginType, LogoutType.KICK);
 
             // 将 Token 加入黑名单
             if (tokenBlacklistService != null) {
-                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
                 tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED, 
                         expire, userResult.getUserId(), userResult.getUsername());
             }
@@ -518,7 +539,7 @@ public class RedisTokenResolver implements TokenResolver {
         if (StringUtils.isBlank(uid)) {
             return;
         }
-        recordLogoutLogByUid(uid, "WEB", LogoutType.LOGOUT_ALL);
+        recordLogoutLogByUid(uid, DEFAULT_LOGIN_TYPE, LogoutType.LOGOUT_ALL);
         unRegisterUid(uid);
     }
 
@@ -753,7 +774,7 @@ public class RedisTokenResolver implements TokenResolver {
             sysUserLogService.asyncSaveUserLog(userLog);
         } catch (Exception e) {
             // 日志记录失败不应影响登出流程，只记录错误
-            System.err.println("记录登出日志失败: " + e.getMessage());
+            log.error("记录登出日志失败, username={}, error={}", userResult.getUsername(), e.getMessage());
         }
     }
 
@@ -787,7 +808,7 @@ public class RedisTokenResolver implements TokenResolver {
             sysUserLogService.asyncSaveUserLog(userLog);
         } catch (Exception e) {
             // 日志记录失败不应影响登出流程，只记录错误
-            System.err.println("记录登出日志失败: " + e.getMessage());
+            log.error("记录登出日志失败, uid={}, error={}", uid, e.getMessage());
         }
     }
 
@@ -845,9 +866,9 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         try {
-            // 扫描所有Token
-            Set<String> allTokenKeys = stringRedisTemplate.keys(TOKEN_PRE + "*");
-            if (allTokenKeys == null || allTokenKeys.isEmpty()) {
+            // 使用SCAN扫描所有Token（避免KEYS命令阻塞Redis）
+            Set<String> allTokenKeys = scanKeys(TOKEN_PRE + "*");
+            if (allTokenKeys.isEmpty()) {
                 return OnlineUserResult.empty();
             }
 
@@ -955,7 +976,7 @@ public class RedisTokenResolver implements TokenResolver {
             if (userResult != null) {
                 // 将Token加入黑名单
                 if (tokenBlacklistService != null) {
-                    long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : 86400;
+                    long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
                     tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED,
                             expire, userResult.getUserId(), userResult.getUsername());
                 }
@@ -987,5 +1008,33 @@ public class RedisTokenResolver implements TokenResolver {
         }
         Object value = map.get(key);
         return value != null ? value.toString() : null;
+    }
+
+    /**
+     * 使用 SCAN 命令扫描 Redis 键
+     * <p>
+     * SCAN 命令是渐进式迭代，不会像 KEYS 命令一样阻塞 Redis 服务器
+     * </p>
+     *
+     * @param pattern 匹配模式，支持通配符 * 和 ?
+     * @return 匹配的键集合
+     */
+    private Set<String> scanKeys(String pattern) {
+        Set<String> keys = new HashSet<>();
+        try {
+            ScanOptions options = ScanOptions.scanOptions()
+                    .match(pattern)
+                    .count(SCAN_COUNT)
+                    .build();
+            
+            try (Cursor<String> cursor = stringRedisTemplate.scan(options)) {
+                while (cursor.hasNext()) {
+                    keys.add(cursor.next());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Redis SCAN 失败, pattern={}, error={}", pattern, e.getMessage());
+        }
+        return keys;
     }
 }
