@@ -18,7 +18,7 @@ import java.util.Map;
  * @since 2024/12/13
  */
 @SpringBootConfiguration
-public class WebrtcSocketIOListener implements SocketListener {
+public class WebrtcSocketListener implements SocketListener {
 
     @Autowired
     @Lazy
