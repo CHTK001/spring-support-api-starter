@@ -181,8 +181,34 @@ public final class MonitorSocketTopics {
             public static final String COMMAND_RESULT = "remote:custom:command_result";
             public static final String RESIZE = "remote:custom:resize";
             public static final String ERROR = "remote:custom:error";
+            public static final String BINARY_DATA = "remote:custom:binary_data";
+            public static final String BINARY_REQUEST = "remote:custom:binary_request";
 
             private Custom() {
+            }
+        }
+
+        /**
+         * 远程桌面相关 (基于图片传输)
+         */
+        public static final class Desktop {
+            public static final String CONNECT = "remote:desktop:connect";
+            public static final String CONNECTED = "remote:desktop:connected";
+            public static final String SCREEN = "remote:desktop:screen";
+            public static final String MOUSE_MOVE = "remote:desktop:mouse_move";
+            public static final String MOUSE_CLICK = "remote:desktop:mouse_click";
+            public static final String MOUSE_WHEEL = "remote:desktop:mouse_wheel";
+            public static final String KEY_PRESS = "remote:desktop:key_press";
+            public static final String KEY_RELEASE = "remote:desktop:key_release";
+            public static final String DISCONNECT = "remote:desktop:disconnect";
+            public static final String DISCONNECTED = "remote:desktop:disconnected";
+            public static final String SET_QUALITY = "remote:desktop:set_quality";
+            public static final String SET_COMPRESSOR = "remote:desktop:set_compressor";
+            public static final String CAPTURE_RESET = "remote:desktop:capture_reset";
+            public static final String ERROR = "remote:desktop:error";
+            public static final String MODE_DETECTED = "remote:desktop:mode_detected";
+
+            private Desktop() {
             }
         }
     }

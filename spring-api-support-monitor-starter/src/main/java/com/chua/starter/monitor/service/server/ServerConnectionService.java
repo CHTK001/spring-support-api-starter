@@ -153,4 +153,58 @@ public interface ServerConnectionService {
     interface DataCallback {
         void onData(String data);
     }
+
+    /**
+     * 二进制数据回调接口
+     */
+    @FunctionalInterface
+    interface BinaryDataCallback {
+        void onData(byte[] data);
+    }
+
+    /**
+     * 设置二进制数据回调（用于实时屏幕图像传输）
+     *
+     * @param serverId 服务器ID
+     * @param callback 二进制数据回调函数
+     */
+    default void setBinaryDataCallback(Integer serverId, BinaryDataCallback callback) {
+        // 默认空实现
+    }
+
+    /**
+     * 读取远程服务器上的文件（以二进制形式）
+     *
+     * @param serverId 服务器ID
+     * @param filePath 文件路径
+     * @return 文件的二进制内容，如果不支持则返回 null
+     */
+    default byte[] readFile(Integer serverId, String filePath) {
+        // 默认不支持，子类可以重写实现
+        return null;
+    }
+
+    /**
+     * 捕获远程服务器的屏幕截图（以二进制形式）
+     *
+     * @param serverId 服务器ID
+     * @return 屏幕截图的二进制内容（如JPEG/PNG），如果不支持则返回 null
+     */
+    default byte[] captureScreen(Integer serverId) {
+        // 默认不支持，子类可以重写实现
+        return null;
+    }
+
+    /**
+     * 执行命令并返回二进制结果
+     *
+     * @param serverId 服务器ID
+     * @param command  命令
+     * @return 命令执行的二进制结果，如果不支持则返回 null
+     */
+    default byte[] executeBinaryCommand(Integer serverId, String command) {
+        // 默认实现：将文本结果转换为字节数组
+        String result = executeCommand(serverId, command);
+        return result != null ? result.getBytes(java.nio.charset.StandardCharsets.UTF_8) : null;
+    }
 }
