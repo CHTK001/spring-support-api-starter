@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @Slf4j
-public class RemoteDesktopSocketIOListener implements SocketListener {
+public class RemoteDesktopSocketListener implements SocketListener {
 
     @Autowired
     @Lazy
