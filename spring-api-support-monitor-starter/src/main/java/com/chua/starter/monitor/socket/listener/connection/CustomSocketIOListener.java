@@ -224,7 +224,7 @@ public class CustomSocketIOListener implements SocketListener {
             
             if (binaryData != null && binaryData.length > 0) {
                 // 鍙戦€佷簩杩涘埗鍥惧儚鏁版嵁
-                session.send(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
+                session.sendBinary(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
                 log.info("鍙戦€佷簩杩涘埗鍥惧儚鏁版嵁鎹け璐? serverId={}, type={}, size={}", serverId, requestType, binaryData.length);
             } else {
                 session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("获取二进制数据失败"));
@@ -305,7 +305,7 @@ public class CustomSocketIOListener implements SocketListener {
         try {
         SocketSession session = serverSessionMap.get(serverId);
         if (session != null && binaryData != null && binaryData.length > 0) {
-            session.send(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
+            session.sendBinary(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
             log.info("浣帶忓囲浙鍍帷簩杩涘埗鍥惧儚鏁版嵁鎹け璐? serverId={}, size={}", serverId, binaryData.length);
             } else {
                 log.warn("鎺ㄩ€佷簩杩涘埗鏁版嵁澶辫触: serverId={}, session={}, dataSize={}", 
@@ -328,7 +328,7 @@ public class CustomSocketIOListener implements SocketListener {
         int successCount = 0;
         for (Map.Entry<Integer, SocketSession> entry : serverSessionMap.entrySet()) {
             try {
-                entry.getValue().send(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
+                entry.getValue().sendBinary(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
                 successCount++;
             } catch (Exception e) {
                 log.error("向客户端推送二进制数据失败: serverId={}, error={}", entry.getKey(), e.getMessage());

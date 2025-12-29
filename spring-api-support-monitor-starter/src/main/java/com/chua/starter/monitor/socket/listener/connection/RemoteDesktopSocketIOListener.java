@@ -310,7 +310,7 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
         remoteDesktopService.setBinaryDataCallback(serverId, (imageBytes) -> {
             try {
                 // 鐩存帴鍙戦€佷簩杩涘埗鍥惧儚鏁版嵁
-                session.send(MonitorSocketTopics.Remote.Desktop.SCREEN, imageBytes);
+                session.sendBinary(MonitorSocketTopics.Remote.Desktop.SCREEN, imageBytes);
             } catch (Exception e) {
                 log.error("鍙戦€佸睆骞曟暟鎹け璐? {}", e.getMessage());
             }
