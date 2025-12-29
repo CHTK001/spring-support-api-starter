@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @Slf4j
-public class SshSocketIOListener implements SocketListener {
+public class SshSocketListener implements SocketListener {
 
     private final SshCommandService sshCommandService;
 
@@ -47,7 +47,7 @@ public class SshSocketIOListener implements SocketListener {
     @Lazy
     private List<ServerConnectionService> serverConnectionServices;
 
-    public SshSocketIOListener(SshCommandService sshCommandService) {
+    public SshSocketListener(SshCommandService sshCommandService) {
         this.sshCommandService = sshCommandService;
     }
 
