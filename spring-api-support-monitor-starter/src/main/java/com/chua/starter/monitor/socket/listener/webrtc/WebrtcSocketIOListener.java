@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.socketio;
+﻿package com.chua.starter.monitor.socket.listener.webrtc;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.utils.MapUtils;
@@ -33,3 +33,4 @@ public class WebrtcSocketIOListener implements SocketListener {
         }
     }
 }
+

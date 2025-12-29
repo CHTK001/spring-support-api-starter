@@ -68,6 +68,11 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     private final Map<Integer, DataCallback> dataCallbackMap = new ConcurrentHashMap<>();
 
+    /**
+     * 二进制数据回调映射
+     */
+    private final Map<Integer, BinaryDataCallback> binaryDataCallbackMap = new ConcurrentHashMap<>();
+
     @Override
     public String getProtocol() {
         return "REMOTE";
@@ -187,6 +192,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
             sessionIdMap.remove(serverId);
             serverConfigCache.remove(serverId);
             dataCallbackMap.remove(serverId);
+            binaryDataCallbackMap.remove(serverId);
 
             // 发送断开连接消息
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
@@ -345,6 +351,11 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
         dataCallbackMap.put(serverId, callback);
     }
 
+    @Override
+    public void setBinaryDataCallback(Integer serverId, BinaryDataCallback callback) {
+        binaryDataCallbackMap.put(serverId, callback);
+    }
+
     // ==================== 远程桌面特有操作 ====================
 
     /**
@@ -481,10 +492,32 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     private void handleScreenImage(Integer serverId, BufferedImage image) {
         try {
-            // 将图像转换为 Base64
+            // 将图像转换为字节数组
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);
-            String base64Image = Base64.getEncoder().encodeToString(baos.toByteArray());
+            byte[] imageBytes = baos.toByteArray();
+
+            // 优先使用二进制回调
+            BinaryDataCallback binaryCallback = binaryDataCallbackMap.get(serverId);
+            if (binaryCallback != null) {
+                // 构建带格式头的二进制数据: [4字节格式长度][png][imageBytes]
+                byte[] formatBytes = "png".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                byte[] packedData = new byte[4 + formatBytes.length + imageBytes.length];
+                // 写入格式长度 (Big Endian)
+                packedData[0] = (byte) ((formatBytes.length >> 24) & 0xFF);
+                packedData[1] = (byte) ((formatBytes.length >> 16) & 0xFF);
+                packedData[2] = (byte) ((formatBytes.length >> 8) & 0xFF);
+                packedData[3] = (byte) (formatBytes.length & 0xFF);
+                // 写入格式字符串
+                System.arraycopy(formatBytes, 0, packedData, 4, formatBytes.length);
+                // 写入图像数据
+                System.arraycopy(imageBytes, 0, packedData, 4 + formatBytes.length, imageBytes.length);
+                binaryCallback.onData(packedData);
+                return;
+            }
+
+            // 回退到 Base64 方式
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 
             // 发送到前端
             ServerWebSocketMessage message = ServerWebSocketMessage.builder()
@@ -648,6 +681,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
         sessionIdMap.clear();
         serverConfigCache.clear();
         dataCallbackMap.clear();
+        binaryDataCallbackMap.clear();
         log.info("远程桌面连接资源清理完成");
     }
 }
