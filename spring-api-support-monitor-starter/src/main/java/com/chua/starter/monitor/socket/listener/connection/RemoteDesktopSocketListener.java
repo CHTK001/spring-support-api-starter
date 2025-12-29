@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 杩滅▼妗岄潰 Socket IO 鐩戝惉鍣?
+ * 远程桌面 Socket 监听器
  * <p>
- * 澶勭悊鍩轰簬鍥剧墖浼犺緭鐨勮繙绋嬫闈㈣繛鎺ワ紝鏀寔锛?
- * - 鑷姩妫€娴嬫湇鍔＄妯″紡锛堟闈?SSH锛?
- * - 灞忓箷鍥剧墖瀹炴椂浼犺緭锛堜簩杩涘埗锛?
- * - 榧犳爣鍜岄敭鐩樹簨浠朵紶杈?
- * - 鐢昏川妯″紡鍜屽帇缂╁櫒閰嶇疆
+ * 处理基于图片传输的远程桌面连接，支持：
+ * - 自动检测服务器模式（桌面/SSH）
+ * - 屏幕图片实时传输（二进制）
+ * - 鼠标和键盘事件传输
+ * - 画质模式和压缩器配置
  *
  * @author CH
  * @since 2024/12/28
@@ -48,12 +48,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
     @Lazy
     private MonitorSysGenServerService serverService;
 
-    // 瀛樺偍浼氳瘽涓庢湇鍔″櫒鐨勬槧灏勫叧绯?
+    // 存储会话与服务器的映射关系
     private final Map<String, Integer> sessionServerMap = new ConcurrentHashMap<>();
     private final Map<Integer, SocketSession> serverSessionMap = new ConcurrentHashMap<>();
 
     /**
-     * 杩滅▼妗岄潰杩炴帴浜嬩欢
+     * 远程桌面连接事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.CONNECT)
     public void onConnect(SocketSession session, String rawData) {
@@ -62,17 +62,17 @@ public class RemoteDesktopSocketListener implements SocketListener {
             Integer serverId = data.getInteger("serverId");
             
             if (serverId == null) {
-                sendError(session, "鏈嶅姟鍣↖D涓嶈兘涓虹┖");
+                sendError(session, "服务器ID不能为空");
                 return;
             }
 
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             if (server == null) {
-                sendError(session, "鏈嶅姟鍣ㄩ厤缃笉瀛樺湪");
+                sendError(session, "服务器配置不存在");
                 return;
             }
 
-            // 寤虹珛杩滅▼妗岄潰杩炴帴
+            // 建立远程桌面连接
             boolean connected = remoteDesktopService.connect(server);
             if (connected) {
                 sessionServerMap.put(session.getId(), serverId);
@@ -80,10 +80,10 @@ public class RemoteDesktopSocketListener implements SocketListener {
 
                 String mode = remoteDesktopService.getConnectionMode(serverId);
 
-                // 璁剧疆鏁版嵁鍥炶皟
+                // 设置数据回调
                 setupDataCallback(serverId, session);
 
-                // 鍙戦€佽繛鎺ユ垚鍔熸秷鎭?
+                // 发送连接成功消息
                 ServerWebSocketMessage response = ServerWebSocketMessage.builder()
                         .messageType("remote_desktop_connect")
                         .serverId(serverId)
@@ -96,9 +96,9 @@ public class RemoteDesktopSocketListener implements SocketListener {
                         .build();
 
                 socketSessionTemplate.send(MonitorSocketTopics.Remote.Desktop.CONNECTED, Json.toJson(response));
-                log.info("杩滅▼妗岄潰杩炴帴鎴愬姛: serverId={}, mode={}", serverId, mode);
+                log.info("远程桌面连接成功: serverId={}, mode={}", serverId, mode);
 
-                // 濡傛灉鏄?SSH 妯″紡锛岄€氱煡鍓嶇
+                // 如果是 SSH 模式，通知前端
                 if ("SSH".equals(mode)) {
                     ServerWebSocketMessage modeMsg = ServerWebSocketMessage.builder()
                             .messageType("mode_detected")
@@ -109,16 +109,16 @@ public class RemoteDesktopSocketListener implements SocketListener {
                     session.send(MonitorSocketTopics.Remote.Desktop.MODE_DETECTED, Json.toJson(modeMsg));
                 }
             } else {
-                sendError(session, "杩滅▼妗岄潰杩炴帴澶辫触");
+                sendError(session, "远程桌面连接失败");
             }
         } catch (Exception e) {
-            log.error("杩滅▼妗岄潰杩炴帴澶辫触: {}", e.getMessage(), e);
-            sendError(session, "杩炴帴澶辫触: " + e.getMessage());
+            log.error("远程桌面连接失败: {}", e.getMessage(), e);
+            sendError(session, "连接失败: " + e.getMessage());
         }
     }
 
     /**
-     * 榧犳爣绉诲姩浜嬩欢
+     * 鼠标移动事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.MOUSE_MOVE)
     public void onMouseMove(SocketSession session, String rawData) {
@@ -131,12 +131,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
             int y = data.getIntValue("y", 0);
             remoteDesktopService.sendMouseMove(serverId, x, y);
         } catch (Exception e) {
-            log.error("澶勭悊榧犳爣绉诲姩澶辫触: {}", e.getMessage());
+            log.error("处理鼠标移动失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 榧犳爣鐐瑰嚮浜嬩欢
+     * 鼠标点击事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.MOUSE_CLICK)
     public void onMouseClick(SocketSession session, String rawData) {
@@ -151,12 +151,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
             boolean pressed = data.getBooleanValue("pressed", false);
             remoteDesktopService.sendMouseClick(serverId, x, y, button, pressed);
         } catch (Exception e) {
-            log.error("澶勭悊榧犳爣鐐瑰嚮澶辫触: {}", e.getMessage());
+            log.error("处理鼠标点击失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 榧犳爣婊氳疆浜嬩欢
+     * 鼠标滚轮事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.MOUSE_WHEEL)
     public void onMouseWheel(SocketSession session, String rawData) {
@@ -170,12 +170,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
             int amount = data.getIntValue("amount", 0);
             remoteDesktopService.sendMouseWheel(serverId, x, y, amount);
         } catch (Exception e) {
-            log.error("澶勭悊榧犳爣婊氳疆澶辫触: {}", e.getMessage());
+            log.error("处理鼠标滚轮失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 閿洏鎸変笅浜嬩欢
+     * 键盘按下事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.KEY_PRESS)
     public void onKeyPress(SocketSession session, String rawData) {
@@ -190,12 +190,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
             int modifiers = data.getIntValue("modifiers", 0);
             remoteDesktopService.sendKeyPress(serverId, keyCode, keyChar, modifiers);
         } catch (Exception e) {
-            log.error("澶勭悊閿洏鎸変笅澶辫触: {}", e.getMessage());
+            log.error("处理键盘按下失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 閿洏閲婃斁浜嬩欢
+     * 键盘释放事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.KEY_RELEASE)
     public void onKeyRelease(SocketSession session, String rawData) {
@@ -210,12 +210,12 @@ public class RemoteDesktopSocketListener implements SocketListener {
             int modifiers = data.getIntValue("modifiers", 0);
             remoteDesktopService.sendKeyRelease(serverId, keyCode, keyChar, modifiers);
         } catch (Exception e) {
-            log.error("澶勭悊閿洏閲婃斁澶辫触: {}", e.getMessage());
+            log.error("处理键盘释放失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 璁剧疆鐢昏川妯″紡
+     * 设置画质模式
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.SET_QUALITY)
     public void onSetQuality(SocketSession session, String rawData) {
@@ -227,15 +227,15 @@ public class RemoteDesktopSocketListener implements SocketListener {
             String mode = data.getString("mode");
             if (mode != null) {
                 remoteDesktopService.setQualityMode(serverId, mode);
-                log.info("璁剧疆鐢昏川妯″紡: serverId={}, mode={}", serverId, mode);
+                log.info("设置画质模式: serverId={}, mode={}", serverId, mode);
             }
         } catch (Exception e) {
-            log.error("璁剧疆鐢昏川妯″紡澶辫触: {}", e.getMessage());
+            log.error("设置画质模式失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 璁剧疆鍘嬬缉鍣?
+     * 设置压缩器
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.SET_COMPRESSOR)
     public void onSetCompressor(SocketSession session, String rawData) {
@@ -247,15 +247,15 @@ public class RemoteDesktopSocketListener implements SocketListener {
             String compressor = data.getString("compressor");
             if (compressor != null) {
                 remoteDesktopService.setCompressor(serverId, compressor);
-                log.info("璁剧疆鍘嬬缉鍣? serverId={}, compressor={}", serverId, compressor);
+                log.info("设置压缩器: serverId={}, compressor={}", serverId, compressor);
             }
         } catch (Exception e) {
-            log.error("璁剧疆鍘嬬缉鍣ㄥけ璐? {}", e.getMessage());
+            log.error("设置压缩器失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 閲嶇疆鎹曡幏锛堝己鍒跺彂閫佸叏灞忥級
+     * 重置捕获（强制发送全屏）
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.CAPTURE_RESET)
     public void onCaptureReset(SocketSession session, String rawData) {
@@ -263,15 +263,15 @@ public class RemoteDesktopSocketListener implements SocketListener {
             Integer serverId = sessionServerMap.get(session.getId());
             if (serverId != null) {
                 remoteDesktopService.requestCaptureReset(serverId);
-                log.info("璇锋眰閲嶇疆鎹曡幏: serverId={}", serverId);
+                log.info("请求重置捕获: serverId={}", serverId);
             }
         } catch (Exception e) {
-            log.error("閲嶇疆鎹曡幏澶辫触: {}", e.getMessage());
+            log.error("重置捕获失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 鏂紑杩炴帴浜嬩欢
+     * 断开连接事件
      */
     @OnEvent(MonitorSocketTopics.Remote.Desktop.DISCONNECT)
     public void onDisconnect(SocketSession session, String rawData) {
@@ -290,46 +290,46 @@ public class RemoteDesktopSocketListener implements SocketListener {
                 ServerWebSocketMessage response = ServerWebSocketMessage.builder()
                         .messageType("remote_desktop_disconnect")
                         .serverId(serverId)
-                        .data(Map.of("reason", "鐢ㄦ埛涓诲姩鏂紑"))
+                        .data(Map.of("reason", "用户主动断开"))
                         .timestamp(System.currentTimeMillis())
                         .build();
                 socketSessionTemplate.send(MonitorSocketTopics.Remote.Desktop.DISCONNECTED, Json.toJson(response));
 
-                log.info("杩滅▼妗岄潰杩炴帴宸叉柇寮€: serverId={}", serverId);
+                log.info("远程桌面连接已断开: serverId={}", serverId);
             }
         } catch (Exception e) {
-            log.error("鏂紑杩滅▼妗岄潰杩炴帴澶辫触: {}", e.getMessage(), e);
+            log.error("断开远程桌面连接失败: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 璁剧疆鏁版嵁鍥炶皟锛堝睆骞曞浘鐗囦互浜岃繘鍒舵牸寮忓彂閫侊級
+     * 设置数据回调（屏幕图片以二进制格式发送）
      */
     private void setupDataCallback(Integer serverId, SocketSession session) {
-        // 浣跨敤浜岃繘鍒跺洖璋冿紝鐩存帴鍙戦€佸師濮嬪浘鍍忓瓧鑺?
+        // 使用二进制回调，直接发送原始图像字节
         remoteDesktopService.setBinaryDataCallback(serverId, (imageBytes) -> {
             try {
-                // 鐩存帴鍙戦€佷簩杩涘埗鍥惧儚鏁版嵁
+                // 直接发送二进制图像数据
                 session.sendBinary(MonitorSocketTopics.Remote.Desktop.SCREEN, imageBytes);
             } catch (Exception e) {
-                log.error("鍙戦€佸睆骞曟暟鎹け璐? {}", e.getMessage());
+                log.error("发送屏幕数据失败: {}", e.getMessage());
             }
         });
     }
 
     /**
-     * 鍙戦€侀敊璇秷鎭?
+     * 发送错误消息
      */
     private void sendError(SocketSession session, String message) {
         try {
             session.send(MonitorSocketTopics.Remote.Desktop.ERROR, ReturnResult.illegal(message));
         } catch (Exception e) {
-            log.error("鍙戦€侀敊璇秷鎭け璐? {}", e.getMessage());
+            log.error("发送错误消息失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 浼氳瘽鏂紑鏃剁殑娓呯悊宸ヤ綔
+     * 会话断开时的清理工作
      */
     public void onSessionDisconnect(SocketSession session) {
         try {
@@ -340,11 +340,10 @@ public class RemoteDesktopSocketListener implements SocketListener {
                 remoteDesktopService.disconnect(serverId);
                 sessionServerMap.remove(sessionId);
                 serverSessionMap.remove(serverId);
-                log.info("浼氳瘽鏂紑锛屽凡娓呯悊杩滅▼妗岄潰杩炴帴: sessionId={}, serverId={}", sessionId, serverId);
+                log.info("会话断开，已清理远程桌面连接: sessionId={}, serverId={}", sessionId, serverId);
             }
         } catch (Exception e) {
-            log.error("浼氳瘽鏂紑娓呯悊澶辫触: {}", e.getMessage(), e);
+            log.error("会话断开清理失败: {}", e.getMessage(), e);
         }
     }
 }
-
