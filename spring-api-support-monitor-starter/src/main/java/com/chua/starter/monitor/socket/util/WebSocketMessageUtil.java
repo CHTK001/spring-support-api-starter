@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.util;
+package com.chua.starter.monitor.socket.util;
 
 import com.chua.common.support.json.Json;
 import lombok.extern.slf4j.Slf4j;

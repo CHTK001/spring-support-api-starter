@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.listener.connection;
+package com.chua.starter.monitor.socket.listener.connection;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.json.Json;
@@ -122,7 +122,7 @@ public class SshSocketIOListener implements SocketListener {
             }
 
             if (!sshCommandService.isSSHConnected(serverId)) {
-                session.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, ReturnResult.illegal("SSH鏈繛鎺?));
+                session.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, ReturnResult.illegal("SSH未连接"));
                 return;
             }
 
@@ -172,7 +172,7 @@ public class SshSocketIOListener implements SocketListener {
             Integer rows = data.getInteger("rows");
 
             if (serverId == null || cols == null || rows == null) {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("鍙傛暟涓嶅畬鏁?));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
@@ -195,8 +195,8 @@ public class SshSocketIOListener implements SocketListener {
             // 瑙ｆ瀽娑堟伅
             ServerWebSocketMessage message = Json.fromJson(messageData, ServerWebSocketMessage.class);
             if (message == null || message.getMessageType() == null) {
-                log.warn("鏃犳晥鐨?gen/server 娑堟伅: {}", messageData);
-                sendErrorMessage(session, "鏃犳晥鐨勬秷鎭牸寮?);
+                log.warn("无效的gen/server消息: {}", messageData);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -250,7 +250,7 @@ public class SshSocketIOListener implements SocketListener {
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -277,7 +277,7 @@ public class SshSocketIOListener implements SocketListener {
 
                 log.info("SSH杩炴帴鎴愬姛: serverId={}", serverId);
             } else {
-                sendErrorMessage(session, "SSH杩炴帴澶辫触");
+                sendErrorMessage(session, "无效的消息格式");
             }
         } catch (Exception e) {
             log.error("澶勭悊SSH杩炴帴璇锋眰澶辫触: {}", e.getMessage(), e);
@@ -305,7 +305,7 @@ public class SshSocketIOListener implements SocketListener {
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
+                sendErrorMessage(session, "SSH服务不可用");
                 return;
             }
 
@@ -394,7 +394,7 @@ public class SshSocketIOListener implements SocketListener {
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
+                sendErrorMessage(session, "SSH服务不可用");
                 return;
             }
 

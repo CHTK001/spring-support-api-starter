@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.listener.connection;
+package com.chua.starter.monitor.socket.listener.connection;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
