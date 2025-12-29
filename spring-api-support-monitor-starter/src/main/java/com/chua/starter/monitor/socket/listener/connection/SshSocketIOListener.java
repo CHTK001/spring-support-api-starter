@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.configuration;
+﻿package com.chua.starter.monitor.socket.listener.connection;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.json.Json;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * SSH Socket IO 监听器
+ * SSH Socket IO 鐩戝惉鍣?
  *
  * @author CH
  * @since 2024/12/18
@@ -51,12 +51,12 @@ public class SshSocketIOListener implements SocketListener {
         this.sshCommandService = sshCommandService;
     }
 
-    // 存储会话与服务器的映射关系
+    // 瀛樺偍浼氳瘽涓庢湇鍔″櫒鐨勬槧灏勫叧绯?
     private final Map<String, Integer> sessionServerMap = new ConcurrentHashMap<>();
     private final Map<Integer, SocketSession> serverSessionMap = new ConcurrentHashMap<>();
 
     /**
-     * 获取SSH连接服务
+     * 鑾峰彇SSH杩炴帴鏈嶅姟
      */
     private ServerConnectionService getSshConnectionService() {
         return serverConnectionServices.stream()
@@ -66,7 +66,7 @@ public class SshSocketIOListener implements SocketListener {
     }
 
     /**
-     * SSH连接事件 (remote:ssh:connect)
+     * SSH杩炴帴浜嬩欢 (remote:ssh:connect)
      */
     @OnEvent(MonitorSocketTopics.Remote.Ssh.CONNECT)
     public void onRemoteSshConnect(SocketSession session, String rawData) {
@@ -74,13 +74,13 @@ public class SshSocketIOListener implements SocketListener {
             JsonObject data = Json.getJsonObject(rawData);
             Integer serverId = data.getInteger("serverId");
             if (serverId == null) {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("鏈嶅姟鍣↖D涓嶈兘涓虹┖"));
                 return;
             }
 
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             if (server == null) {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器配置不存在"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("鏈嶅姟鍣ㄩ厤缃笉瀛樺湪"));
                 return;
             }
 
@@ -96,18 +96,18 @@ public class SshSocketIOListener implements SocketListener {
                         server.getMonitorSysGenServerPort()
                 );
                 socketSessionTemplate.send(MonitorSocketTopics.Remote.Ssh.CONNECT, Json.toJson(response));
-                log.info("SSH连接成功: serverId={}", serverId);
+                log.info("SSH杩炴帴鎴愬姛: serverId={}", serverId);
             } else {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH连接失败"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH杩炴帴澶辫触"));
             }
         } catch (Exception e) {
-            log.error("SSH连接失败: {}", e.getMessage(), e);
-            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH连接失败: " + e.getMessage()));
+            log.error("SSH杩炴帴澶辫触: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH杩炴帴澶辫触: " + e.getMessage()));
         }
     }
 
     /**
-     * SSH输入事件 (remote:ssh:input)
+     * SSH杈撳叆浜嬩欢 (remote:ssh:input)
      */
     @OnEvent(MonitorSocketTopics.Remote.Ssh.INPUT)
     public void onRemoteSshInput(SocketSession session, String rawData) {
@@ -117,24 +117,24 @@ public class SshSocketIOListener implements SocketListener {
             String inputData = data.getString("data");
 
             if (serverId == null) {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("服务器ID不能为空"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("鏈嶅姟鍣↖D涓嶈兘涓虹┖"));
                 return;
             }
 
             if (!sshCommandService.isSSHConnected(serverId)) {
-                session.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, ReturnResult.illegal("SSH未连接"));
+                session.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, ReturnResult.illegal("SSH鏈繛鎺?));
                 return;
             }
 
             sshCommandService.sendSSHInput(serverId, inputData != null ? inputData : "");
         } catch (Exception e) {
-            log.error("SSH输入失败: {}", e.getMessage(), e);
-            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH输入失败: " + e.getMessage()));
+            log.error("SSH杈撳叆澶辫触: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH杈撳叆澶辫触: " + e.getMessage()));
         }
     }
 
     /**
-     * SSH断开事件 (remote:ssh:disconnect)
+     * SSH鏂紑浜嬩欢 (remote:ssh:disconnect)
      */
     @OnEvent(MonitorSocketTopics.Remote.Ssh.DISCONNECT)
     public void onRemoteSshDisconnect(SocketSession session, String rawData) {
@@ -151,17 +151,17 @@ public class SshSocketIOListener implements SocketListener {
                 serverSessionMap.remove(serverId);
                 
                 ServerWebSocketMessage response = ServerWebSocketMessage.createSSHDisconnectMessage(
-                        serverId, null, "用户主动断开连接");
+                        serverId, null, "鐢ㄦ埛涓诲姩鏂紑杩炴帴");
                 socketSessionTemplate.send(MonitorSocketTopics.Remote.Ssh.DISCONNECT, Json.toJson(response));
-                log.info("SSH连接已断开: serverId={}", serverId);
+                log.info("SSH杩炴帴宸叉柇寮€: serverId={}", serverId);
             }
         } catch (Exception e) {
-            log.error("SSH断开连接失败: {}", e.getMessage(), e);
+            log.error("SSH鏂紑杩炴帴澶辫触: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * SSH终端大小调整事件 (remote:ssh:resize)
+     * SSH缁堢澶у皬璋冩暣浜嬩欢 (remote:ssh:resize)
      */
     @OnEvent(MonitorSocketTopics.Remote.Ssh.RESIZE)
     public void onRemoteSshResize(SocketSession session, String rawData) {
@@ -172,35 +172,35 @@ public class SshSocketIOListener implements SocketListener {
             Integer rows = data.getInteger("rows");
 
             if (serverId == null || cols == null || rows == null) {
-                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("参数不完整"));
+                session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("鍙傛暟涓嶅畬鏁?));
                 return;
             }
 
             sshCommandService.resizeSSHTerminal(serverId, cols, rows);
         } catch (Exception e) {
-            log.error("SSH终端大小调整失败: {}", e.getMessage(), e);
-            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH终端大小调整失败: " + e.getMessage()));
+            log.error("SSH缁堢澶у皬璋冩暣澶辫触: {}", e.getMessage(), e);
+            session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH缁堢澶у皬璋冩暣澶辫触: " + e.getMessage()));
         }
     }
 
     /**
-     * 处理前端发送的 gen/server 事件
-     * 这是前端 Socket.IO 客户端发送的统一事件
+     * 澶勭悊鍓嶇鍙戦€佺殑 gen/server 浜嬩欢
+     * 杩欐槸鍓嶇 Socket.IO 瀹㈡埛绔彂閫佺殑缁熶竴浜嬩欢
      */
     @OnEvent("gen/server")
     public void onGenServer(SocketSession session, String messageData) {
         try {
-            log.debug("收到 gen/server 消息: {}", messageData);
+            log.debug("鏀跺埌 gen/server 娑堟伅: {}", messageData);
 
-            // 解析消息
+            // 瑙ｆ瀽娑堟伅
             ServerWebSocketMessage message = Json.fromJson(messageData, ServerWebSocketMessage.class);
             if (message == null || message.getMessageType() == null) {
-                log.warn("无效的 gen/server 消息: {}", messageData);
-                sendErrorMessage(session, "无效的消息格式");
+                log.warn("鏃犳晥鐨?gen/server 娑堟伅: {}", messageData);
+                sendErrorMessage(session, "鏃犳晥鐨勬秷鎭牸寮?);
                 return;
             }
 
-            // 根据消息类型处理
+            // 鏍规嵁娑堟伅绫诲瀷澶勭悊
             switch (message.getMessageType()) {
                 case ServerWebSocketMessage.MessageType.SSH_CONNECT:
                     handleSSHConnect(session, message);
@@ -220,48 +220,48 @@ public class SshSocketIOListener implements SocketListener {
                     handleSSHResize(session, message);
                     break;
                 default:
-                    log.debug("未处理的消息类型: {}", message.getMessageType());
-                    sendErrorMessage(session, "不支持的消息类型: " + message.getMessageType());
+                    log.debug("鏈鐞嗙殑娑堟伅绫诲瀷: {}", message.getMessageType());
+                    sendErrorMessage(session, "涓嶆敮鎸佺殑娑堟伅绫诲瀷: " + message.getMessageType());
             }
 
         } catch (Exception e) {
-            log.error("处理 gen/server 消息失败: {}", e.getMessage(), e);
-            sendErrorMessage(session, "消息处理失败: " + e.getMessage());
+            log.error("澶勭悊 gen/server 娑堟伅澶辫触: {}", e.getMessage(), e);
+            sendErrorMessage(session, "娑堟伅澶勭悊澶辫触: " + e.getMessage());
         }
     }
 
     /**
-     * 处理SSH连接请求
+     * 澶勭悊SSH杩炴帴璇锋眰
      */
     private void handleSSHConnect(SocketSession session, ServerWebSocketMessage message) {
         try {
             Integer serverId = message.getServerId();
             if (serverId == null) {
-                log.warn("SSH连接请求缺少服务器ID");
-                sendErrorMessage(session, "服务器ID不能为空");
+                log.warn("SSH杩炴帴璇锋眰缂哄皯鏈嶅姟鍣↖D");
+                sendErrorMessage(session, "鏈嶅姟鍣↖D涓嶈兘涓虹┖");
                 return;
             }
 
             MonitorSysGenServer server = serverService.getById(String.valueOf(serverId));
             if (server == null) {
-                sendErrorMessage(session, "服务器配置不存在");
+                sendErrorMessage(session, "鏈嶅姟鍣ㄩ厤缃笉瀛樺湪");
                 return;
             }
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH服务不可用");
+                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
                 return;
             }
 
-            // 使用 SshCommandService 建立SSH连接
+            // 浣跨敤 SshCommandService 寤虹珛SSH杩炴帴
             boolean connected = sshCommandService.connectSSH(server);
             if (connected) {
-                // 存储会话映射
+                // 瀛樺偍浼氳瘽鏄犲皠
                 sessionServerMap.put(session.getId(), serverId);
                 serverSessionMap.put(serverId, session);
 
-                // 发送连接成功消息
+                // 鍙戦€佽繛鎺ユ垚鍔熸秷鎭?
                 ServerWebSocketMessage response = ServerWebSocketMessage.createSSHConnectMessage(
                         serverId,
                         server.getMonitorSysGenServerName(),
@@ -269,24 +269,24 @@ public class SshSocketIOListener implements SocketListener {
                         server.getMonitorSysGenServerPort()
                 );
 
-                // 广播到所有订阅了 gen/server 主题的客户端
+                // 骞挎挱鍒版墍鏈夎闃呬簡 gen/server 涓婚鐨勫鎴风
                 broadcastMessage(response);
 
-                // 也发送给当前会话
+                // 涔熷彂閫佺粰褰撳墠浼氳瘽
 //                session.send("gen/server", Json.toJson(response));
 
-                log.info("SSH连接成功: serverId={}", serverId);
+                log.info("SSH杩炴帴鎴愬姛: serverId={}", serverId);
             } else {
-                sendErrorMessage(session, "SSH连接失败");
+                sendErrorMessage(session, "SSH杩炴帴澶辫触");
             }
         } catch (Exception e) {
-            log.error("处理SSH连接请求失败: {}", e.getMessage(), e);
-            sendErrorMessage(session, "连接异常: " + e.getMessage());
+            log.error("澶勭悊SSH杩炴帴璇锋眰澶辫触: {}", e.getMessage(), e);
+            sendErrorMessage(session, "杩炴帴寮傚父: " + e.getMessage());
         }
     }
 
     /**
-     * 处理SSH输入
+     * 澶勭悊SSH杈撳叆
      */
     private void handleSSHInput(SocketSession session, ServerWebSocketMessage message) {
         try {
@@ -294,83 +294,83 @@ public class SshSocketIOListener implements SocketListener {
             String data = message.getData() != null ? message.getData().toString() : "";
 
             if (serverId == null) {
-                sendErrorMessage(session, "服务器ID不能为空");
+                sendErrorMessage(session, "鏈嶅姟鍣↖D涓嶈兘涓虹┖");
                 return;
             }
 
             if (StringUtils.isEmpty(data)) {
-                // 空数据也是有效的（比如回车键）
+                // 绌烘暟鎹篃鏄湁鏁堢殑锛堟瘮濡傚洖杞﹂敭锛?
                 data = "";
             }
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH服务不可用");
+                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
                 return;
             }
 
-            // 使用 SshCommandService 发送输入到SSH会话
+            // 浣跨敤 SshCommandService 鍙戦€佽緭鍏ュ埌SSH浼氳瘽
             boolean success = sshCommandService.sendSSHInput(serverId, data);
             if (!success) {
-                sendErrorMessage(session, "发送SSH输入失败");
+                sendErrorMessage(session, "鍙戦€丼SH杈撳叆澶辫触");
             }
 
         } catch (Exception e) {
-            log.error("处理SSH输入失败: {}", e.getMessage(), e);
-            sendErrorMessage(session, "输入处理失败: " + e.getMessage());
+            log.error("澶勭悊SSH杈撳叆澶辫触: {}", e.getMessage(), e);
+            sendErrorMessage(session, "杈撳叆澶勭悊澶辫触: " + e.getMessage());
         }
     }
 
     /**
-     * 处理SSH断开连接
+     * 澶勭悊SSH鏂紑杩炴帴
      */
     private void handleSSHDisconnect(SocketSession session, ServerWebSocketMessage message) {
         try {
             Integer serverId = message.getServerId();
             if (serverId == null) {
-                // 尝试从会话映射中获取服务器ID
+                // 灏濊瘯浠庝細璇濇槧灏勪腑鑾峰彇鏈嶅姟鍣↖D
                 serverId = sessionServerMap.get(session.getId());
             }
 
             if (serverId == null) {
-                log.warn("SSH断开连接请求缺少服务器ID");
+                log.warn("SSH鏂紑杩炴帴璇锋眰缂哄皯鏈嶅姟鍣↖D");
                 return;
             }
 
-            // 使用 SshCommandService 断开SSH连接
+            // 浣跨敤 SshCommandService 鏂紑SSH杩炴帴
             sshCommandService.disconnectSSH(serverId);
 
-            // 清理会话映射
+            // 娓呯悊浼氳瘽鏄犲皠
             sessionServerMap.remove(session.getId());
             serverSessionMap.remove(serverId);
 
-            // 发送断开连接消息
+            // 鍙戦€佹柇寮€杩炴帴娑堟伅
             ServerWebSocketMessage response = ServerWebSocketMessage.createSSHDisconnectMessage(
-                    serverId, null, "用户主动断开连接");
+                    serverId, null, "鐢ㄦ埛涓诲姩鏂紑杩炴帴");
             broadcastMessage(response);
 
-            log.info("SSH连接已断开: serverId={}", serverId);
+            log.info("SSH杩炴帴宸叉柇寮€: serverId={}", serverId);
 
         } catch (Exception e) {
-            log.error("处理SSH断开连接失败: {}", e.getMessage(), e);
+            log.error("澶勭悊SSH鏂紑杩炴帴澶辫触: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 处理SSH终端大小调整
+     * 澶勭悊SSH缁堢澶у皬璋冩暣
      */
     private void handleSSHResize(SocketSession session, ServerWebSocketMessage message) {
         try {
             Integer serverId = message.getServerId();
             if (serverId == null) {
-                sendErrorMessage(session, "服务器ID不能为空");
+                sendErrorMessage(session, "鏈嶅姟鍣↖D涓嶈兘涓虹┖");
                 return;
             }
 
-            // 从消息中获取终端大小信息
+            // 浠庢秷鎭腑鑾峰彇缁堢澶у皬淇℃伅
             Object dataObj = message.getData();
             if (dataObj == null) {
-                sendErrorMessage(session, "缺少终端大小信息");
+                sendErrorMessage(session, "缂哄皯缁堢澶у皬淇℃伅");
                 return;
             }
 
@@ -380,7 +380,7 @@ public class SshSocketIOListener implements SocketListener {
                 Map<String, Object> tempMap = (Map<String, Object>) dataObj;
                 resizeData = tempMap;
             } else {
-                sendErrorMessage(session, "终端大小数据格式错误");
+                sendErrorMessage(session, "缁堢澶у皬鏁版嵁鏍煎紡閿欒");
                 return;
             }
 
@@ -388,30 +388,30 @@ public class SshSocketIOListener implements SocketListener {
             Integer rows = (Integer) resizeData.get("rows");
 
             if (cols == null || rows == null) {
-                sendErrorMessage(session, "终端大小参数无效");
+                sendErrorMessage(session, "缁堢澶у皬鍙傛暟鏃犳晥");
                 return;
             }
 
             ServerConnectionService sshService = getSshConnectionService();
             if (sshService == null) {
-                sendErrorMessage(session, "SSH服务不可用");
+                sendErrorMessage(session, "SSH鏈嶅姟涓嶅彲鐢?);
                 return;
             }
 
-            // 使用 SshCommandService 调整终端大小
+            // 浣跨敤 SshCommandService 璋冩暣缁堢澶у皬
             boolean success = sshCommandService.resizeSSHTerminal(serverId, cols, rows);
             if (!success) {
-                sendErrorMessage(session, "调整终端大小失败");
+                sendErrorMessage(session, "璋冩暣缁堢澶у皬澶辫触");
             }
 
         } catch (Exception e) {
-            log.error("处理SSH终端大小调整失败: {}", e.getMessage(), e);
-            sendErrorMessage(session, "终端大小调整失败: " + e.getMessage());
+            log.error("澶勭悊SSH缁堢澶у皬璋冩暣澶辫触: {}", e.getMessage(), e);
+            sendErrorMessage(session, "缁堢澶у皬璋冩暣澶辫触: " + e.getMessage());
         }
     }
 
     /**
-     * 发送错误消息给客户端
+     * 鍙戦€侀敊璇秷鎭粰瀹㈡埛绔?
      */
     private void sendErrorMessage(SocketSession session, String errorMessage) {
         try {
@@ -419,25 +419,25 @@ public class SshSocketIOListener implements SocketListener {
                     null, null, errorMessage);
             session.send("gen/server", Json.toJson(errorResponse));
         } catch (Exception e) {
-            log.error("发送错误消息失败: {}", e.getMessage(), e);
+            log.error("鍙戦€侀敊璇秷鎭け璐? {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 广播消息到所有订阅了 gen/server 主题的客户端
+     * 骞挎挱娑堟伅鍒版墍鏈夎闃呬簡 gen/server 涓婚鐨勫鎴风
      */
     private void broadcastMessage(ServerWebSocketMessage message) {
         try {
             String messageJson = Json.toJson(message);
-            // 使用 SocketSessionTemplate 广播消息
+            // 浣跨敤 SocketSessionTemplate 骞挎挱娑堟伅
             socketSessionTemplate.send("gen/server", messageJson);
         } catch (Exception e) {
-            log.error("广播消息失败: {}", e.getMessage(), e);
+            log.error("骞挎挱娑堟伅澶辫触: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 会话断开时的清理工作
+     * 浼氳瘽鏂紑鏃剁殑娓呯悊宸ヤ綔
      */
     public void onSessionDisconnect(SocketSession session) {
         try {
@@ -445,17 +445,18 @@ public class SshSocketIOListener implements SocketListener {
             Integer serverId = sessionServerMap.get(sessionId);
 
             if (serverId != null) {
-                // 使用 SshCommandService 断开SSH连接
+                // 浣跨敤 SshCommandService 鏂紑SSH杩炴帴
                 sshCommandService.disconnectSSH(serverId);
 
-                // 清理映射
+                // 娓呯悊鏄犲皠
                 sessionServerMap.remove(sessionId);
                 serverSessionMap.remove(serverId);
 
-                log.info("会话断开，已清理SSH连接: sessionId={}, serverId={}", sessionId, serverId);
+                log.info("浼氳瘽鏂紑锛屽凡娓呯悊SSH杩炴帴: sessionId={}, serverId={}", sessionId, serverId);
             }
         } catch (Exception e) {
-            log.error("会话断开清理失败: {}", e.getMessage(), e);
+            log.error("浼氳瘽鏂紑娓呯悊澶辫触: {}", e.getMessage(), e);
         }
     }
 }
+
