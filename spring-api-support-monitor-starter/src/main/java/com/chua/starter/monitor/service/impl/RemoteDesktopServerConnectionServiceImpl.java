@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.net.NetUtils;
-import com.chua.remote.support.client.UnifiedRemoteClient;
+import com.chua.remote.support.client.RemoteClient;
 import com.chua.remote.support.config.RemoteDesktopConfig.QualityMode;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
@@ -51,7 +51,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     /**
      * 远程桌面连接池
      */
-    private final Map<Integer, UnifiedRemoteClient> remoteConnectionPool = new ConcurrentHashMap<>();
+    private final Map<Integer, RemoteClient> remoteConnectionPool = new ConcurrentHashMap<>();
 
     /**
      * 会话ID映射
@@ -116,7 +116,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
                     server.getMonitorSysGenServerPort());
 
             // 创建远程客户端
-            UnifiedRemoteClient remoteClient = new UnifiedRemoteClient(
+            RemoteClient remoteClient = new RemoteClient(
                     server.getMonitorSysGenServerHost(),
                     server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 8899
             );
@@ -185,7 +185,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     @Override
     public void disconnect(Integer serverId) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.remove(serverId);
+            RemoteClient client = remoteConnectionPool.remove(serverId);
             if (client != null) {
                 client.close();
             }
@@ -214,20 +214,20 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
 
     @Override
     public boolean isConnected(Integer serverId) {
-        UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
+        RemoteClient client = remoteConnectionPool.get(serverId);
         return client != null && client.isConnected();
     }
 
     @Override
     public String executeCommand(Integer serverId, String command) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
+            RemoteClient client = remoteConnectionPool.get(serverId);
             if (client == null || !client.isConnected()) {
                 return "远程连接不存在或已断开";
             }
 
             // 根据模式执行命令
-            if (client.getActiveMode() == UnifiedRemoteClient.Mode.SSH) {
+            if (client.getActiveMode() == RemoteClient.Mode.SSH) {
                 client.sendTerminalCommand(command);
                 return "命令已发送: " + command;
             } else {
@@ -269,7 +269,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public Map<String, Object> getServerInfo(Integer serverId) {
         Map<String, Object> info = new HashMap<>();
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
+            RemoteClient client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
                 info.put("connected", true);
                 info.put("protocol", "REMOTE");
@@ -303,9 +303,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     @Override
     public void sendData(Integer serverId, String data) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
+            RemoteClient client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
-                if (client.getActiveMode() == UnifiedRemoteClient.Mode.SSH) {
+                if (client.getActiveMode() == RemoteClient.Mode.SSH) {
                     client.sendTerminalInput(data);
                 }
                 log.debug("发送数据到远程服务器: serverId={}, dataLength={}", serverId, data.length());
@@ -363,8 +363,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseMove(Integer serverId, int x, int y) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.sendMouseMove(x, y);
             }
         } catch (Exception e) {
@@ -377,8 +377,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseClick(Integer serverId, int x, int y, int button, boolean pressed) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.sendMouseClick(x, y, button, pressed);
             }
         } catch (Exception e) {
@@ -391,8 +391,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseWheel(Integer serverId, int x, int y, int amount) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.sendMouseWheel(x, y, amount);
             }
         } catch (Exception e) {
@@ -405,8 +405,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendKeyPress(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.sendKeyPress(keyCode, keyChar, modifiers);
             }
         } catch (Exception e) {
@@ -419,8 +419,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendKeyRelease(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.sendKeyRelease(keyCode, keyChar, modifiers);
             }
         } catch (Exception e) {
@@ -433,8 +433,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void setQualityMode(Integer serverId, String mode) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 QualityMode qualityMode = QualityMode.valueOf(mode.toUpperCase());
                 client.setQualityMode(qualityMode);
                 log.info("设置画质模式: serverId={}, mode={}", serverId, mode);
@@ -449,8 +449,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void setCompressor(Integer serverId, String type) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.setCompressor(type);
                 log.info("设置压缩器类型: serverId={}, type={}", serverId, type);
             }
@@ -464,8 +464,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void requestCaptureReset(Integer serverId) {
         try {
-            UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == UnifiedRemoteClient.Mode.DESKTOP) {
+            RemoteClient client = remoteConnectionPool.get(serverId);
+            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
                 client.requestCaptureReset();
                 log.info("请求重置捕获: serverId={}", serverId);
             }
@@ -478,7 +478,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      * 获取当前连接模式
      */
     public String getConnectionMode(Integer serverId) {
-        UnifiedRemoteClient client = remoteConnectionPool.get(serverId);
+        RemoteClient client = remoteConnectionPool.get(serverId);
         if (client != null && client.isConnected()) {
             return client.getActiveMode().name();
         }
