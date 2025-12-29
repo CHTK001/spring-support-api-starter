@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.listener.connection;
+package com.chua.starter.monitor.socket.listener.connection;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
@@ -188,7 +188,7 @@ public class CustomSocketIOListener implements SocketListener {
                 String result = connectionService.executeCommand(serverId, command);
                 session.send(MonitorSocketTopics.Remote.Custom.COMMAND_RESULT, ReturnResult.success(result));
             } else {
-                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("杩炴帴鏈嶅姟涓嶅彲鐢?));
+                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("连接服务不可用"));
             }
 
         } catch (Exception e) {
@@ -209,13 +209,13 @@ public class CustomSocketIOListener implements SocketListener {
             String protocol = data.getString("protocol");
 
             if (serverId == null || requestType == null) {
-                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("璇锋眰鍙傛暟涓嶅畬鏁?));
+                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("请求参数不完整"));
                 return;
             }
 
             ServerConnectionService connectionService = getConnectionServiceByProtocol(protocol);
             if (connectionService == null) {
-                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("杩炴帴鏈嶅姟涓嶅彲鐢?));
+                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("连接服务不可用"));
                 return;
             }
 
@@ -227,7 +227,7 @@ public class CustomSocketIOListener implements SocketListener {
                 session.sendBinary(MonitorSocketTopics.Remote.Custom.BINARY_DATA, binaryData);
                 log.info("鍙戦€佷簩杩涘埗鏁版嵁鎴愬姛: serverId={}, type={}, size={}", serverId, requestType, binaryData.length);
             } else {
-                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("鑾峰彇浜岃繘鍒舵暟鎹け璐?));
+                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("获取二进制数据失败"));
             }
 
         } catch (Exception e) {
@@ -349,7 +349,7 @@ public class CustomSocketIOListener implements SocketListener {
             String protocol = data.getString("protocol");
 
             if (serverId == null || width == null || height == null) {
-                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("鍙傛暟涓嶅畬鏁?));
+                session.send(MonitorSocketTopics.Remote.Custom.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 

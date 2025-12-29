@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.listener.connection;
+package com.chua.starter.monitor.socket.listener.connection;
 
 import com.chua.common.support.json.Json;
 import com.chua.common.support.json.JsonObject;
@@ -72,7 +72,7 @@ public class VncSocketIOListener implements SocketListener {
 
             ServerConnectionService vncService = getVncConnectionService();
             if (vncService == null) {
-                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC鏈嶅姟涓嶅彲鐢?));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("VNC服务不可用"));
                 return;
             }
 
@@ -171,7 +171,7 @@ public class VncSocketIOListener implements SocketListener {
             Integer height = data.getInteger("height");
 
             if (serverId == null || width == null || height == null) {
-                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("鍙傛暟涓嶅畬鏁?));
+                session.send(MonitorSocketTopics.Remote.Vnc.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
@@ -195,8 +195,8 @@ public class VncSocketIOListener implements SocketListener {
 
             ServerWebSocketMessage message = Json.fromJson(messageData, ServerWebSocketMessage.class);
             if (message == null || message.getMessageType() == null) {
-                log.warn("鏃犳晥鐨?gen/server/vnc 娑堟伅: {}", messageData);
-                sendErrorMessage(session, "鏃犳晥鐨勬秷鎭牸寮?);
+                log.warn("无效的gen/server/vnc消息: {}", messageData);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -240,7 +240,7 @@ public class VncSocketIOListener implements SocketListener {
 
             ServerConnectionService vncService = getVncConnectionService();
             if (vncService == null) {
-                sendErrorMessage(session, "VNC鏈嶅姟涓嶅彲鐢?);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -258,7 +258,7 @@ public class VncSocketIOListener implements SocketListener {
                 broadcastMessage(response);
                 log.info("VNC杩炴帴鎴愬姛: serverId={}", serverId);
             } else {
-                sendErrorMessage(session, "VNC杩炴帴澶辫触");
+                sendErrorMessage(session, "无效的消息格式");
             }
         } catch (Exception e) {
             log.error("澶勭悊VNC杩炴帴璇锋眰澶辫触: {}", e.getMessage(), e);

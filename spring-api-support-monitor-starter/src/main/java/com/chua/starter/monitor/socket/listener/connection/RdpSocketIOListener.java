@@ -1,4 +1,4 @@
-﻿package com.chua.starter.monitor.socket.listener.connection;
+package com.chua.starter.monitor.socket.listener.connection;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.chua.common.support.json.Json;
@@ -73,7 +73,7 @@ public class RdpSocketIOListener implements SocketListener {
 
             ServerConnectionService rdpService = getRdpConnectionService();
             if (rdpService == null) {
-                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP鏈嶅姟涓嶅彲鐢?));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("RDP服务不可用"));
                 return;
             }
 
@@ -172,7 +172,7 @@ public class RdpSocketIOListener implements SocketListener {
             Integer height = data.getInteger("height");
 
             if (serverId == null || width == null || height == null) {
-                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("鍙傛暟涓嶅畬鏁?));
+                session.send(MonitorSocketTopics.Remote.Rdp.ERROR, ReturnResult.illegal("参数不完整"));
                 return;
             }
 
@@ -196,8 +196,8 @@ public class RdpSocketIOListener implements SocketListener {
 
             ServerWebSocketMessage message = Json.fromJson(messageData, ServerWebSocketMessage.class);
             if (message == null || message.getMessageType() == null) {
-                log.warn("鏃犳晥鐨?gen/server/rdp 娑堟伅: {}", messageData);
-                sendErrorMessage(session, "鏃犳晥鐨勬秷鎭牸寮?);
+                log.warn("无效的gen/server/rdp消息: {}", messageData);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -241,7 +241,7 @@ public class RdpSocketIOListener implements SocketListener {
 
             ServerConnectionService rdpService = getRdpConnectionService();
             if (rdpService == null) {
-                sendErrorMessage(session, "RDP鏈嶅姟涓嶅彲鐢?);
+                sendErrorMessage(session, "无效的消息格式");
                 return;
             }
 
@@ -259,7 +259,7 @@ public class RdpSocketIOListener implements SocketListener {
                 broadcastMessage(response);
                 log.info("RDP杩炴帴鎴愬姛: serverId={}", serverId);
             } else {
-                sendErrorMessage(session, "RDP杩炴帴澶辫触");
+                sendErrorMessage(session, "无效的消息格式");
             }
         } catch (Exception e) {
             log.error("澶勭悊RDP杩炴帴璇锋眰澶辫触: {}", e.getMessage(), e);
