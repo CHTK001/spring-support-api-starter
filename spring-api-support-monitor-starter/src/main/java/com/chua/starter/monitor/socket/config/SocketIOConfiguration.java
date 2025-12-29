@@ -1,11 +1,11 @@
-﻿package com.chua.starter.monitor.socket.config;
+package com.chua.starter.monitor.socket.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Socket.IO 閰嶇疆绫?
+ * Socket.IO 配置类
  *
  * @author CH
  * @since 2024/12/23

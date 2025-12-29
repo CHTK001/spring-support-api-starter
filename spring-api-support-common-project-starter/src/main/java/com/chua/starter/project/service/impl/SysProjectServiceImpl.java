@@ -9,7 +9,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.cache.configuration.CacheCustomTenantedKeyGenerator;
+import com.chua.starter.service.cache.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
