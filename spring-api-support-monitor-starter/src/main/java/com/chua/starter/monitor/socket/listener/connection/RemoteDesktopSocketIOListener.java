@@ -127,8 +127,8 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
             if (serverId == null) return;
 
             JsonObject data = Json.getJsonObject(rawData);
-            int x = data.getIntValue("x");
-            int y = data.getIntValue("y");
+            int x = data.getIntValue("x", 0);
+            int y = data.getIntValue("y", 0);
             remoteDesktopService.sendMouseMove(serverId, x, y);
         } catch (Exception e) {
             log.error("澶勭悊榧犳爣绉诲姩澶辫触: {}", e.getMessage());
@@ -145,10 +145,10 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
             if (serverId == null) return;
 
             JsonObject data = Json.getJsonObject(rawData);
-            int x = data.getIntValue("x");
-            int y = data.getIntValue("y");
-            int button = data.getIntValue("button");
-            boolean pressed = data.getBooleanValue("pressed");
+            int x = data.getIntValue("x", 0);
+            int y = data.getIntValue("y", 0);
+            int button = data.getIntValue("button", 1);
+            boolean pressed = data.getBooleanValue("pressed", false);
             remoteDesktopService.sendMouseClick(serverId, x, y, button, pressed);
         } catch (Exception e) {
             log.error("澶勭悊榧犳爣鐐瑰嚮澶辫触: {}", e.getMessage());
@@ -165,9 +165,9 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
             if (serverId == null) return;
 
             JsonObject data = Json.getJsonObject(rawData);
-            int x = data.getIntValue("x");
-            int y = data.getIntValue("y");
-            int amount = data.getIntValue("amount");
+            int x = data.getIntValue("x", 0);
+            int y = data.getIntValue("y", 0);
+            int amount = data.getIntValue("amount", 0);
             remoteDesktopService.sendMouseWheel(serverId, x, y, amount);
         } catch (Exception e) {
             log.error("澶勭悊榧犳爣婊氳疆澶辫触: {}", e.getMessage());
@@ -184,10 +184,10 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
             if (serverId == null) return;
 
             JsonObject data = Json.getJsonObject(rawData);
-            int keyCode = data.getIntValue("keyCode");
+            int keyCode = data.getIntValue("keyCode", 0);
             String keyCharStr = data.getString("keyChar");
             char keyChar = (keyCharStr != null && !keyCharStr.isEmpty()) ? keyCharStr.charAt(0) : '\0';
-            int modifiers = data.getIntValue("modifiers");
+            int modifiers = data.getIntValue("modifiers", 0);
             remoteDesktopService.sendKeyPress(serverId, keyCode, keyChar, modifiers);
         } catch (Exception e) {
             log.error("澶勭悊閿洏鎸変笅澶辫触: {}", e.getMessage());
@@ -204,10 +204,10 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
             if (serverId == null) return;
 
             JsonObject data = Json.getJsonObject(rawData);
-            int keyCode = data.getIntValue("keyCode");
+            int keyCode = data.getIntValue("keyCode", 0);
             String keyCharStr = data.getString("keyChar");
             char keyChar = (keyCharStr != null && !keyCharStr.isEmpty()) ? keyCharStr.charAt(0) : '\0';
-            int modifiers = data.getIntValue("modifiers");
+            int modifiers = data.getIntValue("modifiers", 0);
             remoteDesktopService.sendKeyRelease(serverId, keyCode, keyChar, modifiers);
         } catch (Exception e) {
             log.error("澶勭悊閿洏閲婃斁澶辫触: {}", e.getMessage());
@@ -310,9 +310,9 @@ public class RemoteDesktopSocketIOListener implements SocketListener {
         remoteDesktopService.setBinaryDataCallback(serverId, (imageBytes) -> {
             try {
                 // 鐩存帴鍙戦€佷簩杩涘埗鍥惧儚鏁版嵁
-                session.sendBinary(MonitorSocketTopics.Remote.Desktop.SCREEN, imageBytes);
+                session.send(MonitorSocketTopics.Remote.Desktop.SCREEN, imageBytes);
             } catch (Exception e) {
-                log.error("鍙戦€佸睆骞曟暟鎹け璐? {}", e.getMessage());
+                log.error("鍙戦€佸睆骞曟暟鎹け璐? {}", e.getMessage());
             }
         });
     }
