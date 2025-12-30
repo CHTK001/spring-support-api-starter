@@ -2,12 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <!--SpringBoot父项目依赖管理-->
+    <modelVersion>4.0.0</modelVersion><!--SpringBoot父项目依赖管理-->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
+        <version>3.5.9</version>
         <relativePath/>
     </parent>
 
@@ -28,8 +27,7 @@
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-devops-starter</module>
-    </modules>
-    <version>4.0.0</version>
+    </modules><version>4.0.0</version>
 
     <properties>
         <java.version>21</java.version>
@@ -41,8 +39,7 @@
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（对子模块为同级目录） -->
         <devops.dir>${project.basedir}/../spring-api-support-devops-starter</devops.dir>
-        <assembly.plugin.version>3.6.0</assembly.plugin.version>
-    </properties>
+        <assembly.plugin.version>3.6.0</assembly.plugin.version></properties>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
@@ -50,9 +47,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
+        </dependency><dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -80,8 +75,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-    </dependencies>
+        </dependency></dependencies>
 
 
     <dependencyManagement>
@@ -91,9 +85,7 @@
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-devops-starter</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
+            </dependency><dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-configuration-starter</artifactId>
                 <version>${project.version}</version>
@@ -169,7 +161,6 @@
                 <version>${module.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-pay-client-starter</artifactId>
@@ -205,8 +196,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-report-server-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-report-server-starter</artifactId><version>${module.version}</version>
             </dependency>
 
 
@@ -219,8 +209,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-websockify-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-websockify-starter</artifactId><version>${module.version}</version>
             </dependency>
 
             <dependency>
@@ -237,8 +226,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-view-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-view-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -285,20 +273,17 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-com-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-com-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-qiniu-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-qiniu-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-postgres-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-postgres-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -345,10 +330,8 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-aspose-diagram-starter</artifactId>
-               <version>${utils.version}</version>
-            </dependency>
-            <dependency>
+                <artifactId>utils-support-aspose-diagram-starter</artifactId><version>${utils.version}</version>
+            </dependency><dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-aspose-email-starter</artifactId>
                <version>${utils.version}</version>
@@ -368,8 +351,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-zxing-starter</artifactId>
-                <version>${utils.version}</version>
+                <artifactId>utils-support-zxing-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -384,11 +366,9 @@
                 <version>${utils.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-webjars-prism-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-webjars-prism-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -400,21 +380,18 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-mybatis-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-mybatis-starter</artifactId><version>${module.version}</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-redis-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-redis-starter</artifactId><version>${module.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-datasource-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-datasource-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -425,20 +402,17 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-dbf-starter</artifactId>
-                <version>${utils.version}</version>
+                <artifactId>utils-support-dbf-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-zookeeper-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-zookeeper-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-socket-io-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-socket-io-starter</artifactId><version>${module.version}</version>
             </dependency>
 
 
@@ -487,8 +461,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-sse-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-sse-starter</artifactId><version>${module.version}</version>
             </dependency>
 
             <dependency>
@@ -505,8 +478,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-webrtc-starter</artifactId>
-                <version>4.0.0.35</version>
+                <artifactId>spring-support-webrtc-starter</artifactId><version>4.0.0.35</version>
             </dependency>
 
             <dependency>
@@ -517,14 +489,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-discovery-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-discovery-starter</artifactId><version>${module.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-alibaba-starter</artifactId>
-               <version>${utils.version}</version>
+                <artifactId>utils-support-alibaba-starter</artifactId><version>${utils.version}</version>
             </dependency>
 
             <dependency>
@@ -535,8 +505,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-deeplearning-arc-starter</artifactId>
-                <version>${utils.version}</version>
+                <artifactId>utils-support-deeplearning-arc-starter</artifactId><version>${utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
@@ -552,8 +521,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-oauth-client-starter</artifactId>
-               <version>${module.version}</version>
+                <artifactId>spring-support-oauth-client-starter</artifactId><version>${module.version}</version>
             </dependency>
 
             <dependency>
@@ -566,9 +534,7 @@
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-job-starter</artifactId>
                 <version>${module.version}</version>
-            </dependency>
-
-        </dependencies>
+            </dependency></dependencies>
     </dependencyManagement>
 
     <build>
@@ -605,12 +571,9 @@
                             <version>2.2</version>
                         </dependency>
                     </dependencies>
-                </plugin>
-            </plugins>
+                </plugin></plugins>
         </pluginManagement>
-    </build>
-
-    <profiles>
+    </build><profiles>
         <profile>
             <id>dist</id>
             <activation>
@@ -638,8 +601,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <!-- 复制解压脚本到压缩包同级目录（处理换行符） -->
+                    </plugin><!-- 复制解压脚本到压缩包同级目录（处理换行符） -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -655,8 +617,7 @@
                                     <target>
                                         <!-- 复制并转换Linux脚本为LF -->
                                         <copy todir="${project.build.directory}" overwrite="true">
-                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh"/>
-                                            <filterchain>
+                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh"/><filterchain>
                                                 <expandproperties/>
                                             </filterchain>
                                         </copy>
