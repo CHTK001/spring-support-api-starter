@@ -2,7 +2,9 @@
  * OAuth认证模块 - 数据库初始化脚本
  * 
  * 包含表:
- *   - sys_app_key: OAuth应用密钥表(AK/SK)
+ *   - app_key: AppKey应用密钥表
+ *   - app_id: AppId应用标识表
+ *   - sys_app_key: OAuth应用密钥表(AK/SK) - 兼容旧版本
  *   - sys_token_blacklist: Token黑名单表
  *
  * 注意: 此脚本只包含OAuth专用表，不包含基础系统表（sys_user, sys_role等）
@@ -17,7 +19,79 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- =====================================================
--- 1. OAuth应用密钥表 (sys_app_key)
+-- 1. AppKey应用密钥表 (app_key)
+-- 用途: 存储AppKey相关信息，用于API访问认证
+-- =====================================================
+DROP TABLE IF EXISTS `app_key`;
+CREATE TABLE `app_key` (
+    `app_key_id` int NOT NULL AUTO_INCREMENT COMMENT 'AppKey ID - 主键自增',
+    `app_key_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppKey值 - 应用访问密钥，类似用户名，全局唯一',
+    `app_key_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AppKey名称 - 应用的显示名称',
+    `app_key_secret` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppSecret - 应用访问密钥，类似密码（需加密存储）',
+    `app_key_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用描述 - 应用的详细说明',
+    `app_key_ip_whitelist` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP白名单 - 允许访问的IP地址列表，逗号分隔，如"192.168.1.1,10.0.0.1"',
+    `app_key_status` int NULL DEFAULT 1 COMMENT '应用状态 - 0:禁用, 1:启用',
+    `app_key_expire_time` bigint NULL DEFAULT NULL COMMENT '过期时间 - Unix时间戳(毫秒)，NULL表示永不过期',
+    `app_key_last_use_time` bigint NULL DEFAULT NULL COMMENT '最后使用时间 - Unix时间戳(毫秒)，最近一次使用该密钥的时间',
+    `app_key_use_count` bigint NULL DEFAULT 0 COMMENT '使用次数 - 该密钥累计被调用的次数',
+    `user_id` int NULL DEFAULT NULL COMMENT '关联用户ID - 该AppKey所属的用户ID',
+    `app_key_scope` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的权限范围 - 多个scope用逗号分隔，如"read,write,admin"',
+    `app_key_grant_types` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的授权类型 - 多个用逗号分隔，如"client_credentials,password,authorization_code,refresh_token"',
+    `app_key_redirect_uris` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的回调地址 - 多个用逗号分隔，用于authorization_code模式的redirect_uri校验',
+    `app_key_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注信息',
+    `delete_flag` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`app_key_id`) USING BTREE,
+    UNIQUE INDEX `uk_app_key_value` (`app_key_value`) USING BTREE COMMENT 'AppKey值唯一索引 - 确保AppKey不重复',
+    INDEX `idx_status` (`app_key_status`) USING BTREE COMMENT '状态索引 - 用于快速查询启用的应用',
+    INDEX `idx_expire_time` (`app_key_expire_time`) USING BTREE COMMENT '过期时间索引 - 用于清理过期密钥',
+    INDEX `idx_user_id` (`user_id`) USING BTREE COMMENT '用户ID索引 - 用于查询某用户的所有AppKey',
+    INDEX `idx_delete_flag` (`delete_flag`) USING BTREE COMMENT '删除标记索引 - 用于软删除查询'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+COMMENT = 'AppKey应用密钥表 - 存储AppKey相关信息，用于API访问认证' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 2. AppId应用标识表 (app_id)
+-- 用途: 存储AppId相关信息，用于应用标识和关联
+-- =====================================================
+DROP TABLE IF EXISTS `app_id`;
+CREATE TABLE `app_id` (
+    `app_id_id` int NOT NULL AUTO_INCREMENT COMMENT 'AppId ID - 主键自增',
+    `app_id_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppId值 - 应用唯一标识符，全局唯一',
+    `app_id_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AppId名称 - 应用的显示名称',
+    `app_id_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用描述 - 应用的详细说明',
+    `app_id_status` int NULL DEFAULT 1 COMMENT '应用状态 - 0:禁用, 1:启用',
+    `app_id_expire_time` bigint NULL DEFAULT NULL COMMENT '过期时间 - Unix时间戳(毫秒)，NULL表示永不过期',
+    `app_id_last_use_time` bigint NULL DEFAULT NULL COMMENT '最后使用时间 - Unix时间戳(毫秒)，最近一次使用该AppId的时间',
+    `app_id_use_count` bigint NULL DEFAULT 0 COMMENT '使用次数 - 该AppId累计被调用的次数',
+    `user_id` int NULL DEFAULT NULL COMMENT '关联用户ID - 该AppId所属的用户ID',
+    `app_id_scope` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的权限范围 - 多个scope用逗号分隔，如"read,write,admin"',
+    `app_id_grant_types` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的授权类型 - 多个用逗号分隔，如"client_credentials,password,authorization_code,refresh_token"',
+    `app_id_redirect_uris` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的回调地址 - 多个用逗号分隔，用于authorization_code模式的redirect_uri校验',
+    `app_id_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注信息',
+    `delete_flag` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`app_id_id`) USING BTREE,
+    UNIQUE INDEX `uk_app_id_value` (`app_id_value`) USING BTREE COMMENT 'AppId值唯一索引 - 确保AppId不重复',
+    INDEX `idx_status` (`app_id_status`) USING BTREE COMMENT '状态索引 - 用于快速查询启用的应用',
+    INDEX `idx_expire_time` (`app_id_expire_time`) USING BTREE COMMENT '过期时间索引 - 用于清理过期AppId',
+    INDEX `idx_user_id` (`user_id`) USING BTREE COMMENT '用户ID索引 - 用于查询某用户的所有AppId',
+    INDEX `idx_delete_flag` (`delete_flag`) USING BTREE COMMENT '删除标记索引 - 用于软删除查询'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+COMMENT = 'AppId应用标识表 - 存储AppId相关信息，与app_key表是并列关系' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 3. OAuth应用密钥表 (sys_app_key) - 兼容旧版本
 -- 用途: 存储第三方应用的AK/SK密钥对，用于OAuth认证
 -- =====================================================
 DROP TABLE IF EXISTS `sys_app_key`;
@@ -32,6 +106,8 @@ CREATE TABLE `sys_app_key` (
     `sys_app_key_expire_time` bigint NULL DEFAULT NULL COMMENT '过期时间 - Unix时间戳(毫秒)，NULL表示永不过期',
     `sys_app_key_last_use` datetime NULL DEFAULT NULL COMMENT '最后使用时间 - 最近一次使用该密钥的时间',
     `sys_app_key_use_count` bigint NULL DEFAULT 0 COMMENT '使用次数 - 该密钥累计被调用的次数',
+    `sys_app_key_enable_fingerprint` int NULL DEFAULT 0 COMMENT '是否启用指纹检测 - 0:不启用, 1:启用，启用后认证时会验证客户端指纹',
+    `sys_app_key_fingerprint_whitelist` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的指纹列表 - 多个指纹用逗号分隔，用于指纹白名单验证',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -46,7 +122,7 @@ CREATE TABLE `sys_app_key` (
 COMMENT = 'OAuth应用密钥表 - 存储第三方应用的AK/SK，用于API访问认证' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 2. Token黑名单表 (sys_token_blacklist)
+-- 4. Token黑名单表 (sys_token_blacklist)
 -- 用途: 存储已失效的Token，用于登出、踢出、密码修改等场景
 -- =====================================================
 DROP TABLE IF EXISTS `sys_token_blacklist`;
@@ -71,7 +147,7 @@ CREATE TABLE `sys_token_blacklist` (
 COMMENT = 'Token黑名单表 - 存储已失效的Token，防止失效Token继续使用' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 3. OAuth追踪日志表 (sys_oauth_trace_log)
+-- 5. OAuth追踪日志表 (sys_oauth_trace_log)
 -- 用途: 记录OAuth认证请求的完整链路追踪信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_oauth_trace_log`;

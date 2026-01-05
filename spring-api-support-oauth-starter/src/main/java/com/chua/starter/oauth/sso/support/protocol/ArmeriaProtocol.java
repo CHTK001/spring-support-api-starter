@@ -52,6 +52,7 @@ import java.util.Map;
  */
 @Component
 @Extension("armeria")
+@com.chua.common.support.annotations.Spi("armeria")
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor

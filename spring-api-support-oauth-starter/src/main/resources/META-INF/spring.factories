@@ -10,5 +10,4 @@ com.chua.starter.oauth.sso.support.protocol.OAuthProtocolHandler=\
 com.chua.starter.oauth.sso.support.protocol.Protocol=\
   com.chua.starter.oauth.sso.support.protocol.HttpProtocol,\
   com.chua.starter.oauth.sso.support.protocol.TcpProtocol,\
-  com.chua.starter.oauth.sso.support.protocol.UdpProtocol,\
-  com.chua.starter.oauth.sso.support.protocol.GrpcProtocol
+  com.chua.starter.oauth.sso.support.protocol.UdpProtocol

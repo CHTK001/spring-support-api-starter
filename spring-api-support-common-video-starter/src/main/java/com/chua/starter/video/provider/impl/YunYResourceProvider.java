@@ -36,6 +36,15 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
 
 /**
+ * 云影（YunY）资源提供器
+ *
+ * <p>负责：</p>
+ * <ul>
+ *     <li>根据关键字从云影站点搜索资源</li>
+ *     <li>解析详情页面和 JSON 数据，构建播放地址及频道信息</li>
+ *     <li>根据同步配置批量拉取不同类型（MV/TV/AC 等）的视频资源</li>
+ * </ul>
+ *
  * @author CH
  * @since 2025/10/12 16:30
  */
@@ -56,6 +65,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         super(videoSource);
     }
 
+    /**
+     * 简单本地调试入口
+     */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword("毕正明的证明");
@@ -65,6 +77,12 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         });
     }
 
+    /**
+     * 根据关键字搜索云影资源
+     *
+     * @param videoSearch 搜索条件
+     * @return 分页结果
+     */
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         HttpResponse httpResponse = HttpClient.get(URL.formatted(videoSearch.getKeyword()))
@@ -105,6 +123,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         );
     }
 
+    /**
+     * 解析详情页 JSON 数据并补充视频基础信息及播放线路
+     */
     private void registerDetail(VideoInfoResult videoInfoResult) {
         String downloadUrls = videoInfoResult.getDownloadUrls();
         if (null == downloadUrls) {
@@ -133,6 +154,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         registerVideoResources(videoInfoResult, onlineVideoResources, jsonArray);
     }
 
+    /**
+     * 解析在线资源列表并注册到 {@link VideoInfoResult}
+     */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonArray onlineVideoResources, JsonArray jsonArray) {
         List<VideoPlayAddress> playAddressesList = new ArrayList<>();
         onlineVideoResources.forEach(onlineVideoResource -> {
@@ -142,6 +166,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         videoInfoResult.setPlayAddressesList(playAddressesList);
     }
 
+    /**
+     * 根据单条线路配置构建播放地址及频道列表
+     */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonObject detail, JsonArray jsonArray, List<VideoPlayAddress> playAddressesList) {
         int lineSourceNameLine = detail.getIntValue("lineSourceName", 0);
         int selectsLine = detail.getIntValue("selects", 0);
@@ -155,6 +182,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         playAddressesList.add(videoPlayAddress);
     }
 
+    /**
+     * 创建某条线路下的所有频道
+     */
     private List<VideoPlayAddressChannel> createChannel(int selectsLine, JsonArray jsonArray) {
         List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>();
         JsonArray selects = jsonArray.getJsonArray(selectsLine);
@@ -173,9 +203,15 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     }
 
+    /**
+     * 按照同步配置批量抓取视频数据
+     *
+     * <p>根据偏移量信息，依次抓取多个视频类型（MV/TV/AC 等）的分页数据，
+     * 并通过回调 {@link BiConsumer} 将结果交给上层处理。</p>
+     */
     @Override
     public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
-        //https://www.yuny.tv/videoClassify/1?current=2
+        // https://www.yuny.tv/videoClassify/1?current=2
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
         if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
                 SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
@@ -320,28 +356,25 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
      * @param videoSearch 视频搜索条件
      * @return API URL
      */
+    /**
+     * 根据视频类型获取对应的分类 API 地址
+     *
+     * @param videoSearch 视频搜索条件（仅使用其中的 videoType 字段）
+     * @return 分类 API 地址，未知类型时返回 {@code null}
+     */
     private String getApiUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
-        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
-            return "https://www.yuny.tv/videoClassify/1";
+        if (StringUtils.isEmpty(videoType)) {
+            return null;
         }
 
-        if ("TV".equalsIgnoreCase(videoType)) {
-            return "https://www.yuny.tv/videoClassify/2";
-        }
-
-        if ("AC".equalsIgnoreCase(videoType)) {
-            return "https://www.yuny.tv/videoClassify/3";
-        }
-
-        if ("SP".equalsIgnoreCase(videoType)) {
-            return "https://www.yuny.tv/videoClassify/4";
-        }
-
-        if ("VAR".equalsIgnoreCase(videoType)) {
-            return "https://www.yuny.tv/videoClassify/5";
-        }
-
-        return null;
+        return switch (videoType.toUpperCase()) {
+            case "MV", "FILM" -> "https://www.yuny.tv/videoClassify/1";
+            case "TV" -> "https://www.yuny.tv/videoClassify/2";
+            case "AC" -> "https://www.yuny.tv/videoClassify/3";
+            case "SP" -> "https://www.yuny.tv/videoClassify/4";
+            case "VAR" -> "https://www.yuny.tv/videoClassify/5";
+            default -> null;
+        };
     }
 }

@@ -1,6 +1,7 @@
 package com.chua.starter.entity.system;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,6 +37,13 @@ public class SysAppKey implements Serializable {
      */
     @Schema(description = "应用ID")
     private String sysAppKeyAppId;
+
+    /**
+     * AppKey
+     */
+    @TableField("app_key")
+    @Schema(description = "AppKey")
+    private String sysAppKeyAppKey;
 
     /**
      * 应用密钥

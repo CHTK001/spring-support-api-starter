@@ -13,6 +13,8 @@ import com.chua.starter.oauth.sso.support.core.OAuth2CoreService;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.system.service.SysAppKeyService;
+import com.chua.starter.system.service.SysAppIdService;
+import com.chua.starter.entity.system.SysAppId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,6 +63,7 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
     private final LoginCheck loginCheck;
     private final ApplicationContext applicationContext;
     private final SysAppKeyService sysAppKeyService;
+    private final SysAppIdService sysAppIdService;
     private final OAuth2CoreService oAuth2CoreService;
 
     @Override
@@ -99,11 +102,15 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
             return;
         }
 
-        // 验证客户端存在
-        var appKey = sysAppKeyService.getByAppId(clientId);
-        if (appKey == null) {
-            sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
-            return;
+        // 验证客户端存在（先尝试 AppId，再尝试 AppKey）
+        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        SysAppKey appKey = null;
+        if (appId == null) {
+            appKey = sysAppKeyService.getByAppKey(clientId);
+            if (appKey == null) {
+                sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
+                return;
+            }
         }
 
         // 验证 redirect_uri
@@ -584,11 +591,11 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
     /**
      * 验证客户端凭据
      * <p>
-     * 通过 SysAppKeyService 查询数据库验证 client_id 和 client_secret
+     * 先尝试通过 AppId 验证，如果不存在，再尝试通过 AppKey 验证
      * </p>
      *
-     * @param clientId     客户端ID (appId)
-     * @param clientSecret 客户端密钥 (appSecret)
+     * @param clientId     客户端ID (可能是 appId 或 appKey)
+     * @param clientSecret 客户端密钥
      * @return 是否验证通过
      */
     private boolean validateClientCredentials(String clientId, String clientSecret) {
@@ -597,12 +604,33 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
         }
         
         try {
-            // 使用 SysAppKeyService 验证客户端凭据
+            // 先尝试通过 AppId 验证
+            SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+            if (appId != null) {
+                // 验证 AppId 状态和过期时间
+                if (appId.getAppIdStatus() != null && appId.getAppIdStatus() != 1) {
+                    log.warn("AppId已禁用: clientId={}", clientId);
+                    return false;
+                }
+                if (appId.getAppIdExpireTime() != null) {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime > appId.getAppIdExpireTime()) {
+                        log.warn("AppId已过期: clientId={}", clientId);
+                        return false;
+                    }
+                }
+                // AppId 验证通过，更新使用信息
+                sysAppIdService.updateUseInfo(clientId);
+                log.debug("OAuth2客户端验证通过（AppId）: clientId={}", clientId);
+                return true;
+            }
+            
+            // 如果 AppId 不存在，尝试通过 AppKey 验证
             boolean verified = sysAppKeyService.verify(clientId, clientSecret);
             if (verified) {
                 // 验证通过后更新使用信息
-                sysAppKeyService.updateUseInfo(clientId);
-                log.debug("OAuth2客户端验证通过: clientId={}", clientId);
+                sysAppKeyService.updateUseInfoByAppKey(clientId);
+                log.debug("OAuth2客户端验证通过（AppKey）: clientId={}", clientId);
             } else {
                 log.warn("OAuth2客户端验证失败: clientId={}", clientId);
             }

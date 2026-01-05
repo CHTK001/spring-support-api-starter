@@ -17,6 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 无极网盘资源提供器
+ *
+ * <p>通过解析 {@code https://xcili.net} 的搜索结果页面，
+ * 将资源列表转换为 {@link com.chua.starter.video.pojo.VideoInfoResult} 集合。</p>
+ *
  * @author CH
  * @since 2025/9/20 18:32
  */
@@ -25,6 +30,9 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
     public WuJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
+    /**
+     * 简单本地调试入口
+     */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword("凡人修仙传");
@@ -32,9 +40,9 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
         cldiResourceProvider.searchResource(videoSearch);
     }
     /**
-     * 获取地址
+     * 获取搜索地址模板
      *
-     * @return
+     * @return 搜索 URL 模板，包含关键字占位符
      */
     protected String getUrl() {
         return StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://xcili.net/search?q=%s");
@@ -42,8 +50,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
 
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
-        String url = getUrl();
-        url = String.format(url, videoSearch.getKeyword());
+        String url = String.format(getUrl(), videoSearch.getKeyword());
         HttpResponse httpResponse = HttpClient.get(url)
                 .connectTimeout(videoSource.getVideoSourceConnectTimeout())
                 .userAgent(videoSource.getVideoSourceUserAgent())
